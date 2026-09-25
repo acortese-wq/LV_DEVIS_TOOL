@@ -33,5 +33,5 @@ Nach Änderungen in `src/`: `python3 build.py`.
 - DE: V1.1 (Datensatz KV-Assistent), 599 Positionen. Korrekturen siehe `tools/build_lv.py`
   (151/632.130 → 632.133 + 632.233; Kontext 632.1xx = liefern, 632.2xx = versetzen).
 - FR: LV FR TB Kopa 2026 (V1.0, 27.06.2026), 579 Positionstexte zugeordnet.
-- IT: noch nicht hinterlegt (Texte erscheinen deutsch).
-- Preisabweichung DE ↔ FR: 151/224.301 (108.95 ↔ 108.75).
+- IT: LV IT TB Kopa 2026 (V1.0, 27.06.2026), 581 Positionstexte (`tools/lv_it_data.py`); Preise identisch mit DE V1.1.
+- Preisabweichung DE ↔ FR: 151/224.301 (108.95 ↔ 108.75); IT bestätigt 108.95.

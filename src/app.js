@@ -545,7 +545,7 @@
       LVTABS.filter(function (t) { return per[t]; }).map(function (t) { return "<tr><td>" + esc(tt("covX")) + " " + esc(tt("tab_" + t)) + '</td><td class="num">' + per[t] + "</td></tr>"; }).join("") +
       '<tr class="sum"><td>' + esc(tt("covNo")) + '</td><td class="num">' + no + "</td></tr></tbody></table>";
     var nfr = Object.keys(LV_FR).length;
-    h += "<h4>" + esc(tt("langT")) + '</h4><ul class="doclist"><li>' + esc(fill(tt("langFR"), { n: nfr, m: keys.length })) + "</li><li>" + esc(Object.keys(LV_IT).length ? "IT: " + Object.keys(LV_IT).length : tt("langIT")) + "</li>" +
+    h += "<h4>" + esc(tt("langT")) + '</h4><ul class="doclist"><li>' + esc(fill(tt("langFR"), { n: nfr, m: keys.length })) + "</li><li>" + esc(fill(tt("langIT"), { n: Object.keys(LV_IT).length, m: keys.length })) + "</li>" +
       Object.keys(LV_PDIFF).map(function (k) { return "<li>" + esc(tt("pdiffT")) + ": " + esc(k) + " – CHF " + chf(LV_PDIFF[k][0]) + " ↔ " + chf(LV_PDIFF[k][1]) + "</li>"; }).join("") + "</ul>";
     w.innerHTML = h;
     w.querySelectorAll("input[data-p]").forEach(function (i) { i.addEventListener("input", function () { (i.dataset.o === "S" ? S : S.par)[i.dataset.p] = i.value; save(); scheduleResult(); }); });
@@ -813,7 +813,7 @@
     $("#h-result").textContent = tt("h_result");
     $("#bPrint").textContent = tt("btnPrint"); $("#bPrintSum").textContent = tt("btnPrintSum"); $("#bXlsx").textContent = tt("btnXlsx"); $("#bSave").textContent = tt("btnSave"); $("#bLoad").textContent = tt("btnLoad"); $("#bNew").textContent = tt("btnNew");
     document.querySelectorAll(".langs button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.lang === S.lang ? "true" : "false"); });
-    $("#versionline").innerHTML = "<b>" + esc(tt("version")) + " 2.0</b><span>Build " + BUILD + "</span><span>LV DE V1.1 (10.07.2026)</span><span>LV FR V1.0 (27.06.2026)</span><span>" + esc(tt("langIT")) + "</span>";
+    $("#versionline").innerHTML = "<b>" + esc(tt("version")) + " 2.0</b><span>Build " + BUILD + "</span><span>LV DE V1.1 (10.07.2026)</span><span>LV FR V1.0 (27.06.2026)</span><span>LV IT V1.0 (27.06.2026)</span>";
     LVARR = null; renderForm(); renderResult();
   }
   function init() {
