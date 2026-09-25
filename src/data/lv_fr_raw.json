@@ -1,0 +1,3488 @@
+{
+"111/112.001": {
+"t": "Personnel de surveillance.",
+"c": "Taux horaires de l'entrepreneur par catégorie de main d'oeuvre.",
+"u": "h",
+"ep": 103.0
+},
+"111/112.002": {
+"t": "Personnel spécialisé.",
+"c": "Taux horaires de l'entrepreneur par catégorie de main d'oeuvre.",
+"u": "h",
+"ep": 89.0
+},
+"111/112.003": {
+"t": "Personnel qualifié.",
+"c": "Taux horaires de l'entrepreneur par catégorie de main d'oeuvre.",
+"u": "h",
+"ep": 87.0
+},
+"111/112.004": {
+"t": "Aide, personnel auxiliaire.",
+"c": "Taux horaires de l'entrepreneur par catégorie de main d'oeuvre.",
+"u": "h",
+"ep": 75.0
+},
+"111/112.005": {
+"t": "Apprenti.",
+"c": "Taux horaires de l'entrepreneur par catégorie de main d'oeuvre.",
+"u": "h",
+"ep": 43.0
+},
+"111/211.001": {
+"t": "Sable lavé mm 0/4 up = m3 Quantité livrée jusqu'à 1 m3 volume en vrac",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 143.0
+},
+"111/211.002": {
+"t": "Gravier d'enrobage brut mm 0/16 up = m3 Quantité livrée jusqu'à 1 m3 volume en vrac",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 132.0
+},
+"111/211.003": {
+"t": "Gravier d'enrobage brut mm 0/16 up = m3 Quantité livrée jusqu'à 1 m3 volume en vrac",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 141.5
+},
+"111/211.004": {
+"t": "Éclats mm 3/6 up = m3 Quantité livrée jusqu'à 1 m3 volume en vrac",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 147.0
+},
+"111/211.005": {
+"t": "Gravier mural non trié à partir du mur up = m3 Quantité livrée jusqu'à 1 m3 volume en vrac",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 101.0
+},
+"111/211.006": {
+"t": "Gravier mural 1ère classe mm 0/45 résistant au gel up = m3 Quantité livrée jusqu'à 1 m3 volume en vrac",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 108.5
+},
+"111/211.007": {
+"t": "Gravier de nivellement mm 0/16 up = m3 Quantité livrée jusqu'à 1 m3 volume en vrac",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 126.5
+},
+"111/211.008": {
+"t": "Marne up = m3 Quantité livrée jusqu'à 1 m3 volume en vrac",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 160.5
+},
+"111/211.011": {
+"t": "Béton CEM kg/m3 150 0-16mm up = m3 Quantité livrée jusqu'à 1 m3",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 239.0
+},
+"111/211.012": {
+"t": "Béton CEM kg/m3 150 0-32mm up = m3 Quantité livrée jusqu'à 1 m3",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 234.0
+},
+"111/211.013": {
+"t": "Béton CEM kg/m3 200 0-32mm up = m3 Quantité livrée jusqu'à 1 m3",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 245.0
+},
+"111/211.014": {
+"t": "Béton A230-0 (Béton NPK A) up = m3 Quantité livrée jusqu'à 1 m3",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 272.0
+},
+"111/211.015": {
+"t": "Béton B230-0 (Béton NPK B) up = m3 Quantité livrée jusqu'à 1 m3",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 278.0
+},
+"111/211.016": {
+"t": "Béton C330-0 (Béton NPK C) up = m3 Quantité livrée jusqu'à 1 m3",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 290.0
+},
+"111/211.017": {
+"t": "Mortier de ciment CEM kg/m3 400, mm 0/4 up = m3 Quantité livrée jusqu'à 1 m3",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 302.0
+},
+"111/211.021": {
+"t": "AC 8 N up = to Enrobé Quantité livrée jusqu'à 1 to franco chantier",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 302.0
+},
+"111/211.022": {
+"t": "AC 11 N up = to Enrobé Quantité livrée jusqu'à 1 to franco chantier",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 288.0
+},
+"111/211.023": {
+"t": "AC 8 S up = to Enrobé Quantité livrée jusqu'à 1 to franco chantier",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 300.0
+},
+"111/211.024": {
+"t": "AC 11 S up = to Enrobé Quantité livrée jusqu'à 1 to franco chantier",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 290.0
+},
+"111/211.025": {
+"t": "AC T 16 N up = to Enrobé Quantité livrée jusqu'à 1 to franco chantier",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 284.0
+},
+"111/211.026": {
+"t": "AC T 22 N up = to Enrobé Quantité livrée jusqu'à 1 to franco chantier",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 271.0
+},
+"111/211.027": {
+"t": "AC T 16 S up = to Enrobé Quantité livrée jusqu'à 1 to franco chantier",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 275.0
+},
+"111/211.028": {
+"t": "AC T 22 S up = to Enrobé Quantité livrée jusqu'à 1 to franco chantier",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 270.0
+},
+"111/211.029": {
+"t": "Enrobé à froid mm 0-5 up = kg",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 3.2
+},
+"111/211.031": {
+"t": "TOK Bande bitumée 25/8mm up = m",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 6.4
+},
+"111/211.032": {
+"t": "Mortier de pose et de montage PCI Polyfix ou équivalent Produit up = kg",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 2.05
+},
+"111/211.033": {
+"t": "Acier d'armature 8-14mm incl. Supplément de position et de liste up = kg",
+"c": "Tous matériaux.",
+"u": "up",
+"ep": 2.8
+},
+"111/221.001": {
+"t": "Quantité = Somme des montants nets des factures des fournisseurs, y compris rabais, escompte non compris, TVA non comprise. up = Fr.",
+"c": "Calcul du coût des matériaux avec facteur: prix unitaire = facteur.",
+"u": "up",
+"ep": 1.1
+},
+"111/231.001": {
+"t": "Quantité = Somme des matériaux selon les bases de calcul dans les remarques préliminaires facultatives au sous-par. 230. up = Fr.",
+"c": "Calcul du coût des matériaux avec facteur: prix unitaire = facteur.",
+"u": "up",
+"ep": 1.1
+},
+"111/231.002": {
+"t": "up = Fr. Hypothèse du planificateur",
+"c": "Calcul du coût des matériaux avec facteur: prix unitaire = facteur.",
+"u": "up",
+"ep": 1.0
+},
+"111/311.001": {
+"t": "Pelle hydraulique, Rp jusqu'à 1.5to, 10kW up = h Exploitation y compris location sans opérateur",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 45.0
+},
+"111/311.002": {
+"t": "Pelle hydraulique, Rp jusqu'à 2.5to, 15kW up = h Exploitation y compris location sans opérateur",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 54.0
+},
+"111/311.003": {
+"t": "Pelle hydraulique, Rp jusqu'à 3.5to, 25kW up = h Exploitation y compris location sans opérateur",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 59.0
+},
+"111/311.004": {
+"t": "Pelle hydraulique, Pn jusqu'à 9to, 45kW up = h Exploitation y compris location sans opérateur",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 83.0
+},
+"111/311.005": {
+"t": "Petit tombereau toutes roues motrices jusqu'à 1.0 m3 up = h Exploitation y compris location sans opérateur",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 42.0
+},
+"111/311.006": {
+"t": "Petit tombereau toutes roues motrices jusqu'à 2.0 m3 up = h Exploitation y compris location sans opérateur",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 52.0
+},
+"111/311.007": {
+"t": "Petit tombereau à chenilles jusqu'à 500kg up = h Exploitation y compris location sans opérateur",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 38.0
+},
+"111/311.011": {
+"t": "Pilonneuses vibrantes jusqu'à 100 kg up = h Exploitation y compris location sans opérateur",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 22.0
+},
+"111/311.012": {
+"t": "Plaque vibrante jusqu'à 100kg up = h Exploitation y compris location sans opérateur",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 25.0
+},
+"111/311.013": {
+"t": "Plaque vibrante jusqu'à 220kg up = h Exploitation y compris location sans opérateur",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 34.0
+},
+"111/311.014": {
+"t": "Rouleau lisse vibrant 1 Rouleau, portatif, jusqu'à 0.60to up = h Exploitation y compris location sans opérateur",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 43.0
+},
+"111/311.015": {
+"t": "Pompe centrifuge Moteur électrique -200lt/min, 25mm up = h incl. conduite d'aspiration et 30m de conduite de refoulement",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 13.0
+},
+"111/311.016": {
+"t": "Pompe centrifuge Moteur électrique -400lt/min, 50mm up = h incl. conduite d'aspiration et 30m de conduite de refoulement",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 21.0
+},
+"111/311.017": {
+"t": "Fraiseuse à sol -9kW 110 kg, profondeur de coupe jusqu'à 15cm up = h y compris la partie fraise, Fonctionnement sans commande",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 48.0
+},
+"111/311.018": {
+"t": "Fraiseuse à sol -15kW 210 kg, profondeur de coupe jusqu'à 25cm up = h y compris la partie fraise, Fonctionnement sans commande",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 64.0
+},
+"111/311.021": {
+"t": "Compresseur à vis mobile avec moteur à combustion jusqu'à 2.8 m3 up = h Fonctionnement et loyer inclus",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 41.0
+},
+"111/311.022": {
+"t": "Compresseur à vis mobile avec moteur à combustion jusqu'à 4.5 m3 up = h Fonctionnement et loyer inclus",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 56.0
+},
+"111/311.023": {
+"t": "Marteau pointu, DL. -11kg fer inclus up = h Fonctionnement et loyer inclus",
+"c": "Machines et engins, conduite non comprise.",
+"u": "up",
+"ep": 15.5
+},
+"111/312.001": {
+"t": "Coffrages de tous types, y compris tous les matériaux de liaison et Matériaux de soutien up = m2 Loyer et usure par utilisationet par m² de surface de coffrage,hors coûts de maind'œuvre",
+"c": "Matériel d'exploitation.",
+"u": "up",
+"ep": 9.5
+},
+"111/312.002": {
+"t": "Pont de tranchée pour piétons, Largeur jusqu'à 1.20m Longueur du pont jusqu'à 2.00m up = Pièce Loyer par utilisation",
+"c": "Matériel d'exploitation.",
+"u": "up",
+"ep": 38.0
+},
+"111/312.003": {
+"t": "Pont de tranchée Largeur jusqu'à 1.20m Longueur du pont 2.01m à 4.00m up = Pièce Loyer par utilisation",
+"c": "Matériel d'exploitation.",
+"u": "up",
+"ep": 49.0
+},
+"111/312.006": {
+"t": "Pont provisoire pour Véhicules jusqu'à 3.5to, Poids utile Largeur utilisable jusqu'à 3.00m, Largeur du pont jusqu'à 2.00m up = Pièce Loyer par utilisation",
+"c": "Matériel d'exploitation.",
+"u": "up",
+"ep": 55.0
+},
+"111/312.007": {
+"t": "Pont provisoire pour véhicules jusqu'à 28to, surface utile largeur jusqu'à 3.50m Largeur du pont jusqu'à 2.00 up = Pièce Loyer par utilisation",
+"c": "Matériel d'exploitation.",
+"u": "up",
+"ep": 67.0
+},
+"111/411.901": {
+"t": "Hypothèse du planificateur",
+"c": "Calcul des frais liés aux prestations de tiers avec facteur: prix unitaire = facteur. › Prestations diverses externes",
+"u": "up",
+"ep": 1.0
+},
+"113/214.111": {
+"t": "Largeur utile jusqu'à m 1,20. Portée jusqu'à m 2,00.",
+"c": "Ponts et passerelles provisoires, avec portée de jusqu'à max. m 3 et surface antidérapante selon proposition de l'entrepreneur, y compris garde-corps. La longueur de portée est donnée par la largeur théorique pour les tranchées. › Pour piétons. › Mise en place, mise à disposition pour la durée des prestations de l'entrepreneur et enlèvement.",
+"u": "p",
+"ep": 125.0
+},
+"113/214.121": {
+"t": "Conc. sous-art. .111.",
+"c": "Ponts et passerelles provisoires, avec portée de jusqu'à max. m 3 et surface antidérapante selon proposition de l'entrepreneur, y compris garde-corps. La longueur de portée est donnée par la largeur théorique pour les tranchées. › Pour piétons. › Déplacement à l'intérieur du chantier. Métré: nombre de déplacements.",
+"u": "p",
+"ep": 78.0
+},
+"113/214.131": {
+"t": "Conc. sous-art. .111.",
+"c": "Ponts et passerelles provisoires, avec portée de jusqu'à max. m 3 et surface antidérapante selon proposition de l'entrepreneur, y compris garde-corps. La longueur de portée est donnée par la largeur théorique pour les tranchées. › Pour piétons. › Enlèvement et remise en place au même endroit.",
+"u": "up",
+"ep": 66.0
+},
+"113/214.211": {
+"t": "Largeur utile jusqu'à m 3,00. Portée jusqu'à m 2,00.",
+"c": "Ponts et passerelles provisoires, avec portée de jusqu'à max. m 3 et surface antidérapante selon proposition de l'entrepreneur, y compris garde-corps. La longueur de portée est donnée par la largeur théorique pour les tranchées. › Pour véhicules jusqu'à t 3,5. › Mise en place, mise à disposition pour la durée des prestations de l'entrepreneur et enlèvement.",
+"u": "p",
+"ep": 168.0
+},
+"113/214.221": {
+"t": "Conc. sous-art. .211.",
+"c": "Ponts et passerelles provisoires, avec portée de jusqu'à max. m 3 et surface antidérapante selon proposition de l'entrepreneur, y compris garde-corps. La longueur de portée est donnée par la largeur théorique pour les tranchées. › Pour véhicules jusqu'à t 3,5. › Déplacement à l'intérieur du chantier. Métré: nombre de déplacements.",
+"u": "p",
+"ep": 91.0
+},
+"113/214.231": {
+"t": "Conc. sous-art. .211. up = pces.",
+"c": "Ponts et passerelles provisoires, avec portée de jusqu'à max. m 3 et surface antidérapante selon proposition de l'entrepreneur, y compris garde-corps. La longueur de portée est donnée par la largeur théorique pour les tranchées. › Pour véhicules jusqu'à t 3,5. › Enlèvement et remise en place au même endroit.",
+"u": "up",
+"ep": 72.0
+},
+"113/214.311": {
+"t": "Largeur utile jusqu'à m 3,50. Portée jusqu'à m 2,00.",
+"c": "Ponts et passerelles provisoires, avec portée de jusqu'à max. m 3 et surface antidérapante selon proposition de l'entrepreneur, y compris garde-corps. La longueur de portée est donnée par la largeur théorique pour les tranchées. › Pour véhicules jusqu'à t 28,0. › Mise en place, mise à disposition pour la durée des prestations de l'entrepreneur et enlèvement.",
+"u": "p",
+"ep": 195.0
+},
+"113/214.321": {
+"t": "Conc. sous-art. .311.",
+"c": "Ponts et passerelles provisoires, avec portée de jusqu'à max. m 3 et surface antidérapante selon proposition de l'entrepreneur, y compris garde-corps. La longueur de portée est donnée par la largeur théorique pour les tranchées. › Pour véhicules jusqu'à t 28,0. › Déplacement à l'intérieur du chantier. Métré: nombre de déplacements.",
+"u": "p",
+"ep": 114.0
+},
+"113/214.331": {
+"t": "Conc. sous-art. .311. up = pces.",
+"c": "Ponts et passerelles provisoires, avec portée de jusqu'à max. m 3 et surface antidérapante selon proposition de l'entrepreneur, y compris garde-corps. La longueur de portée est donnée par la largeur théorique pour les tranchées. › Pour véhicules jusqu'à t 28,0. › Enlèvement et remise en place au même endroit.",
+"u": "up",
+"ep": 98.0
+},
+"113/232.101": {
+"t": "Y compris 2 boîtes à 3 feux.",
+"c": "Installations de feux de circulation. › Mise en place et enlèvement. Métré: nombre d'installations.",
+"u": "p",
+"ep": 181.2
+},
+"113/232.201": {
+"t": "Conc. art. 232.101",
+"c": "Installations de feux de circulation. › Mise à disposition. Métré: nombre d'installations x nombre de mois.",
+"u": "p",
+"ep": 371.9
+},
+"113/232.301": {
+"t": "Conc. art. 232.101",
+"c": "Installations de feux de circulation. › Déplacement, y compris changement éventuel de réglage horaire. Métré: nombre de déplacements.",
+"u": "p",
+"ep": 132.1
+},
+"113/234.101": {
+"t": "Durant les heures de travail normales.",
+"c": "Régulation manuelle du trafic. › Par un service de régulation de la circulation. Métré: nombre d'heures de travail.",
+"u": "h",
+"ep": 65.0
+},
+"113/234.102": {
+"t": "En dehors de l'horaire normal de travail.",
+"c": "Régulation manuelle du trafic. › Par un service de régulation de la circulation. Métré: nombre d'heures de travail.",
+"u": "h",
+"ep": 97.0
+},
+"113/236.101": {
+"t": "Mise en place et enlèvement.",
+"c": "Barrières. › Balises de guidage, avec socle.",
+"u": "p",
+"ep": 22.0
+},
+"113/236.102": {
+"t": "Mise à disposition. Métré: nombre de balises x nombre de mois.",
+"c": "Barrières. › Balises de guidage, avec socle.",
+"u": "p",
+"ep": 2.4
+},
+"113/236.103": {
+"t": "Déplacement. Métré: nombre de balises x nombre de déplacements.",
+"c": "Barrières. › Balises de guidage, avec socle.",
+"u": "p",
+"ep": 16.0
+},
+"113/236.221": {
+"t": "Mise en place et enlèvement.",
+"c": "Barrières. › Barrière longitudinale en lattes horizontales rouges et blanches. › Avec 2 lattes longitudinales, avec socle.",
+"u": "m",
+"ep": 9.5
+},
+"113/236.222": {
+"t": "Mise à disposition. Métré: longueur x nombre de mois.",
+"c": "Barrières. › Barrière longitudinale en lattes horizontales rouges et blanches. › Avec 2 lattes longitudinales, avec socle.",
+"u": "m",
+"ep": 2.8
+},
+"113/236.223": {
+"t": "Déplacement. Métré: longueur x nombre de déplacements.",
+"c": "Barrières. › Barrière longitudinale en lattes horizontales rouges et blanches. › Avec 2 lattes longitudinales, avec socle.",
+"u": "m",
+"ep": 6.8
+},
+"113/237.101": {
+"t": "Mise en place et enlèvement.",
+"c": "Lampes de chantier. › Alimentation par batterie.",
+"u": "p",
+"ep": 8.5
+},
+"113/237.102": {
+"t": "Mise à disposition. Métré: nombre de lampes de chantier x nombre de mois.",
+"c": "Lampes de chantier. › Alimentation par batterie.",
+"u": "p",
+"ep": 2.0
+},
+"113/237.103": {
+"t": "Déplacement. Métré: nombre de lampes de chantier x nombre de déplacements.",
+"c": "Lampes de chantier. › Alimentation par batterie.",
+"u": "p",
+"ep": 6.9
+},
+"117/223.122": {
+"t": "Epaisseur de couche mm 51 à 100.",
+"c": "Démolition de couches bitumineuses et de revêtements en béton. › Coupes. › Découpe de couche bitumineuse, à la machine, avec scie circulaire.",
+"u": "m",
+"ep": 9.8
+},
+"117/223.123": {
+"t": "Epaisseur de couche mm 101 à 150.",
+"c": "Démolition de couches bitumineuses et de revêtements en béton. › Coupes. › Découpe de couche bitumineuse, à la machine, avec scie circulaire.",
+"u": "m",
+"ep": 11.9
+},
+"117/223.124": {
+"t": "Epaisseur de couche mm 151 à 200.",
+"c": "Démolition de couches bitumineuses et de revêtements en béton. › Coupes. › Découpe de couche bitumineuse, à la machine, avec scie circulaire.",
+"u": "m",
+"ep": 14.9
+},
+"117/223.212": {
+"t": "Epaisseur de couche mm 51 à 100.",
+"c": "Démolition de couches bitumineuses et de revêtements en béton. › Démolition ou fraisage. › Couches bitumineuses.",
+"u": "m2",
+"ep": 5.3
+},
+"117/223.213": {
+"t": "Epaisseur de couche mm 101 à 150.",
+"c": "Démolition de couches bitumineuses et de revêtements en béton. › Démolition ou fraisage. › Couches bitumineuses.",
+"u": "m2",
+"ep": 8.9
+},
+"117/223.214": {
+"t": "Epaisseur de couche mm 151 à 200.",
+"c": "Démolition de couches bitumineuses et de revêtements en béton. › Démolition ou fraisage. › Couches bitumineuses.",
+"u": "m2",
+"ep": 12.4
+},
+"117/224.111": {
+"t": "1 rangée.",
+"c": "Démolition de bordures, dallages et pavages. › Bordures. › Pavés de butée et de caniveaux.",
+"u": "m",
+"ep": 5.7
+},
+"117/224.112": {
+"t": "2 rangées.",
+"c": "Démolition de bordures, dallages et pavages. › Bordures. › Pavés de butée et de caniveaux.",
+"u": "m",
+"ep": 7.9
+},
+"117/224.121": {
+"t": "Section jusqu'à m 0,10x0,30.",
+"c": "Démolition de bordures, dallages et pavages. › Bordures. › Planches et bordurettes.",
+"u": "m",
+"ep": 7.1
+},
+"117/224.141": {
+"t": "Section jusqu'à m 0,20x0,25.",
+"c": "Démolition de bordures, dallages et pavages. › Bordures. › Bordures de trottoir.",
+"u": "m",
+"ep": 9.7
+},
+"117/224.211": {
+"t": "Sur lit de sable ou de gravillon.",
+"c": "Démolition de bordures, dallages et pavages. › Dallages et pavages. › Dallages.",
+"u": "m2",
+"ep": 6.3
+},
+"117/224.231": {
+"t": "Sur lit de sable ou de gravillon.",
+"c": "Démolition de bordures, dallages et pavages. › Dallages et pavages. › Pavages en éléments de béton.",
+"u": "m2",
+"ep": 6.3
+},
+"117/225.211": {
+"t": "Sur lit de sable ou de gravillon.",
+"c": "Démontage de bordures, dallages et pavages. › Dallages et pavages. › Dallages.",
+"u": "m2",
+"ep": 8.9
+},
+"117/225.221": {
+"t": "Sur lit de sable ou de gravillon.",
+"c": "Démontage de bordures, dallages et pavages. › Dallages et pavages. › Pavages en pierre naturelle.",
+"u": "m2",
+"ep": 9.4
+},
+"117/225.231": {
+"t": "Sur lit de sable ou de gravillon.",
+"c": "Démontage de bordures, dallages et pavages. › Dallages et pavages. › Pavages en éléments de béton.",
+"u": "m2",
+"ep": 11.5
+},
+"117/226.321": {
+"t": "Chemin de câbles Zores (métal) toutes tailles y compris chargement, transport et frais de mise en décharge",
+"c": "Démolition de conduites, caniveaux et canaux d'évacuation des eaux, exécutée séparément. › Canaux, travaux de terrassement non compris.",
+"u": "m",
+"ep": 8.5
+},
+"117/228.101": {
+"t": "Démolition complète des puits de visite jusqu'à une profondeur de 1000 mm (NO), hauteur jusqu'à 1,50 m y compris chargement, transport et frais de mise en décharge",
+"c": "Démolition de regards, bouches d'égout, dispositifs de fermeture et de couronnement, accessoires et similaires. › Regards et bouches d'égout, travaux de terrassement non compris.",
+"u": "p",
+"ep": 322.0
+},
+"117/228.102": {
+"t": "Démolition Regards de dalle en béton complet, dimensions jusqu'à 2.00 x 1.00 x 0.90m y compris chargement, transport et frais de mise en décharge",
+"c": "Démolition de regards, bouches d'égout, dispositifs de fermeture et de couronnement, accessoires et similaires. › Regards et bouches d'égout, travaux de terrassement non compris.",
+"u": "p",
+"ep": 498.0
+},
+"117/228.201": {
+"t": "couverture de puits à dalles, Dimensions 120 x 53 cm y compris chargement, transport et frais de mise en décharge",
+"c": "Démolition de regards, bouches d'égout, dispositifs de fermeture et de couronnement, accessoires et similaires. › Dispositifs de fermeture et de couronnement.",
+"u": "p",
+"ep": 21.0
+},
+"117/228.202": {
+"t": "Démolition de plaques de couverture de puits à dalles, Dimensions 120 x 27 cm y compris chargement, transport et frais de mise en décharge",
+"c": "Démolition de regards, bouches d'égout, dispositifs de fermeture et de couronnement, accessoires et similaires. › Dispositifs de fermeture et de couronnement.",
+"u": "p",
+"ep": 16.9
+},
+"117/228.301": {
+"t": "Démolition de couvercles de regards Fonte complète, rond jusqu'à NW 800mm y compris chargement, transport et frais de mise en décharge",
+"c": "Démolition de regards, bouches d'égout, dispositifs de fermeture et de couronnement, accessoires et similaires. › Cadres avec tampons (couvercles) ou grilles.",
+"u": "p",
+"ep": 56.0
+},
+"117/228.302": {
+"t": "Démolition de couvercles de regards Béton complète, rond jusqu'à NW 800mm y compris chargement, transport et frais de mise en décharge",
+"c": "Démolition de regards, bouches d'égout, dispositifs de fermeture et de couronnement, accessoires et similaires. › Cadres avec tampons (couvercles) ou grilles.",
+"u": "p",
+"ep": 39.0
+},
+"117/228.303": {
+"t": "Démolition de couvertures de surface rectangulaire béton/fonte complète, jusqu'à une surface de 3.00m2 y compris chargement, transport et frais de mise en décharge",
+"c": "Démolition de regards, bouches d'égout, dispositifs de fermeture et de couronnement, accessoires et similaires. › Cadres avec tampons (couvercles) ou grilles.",
+"u": "p",
+"ep": 198.0
+},
+"117/713.201": {
+"t": "Pavages, dalles de béton et similaires. up = to",
+"c": "Chargement des matériaux sur véhicule. › Matériaux, à partir du dépôt provisoire ordonné par la direction des travaux.",
+"u": "up",
+"ep": 34.0
+},
+"117/713.202": {
+"t": "Chargement et transport intermédiaire de pavés cassés pavés, bordures de trottoirs et similaires en béton et/ou pierres naturelles dans des bennes up = to",
+"c": "Chargement des matériaux sur véhicule. › Matériaux, à partir du dépôt provisoire ordonné par la direction des travaux.",
+"u": "up",
+"ep": 49.0
+},
+"117/713.301": {
+"t": "Divers Chargement et transport intermédiaire de revêtements bitumineux et/ou fraisats de revêtements bitumineux dans des bennes up = to",
+"c": "Chargement des matériaux sur véhicule. › Matériaux, à partir du dépôt provisoire ordonné par la direction des travaux.",
+"u": "up",
+"ep": 53.0
+},
+"117/721.222": {
+"t": "Matériaux bitumineux de démolition. Teneur en HAP jusqu'à mg/kg 250.",
+"c": "Transports, métré: masse. Y compris déchargement; frais de mise en place et taxes non compris. › A la décharge. › A la décharge type B selon OLED.",
+"u": "t",
+"ep": 14.2
+},
+"117/721.251": {
+"t": "Matériaux bitumineux de démolition. Teneur en HAP supérieure à mg/kg 250. E 400 Déchets de chantier minéraux, E à l'installation de traiteE ment.",
+"c": "Transports, métré: masse. Y compris déchargement; frais de mise en place et taxes non compris. › A la décharge. › A la décharge type E selon OLED.",
+"u": "t",
+"ep": 16.5
+},
+"117/721.404": {
+"t": "Béton de démolition.",
+"c": "Transports, métré: masse. Y compris déchargement; frais de mise en place et taxes non compris. › A la décharge. › A la décharge type E selon OLED.",
+"u": "t",
+"ep": 13.15
+},
+"117/731.222": {
+"t": "Matériaux bitumineux de démolition. Teneur en HAP jusqu'à mg/kg 250.",
+"c": "Taxes pour remise de matériaux, y compris mise en place. Métré: masse. › A la décharge. › A la décharge type B selon OLED.",
+"u": "t",
+"ep": 79.0
+},
+"117/731.404": {
+"t": "Béton de démolition.",
+"c": "Taxes pour remise de matériaux, y compris mise en place. Métré: masse. › A l'installation de traitement.",
+"u": "t",
+"ep": 13.5
+},
+"151/121.001": {
+"t": "Classes d'exploitation 2 à 4.",
+"c": "Excavation à la main pour sondages. Exécution dans une opération séparée. Métré: volume théorique. Suppléments à l'art. 224.",
+"u": "m3",
+"ep": 92.4
+},
+"151/122.001": {
+"t": "A la machine.",
+"c": "Remblayage avec matériaux mis en dépôt latéral pendant sondage. Métré: volume théorique.",
+"u": "m3",
+"ep": 21.5
+},
+"151/122.002": {
+"t": "A la main.",
+"c": "Remblayage avec matériaux mis en dépôt latéral pendant sondage. Métré: volume théorique.",
+"u": "m3",
+"ep": 69.4
+},
+"151/131.111": {
+"t": "Débit jusqu'à l/min 200.",
+"c": "Pompes mobiles pour interventions de courte durée. › Pompes électriques. › Pour eaux non chargées et eaux pluviales.",
+"u": "h",
+"ep": 8.8
+},
+"151/132.101": {
+"t": "Métré: nombre de puisards de pompage.",
+"c": "Travaux accessoires pour l'épuisement des eaux. › Exécution de puisards de pompage. Y compris surprofondeur. Pose dans le sol de tuyaux, récipients ou éléments similaires, y compris enlèvement.",
+"u": "p",
+"ep": 239.0
+},
+"151/211.001": {
+"t": "Y compris mise en dépôt latéral provisoire.",
+"c": "Découpe et enlèvement de plaques de gazon. A la machine ou à la main.",
+"u": "m2",
+"ep": 10.5
+},
+"151/211.002": {
+"t": "Y compris transport jusqu'à m 30 et mise en dépôt intermédiaire.",
+"c": "Découpe et enlèvement de plaques de gazon. A la machine ou à la main.",
+"u": "m2",
+"ep": 19.4
+},
+"151/212.101": {
+"t": "Largeur de décapage jusqu'à m 2,00.",
+"c": "Décapage de la partie supérieure du sol. › A la machine.",
+"u": "m3",
+"ep": 10.7
+},
+"151/212.102": {
+"t": "Largeur de décapage m 2,01 à 5,00.",
+"c": "Décapage de la partie supérieure du sol. › A la machine.",
+"u": "m3",
+"ep": 8.4
+},
+"151/212.201": {
+"t": "Largeur de décapage jusqu'à m 2,00.",
+"c": "Décapage de la partie supérieure du sol. › A la main.",
+"u": "m3",
+"ep": 69.25
+},
+"151/221.111": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Excavation de tranchées en U et en V. Classes d'exploitation 2 à 4. › A la machine. › Sans embarras d'étais.",
+"u": "m3",
+"ep": 26.5
+},
+"151/221.112": {
+"t": "Profondeur m 1,51 à 2,00.",
+"c": "Excavation de tranchées en U et en V. Classes d'exploitation 2 à 4. › A la machine. › Sans embarras d'étais.",
+"u": "m3",
+"ep": 22.2
+},
+"151/221.121": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Excavation de tranchées en U et en V. Classes d'exploitation 2 à 4. › A la machine. › Avec embarras d'étais.",
+"u": "m3",
+"ep": 36.7
+},
+"151/221.122": {
+"t": "Profondeur m 1,51 à 2,00.",
+"c": "Excavation de tranchées en U et en V. Classes d'exploitation 2 à 4. › A la machine. › Avec embarras d'étais.",
+"u": "m3",
+"ep": 40.85
+},
+"151/221.211": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Excavation de tranchées en U et en V. Classes d'exploitation 2 à 4. › A la main. › Sans embarras d'étais.",
+"u": "m3",
+"ep": 100.1
+},
+"151/221.221": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Excavation de tranchées en U et en V. Classes d'exploitation 2 à 4. › A la main. › Avec embarras d'étais.",
+"u": "m3",
+"ep": 120.1
+},
+"151/222.111": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, sans embarras d'étais. › Pour excavation difficile. › Classe d'exploitation 5.",
+"u": "m3",
+"ep": 11.0
+},
+"151/222.121": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, sans embarras d'étais. › Pour excavation difficile. › Classe d'exploitation 6.",
+"u": "m3",
+"ep": 35.1
+},
+"151/222.131": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, sans embarras d'étais. › Pour excavation difficile. › Classe d'exploitation 7.",
+"u": "m3",
+"ep": 69.8
+},
+"151/222.201": {
+"t": "Couches gelées.",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, sans embarras d'étais. › Pour couches consolidées.",
+"u": "m3",
+"ep": 17.7
+},
+"151/222.202": {
+"t": "Hérisson (lit de pierres).",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, sans embarras d'étais. › Pour couches consolidées.",
+"u": "m3",
+"ep": 7.9
+},
+"151/222.301": {
+"t": "Blocs isolés de plus de m3 0,25.",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, sans embarras d'étais. › Pour obstacles isolés, y compris élimination à la broche et enlèvement.",
+"u": "m3",
+"ep": 49.0
+},
+"151/222.302": {
+"t": "Fondations en moellons bruts ou en béton non armé.",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, sans embarras d'étais. › Pour obstacles isolés, y compris élimination à la broche et enlèvement.",
+"u": "m3",
+"ep": 63.2
+},
+"151/222.303": {
+"t": "Fondations en béton armé.",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, sans embarras d'étais. › Pour obstacles isolés, y compris élimination à la broche et enlèvement.",
+"u": "m3",
+"ep": 183.7
+},
+"151/222.401": {
+"t": "Excavation en présence de racines, y compris enlèvement des racines.",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, sans embarras d'étais. › Pour autres conditions difficiles.",
+"u": "m3",
+"ep": 20.4
+},
+"151/223.111": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, avec embarras d'étais. › Pour excavation difficile. › Classe d'exploitation 5.",
+"u": "m3",
+"ep": 16.45
+},
+"151/223.121": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, avec embarras d'étais. › Pour excavation difficile. › Classe d'exploitation 6.",
+"u": "m3",
+"ep": 62.0
+},
+"151/223.131": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, avec embarras d'étais. › Pour excavation difficile. › Classe d'exploitation 7.",
+"u": "m3",
+"ep": 104.4
+},
+"151/223.201": {
+"t": "Couches gelées.",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, avec embarras d'étais. › Pour couches consolidées.",
+"u": "m3",
+"ep": 25.7
+},
+"151/223.202": {
+"t": "Hérisson (lit de pierres).",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, avec embarras d'étais. › Pour couches consolidées.",
+"u": "m3",
+"ep": 11.1
+},
+"151/223.301": {
+"t": "Blocs isolés de plus de m3 0,25.",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, avec embarras d'étais. › Pour obstacles isolés, y compris élimination à la broche et enlèvement.",
+"u": "m3",
+"ep": 55.1
+},
+"151/223.302": {
+"t": "Fondations en moellons bruts ou en béton non armé.",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, avec embarras d'étais. › Pour obstacles isolés, y compris élimination à la broche et enlèvement.",
+"u": "m3",
+"ep": 67.7
+},
+"151/223.303": {
+"t": "Fondations en béton armé.",
+"c": "Suppléments sur excavation à la machine de tranchées en U et en V, avec embarras d'étais. › Pour obstacles isolés, y compris élimination à la broche et enlèvement.",
+"u": "m3",
+"ep": 194.0
+},
+"151/224.111": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Suppléments sur excavation à la main de tranchées en U et en V, sans embarras d'étais. › Pour excavation difficile. › Classe d'exploitation 5.",
+"u": "m3",
+"ep": 103.85
+},
+"151/224.121": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Suppléments sur excavation à la main de tranchées en U et en V, sans embarras d'étais. › Pour excavation difficile. › Classe d'exploitation 6.",
+"u": "m3",
+"ep": 187.0
+},
+"151/224.131": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Suppléments sur excavation à la main de tranchées en U et en V, sans embarras d'étais. › Pour excavation difficile. › Classe d'exploitation 7.",
+"u": "m3",
+"ep": 198.1
+},
+"151/224.201": {
+"t": "Couches gelées.",
+"c": "Suppléments sur excavation à la main de tranchées en U et en V, sans embarras d'étais. › Pour couches consolidées.",
+"u": "m3",
+"ep": 74.8
+},
+"151/224.202": {
+"t": "Hérisson (lit de pierres).",
+"c": "Suppléments sur excavation à la main de tranchées en U et en V, sans embarras d'étais. › Pour couches consolidées.",
+"u": "m3",
+"ep": 54.9
+},
+"151/224.301": {
+"t": "Blocs isolés de plus de m3 0,01.",
+"c": "Suppléments sur excavation à la main de tranchées en U et en V, sans embarras d'étais. › Pour obstacles isolés, y compris élimination à la broche et enlèvement.",
+"u": "m3",
+"ep": 108.75
+},
+"151/224.302": {
+"t": "Fondations en moellons bruts ou en béton non armé.",
+"c": "Suppléments sur excavation à la main de tranchées en U et en V, sans embarras d'étais. › Pour obstacles isolés, y compris élimination à la broche et enlèvement.",
+"u": "m3",
+"ep": 132.95
+},
+"151/224.303": {
+"t": "Fondations en béton armé.",
+"c": "Suppléments sur excavation à la main de tranchées en U et en V, sans embarras d'étais. › Pour obstacles isolés, y compris élimination à la broche et enlèvement.",
+"u": "m3",
+"ep": 267.0
+},
+"151/227.101": {
+"t": "Pour la durée des prestations de l'entrepreneur, par étape.",
+"c": "Excavations avec camion aspirateur. › Mise en place, mise à disposition, déplacement et enlèvement du camion aspirateur.",
+"u": "gl",
+"ep": 455.0
+},
+"151/227.201": {
+"t": "Durée des travaux avec camion aspirateur, y compris chauffeur et 1 assistant.",
+"c": "Excavations avec camion aspirateur. › Travaux avec camion aspirateur.",
+"u": "h",
+"ep": 498.0
+},
+"151/227.202": {
+"t": "Temps d'attente pendant les travaux avec camion aspirateur, y compris chauffeur et 1 assistant.",
+"c": "Excavations avec camion aspirateur. › Travaux avec camion aspirateur.",
+"u": "h",
+"ep": 405.0
+},
+"151/227.203": {
+"t": "Aide complémentaire.",
+"c": "Excavations avec camion aspirateur. › Travaux avec camion aspirateur.",
+"u": "h",
+"ep": 95.0
+},
+"151/231.111": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Fouilles en pleine masse ou de fondations, classes d'exploitation 2 à 4. › A la machine. › Sans embarras d'étais.",
+"u": "m3",
+"ep": 21.1
+},
+"151/231.112": {
+"t": "Profondeur m 1,51 à 2,00.",
+"c": "Fouilles en pleine masse ou de fondations, classes d'exploitation 2 à 4. › A la machine. › Sans embarras d'étais.",
+"u": "m3",
+"ep": 24.3
+},
+"151/231.121": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Fouilles en pleine masse ou de fondations, classes d'exploitation 2 à 4. › A la machine. › Avec embarras d'étais.",
+"u": "m3",
+"ep": 32.65
+},
+"151/231.122": {
+"t": "Profondeur m 1,51 à 2,00.",
+"c": "Fouilles en pleine masse ou de fondations, classes d'exploitation 2 à 4. › A la machine. › Avec embarras d'étais.",
+"u": "m3",
+"ep": 35.95
+},
+"151/231.211": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Fouilles en pleine masse ou de fondations, classes d'exploitation 2 à 4. › A la main. › Sans embarras d'étais.",
+"u": "m3",
+"ep": 92.4
+},
+"151/231.221": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Fouilles en pleine masse ou de fondations, classes d'exploitation 2 à 4. › A la main. › Avec embarras d'étais.",
+"u": "m3",
+"ep": 109.4
+},
+"151/232.111": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Suppléments sur excavation à la machine de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour excavation difficile. › Classe d'exploitation 5.",
+"u": "m3",
+"ep": 11.35
+},
+"151/232.121": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Suppléments sur excavation à la machine de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour excavation difficile. › Classe d'exploitation 6.",
+"u": "m3",
+"ep": 44.0
+},
+"151/232.131": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Suppléments sur excavation à la machine de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour excavation difficile. › Classe d'exploitation 7.",
+"u": "m3",
+"ep": 92.2
+},
+"151/232.201": {
+"t": "Couches gelées.",
+"c": "Suppléments sur excavation à la machine de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour couches consolidées.",
+"u": "m3",
+"ep": 25.65
+},
+"151/232.202": {
+"t": "Hérisson (lit de pierres).",
+"c": "Suppléments sur excavation à la machine de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour couches consolidées.",
+"u": "m3",
+"ep": 10.55
+},
+"151/232.301": {
+"t": "Blocs isolés de plus de m3 0,25.",
+"c": "Suppléments sur excavation à la machine de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour obstacles isolés, y compris élimination à la broche et enlèvement.",
+"u": "m3",
+"ep": 57.45
+},
+"151/232.302": {
+"t": "Fondations en moellons bruts ou en béton non armé.",
+"c": "Suppléments sur excavation à la machine de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour obstacles isolés, y compris élimination à la broche et enlèvement.",
+"u": "m3",
+"ep": 65.35
+},
+"151/232.303": {
+"t": "Fondations en béton armé.",
+"c": "Suppléments sur excavation à la machine de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour obstacles isolés, y compris élimination à la broche et enlèvement.",
+"u": "m3",
+"ep": 189.9
+},
+"151/232.401": {
+"t": "Excavation en présence de racines, y compris enlèvement des racines.",
+"c": "Suppléments sur excavation à la machine de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour autres conditions difficiles.",
+"u": "m3",
+"ep": 23.8
+},
+"151/234.111": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Suppléments sur excavation à la main de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour excavation difficile. › Classe d'exploitation 5.",
+"u": "m3",
+"ep": 98.6
+},
+"151/234.121": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Suppléments sur excavation à la main de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour excavation difficile. › Classe d'exploitation 6.",
+"u": "m3",
+"ep": 122.3
+},
+"151/234.131": {
+"t": "Profondeur jusqu'à m 1,50.",
+"c": "Suppléments sur excavation à la main de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour excavation difficile. › Classe d'exploitation 7.",
+"u": "m3",
+"ep": 139.0
+},
+"151/234.202": {
+"t": "Hérisson (lit de pierres).",
+"c": "Suppléments sur excavation à la main de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour couches consolidées.",
+"u": "m3",
+"ep": 56.4
+},
+"151/234.301": {
+"t": "Blocs isolés de plus de m3 0,01.",
+"c": "Suppléments sur excavation à la main de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour obstacles isolés, y compris élimination à la broche et enlèvement.",
+"u": "m3",
+"ep": 134.45
+},
+"151/234.302": {
+"t": "Fondations en moellons bruts ou en béton non armé.",
+"c": "Suppléments sur excavation à la main de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour obstacles isolés, y compris élimination à la broche et enlèvement.",
+"u": "m3",
+"ep": 158.9
+},
+"151/234.303": {
+"t": "Fondations en béton armé.",
+"c": "Suppléments sur excavation à la main de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour obstacles isolés, y compris élimination à la broche et enlèvement.",
+"u": "m3",
+"ep": 282.15
+},
+"151/234.401": {
+"t": "Excavation en présence de racines, y compris enlèvement des racines.",
+"c": "Suppléments sur excavation à la main de fouilles en pleine masse ou de fondations, sans embarras d'étais. › Pour autres conditions difficiles.",
+"u": "m3",
+"ep": 65.9
+},
+"151/241.001": {
+"t": "Le long de tranchées et de fouilles.",
+"c": "Suppléments pour entraves par des conduites.",
+"u": "m",
+"ep": 10.5
+},
+"151/241.002": {
+"t": "Perpendiculairement aux tranchées et aux fouilles.",
+"c": "Suppléments pour entraves par des conduites.",
+"u": "m",
+"ep": 11.3
+},
+"151/242.001": {
+"t": "Le long de tranchées et de fouilles.",
+"c": "Suppléments sur étayage et protection des conduites.",
+"u": "m",
+"ep": 11.9
+},
+"151/242.002": {
+"t": "Perpendiculairement aux tranchées et aux fouilles.",
+"c": "Suppléments sur étayage et protection des conduites.",
+"u": "m",
+"ep": 10.8
+},
+"151/243.201": {
+"t": "Béton non armé.",
+"c": "Suppléments pour passages sous conduites, obstacles et autres. › Elimination à la broche et enlèvement dans la zone de la canalisation.",
+"u": "m3",
+"ep": 149.45
+},
+"151/243.202": {
+"t": "Béton armé.",
+"c": "Suppléments pour passages sous conduites, obstacles et autres. › Elimination à la broche et enlèvement dans la zone de la canalisation.",
+"u": "m3",
+"ep": 313.4
+},
+"151/244.001": {
+"t": "Divers Démolition Goulotte de câbles Zores toutes tailles y compris chargement, transport et frais de mise en décharge",
+"c": "Suppléments pour enlèvement de conduites, en cours d'excavation.",
+"u": "m",
+"ep": 8.5
+},
+"151/244.002": {
+"t": "Divers Découverte et séparation des zores avec câbles en service Retirer le câble et le stocker soigneusement sur le côté Séparer et démonter les zores y compris chargement, transport et frais de mise en décharge",
+"c": "Suppléments pour enlèvement de conduites, en cours d'excavation.",
+"u": "m",
+"ep": 25.5
+},
+"151/244.003": {
+"t": "Divers Dégager et séparer les zores dont le câble n'est pas en service Séparer et démonter les zores et les câbles y compris chargement, transport et frais de mise en décharge",
+"c": "Suppléments pour enlèvement de conduites, en cours d'excavation.",
+"u": "m",
+"ep": 12.8
+},
+"151/251.111": {
+"t": "Distance jusqu'à m 100.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume foisonné. › Au dépôt provisoire du maître d'ouvrage ou de l'entrepreneur. › Tous matériaux, taxes non comprises.",
+"u": "m3",
+"ep": 8.5
+},
+"151/251.112": {
+"t": "Distance m 101 à 200.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume foisonné. › Au dépôt provisoire du maître d'ouvrage ou de l'entrepreneur. › Tous matériaux, taxes non comprises.",
+"u": "m3",
+"ep": 10.95
+},
+"151/251.113": {
+"t": "Distance m 201 à 500.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume foisonné. › Au dépôt provisoire du maître d'ouvrage ou de l'entrepreneur. › Tous matériaux, taxes non comprises.",
+"u": "m3",
+"ep": 13.0
+},
+"151/251.211": {
+"t": "Partie supérieure du sol.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume foisonné. › A la décharge, taxes non comprises. › Classification selon OLED. Décharge type A.",
+"u": "m3",
+"ep": 25.25
+},
+"151/251.213": {
+"t": "Matériaux d'excavation.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume foisonné. › A la décharge, taxes non comprises. › Classification selon OLED. Décharge type A.",
+"u": "m3",
+"ep": 25.25
+},
+"151/251.221": {
+"t": "Béton de démolition.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume foisonné. › A la décharge, taxes non comprises. › Classification selon OLED. Décharge type B.",
+"u": "m3",
+"ep": 23.15
+},
+"151/252.111": {
+"t": "Distance jusqu'à m 100.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume théorique. › Au dépôt provisoire du maître d'ouvrage ou de l'entrepreneur. › Tous matériaux, taxes non comprises.",
+"u": "m3",
+"ep": 11.05
+},
+"151/252.112": {
+"t": "Distance m 101 à 200.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume théorique. › Au dépôt provisoire du maître d'ouvrage ou de l'entrepreneur. › Tous matériaux, taxes non comprises.",
+"u": "m3",
+"ep": 14.2
+},
+"151/252.113": {
+"t": "Distance m 201 à 500.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume théorique. › Au dépôt provisoire du maître d'ouvrage ou de l'entrepreneur. › Tous matériaux, taxes non comprises.",
+"u": "m3",
+"ep": 16.9
+},
+"151/252.211": {
+"t": "Partie supérieure du sol.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume théorique. › A la décharge, taxes non comprises. › Classification selon OLED. Décharge type A.",
+"u": "m3",
+"ep": 32.6
+},
+"151/252.213": {
+"t": "Matériaux d'excavation.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume théorique. › A la décharge, taxes non comprises. › Classification selon OLED. Décharge type A.",
+"u": "m3",
+"ep": 32.6
+},
+"151/252.221": {
+"t": "Béton de démolition.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume théorique. › A la décharge, taxes non comprises. › Classification selon OLED. Décharge type B.",
+"u": "m3",
+"ep": 35.1
+},
+"151/254.211": {
+"t": "Partie supérieure du sol.",
+"c": "Transport avec bennes à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume foisonné. › A la décharge, taxes non comprises. › Classification selon OLED. Décharge type A.",
+"u": "m3",
+"ep": 24.4
+},
+"151/254.213": {
+"t": "Matériaux d'excavation.",
+"c": "Transport avec bennes à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume foisonné. › A la décharge, taxes non comprises. › Classification selon OLED. Décharge type A.",
+"u": "m3",
+"ep": 24.4
+},
+"151/254.221": {
+"t": "Béton de démolition.",
+"c": "Transport avec bennes à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume foisonné. › A la décharge, taxes non comprises. › Classification selon OLED. Décharge type B.",
+"u": "m3",
+"ep": 24.4
+},
+"151/255.211": {
+"t": "Partie supérieure du sol.",
+"c": "Transport avec bennes à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume théorique. › A la décharge, taxes non comprises. › Classification selon OLED. Décharge type A.",
+"u": "m3",
+"ep": 30.5
+},
+"151/255.213": {
+"t": "Matériaux d'excavation.",
+"c": "Transport avec bennes à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume théorique. › A la décharge, taxes non comprises. › Classification selon OLED. Décharge type A.",
+"u": "m3",
+"ep": 30.5
+},
+"151/255.221": {
+"t": "Béton de démolition.",
+"c": "Transport avec bennes à l'intérieur et à l'extérieur du chantier, y compris déchargement. Métré: volume théorique. › A la décharge, taxes non comprises. › Classification selon OLED. Décharge type B.",
+"u": "m3",
+"ep": 36.6
+},
+"151/261.111": {
+"t": "Partie supérieure du sol.",
+"c": "Taxes pour matériaux mis en décharge. Métré: volume foisonné. › A la décharge de l'entrepreneur. › Classification selon OLED. Décharge type A.",
+"u": "m3",
+"ep": 8.2
+},
+"151/261.113": {
+"t": "Matériaux d'excavation.",
+"c": "Taxes pour matériaux mis en décharge. Métré: volume foisonné. › A la décharge de l'entrepreneur. › Classification selon OLED. Décharge type A.",
+"u": "m3",
+"ep": 25.9
+},
+"151/261.121": {
+"t": "Béton de démolition.",
+"c": "Taxes pour matériaux mis en décharge. Métré: volume foisonné. › A la décharge de l'entrepreneur. › Classification selon OLED. Décharge type B.",
+"u": "m3",
+"ep": 13.5
+},
+"151/262.111": {
+"t": "Partie supérieure du sol.",
+"c": "Taxes pour matériaux mis en décharge. Métré: volume théorique. › A la décharge de l'entrepreneur. › Classification selon OLED. Décharge type A.",
+"u": "m3",
+"ep": 9.85
+},
+"151/262.113": {
+"t": "Matériaux d'excavation.",
+"c": "Taxes pour matériaux mis en décharge. Métré: volume théorique. › A la décharge de l'entrepreneur. › Classification selon OLED. Décharge type A.",
+"u": "m3",
+"ep": 33.7
+},
+"151/262.121": {
+"t": "Béton de démolition.",
+"c": "Taxes pour matériaux mis en décharge. Métré: volume théorique. › A la décharge de l'entrepreneur. › Classification selon OLED. Décharge type B.",
+"u": "m3",
+"ep": 24.3
+},
+"151/272.001": {
+"t": "Feuille de matière synthétique, épaisseur mm 0,15 à 0,25.",
+"c": "Recouvrement des matériaux, sur ordre du maître d'ouvrage. Y compris fourniture, entretien et élimination du matériau de recouvrement.",
+"u": "m2",
+"ep": 2.4
+},
+"151/273.101": {
+"t": "Partie supérieure du sol.",
+"c": "Chargement de matériaux depuis dépôt provisoire ordonné par la direction des travaux. › A la machine. Métré: volume foisonné.",
+"u": "m3",
+"ep": 5.05
+},
+"151/273.103": {
+"t": "Matériaux d'excavation.",
+"c": "Chargement de matériaux depuis dépôt provisoire ordonné par la direction des travaux. › A la machine. Métré: volume foisonné.",
+"u": "m3",
+"ep": 5.05
+},
+"151/273.201": {
+"t": "Partie supérieure du sol.",
+"c": "Chargement de matériaux depuis dépôt provisoire ordonné par la direction des travaux. › A la machine. Métré: volume théorique.",
+"u": "m3",
+"ep": 6.1
+},
+"151/273.203": {
+"t": "Matériaux d'excavation.",
+"c": "Chargement de matériaux depuis dépôt provisoire ordonné par la direction des travaux. › A la machine. Métré: volume théorique.",
+"u": "m3",
+"ep": 6.45
+},
+"151/273.301": {
+"t": "Partie supérieure du sol.",
+"c": "Chargement de matériaux depuis dépôt provisoire ordonné par la direction des travaux. › A la main. Métré: volume foisonné.",
+"u": "m3",
+"ep": 63.2
+},
+"151/273.303": {
+"t": "Matériaux d'excavation.",
+"c": "Chargement de matériaux depuis dépôt provisoire ordonné par la direction des travaux. › A la main. Métré: volume foisonné.",
+"u": "m3",
+"ep": 65.5
+},
+"151/273.401": {
+"t": "Partie supérieure du sol.",
+"c": "Chargement de matériaux depuis dépôt provisoire ordonné par la direction des travaux. › A la main. Métré: volume théorique.",
+"u": "m3",
+"ep": 75.85
+},
+"151/273.403": {
+"t": "Matériaux d'excavation.",
+"c": "Chargement de matériaux depuis dépôt provisoire ordonné par la direction des travaux. › A la main. Métré: volume théorique.",
+"u": "m3",
+"ep": 81.95
+},
+"151/274.001": {
+"t": "Dépôt provisoire pour partie supérieure du sol.",
+"c": "Nettoyage et remise en état des emplacements de dépôts provisoires ordonnés par la direction des travaux.",
+"u": "m2",
+"ep": 1.2
+},
+"151/274.003": {
+"t": "Dépôt provisoire pour matériaux d'excavation.",
+"c": "Nettoyage et remise en état des emplacements de dépôts provisoires ordonnés par la direction des travaux.",
+"u": "m2",
+"ep": 1.2
+},
+"151/275.001": {
+"t": "Déplacement soigné, horizontal ou vertical d'un canal Zores en service jusqu'à 0,50m. Exécution en relation avec des travaux d'excavation up = m L'exécution ne peut se faire que sous les instructions et le contrôle de la direction des travaux et/ou d'un représentant de cablex SA",
+"c": "Autres travaux accessoires.",
+"u": "up",
+"ep": 19.5
+},
+"151/311.111": {
+"t": "Feuille de matière synthétique, épaisseur mm 0,15 à 0,25.",
+"c": "Protection de surfaces, talus et similaires avec feuilles de matière synthétique. Y compris enlèvement et élimination. Métré: surface recouverte. › Feuilles de matière synthétique non armées. › Sur surfaces horizontales ou avec inclinaison jusqu'à 1:4.",
+"u": "m2",
+"ep": 4.5
+},
+"151/311.121": {
+"t": "Feuille de matière synthétique, épaisseur mm 0,15 à 0,25.",
+"c": "Protection de surfaces, talus et similaires avec feuilles de matière synthétique. Y compris enlèvement et élimination. Métré: surface recouverte. › Feuilles de matière synthétique non armées. › Sur surfaces avec inclinaison supérieure à 1:4.",
+"u": "m2",
+"ep": 4.8
+},
+"151/321.101": {
+"t": "Profondeur de tranchée jusqu'à m 1,50.",
+"c": "Exécution de blindages de tranchée. › Blindage étrésillonné.",
+"u": "m2",
+"ep": 25.5
+},
+"151/321.102": {
+"t": "Profondeur de tranchée m 1,51 à 2,00.",
+"c": "Exécution de blindages de tranchée. › Blindage étrésillonné.",
+"u": "m2",
+"ep": 23.0
+},
+"151/361.301": {
+"t": "Sable.",
+"c": "Travaux accessoires aux blindages. › Fourniture et mise en place de matériau pour remblayage des vides derrière le blindage.",
+"u": "m3",
+"ep": 81.9
+},
+"151/412.111": {
+"t": "DN/ID 55.",
+"c": "Fourniture de tubes de protection de câbles PE-HD, C+S. › Longueur de tube m 5. › Avec ME, y compris joints d'étanchéité.",
+"u": "m",
+"ep": 2.8
+},
+"151/412.113": {
+"t": "DN/ID div. DN/ID 100",
+"c": "Fourniture de tubes de protection de câbles PE-HD, C+S. › Longueur de tube m 5. › Avec ME, y compris joints d'étanchéité.",
+"u": "m",
+"ep": 7.3
+},
+"151/412.211": {
+"t": "DN/ID 55.",
+"c": "Fourniture de tubes de protection de câbles PE-HD, C+S. › Longueur de tube m 10. › Avec ME, y compris joints d'étanchéité.",
+"u": "m",
+"ep": 2.7
+},
+"151/412.214": {
+"t": "DN/ID 100.",
+"c": "Fourniture de tubes de protection de câbles PE-HD, C+S. › Longueur de tube m 10. › Avec ME, y compris joints d'étanchéité.",
+"u": "m",
+"ep": 6.9
+},
+"151/412.215": {
+"t": "DN/ID 120.",
+"c": "Fourniture de tubes de protection de câbles PE-HD, C+S. › Longueur de tube m 10. › Avec ME, y compris joints d'étanchéité.",
+"u": "m",
+"ep": 8.2
+},
+"151/412.216": {
+"t": "DN/ID 150.",
+"c": "Fourniture de tubes de protection de câbles PE-HD, C+S. › Longueur de tube m 10. › Avec ME, y compris joints d'étanchéité.",
+"u": "m",
+"ep": 12.8
+},
+"151/415.102": {
+"t": "DN/ID 100.",
+"c": "Fourniture de tubes de protection de câbles en PE, avec fermeture longitudinale. › Longueur de tube m 5.",
+"u": "m",
+"ep": 39.3
+},
+"151/415.103": {
+"t": "DN/ID 120.",
+"c": "Fourniture de tubes de protection de câbles en PE, avec fermeture longitudinale. › Longueur de tube m 5.",
+"u": "m",
+"ep": 45.1
+},
+"151/415.104": {
+"t": "DN/ID 150.",
+"c": "Fourniture de tubes de protection de câbles en PE, avec fermeture longitudinale. › Longueur de tube m 5.",
+"u": "m",
+"ep": 59.9
+},
+"151/421.121": {
+"t": "DN/ID 55, rayon mm 600.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Coudes pour tubes de protection de câbles, sans manchons, degrés 45. › En PE-HD, C+S.",
+"u": "p",
+"ep": 17.8
+},
+"151/421.124": {
+"t": "DN/ID 100, rayon mm 1'000.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Coudes pour tubes de protection de câbles, sans manchons, degrés 45. › En PE-HD, C+S.",
+"u": "p",
+"ep": 43.0
+},
+"151/421.125": {
+"t": "DN/ID 120, rayon mm 1'200.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Coudes pour tubes de protection de câbles, sans manchons, degrés 45. › En PE-HD, C+S.",
+"u": "p",
+"ep": 50.6
+},
+"151/421.126": {
+"t": "DN/ID 150, rayon mm 1'500.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Coudes pour tubes de protection de câbles, sans manchons, degrés 45. › En PE-HD, C+S.",
+"u": "p",
+"ep": 77.5
+},
+"151/421.221": {
+"t": "DN/ID 55, rayon mm 600.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Coudes pour tubes de protection de câbles, sans manchons, degrés 90. › En PE-HD, C+S.",
+"u": "p",
+"ep": 21.2
+},
+"151/421.224": {
+"t": "DN/ID 100, rayon mm 1'000.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Coudes pour tubes de protection de câbles, sans manchons, degrés 90. › En PE-HD, C+S.",
+"u": "p",
+"ep": 48.55
+},
+"151/421.225": {
+"t": "DN/ID 120, rayon mm 1'200.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Coudes pour tubes de protection de câbles, sans manchons, degrés 90. › En PE-HD, C+S.",
+"u": "p",
+"ep": 56.9
+},
+"151/421.226": {
+"t": "DN/ID 150, rayon mm 1'500.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Coudes pour tubes de protection de câbles, sans manchons, degrés 90. › En PE-HD, C+S.",
+"u": "p",
+"ep": 83.6
+},
+"151/421.313": {
+"t": "DN/ID 100.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Coudes flexibles. › En PE-LD, C+S.",
+"u": "p",
+"ep": 81.6
+},
+"151/421.314": {
+"t": "DN/ID 120.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Coudes flexibles. › En PE-LD, C+S.",
+"u": "p",
+"ep": 104.2
+},
+"151/421.315": {
+"t": "DN/ID 150.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Coudes flexibles. › En PE-LD, C+S.",
+"u": "p",
+"ep": 161.0
+},
+"151/421.422": {
+"t": "DN/ID 100.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Coudes flexibles avec fermeture longitudinale. › En PE-HD.",
+"u": "p",
+"ep": 181.8
+},
+"151/421.423": {
+"t": "DN/ID 120.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Coudes flexibles avec fermeture longitudinale. › En PE-HD.",
+"u": "p",
+"ep": 212.5
+},
+"151/421.424": {
+"t": "DN/ID 150.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Coudes flexibles avec fermeture longitudinale. › En PE-HD.",
+"u": "p",
+"ep": 306.0
+},
+"151/421.511": {
+"t": "DN/ID 55.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Manchons (1). › Manchons à double emboîture. Y compris joints d'étanchéité.",
+"u": "p",
+"ep": 5.2
+},
+"151/421.514": {
+"t": "DN/ID 100.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Manchons (1). › Manchons à double emboîture. Y compris joints d'étanchéité.",
+"u": "p",
+"ep": 5.85
+},
+"151/421.515": {
+"t": "DN/ID 120.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Manchons (1). › Manchons à double emboîture. Y compris joints d'étanchéité.",
+"u": "p",
+"ep": 12.5
+},
+"151/421.516": {
+"t": "DN/ID 150.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Manchons (1). › Manchons à double emboîture. Y compris joints d'étanchéité.",
+"u": "p",
+"ep": 19.3
+},
+"151/421.521": {
+"t": "DN/ID 55.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Manchons (1). › Manchons d'extrémité. Y compris joints d'étanchéité.",
+"u": "p",
+"ep": 18.2
+},
+"151/421.524": {
+"t": "DN/ID 100.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Manchons (1). › Manchons d'extrémité. Y compris joints d'étanchéité.",
+"u": "p",
+"ep": 5.9
+},
+"151/421.525": {
+"t": "DN/ID 120.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Manchons (1). › Manchons d'extrémité. Y compris joints d'étanchéité.",
+"u": "p",
+"ep": 7.3
+},
+"151/421.526": {
+"t": "DN/ID 150.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Manchons (1). › Manchons d'extrémité. Y compris joints d'étanchéité.",
+"u": "p",
+"ep": 15.3
+},
+"151/421.562": {
+"t": "DN/ID 100.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Manchons (1). › Manchons pour tubes de protection de câbles avec fermeture longitudinale.",
+"u": "p",
+"ep": 39.3
+},
+"151/421.563": {
+"t": "DN/ID 120.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Manchons (1). › Manchons pour tubes de protection de câbles avec fermeture longitudinale.",
+"u": "p",
+"ep": 45.1
+},
+"151/421.564": {
+"t": "DN/ID 150.",
+"c": "Fourniture de raccords et pièces spéciales (1). › Manchons (1). › Manchons pour tubes de protection de câbles avec fermeture longitudinale.",
+"u": "p",
+"ep": 59.9
+},
+"151/423.301": {
+"t": "Kit pièce en T en plastique pour chemin de câbles n° 8 avec 2 x sorties K55 up = Pièce Catalogue HGC Art. No. 1300771 (Swisscom)",
+"c": "Fourniture d'accessoires.",
+"u": "up",
+"ep": 195.4
+},
+"151/423.302": {
+"t": "Kit pièce en T en plastique pour chemin de câbles n° 4 avec 2 x sorties K55 up = Pièce Catalogue HGC Art. No. 1300763 (Swisscom)",
+"c": "Fourniture d'accessoires.",
+"u": "up",
+"ep": 137.7
+},
+"151/423.303": {
+"t": "Raccord demi-coque à 30° pour systèmes de tuyauterie plastique. K55 vers K55 up = Pièce Catalogue HGC Art. No. 1337690 (Swisscom)",
+"c": "Fourniture d'accessoires.",
+"u": "up",
+"ep": 106.9
+},
+"151/423.304": {
+"t": "Raccord demi-coque à 30° pour systèmes de tuyauterie plastique. K100 vers K55 up = Pièce Catalogue HGC Art. No. 1337708 (Swisscom)",
+"c": "Fourniture d'accessoires.",
+"u": "up",
+"ep": 155.0
+},
+"151/423.305": {
+"t": "Raccord demi-coque 30° pour chemin de câbles n° 4 sur K55 up = Pièce Catalogue HGC Art. No. 1337716 (Swisscom)",
+"c": "Fourniture d'accessoires.",
+"u": "up",
+"ep": 115.9
+},
+"151/423.306": {
+"t": "Raccord demi-coque 30° pour chemin de câbles n° 8 sur K55 up = Pièce Catalogue HGC Art. No. 1337724 (Swisscom)",
+"c": "Fourniture d'accessoires.",
+"u": "up",
+"ep": 141.0
+},
+"151/423.307": {
+"t": "Pièce de jonction pour chemin de câbles n° 4, y compris kit de montage up = Pièce Catalogue HGC Art. No. 1337732 (Swisscom)",
+"c": "Fourniture d'accessoires.",
+"u": "up",
+"ep": 176.3
+},
+"151/431.001": {
+"t": "Jusqu'à DN/ID 60.",
+"c": "Pose et étanchement de tubes de protection de câbles en barres ou en rouleaux.",
+"u": "m",
+"ep": 3.4
+},
+"151/431.002": {
+"t": "DN/ID 61 à 100.",
+"c": "Pose et étanchement de tubes de protection de câbles en barres ou en rouleaux.",
+"u": "m",
+"ep": 4.0
+},
+"151/431.003": {
+"t": "DN/ID 101 à 150.",
+"c": "Pose et étanchement de tubes de protection de câbles en barres ou en rouleaux.",
+"u": "m",
+"ep": 4.5
+},
+"151/433.002": {
+"t": "DN/ID 61 à 100.",
+"c": "Pose de tubes en matière synthétique avec fermeture longitudinale.",
+"u": "m",
+"ep": 5.9
+},
+"151/433.003": {
+"t": "DN/ID 101 à 150.",
+"c": "Pose de tubes en matière synthétique avec fermeture longitudinale.",
+"u": "m",
+"ep": 7.1
+},
+"151/441.111": {
+"t": "DN/ID 55.",
+"c": "Suppléments pour pose de raccords et pièces spéciales pour tubes de protection de câbles. › Coudes. › Degrés 45.",
+"u": "p",
+"ep": 7.0
+},
+"151/441.114": {
+"t": "DN/ID 100.",
+"c": "Suppléments pour pose de raccords et pièces spéciales pour tubes de protection de câbles. › Coudes. › Degrés 45.",
+"u": "p",
+"ep": 8.5
+},
+"151/441.115": {
+"t": "DN/ID 120.",
+"c": "Suppléments pour pose de raccords et pièces spéciales pour tubes de protection de câbles. › Coudes. › Degrés 45.",
+"u": "p",
+"ep": 9.0
+},
+"151/441.116": {
+"t": "DN/ID 150.",
+"c": "Suppléments pour pose de raccords et pièces spéciales pour tubes de protection de câbles. › Coudes. › Degrés 45.",
+"u": "p",
+"ep": 10.0
+},
+"151/441.121": {
+"t": "DN/ID 55.",
+"c": "Suppléments pour pose de raccords et pièces spéciales pour tubes de protection de câbles. › Coudes. › Degrés 90.",
+"u": "p",
+"ep": 7.0
+},
+"151/441.123": {
+"t": "DN/ID 80.",
+"c": "Suppléments pour pose de raccords et pièces spéciales pour tubes de protection de câbles. › Coudes. › Degrés 90.",
+"u": "p",
+"ep": 7.8
+},
+"151/441.124": {
+"t": "DN/ID 100.",
+"c": "Suppléments pour pose de raccords et pièces spéciales pour tubes de protection de câbles. › Coudes. › Degrés 90.",
+"u": "p",
+"ep": 8.5
+},
+"151/441.125": {
+"t": "DN/ID 120.",
+"c": "Suppléments pour pose de raccords et pièces spéciales pour tubes de protection de câbles. › Coudes. › Degrés 90.",
+"u": "p",
+"ep": 9.0
+},
+"151/441.126": {
+"t": "DN/ID 150.",
+"c": "Suppléments pour pose de raccords et pièces spéciales pour tubes de protection de câbles. › Coudes. › Degrés 90.",
+"u": "p",
+"ep": 10.0
+},
+"151/441.204": {
+"t": "DN/ID 100.",
+"c": "Suppléments pour pose de raccords et pièces spéciales pour tubes de protection de câbles. › Coudes flexibles.",
+"u": "p",
+"ep": 8.5
+},
+"151/441.205": {
+"t": "DN/ID 120.",
+"c": "Suppléments pour pose de raccords et pièces spéciales pour tubes de protection de câbles. › Coudes flexibles.",
+"u": "p",
+"ep": 9.0
+},
+"151/441.206": {
+"t": "DN/ID 150.",
+"c": "Suppléments pour pose de raccords et pièces spéciales pour tubes de protection de câbles. › Coudes flexibles.",
+"u": "p",
+"ep": 10.0
+},
+"151/441.302": {
+"t": "DN/ID 100.",
+"c": "Suppléments pour pose de raccords et pièces spéciales pour tubes de protection de câbles. › Coudes flexibles avec fermeture longitudinale.",
+"u": "p",
+"ep": 11.3
+},
+"151/441.303": {
+"t": "DN/ID 120.",
+"c": "Suppléments pour pose de raccords et pièces spéciales pour tubes de protection de câbles. › Coudes flexibles avec fermeture longitudinale.",
+"u": "p",
+"ep": 12.1
+},
+"151/441.304": {
+"t": "DN/ID 150.",
+"c": "Suppléments pour pose de raccords et pièces spéciales pour tubes de protection de câbles. › Coudes flexibles avec fermeture longitudinale.",
+"u": "p",
+"ep": 13.0
+},
+"151/442.111": {
+"t": "DN/ID 55.",
+"c": "Suppléments pour pose de manchons pour tubes de protection de câbles. › Manchons (1). › Manchons à double emboîture.",
+"u": "p",
+"ep": 5.5
+},
+"151/442.114": {
+"t": "DN/ID 100.",
+"c": "Suppléments pour pose de manchons pour tubes de protection de câbles. › Manchons (1). › Manchons à double emboîture.",
+"u": "p",
+"ep": 6.8
+},
+"151/442.115": {
+"t": "DN/ID 120.",
+"c": "Suppléments pour pose de manchons pour tubes de protection de câbles. › Manchons (1). › Manchons à double emboîture.",
+"u": "p",
+"ep": 7.0
+},
+"151/442.116": {
+"t": "DN/ID 150.",
+"c": "Suppléments pour pose de manchons pour tubes de protection de câbles. › Manchons (1). › Manchons à double emboîture.",
+"u": "p",
+"ep": 8.2
+},
+"151/442.121": {
+"t": "DN/ID 55.",
+"c": "Suppléments pour pose de manchons pour tubes de protection de câbles. › Manchons (1). › Manchons d'extrémité.",
+"u": "p",
+"ep": 5.5
+},
+"151/442.124": {
+"t": "DN/ID 100.",
+"c": "Suppléments pour pose de manchons pour tubes de protection de câbles. › Manchons (1). › Manchons d'extrémité.",
+"u": "p",
+"ep": 6.8
+},
+"151/442.125": {
+"t": "DN/ID 120.",
+"c": "Suppléments pour pose de manchons pour tubes de protection de câbles. › Manchons (1). › Manchons d'extrémité.",
+"u": "p",
+"ep": 7.0
+},
+"151/442.126": {
+"t": "DN/ID 150.",
+"c": "Suppléments pour pose de manchons pour tubes de protection de câbles. › Manchons (1). › Manchons d'extrémité.",
+"u": "p",
+"ep": 8.2
+},
+"151/442.162": {
+"t": "DN/ID 100.",
+"c": "Suppléments pour pose de manchons pour tubes de protection de câbles. › Manchons (1). › Manchons pour tubes avec fermeture longitudinale.",
+"u": "p",
+"ep": 8.0
+},
+"151/442.163": {
+"t": "DN/ID 120.",
+"c": "Suppléments pour pose de manchons pour tubes de protection de câbles. › Manchons (1). › Manchons pour tubes avec fermeture longitudinale.",
+"u": "p",
+"ep": 9.0
+},
+"151/442.164": {
+"t": "DN/ID 150.",
+"c": "Suppléments pour pose de manchons pour tubes de protection de câbles. › Manchons (1). › Manchons pour tubes avec fermeture longitudinale.",
+"u": "p",
+"ep": 10.0
+},
+"151/451.301": {
+"t": "Kit pièce en T en plastique pour chemin de câbles n° 8 avec 2 x sorties K55 up = Pièce Catalogue HGC Art. No. 1300771 (Swisscom)",
+"c": "Accessoires; pose seule.",
+"u": "up",
+"ep": 18.0
+},
+"151/451.302": {
+"t": "Kit pièce en T en plastique pour chemin de câbles n° 4 avec 2 x sorties K55 up = Pièce Catalogue HGC Art. No. 1300763 (Swisscom)",
+"c": "Accessoires; pose seule.",
+"u": "up",
+"ep": 18.0
+},
+"151/451.303": {
+"t": "Raccord demi-coque à 30° pour systèmes de tuyauterie plastique. K55 vers K55 up = Pièce Catalogue HGC Art. No. 1337690 (Swisscom)",
+"c": "Accessoires; pose seule.",
+"u": "up",
+"ep": 18.0
+},
+"151/451.304": {
+"t": "Raccord demi-coque à 30° pour systèmes de tuyauterie plastique K100 vers K55 up = Pièce Catalogue HGC Art. No. 1337708 (Swisscom)",
+"c": "Accessoires; pose seule.",
+"u": "up",
+"ep": 18.0
+},
+"151/451.305": {
+"t": "Raccord demi-coque 30° pour chemin de câbles n° 4 sur K55 up = Pièce Catalogue HGC Art. No. 1337716 (Swisscom)",
+"c": "Accessoires; pose seule.",
+"u": "up",
+"ep": 18.0
+},
+"151/451.306": {
+"t": "Raccord demi-coque 30° pour chemin de câbles n° 8 sur K55 up = Pièce Catalogue HGC Art. No. 1337724 (Swisscom)",
+"c": "Accessoires; pose seule.",
+"u": "up",
+"ep": 18.0
+},
+"151/451.307": {
+"t": "Pièce de jonction pour chemin de câbles n° 4, y compris kit de montage. up = Pièce Catalogue HGC Art. No. 1337732 (Swisscom)",
+"c": "Accessoires; pose seule.",
+"u": "up",
+"ep": 18.0
+},
+"151/451.308": {
+"t": "Remballer les câbles de télécommunication en service de tous diamètres dans le tube de fermeture longitudinale. up = m y compris toutes les mesures de protection nécessaires",
+"c": "Accessoires; pose seule.",
+"u": "up",
+"ep": 19.5
+},
+"151/471.111": {
+"t": "DN/ID 100. Nombre de tubes jusqu'à 4",
+"c": "Exécution de blocs de tubes. › Exécution du coffrage. Pose des tubes de protection de câbles en respectant un espacement entre chacun. Fourniture, mise en place par couches successives et compactage du matériau dans la zone d'enrobage (zone de canalisation). › Bloc de tubes en 1 couche.",
+"u": "m",
+"ep": 55.0
+},
+"151/471.115": {
+"t": "DN/ID div. DN/ID 55 Nombre de tubes 1 à 3",
+"c": "Exécution de blocs de tubes. › Exécution du coffrage. Pose des tubes de protection de câbles en respectant un espacement entre chacun. Fourniture, mise en place par couches successives et compactage du matériau dans la zone d'enrobage (zone de canalisation). › Bloc de tubes en 1 couche.",
+"u": "m",
+"ep": 38.0
+},
+"151/471.121": {
+"t": "DN/ID 100. Nombre de tubes jusqu'à 4",
+"c": "Exécution de blocs de tubes. › Exécution du coffrage. Pose des tubes de protection de câbles en respectant un espacement entre chacun. Fourniture, mise en place par couches successives et compactage du matériau dans la zone d'enrobage (zone de canalisation). › Bloc de tubes en 2 couches.",
+"u": "m",
+"ep": 59.0
+},
+"151/471.124": {
+"t": "DN/ID div. DN/ID 55 Nombre de tubes 1 à 3",
+"c": "Exécution de blocs de tubes. › Exécution du coffrage. Pose des tubes de protection de câbles en respectant un espacement entre chacun. Fourniture, mise en place par couches successives et compactage du matériau dans la zone d'enrobage (zone de canalisation). › Bloc de tubes en 2 couches.",
+"u": "m",
+"ep": 44.0
+},
+"151/471.131": {
+"t": "DN/ID 100. Nombre de couches jusqu'à 3 Nombre de tubes jusqu'à 4",
+"c": "Exécution de blocs de tubes. › Exécution du coffrage. Pose des tubes de protection de câbles en respectant un espacement entre chacun. Fourniture, mise en place par couches successives et compactage du matériau dans la zone d'enrobage (zone de canalisation). › Blocs de tubes en plusieurs couches.",
+"u": "m",
+"ep": 69.0
+},
+"151/471.134": {
+"t": "DN/ID div. DN/ID 55 Nombre de couches 3 à 4 Nombre de tubes 1 à 3",
+"c": "Exécution de blocs de tubes. › Exécution du coffrage. Pose des tubes de protection de câbles en respectant un espacement entre chacun. Fourniture, mise en place par couches successives et compactage du matériau dans la zone d'enrobage (zone de canalisation). › Blocs de tubes en plusieurs couches.",
+"u": "m",
+"ep": 51.0
+},
+"151/482.101": {
+"t": "Jusqu'à DN/ID 100.",
+"c": "Coupe de tubes, y compris chanfreinage des surfaces de coupe. › Tubes en matière synthétique.",
+"u": "p",
+"ep": 9.0
+},
+"151/482.102": {
+"t": "DN/ID 101 à 150.",
+"c": "Coupe de tubes, y compris chanfreinage des surfaces de coupe. › Tubes en matière synthétique.",
+"u": "p",
+"ep": 12.0
+},
+"151/484.111": {
+"t": "Type Bande d'avertissement pour installations de câbles",
+"c": "Bandes et filets. › Fourniture de bandes et filets. › Bandes de signalisation.",
+"u": "m",
+"ep": 0.1
+},
+"151/484.211": {
+"t": "Type Bande d'avertissement pour installations de câbles",
+"c": "Bandes et filets. › Pose de bandes et filets. › Bandes de signalisation.",
+"u": "m",
+"ep": 0.5
+},
+"151/484.301": {
+"t": "Fourniture et pose de ruban de terre Cu 20x3mm up = m y compris tous les terminaux de succursale nécessaires",
+"c": "Bandes et filets. › Pose de bandes et filets. › Bandes de signalisation.",
+"u": "up",
+"ep": 19.3
+},
+"151/484.302": {
+"t": "Pose de ruban de terre Cu 20x3mm fourni par le client up = m",
+"c": "Bandes et filets. › Pose de bandes et filets. › Bandes de signalisation.",
+"u": "up",
+"ep": 5.4
+},
+"151/485.001": {
+"t": "DN/ID 100.",
+"c": "Calibrage de tubes posés.",
+"u": "m",
+"ep": 1.5
+},
+"151/485.002": {
+"t": "DN/ID 120.",
+"c": "Calibrage de tubes posés.",
+"u": "m",
+"ep": 1.9
+},
+"151/485.003": {
+"t": "DN/ID 150.",
+"c": "Calibrage de tubes posés.",
+"u": "m",
+"ep": 2.2
+},
+"151/485.004": {
+"t": "DN/ID div. DN/ID 55",
+"c": "Calibrage de tubes posés.",
+"u": "m",
+"ep": 1.5
+},
+"151/486.001": {
+"t": "Y compris fourniture.",
+"c": "Introduction par tirage ou soufflage de ficelles dans tubes et fixation aux deux extrémités.",
+"u": "m",
+"ep": 1.5
+},
+"151/487.001": {
+"t": "Y compris fourniture.",
+"c": "Introduction par tirage de fils métalliques dans tubes et fixation aux deux extrémités.",
+"u": "m",
+"ep": 2.0
+},
+"151/611.171": {
+"t": "Chambre à câbles Dimensions DN 800 sans cône (exécution recouverte) sans couvercle de regard (soumissionné séparément) Profondeur du regard jusqu'à m 0.50 Selon plan Swisscom 151.611.114",
+"c": "Exécution de chambres, regards en éléments préfabriqués. › En béton. Exécution de fonds de regard ou chambre en béton coulé sur place ou en éléments préfabriqués.",
+"u": "p",
+"ep": 920.0
+},
+"151/611.172": {
+"t": "Chambre à câbles Dimensions DN 800 sans cône (exécution recouverte) sans couvercle de regard (soumissionné séparément) Profondeur du regard jusqu'à m 1.00 Selon plan Swisscom 151.611.114",
+"c": "Exécution de chambres, regards en éléments préfabriqués. › En béton. Exécution de fonds de regard ou chambre en béton coulé sur place ou en éléments préfabriqués.",
+"u": "p",
+"ep": 1290.0
+},
+"151/621.001": {
+"t": "Nouvelle construction Puits à dalle en Béton Selon plan Swisscom 151.621.001 Dimensions intérieures longueur x largeur x profondeur m 1.00 x 1.00 x 1.35 Epaisseur de paroi mm 200 Epaisseur du fond mm 150 surface propre talochée Béton, type NPK A sans couvercle",
+"c": "Exécution de chambres, regards en béton coulé sur place. Y compris fourniture des matériaux, coffrage, armature, bétonnage et crépissage.",
+"u": "p",
+"ep": 2090.0
+},
+"151/621.012": {
+"t": "Construction d'un nouveau petit puits d'accès KES en béton Selon plan Swisscom 151.621.011 Dimensions intérieures longueur x largeur x profondeur m 1.50 x 1.00 x 1.35 Epaisseur de paroi mm 200 Epaisseur du fond mm 150 surface propre talochée Béton, type NPK A excl. couvercle de puits",
+"c": "Exécution de chambres, regards en béton coulé sur place. Y compris fourniture des matériaux, coffrage, armature, bétonnage et crépissage.",
+"u": "p",
+"ep": 2660.0
+},
+"151/621.013": {
+"t": "Construction d'un nouveau petit puits d'accès KES en béton Selon plan Swisscom 151.621.011 Dimensions intérieures longueur x largeur x profondeur m 1.50 x 1.00 x 1.75 Epaisseur de paroi mm 200 Epaisseur du fond mm 150 surface propre talochée Béton, type NPK A excl. couvercle de puits",
+"c": "Exécution de chambres, regards en béton coulé sur place. Y compris fourniture des matériaux, coffrage, armature, bétonnage et crépissage.",
+"u": "p",
+"ep": 3230.0
+},
+"151/621.021": {
+"t": "Construction d'un nouveau puits d'accès KES en béton Selon plan Swisscom 151.621.022 Dimensions intérieures longueur x largeur x profondeur m 3.00 x 1.50 x 2.00 Epaisseur de paroi mm 200 Epaisseur du fond mm 200 Béton, type NPK A surface propre et talochée, en pente, y compris siphon de sol complet excl. couvercle de puits",
+"c": "Exécution de chambres, regards en béton coulé sur place. Y compris fourniture des matériaux, coffrage, armature, bétonnage et crépissage.",
+"u": "p",
+"ep": 11900.0
+},
+"151/623.001": {
+"t": "Transformation d'un puits existant Puits à dalle (PS) en Puits d'accès de petite taille (KES) Selon plan Swisscom 151.621_fr Dimensions intérieures longueur x largeur x profondeur m 1.00 x 1.00 x 1.00 up = Pièce Couvercle 975 x 800mm avec socle en béton et couvercle m. Remplissage de béton Catalogue HGC Art. No. 1370899",
+"c": "Exécution de chambres, regards d'un autre matériau. Y compris fourniture des matériaux.",
+"u": "up",
+"ep": 2940.0
+},
+"151/623.002": {
+"t": "Transformation d'un puits existant Puits à dalle (PS) en Puits d'accès de petite taille (KES) Selon plan Swisscom 151.621_fr Dimensions intérieures longueur x largeur x profondeur m 1.00 x 1.50 x 1.30 up = Pièce Cadre s. socle en béton pour Inlay Grip NW90x90cm D400 Swisscom Catalogue HGC Art. No. 1377886",
+"c": "Exécution de chambres, regards d'un autre matériau. Y compris fourniture des matériaux.",
+"u": "up",
+"ep": 4850.0
+},
+"151/623.003": {
+"t": "Transformation d'un puits existant Puits à dalle (PS) en Puits d'accès de petite taille (KES) Selon plan Swisscom 151.621_fr Dimensions intérieures longueur x largeur x profondeur m 1.00 x 2.00 x 1.30 up = Pièce Cadre s. socle en béton pour Inlay Grip NW 180 x 90cm (2x 90x90cm) D400 Swisscom Poids: 148 KG Catalogue HGC Art. No. 1374263",
+"c": "Exécution de chambres, regards d'un autre matériau. Y compris fourniture des matériaux.",
+"u": "up",
+"ep": 5670.0
+},
+"151/623.011": {
+"t": "Transformation du puits d'accès existant Situation Les prestations suivantes sont à inclure : Sécurisation et protection des chambres de visite Démolition partielle de parois : jusqu'à 6.00m² Démolition partielle de dalles : jusqu'à 6.00m² Travaux de fraisage du béton: jusqu'à 2.00 m² Création d'introductions de tubes, y compris étanchéité : 6 pièces Fermeture d'introductions existantes : 6 pièces Complément de radier en béton : jusqu'à 6 m² Complément de paroi en béton : jusqu'à 6 m² Complément de dalle en béton : jusqu'à 6 m² Toutes les prestations nécessaires à une exécution dans les règles de l'art sont à inclure dans le prix unitaire (main-d'œuvre, matériaux, inventaire, prestations externes) Excl. la fourniture et la pose de la couverture de puits up = Pièce Exécution en concertation avec Direction des travaux et/ou Collaborateur de cablex SA",
+"c": "Exécution de chambres, regards d'un autre matériau. Y compris fourniture des matériaux.",
+"u": "up",
+"ep": 13000.0
+},
+"151/623.012": {
+"t": "Conversion du petit puits d'accès existant (KES) Situation : conformément au plan ....... Les prestations suivantes sont à inclure :Sécurisation et protection des chambres de visite Démolition partielle de parois : jusqu'à 2.00 m² Démolition partielle de dalles : jusqu'à 2.00 m² Travaux de fraisage du béton: jusqu'à 1.00 m² Création d'introductions de tubes, y compris étanchéité : 4 pièces Fermeture d'introductions existantes : 4 pièces Complément de radier en béton : jusqu'à 2 m² Complément de paroi en béton : jusqu'à 2m² Complément de dalle en béton: jusqu'à 2 m² Toutes les prestations nécessaires à une exécution dans les règles de l'art sont à inclure dans le prix unitaire (main-d'œuvre, matériaux, inventaire, prestations externes) Excl. la fourniture et la pose de la couverture de puits up = Pièce Exécution en concertation avec Direction des travaux et/ou Collaborateur de cablex SA",
+"c": "Exécution de chambres, regards d'un autre matériau. Y compris fourniture des matériaux.",
+"u": "up",
+"ep": 7500.0
+},
+"151/631.111": {
+"t": "DN 600.",
+"c": "Eléments préfabriqués pour regards. › Fourniture et pose de réhausses (éléments droits) et d'éléments en béton. › Hauteur jusqu'à m 0,50.",
+"u": "p",
+"ep": 162.0
+},
+"151/631.112": {
+"t": "DN 800.",
+"c": "Eléments préfabriqués pour regards. › Fourniture et pose de réhausses (éléments droits) et d'éléments en béton. › Hauteur jusqu'à m 0,50.",
+"u": "p",
+"ep": 215.0
+},
+"151/632.131": {
+"t": "Cadre avec socle béton système DS s. couvercle Swisscom Poids: 218 kg Catalogue HGC Art. No. 1373513",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 358.0
+},
+"151/632.132": {
+"t": "Cadre s. socle béton systeme DS s.couvercle Swisscom Poids: 60 kg Catalogue HGC Art. No. 1373505",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 168.0
+},
+"151/632.133": {
+"t": "Swisscom Cadre a. collerette béton NIVO 130x130cm Cl. D réglable Poids: 520 kg Catalogue HGC Art. No. 1373521",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 809.0
+},
+"151/632.134": {
+"t": "Cadre a. collerette béton régl. hauteur NIVO Swisscom Poids: 230 kg Catalogue HGC Art. No. 1373539",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 361.0
+},
+"151/632.135": {
+"t": "Swisscom Couvercle fonte NIVO DN 600 Cl. D400 Poids: 100 kg Catalogue HGC Art. No. 1373638",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 197.0
+},
+"151/632.136": {
+"t": "Swisscom Regard fonte non verrouillable DN 600 Cl. 400 Poids: 97 kg Catalogue HGC Art. No. 1373547",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 181.0
+},
+"151/632.137": {
+"t": "Bouchon p. trou de pic p. NIVO Poids: 0.01 kg Catalogue HGC Art. No. 1373661",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 11.7
+},
+"151/632.138": {
+"t": "Cadre s.collerette béton a.remplissage 122x90cm BGS Swisscom Poids: 429 kg Catalogue HGC Art. No. 1374321",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 2314.0
+},
+"151/632.141": {
+"t": "Cadre s.collerette béton a.remplissage 182x90cm BGS Swisscom Poids: 594 kg Catalogue HGC Art. No. 1374362",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 2460.0
+},
+"151/632.143": {
+"t": "Cadre s.socle béton, fonte 122x90cm Swisscom Poids: 318 kg Catalogue HGC Art. No. 1374388",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 2124.0
+},
+"151/632.144": {
+"t": "Cadre a. socle béton, fonte 190x140cm Swisscom Poids: 618 kg Catalogue HGC Art. No. 1374396",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 3007.0
+},
+"151/632.145": {
+"t": "Cadre s.socle béton, fonte 182x90cm Swisscom Poids: 435 kg Catalogue HGC Art. No. 1374404",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 2371.0
+},
+"151/632.146": {
+"t": "Cadre a. socle béton, fonte 240x140cm Swisscom Poids: 900 kg Catalogue HGC Art. No. 1374412",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 3129.0
+},
+"151/632.147": {
+"t": "Couverture 975x800mm avéc béton 975x800mm (Appenzeller) Swisscom Poids: 400 kg Catalogue HGC Art. No. 1370873",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 1254.0
+},
+"151/632.148": {
+"t": "Couverture avec socle et béton 975x800mm (Appenzeller) Swisscom Poids: 630 kg Catalogue HGC Art. No. 1370899",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 1986.0
+},
+"151/632.151": {
+"t": "Cadre s. collerette béton 123x90cm BGS Swisscom Poids: 116 kg Catalogue HGC Art. No. 1374248",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 507.0
+},
+"151/632.152": {
+"t": "Cadre s. socle en béton pour Inlay Grip NW 180x90cm D400 Swisscom Poids: 148 kg Catalogue HGC Art. No. 1374263",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 641.0
+},
+"151/632.153": {
+"t": "Cadre a. collerette béton 190x140cm BGS Swisscom Poids: 750 kg Catalogue HGC Art. No. 1374255",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 1179.0
+},
+"151/632.154": {
+"t": "Cadre a. socle en béton pour Inlay Grip 240x140cm D400 Swisscom Poids: 820 kg Catalogue HGC Art. No. 1374271",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 1533.0
+},
+"151/632.155": {
+"t": "Cadre s. socle en béton pour Inlay Grip NW90x90cm D400 Swisscom Poids: 95 kg Catalogue HGC Art. No. 1377886",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 464.0
+},
+"151/632.156": {
+"t": "Rahmen mit Betonsockel für Inlay Grip, NW Rahmen mit Betonsockel für Inlay Grip, NW 90 x 90cm D400 Swisscom Poids: 847 kg Catalogue HGC Art. No. 1377894",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 1260.0
+},
+"151/632.157": {
+"t": "Couvercle Inlay Grip 90x90cm D400 Swisscom Poids: 183 kg Catalogue HGC Art. No. 1377902",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 1156.0
+},
+"151/632.158": {
+"t": "Cadre et couvercle Lock Grip D400 sans socle e béton 90x90cm Swisscom Poids: 240 kg Catalogue HGC Art. No. 1377910",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 2435.0
+},
+"151/632.159": {
+"t": "Cadre et couvercle Lock Grip D400 avec socle e béton 190x140cm Swisscom Poids: 1008 kg Catalogue HGC Art. No. 1377936",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 3312.0
+},
+"151/632.161": {
+"t": "Cadre et couvercle Lock Grip D400 sans socle e béton 180x90cm Swisscom Poids: 473 kg Catalogue HGC Art. No. 1377928",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 3779.0
+},
+"151/632.162": {
+"t": "Cadre et couvercle Lock Grip D400 avec socle e béton 240x140cm Swisscom Poids: 1174 kg Catalogue HGC Art. No. 1377944",
+"c": "Dispositifs de fermeture. › Fourniture à pied d'oeuvre de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux.",
+"u": "p",
+"ep": 4894.0
+},
+"151/632.231": {
+"t": "Cadre avec socle béton système DS s. couvercle Swisscom Poids: 218 kg Catalogue HGC Art. No. 1373513",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 174.0
+},
+"151/632.232": {
+"t": "Cadre s. socle béton systeme DS s.couvercle Swisscom Poids: 60 kg Catalogue HGC Art. No. 1373505",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 156.0
+},
+"151/632.233": {
+"t": "Cadre a. collerette béton Swisscom NIVO 130x130cm D400 Poids: 520 kg Catalogue HGC Art. No. 1373521",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 247.0
+},
+"151/632.234": {
+"t": "Cadre a. collerette béton NIVO Swisscom Poids: 230 kg Catalogue HGC Art. No. 1373539",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 182.0
+},
+"151/632.235": {
+"t": "Couvercle fonte Swisscom NIVO DN 600 Cl. D400 Poids: 100 kg Catalogue HGC Art. No. 1373638",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 85.0
+},
+"151/632.236": {
+"t": "Regard fonte non verrouillable Swisscom DN 600 Cl. D400 Poids: 97 kg Catalogue HGC Art. No. 1373547",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 85.0
+},
+"151/632.237": {
+"t": "Bouchon p. trou de pic p. NIVO Poids: 0.01 kg Catalogue HGC Art. No. 1373661",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 9.5
+},
+"151/632.238": {
+"t": "Cadre s.collerette béton a. remplissage 122x90cm BGS Swisscom Poids: 429 kg Catalogue HGC Art. No. 1374321",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 595.0
+},
+"151/632.239": {
+"t": "Flächenabdeckung BGS Swisscom Rahmen o. Betonuntersatz mit Füllung 190x140cm Poids: 1200 kg Catalogue HGC Art. No. 1374339",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 323.0
+},
+"151/632.241": {
+"t": "Cadre s.collerette béton a.remplissage 182x90cm BGS Swisscom Poids: 594 kg Catalogue HGC Art. No. 1374362",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 648.0
+},
+"151/632.242": {
+"t": "Flächenabdeckung BGS Swisscom Rahmen o. Betonuntersatz mit Füllung 182x90cm Poids: 1450 kg Catalogue HGC Art. No. 1374370",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 369.0
+},
+"151/632.243": {
+"t": "Cadre s.socle béton, fonte 122x90cm Swisscom Poids: 218 kg Catalogue HGC Art. No. 1374388",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 444.0
+},
+"151/632.244": {
+"t": "Cadre a. socle béton, fonte 190x140cm Swisscom Classe 618 kg Catalogue HGC Art. No. 1374396",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 305.0
+},
+"151/632.245": {
+"t": "Cadre s.socle béton, fonte 182x90cm Swisscom Poids: 435 kg Catalogue HGC Art. No. 1374404",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 595.0
+},
+"151/632.246": {
+"t": "Cadre a. socle béton, fonte 240x140cm Swisscom Poids: 900 kg Catalogue HGC Art. No. 1374412",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 345.0
+},
+"151/632.247": {
+"t": "Couverture avéc béton 975x800mm (Appenzeller) Swisscom Poids: 400 kg Catalogue HGC Art. No. 1370873",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 595.0
+},
+"151/632.248": {
+"t": "Couverture avec socle et béton 975x800mm (Appenzeller) Swisscom Poids: 630 kg Catalogue HGC Art. No. 1370899",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 648.0
+},
+"151/632.251": {
+"t": "Cadre s. collerette béton 123x90cm BGS Swisscom Poids: 116 kg Catalogue HGC Art. No. 1374248",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 995.0
+},
+"151/632.252": {
+"t": "Cadre s. socle en béton pour Inlay Grip NW180x90cm D400 Swisscom Poids: 148 kg Catalogue HGC Art. No. 1374263",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 1205.0
+},
+"151/632.253": {
+"t": "Cadre a. collerette béton 190x140cm BGS Swisscom Poids: 750 kg Catalogue HGC Art. No. 1374255",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 265.0
+},
+"151/632.254": {
+"t": "Cadre a. socle en béton pour Inlay Grip 240x140cm D400 Swisscom Poids: 820 kg Catalogue HGC Art. No. 1374271",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 318.0
+},
+"151/632.255": {
+"t": "Cadre s. socle en béton pour Inlay Grip NW90x90cm D400 Swisscom Poids: 95 kg Catalogue HGC Art. No. 1377886",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 995.0
+},
+"151/632.256": {
+"t": "Cadre a. socle en béton pour Inlay Grip NW90x90cm D400 Swisscom Poids: 847 kg Catalogue HGC Art. No. 1377894",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 294.0
+},
+"151/632.257": {
+"t": "Couvercle Inlay Grip 90x90cm D400 Swisscom Poids: 183 kg Catalogue HGC Art. No. 1377902",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 124.0
+},
+"151/632.258": {
+"t": "Cadre et couvercle Lock Grip D400 sans socle e béton 90x90cm Swisscom Poids: 240 kg Catalogue HGC Art. No. 1377910",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 995.0
+},
+"151/632.259": {
+"t": "Cadre et couvercle Lock Grip D400 avec socle e béton 190x140cm Swisscom Poids: 1008 kg Catalogue HGC Art. No. 1377936",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 442.0
+},
+"151/632.261": {
+"t": "Cadre et couvercle Lock Grip D400 sans socle e béton 180x90cm Swisscom Poids: 473 kg Catalogue HGC Art. No. 1377928",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 1205.0
+},
+"151/632.262": {
+"t": "Cadre et couvercle Lock Grip D400 avec socle e béton 240x140cm Swisscom Poids: 1174 kg Catalogue HGC Art. No. 1377944",
+"c": "Dispositifs de fermeture. › Pose à la hauteur définitive de dalles réductrices de couronnement et de dispositifs de fermeture pour regards et ouvrages spéciaux. Y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 515.0
+},
+"151/633.001": {
+"t": "Couvercles de regards Format rond diamètre de 400 à 800mm y compris tous les matériaux et travaux annexes Rehaussement m couvercles jusqu'à 0.50",
+"c": "Rehaussement de dispositifs de fermeture de regards existants. Dégagement et rehaussement de la superstructure de regard y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 235.0
+},
+"151/633.002": {
+"t": "Couvercles de puits Format de forme rectangulaire, Dimensions jusqu'à 2.40 x 1.40m y compris tous les matériaux et travaux annexes Rehaussement m couvercles jusqu'à 0.50",
+"c": "Rehaussement de dispositifs de fermeture de regards existants. Dégagement et rehaussement de la superstructure de regard y compris fourniture des matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 1850.0
+},
+"151/634.001": {
+"t": "Couvercles de regards Format rond Diamètre de 400 à 800mm y compris tous les matériaux et travaux annexes Abaissement m jusqu'à 0,50",
+"c": "Abaissement de dispositifs de fermeture de regards existants. Dégagement, piquage et repose de la superstructure de regard, y compris matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 284.0
+},
+"151/634.002": {
+"t": "Couvercles de puits Format de forme rectangulaire, Dimensions jusqu'à 2.40 x 1.40m y compris tous les matériaux et travaux annexes Abaissement m jusqu'à 0,50",
+"c": "Abaissement de dispositifs de fermeture de regards existants. Dégagement, piquage et repose de la superstructure de regard, y compris matériaux pour lit de pose et pour fixation.",
+"u": "p",
+"ep": 1500.0
+},
+"151/672.101": {
+"t": "Conduites jusqu'à DN 80.",
+"c": "Exécution de raccordements de conduites aux regards, chambres et ouvrages, y compris piquage et rhabillage. › Ultérieurement aux regards ou chambres existants.",
+"u": "p",
+"ep": 154.0
+},
+"151/672.102": {
+"t": "Conduites jusqu'à DN 150.",
+"c": "Exécution de raccordements de conduites aux regards, chambres et ouvrages, y compris piquage et rhabillage. › Ultérieurement aux regards ou chambres existants.",
+"u": "p",
+"ep": 187.0
+},
+"151/672.201": {
+"t": "Conduites jusqu'à DN 80.",
+"c": "Exécution de raccordements de conduites aux regards, chambres et ouvrages, y compris piquage et rhabillage. › Aux regards ou chambres préfabriqués.",
+"u": "p",
+"ep": 124.0
+},
+"151/672.202": {
+"t": "Conduites jusqu'à DN 150.",
+"c": "Exécution de raccordements de conduites aux regards, chambres et ouvrages, y compris piquage et rhabillage. › Aux regards ou chambres préfabriqués.",
+"u": "p",
+"ep": 155.0
+},
+"151/672.301": {
+"t": "Conduites jusqu'à DN 80.",
+"c": "Exécution de raccordements de conduites aux regards, chambres et ouvrages, y compris piquage et rhabillage. › Aux ouvrages en béton, épaisseur jusqu'à mm 300.",
+"u": "p",
+"ep": 195.0
+},
+"151/672.302": {
+"t": "Conduites jusqu'à DN 150.",
+"c": "Exécution de raccordements de conduites aux regards, chambres et ouvrages, y compris piquage et rhabillage. › Aux ouvrages en béton, épaisseur jusqu'à mm 300.",
+"u": "p",
+"ep": 255.0
+},
+"151/672.401": {
+"t": "Installation d'un portique d'entrée professionnel conforme aux spécifications de Swisscom, y compris la livraison de tous les matériaux nécessaires. up = Pièce Prestations : Forage/percée de mur créer Fournir et poser le tube acier 2 poser Fermer le trou/la percée, boucher, étancher à l'extérieur Livrer et monter Manchon de transition sur K55",
+"c": "Exécution de raccordements de conduites aux regards, chambres et ouvrages, y compris piquage et rhabillage. › Aux ouvrages en béton, épaisseur jusqu'à mm 300.",
+"u": "up",
+"ep": 324.0
+},
+"151/672.402": {
+"t": "Sécurisation et protection de installations de câbles, manchons et similaires dans les puits sous exploitation y compris l'enlèvement et l'élimination des dispositifs de protection up = nombre de puits Tous les travaux nécessaires à la bonne exécution doivent être inclus dans le calcul.",
+"c": "Exécution de raccordements de conduites aux regards, chambres et ouvrages, y compris piquage et rhabillage. › Aux ouvrages en béton, épaisseur jusqu'à mm 300.",
+"u": "up",
+"ep": 355.0
+},
+"151/711.111": {
+"t": "Sable pour grave 0/4.",
+"c": "Fourniture de granulats naturels, à pied d'oeuvre ou au dépôt provisoire, y compris déchargement. › Métré: volume foisonné. › Graves non traitées, selon norme SN EN 13 242.",
+"u": "m3",
+"ep": 69.0
+},
+"151/711.112": {
+"t": "Gravier pour grave 4/8.",
+"c": "Fourniture de granulats naturels, à pied d'oeuvre ou au dépôt provisoire, y compris déchargement. › Métré: volume foisonné. › Graves non traitées, selon norme SN EN 13 242.",
+"u": "m3",
+"ep": 79.0
+},
+"151/711.113": {
+"t": "Gravier pour grave 16/22.",
+"c": "Fourniture de granulats naturels, à pied d'oeuvre ou au dépôt provisoire, y compris déchargement. › Métré: volume foisonné. › Graves non traitées, selon norme SN EN 13 242.",
+"u": "m3",
+"ep": 78.4
+},
+"151/711.114": {
+"t": "Grave 0/16, non gélive.",
+"c": "Fourniture de granulats naturels, à pied d'oeuvre ou au dépôt provisoire, y compris déchargement. › Métré: volume foisonné. › Graves non traitées, selon norme SN EN 13 242.",
+"u": "m3",
+"ep": 64.45
+},
+"151/711.115": {
+"t": "Grave 0/22, non gélive.",
+"c": "Fourniture de granulats naturels, à pied d'oeuvre ou au dépôt provisoire, y compris déchargement. › Métré: volume foisonné. › Graves non traitées, selon norme SN EN 13 242.",
+"u": "m3",
+"ep": 64.45
+},
+"151/711.116": {
+"t": "Grave 0/45, non gélive.",
+"c": "Fourniture de granulats naturels, à pied d'oeuvre ou au dépôt provisoire, y compris déchargement. › Métré: volume foisonné. › Graves non traitées, selon norme SN EN 13 242.",
+"u": "m3",
+"ep": 51.5
+},
+"151/711.123": {
+"t": "Grave pour béton 0/16.",
+"c": "Fourniture de granulats naturels, à pied d'oeuvre ou au dépôt provisoire, y compris déchargement. › Métré: volume foisonné. › Granulats selon norme SN EN 12 620.",
+"u": "m3",
+"ep": 78.6
+},
+"151/721.101": {
+"t": "Granulats naturels ou recyclés, fourniture non comprise.",
+"c": "Mise en oeuvre et compactage de matériau pour lit de pose, bourrage latéral et couverture superficielle de zones de canalisations. › Métré: volume foisonné.",
+"u": "m3",
+"ep": 23.0
+},
+"151/731.101": {
+"t": "Béton, teneur en ciment kg/m3 200, D_max 16.",
+"c": "Fourniture, mise en oeuvre et compactage de béton pour zones de canalisations. Métré: volume théorique. › Béton avec granulats naturels ou granulats recyclés.",
+"u": "m3",
+"ep": 236.0
+},
+"151/741.111": {
+"t": "Matériaux d'excavation.",
+"c": "Remblayage avec matériaux mis en dépôt latéral ou matériaux d'apport. › Métré: volume foisonné. › A la machine.",
+"u": "m3",
+"ep": 15.0
+},
+"151/741.112": {
+"t": "Granulats naturels.",
+"c": "Remblayage avec matériaux mis en dépôt latéral ou matériaux d'apport. › Métré: volume foisonné. › A la machine.",
+"u": "m3",
+"ep": 13.5
+},
+"151/741.121": {
+"t": "Matériaux d'excavation.",
+"c": "Remblayage avec matériaux mis en dépôt latéral ou matériaux d'apport. › Métré: volume foisonné. › A la main.",
+"u": "m3",
+"ep": 47.0
+},
+"151/741.122": {
+"t": "Granulats naturels.",
+"c": "Remblayage avec matériaux mis en dépôt latéral ou matériaux d'apport. › Métré: volume foisonné. › A la main.",
+"u": "m3",
+"ep": 39.6
+},
+"151/751.101": {
+"t": "Tolérance à partir de la hauteur théorique +/- mm 30.",
+"c": "Exécution de formes intermédiaires à des profondeurs de tranchée variables, sans utilisation de matériaux supplémentaires. › Largeur de la forme, jusqu'à m 1,0.",
+"u": "m2",
+"ep": 2.9
+},
+"151/751.102": {
+"t": "Tolérance à partir de la hauteur théorique +/- mm 60.",
+"c": "Exécution de formes intermédiaires à des profondeurs de tranchée variables, sans utilisation de matériaux supplémentaires. › Largeur de la forme, jusqu'à m 1,0.",
+"u": "m2",
+"ep": 2.2
+},
+"151/751.201": {
+"t": "Tolérance à partir de la hauteur théorique +/- mm 30.",
+"c": "Exécution de formes intermédiaires à des profondeurs de tranchée variables, sans utilisation de matériaux supplémentaires. › Largeur de la forme supérieure à m 1,0.",
+"u": "m2",
+"ep": 2.2
+},
+"151/751.202": {
+"t": "Tolérance à partir de la hauteur théorique +/- mm 60.",
+"c": "Exécution de formes intermédiaires à des profondeurs de tranchée variables, sans utilisation de matériaux supplémentaires. › Largeur de la forme supérieure à m 1,0.",
+"u": "m2",
+"ep": 1.5
+},
+"151/752.001": {
+"t": "fonction de séparation",
+"c": "Fourniture et pose de géotextiles. Métré: surface recouverte.",
+"u": "m2",
+"ep": 4.1
+},
+"151/754.101": {
+"t": "Béton, teneur en ciment kg/m3 200.",
+"c": "Coulage de béton sous tuyaux, conduites et similaires et reprise en sous-oeuvre. › Béton, y compris fourniture.",
+"u": "m3",
+"ep": 283.0
+},
+"151/757.111": {
+"t": "Matériaux d'excavation.",
+"c": "Chargement de matériaux depuis dépôt provisoire ordonné par la direction des travaux. › A la machine. › Métré: volume foisonné.",
+"u": "m3",
+"ep": 4.0
+},
+"151/757.121": {
+"t": "Matériaux d'excavation.",
+"c": "Chargement de matériaux depuis dépôt provisoire ordonné par la direction des travaux. › A la machine. › Métré: volume théorique.",
+"u": "m3",
+"ep": 5.0
+},
+"151/757.211": {
+"t": "Matériaux d'excavation.",
+"c": "Chargement de matériaux depuis dépôt provisoire ordonné par la direction des travaux. › A la main. › Métré: volume foisonné.",
+"u": "m3",
+"ep": 32.0
+},
+"151/757.221": {
+"t": "Matériaux d'excavation.",
+"c": "Chargement de matériaux depuis dépôt provisoire ordonné par la direction des travaux. › A la main. › Métré: volume théorique.",
+"u": "m3",
+"ep": 40.0
+},
+"151/761.111": {
+"t": "Distance jusqu'à m 100.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier, y compris déchargement. › Transports au dépôt provisoire du maître d'ouvrage ou de l'entrepreneur. Métré: volume foisonné. › Tous matériaux, taxes non comprises.",
+"u": "m3",
+"ep": 6.5
+},
+"151/761.112": {
+"t": "Distance m 101 à 200.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier, y compris déchargement. › Transports au dépôt provisoire du maître d'ouvrage ou de l'entrepreneur. Métré: volume foisonné. › Tous matériaux, taxes non comprises.",
+"u": "m3",
+"ep": 8.0
+},
+"151/761.113": {
+"t": "Distance m 201 à 500.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier, y compris déchargement. › Transports au dépôt provisoire du maître d'ouvrage ou de l'entrepreneur. Métré: volume foisonné. › Tous matériaux, taxes non comprises.",
+"u": "m3",
+"ep": 10.5
+},
+"151/771.112": {
+"t": "Terre végétale, épaisseur de couche jusqu'à m 0,30.",
+"c": "Mise en place de partie inférieure et de partie supérieure du sol. › Surfaces horizontales ou en pente jusqu'à 1:4. › A la machine.",
+"u": "m2",
+"ep": 2.2
+},
+"151/771.122": {
+"t": "Terre végétale, épaisseur de couche jusqu'à m 0,30.",
+"c": "Mise en place de partie inférieure et de partie supérieure du sol. › Surfaces horizontales ou en pente jusqu'à 1:4. › A la main.",
+"u": "m2",
+"ep": 7.9
+},
+"151/771.212": {
+"t": "Terre végétale, épaisseur de couche jusqu'à m 0,30.",
+"c": "Mise en place de partie inférieure et de partie supérieure du sol. › Talus et surfaces, inclinaison supérieure à 1:4. › A la machine.",
+"u": "m2",
+"ep": 2.9
+},
+"151/771.222": {
+"t": "Terre végétale, épaisseur de couche jusqu'à m 0,30.",
+"c": "Mise en place de partie inférieure et de partie supérieure du sol. › Talus et surfaces, inclinaison supérieure à 1:4. › A la main.",
+"u": "m2",
+"ep": 11.1
+},
+"151/772.112": {
+"t": "Partie supérieure du sol.",
+"c": "Régalage de partie supérieure et de partie inférieure de sol excédentaires, sur ordre du maître d'ouvrage. › Métré: volume théorique. › A la machine.",
+"u": "m3",
+"ep": 12.5
+},
+"151/773.111": {
+"t": "Partie inférieure du sol.",
+"c": "Travaux complémentaires et ensemencement. › Ameublissement du terrain naturel et/ou de sols compactés par les véhicules, sur ordre du maître d'ouvrage. › Hersage.",
+"u": "m2",
+"ep": 0.6
+},
+"151/773.112": {
+"t": "Partie supérieure du sol.",
+"c": "Travaux complémentaires et ensemencement. › Ameublissement du terrain naturel et/ou de sols compactés par les véhicules, sur ordre du maître d'ouvrage. › Hersage.",
+"u": "m2",
+"ep": 0.5
+},
+"151/774.101": {
+"t": "Surfaces et talus, toutes pentes.",
+"c": "Ensemencement de surfaces et de talus, y compris fourniture de la semence. › Semis à sec.",
+"u": "m2",
+"ep": 0.8
+},
+"151/775.001": {
+"t": "A partir du dépôt provisoire latéral.",
+"c": "Pose de plaques de gazon.",
+"u": "m2",
+"ep": 4.7
+},
+"151/775.002": {
+"t": "Y compris transport jusqu'à m 30 à partir du dépôt provisoire.",
+"c": "Pose de plaques de gazon.",
+"u": "m2",
+"ep": 8.9
+},
+"222/211.211": {
+"t": "Type 8/11.",
+"c": "Fourniture de gneiss. › Pavés et boutisses, résistant au gel et aux sels de déverglaçage. Face supérieure, brute de fendage. 2 côtés fraisés. › Pavés.",
+"u": "m",
+"ep": 10.8
+},
+"222/211.212": {
+"t": "Type 11/13.",
+"c": "Fourniture de gneiss. › Pavés et boutisses, résistant au gel et aux sels de déverglaçage. Face supérieure, brute de fendage. 2 côtés fraisés. › Pavés.",
+"u": "m",
+"ep": 16.7
+},
+"222/211.221": {
+"t": "Type 10.",
+"c": "Fourniture de gneiss. › Pavés et boutisses, résistant au gel et aux sels de déverglaçage. Face supérieure, brute de fendage. 2 côtés fraisés. › Boutisses.",
+"u": "m",
+"ep": 23.0
+},
+"222/211.222": {
+"t": "Type 12.",
+"c": "Fourniture de gneiss. › Pavés et boutisses, résistant au gel et aux sels de déverglaçage. Face supérieure, brute de fendage. 2 côtés fraisés. › Boutisses.",
+"u": "m",
+"ep": 34.0
+},
+"222/211.412": {
+"t": "Type SN 8, mm 80x min. mm 250.",
+"c": "Fourniture de gneiss. › Planches et bordurettes, type SN, résistant au gel et aux sels de déverglaçage. Face supérieure fraisée. Face devant apparente, brute de fendage. › Droites, longueur mm 800 à 1'500.",
+"u": "m",
+"ep": 43.2
+},
+"222/211.413": {
+"t": "Type SN 10, mm 100x min. mm 250.",
+"c": "Fourniture de gneiss. › Planches et bordurettes, type SN, résistant au gel et aux sels de déverglaçage. Face supérieure fraisée. Face devant apparente, brute de fendage. › Droites, longueur mm 800 à 1'500.",
+"u": "m",
+"ep": 55.4
+},
+"222/212.211": {
+"t": "Type 8/11.",
+"c": "Fourniture de granit. › Pavés et boutisses, résistant au gel et aux sels de déverglaçage. Face supérieure fraisée et rendue rugueuse. Autres faces brutes de fendage ou fraisées et rendues rugueuses. › Pavés.",
+"u": "m",
+"ep": 11.4
+},
+"222/212.212": {
+"t": "Type 11/13.",
+"c": "Fourniture de granit. › Pavés et boutisses, résistant au gel et aux sels de déverglaçage. Face supérieure fraisée et rendue rugueuse. Autres faces brutes de fendage ou fraisées et rendues rugueuses. › Pavés.",
+"u": "m",
+"ep": 17.8
+},
+"222/212.221": {
+"t": "Type 10.",
+"c": "Fourniture de granit. › Pavés et boutisses, résistant au gel et aux sels de déverglaçage. Face supérieure fraisée et rendue rugueuse. Autres faces brutes de fendage ou fraisées et rendues rugueuses. › Boutisses.",
+"u": "m",
+"ep": 24.4
+},
+"222/212.222": {
+"t": "Type 12.",
+"c": "Fourniture de granit. › Pavés et boutisses, résistant au gel et aux sels de déverglaçage. Face supérieure fraisée et rendue rugueuse. Autres faces brutes de fendage ou fraisées et rendues rugueuses. › Boutisses.",
+"u": "m",
+"ep": 35.7
+},
+"222/212.312": {
+"t": "Type SN 8, mm 80x min. mm 250.",
+"c": "Fourniture de granit. › Planches et bordurettes, type SN, résistant au gel et aux sels de déverglaçage. Face supérieure rendue rugueuse. › Droites, longueur mm 800 à 1'500.",
+"u": "m",
+"ep": 45.1
+},
+"222/212.313": {
+"t": "Type SN 10, mm 100x min. mm 250.",
+"c": "Fourniture de granit. › Planches et bordurettes, type SN, résistant au gel et aux sels de déverglaçage. Face supérieure rendue rugueuse. › Droites, longueur mm 800 à 1'500.",
+"u": "m",
+"ep": 57.9
+},
+"222/311.111": {
+"t": "Type 8/11, béton: volume nécessaire m3/m 0,050.",
+"c": "Pose de pavés de butée, boutisses et pavés de caniveau, ainsi que de dallettes de caniveau. En droites et en courbes. Pose dans un rayon inférieur à m 30,00 en supplément sur art. 315. › 1 rangée. Dans lit de béton, sur couche de fondation en grave non liée. Y compris jointoiement au mortier résistant au gel et aux sels de déverglaçage. Selon schéma 1 et 2 en annexe. › Classes de trafic pondéral ZP, TL et T1. Dans lit de béton à granulat grossier, à gravillon ou à gravier rond 2/8, 4/8 ou 5/8, CEM 42,5 kg/m3 200 à 250. Résistance à la compression et perméabilité à l'eau, selon normes SN 640 480 et SN 640 481.",
+"u": "m",
+"ep": 38.5
+},
+"222/311.112": {
+"t": "Type 11/13, béton: volume nécessaire m3/m 0,060.",
+"c": "Pose de pavés de butée, boutisses et pavés de caniveau, ainsi que de dallettes de caniveau. En droites et en courbes. Pose dans un rayon inférieur à m 30,00 en supplément sur art. 315. › 1 rangée. Dans lit de béton, sur couche de fondation en grave non liée. Y compris jointoiement au mortier résistant au gel et aux sels de déverglaçage. Selon schéma 1 et 2 en annexe. › Classes de trafic pondéral ZP, TL et T1. Dans lit de béton à granulat grossier, à gravillon ou à gravier rond 2/8, 4/8 ou 5/8, CEM 42,5 kg/m3 200 à 250. Résistance à la compression et perméabilité à l'eau, selon normes SN 640 480 et SN 640 481.",
+"u": "m",
+"ep": 44.5
+},
+"222/311.311": {
+"t": "Type 8/11, béton: volume nécessaire m3/m 0,070.",
+"c": "Pose de pavés de butée, boutisses et pavés de caniveau, ainsi que de dallettes de caniveau. En droites et en courbes. Pose dans un rayon inférieur à m 30,00 en supplément sur art. 315. › 2 rangées, avec même épaisseur des pierres, 1 rangée surélevée ou inclinée. Dans lit de béton, sur couche de fondation en grave non liée. Y compris jointoiement au mortier résistant au gel et aux sels de déverglaçage. Selon schéma 4 et 5 en annexe. › Classes de trafic pondéral ZP, TL et T1. Dans lit de béton à granulat grossier, à gravillon ou à gravier rond 2/8, 4/8 ou 5/8, CEM 42,5 kg/m3 200 à 250. Résistance à la compression et perméabilité à l'eau, selon normes SN 640 480 et SN 640 481.",
+"u": "m",
+"ep": 71.0
+},
+"222/311.312": {
+"t": "Type 11/13, béton: volume nécessaire m3/m 0,080.",
+"c": "Pose de pavés de butée, boutisses et pavés de caniveau, ainsi que de dallettes de caniveau. En droites et en courbes. Pose dans un rayon inférieur à m 30,00 en supplément sur art. 315. › 2 rangées, avec même épaisseur des pierres, 1 rangée surélevée ou inclinée. Dans lit de béton, sur couche de fondation en grave non liée. Y compris jointoiement au mortier résistant au gel et aux sels de déverglaçage. Selon schéma 4 et 5 en annexe. › Classes de trafic pondéral ZP, TL et T1. Dans lit de béton à granulat grossier, à gravillon ou à gravier rond 2/8, 4/8 ou 5/8, CEM 42,5 kg/m3 200 à 250. Résistance à la compression et perméabilité à l'eau, selon normes SN 640 480 et SN 640 481.",
+"u": "m",
+"ep": 74.0
+},
+"222/321.122": {
+"t": "Type SN ou SB 8, mm 80x min. mm 250, béton: volume nécessaire m3/m 0,105.",
+"c": "Pose de planches et bordurettes. En droites et en courbes. Jointoiement non compris. Pose dans un rayon inférieur à m 30,00 en supplément sur art. 323. › Dans lit de béton, sur couche de fondation en grave non liée. Selon schéma 16 en annexe. › Classes de trafic pondéral TL et T1 jusqu'à T4. Dans lit de béton à granulat grossier, à gravillon ou à gravier rond 4/8 ou 8/16, CEM 42,5 kg/m3 200 à 250. Résistance à la compression et perméabilité à l'eau, selon normes SN 640 480 et SN 640 481.",
+"u": "m",
+"ep": 35.0
+},
+"222/321.123": {
+"t": "Type SN ou SB 10, mm 100x min. mm 250, béton: volume nécessaire m3/m 0,110.",
+"c": "Pose de planches et bordurettes. En droites et en courbes. Jointoiement non compris. Pose dans un rayon inférieur à m 30,00 en supplément sur art. 323. › Dans lit de béton, sur couche de fondation en grave non liée. Selon schéma 16 en annexe. › Classes de trafic pondéral TL et T1 jusqu'à T4. Dans lit de béton à granulat grossier, à gravillon ou à gravier rond 4/8 ou 8/16, CEM 42,5 kg/m3 200 à 250. Résistance à la compression et perméabilité à l'eau, selon normes SN 640 480 et SN 640 481.",
+"u": "m",
+"ep": 47.0
+},
+"222/551.102": {
+"t": "Epaisseur de pavé mm 60.",
+"c": "Exécution de pavages, en pavés de béton autobloquants ou en pavés de béton, y compris lit de sable ou de gravillon, ainsi que colmatage de la partie supérieure des joints par insertion, au balai, de sable argileux avec apport d'eau. › Classes de trafic pondéral ZP et TL.",
+"u": "m2",
+"ep": 45.5
+},
+"222/551.103": {
+"t": "Epaisseur de pavé mm 80.",
+"c": "Exécution de pavages, en pavés de béton autobloquants ou en pavés de béton, y compris lit de sable ou de gravillon, ainsi que colmatage de la partie supérieure des joints par insertion, au balai, de sable argileux avec apport d'eau. › Classes de trafic pondéral ZP et TL.",
+"u": "m2",
+"ep": 52.4
+},
+"222/571.211": {
+"t": "Epaisseur de pierre, jusqu'à mm 60.",
+"c": "Travaux accessoires pour tous types de pavages en béton. › Pour coupe de pavés de béton autobloquants, pavés en béton ou grilles-gazon en béton, à disposition ou fournis par la direction des travaux, y compris adaptation aux ouvrages, bordures, regards et similaires. › Coupe à l'équerre.",
+"u": "m",
+"ep": 19.0
+},
+"222/572.311": {
+"t": "Béton CEM 42.5 kg/m3 200-250",
+"c": "Suppléments pour tous types de pavages en béton. › Pour bétonnage et fixation des bords. › Bétonnage des bords, y compris toutes fournitures. Pour classes de trafic pondéral ZP et TL.",
+"u": "m",
+"ep": 18.6
+},
+"222/711.111": {
+"t": "Epaisseur de dalle mm 40.",
+"c": "Pose de dalles en pierre naturelle, y compris pose sur lit de sable ou de gravillon, jointoiement au sable ou au gravillon, colmatage de la partie supérieure des joints par insertion, au balai, de sable argileux avec apport d'eau. › Classes de trafic pondéral ZP et TL. › Dalles rectangulaires, largeur mm 300 à 600.",
+"u": "m2",
+"ep": 62.0
+},
+"222/711.112": {
+"t": "Epaisseur de dalle mm 50.",
+"c": "Pose de dalles en pierre naturelle, y compris pose sur lit de sable ou de gravillon, jointoiement au sable ou au gravillon, colmatage de la partie supérieure des joints par insertion, au balai, de sable argileux avec apport d'eau. › Classes de trafic pondéral ZP et TL. › Dalles rectangulaires, largeur mm 300 à 600.",
+"u": "m2",
+"ep": 67.0
+},
+"222/751.111": {
+"t": "Epaisseur de dalle mm 40.",
+"c": "Pose de dalles en béton, y compris lit de sable ou de gravillon, joints aboutés. › Classes de trafic pondéral ZP et TL. › Dimensions jusqu'à mm 500x500.",
+"u": "m2",
+"ep": 48.0
+},
+"222/751.112": {
+"t": "Epaisseur de dalle mm 50.",
+"c": "Pose de dalles en béton, y compris lit de sable ou de gravillon, joints aboutés. › Classes de trafic pondéral ZP et TL. › Dimensions jusqu'à mm 500x500.",
+"u": "m2",
+"ep": 54.0
+},
+"223/111.001": {
+"t": "Pour la durée des prestations de l'entrepreneur. Exécution en une étape.",
+"c": "Installations générales pour travaux de revêtement et travaux accessoires.",
+"u": "gl",
+"ep": 450.0
+},
+"223/131.101": {
+"t": "Pour la durée des prestations de l'entrepreneur.",
+"c": "Installations pour la mise en oeuvre à la machine d'enrobé bitumineux compacté: installation, mise à disposition, déplacement et enlèvement. › Largeur de mise en oeuvre jusqu'à m 2,5.",
+"u": "p",
+"ep": 1820.0
+},
+"223/131.201": {
+"t": "Pour la durée des prestations de l'entrepreneur.",
+"c": "Installations pour la mise en oeuvre à la machine d'enrobé bitumineux compacté: installation, mise à disposition, déplacement et enlèvement. › Largeur de mise en oeuvre supérieure à m 2,5.",
+"u": "p",
+"ep": 2250.0
+},
+"223/131.301": {
+"t": "Pour la durée des prestations de l'entrepreneur.",
+"c": "Installations pour la mise en oeuvre à la machine d'enrobé bitumineux compacté: installation, mise à disposition, déplacement et enlèvement. › Installations pour la mise en oeuvre ultérieure d'une couche de roulement, après évacuation des installations générales de chantier, largeur jusqu'à m 2,5.",
+"u": "p",
+"ep": 1850.0
+},
+"223/131.401": {
+"t": "Pour la durée des prestations de l'entrepreneur.",
+"c": "Installations pour la mise en oeuvre à la machine d'enrobé bitumineux compacté: installation, mise à disposition, déplacement et enlèvement. › Installations pour la mise en oeuvre ultérieure d'une couche de roulement, après évacuation des installations générales de chantier, largeur supérieure à m 2,5.",
+"u": "p",
+"ep": 2300.0
+},
+"223/131.701": {
+"t": "Conc. sous-art. .101.",
+"c": "Installations pour la mise en oeuvre à la machine d'enrobé bitumineux compacté: installation, mise à disposition, déplacement et enlèvement. › Etapes supplémentaires ordonnées par la direction des travaux.",
+"u": "p",
+"ep": 1750.0
+},
+"223/131.702": {
+"t": "Conc. sous-art. .201.",
+"c": "Installations pour la mise en oeuvre à la machine d'enrobé bitumineux compacté: installation, mise à disposition, déplacement et enlèvement. › Etapes supplémentaires ordonnées par la direction des travaux.",
+"u": "p",
+"ep": 1750.0
+},
+"223/131.703": {
+"t": "Conc. sous-art. .301.",
+"c": "Installations pour la mise en oeuvre à la machine d'enrobé bitumineux compacté: installation, mise à disposition, déplacement et enlèvement. › Etapes supplémentaires ordonnées par la direction des travaux.",
+"u": "p",
+"ep": 1750.0
+},
+"223/131.704": {
+"t": "Conc. sous-art. .401.",
+"c": "Installations pour la mise en oeuvre à la machine d'enrobé bitumineux compacté: installation, mise à disposition, déplacement et enlèvement. › Etapes supplémentaires ordonnées par la direction des travaux.",
+"u": "p",
+"ep": 1750.0
+},
+"223/132.101": {
+"t": "Pour la durée des prestations de l'entrepreneur.",
+"c": "Installations pour la mise en oeuvre à la main d'enrobé bitumineux compacté: installation, mise à disposition, déplacement et enlèvement. › Installations pour la mise en oeuvre d'enrobé bitumineux compacté.",
+"u": "p",
+"ep": 750.0
+},
+"223/132.201": {
+"t": "Pour la durée des prestations de l'entrepreneur.",
+"c": "Installations pour la mise en oeuvre à la main d'enrobé bitumineux compacté: installation, mise à disposition, déplacement et enlèvement. › Installations pour la mise en oeuvre ultérieure d'une couche de roulement, après évacuation des installations générales de chantier.",
+"u": "p",
+"ep": 750.0
+},
+"223/132.301": {
+"t": "Conc. sous-art. .101.",
+"c": "Installations pour la mise en oeuvre à la main d'enrobé bitumineux compacté: installation, mise à disposition, déplacement et enlèvement. › Etapes supplémentaires ordonnées par la direction des travaux.",
+"u": "p",
+"ep": 750.0
+},
+"223/132.302": {
+"t": "Conc. sous-art. .201.",
+"c": "Installations pour la mise en oeuvre à la main d'enrobé bitumineux compacté: installation, mise à disposition, déplacement et enlèvement. › Etapes supplémentaires ordonnées par la direction des travaux.",
+"u": "p",
+"ep": 750.0
+},
+"223/221.101": {
+"t": "Epaisseur de couche jusqu'à mm 50.",
+"c": "Coupe de couches bitumineuses. › A la main, avec ciseau pneumatique, scie circulaire manuelle et similaires.",
+"u": "m",
+"ep": 9.1
+},
+"223/221.102": {
+"t": "Epaisseur de couche mm 51 à 100.",
+"c": "Coupe de couches bitumineuses. › A la main, avec ciseau pneumatique, scie circulaire manuelle et similaires.",
+"u": "m",
+"ep": 10.6
+},
+"223/221.103": {
+"t": "Epaisseur de couche mm 101 à 150.",
+"c": "Coupe de couches bitumineuses. › A la main, avec ciseau pneumatique, scie circulaire manuelle et similaires.",
+"u": "m",
+"ep": 12.6
+},
+"223/221.104": {
+"t": "Epaisseur de couche mm 151 à 200.",
+"c": "Coupe de couches bitumineuses. › A la main, avec ciseau pneumatique, scie circulaire manuelle et similaires.",
+"u": "m",
+"ep": 16.2
+},
+"223/221.201": {
+"t": "Epaisseur de couche jusqu'à mm 50.",
+"c": "Coupe de couches bitumineuses. › A la machine, avec scie circulaire et similaires.",
+"u": "m",
+"ep": 8.05
+},
+"223/221.202": {
+"t": "Epaisseur de couche mm 51 à 100.",
+"c": "Coupe de couches bitumineuses. › A la machine, avec scie circulaire et similaires.",
+"u": "m",
+"ep": 9.8
+},
+"223/221.203": {
+"t": "Epaisseur de couche mm 101 à 150.",
+"c": "Coupe de couches bitumineuses. › A la machine, avec scie circulaire et similaires.",
+"u": "m",
+"ep": 11.9
+},
+"223/221.204": {
+"t": "Epaisseur de couche mm 151 à 200.",
+"c": "Coupe de couches bitumineuses. › A la machine, avec scie circulaire et similaires.",
+"u": "m",
+"ep": 14.1
+},
+"223/222.121": {
+"t": "Epaisseur de couche jusqu'à mm 50.",
+"c": "Démolition de couches bitumineuses. › A la main. › Couches en enrobé bitumineux compacté.",
+"u": "m2",
+"ep": 7.2
+},
+"223/222.122": {
+"t": "Epaisseur de couche mm 51 à 100.",
+"c": "Démolition de couches bitumineuses. › A la main. › Couches en enrobé bitumineux compacté.",
+"u": "m2",
+"ep": 8.9
+},
+"223/222.123": {
+"t": "Epaisseur de couche mm 101 à 150.",
+"c": "Démolition de couches bitumineuses. › A la main. › Couches en enrobé bitumineux compacté.",
+"u": "m2",
+"ep": 10.4
+},
+"223/222.124": {
+"t": "Epaisseur de couche mm 151 à 200.",
+"c": "Démolition de couches bitumineuses. › A la main. › Couches en enrobé bitumineux compacté.",
+"u": "m2",
+"ep": 15.9
+},
+"223/222.221": {
+"t": "Epaisseur de couche jusqu'à mm 50.",
+"c": "Démolition de couches bitumineuses. › A la machine. › Couches en enrobé bitumineux compacté.",
+"u": "m2",
+"ep": 5.2
+},
+"223/222.222": {
+"t": "Epaisseur de couche mm 51 à 100.",
+"c": "Démolition de couches bitumineuses. › A la machine. › Couches en enrobé bitumineux compacté.",
+"u": "m2",
+"ep": 6.5
+},
+"223/222.223": {
+"t": "Epaisseur de couche mm 101 à 150.",
+"c": "Démolition de couches bitumineuses. › A la machine. › Couches en enrobé bitumineux compacté.",
+"u": "m2",
+"ep": 8.9
+},
+"223/222.224": {
+"t": "Epaisseur de couche mm 151 à 200.",
+"c": "Démolition de couches bitumineuses. › A la machine. › Couches en enrobé bitumineux compacté.",
+"u": "m2",
+"ep": 11.8
+},
+"223/241.111": {
+"t": "Support bitumineux.",
+"c": "Nettoyage du support. Y compris évacuation et élimination des résidus. › Nettoyage à sec. › A la main.",
+"u": "m2",
+"ep": 1.0
+},
+"223/241.121": {
+"t": "Support bitumineux.",
+"c": "Nettoyage du support. Y compris évacuation et élimination des résidus. › Nettoyage à sec. › A la machine.",
+"u": "m2",
+"ep": 0.6
+},
+"223/241.211": {
+"t": "Support bitumineux.",
+"c": "Nettoyage du support. Y compris évacuation et élimination des résidus. › Nettoyage à l'eau. Avec buses rotatives et dispositif d'aspiration, y compris chargement, évacuation et élimination selon les règles de l'art. › Avec eau, pression d'eau bars 200. Tolérance +/- bars 20.",
+"u": "m2",
+"ep": 0.6
+},
+"223/241.221": {
+"t": "Support bitumineux.",
+"c": "Nettoyage du support. Y compris évacuation et élimination des résidus. › Nettoyage à l'eau. Avec buses rotatives et dispositif d'aspiration, y compris chargement, évacuation et élimination selon les règles de l'art. › Avec eau, pression d'eau bars 201 à 500. Tolérance +/- bars 20.",
+"u": "m2",
+"ep": 0.8
+},
+"223/261.101": {
+"t": "Distance jusqu'à m 50.",
+"c": "Transport intermédiaire avec dumpers ou petites chargeuses. › Métré: volume foisonné.",
+"u": "m3",
+"ep": 6.2
+},
+"223/261.102": {
+"t": "Distance m 51 à 100.",
+"c": "Transport intermédiaire avec dumpers ou petites chargeuses. › Métré: volume foisonné.",
+"u": "m3",
+"ep": 7.6
+},
+"223/261.103": {
+"t": "Distance m 101 à 200.",
+"c": "Transport intermédiaire avec dumpers ou petites chargeuses. › Métré: volume foisonné.",
+"u": "m3",
+"ep": 9.2
+},
+"223/261.104": {
+"t": "Distance m 201 à 300.",
+"c": "Transport intermédiaire avec dumpers ou petites chargeuses. › Métré: volume foisonné.",
+"u": "m3",
+"ep": 11.9
+},
+"223/262.227": {
+"t": "Enrobé bitumineux compacté et asphalte coulé (sans fraisat). Teneur en HAP jusqu'à mg/kg 250.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier. Au dépôt du maître d'ouvrage ou de l'entrepreneur. Y compris déchargement; taxes de dépôt non comprises. Métré: volume foisonné. › Pour décharge contrôlée. › Matériaux pour décharge contrôlée type B selon OLED (1).",
+"u": "m3",
+"ep": 24.5
+},
+"223/263.228": {
+"t": "Fraisat d'enrobé bitumineux compacté et d'asphalte coulé. Teneur en HAP jusqu'à mg/kg 250.",
+"c": "Transport à l'intérieur et à l'extérieur du chantier. Au dépôt du maître d'ouvrage ou de l'entrepreneur. Y compris déchargement; taxes de dépôt non comprises. Métré: masse. › Pour décharge contrôlée. › Matériaux pour décharge contrôlée type B selon OLED (1).",
+"u": "t",
+"ep": 16.5
+},
+"223/266.127": {
+"t": "Enrobé bitumineux compacté et asphalte coulé (sans fraisat). Teneur en HAP jusqu'à mg/kg 250.",
+"c": "Taxes pour élimination ou remise de matériaux. Y compris traitement des matériaux au dépôt. Métré: volume foisonné. › Décharge contrôlée. › Matériaux pour décharge contrôlée type B selon OLED (1).",
+"u": "m3",
+"ep": 115.0
+},
+"223/267.127": {
+"t": "Enrobé bitumineux compacté et asphalte coulé (sans fraisat). Teneur en HAP jusqu'à mg/kg 250.",
+"c": "Taxes pour élimination ou remise de matériaux. Y compris traitement des matériaux au dépôt. Métré: masse. › Décharge contrôlée. › Matériaux pour décharge contrôlée type B selon OLED (1).",
+"u": "t",
+"ep": 79.0
+},
+"223/271.111": {
+"t": "Grave 0/16.",
+"c": "Fourniture des matériaux à pied d'oeuvre ou au dépôt provisoire. Y compris déchargement. › Graves non traitées selon norme SN 670 119-NA. Métré: volume foisonné. › Granulats naturels.",
+"u": "m3",
+"ep": 67.8
+},
+"223/271.113": {
+"t": "Grave 0/45.",
+"c": "Fourniture des matériaux à pied d'oeuvre ou au dépôt provisoire. Y compris déchargement. › Graves non traitées selon norme SN 670 119-NA. Métré: volume foisonné. › Granulats naturels.",
+"u": "m3",
+"ep": 53.2
+},
+"223/271.121": {
+"t": "RC-grave A 0/16.",
+"c": "Fourniture des matériaux à pied d'oeuvre ou au dépôt provisoire. Y compris déchargement. › Graves non traitées selon norme SN 670 119-NA. Métré: volume foisonné. › RC-grave A.",
+"u": "m3",
+"ep": 52.4
+},
+"223/271.123": {
+"t": "RC-grave A 0/45.",
+"c": "Fourniture des matériaux à pied d'oeuvre ou au dépôt provisoire. Y compris déchargement. › Graves non traitées selon norme SN 670 119-NA. Métré: volume foisonné. › RC-grave A.",
+"u": "m3",
+"ep": 46.8
+},
+"223/271.311": {
+"t": "Grave 0/16.",
+"c": "Fourniture des matériaux à pied d'oeuvre ou au dépôt provisoire. Y compris déchargement. › Matériau non normalisé pour le réglage de la surface de couche. Métré: volume foisonné. › Grave pour couches de roulement traitées à l'argile et à l'eau.",
+"u": "m3",
+"ep": 118.0
+},
+"223/271.321": {
+"t": "Grave, D_max mm 16.",
+"c": "Fourniture des matériaux à pied d'oeuvre ou au dépôt provisoire. Y compris déchargement. › Matériau non normalisé pour le réglage de la surface de couche. Métré: volume foisonné. › Grave pour le réglage de la surface de couche, avec une part concassée.",
+"u": "m3",
+"ep": 69.0
+},
+"223/271.322": {
+"t": "Grave, D_max mm 22.",
+"c": "Fourniture des matériaux à pied d'oeuvre ou au dépôt provisoire. Y compris déchargement. › Matériau non normalisé pour le réglage de la surface de couche. Métré: volume foisonné. › Grave pour le réglage de la surface de couche, avec une part concassée.",
+"u": "m3",
+"ep": 65.5
+},
+"223/272.112": {
+"t": "Epaisseur de mise en oeuvre mm 101 à 200.",
+"c": "Mise en oeuvre, réglage et compactage de couches de fondation, jusqu'à l'obtention du compactage exigé. Fourniture des matériaux à l'art. 271. › Sans liant. Métré: volume foisonné. › Largeur de mise en oeuvre jusqu'à m 3,0.",
+"u": "m3",
+"ep": 13.0
+},
+"223/272.113": {
+"t": "Epaisseur de mise en oeuvre mm 201 à 300.",
+"c": "Mise en oeuvre, réglage et compactage de couches de fondation, jusqu'à l'obtention du compactage exigé. Fourniture des matériaux à l'art. 271. › Sans liant. Métré: volume foisonné. › Largeur de mise en oeuvre jusqu'à m 3,0.",
+"u": "m3",
+"ep": 11.0
+},
+"223/272.122": {
+"t": "Epaisseur de mise en oeuvre mm 101 à 200.",
+"c": "Mise en oeuvre, réglage et compactage de couches de fondation, jusqu'à l'obtention du compactage exigé. Fourniture des matériaux à l'art. 271. › Sans liant. Métré: volume foisonné. › Largeur de mise en oeuvre supérieure à m 3,0.",
+"u": "m3",
+"ep": 11.0
+},
+"223/272.123": {
+"t": "Epaisseur de mise en oeuvre mm 201 à 300.",
+"c": "Mise en oeuvre, réglage et compactage de couches de fondation, jusqu'à l'obtention du compactage exigé. Fourniture des matériaux à l'art. 271. › Sans liant. Métré: volume foisonné. › Largeur de mise en oeuvre supérieure à m 3,0.",
+"u": "m3",
+"ep": 9.0
+},
+"223/282.111": {
+"t": "Tolérance à partir de la hauteur théorique +/- mm 30.",
+"c": "Mise en forme brute. Mise en oeuvre, réglage et compactage des matériaux, jusqu'à l'obtention du compactage exigé. › Sur couches de fondation. › Largeur de forme brute jusqu'à m 3,0.",
+"u": "m2",
+"ep": 4.5
+},
+"223/282.121": {
+"t": "Tolérance à partir de la hauteur théorique +/- mm 30.",
+"c": "Mise en forme brute. Mise en oeuvre, réglage et compactage des matériaux, jusqu'à l'obtention du compactage exigé. › Sur couches de fondation. › Largeur de forme brute supérieure à m 3,0.",
+"u": "m2",
+"ep": 3.5
+},
+"223/283.111": {
+"t": "Tolérance à partir de la hauteur théorique +/- mm 10.",
+"c": "Réglage de la surface de couche de fondation. Mise en oeuvre, réglage et compactage des matériaux, jusqu'à l'obtention du compactage exigé. › Sur couches de fondation, pour routes avec revêtement. › Largeur de la surface de couche de fondation jusqu'à m 3,0.",
+"u": "m2",
+"ep": 6.0
+},
+"223/283.121": {
+"t": "Tolérance à partir de la hauteur théorique +/- mm 10.",
+"c": "Réglage de la surface de couche de fondation. Mise en oeuvre, réglage et compactage des matériaux, jusqu'à l'obtention du compactage exigé. › Sur couches de fondation, pour routes avec revêtement. › Largeur de la surface de couche de fondation supérieure à m 3,0.",
+"u": "m2",
+"ep": 5.0
+},
+"223/283.211": {
+"t": "Tolérance à partir de la hauteur théorique +/- mm 10.",
+"c": "Réglage de la surface de couche de fondation. Mise en oeuvre, réglage et compactage des matériaux, jusqu'à l'obtention du compactage exigé. › Sur couches de fondation, pour routes sans revêtement. › Largeur de la surface de couche de fondation jusqu'à m 3,0.",
+"u": "m2",
+"ep": 6.0
+},
+"223/283.221": {
+"t": "Tolérance à partir de la hauteur théorique +/- mm 10.",
+"c": "Réglage de la surface de couche de fondation. Mise en oeuvre, réglage et compactage des matériaux, jusqu'à l'obtention du compactage exigé. › Sur couches de fondation, pour routes sans revêtement. › Largeur de la surface de couche de fondation supérieure à m 3,0.",
+"u": "m2",
+"ep": 5.0
+},
+"223/422.101": {
+"t": "Enduits d'accrochage type HCB4.",
+"c": "Application d'un enduit d'accrochage sur le support. › Application d'un produit approprié sur le support pour garantir l'adhérence intercouche. Dosage au choix de l'entrepreneur. Y compris fourniture des matériaux.",
+"u": "m2",
+"ep": 2.0
+},
+"223/422.102": {
+"t": "Enduits d'accrochage type HCBP4.",
+"c": "Application d'un enduit d'accrochage sur le support. › Application d'un produit approprié sur le support pour garantir l'adhérence intercouche. Dosage au choix de l'entrepreneur. Y compris fourniture des matériaux.",
+"u": "m2",
+"ep": 2.2
+},
+"223/423.111": {
+"t": "Epaisseur de couche jusqu'à mm 40.",
+"c": "Confection des joints longitudinaux et transversaux. › Découpage à la scie circulaire d'une bande de couche précédemment posée, largeur de bande mm 50 à 100. Y compris chargement, évacuation et élimination des résidus ainsi que nettoyage. › Coupe verticale, au disque diamanté.",
+"u": "m",
+"ep": 8.2
+},
+"223/423.112": {
+"t": "Epaisseur de couche mm 41 à 80.",
+"c": "Confection des joints longitudinaux et transversaux. › Découpage à la scie circulaire d'une bande de couche précédemment posée, largeur de bande mm 50 à 100. Y compris chargement, évacuation et élimination des résidus ainsi que nettoyage. › Coupe verticale, au disque diamanté.",
+"u": "m",
+"ep": 9.1
+},
+"223/423.113": {
+"t": "Epaisseur de couche mm 81 à 130.",
+"c": "Confection des joints longitudinaux et transversaux. › Découpage à la scie circulaire d'une bande de couche précédemment posée, largeur de bande mm 50 à 100. Y compris chargement, évacuation et élimination des résidus ainsi que nettoyage. › Coupe verticale, au disque diamanté.",
+"u": "m",
+"ep": 10.4
+},
+"223/423.211": {
+"t": "Epaisseur de couche jusqu'à mm 40.",
+"c": "Confection des joints longitudinaux et transversaux. › Apprêt des surfaces fraisées, nettoyage préalable inclus. Y compris fourniture des matériaux. › Bitume à chaud.",
+"u": "m",
+"ep": 2.5
+},
+"223/423.212": {
+"t": "Epaisseur de couche mm 41 à 80.",
+"c": "Confection des joints longitudinaux et transversaux. › Apprêt des surfaces fraisées, nettoyage préalable inclus. Y compris fourniture des matériaux. › Bitume à chaud.",
+"u": "m",
+"ep": 3.1
+},
+"223/423.213": {
+"t": "Epaisseur de couche mm 81 à 130.",
+"c": "Confection des joints longitudinaux et transversaux. › Apprêt des surfaces fraisées, nettoyage préalable inclus. Y compris fourniture des matériaux. › Bitume à chaud.",
+"u": "m",
+"ep": 3.9
+},
+"223/423.221": {
+"t": "Epaisseur de couche jusqu'à mm 40.",
+"c": "Confection des joints longitudinaux et transversaux. › Apprêt des surfaces fraisées, nettoyage préalable inclus. Y compris fourniture des matériaux. › Produit d'apprêt.",
+"u": "m",
+"ep": 2.2
+},
+"223/423.222": {
+"t": "Epaisseur de couche mm 41 à 80.",
+"c": "Confection des joints longitudinaux et transversaux. › Apprêt des surfaces fraisées, nettoyage préalable inclus. Y compris fourniture des matériaux. › Produit d'apprêt.",
+"u": "m",
+"ep": 3.1
+},
+"223/423.223": {
+"t": "Epaisseur de couche mm 81 à 130.",
+"c": "Confection des joints longitudinaux et transversaux. › Apprêt des surfaces fraisées, nettoyage préalable inclus. Y compris fourniture des matériaux. › Produit d'apprêt.",
+"u": "m",
+"ep": 3.9
+},
+"223/423.301": {
+"t": "selon les indications de l'entrepreneur:...............",
+"c": "Confection des joints longitudinaux et transversaux. › Pose de rubans bitumineux pour joints, y compris nettoyage et application d'un enduit d'apprêt.",
+"u": "m",
+"ep": 9.8
+},
+"223/424.111": {
+"t": "Epaisseur de couche jusqu'à mm 40.",
+"c": "Apprêt de surfaces de raccordement, p.ex. pour joints de chaussée, bordures et éléments incorporés. Y compris fourniture des matériaux. › Apprêt de la surface de raccordement, y compris nettoyage préalable. › Bitume à chaud.",
+"u": "m",
+"ep": 2.7
+},
+"223/424.112": {
+"t": "Epaisseur de couche mm 41 à 80.",
+"c": "Apprêt de surfaces de raccordement, p.ex. pour joints de chaussée, bordures et éléments incorporés. Y compris fourniture des matériaux. › Apprêt de la surface de raccordement, y compris nettoyage préalable. › Bitume à chaud.",
+"u": "m",
+"ep": 3.8
+},
+"223/424.113": {
+"t": "Epaisseur de couche mm 81 à 130.",
+"c": "Apprêt de surfaces de raccordement, p.ex. pour joints de chaussée, bordures et éléments incorporés. Y compris fourniture des matériaux. › Apprêt de la surface de raccordement, y compris nettoyage préalable. › Bitume à chaud.",
+"u": "m",
+"ep": 4.5
+},
+"223/424.121": {
+"t": "Epaisseur de couche jusqu'à mm 40.",
+"c": "Apprêt de surfaces de raccordement, p.ex. pour joints de chaussée, bordures et éléments incorporés. Y compris fourniture des matériaux. › Apprêt de la surface de raccordement, y compris nettoyage préalable. › Produit d'apprêt.",
+"u": "m",
+"ep": 2.4
+},
+"223/424.122": {
+"t": "Epaisseur de couche mm 41 à 80.",
+"c": "Apprêt de surfaces de raccordement, p.ex. pour joints de chaussée, bordures et éléments incorporés. Y compris fourniture des matériaux. › Apprêt de la surface de raccordement, y compris nettoyage préalable. › Produit d'apprêt.",
+"u": "m",
+"ep": 3.5
+},
+"223/424.123": {
+"t": "Epaisseur de couche mm 81 à 130.",
+"c": "Apprêt de surfaces de raccordement, p.ex. pour joints de chaussée, bordures et éléments incorporés. Y compris fourniture des matériaux. › Apprêt de la surface de raccordement, y compris nettoyage préalable. › Produit d'apprêt.",
+"u": "m",
+"ep": 4.4
+},
+"223/424.201": {
+"t": "selon les indications de l'entrepreneur:...............",
+"c": "Apprêt de surfaces de raccordement, p.ex. pour joints de chaussée, bordures et éléments incorporés. Y compris fourniture des matériaux. › Pose de rubans bitumineux pour joints, y compris nettoyage et application d'un enduit d'apprêt.",
+"u": "m",
+"ep": 9.8
+},
+"223/431.212": {
+"t": "Epaisseur mm 50.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de base AC T type L. › AC T 16 L. › Métré: masse.",
+"u": "t",
+"ep": 165.0
+},
+"223/431.214": {
+"t": "Epaisseur mm 60.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de base AC T type L. › AC T 16 L. › Métré: masse.",
+"u": "t",
+"ep": 159.0
+},
+"223/431.216": {
+"t": "Epaisseur mm 70.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de base AC T type L. › AC T 16 L. › Métré: masse.",
+"u": "t",
+"ep": 153.0
+},
+"223/432.112": {
+"t": "Epaisseur mm 20.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de roulement AC type L. › AC 4 L. › Métré: masse.",
+"u": "t",
+"ep": 235.0
+},
+"223/432.211": {
+"t": "Epaisseur mm 20.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de roulement AC type L. › AC 8 L. › Métré: masse.",
+"u": "t",
+"ep": 227.0
+},
+"223/432.213": {
+"t": "Epaisseur mm 30.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de roulement AC type L. › AC 8 L. › Métré: masse.",
+"u": "t",
+"ep": 212.0
+},
+"223/434.111": {
+"t": "Epaisseur mm jusqu'à 40",
+"c": "Fourniture, mise en oeuvre à la main et compactage d'enrobé type L pour adaptations, places et accès de bâtiments et autres. › Couches de base AC T type L. Métré: masse. › AC T 11 L.",
+"u": "t",
+"ep": 198.0
+},
+"223/434.121": {
+"t": "Epaisseur mm jusqu'à 70",
+"c": "Fourniture, mise en oeuvre à la main et compactage d'enrobé type L pour adaptations, places et accès de bâtiments et autres. › Couches de base AC T type L. Métré: masse. › AC T 16 L.",
+"u": "t",
+"ep": 178.0
+},
+"223/434.131": {
+"t": "Epaisseur mm jusqu'à 90",
+"c": "Fourniture, mise en oeuvre à la main et compactage d'enrobé type L pour adaptations, places et accès de bâtiments et autres. › Couches de base AC T type L. Métré: masse. › AC T 22 L.",
+"u": "t",
+"ep": 168.0
+},
+"223/435.201": {
+"t": "Conc. art. 430.",
+"c": "Suppléments sur enrobé bitumineux AC type L. › Pour fourniture de l'enrobé par thermobennes ou thermosilos.",
+"u": "t",
+"ep": 4.0
+},
+"223/441.212": {
+"t": "Epaisseur mm 50.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de base AC T type N. › AC T 16 N. › Métré: masse.",
+"u": "t",
+"ep": 157.0
+},
+"223/441.214": {
+"t": "Epaisseur mm 60.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de base AC T type N. › AC T 16 N. › Métré: masse.",
+"u": "t",
+"ep": 153.0
+},
+"223/441.216": {
+"t": "Epaisseur mm 70.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de base AC T type N. › AC T 16 N. › Métré: masse.",
+"u": "t",
+"ep": 149.0
+},
+"223/441.311": {
+"t": "Epaisseur mm 60.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de base AC T type N. › AC T 22 N. › Métré: masse.",
+"u": "t",
+"ep": 145.0
+},
+"223/441.312": {
+"t": "Epaisseur mm 70.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de base AC T type N. › AC T 22 N. › Métré: masse.",
+"u": "t",
+"ep": 143.0
+},
+"223/441.313": {
+"t": "Epaisseur mm 80.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de base AC T type N. › AC T 22 N. › Métré: masse.",
+"u": "t",
+"ep": 155.6
+},
+"223/441.314": {
+"t": "Epaisseur mm 90.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de base AC T type N. › AC T 22 N. › Métré: masse.",
+"u": "t",
+"ep": 141.0
+},
+"223/441.315": {
+"t": "Epaisseur mm 100.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de base AC T type N. › AC T 22 N. › Métré: masse.",
+"u": "t",
+"ep": 139.0
+},
+"223/442.111": {
+"t": "Epaisseur mm 20.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de roulement AC type N. › AC 8 N. › Métré: masse.",
+"u": "t",
+"ep": 225.0
+},
+"223/442.112": {
+"t": "Epaisseur mm 25.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de roulement AC type N. › AC 8 N. › Métré: masse.",
+"u": "t",
+"ep": 219.0
+},
+"223/442.113": {
+"t": "Epaisseur mm 30.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de roulement AC type N. › AC 8 N. › Métré: masse.",
+"u": "t",
+"ep": 207.0
+},
+"223/442.114": {
+"t": "Epaisseur mm 35.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de roulement AC type N. › AC 8 N. › Métré: masse.",
+"u": "t",
+"ep": 202.0
+},
+"223/442.211": {
+"t": "Epaisseur mm 35.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de roulement AC type N. › AC 11 N. › Métré: masse.",
+"u": "t",
+"ep": 185.0
+},
+"223/442.212": {
+"t": "Epaisseur mm 40.",
+"c": "Fourniture, mise en oeuvre à la machine et compactage de couches de roulement AC type N. › AC 11 N. › Métré: masse.",
+"u": "t",
+"ep": 181.0
+},
+"223/444.121": {
+"t": "Epaisseur mm jusqu'à 70",
+"c": "Fourniture, mise en oeuvre à la main et compactage d'enrobé type N pour adaptations, places et accès de bâtiments et autres. › Couches de base AC T type N. Métré: masse. › AC T 16 N.",
+"u": "t",
+"ep": 198.0
+},
+"223/444.131": {
+"t": "Epaisseur mm jusqu'à 90",
+"c": "Fourniture, mise en oeuvre à la main et compactage d'enrobé type N pour adaptations, places et accès de bâtiments et autres. › Couches de base AC T type N. Métré: masse. › AC T 22 N.",
+"u": "t",
+"ep": 189.0
+},
+"223/444.211": {
+"t": "Epaisseur mm jusqu'à 35",
+"c": "Fourniture, mise en oeuvre à la main et compactage d'enrobé type N pour adaptations, places et accès de bâtiments et autres. › Couches de roulement AC type N. Métré: masse. › AC 8 N.",
+"u": "t",
+"ep": 278.0
+},
+"223/444.221": {
+"t": "Epaisseur mm jusqu'à 40",
+"c": "Fourniture, mise en oeuvre à la main et compactage d'enrobé type N pour adaptations, places et accès de bâtiments et autres. › Couches de roulement AC type N. Métré: masse. › AC 11 N.",
+"u": "t",
+"ep": 268.0
+},
+"223/446.201": {
+"t": "Conc. art. 440.",
+"c": "Suppléments sur enrobé bitumineux AC type N. › Pour fourniture de l'enrobé par thermobennes ou thermosilos.",
+"u": "t",
+"ep": 4.0
+},
+"223/571.101": {
+"t": "Bordures.",
+"c": "Découpage des bords de la couche de roulement le long de bordures et des éléments incorporés. › Découpage des bords à la main ou à la machine, y compris chargement, évacuation et élimination des résidus et nettoyage.",
+"u": "m",
+"ep": 4.0
+},
+"223/571.102": {
+"t": "Dispositifs de fermeture, DN 600.",
+"c": "Découpage des bords de la couche de roulement le long de bordures et des éléments incorporés. › Découpage des bords à la main ou à la machine, y compris chargement, évacuation et élimination des résidus et nettoyage.",
+"u": "p",
+"ep": 38.0
+},
+"223/571.105": {
+"t": "Couvertures de surface up = m",
+"c": "Découpage des bords de la couche de roulement le long de bordures et des éléments incorporés. › Découpage des bords à la main ou à la machine, y compris chargement, évacuation et élimination des résidus et nettoyage.",
+"u": "up",
+"ep": 9.5
+},
+"223/921.001": {
+"t": "Jusqu'à un diamètre de 800 mm",
+"c": "Pose de dispositifs de fermeture provisoirement carrossables en tôle d'acier. Y compris transport aller et retour, pose, fixation et mise à disposition.",
+"u": "p",
+"ep": 38.0
+},
+"223/926.111": {
+"t": "Couvercle plein en fonte Novroll Dimensions NW 600 Classe D400",
+"c": "Rehaussement au niveau de la couche de roulement des dispositifs réglables de fermeture, après la mise en oeuvre de la couche de roulement. Y compris fourniture de matériaux pour lit de pose, chargement et déchargement, transport à partir du dépôt provisoire, enlèvement et élimination des matériaux bitumineux ainsi que remplissage et saupoudrage des joints. › Dispositifs de fermeture de regards. › Dispositifs de fermeture avec couvercles pleins.",
+"u": "p",
+"ep": 249.0
+}
+}

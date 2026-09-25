@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Alessandro Cortese">
+<meta name="creator" content="Alessandro Cortese">
+<meta name="copyright" content="© 2026 Alessandro Cortese">
+<meta name="description" content="LV-Devis Tiefbau – Kostenvoranschlag nach Bauteilen auf Basis LV Swisscom. App-Konzept, Struktur und fachliche Ausgestaltung: Alessandro Cortese.">
+<title>LV-Devis Tiefbau</title>
+<style>
+/*@@CSS@@*/
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header class="plankopf">
+    <div class="brandrow">
+      <img class="logo" alt="Swisscom" src="/*@@LOGO@@*/">
+      <div class="creator">
+        <strong>App-Konzept und Urheber: Alessandro Cortese</strong>
+        <span id="t-role">Fachliche Struktur und Ausgestaltung</span>
+      </div>
+    </div>
+    <div class="plankopf-top">
+      <div>
+        <h1 id="t-title">LV-Devis Tiefbau</h1>
+        <p class="subtitle" id="t-sub"></p>
+      </div>
+      <div class="toolrow no-print">
+        <div class="langs" role="group" aria-label="Sprache">
+          <button type="button" data-lang="de" aria-pressed="true">DE</button>
+          <button type="button" data-lang="fr" aria-pressed="false">FR</button>
+          <button type="button" data-lang="it" aria-pressed="false">IT</button>
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+        <button type="button" class="btn ghost" id="bNew"></button>
+      </div>
+    </div>
+    <div class="kopfzeile">
+      <div><label for="p_projekt" id="l_projekt"></label><input id="p_projekt" type="text" autocomplete="off"></div>
+      <div><label for="p_sap" id="l_sap"></label><input id="p_sap" type="text" autocomplete="off"></div>
+      <div><label for="p_ort" id="l_ort"></label><input id="p_ort" type="text" autocomplete="off"></div>
+      <div><label for="p_bearb" id="l_bearb"></label><input id="p_bearb" type="text" autocomplete="off"></div>
+      <div><label for="p_datum" id="l_datum"></label><input id="p_datum" type="text" autocomplete="off"></div>
+    </div>
+    <div class="kopfzeile kopf2">
+      <div><label for="p_devisNr" id="l_devisNr"></label><input id="p_devisNr" type="text" autocomplete="off"></div>
+      <div><label for="p_lieferant" id="l_lieferant"></label><input id="p_lieferant" type="text" autocomplete="off"></div>
+      <div><label for="p_vertrag" id="l_vertrag"></label><input id="p_vertrag" type="text" autocomplete="off"></div>
+      <div><label for="p_termin" id="l_termin"></label><input id="p_termin" type="text" autocomplete="off"></div>
+      <div><label for="p_rolle" id="l_rolle"></label><select id="p_rolle"></select></div>
+    </div>
+    <div class="kopfzeile kopf3">
+      <div><label for="p_bem" id="l_bem"></label><input id="p_bem" type="text" autocomplete="off"></div>
+      <div class="chk"><label class="check"><input type="checkbox" id="p_belagLief"><span id="l_belagLief"></span></label></div>
+    </div>
+    <p class="versionline" id="versionline"></p>
+  </header>
+
+  <nav class="tabsbar no-print" id="tabs" role="tablist" aria-label="Reiter"></nav>
+
+  <div class="cols">
+    <form class="form no-print" id="formwrap" autocomplete="off" onsubmit="return false">
+      <details class="help no-print">
+        <summary id="helpTitle"></summary>
+        <ol id="helpSteps"></ol>
+        <p id="helpNote"></p>
+      </details>
+      <div id="form"></div>
+    </form>
+    <section class="result">
+      <h2><span class="num">2</span><span id="h-result"></span></h2>
+      <div id="result"></div>
+      <div class="resbar no-print">
+        <button type="button" class="btn" id="bPrint"></button>
+        <button type="button" class="btn ghost" id="bPrintSum"></button>
+        <button type="button" class="btn ghost" id="bXlsx"></button>
+        <button type="button" class="btn ghost" id="bSave"></button>
+        <button type="button" class="btn ghost" id="bLoad"></button>
+        <input type="file" id="fileIn" accept=".json,application/json">
+      </div>
+    </section>
+  </div>
+  <footer>© 2026 Alessandro Cortese · LV-Devis Tiefbau · App-Konzept, Struktur und fachliche Ausgestaltung. Enthält KV-Assistent Tiefbau und Auswahl Schachtbau und Abdeckungen (A. Cortese). LV V1.1 (10.07.2026).</footer>
+</div>
+<div id="lb" role="dialog" aria-label="Zeichnung"><img alt=""></div>
+<script>var BUILD = "/*@@BUILD@@*/";</script>
+/*@@SCRIPTS@@*/
+</body>
+</html>

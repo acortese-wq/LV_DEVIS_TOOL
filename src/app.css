@@ -1,0 +1,88 @@
+/* ===== LV-Devis Tiefbau: Ergänzungen zum Kartenlayout (Reiter, Datensätze, Illustrationen) ===== */
+:root{
+  color-scheme:light;
+  --figbg:#f7f9fc;--soil:#d9b48c;--soilD:#b08a62;--gravel:#e4dccb;--gravelD:#a39a82;--asph:#3b404b;--asphT:#6a7181;
+  --conc:#c7ccd3;--concD:#8f959d;--grass:#4f8f35;--grassL:#9ccc7e;--pipe:#f28c00;--pipe2:#0a7ad1;--cab:#dfe6f0;--cut:#d7263d;--copper:#b86b25;--seal:#2bb673;
+}
+body{background:var(--page)}
+.kopfzeile.kopf3{grid-template-columns:3fr 2fr;margin-top:10px;border-top:0;padding-top:0}
+.kopf3 .chk{display:flex;align-items:flex-end;padding-bottom:6px}
+.kopf3 .check{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink)}
+.kopf3 .check input{width:auto;margin:0}
+.toolrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.toolrow .btn{padding:6px 12px;font-size:13px}
+/* Reiter */
+.tabsbar{display:flex;flex-wrap:wrap;gap:6px;background:var(--paper);border:1px solid var(--rule);border-radius:var(--radius);box-shadow:var(--shadow);padding:8px;margin-bottom:16px}
+.tab{font:inherit;font-size:13.5px;font-weight:600;padding:8px 14px;border-radius:7px;border:1px solid transparent;background:transparent;color:var(--ink-soft);cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.tab:hover{background:#f3f5f8;color:var(--ink)}
+.tab.on{background:var(--navy);color:#fff}
+.tab.sep{margin-left:10px}
+.tab .cnt{min-width:19px;height:19px;line-height:19px;border-radius:10px;background:#e7eefc;color:var(--navy);font-size:11px;text-align:center;padding:0 5px}
+.tab.on .cnt{background:#fff}
+.tab:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+/* Datensatz-Navigation */
+.recnav{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;border:1px solid var(--rule);border-radius:9px;background:#f7f8f9;margin:0 0 12px}
+.recnav .recpos{font-size:13px;line-height:1.3}
+.recnav .sp{flex:1}
+.btn.small{padding:6px 11px;font-size:12.5px}
+.btn.ghost.del{color:var(--signal)}
+.btn:disabled{opacity:.4;cursor:default}
+.cols{grid-template-columns:minmax(360px,470px) minmax(0,1fr)}
+.form h2{margin-bottom:12px}
+.formbody{padding:0}
+.formbody h4:first-child{margin-top:4px}
+.row2 .field{margin-bottom:11px}
+.field .ctx{display:block}
+.numin{text-align:right}
+/* Illustration */
+.fig{margin:0 0 12px;border:1px solid var(--rule);border-radius:9px;background:var(--figbg);padding:8px 10px 4px}
+.fig svg{display:block;width:100%;height:auto;max-height:300px}
+.figcap{font-size:11.5px;color:var(--ink-soft);margin:2px 0}
+svg .sl{font:12.5px "Segoe UI",system-ui,sans-serif;fill:var(--ink)}
+svg .sm{font:11px "Segoe UI",system-ui,sans-serif;fill:var(--ink-soft)}
+svg .sb{font-weight:700}
+svg .dim path{stroke:var(--ink);stroke-width:1;fill:none}
+/* Listen, Zusatzpositionen */
+.lists{display:grid;gap:4px}
+.subrow{flex-wrap:nowrap}
+.subrow select{min-width:0}
+.optgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.optgrid .field label{font-size:12px;margin-bottom:1px}
+.xp{margin:12px 0}
+.xp .tag{margin-left:6px;font-weight:400}
+.xf{margin:0 0 8px}
+.xr{display:grid;grid-template-columns:86px minmax(0,1fr) 92px 70px;gap:4px 8px;align-items:center;padding:4px 0;border-bottom:1px solid var(--rule);font-size:12.5px}
+.xr .art{font-size:12px}
+.xr .num{text-align:right}
+.xg .sublab{margin:12px 0 4px}
+input.mini.filled{background:#fff8dc;border-color:#e4cf7a}
+/* Honorar */
+.phs{display:grid;grid-template-columns:22px 34px minmax(0,1fr) 70px;gap:6px 8px;align-items:center}
+.phs input[type=text]{text-align:right;padding:5px 7px}
+.phsum{grid-column:1/-1;text-align:right;font-weight:650;margin:4px 0 0}
+table.hres{max-width:none;margin-top:6px}
+/* Ergebnis */
+.elres{position:relative}
+.elres.cur{border-color:var(--navy);box-shadow:0 0 0 2px rgba(13,71,200,.18)}
+.gorow{margin:8px 15px 0;font-size:12.5px}.gorow a{font-weight:600;text-decoration:none}
+sup.ks{font-size:9.5px;color:var(--navy);margin-left:2px;font-family:inherit}
+.elres-body h5{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);margin:14px 12px 6px}
+.elres-body .status.sa{margin:12px;border-radius:9px}
+.elres-body table.stk{margin:0 0 4px}
+.elres-body .note{margin:6px 12px}
+.elres-body .freigabe{margin:12px}
+.elres-body .figs{padding:0 12px 12px}
+.ptab{max-width:none}
+.ptab td input.mini{width:90px}
+.versionline span+span::before{content:"· ";color:var(--rule-strong)}
+@media (max-width:880px){.cols{grid-template-columns:1fr}.tab.sep{margin-left:0}.optgrid{grid-template-columns:1fr}.xr{grid-template-columns:78px minmax(0,1fr) 64px}.xr .num{display:none}}
+@media (max-width:560px){.kopfzeile,.kopfzeile.kopf3{grid-template-columns:1fr}.recnav .sp{display:none}}
+@media print{.tabsbar,.toolrow,.gorow{display:none!important}.elres.cur{box-shadow:none}body.nodraw .figs{display:none}}
+.cols>*{min-width:0}
+.elres-body,.result .cost-wrap{overflow-x:auto}
+@media (max-width:700px){.result table{display:block;overflow-x:auto}.result table.cost{display:table}.sheet{padding:10px 8px 30px}.form,.result,.plankopf{padding-left:14px;padding-right:14px}}
+ul.vollst{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:700px){ul.vollst{grid-template-columns:minmax(0,1fr)}}
+ul.vollst li{min-width:0;flex-wrap:wrap}
+.ptab td input.mini{width:70px}
+@media (max-width:560px){.ptab td{padding:6px 6px}.ptab td input.mini{width:58px}}
