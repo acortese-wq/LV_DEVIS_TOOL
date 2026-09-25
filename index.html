@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LV-Erfassung Tiefbau – Swisscom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#001155;--blue:#086adb;--paper:#eef1f6;--surface:#ffffff;--ink:#16203a;--muted:#5a6680;
+  --line:#d5dbe6;--input:#fff6c2;--inputline:#d9c76a;--warn:#a34d00;--warnbg:#fff0dc;--ok:#1d7a45;
+  --dis:#b8c0cf;--sel:#e3edfc;--figbg:#f7f9fc;--soil:#d9b48c;--soilD:#b08a62;--gravel:#e4dccb;--gravelD:#a39a82;--asph:#3b404b;--asphT:#6a7181;--conc:#c7ccd3;--concD:#8f959d;--grass:#4f8f35;--grassL:#9ccc7e;--pipe:#f28c00;--pipe2:#0a7ad1;--cab:#dfe6f0;--cut:#d7263d;--copper:#b86b25;--seal:#2bb673;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --navy:#0a1a4a;--blue:#5d9dff;--paper:#0c1322;--surface:#141e33;--ink:#e5eaf4;--muted:#9aa6bf;
+  --line:#2a3754;--input:#2c2912;--inputline:#6b5e22;--warn:#ffb46b;--warnbg:#3a2612;--ok:#5fd08f;--dis:#4a5570;--sel:#1b2c4d;--figbg:#101a2e;--soil:#6b523a;--soilD:#4f3c2a;--gravel:#4d493d;--gravelD:#7c745f;--asph:#0b0d12;--asphT:#394050;--conc:#5a616c;--concD:#3a4049;--grassL:#3c6b2b;--cab:#2a3854;}}
+:root[data-theme="dark"]{--navy:#0a1a4a;--blue:#5d9dff;--paper:#0c1322;--surface:#141e33;--ink:#e5eaf4;--muted:#9aa6bf;
+  --line:#2a3754;--input:#2c2912;--inputline:#6b5e22;--warn:#ffb46b;--warnbg:#3a2612;--ok:#5fd08f;--dis:#4a5570;--sel:#1b2c4d;--figbg:#101a2e;--soil:#6b523a;--soilD:#4f3c2a;--gravel:#4d493d;--gravelD:#7c745f;--asph:#0b0d12;--asphT:#394050;--conc:#5a616c;--concD:#3a4049;--grassL:#3c6b2b;--cab:#2a3854;}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.4 "Source Sans 3",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+header.top{background:var(--navy);color:#fff;padding:14px 20px 0}
+.toprow{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;max-width:1440px;margin:0 auto}
+.brand h1{margin:0;font-size:24px;font-weight:700;letter-spacing:.2px}
+.brand p{margin:2px 0 0;font-size:13px;opacity:.75}
+.head{display:flex;flex-wrap:wrap;gap:10px 14px;flex:1;align-items:flex-end}
+.head label{display:flex;flex-direction:column;font-size:12px;opacity:.95;gap:3px}
+.head input[type=text],.head select{background:#fff;color:#16203a;border:0;border-radius:3px;padding:5px 8px;min-width:130px}
+.head .wide{min-width:220px}
+.head .chk{flex-direction:row;align-items:center;gap:6px;font-size:14px;padding-bottom:6px}
+.tools{display:flex;gap:6px;flex-wrap:wrap;padding-bottom:4px}
+.tools button,.tools select{background:transparent;border:1px solid rgba(255,255,255,.45);color:#fff;border-radius:3px;padding:5px 10px;cursor:pointer}
+.tools select option{color:#16203a}
+.tools button:hover{background:rgba(255,255,255,.12)}
+nav.tabs{display:flex;gap:2px;max-width:1440px;margin:12px auto 0;overflow-x:auto;scrollbar-width:thin}
+nav.tabs button{flex:0 0 auto;border:0;background:rgba(255,255,255,.1);color:#dfe6ff;padding:9px 16px 10px;border-radius:4px 4px 0 0;cursor:pointer;font-weight:600;font-size:14px}
+nav.tabs button.on{background:var(--paper);color:var(--ink)}
+nav.tabs button.sep{margin-left:14px}
+nav.tabs .cnt{display:inline-block;min-width:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:var(--blue);color:#fff;font-size:11px;line-height:17px;text-align:center}
+main{max-width:1440px;margin:0 auto;padding:18px 20px 30px;display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:18px;align-items:start}
+main.full{grid-template-columns:minmax(0,1fr)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:4px}
+.cardhead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 16px;border-bottom:2px solid var(--navy)}
+.cardhead h2{margin:0;font-size:19px;flex:1 1 auto}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:3px;padding:6px 12px;cursor:pointer}
+.btn:hover{border-color:var(--blue)}
+.btn.pri{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.del{color:var(--warn)}
+.body{padding:14px 16px 18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px 18px;margin-bottom:14px}
+.fld{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--muted)}
+.fld>span{font-weight:600}
+.fld input[type=number],.fld input[type=text],.fld select,.lst select,.lst input,.ind input{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:5px 8px;color:var(--ink);min-width:0}
+.fld.key input{background:var(--input);border-color:var(--inputline)}
+.fld input:disabled,.fld select:disabled{opacity:.45}
+.fld em{font-style:normal;font-size:12px}
+.row{display:grid;grid-template-columns:180px minmax(0,1fr);gap:8px 14px;align-items:start;padding:9px 0;border-top:1px solid var(--line)}
+.row>.lbl{font-weight:600;font-size:13px;color:var(--muted);padding-top:6px}
+.row .inline{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:flex-end}
+.row .inline .fld{width:150px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg label{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:3px;padding:5px 10px;cursor:pointer;background:var(--surface);color:var(--ink);font-size:14px}
+.seg label:has(input:checked){border-color:var(--blue);background:var(--sel)}
+.seg label.dis{opacity:.4;cursor:not-allowed}
+.chks{display:flex;flex-wrap:wrap;gap:8px 18px}
+.chks label{display:inline-flex;gap:6px;align-items:center;color:var(--ink);font-size:14px}
+.range{font-size:12px;color:var(--muted);margin-top:4px}
+.range.bad{color:var(--warn);font-weight:600}
+.typ{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px 16px;font-size:12.5px;color:var(--muted);margin:4px 0 8px}
+.typ b{color:var(--ink);display:block;font-size:13px}
+.lists{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin:6px 0 14px}
+.lst{border:1px solid var(--line);border-radius:3px;padding:8px 10px}
+.lh{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.lr{display:grid;grid-template-columns:minmax(0,1fr) 76px 30px;gap:6px;margin-bottom:5px}
+.x{border:1px solid var(--line);background:var(--surface);border-radius:3px;cursor:pointer;color:var(--warn);font-weight:700}
+.addrow{border:1px dashed var(--line);background:transparent;border-radius:3px;padding:3px 10px;cursor:pointer;color:var(--blue);font-size:13px}
+.ind{margin-top:16px;border-top:2px solid var(--line);padding-top:12px}
+.ind h3{margin:0 0 8px;font-size:15px}
+.ir{display:grid;grid-template-columns:minmax(0,1fr) 90px 30px;gap:6px;margin-bottom:5px}
+.ir.free{grid-template-columns:minmax(0,1fr) 60px 80px 80px 30px}
+.ir small{grid-column:1/-1;color:var(--muted);margin-top:-3px}
+aside{position:sticky;top:10px}
+.panel h3{margin:0;font-size:15px;padding:11px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl th{text-align:left;font-weight:600;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl .n{text-align:right;white-space:nowrap}
+.tbl .pos{white-space:nowrap;font-weight:600}
+.tbl tr.w td{background:var(--warnbg)}
+.tbl tr.w .pos{color:var(--warn)}
+.tbl tr.bel .pos::after{content:" B";font-size:10px;color:var(--blue);vertical-align:super}
+.tbl tr.grp td{background:var(--paper);font-weight:700}
+.tbl tfoot td{font-weight:700;border-top:2px solid var(--ink)}
+.scroll{max-height:62vh;overflow:auto}
+.panel .tbl{table-layout:fixed;font-size:12px}.panel .tbl th{white-space:normal}.panel .tbl td,.panel .tbl th{padding:5px 6px}
+.panel .tbl col.c1{width:90px}.panel .tbl col.c3{width:96px}.panel .tbl col.c4{width:84px}
+.notes{margin:0;padding:10px 14px 12px 30px;font-size:12.5px;color:var(--warn)}
+.notes li{margin:2px 0}
+.empty{padding:18px 14px;color:var(--muted);font-size:13px}
+.proj{display:flex;justify-content:space-between;padding:10px 14px;border-top:2px solid var(--navy);font-weight:700}
+.tot{max-width:520px;margin-left:auto;font-size:14px}
+.tot div{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line)}
+.tot div.big{font-size:18px;font-weight:700;border-bottom:3px double var(--ink)}
+.tot div.sep{color:var(--muted)}
+.sumbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.hint{font-size:13px;color:var(--muted);margin:0 0 12px}
+.ptab{border-collapse:collapse;font-size:13px;margin-bottom:18px}
+.ptab td{padding:4px 8px;border-bottom:1px solid var(--line)}
+.ptab input{width:90px;background:var(--input);border:1px solid var(--inputline);border-radius:3px;padding:3px 6px;color:var(--ink)}
+.maplist{font-size:12.5px;columns:2 360px;column-gap:28px}
+.maplist div{break-inside:avoid;padding:3px 0;border-bottom:1px solid var(--line)}
+.maplist b{color:var(--ink)}
+.maplist span{color:var(--muted)}
+.maplist .no{color:var(--warn)}
+.fig{margin:0 0 16px;border:1px solid var(--line);border-radius:3px;background:var(--figbg);padding:10px 12px 6px}
+.fig svg,.figmini svg{display:block;width:100%;height:auto;max-height:340px}
+.fig figcaption,.figcap{font-size:11.5px;color:var(--muted);margin:4px 0 2px}
+.figmini{max-width:600px;margin:4px 0 8px;background:var(--figbg);border:1px solid var(--line);border-radius:3px;padding:4px 8px}
+.figmini.big{max-width:680px;border:0;padding:0}
+svg .sl{font:12.5px "Source Sans 3",system-ui,sans-serif;fill:var(--ink)}
+svg .sm{font:11px "Source Sans 3",system-ui,sans-serif;fill:var(--muted)}
+svg .sb{font-weight:700}
+svg .dim path{stroke:var(--ink);stroke-width:1;fill:none}
+.xp{margin-top:16px;border-top:2px solid var(--line);padding-top:10px}
+.xp summary{cursor:pointer;font-size:15px;padding:4px 0}
+.xp summary span{color:var(--muted);font-size:13px;margin-left:6px}
+.xf{width:100%;max-width:420px;margin:0 0 6px;background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:5px 8px;color:var(--ink)}
+.xg h4{margin:12px 0 4px;font-size:13px;color:var(--muted)}
+.xr{display:grid;grid-template-columns:92px minmax(0,1fr) 130px 90px;gap:4px 10px;align-items:center;padding:3px 0;border-bottom:1px solid var(--line);font-size:13px}
+.xr .pos{font-weight:600;white-space:nowrap}.xr .n{text-align:right;color:var(--muted);white-space:nowrap}
+.xr input{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:4px 6px;color:var(--ink);min-width:0}
+.xr input:not([value=""]){background:var(--input);border-color:var(--inputline)}
+.hres{max-width:560px;font-size:14px;margin-top:6px}
+.hres div{display:flex;justify-content:space-between;gap:12px;padding:4px 0;border-bottom:1px solid var(--line)}
+.hres div.big{font-weight:700;font-size:16px;border-bottom:3px double var(--ink)}
+.phs{display:grid;grid-template-columns:30px 44px minmax(0,1fr) 90px;gap:4px 10px;align-items:center;max-width:560px}
+.phs input[type=number]{background:var(--input);border:1px solid var(--inputline);border-radius:3px;padding:4px 6px;color:var(--ink);min-width:0}
+.phs .sum{grid-column:3;text-align:right;font-weight:700}
+@media (max-width:600px){.xr{grid-template-columns:minmax(0,1fr) 84px}.xr .pos{grid-column:1/-1}.xr span:nth-child(2),.xr .n{grid-column:1;text-align:left}.xr input{grid-column:2;grid-row:2/4}}
+footer{max-width:1440px;margin:0 auto;padding:0 20px 24px;font-size:12px;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--navy);color:#fff;padding:8px 14px;border-radius:4px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.on{opacity:1}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+@media (max-width:1050px){main{grid-template-columns:minmax(0,1fr)}aside{position:static}.row{grid-template-columns:minmax(0,1fr)}.row>.lbl{padding-top:0}}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+@media print{header.top,nav.tabs,aside,.noprint,footer .noprint{display:none!important}body{background:#fff;color:#000}main{display:block;padding:0}.card{border:0}.scroll{max-height:none;overflow:visible}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="toprow">
+    <div class="brand"><h1 id="tTitle">LV-Erfassung</h1><p id="tSub"></p></div>
+    <div class="head" id="head"></div>
+    <div class="tools">
+      <select id="lang" aria-label="Sprache"><option value="de">DE</option><option value="fr">FR</option><option value="it">IT</option><option value="en">EN</option></select>
+      <button id="bSave"></button><button id="bLoad"></button><button id="bNew"></button>
+      <input type="file" id="fLoad" accept=".json,application/json" hidden>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+</header>
+<main id="main"></main>
+<footer id="foot"></footer>
+<datalist id="lvlist"></datalist>
+<div class="toast" id="toast" role="status"></div>
+<script>
+const LV={"111/112.001":["Stundenansätze des Unternehmers für","Aufsichtsperson.","h",103.0],"111/112.002":["Stundenansätze des Unternehmers für","Fachspezialist.","h",89.0],"111/112.003":["Stundenansätze des Unternehmers für","Fachperson.","h",87.0],"111/112.004":["Stundenansätze des Unternehmers für","Hilfsperson.","h",75.0],"111/112.005":["Stundenansätze des Unternehmers für","Lernende.","h",43.0],"111/211.001":["Alle Materialien","Sand gewaschen mm 0/4 Liefermenge bis 1m3 Ausmass lose","m³",143.0],"111/211.002":["Alle Materialien","Rohumhüllungskies mm 0/16 Liefermenge bis 1m3 Ausmass lose","m³",132.0],"111/211.003":["Alle Materialien","Betonkies mm 0/16 Liefermenge bis 1m3 Ausmass lose","m³",141.5],"111/211.004":["Alle Materialien","Splitter mm 3/6 Liefermenge bis 1m3 Ausmass lose","m³",147.0],"111/211.005":["Alle Materialien","Wandkies unsortiert ab Wand Liefermenge bis 1m3 Ausmass lose","m³",101.0],"111/211.006":["Alle Materialien","Wandkies 1. Klasse mm 0/45, frostsicher Liefermenge bis 1m3 Ausmass lose","m³",108.5],"111/211.007":["Alle Materialien","Planiekies mm 0/16 Liefermenge bis 1m3 Ausmass lose","m³",126.5],"111/211.008":["Alle Materialien","Mergel Liefermenge bis 1m3 Ausmass lose","m³",160.5],"111/211.011":["Alle Materialien","Beton CEM kg/m3 150 0-16mm Liefermenge bis 1m3","m³",239.0],"111/211.012":["Alle Materialien","Beton CEM kg/m3 150 0-32mm Liefermenge bis 1m3","m³",234.0],"111/211.013":["Alle Materialien","Beton CEM kg/m3 200 0-32mm Liefermenge bis 1m3","m³",245.0],"111/211.014":["Alle Materialien","Beton A230-0 (Beton NPK A) Liefermenge bis 1m3","m³",272.0],"111/211.015":["Alle Materialien","Beton B230-0 (Beton NPK B) Liefermenge bis 1m3","m³",278.0],"111/211.016":["Alle Materialien","Beton C330-0 (Beton NPK C) Liefermenge bis 1m3","m³",290.0],"111/211.017":["Alle Materialien","Zementmörtel CEM kg/m3 400 mm 0/4 Liefermenge bis 1m3","m³",302.0],"111/211.021":["Alle Materialien","AC 8 N Mischgut Liefermenge bis 1 to, franco Baustelle","t",302.0],"111/211.022":["Alle Materialien","AC 11 N Mischgut Liefermenge bis 1 to, franco Baustelle","t",288.0],"111/211.023":["Alle Materialien","AC 8 S Mischgut Liefermenge bis 1 to, franco Baustelle","t",300.0],"111/211.024":["Alle Materialien","AC 11 S Mischgut Liefermenge bis 1 to, franco Baustelle","t",290.0],"111/211.025":["Alle Materialien","AC T 16 N Mischgut Liefermenge bis 1 to, franco Baustelle","t",284.0],"111/211.026":["Alle Materialien","AC T 22 N Mischgut Liefermenge bis 1 to, franco Baustelle","t",271.0],"111/211.027":["Alle Materialien","AC T 16 S Mischgut Liefermenge bis 1 to, franco Baustelle","t",275.0],"111/211.028":["Alle Materialien","AC T 22 S Mischgut Liefermenge bis 1 to, franco Baustelle","t",270.0],"111/221.001":["Berechnung Materialkosten mit Faktor: EP =","Menge = Summe Rechnungsbeträge Lieferanten netto, inkl. Rabatt, exkl. Skonto, exkl. MWST. LE = Fr.","LE",1.1],"111/231.001":["Berechnung Materialkosten mit Faktor: EP =","Menge = Summe Material nach Kalkulationsgrundlagen in den fakultativen Vorbemerkungen zu U'abschnitt 230. LE = Fr.","LE",1.1],"111/311.001":["Maschinen und Geräte, exkl","Hyd-Bagger, Rp bis 1.5to, 10kW Betrieb inkl. Miete ohne Bedienung","h",45.0],"111/311.002":["Maschinen und Geräte, exkl","Hyd-Bagger, Rp bis 2.5to, 15kW Betrieb inkl. Miete ohne Bedienung","h",54.0],"111/311.003":["Maschinen und Geräte, exkl","Hyd-Bagger, Rp bis 3.5to, 25kW Betrieb inkl. Miete ohne Bedienung","h",59.0],"111/311.004":["Maschinen und Geräte, exkl","Hyd-Bagger, Pn bis 9to, 45kW Betrieb inkl. Miete ohne Bedienung","h",83.0],"111/311.005":["Maschinen und Geräte, exkl","Kleindumper Allrad bis 1.0 m3 Betrieb inkl. Miete ohne Bedienung","h",42.0],"111/311.006":["Maschinen und Geräte, exkl","Kleindumper Allrad bis 2.0 m3 Betrieb inkl. Miete ohne Bedienung","h",52.0],"111/311.007":["Maschinen und Geräte, exkl","Kleindumper Raupen bis 500kg Betrieb inkl. Miete ohne","h",38.0],"111/311.011":["Maschinen und Geräte, exkl","Vibrostampfer bis 100kg Betrieb inkl. Miete ohne Bedienung","h",22.0],"111/311.012":["Maschinen und Geräte, exkl","Vibroplatte bis 100kg Betrieb inkl. Miete ohne Bedienung","h",25.0],"111/311.013":["Maschinen und Geräte, exkl","Vibroplatte bis 220kg Betrieb inkl. Miete ohne Bedienung","h",34.0],"111/311.014":["Maschinen und Geräte, exkl","Vibro-Glattwalze 1 Ro, hdgf, bis 0.6 to Betrieb inkl. Miete ohne Bedienung","h",43.0],"111/311.015":["Maschinen und Geräte, exkl","Zentrifugalpumpe Elektromotor -200lt/min, 25mm inkl. Saugleitung und 30m Druckleitung","h",13.0],"111/311.016":["Maschinen und Geräte, exkl","Zentrifugalpumpe Elektromotor -400lt/min, 50mm inkl. Saugleitung und 30m Druckleitung","h",21.0],"111/311.017":["Maschinen und Geräte, exkl","Fugenfräse -9kW 110 kg, Schnitttiefe bis 15cm inkl. Anteil Fräsblatt Betrieb ohne Bedienung","h",48.0],"111/311.018":["Maschinen und Geräte, exkl","Fugenfräse -15kW 210 kg, Schnitttiefe bis 25cm inkl. Anteil Fräsblatt Betrieb ohne Bedienung","h",64.0],"111/311.021":["Maschinen und Geräte, exkl","Schraubenkompressor fahrbar mit Verbrennungsmotor bis 2.8 m3 Betrieb inkl. Miete","h",41.0],"111/311.022":["Maschinen und Geräte, exkl","Schraubenkompressor fahrbar mit Verbrennungsmotor bis 4.5 m3 Betrieb inkl. Miete","h",56.0],"111/311.023":["Maschinen und Geräte, exkl","Spitzhammer, DL. -11kg inkl. Eisen Betrieb inkl. Miete","h",15.5],"111/312.001":["Betriebsmaterial","Schalungen aller Art inkl. aller Binde- und Stützmaterialien Miete und Verschleiss pro Einsatz und m2 eingeschalte Fläche, ohne Arbeitsaufwand","m²",9.5],"111/312.002":["Betriebsmaterial","Grabenbrücke für Fussgänger, Breite bis 1.20m Überbrückungslänge bis 2.00m Miete pro Einsatz","Stück",38.0],"111/312.003":["Betriebsmaterial","Grabenbrücke Breite bis 1.20m Überbrückungslänge 2.01m bis 4.00m Miete pro Einsatz","Stück",49.0],"111/312.006":["Betriebsmaterial","Provisorische Überbrückung für Fahrzeuge bis 3.5to, Nutzbare Breite bis 3.00m, Überbrückungsbreite bis 2.00m Miete pro Einsatz","Stück",55.0],"111/312.007":["Betriebsmaterial","Provisorische Überbrückung für Fahrzeuge bis 28to, Nutzbare Breite bis 3.50m, Überbrückungsbreite bis 2.00m Miete pro Einsatz","Stück",67.0],"113/111.002":["Gesamte Baustelleneinrichtung","Dauer : Für die Dauer der Leistungen des Unternehmers Anteil Baustelleneinrichtung während der Ausführung sämtlicher Arbeiten der Swisscom AG","Pauschal",1.0],"113/214.111":["Provisorische Überbrückungen,","Nutzbare Breite bis m 1,20. Überbrückungslänge bis m 2,00.","St",125.0],"113/214.121":["Provisorische Überbrückungen,","Zu U'pos. .111.","St",78.0],"113/214.131":["Provisorische Überbrückungen,","Zu U'pos. .111. 13102A LE = St.","LE",66.0],"113/214.211":["Provisorische Überbrückungen,","Nutzbare Breite bis m 3,00. Überbrückungslänge bis m 2,00.","St",168.0],"113/214.221":["Provisorische Überbrückungen,","Zu U'pos. .211.","St",91.0],"113/214.231":["Provisorische Überbrückungen,","Zu U'pos. .211. 23102A LE = St.","LE",72.0],"113/214.311":["Provisorische Überbrückungen,","Nutzbare Breite bis m 3,50. Überbrückungslänge bis m 2,00.","St",195.0],"113/214.321":["Provisorische Überbrückungen,","Zu U'pos. .311.","St",114.0],"113/214.331":["Provisorische Überbrückungen,","Zu U'pos. .311. 33102A LE = St.","LE",98.0],"113/232.101":["Lichtsignalanlagen","Inkl. 2 Signalgebern mit je 3 Leuchtfeldern.","St",181.2],"113/232.201":["Lichtsignalanlagen","Zu Pos. 232.101","St",371.9],"113/232.301":["Lichtsignalanlagen","Zu Pos. 232.101","St",132.1],"113/234.101":["Verkehrsregelung von Hand","Innerhalb der ordentlichen Arbeitszeit.","h",65.0],"113/234.102":["Verkehrsregelung von Hand","Ausserhalb der ordentlichen Arbeitszeit.","h",97.0],"113/236.101":["Abschrankungen","Einrichten und entfernen.","St",22.0],"113/236.102":["Abschrankungen","Vorhalten. Ausmass: Anzahl Leitbaken x Anzahl Monate.","St",2.4],"113/236.103":["Abschrankungen","Umstellen. Ausmass: Anzahl Leitbaken x Anzahl Umstellun- gen.","St",16.0],"113/236.221":["Abschrankungen","Einrichten und entfernen.","m",9.5],"113/236.222":["Abschrankungen","Vorhalten. Ausmass: Länge x Anzahl Monate.","m",2.8],"113/236.223":["Abschrankungen","Umstellen. Ausmass: Länge x Anzahl Umstellungen.","m",6.8],"113/237.101":["Baustellenleuchten","Einrichten und entfernen.","St",8.5],"113/237.102":["Baustellenleuchten","Vorhalten. Ausmass: Anzahl Baustellenleuchten x Anzahl Monate.","St",2.0],"113/237.103":["Baustellenleuchten","Umstellen. Ausmass: Anzahl Baustellenleuchten x Anzahl Umstellungen.","St",6.9],"117/223.122":["Bitumenhaltige Schichten und Betondecken","Schichtdicke mm 51 bis 100.","m",9.8],"117/223.123":["Bitumenhaltige Schichten und Betondecken","Schichtdicke mm 101 bis 150.","m",11.9],"117/223.124":["Bitumenhaltige Schichten und Betondecken","Schichtdicke mm 151 bis 200.","m",14.9],"117/223.212":["Bitumenhaltige Schichten und Betondecken","Schichtdicke mm 51 bis 100.","m²",5.3],"117/223.213":["Bitumenhaltige Schichten und Betondecken","Schichtdicke mm 101 bis 150.","m²",8.9],"117/223.214":["Bitumenhaltige Schichten und Betondecken","Schichtdicke mm 151 bis 200.","m²",12.4],"117/224.111":["Abschlüsse, Plattendecken und Pflästerungen","Einreihig.","m",5.7],"117/224.112":["Abschlüsse, Plattendecken und Pflästerungen","Zweireihig.","m",7.9],"117/224.121":["Abschlüsse, Plattendecken und Pflästerungen","Querschnitt bis m 0,10x0,30.","m",7.1],"117/224.141":["Abschlüsse, Plattendecken und Pflästerungen","Querschnitt bis m 0,20x0,25.","m",9.7],"117/224.211":["Abschlüsse, Plattendecken und Pflästerungen","In Sand oder Splitt.","m²",6.3],"117/224.231":["Abschlüsse, Plattendecken und Pflästerungen","In Sand oder Splitt.","m²",6.3],"117/225.211":["Abschlüsse, Plattendecken und Pflästerungen","In Sand oder Splitt.","m²",8.9],"117/225.221":["Abschlüsse, Plattendecken und Pflästerungen","In Sand oder Splitt.","m²",9.4],"117/225.231":["Abschlüsse, Plattendecken und Pflästerungen","In Sand oder Splitt.","m²",11.5],"117/226.321":["Rohrleitungen, Entwässerungsrinnen und","Kabelkanal Zores (Metall) alle Grössen inkl. Auflad, Abtransport und Deponiegebühren","m",8.5],"117/228.101":["Schächte, Abläufe, Abdeckungen, Aufsätze,","Abbruch Kontrollschächte komplett bis NW 1000mm, Höhe bis 1.50m inkl. Abtransport und Deponiegebühren","St",322.0],"117/228.102":["Schächte, Abläufe, Abdeckungen, Aufsätze,","Abbruch Plattenschächteschächte aus Beton komplett, Abmessung bis 2.00 x 1.00 x 0.90m inkl. Abtransport und Deponiegebühren","St",498.0],"117/228.201":["Schächte, Abläufe, Abdeckungen, Aufsätze,","Abbruch Abdeckplatten von Plattenschächten, Abmessung 120 x 53 cm inkl. Abtransport und Deponiegebühren","St",21.0],"117/228.202":["Schächte, Abläufe, Abdeckungen, Aufsätze,","Abbruch Abdeckplatten von Plattenschächten, Abmessung 120 x 27 cm inkl. Abtransport und Deponiegebühren","St",16.9],"117/228.301":["Schächte, Abläufe, Abdeckungen, Aufsätze,","Abbruch Schachtabdeckungen Guss komplett, rund bis NW 800mm inkl. Abtransport und Deponiegebühren","St",56.0],"117/228.302":["Schächte, Abläufe, Abdeckungen, Aufsätze,","Abbruch Schachtabdeckungen Beton komplett, rund bis NW 800mm inkl. Abtransport und Deponiegebühren","St",39.0],"117/228.303":["Schächte, Abläufe, Abdeckungen, Aufsätze,","Abbruch Flächenabdeckungen rechteckig Beton/Guss komplett, bis Fläche 3.00m2 inkl. Abtransport und Deponiegebühren","St",198.0],"117/721.222":["Transporte, Ausmass: Masse","Ausbauasphalt. PAK-Gehalt bis mg/kg 250.","t",14.2],"117/721.251":["Transporte, Ausmass: Masse","Ausbauasphalt. PAK-Gehalt über mg/kg 250.","t",16.5],"117/721.404":["Transporte, Ausmass: Masse","Betonabbruch.","t",13.15],"117/731.222":["Gebühren für Abgabe von Material, inkl","Ausbauasphalt. PAK-Gehalt bis mg/kg 250.","t",79.0],"117/731.404":["Gebühren für Abgabe von Material, inkl","Betonabbruch.","t",13.5],"151/121.001":["Aushub von Hand für Sondierungen","Abbauklassen 2 bis 4.","m³",92.4],"151/122.001":["Einfüllen von seitlich zwischengelagertem","Maschinell.","m³",21.5],"151/122.002":["Einfüllen von seitlich zwischengelagertem","Von Hand.","m³",69.4],"151/131.111":["Mobile Pumpen für Kurzeinsätze","Förderleistung bis l/min 200.","h",8.8],"151/132.101":["Nebenarbeiten zu Wasserhaltung","Ausmass: Anzahl Pumpensümpfe.","St",239.0],"151/211.001":["Rasenziegel stechen und abheben","Inkl. seitlicher Zwischenlage- rung.","m²",10.5],"151/211.002":["Rasenziegel stechen und abheben","Inkl. Transport bis m 30 und Zwischenlagerung.","m²",19.4],"151/212.101":["Oberboden abtragen","Abtragsbreite bis m 2,00.","m³",10.7],"151/212.102":["Oberboden abtragen","Abtragsbreite m 2,01 bis 5,00.","m³",8.4],"151/212.201":["Oberboden abtragen","Abtragsbreite bis m 2,00.","m³",69.25],"151/221.111":["U- und V-Gräben ausheben","t bis m 1,50.","m³",26.5],"151/221.112":["U- und V-Gräben ausheben","t m 1,51 bis 2,00.","m³",22.2],"151/221.121":["U- und V-Gräben ausheben","t bis m 1,50.","m³",36.7],"151/221.122":["U- und V-Gräben ausheben","t m 1,51 bis 2,00.","m³",40.85],"151/221.211":["U- und V-Gräben ausheben","t bis m 1,50.","m³",100.1],"151/221.221":["U- und V-Gräben ausheben","t bis m 1,50.","m³",120.1],"151/222.111":["Mehrleistungen zu Aushub von U- und V-Gräben","t bis m 1,50.","m³",11.0],"151/222.121":["Mehrleistungen zu Aushub von U- und V-Gräben","t bis m 1,50.","m³",35.1],"151/222.131":["Mehrleistungen zu Aushub von U- und V-Gräben","t bis m 1,50.","m³",69.8],"151/222.201":["Mehrleistungen zu Aushub von U- und V-Gräben","Gefrorene Schichten.","m³",17.7],"151/222.202":["Mehrleistungen zu Aushub von U- und V-Gräben","Steinbett.","m³",7.9],"151/222.301":["Mehrleistungen zu Aushub von U- und V-Gräben","Findlinge über m3 0,25.","m³",49.0],"151/222.302":["Mehrleistungen zu Aushub von U- und V-Gräben","Fundamente aus Bruchsteinen oder unbewehrtem Beton.","m³",63.2],"151/222.303":["Mehrleistungen zu Aushub von U- und V-Gräben","Fundamente aus bewehrtem Be- ton.","m³",183.7],"151/222.401":["Mehrleistungen zu Aushub von U- und V-Gräben","Aushub im Wurzelbereich, inkl. Entfernen der Wurzeln.","m³",20.4],"151/223.111":["Mehrleistungen zu Aushub von U- und V-Gräben","t bis m 1,50.","m³",16.45],"151/223.121":["Mehrleistungen zu Aushub von U- und V-Gräben","t bis m 1,50.","m³",62.0],"151/223.131":["Mehrleistungen zu Aushub von U- und V-Gräben","t bis m 1,50.","m³",104.4],"151/223.201":["Mehrleistungen zu Aushub von U- und V-Gräben","Gefrorene Schichten.","m³",25.7],"151/223.202":["Mehrleistungen zu Aushub von U- und V-Gräben","Steinbett.","m³",11.1],"151/223.301":["Mehrleistungen zu Aushub von U- und V-Gräben","Findlinge über m3 0,25.","m³",55.1],"151/223.302":["Mehrleistungen zu Aushub von U- und V-Gräben","Fundamente aus Bruchsteinen oder unbewehrtem Beton.","m³",67.7],"151/223.303":["Mehrleistungen zu Aushub von U- und V-Gräben","Fundamente aus bewehrtem Be- ton.","m³",194.0],"151/224.111":["Mehrleistungen zu Aushub von U- und V-Gräben","t bis m 1,50.","m³",103.85],"151/224.121":["Mehrleistungen zu Aushub von U- und V-Gräben","t bis m 1,50.","m³",187.0],"151/224.131":["Mehrleistungen zu Aushub von U- und V-Gräben","t bis m 1,50.","m³",198.1],"151/224.201":["Mehrleistungen zu Aushub von U- und V-Gräben","Gefrorene Schichten.","m³",74.8],"151/224.202":["Mehrleistungen zu Aushub von U- und V-Gräben","Steinbett.","m³",54.9],"151/224.301":["Mehrleistungen zu Aushub von U- und V-Gräben","Findlinge über m3 0,01.","m³",108.95],"151/224.302":["Mehrleistungen zu Aushub von U- und V-Gräben","Fundamente aus Bruchsteinen oder unbewehrtem Beton.","m³",132.95],"151/224.303":["Mehrleistungen zu Aushub von U- und V-Gräben","Fundamente aus bewehrtem Be- ton.","m³",267.0],"151/227.101":["Aushubarbeiten mit Saugbagger","Für die Dauer der Leistungen des Unternehmers, pro Etappe.","gl",455.0],"151/227.201":["Aushubarbeiten mit Saugbagger","Arbeitszeit Saugbagger, inkl. Chauffeur und 1 Mann Beihilfe.","h",498.0],"151/227.202":["Aushubarbeiten mit Saugbagger","Wartezeit Saugbagger, inkl. Chauffeur und 1 Mann Beihilfe.","h",405.0],"151/227.203":["Aushubarbeiten mit Saugbagger","Zusätzliche Beihilfe.","h",95.0],"151/231.111":["Aushub für Gruben und Fundamente,","t bis m 1,50.","m³",21.1],"151/231.112":["Aushub für Gruben und Fundamente,","t m 1,51 bis 2,00.","m³",24.3],"151/231.121":["Aushub für Gruben und Fundamente,","t bis m 1,50.","m³",32.65],"151/231.122":["Aushub für Gruben und Fundamente,","t m 1,51 bis 2,00.","m³",35.95],"151/231.211":["Aushub für Gruben und Fundamente,","t bis m 1,50.","m³",92.4],"151/231.221":["Aushub für Gruben und Fundamente,","t bis m 1,50.","m³",109.4],"151/232.111":["Mehrleistungen zu Gruben- und","t bis m 1,50.","m³",11.35],"151/232.121":["Mehrleistungen zu Gruben- und","t bis m 1,50.","m³",44.0],"151/232.131":["Mehrleistungen zu Gruben- und","t bis m 1,50.","m³",92.2],"151/232.201":["Mehrleistungen zu Gruben- und","Gefrorene Schichten.","m³",25.65],"151/232.202":["Mehrleistungen zu Gruben- und","Steinbett.","m³",10.55],"151/232.301":["Mehrleistungen zu Gruben- und","Findlinge über m3 0,25.","m³",57.45],"151/232.302":["Mehrleistungen zu Gruben- und","Fundamente aus Bruchsteinen oder unbewehrtem Beton.","m³",65.35],"151/232.303":["Mehrleistungen zu Gruben- und","Fundamente aus bewehrtem Be- ton.","m³",189.9],"151/232.401":["Mehrleistungen zu Gruben- und","Aushub im Wurzelbereich, inkl. Entfernen der Wurzeln.","m³",23.8],"151/234.111":["Mehrleistungen zu Gruben- und","t bis m 1,50.","m³",98.6],"151/234.121":["Mehrleistungen zu Gruben- und","t bis m 1,50.","m³",122.3],"151/234.131":["Mehrleistungen zu Gruben- und","t bis m 1,50.","m³",139.0],"151/234.202":["Mehrleistungen zu Gruben- und","Steinbett.","m³",56.4],"151/234.301":["Mehrleistungen zu Gruben- und","Findlinge über m3 0,01.","m³",134.45],"151/234.302":["Mehrleistungen zu Gruben- und","Fundamente aus Bruchsteinen oder unbewehrtem Beton.","m³",158.9],"151/234.303":["Mehrleistungen zu Gruben- und","Fundamente aus bewehrtem Be- ton.","m³",282.15],"151/234.401":["Mehrleistungen zu Gruben- und","Aushub im Wurzelbereich, inkl. Entfernen der Wurzeln.","m³",65.9],"151/241.001":["Mehrleistungen bei Behinderungen durch","Längs von Gräben und Gruben.","m",10.5],"151/241.002":["Mehrleistungen bei Behinderungen durch","Quer zu Gräben und Gruben.","m",11.3],"151/242.001":["Mehrleistungen für Sichern und Schützen von","Längs von Gräben und Gruben.","m",11.9],"151/242.002":["Mehrleistungen für Sichern und Schützen von","Quer zu Gräben und Gruben.","m",10.8],"151/243.201":["Mehrleistungen beim Unterqueren von","Unbewehrter Beton.","m³",149.45],"151/243.202":["Mehrleistungen beim Unterqueren von","Bewehrter Beton.","m³",313.4],"151/244.001":["Mehrleistungen für das Entfernen von","Abrechen Kabelkanal Zores alle Grössen inkl. Auflad, Abtransport und Deponiegebühren","m",8.5],"151/244.002":["Mehrleistungen für das Entfernen von","Zores mit in Betrieb stehenden Kabel freilegen und auftrennen Kabel entnehmen und sorgfältig seitlich lagern Zores trennen und demontieren inkl. Auflad, Abtransport und Deponiegebühren","m",25.5],"151/244.003":["Mehrleistungen für das Entfernen von","Zores mit nicht in Betrieb stehenden Kabel freilegen und auftrennen Zores und Kabel trennen und abbrechen inkl. Auflad, Abtransport und Deponiegebühren","m",12.8],"151/251.111":["Transporte inner- und ausserhalb Baustelle,","Distanz bis m 100.","m³",8.5],"151/251.112":["Transporte inner- und ausserhalb Baustelle,","Distanz m 101 bis 200.","m³",10.95],"151/251.113":["Transporte inner- und ausserhalb Baustelle,","Distanz m 201 bis 500.","m³",13.0],"151/251.211":["Transporte inner- und ausserhalb Baustelle,","Oberboden.","m³",25.25],"151/251.213":["Transporte inner- und ausserhalb Baustelle,","Aushubmaterial.","m³",25.25],"151/251.221":["Transporte inner- und ausserhalb Baustelle,","Betonabbruch.","m³",23.15],"151/252.111":["Transporte inner- und ausserhalb Baustelle,","Distanz bis m 100.","m³",11.05],"151/252.112":["Transporte inner- und ausserhalb Baustelle,","Distanz m 101 bis 200.","m³",14.2],"151/252.113":["Transporte inner- und ausserhalb Baustelle,","Distanz m 201 bis 500.","m³",16.9],"151/252.211":["Transporte inner- und ausserhalb Baustelle,","Oberboden.","m³",32.6],"151/252.213":["Transporte inner- und ausserhalb Baustelle,","Aushubmaterial.","m³",32.6],"151/252.221":["Transporte inner- und ausserhalb Baustelle,","Betonabbruch.","m³",35.1],"151/254.211":["Transporte mit Mulden innerund ausserhalb","Oberboden.","m³",24.4],"151/254.213":["Transporte mit Mulden innerund ausserhalb","Aushubmaterial.","m³",24.4],"151/254.221":["Transporte mit Mulden innerund ausserhalb","Betonabbruch.","m³",24.4],"151/255.211":["Transporte mit Mulden innerund ausserhalb","Oberboden.","m³",30.5],"151/255.213":["Transporte mit Mulden innerund ausserhalb","Aushubmaterial.","m³",30.5],"151/255.221":["Transporte mit Mulden innerund ausserhalb","Betonabbruch.","m³",36.6],"151/261.111":["Gebühren für Abgabe von Material in Deponie","Oberboden.","m³",8.2],"151/261.113":["Gebühren für Abgabe von Material in Deponie","Aushubmaterial.","m³",25.9],"151/261.121":["Gebühren für Abgabe von Material in Deponie","Betonabbruch.","m³",13.5],"151/262.111":["Gebühren für Abgabe von Material in Deponie","Oberboden.","m³",9.85],"151/262.113":["Gebühren für Abgabe von Material in Deponie","Aushubmaterial.","m³",33.7],"151/262.121":["Gebühren für Abgabe von Material in Deponie","Betonabbruch.","m³",24.3],"151/272.001":["Material abdecken, auf Anordnung des Bauherrn","Kunststofffolie, d mm 0,15 bis 0,25.","m²",2.4],"151/273.101":["Aufladen von Material ab bauseits","Oberboden.","m³",5.05],"151/273.103":["Aufladen von Material ab bauseits","Aushubmaterial.","m³",5.05],"151/273.201":["Aufladen von Material ab bauseits","Oberboden.","m³",6.1],"151/273.203":["Aufladen von Material ab bauseits","Aushubmaterial.","m³",6.45],"151/273.301":["Aufladen von Material ab bauseits","Oberboden.","m³",63.2],"151/273.303":["Aufladen von Material ab bauseits","Aushubmaterial.","m³",65.5],"151/273.401":["Aufladen von Material ab bauseits","Oberboden.","m³",75.85],"151/273.403":["Aufladen von Material ab bauseits","Aushubmaterial.","m³",81.95],"151/274.001":["Reinigen und Instandsetzen von bauseits","Zwischenlager für Oberboden.","m²",1.2],"151/274.003":["Reinigen und Instandsetzen von bauseits","Zwischenlager für Aushubmate- rial.","m²",1.2],"151/275.001":["Weitere Nebenarbeiten","Sorgfältige, Horizontale oder vertikale Verschiebung von in Betrieb stehendem Zores-Kanal bis 0.50m Ausführung im Zusammenhang mit Aushubarbeiten Die Ausführung darf nur unter Anweisung und Kontrolle der Bauleitung und/oder eines Vetreters von cablex AG erfolgen","m",19.5],"151/311.111":["Flächen, Böschungen und dgl","Kunststofffolie, d mm 0,15 bis 0,25.","m²",4.5],"151/311.121":["Flächen, Böschungen und dgl","Kunststofffolie, d mm 0,15 bis 0,25.","m²",4.8],"151/321.101":["Grabenspriessungen erstellen","Grabentiefe bis m 1,50.","m²",25.5],"151/321.102":["Grabenspriessungen erstellen","Grabentiefe m 1,51 bis 2,00.","m²",23.0],"151/361.301":["Nebenarbeiten zu Spriessungen","Sand.","m³",81.9],"151/412.111":["Kabelschutzrohre aus PE-HD liefern, C+S","DN/ID 55.","m",2.8],"151/412.113":["Kabelschutzrohre aus PE-HD liefern, C+S","Übrige Nennweiten DN/ID 100","m",7.3],"151/412.211":["Kabelschutzrohre aus PE-HD liefern, C+S","DN/ID 55.","m",2.7],"151/412.214":["Kabelschutzrohre aus PE-HD liefern, C+S","DN/ID 100.","m",6.9],"151/412.215":["Kabelschutzrohre aus PE-HD liefern, C+S","DN/ID 120.","m",8.2],"151/412.216":["Kabelschutzrohre aus PE-HD liefern, C+S","DN/ID 150.","m",12.8],"151/415.102":["Kabelschutzrohre aus PE liefern, mit","DN/ID 100.","m",39.3],"151/415.103":["Kabelschutzrohre aus PE liefern, mit","DN/ID 120.","m",45.1],"151/415.104":["Kabelschutzrohre aus PE liefern, mit","DN/ID 150.","m",59.9],"151/421.121":["Formstücke liefern (1)","DN/ID 55, r mm 600.","St",17.8],"151/421.124":["Formstücke liefern (1)","DN/ID 100, r mm 1'000.","St",43.0],"151/421.125":["Formstücke liefern (1)","DN/ID 120, r mm 1'200.","St",50.6],"151/421.126":["Formstücke liefern (1)","DN/ID 150, r mm 1'500.","St",77.5],"151/421.221":["Formstücke liefern (1)","DN/ID 55, r mm 600.","St",21.2],"151/421.224":["Formstücke liefern (1)","DN/ID 100, r mm 1'000.","St",48.55],"151/421.225":["Formstücke liefern (1)","DN/ID 120, r mm 1'200.","St",56.9],"151/421.226":["Formstücke liefern (1)","DN/ID 150, r mm 1'500.","St",83.6],"151/421.313":["Formstücke liefern (1)","DN/ID 100.","St",81.6],"151/421.314":["Formstücke liefern (1)","DN/ID 120.","St",104.2],"151/421.315":["Formstücke liefern (1)","DN/ID 150.","St",161.0],"151/421.422":["Formstücke liefern (1)","DN/ID 100.","St",181.8],"151/421.423":["Formstücke liefern (1)","DN/ID 120.","St",212.5],"151/421.424":["Formstücke liefern (1)","DN/ID 150.","St",306.0],"151/421.511":["Formstücke liefern (1)","DN/ID 55.","St",5.2],"151/421.514":["Formstücke liefern (1)","DN/ID 100.","St",5.85],"151/421.515":["Formstücke liefern (1)","DN/ID 120.","St",12.5],"151/421.516":["Formstücke liefern (1)","DN/ID 150.","St",19.3],"151/421.521":["Formstücke liefern (1)","DN/ID 55.","St",18.2],"151/421.524":["Formstücke liefern (1)","DN/ID 100.","St",5.9],"151/421.525":["Formstücke liefern (1)","DN/ID 120.","St",7.3],"151/421.526":["Formstücke liefern (1)","DN/ID 150.","St",15.3],"151/421.562":["Formstücke liefern (1)","DN/ID 100.","St",39.3],"151/421.563":["Formstücke liefern (1)","DN/ID 120.","St",45.1],"151/421.564":["Formstücke liefern (1)","DN/ID 150.","St",59.9],"151/423.301":["Zubehör liefern","Übrige Set T-Stück aus Kunststoff für Kabelkanal Nr. 8 mit 2 x K55 Ausgängen HGC Katalog Art. Nr. 1300771 (Swisscom)","Stück",195.4],"151/423.302":["Zubehör liefern","Übrige Set T-Stück aus Kunststoff für Kabelkanal Nr. 4 mit 2 x K55 Ausgängen HGC Katalog Art. Nr. 1300763 (Swisscom)","Stück",137.7],"151/423.303":["Zubehör liefern","Übrige Halbschalenabzweiger 30° für Kunststoffrohrsystem K55 auf K55 HGC Katalog Art. Nr. 1337690 (Swisscom)","Stück",106.9],"151/423.304":["Zubehör liefern","Übrige Halbschalenabzweiger 30° für Kunststoffrohrsystem K100 auf K55 HGC Katalog Art. Nr. 1337708 (Swisscom)","Stück",155.0],"151/423.305":["Zubehör liefern","Übrige Halbschalenabzweiger 30° für Kabelkanal Nr. 4 auf K55 HGC Katalog Art. Nr. 1337716 (Swisscom)","Stück",115.9],"151/423.306":["Zubehör liefern","Übrige Halbschalenabzweiger 30° für Kabelkanal Nr. 8 auf K55 HGC Katalog Art. Nr. 1337724 (Swisscom)","Stück",141.0],"151/423.307":["Zubehör liefern","Übrige Verbindungsstück für Kabelkanal Nr. 4 inkl. Montageset HGC Katalog Art. Nr. 1337732 (Swisscom)","Stück",176.3],"151/431.001":["Kabelschutzrohre in Stangen oder ab Rollen","Bis DN/ID 60.","m",3.4],"151/431.002":["Kabelschutzrohre in Stangen oder ab Rollen","DN/ID 61 bis 100.","m",4.0],"151/431.003":["Kabelschutzrohre in Stangen oder ab Rollen","DN/ID 101 bis 150.","m",4.5],"151/433.002":["Kunststoffrohre mit Längsverschluss verlegen","DN/ID 61 bis 100.","m",5.9],"151/433.003":["Kunststoffrohre mit Längsverschluss verlegen","DN/ID 101 bis 150.","m",7.1],"151/441.111":["Mehrleistungen zum Verlegen von Formstücken","DN/ID 55.","St",7.0],"151/441.114":["Mehrleistungen zum Verlegen von Formstücken","DN/ID 100.","St",8.5],"151/441.115":["Mehrleistungen zum Verlegen von Formstücken","DN/ID 120.","St",9.0],"151/441.116":["Mehrleistungen zum Verlegen von Formstücken","DN/ID 150.","St",10.0],"151/441.121":["Mehrleistungen zum Verlegen von Formstücken","DN/ID 55.","St",7.0],"151/441.123":["Mehrleistungen zum Verlegen von Formstücken","DN/ID 80.","St",7.8],"151/441.124":["Mehrleistungen zum Verlegen von Formstücken","DN/ID 100.","St",8.5],"151/441.125":["Mehrleistungen zum Verlegen von Formstücken","DN/ID 120.","St",9.0],"151/441.126":["Mehrleistungen zum Verlegen von Formstücken","DN/ID 150.","St",10.0],"151/441.204":["Mehrleistungen zum Verlegen von Formstücken","DN/ID 100.","St",8.5],"151/441.205":["Mehrleistungen zum Verlegen von Formstücken","DN/ID 120.","St",9.0],"151/441.206":["Mehrleistungen zum Verlegen von Formstücken","DN/ID 150.","St",10.0],"151/441.302":["Mehrleistungen zum Verlegen von Formstücken","DN/ID 100.","St",11.3],"151/441.303":["Mehrleistungen zum Verlegen von Formstücken","DN/ID 120.","St",12.1],"151/441.304":["Mehrleistungen zum Verlegen von Formstücken","DN/ID 150.","St",13.0],"151/442.111":["Mehrleistungen zum Verlegen von Muffen zu","DN/ID 55.","St",5.5],"151/442.114":["Mehrleistungen zum Verlegen von Muffen zu","DN/ID 100.","St",6.8],"151/442.115":["Mehrleistungen zum Verlegen von Muffen zu","DN/ID 120.","St",7.0],"151/442.116":["Mehrleistungen zum Verlegen von Muffen zu","DN/ID 150.","St",8.2],"151/442.121":["Mehrleistungen zum Verlegen von Muffen zu","DN/ID 55.","St",5.5],"151/442.124":["Mehrleistungen zum Verlegen von Muffen zu","DN/ID 100.","St",6.8],"151/442.125":["Mehrleistungen zum Verlegen von Muffen zu","DN/ID 120.","St",7.0],"151/442.126":["Mehrleistungen zum Verlegen von Muffen zu","DN/ID 150.","St",8.2],"151/442.162":["Mehrleistungen zum Verlegen von Muffen zu","DN/ID 100.","St",8.0],"151/442.163":["Mehrleistungen zum Verlegen von Muffen zu","DN/ID 120.","St",9.0],"151/442.164":["Mehrleistungen zum Verlegen von Muffen zu","DN/ID 150.","St",10.0],"151/451.301":["Zubehör; nur verlegen","Übrige Set T-Stück aus Kunststoff für Kabelkanal Nr. 8 mit 2 x K55 Ausgängen HGC Katalog Art. Nr. 1300771 (Swisscom)","Stück",18.0],"151/451.302":["Zubehör; nur verlegen","Übrige Set T-Stück aus Kunststoff für Kabelkanal Nr. 4 mit 2 x K55 Ausgängen HGC Katalog Art. Nr. 1300763 (Swisscom)","Stück",18.0],"151/451.303":["Zubehör; nur verlegen","Übrige Halbschalenabzweiger 30° für Kunststoffrohrsystem K55 auf K55 HGC Katalog Art. Nr. 1337690 (Swisscom)","Stück",18.0],"151/451.304":["Zubehör; nur verlegen","Übrige Halbschalenabzweiger 30° für Kunststoffrohrsystem K100 auf K55 HGC Katalog Art. Nr. 1337708 (Swisscom)","Stück",18.0],"151/451.305":["Zubehör; nur verlegen","Übrige Halbschalenabzweiger 30° für Kabelkanal Nr. 4 auf K55 HGC Katalog Art. Nr. 1337716 (Swisscom)","Stück",18.0],"151/451.306":["Zubehör; nur verlegen","Übrige Halbschalenabzweiger 30° für Kabelkanal Nr. 8 auf K55 HGC Katalog Art. Nr. 1337724 (Swisscom)","Stück",18.0],"151/451.307":["Zubehör; nur verlegen","Übrige Verbindungsstück für Kabelkanal Nr. 4 inkl. Montageset HGC Katalog Art. Nr. 1337732 (Swisscom)","Stück",18.0],"151/451.308":["Zubehör; nur verlegen","Übrige Unter Betrieb stehende Telekomunikationskabel aller Durchmesser in Längverschlussrohr umpacken inkl. allen notwendigen Schutzmassnahmen","m",19.5],"151/471.111":["Rohrblöcke erstellen","DN/ID 100. 11103A Anzahl Rohre bis 4","m",55.0],"151/471.115":["Rohrblöcke erstellen","DN/ID 55 Anzahl Rohre 1 bis 3","m",38.0],"151/471.121":["Rohrblöcke erstellen","DN/ID 100. 12103A Anzahl Rohre bis 4","m",59.0],"151/471.124":["Rohrblöcke erstellen","DN/ID 55 12404A Anzahl Rohre 1 bis 3","m",44.0],"151/471.131":["Rohrblöcke erstellen","DN/ID 100. Anzahl Lagen bis 3 Anzahl Rohre bis 4","m",69.0],"151/471.134":["Rohrblöcke erstellen","DN/ID 55 Anzahl Lagen 3 bis 4 Anzahl Rohre 1 bis 3","m",51.0],"151/482.101":["Rohre schneiden, inkl","Bis DN/ID 100.","St",9.0],"151/482.102":["Rohre schneiden, inkl","DN/ID 101 bis 150.","St",12.0],"151/484.111":["Bänder und Netze","Typ Warnband für Kabelanlagen","m",0.1],"151/484.211":["Bänder und Netze","Typ Warnband für Kabelanlagen","m",0.5],"151/484.301":["Bänder und Netze","Übrige Liefern und verlegen von Erdband Cu 20x3mm inkl. allfällig notwendigen Abzweigklemmen","m",19.3],"151/485.001":["Kalibrieren von verlegten Rohren","DN/ID 100.","m",1.5],"151/485.002":["Kalibrieren von verlegten Rohren","DN/ID 120.","m",1.9],"151/485.003":["Kalibrieren von verlegten Rohren","DN/ID 150.","m",2.2],"151/485.004":["Kalibrieren von verlegten Rohren","DN/ID 55","m",1.5],"151/486.001":["Schnüre in Rohre einlegen, einziehen oder","Inkl. Lieferung.","m",1.5],"151/487.001":["Drähte in Rohre einlegen, einziehen und an","Inkl. Lieferung.","m",2.0],"151/611.171":["Schächte aus Fertigteilen erstellen","Kabelschacht Kontrollschacht DN 800, ohne Konus Schacht überdeckt, ohne Schachtabdeckung (sep. ausgeschrieben) Schachttiefe m bis 0.50 Nach Plan Swisscom 151.611.114","St",920.0],"151/631.111":["Fertigteile zu Schächten","DN 600.","St",162.0],"151/631.112":["Fertigteile zu Schächten","DN 800.","St",215.0],"151/632.131":["Abdeckungen","Rahmen mit Betonuntersatz System DS VR o. Deckel Lieferant HGC Artikel Nr. 1373513","St",358.0],"151/632.132":["Abdeckungen","Rahmen System DS f. Absperrplatte o. Deckel Lieferant HGC Artikel Nr. 1373505","St",168.0],"151/632.130":["Abdeckungen","x 130cm Nivroll Lieferant HGC Artikel Nr. 1373521","St",809.0],"151/632.134":["Abdeckungen","Rahmen mit Betonuntersatz höhenverstellbar Nivroll Lieferant HGC Artikel Nr. 1373539","St",361.0],"151/632.135":["Abdeckungen","Vollgussdeckel Nivroll D400 Lieferant HGC Artikel Nr. 1373638","St",197.0],"151/632.136":["Abdeckungen","Vollgussdeckel nicht schliessbar System DS400 Lieferant HGC Artikel Nr. 1373547","St",181.0],"151/632.137":["Abdeckungen","Abdeckkappe zu von Roll Nivroll Lieferant HGC Artikel Nr. 1373661","St",11.7],"151/632.151":["Abdeckungen","Rahmen ohne Betonuntersatz, Vollguss, BGS Abmessung 123x90cm, für 2 Deckel Gewicht: 116 kg Lieferant HGC Artikel Nr. 1374248","St",507.0],"151/632.152":["Abdeckungen","Rahmen mit Betonsockel für Inlay Grip, D400 Swisscom Abmessung 180x90cm, Gewicht: 148 kg Lieferant HGC Artikel Nr. 1374263","St",641.0],"151/632.155":["Abdeckungen","Rahmen ohne Betonsockel für Inlay Grip, D400 Swisscom NW 90x90cm, Gewicht: 95 kg Lieferant HGC Artikel Nr. 1377886","St",464.0],"151/632.231":["Abdeckungen","Rahmen mit Betonuntersatz System DS VR o. Deckel Lieferant HGC Artikel Nr. 1373513","St",174.0],"151/632.232":["Abdeckungen","Rahmen System DS f. Absperrplatte o. Deckel Lieferant HGC Artikel Nr. 1373505","St",156.0],"151/632.234":["Abdeckungen","Rahmen mit Betonuntersatz höhenverstellbar Nivroll Lieferant HGC Artikel Nr. 1373539","St",182.0],"151/632.235":["Abdeckungen","Vollgussdeckel Nivroll D400 Lieferant HGC Artikel Nr. 1373638","St",85.0],"151/632.236":["Abdeckungen","Vollgussdeckel nicht schliessbar System DS400 Lieferant HGC Artikel Nr. 1373547","St",85.0],"151/632.237":["Abdeckungen","Abdeckkappe zu von Roll Nivroll Lieferant HGC Artikel Nr. 1373661","St",9.5],"151/632.238":["Abdeckungen","Flächenabdeckung BGS Swisscom Rahmen o. Betonuntersatz mit Füllung, 122x90cm Gewicht: 410 kg Lieferant HGC Artikel Nr. 1374321","St",595.0],"151/632.239":["Abdeckungen","Flächenabdeckung BGS Swisscom Rahmen o. Betonuntersatz mit Füllung, 190x140cm Gewicht: 1200 kg Lieferant HGC Artikel Nr. 1374339","St",323.0],"151/632.241":["Abdeckungen","Flächenabdeckung Typ Ermatic, Rahmen ohne Betonuntersatz, mit Füllung Abmessung 182x90cm, 2 Deckel Gewicht: 594 kg Lieferant HGC Artikel Nr. 1374362","St",648.0],"151/632.242":["Abdeckungen","Flächenabdeckung BGS Swisscom Rahmen o. Betonuntersatz mit Füllung, 182x90cm Gewicht: 1450 kg Lieferant HGC Artikel Nr. 1374370","St",369.0],"151/632.243":["Abdeckungen","Flächenabdeckung BGS Swisscom Rahmen ohne Betonuntersatz, Vollguss Abmessung 122x90cm Gewicht: 218 kg Lieferant HGC Artikel Nr. 1374388","St",444.0],"151/632.244":["Abdeckungen","Flächenabdeckung BGS Swisscom, Rahmen mit Betonuntersatz, Vollguss Abmessung 190x140cm Gewicht: 618 kg Lieferant HGC Artikel Nr. 1374396","St",305.0],"151/632.245":["Abdeckungen","Flächenabdeckung BGS Swisscom, Rahmen ohne Betonuntersatz, Vollguss Abmessung 182x90cm Gewicht: 435 kg Lieferant HGC Artikel Nr. 1374404","St",595.0],"151/632.246":["Abdeckungen","Flächenabdeckung BGS Swisscom, Rahmen ohne Betonuntersatz, Vollguss Abmessung 182x90cm, Gewicht: 900 kg Lieferant HGC Artikel Nr. 1374412","St",345.0],"151/632.247":["Abdeckungen","Flächenabdeckung Typ \"Appenzeller\" Deckel mit Betonfüllung, ohne Betonsockel Abmessung 975x800 mm, 2 Deckel Gewicht: 400 kg Lieferant HGC Artikel Nr. 1370873","St",595.0],"151/632.248":["Abdeckungen","Flächenabdeckung Typ \"Appenzeller\" Deckel mit Betonfüllung, mit Betonsockel Abmessung 975x800 mm, 2 Deckel Gewicht: 630 kg Lieferant HGC Artikel Nr. 1370899","St",648.0],"151/632.251":["Abdeckungen","Rahmen ohne Betonuntersatz, Vollguss, BGS Abmessung 123x90cm, für 2 Deckel Gewicht: 116 kg Lieferant HGC Artikel Nr. 1374248","St",995.0],"151/632.253":["Abdeckungen","Rahmen Guss mit Betonuntersatz, BGS Abmessung 190x140cm, für 2 Deckel Gewicht: 716 kg Lieferant HGC Artikel Nr. 1374255","St",265.0],"151/632.254":["Abdeckungen","Rahmen mit Betonsockel für Inlay Grip, D400 Swisscom Abmessung 240x140cm, Gewicht: 790 kg Lieferant HGC Artikel Nr. 1374271","St",318.0],"151/632.255":["Abdeckungen","Rahmen ohne Betonsockel für Inlay Grip, D400 Swisscom NW 90x90cm Gewicht: 95 kg Lieferant HGC Artikel Nr. 1377886","St",995.0],"151/632.256":["Abdeckungen","Rahmen mit Betonsockel für Inlay Grip, D400 Swisscom Abmessung 90x90cm, Gewicht: 874 kg Lieferant HGC Artikel Nr. 1377894","St",294.0],"151/632.257":["Abdeckungen","Abdeckung Inlay Grip NW 90x90cm D400 Swisscom Gewicht: 183 kg Lieferant HGC Artikel Nr. 1377902","St",124.0],"151/632.258":["Abdeckungen","Rahmen und Abdeckung Lock Grip, D400 ohne Betonsockel, NW 90x90cm Gewicht: 240 kg Lieferant HGC Artikel Nr. 1377910","St",995.0],"151/632.259":["Abdeckungen","Rahmen und Abdeckung Lock Grip, D400 mit Betonsockel, NW 190x140cm Gewicht: 1008 kg Lieferant HGC Artikel Nr. 1377936","St",442.0],"151/632.262":["Abdeckungen","Rahmen und Abdeckung Lock Grip, D400 mit Betonsockel, NW 240x140cm Gewicht: 1174 kg Lieferant HGC Artikel Nr. 1377944","St",515.0],"151/633.001":["Höhersetzen von Abdeckungen von bereits","Schachtabdeckungen Format rund Durchmesser 400 bis 800mm inkl. aller notwendigen Materialien und Nebenarbeiten Höhersetzen m bis 0.50","St",235.0],"151/634.001":["Tiefersetzen von Abdeckungen von bereits","Schachtabdeckungen Format rund Durchmesser 400 bis 800mm inkl. aller notwendigen Materialien und Nebenarbeiten Tiefersetzen m bis 0.50","St",284.0],"151/672.101":["Leitungsanschlüsse an Schächte und Bauwerke","Leitungen bis DN 80.","St",154.0],"151/672.102":["Leitungsanschlüsse an Schächte und Bauwerke","Leitungen bis DN 150.","St",187.0],"151/672.201":["Leitungsanschlüsse an Schächte und Bauwerke","Leitungen bis DN 80.","St",124.0],"151/672.202":["Leitungsanschlüsse an Schächte und Bauwerke","Leitungen bis DN 150.","St",155.0],"151/672.301":["Leitungsanschlüsse an Schächte und Bauwerke","Leitungen bis DN 80.","St",195.0],"151/672.302":["Leitungsanschlüsse an Schächte und Bauwerke","Leitungen bis DN 150.","St",255.0],"151/672.401":["Leitungsanschlüsse an Schächte und Bauwerke","Übrige Hauseinführung fachgerecht gemäss Vorgaben Swisscom erstellen inkl. Lieferung sämtlicher notwendiger Materialien Leistungen: Bohrung/Wanddurchbruch erstellen Stahlrohr 2\" liefern und verlegen Bohrloch/Ausbruch schliessen, zuputzen aussen abdichten Liefern und montieren Übergangsmuffe auf K55","Stück",324.0],"151/672.402":["Leitungsanschlüsse an Schächte und Bauwerke","Übrige Sichern und Schützen von Kabelanlagen, Muffen und dgl. in Schächten unter Betrieb inkl. Entfernen und Entsorgen der Schutzvorkehrungen Alle für die fachgerechte Ausführung notwendigen Aufwendungen, der unter Betrieb stehenden Anlagen, sind einzurechnen","Anzahl",355.0],"151/711.111":["Natürliche Gesteinskörnungen liefern, zur","Sand für Gemische 0/4.","m³",69.0],"151/711.112":["Natürliche Gesteinskörnungen liefern, zur","Kies für Gemische 4/8.","m³",79.0],"151/711.113":["Natürliche Gesteinskörnungen liefern, zur","Kies für Gemische 16/22.","m³",78.4],"151/711.114":["Natürliche Gesteinskörnungen liefern, zur","Kiesgemisch 0/16, frostsicher.","m³",64.45],"151/711.115":["Natürliche Gesteinskörnungen liefern, zur","Kiesgemisch 0/22, frostsicher.","m³",64.45],"151/711.116":["Natürliche Gesteinskörnungen liefern, zur","Kiesgemisch 0/45, frostsicher.","m³",51.5],"151/711.123":["Natürliche Gesteinskörnungen liefern, zur","Betonkies 0/16.","m³",78.6],"151/721.101":["Material für Bettung, Verdämmung und","Natürliche oder rezyklierte Gesteinskörnungen, exkl. Lieferung.","m³",23.0],"151/731.101":["Beton für Leitungszonen liefern, einbringen","Beton Zementgehalt kg/m3 200, D_max 16.","m³",236.0],"151/741.111":["Seitlich zwischengelagertes oder zugeführtes","Aushubmaterial.","m³",15.0],"151/741.112":["Seitlich zwischengelagertes oder zugeführtes","Natürliche Gesteinskörnungen.","m³",13.5],"151/741.121":["Seitlich zwischengelagertes oder zugeführtes","Aushubmaterial.","m³",47.0],"151/741.122":["Seitlich zwischengelagertes oder zugeführtes","Natürliche Gesteinskörnungen.","m³",39.6],"151/751.101":["Zwischenplanien auf beliebiger Grabentiefe","Toleranz ab Sollhöhe +/- mm 30.","m²",2.9],"151/751.102":["Zwischenplanien auf beliebiger Grabentiefe","Toleranz ab Sollhöhe +/- mm 60.","m²",2.2],"151/751.201":["Zwischenplanien auf beliebiger Grabentiefe","Toleranz ab Sollhöhe +/- mm 30.","m²",2.2],"151/751.202":["Zwischenplanien auf beliebiger Grabentiefe","Toleranz ab Sollhöhe +/- mm 60.","m²",1.5],"151/752.001":["Geotextilien liefern und verlegen","Trennen","m²",4.1],"151/754.101":["Rohre, Leitungen und dgl","10101A Beton Zementgehalt kg/m3 200.","m³",283.0],"151/757.111":["Aufladen von Material ab bauseits","Aushubmaterial.","m³",4.0],"151/757.121":["Aufladen von Material ab bauseits","Aushubmaterial.","m³",5.0],"151/757.211":["Aufladen von Material ab bauseits","Aushubmaterial.","m³",32.0],"151/757.221":["Aufladen von Material ab bauseits","Aushubmaterial.","m³",40.0],"151/761.111":["Transporte inner- und ausserhalb Baustelle,","Distanz bis m 100.","m³",6.5],"151/761.112":["Transporte inner- und ausserhalb Baustelle,","Distanz m 101 bis 200.","m³",8.0],"151/761.113":["Transporte inner- und ausserhalb Baustelle,","Distanz m 201 bis 500.","m³",10.5],"151/771.112":["Unter- und Oberboden anlegen","Oberboden, Schichtdicke bis m 0,30.","m²",2.2],"151/771.122":["Unter- und Oberboden anlegen","Oberboden, Schichtdicke bis m 0,30.","m²",7.9],"151/771.212":["Unter- und Oberboden anlegen","Oberboden, Schichtdicke bis m 0,30.","m²",2.9],"151/771.222":["Unter- und Oberboden anlegen","Oberboden, Schichtdicke bis m 0,30.","m²",11.1],"151/772.112":["Überschüssigen Unter- und Oberboden","Oberboden.","m³",12.5],"151/773.111":["Nacharbeiten und Ansäen","Unterboden.","m²",0.6],"151/773.112":["Nacharbeiten und Ansäen","Oberboden.","m²",0.5],"151/774.101":["Flächen und Böschungen ansäen, inkl","Flächen und Böschungen, alle Neigungen.","m²",0.8],"151/775.001":["Rasenziegel verlegen","Ab seitlichem Zwischenlager.","m²",4.7],"151/775.002":["Rasenziegel verlegen","Inkl. Transport bis m 30 ab Zwischenlager.","m²",8.9],"222/211.211":["Gneis liefern","Typ 8/11.","m",10.8],"222/211.212":["Gneis liefern","Typ 11/13.","m",16.7],"222/211.221":["Gneis liefern","Typ 10.","m",23.0],"222/211.222":["Gneis liefern","Typ 12.","m",34.0],"222/211.412":["Gneis liefern","Typ SN 8, mm 80x min. mm 250.","m",43.2],"222/211.413":["Gneis liefern","Typ SN 10, mm 100x min. mm 250.","m",55.4],"222/212.211":["Granit liefern","Typ 8/11.","m",11.4],"222/212.212":["Granit liefern","Typ 11/13.","m",17.8],"222/212.221":["Granit liefern","Typ 10.","m",24.4],"222/212.222":["Granit liefern","Typ 12.","m",35.7],"222/212.312":["Granit liefern","Typ SN 8, mm 80x min. mm 250.","m",45.1],"222/212.313":["Granit liefern","Typ SN 10, mm 100x min. mm 250.","m",57.9],"222/311.111":["Pflaster-, Binder-, Bund- und Wassersteine","Typ 8/11, Betonbedarf m3/m 0,050.","m",38.5],"222/311.112":["Pflaster-, Binder-, Bund- und Wassersteine","Typ 11/13, Betonbedarf m3/m 0,060.","m",44.5],"222/311.311":["Pflaster-, Binder-, Bund- und Wassersteine","Typ 8/11, Betonbedarf m3/m 0,070.","m",71.0],"222/311.312":["Pflaster-, Binder-, Bund- und Wassersteine","Typ 11/13, Betonbedarf m3/m 0,080.","m",74.0],"222/321.122":["Stellplatten und Stellsteine versetzen","Typ SN oder SB 8, mm 80x min. mm 250, Betonbedarf m3/m 0,105.","m",35.0],"222/321.123":["Stellplatten und Stellsteine versetzen","Typ SN oder SB 10, mm 100x min. mm 250, Betonbedarf m3/m 0,110.","m",47.0],"222/551.102":["Pflästerungen aus Betonverbund- und","Steindicke mm 60.","m²",45.5],"222/551.103":["Pflästerungen aus Betonverbund- und","Steindicke mm 80.","m²",52.4],"222/571.211":["Nebenarbeiten zu allen Pflästerungsarten aus","Steindicke bis mm 60.","m",19.0],"222/572.200":["Mehrleistungen zu allen Pflästerungsarten","bis 250","m",18.6],"222/711.111":["Natursteinplatten verlegen, inkl","Plattendicke mm 40.","m²",62.0],"222/711.112":["Natursteinplatten verlegen, inkl","Plattendicke mm 50.","m²",67.0],"222/751.111":["Betonplatten verlegen, inkl","Plattendicke mm 40.","m²",48.0],"222/751.112":["Betonplatten verlegen, inkl","Plattendicke mm 50.","m²",54.0],"223/111.001":["Allgemeine Einrichtung für Belags- und","Für die Dauer der Leistungen des Unternehmers. Ausführung in 1 Etappe.","gl",450.0],"223/132.101":["Einrichtung für den Einbau von Walzasphalt","Für die Dauer der Leistungen des Unternehmers.","St",750.0],"223/132.201":["Einrichtung für den Einbau von Walzasphalt","Für die Dauer der Leistungen des Unternehmers.","St",750.0],"223/132.301":["Einrichtung für den Einbau von Walzasphalt","Zu U'pos. .101.","St",750.0],"223/132.302":["Einrichtung für den Einbau von Walzasphalt","Zu U'pos. .201.","St",750.0],"223/221.101":["Bitumenhaltige Schichten schneiden","Schichtdicke bis mm 50.","m",9.1],"223/221.102":["Bitumenhaltige Schichten schneiden","Schichtdicke mm 51 bis 100.","m",10.6],"223/221.103":["Bitumenhaltige Schichten schneiden","Schichtdicke mm 101 bis 150.","m",12.6],"223/221.104":["Bitumenhaltige Schichten schneiden","Schichtdicke mm 151 bis 200.","m",16.2],"223/221.201":["Bitumenhaltige Schichten schneiden","Schichtdicke bis mm 50.","m",8.05],"223/221.202":["Bitumenhaltige Schichten schneiden","Schichtdicke mm 51 bis 100.","m",9.8],"223/221.203":["Bitumenhaltige Schichten schneiden","Schichtdicke mm 101 bis 150.","m",11.9],"223/221.204":["Bitumenhaltige Schichten schneiden","Schichtdicke mm 151 bis 200.","m",14.1],"223/222.121":["Bitumenhaltige Schichten aufbrechen","Schichtdicke bis mm 50.","m²",7.2],"223/222.122":["Bitumenhaltige Schichten aufbrechen","Schichtdicke mm 51 bis 100.","m²",8.9],"223/222.123":["Bitumenhaltige Schichten aufbrechen","Schichtdicke mm 101 bis 150.","m²",10.4],"223/222.124":["Bitumenhaltige Schichten aufbrechen","Schichtdicke mm 151 bis 200.","m²",15.9],"223/222.221":["Bitumenhaltige Schichten aufbrechen","Schichtdicke bis mm 50.","m²",5.2],"223/222.222":["Bitumenhaltige Schichten aufbrechen","Schichtdicke mm 51 bis 100.","m²",6.5],"223/222.223":["Bitumenhaltige Schichten aufbrechen","Schichtdicke mm 101 bis 150.","m²",8.9],"223/222.224":["Bitumenhaltige Schichten aufbrechen","Schichtdicke mm 151 bis 200.","m²",11.8],"223/241.111":["Unterlagen reinigen","Bitumenhaltige Unterlagen.","m²",1.0],"223/241.121":["Unterlagen reinigen","Bitumenhaltige Unterlagen.","m²",0.6],"223/241.211":["Unterlagen reinigen","Bitumenhaltige Unterlagen.","m²",0.6],"223/241.221":["Unterlagen reinigen","Bitumenhaltige Unterlagen.","m²",0.8],"223/261.101":["Zwischentransporte mit Dumper oder Kleinlader","Distanz bis m 50.","m³",6.2],"223/261.102":["Zwischentransporte mit Dumper oder Kleinlader","Distanz m 51 bis 100.","m³",7.6],"223/261.103":["Zwischentransporte mit Dumper oder Kleinlader","Distanz m 101 bis 200.","m³",9.2],"223/261.104":["Zwischentransporte mit Dumper oder Kleinlader","Distanz m 201 bis 300.","m³",11.9],"223/262.227":["Transporte inner- und ausserhalb der","Walz- und Gussasphalt, nicht gefräst. PAK-Gehalt bis mg/kg 250.","m³",24.5],"223/263.228":["Transporte inner- und ausserhalb der","Walz- und Gussasphalt, ge- fräst. PAK-Gehalt bis mg/kg 250.","t",16.5],"223/266.127":["Gebühren für Entsorgung oder Abgabe von","Walz- und Gussasphalt, nicht gefräst. PAK-Gehalt bis mg/kg 250.","m³",115.0],"223/267.127":["Gebühren für Entsorgung oder Abgabe von","Walz- und Gussasphalt, nicht gefräst. PAK-Gehalt bis mg/kg 250.","t",79.0],"223/271.111":["Material zur Verwendungsstelle oder zum","Kiesgemisch 0/16.","m³",67.8],"223/271.113":["Material zur Verwendungsstelle oder zum","Kiesgemisch 0/45.","m³",53.2],"223/271.121":["Material zur Verwendungsstelle oder zum","RC-Kiesgemisch A 0/16.","m³",52.4],"223/271.123":["Material zur Verwendungsstelle oder zum","RC-Kiesgemisch A 0/45.","m³",46.8],"223/271.311":["Material zur Verwendungsstelle oder zum","Kiesgemisch 0/16.","m³",118.0],"223/271.321":["Material zur Verwendungsstelle oder zum","Kiesgemisch D_max mm 16.","m³",69.0],"223/271.322":["Material zur Verwendungsstelle oder zum","Kiesgemisch D_max mm 22.","m³",65.5],"223/272.112":["Fundationsschichten einbringen, planieren","Einbaudicke mm 101 bis 200.","m³",13.0],"223/272.113":["Fundationsschichten einbringen, planieren","Einbaudicke mm 201 bis 300.","m³",11.0],"223/272.122":["Fundationsschichten einbringen, planieren","Einbaudicke mm 101 bis 200.","m³",11.0],"223/272.123":["Fundationsschichten einbringen, planieren","Einbaudicke mm 201 bis 300.","m³",9.0],"223/282.111":["Rohplanie erstellen","Toleranz ab Sollhöhe +/- mm 30.","m²",4.5],"223/282.121":["Rohplanie erstellen","Toleranz ab Sollhöhe +/- mm 30.","m²",3.5],"223/283.111":["Planie erstellen","Toleranz ab Sollhöhe +/- mm 10.","m²",6.0],"223/283.121":["Planie erstellen","Toleranz ab Sollhöhe +/- mm 10.","m²",5.0],"223/283.211":["Planie erstellen","Toleranz ab Sollhöhe +/- mm 10.","m²",6.0],"223/283.221":["Planie erstellen","Toleranz ab Sollhöhe +/- mm 10.","m²",5.0],"223/422.101":["Haftvermittler aufbringen","Haftvermittler Typ HCB4.","m²",2.0],"223/422.102":["Haftvermittler aufbringen","Haftvermittler Typ HCBP4.","m²",2.2],"223/423.111":["Längs- und Quernähte ausbilden","Schichtdicke bis mm 40.","m",8.2],"223/423.112":["Längs- und Quernähte ausbilden","Schichtdicke mm 41 bis 80.","m",9.1],"223/423.113":["Längs- und Quernähte ausbilden","Schichtdicke mm 81 bis 130.","m",10.4],"223/423.211":["Längs- und Quernähte ausbilden","Schichtdicke bis mm 40.","m",2.5],"223/423.212":["Längs- und Quernähte ausbilden","Schichtdicke mm 41 bis 80.","m",3.1],"223/423.213":["Längs- und Quernähte ausbilden","Schichtdicke mm 81 bis 130.","m",3.9],"223/423.221":["Längs- und Quernähte ausbilden","Schichtdicke bis mm 40.","m",2.2],"223/423.222":["Längs- und Quernähte ausbilden","Schichtdicke mm 41 bis 80.","m",3.1],"223/423.223":["Längs- und Quernähte ausbilden","Schichtdicke mm 81 bis 130.","m",3.9],"223/423.301":["Längs- und Quernähte ausbilden","gemäss Angabe Unternehmer: .................","m",9.8],"223/424.111":["Anschlussflächen behandeln, z.B","Schichtdicke bis mm 40.","m",2.7],"223/424.112":["Anschlussflächen behandeln, z.B","Schichtdicke mm 41 bis 80.","m",3.8],"223/424.113":["Anschlussflächen behandeln, z.B","Schichtdicke mm 81 bis 130.","m",4.5],"223/424.121":["Anschlussflächen behandeln, z.B","Schichtdicke bis mm 40.","m",2.4],"223/424.122":["Anschlussflächen behandeln, z.B","Schichtdicke mm 41 bis 80.","m",3.5],"223/424.123":["Anschlussflächen behandeln, z.B","Schichtdicke mm 81 bis 130.","m",4.4],"223/424.201":["Anschlussflächen behandeln, z.B","gemäss Angabe Unternehmer: .................","m",9.8],"223/431.212":["Tragschichten AC T Typ L liefern, maschinell","d mm 50.","t",165.0],"223/431.214":["Tragschichten AC T Typ L liefern, maschinell","d mm 60.","t",159.0],"223/431.216":["Tragschichten AC T Typ L liefern, maschinell","d mm 70.","t",153.0],"223/432.112":["Deckschichten AC Typ L liefern, maschinell","d mm 20.","t",235.0],"223/432.211":["Deckschichten AC Typ L liefern, maschinell","d mm 20.","t",227.0],"223/432.213":["Deckschichten AC Typ L liefern, maschinell","d mm 30.","t",212.0],"223/434.111":["Mischgut Typ L für Anpassungen, Vorplätze,","d mm bis 40","t",198.0],"223/434.121":["Mischgut Typ L für Anpassungen, Vorplätze,","d mm bis 70","t",178.0],"223/434.131":["Mischgut Typ L für Anpassungen, Vorplätze,","d mm bis 90","t",168.0],"223/435.201":["Mehrleistungen zu Asphaltmischgut AC Typ L","Zu Pos. 430.","t",4.0],"223/441.212":["Tragschichten AC T Typ N liefern, maschinell","d mm 50.","t",157.0],"223/441.214":["Tragschichten AC T Typ N liefern, maschinell","d mm 60.","t",153.0],"223/441.216":["Tragschichten AC T Typ N liefern, maschinell","d mm 70.","t",149.0],"223/441.311":["Tragschichten AC T Typ N liefern, maschinell","d mm 60.","t",145.0],"223/441.312":["Tragschichten AC T Typ N liefern, maschinell","d mm 70.","t",143.0],"223/441.313":["Tragschichten AC T Typ N liefern, maschinell","d mm 80.","t",155.6],"223/441.314":["Tragschichten AC T Typ N liefern, maschinell","d mm 90.","t",141.0],"223/441.315":["Tragschichten AC T Typ N liefern, maschinell","d mm 100.","t",139.0],"223/442.111":["Deckschichten AC Typ N liefern, maschinell","d mm 20.","t",225.0],"223/442.112":["Deckschichten AC Typ N liefern, maschinell","d mm 25.","t",219.0],"223/442.113":["Deckschichten AC Typ N liefern, maschinell","d mm 30.","t",207.0],"223/442.114":["Deckschichten AC Typ N liefern, maschinell","d mm 35.","t",202.0],"223/442.211":["Deckschichten AC Typ N liefern, maschinell","d mm 35.","t",185.0],"223/442.212":["Deckschichten AC Typ N liefern, maschinell","d mm 40.","t",181.0],"223/444.121":["Mischgut Typ N für Anpassungen, Vorplätze,","d mm bis 70","t",198.0],"223/444.131":["Mischgut Typ N für Anpassungen, Vorplätze,","d mm bis 90","t",189.0],"223/444.211":["Mischgut Typ N für Anpassungen, Vorplätze,","d mm bis 40","t",278.0],"223/444.221":["Mischgut Typ N für Anpassungen, Vorplätze,","d mm bis 40","t",268.0],"223/446.201":["Mehrleistungen zu Asphaltmischgut AC Typ N","Zu Pos. 440.","t",4.0],"223/571.101":["Deckschichtränder abschneiden entlang von","Randabschlüsse.","m",4.0],"223/571.102":["Deckschichtränder abschneiden entlang von","Schachtabdeckungen, DN 600.","St",38.0],"223/921.001":["Provisorisch befahrbare Schachtabdeckungen","Rund bis NW 800mm","St",38.0],"223/926.111":["Höhenverstellbare Schachtabdeckungen nach","Vollgussdeckel Nivroll NW 600 Klasse D400","St",249.0]};
+const LANGS=['de','fr','it','en'];
+const I={
+title:['LV-Erfassung','Saisie LV','Rilevamento LV','BoQ entry'],
+subtitle:['Kostenschätzung Tiefbau nach LV Swisscom 2026','Estimation des coûts génie civil – LV Swisscom 2026','Stima dei costi genio civile – LV Swisscom 2026','Civil works cost estimate – Swisscom BoQ 2026'],
+tab_graben:['Graben','Fouille','Scavo','Trench'],tab_rohr:['Rohr','Tubes','Tubi','Conduits'],tab_schacht:['Schacht','Chambres','Pozzetti','Manholes'],
+tab_werkloch:['Werkloch','Fouilles ponct.','Buche','Pits'],tab_fund:['Fundamente','Fondations','Fondazioni','Foundations'],
+tab_geb:['Geb. Einführung','Introduction bât.','Introd. edificio','Building entry'],tab_belag:['Belag','Revêtement','Pavimentazione','Paving'],
+tab_allg:['Allgemein','Général','Generale','General'],tab_sum:['Zusammenstellung','Récapitulatif','Riepilogo','Summary'],tab_par:['Annahmen','Hypothèses','Ipotesi','Assumptions'],
+h_graben:['Graben','Fouille en tranchée','Scavo a sezione','Trench'],h_rohr:['Rohre und Formstücke','Tubes et raccords','Tubi e raccordi','Conduits and fittings'],
+h_schacht:['Schächte','Chambres','Pozzetti','Manholes'],h_werkloch:['Werklöcher','Fouilles ponctuelles','Buche di lavoro','Work pits'],
+h_fund:['Fundamente und Gehäuse','Fondations et armoires','Fondazioni e armadi','Foundations and cabinets'],h_geb:['Gebäudeeinführung','Introduction dans le bâtiment','Introduzione nell’edificio','Building entry'],
+h_belag:['Belag','Revêtement','Pavimentazione','Paving'],h_allg:['Allgemein','Général','Generale','General'],
+sap:['SAP_AT','SAP_AT','SAP_AT','SAP_AT'],bem:['Bemerkung','Remarque','Osservazione','Remark'],lief:['Lieferant','Fournisseur','Fornitore','Supplier'],
+belMit:['Belagseinbau mit Projekt','Pose revêtement avec le projet','Posa pavimentazione con progetto','Paving included in project'],
+saveNew:['Speichern / Neuer Datensatz','Enregistrer / Nouvel enreg.','Salva / Nuovo record','Save / New record'],
+indiv:['Individuelle LV Position','Position LV individuelle','Posizione LV individuale','Custom BoQ item'],
+del:['Löschen','Supprimer','Elimina','Delete'],rec:['Datensatz','Enregistrement','Record','Record'],of:['von','de','di','of'],
+bez:['Bezeichnung','Désignation','Designazione','Description'],breite:['Breite [m]','Largeur [m]','Larghezza [m]','Width [m]'],
+tiefe:['Tiefe [m]','Profondeur [m]','Profondità [m]','Depth [m]'],laenge:['Länge [m]','Longueur [m]','Lunghezza [m]','Length [m]'],
+hand:['Anteil Handaushub [%]','Part excavation manuelle [%]','Quota scavo a mano [%]','Hand excavation [%]'],
+bk:['Baukörper','Surface','Superficie','Surface'],wiese:['Wiese','Pré','Prato','Grass'],chauss:['Chaussierung','Gravier','Inghiaiatura','Gravel'],
+gehweg:['Gehweg','Trottoir','Marciapiede','Footpath'],strasse:['Strasse','Route','Strada','Road'],kanton:['Kantonsstrasse','Route cantonale','Strada cantonale','Cantonal road'],
+vorplatz:['Vorplatz','Place','Piazzale','Forecourt'],bdicke:['Belagsdicke [m]','Épaisseur revêtement [m]','Spessore pavim. [m]','Paving thickness [m]'],
+von:['von','de','da','from'],bis:['bis','à','a','to'],
+verdr:['Verdrängung Rohrblock','Tubes dans le bloc','Tubi nel blocco','Conduits in block'],
+umh:['Umhüllung Rohr','Enrobage tube','Rinfianco tubi','Conduit bedding'],aushubmat:['Aushubmaterial','Matériaux d’excavation','Materiale di scavo','Excavated material'],
+betonkies:['Betonkies','Gravier à béton','Ghiaia per cls','Concrete gravel'],beton:['Beton','Béton','Calcestruzzo','Concrete'],
+opt:['Optionen','Options','Opzioni','Options'],
+auf:['Belagsaufbruch','Démolition revêtement','Demolizione pavim.','Paving break-out'],zwt:['Zwischentransport','Transport intermédiaire','Trasporto intermedio','Intermediate transport'],
+mat:['Materialersatz','Remplacement matériaux','Sostituzione materiale','Material replacement'],
+wi:['Wiederinstandsetzung Belag','Remise en état revêtement','Ripristino pavimentazione','Paving reinstatement'],
+nein:['Nein','Non','No','No'],ja:['Ja','Oui','Sì','Yes'],
+dA:['Kaltmischbelag, Aushub Oberbaumaterial, anschliessend Belag in einer Etappe','Enrobé à froid, excavation superstructure, puis revêtement en une étape','Conglomerato a freddo, scavo sovrastruttura, poi pavimentazione in una tappa','Cold mix, remove base, then paving in one stage'],
+dA1:['Aushub Oberbaumaterial, anschliessend Belag in einer Etappe','Excavation superstructure, puis revêtement en une étape','Scavo sovrastruttura, poi pavimentazione in una tappa','Remove base, then paving in one stage'],
+dB:['AC T und AC in einer Etappe','AC T et AC en une étape','AC T e AC in una tappa','AC T and AC in one stage'],
+dC:['AC T auf ganze Stärke, Belag abfräsen, Einbau AC','AC T pleine épaisseur, fraisage, pose AC','AC T a pieno spessore, fresatura, posa AC','AC T full depth, mill, lay AC'],
+dC1:['AC T auf ganze Stärke – Abfräsen und Einbau AC separat bestellen','AC T pleine épaisseur – fraisage et AC à commander séparément','AC T a pieno spessore – fresatura e AC da ordinare a parte','AC T full depth – order milling and AC separately'],
+dC2:['Belag abfräsen und Einbau AC','Fraisage et pose AC','Fresatura e posa AC','Mill and lay AC'],
+ueb:['Grabenübergang [Stk]','Passage sur fouille [pce]','Passerella [pz]','Trench crossing [pcs]'],fussg:['Fussgänger','Piétons','Pedoni','Pedestrian'],pkw:['PKW','Voiture','Auto','Car'],lkw:['LKW','Camion','Camion','Truck'],
+abschl:['Abschlüsse [m]','Bordures [m]','Cordoli [m]','Kerbs [m]'],bund:['Bundstein','Bordure','Cordolo','Kerb stone'],bundw:['Bund-/Wasserstein','Bordure/caniveau','Cordolo/cunetta','Kerb/gutter'],
+stellp:['Stellplatten','Dalles de bordure','Lastre di bordo','Edge slabs'],rand:['Randstein','Bordure de rive','Cordonata','Edge stone'],
+wlt:['best. Werkleitungen [m]','Conduites existantes [m]','Condotte esistenti [m]','Existing utilities [m]'],laengs:['längs im Graben','longitudinales','longitudinali','along trench'],quer:['quer im Graben','transversales','trasversali','across trench'],
+verl:['Rohre inkl. Verlegen bestellen','Commander tubes avec pose','Ordinare tubi con posa','Order conduits incl. laying'],
+rohre:['Rohre','Tubes','Tubi','Conduits'],schn:['Rohrschnitte','Coupes de tubes','Tagli tubi','Conduit cuts'],
+boe:['Rohrbogen/Halbschalenabzweiger','Coudes / dérivations','Curve / derivazioni','Bends / branches'],muf:['Muffen','Manchons','Manicotti','Couplers'],
+erd:['Erdband [m]','Ruban de terre [m]','Nastro di terra [m]','Earth strip [m]'],warn:['Warnband [m]','Bande d’avertissement [m]','Nastro segnaletico [m]','Warning tape [m]'],
+schnur:['Schnur einziehen [m]','Tirer cordelette [m]','Infilare cordino [m]','Pull cord [m]'],kal:['Kalibrieren [m]','Calibrage [m]','Calibratura [m]','Calibrate [m]'],
+kalDN:['Kalibrieren DN','Calibrage DN','Calibratura DN','Calibrate DN'],
+addRow:['+ Zeile','+ Ligne','+ Riga','+ Row'],m:['m','m','m','m'],stk:['Stk.','pce','pz','pcs'],
+umbau:['Umbau PS → KES [Stk]','Transformation PS → KES [pce]','Trasformazione PS → KES [pz]','Convert PS → KES [pcs]'],
+neubau:['Neubau: Kontrollschacht KS, Plattenschacht PS, Kleineinstiegschacht KES','Nouvelle construction : KS, PS, KES','Nuova costruzione: KS, PS, KES','New build: KS, PS, KES'],
+schacht:['Schacht','Chambre','Pozzetto','Manhole'],em:['Endmuffen [Stk]','Manchons d’extrémité [pce]','Manicotti terminali [pz]','End couplers [pcs]'],
+wl:['Werkloch [Stk]','Fouille [pce]','Buca [pz]','Pit [pcs]'],ts:['T-Stück','Pièce en T','Pezzo a T','T-piece'],bo:['Bogen','Coude','Curva','Bend'],
+sg:['Spleissgrube','Fosse d’épissure','Fossa di giunzione','Splice pit'],zs:['Zugschlitz','Fente de tirage','Fessura di tiro','Pull slot'],
+indWL:['Individuelles Werkloch','Fouille individuelle','Buca individuale','Custom pit'],
+zsB:['Zugschlitz Breite [m]','Fente largeur [m]','Fessura larghezza [m]','Slot width [m]'],zsT:['Zugschlitz Tiefe [m]','Fente profondeur [m]','Fessura profondità [m]','Slot depth [m]'],zsL:['Zugschlitz Länge [m]','Fente longueur [m]','Fessura lunghezza [m]','Slot length [m]'],
+pzve:['PZVE [Stk]','PZVE [pce]','PZVE [pz]','PZVE [pcs]'],psauf:['PS auf/zu [Stk]','Ouvrir/fermer PS [pce]','Aprire/chiudere PS [pz]','Open/close PS [pcs]'],
+vk:['VK Neubau','Nouveau VK','Nuovo VK','New VK'],kvs:['KVS Neubau','Nouveau KVS','Nuovo KVS','New KVS'],
+anz:['Anzahl Einführungen [Stk]','Nombre d’introductions [pce]','Numero introduzioni [pz]','Number of entries [pcs]'],
+bohr:['Bohrloch / Einführung Ø 70 mm [Wandstärke in cm]','Carottage Ø 70 mm [épaisseur mur en cm]','Carotaggio Ø 70 mm [spessore muro in cm]','Core hole Ø 70 mm [wall thickness in cm]'],
+bohrH:['Mehrfachbohrung → Länge addiert','Plusieurs carottages → longueurs additionnées','Più carotaggi → lunghezze sommate','Multiple holes → lengths added'],
+abd:['Art der Abdichtung','Type d’étanchéité','Tipo di impermeabilizzazione','Sealing type'],keineAbd:['Keine Abdichtung','Aucune','Nessuna','None'],
+kissen:['Kissen aufblasbar','Coussin gonflable','Cuscino gonfiabile','Inflatable cushion'],hauff:['Hauff-Dichtung','Joint Hauff','Guarnizione Hauff','Hauff seal'],
+belIndiv:['Belag mit individuellen LV-Positionen bestellen','Commander avec positions LV individuelles','Ordinare con posizioni LV individuali','Order with custom BoQ items'],
+ksHint:['Alle LV-Positionen dieses Reiters werden auf den Kostensammler Belag gebucht.','Toutes les positions de cet onglet vont au collecteur Revêtement.','Tutte le posizioni di questa scheda vanno sul collettore Pavimentazione.','All items of this tab go to the Paving cost collector.'],
+bB:['Breite Belagseinbau [m]','Largeur de pose [m]','Larghezza posa [m]','Paving width [m]'],bL:['Länge Belagseinbau [m]','Longueur de pose [m]','Lunghezza posa [m]','Paving length [m]'],
+km:['Kleinmaterial [CHF]','Petit matériel [CHF]','Minuteria [CHF]','Small material [CHF]'],ak:['Akkordarbeiten [CHF]','Travaux à forfait [CHF]','Lavori a cottimo [CHF]','Piecework [CHF]'],
+lines:['Positionen dieses Datensatzes','Positions de cet enregistrement','Posizioni di questo record','Items in this record'],
+empty:['Noch keine Positionen. Masse eingeben – die Positionen erscheinen hier.','Aucune position. Saisir les quantités – elles apparaissent ici.','Nessuna posizione. Inserire le quantità.','No items yet. Enter quantities – items appear here.'],
+sub:['Zwischensumme Datensatz','Sous-total enregistrement','Subtotale record','Record subtotal'],proj:['Projekt netto (vor Rabatt)','Projet net (avant rabais)','Progetto netto (prima dello sconto)','Project net (before discount)'],
+cNpk:['NPK','NPK','NPK','NPK'],cText:['Bezeichnung','Désignation','Descrizione','Description'],cU:['Einh.','Unité','Unità','Unit'],cQ:['Menge','Quantité','Quantità','Qty'],
+cEp:['EP CHF','PU CHF','PU CHF','Rate CHF'],cAmt:['Betrag CHF','Montant CHF','Importo CHF','Amount CHF'],cSrc:['Datensatz','Enregistrement','Record','Record'],
+zws:['Zwischensumme','Sous-total','Subtotale','Subtotal'],stufe:['Rabattstufe','Palier de rabais','Livello sconto','Discount tier'],rab:['Rabatt','Rabais','Sconto','Discount'],
+nachR:['Nach Rabatt','Après rabais','Dopo sconto','After discount'],inst:['Installationspauschale','Forfait d’installation','Forfait installazione','Installation lump sum'],
+netto:['Netto exkl. MWST','Net hors TVA','Netto IVA esclusa','Net excl. VAT'],mwst:['MWST','TVA','IVA','VAT'],brutto:['Total inkl. MWST','Total TVA incl.','Totale IVA incl.','Total incl. VAT'],
+hints:['Hinweise und Sonderpositionen','Remarques et positions spéciales','Note e posizioni speciali','Notes and special items'],
+noHints:['Keine offenen Hinweise.','Aucune remarque.','Nessuna nota.','No open notes.'],
+belSep:['Belag separat – nicht im Projekttotal','Revêtement séparé – hors total','Pavimentazione separata – fuori totale','Paving separate – not in total'],
+vGroup:['nach NPK','par NPK','per NPK','by NPK'],vDetail:['nach Datensatz','par enregistrement','per record','by record'],
+csv:['CSV exportieren','Exporter CSV','Esporta CSV','Export CSV'],print:['Drucken','Imprimer','Stampa','Print'],
+saveJ:['Projekt speichern','Enregistrer projet','Salva progetto','Save project'],loadJ:['Projekt laden','Charger projet','Carica progetto','Load project'],
+newP:['Neues Projekt','Nouveau projet','Nuovo progetto','New project'],confirmNew:['Alle Eingaben löschen und neu beginnen?','Effacer toutes les saisies ?','Cancellare tutti i dati?','Clear all entries?'],
+search:['LV-Position suchen (Nummer oder Text)','Rechercher une position (n° ou texte)','Cerca posizione (n. o testo)','Search item (no. or text)'],
+free:['+ Freie Sonderposition','+ Position spéciale libre','+ Posizione speciale libera','+ Free special item'],
+indivT:['Individuelle LV-Positionen','Positions LV individuelles','Posizioni LV individuali','Custom BoQ items'],
+addInd:['+ LV-Position','+ Position LV','+ Posizione LV','+ BoQ item'],
+freeText:['Text','Texte','Testo','Text'],
+sonder:['Sonderposition – kein Preis im LV','Position spéciale – pas de prix dans le LV','Posizione speciale – nessun prezzo nel LV','Special item – no price in BoQ'],
+parT:['Annahmen und Parameter','Hypothèses et paramètres','Ipotesi e parametri','Assumptions and parameters'],
+parH:['Diese Werte stehen nicht im LV. Sie steuern die Mengenermittlung und sind anzupassen, sobald verbindliche Werte vorliegen. Änderungen wirken sofort auf alle Datensätze.','Ces valeurs ne figurent pas dans le LV. Elles pilotent le calcul des quantités et sont à adapter dès que des valeurs contraignantes existent.','Questi valori non sono nel LV. Determinano il calcolo delle quantità e vanno adattati appena disponibili valori vincolanti.','These values are not in the BoQ. They drive the quantity take-off; adjust once binding values are available.'],
+dimT:['Grubenmasse Bauteil L × B × H [m] (ohne Arbeitsraum)','Dimensions ouvrage L × l × H [m]','Dimensioni manufatto L × L × H [m]','Element dimensions L × W × H [m]'],
+mapT:['Zuordnung Auswahl → NPK (zu prüfen)','Correspondance choix → NPK (à vérifier)','Corrispondenza scelta → NPK (da verificare)','Mapping selection → NPK (to verify)'],
+langNote:['Positionstexte stammen aus dem LV und bleiben deutsch.','Les textes des positions proviennent du LV et restent en allemand.','I testi delle posizioni provengono dal LV e restano in tedesco.','Item texts come from the BoQ and remain in German.'],
+w_depth:['Tiefe über 2.00 m – keine LV-Position','Profondeur > 2.00 m – pas de position LV','Profondità > 2.00 m – nessuna posizione LV','Depth > 2.00 m – no BoQ item'],
+w_hand:['Handaushub tiefer als 1.50 m – keine LV-Position','Excavation manuelle > 1.50 m – pas de position','Scavo a mano > 1.50 m – nessuna posizione','Hand excavation > 1.50 m – no item'],
+w_range:['Belagsdicke ausserhalb Bereich','Épaisseur hors plage','Spessore fuori intervallo','Thickness out of range'],
+w_min:['Mindestmass 0.4 m unterschritten','Dimension minimale 0.4 m non atteinte','Dimensione minima 0.4 m non raggiunta','Below minimum 0.4 m'],
+w_rb:['Rohrblock: Anzahl oder Kombination Rohre ausserhalb LV-Bereich – prüfen','Bloc : nombre/combinaison de tubes hors LV – vérifier','Blocco: numero/combinazione tubi fuori LV – verificare','Conduit block: count/mix outside BoQ – check'],
+w_c1:['Typ C1: Abfräsen und Einbau AC separat im Reiter Belag (Typ C2) bestellen','Type C1 : commander fraisage/AC dans l’onglet Revêtement (type C2)','Tipo C1: ordinare fresatura/AC nella scheda Pavimentazione (tipo C2)','Type C1: order milling/AC in the Paving tab (type C2)'],
+w_sp:['Tiefe über 1.50 m: Grabenspriessung angenommen','Profondeur > 1.50 m : blindage supposé','Profondità > 1.50 m: armatura supposta','Depth > 1.50 m: shoring assumed'],
+w_geb:['Kernbohrung: Wandstärke in Pos. 151/672.401 nicht geregelt – Zuschlag prüfen','Carottage : épaisseur non réglée dans 151/672.401 – vérifier','Carotaggio: spessore non regolato in 151/672.401 – verificare','Core drilling: wall thickness not covered by 151/672.401 – check'],
+w_ks:['KS 800/600: LV-Position 151/611.171 gilt für Schachttiefe bis 0.50 m – Tiefe prüfen','KS 800/600 : 151/611.171 valable jusqu’à 0.50 m','KS 800/600: 151/611.171 valida fino a 0.50 m','KS 800/600: 151/611.171 valid to 0.50 m depth'],
+w_rohrNein:['Rohre ohne Verlegen: nur Lieferpositionen','Tubes sans pose : fourniture seulement','Tubi senza posa: solo fornitura','Conduits without laying: supply only'],
+autosave:['Automatisch gespeichert','Enregistré automatiquement','Salvato automaticamente','Saved automatically'],
+dlNo:['Download in dieser Ansicht nicht verfügbar','Téléchargement non disponible ici','Download non disponibile qui','Download not available here'],
+loaded:['Projekt geladen','Projet chargé','Progetto caricato','Project loaded'],badFile:['Datei nicht lesbar','Fichier illisible','File non leggibile','File not readable'],
+sel:['— wählen —','— choisir —','— scegliere —','— select —'],none:['keiner','aucun','nessuno','none'],
+ar:['Arbeitsraum','Espace de travail','Spazio di lavoro','Working space'],et:['Etappe','Étape','Tappa','Stage'],
+fraes:['wird abgefräst','fraisé','fresato','milled'],kalt:['Kaltmischbelag','Enrobé à froid','Conglomerato a freddo','Cold mix'],
+oberbau:['Oberbau (Kiesgemisch)','Superstructure (grave)','Sovrastruttura (misto)','Base course (gravel)'],sepC2:['separat bestellen (Typ C2)','à commander séparément (C2)','da ordinare a parte (C2)','order separately (C2)'],
+bestand:['Bestand (nach C1)','Existant (après C1)','Esistente (dopo C1)','Existing (after C1)'],aussen:['aussen / Terrain','extérieur / terrain','esterno / terreno','outside / ground'],innen:['innen / Gebäude','intérieur / bâtiment','interno / edificio','inside / building'],
+fundament:['Fundament','Fondation','Fondazione','Foundation'],kies:['Kiesgemisch 0/45','Grave 0/45','Misto granulare 0/45','Gravel 0/45'],
+figHint:['Schemaskizze. Graben, Schacht und Fundament massstäblich nach Eingabe bzw. Annahmen; Schichten überhöht dargestellt.','Schéma. Fouille, chambre et fondation à l’échelle des saisies ; couches exagérées.','Schema. Scavo, pozzetto e fondazione in scala secondo i dati; strati esagerati.','Schematic. Trench, manhole and foundation to scale from inputs; layers exaggerated.'],
+tab_hon:['Ingenieurhonorar','Honoraires ingénieur','Onorario ingegnere','Engineering fee'],h_hon:['Ingenieurhonorar nach Baukosten (KBOB / SIA 103)','Honoraires selon coûts de construction (KBOB / SIA 103)','Onorario secondo costi di costruzione (KBOB / SIA 103)','Engineering fee by construction cost (KBOB / SIA 103)'],
+be:['Baustelleneinrichtung [% der LV-Summe]','Installation de chantier [% du total LV]','Impianto di cantiere [% del totale LV]','Site installation [% of BoQ total]'],
+beH:['Pos. 113/111.002 – Prozent auf die Summe aller übrigen LV-Positionen (vor Rabatt)','Pos. 113/111.002 – pourcentage sur la somme des autres positions (avant rabais)','Pos. 113/111.002 – percentuale sulla somma delle altre posizioni (prima dello sconto)','Item 113/111.002 – percentage of all other items (before discount)'],
+basis:['Basis','Base','Base','Base'],
+dup:['Datensatz duplizieren','Dupliquer','Duplica record','Duplicate record'],copy:['Kopie','copie','copia','copy'],
+xT:['Weitere LV-Positionen','Autres positions LV','Altre posizioni LV','Further BoQ items'],xPos:['Positionen','positions','posizioni','items'],xCnt:['erfasst','saisies','inserite','entered'],
+xH:['Alle LV-Positionen dieses Bereichs, die nicht automatisch aus den Eingaben oben entstehen. Menge eintragen – die Position erscheint rechts.','Toutes les positions LV de ce domaine non générées automatiquement. Saisir la quantité.','Tutte le posizioni LV di quest’ambito non generate automaticamente. Inserire la quantità.','All BoQ items of this area not generated automatically from the inputs above. Enter a quantity.'],
+covT:['LV-Abdeckung','Couverture LV','Copertura LV','BoQ coverage'],covAll:['LV-Positionen total','Positions LV total','Posizioni LV totale','BoQ items total'],
+covAuto:['automatisch aus Eingaben','automatiques depuis les saisies','automatiche dai dati','automatic from inputs'],covX:['als weitere LV-Position im Reiter','comme autre position dans l’onglet','come altra posizione nella scheda','as further item in tab'],
+covNo:['nicht erfassbar','non saisissables','non inseribili','not reachable'],
+hB:['Aufwandbestimmende Baukosten B','Coûts déterminants B','Costi determinanti B','Fee-relevant construction cost B'],hLv:['aus LV (Netto exkl. MWST)','du LV (net hors TVA)','dal LV (netto IVA escl.)','from BoQ (net excl. VAT)'],
+hMan:['manuell [CHF]','manuel [CHF]','manuale [CHF]','manual [CHF]'],hFak:['Faktoren','Facteurs','Fattori','Factors'],
+hn:['n Schwierigkeitsgrad','n degré de difficulté','n grado di difficoltà','n difficulty'],hr:['r Anpassungsfaktor','r facteur d’ajustement','r fattore di adattamento','r adjustment'],
+hu:['U Zuschlagsfaktor','U facteur de majoration','U fattore di maggiorazione','U surcharge factor'],hh:['h Stundenansatz [CHF/h]','h tarif horaire [CHF/h]','h tariffa oraria [CHF/h]','h hourly rate [CHF/h]'],
+hnk:['Nebenkosten [% Honorar]','Frais accessoires [% honoraires]','Spese accessorie [% onorario]','Expenses [% of fee]'],
+hPh:['Teilphasen / Leistungsanteil q [%]','Phases partielles / part q [%]','Fasi parziali / quota q [%]','Partial phases / share q [%]'],
+hRes:['Berechnung','Calcul','Calcolo','Calculation'],hTm:['Zeitaufwand Tm','Temps Tm','Tempo Tm','Time Tm'],hHon:['Honorar','Honoraires','Onorario','Fee'],
+hNk:['Nebenkosten','Frais accessoires','Spese accessorie','Expenses'],hTot:['Honorar exkl. MWST','Honoraires hors TVA','Onorario IVA escl.','Fee excl. VAT'],
+hTotI:['Honorar inkl. MWST','Honoraires TVA incl.','Onorario IVA incl.','Fee incl. VAT'],
+hHint:['Formel KBOB: Tm = B × p/100 × n × q/100 × r × U; p = Z1 + Z2 / ∛B (Z1/Z2 im Reiter Annahmen). Leistungsanteile, Faktoren und Stundenansatz sind Vorgabewerte – gemäss aktueller KBOB-Empfehlung, SIA 103 und Vertrag prüfen. Das Honorar ist nicht Teil des Unternehmer-LV.','Formule KBOB : Tm = B × p/100 × n × q/100 × r × U ; p = Z1 + Z2 / ∛B. Valeurs par défaut – à vérifier selon KBOB, SIA 103 et contrat. Honoraires hors LV entrepreneur.','Formula KBOB: Tm = B × p/100 × n × q/100 × r × U; p = Z1 + Z2 / ∛B. Valori predefiniti – verificare secondo KBOB, SIA 103 e contratto. Onorario escluso dal LV impresa.','KBOB formula: Tm = B × p/100 × n × q/100 × r × U; p = Z1 + Z2 / ∛B. Default values – check against KBOB, SIA 103 and contract. Fee is not part of the contractor BoQ.'],
+hSum:['Ingenieurhonorar (separat, KBOB)','Honoraires ingénieur (séparés, KBOB)','Onorario ingegnere (separato, KBOB)','Engineering fee (separate, KBOB)'],
+gTot:['Gesamtkosten inkl. Honorar, inkl. MWST','Coût total honoraires incl., TVA incl.','Costo totale onorario incl., IVA incl.','Total cost incl. fee, incl. VAT'],
+w_hon:['Baukosten B oder Leistungsanteil q fehlen','Coûts B ou part q manquants','Costi B o quota q mancanti','Cost B or share q missing'],
+foot:['Konzept: Alessandro Cortese, Swisscom AG. Preise: LV Swisscom Infrastrukturarbeiten bei Baukooperationen 2026 (Stand 08.07.2026). Stufe 1: Gerüst aller Reiter – Positionen ohne LV-Preis sind als ⚠ Sonderposition markiert. B = Kostensammler Belag. Ingenieurhonorar nach KBOB-Empfehlung (Baukosten), separat vom Unternehmer-LV.','Concept : Alessandro Cortese, Swisscom SA. Prix : LV Swisscom 2026 (état 08.07.2026). Étape 1 – positions sans prix LV marquées ⚠. B = collecteur Revêtement.','Concetto: Alessandro Cortese, Swisscom SA. Prezzi: LV Swisscom 2026 (stato 08.07.2026). Fase 1 – posizioni senza prezzo LV segnate ⚠. B = collettore Pavimentazione.','Concept: Alessandro Cortese, Swisscom Ltd. Prices: Swisscom BoQ 2026 (as of 08.07.2026). Stage 1 – items without BoQ price flagged ⚠. B = Paving cost collector.']
+};
+const TABS=['graben','rohr','schacht','werkloch','fund','geb','belag','allg','hon'];
+const LVTABS=TABS.filter(x=>x!=='hon');
+const PHDEF=[ // SIA 103 Teilphasen – Vorgabewerte, zu prüfen
+ ['31',['Vorprojekt','Avant-projet','Progetto di massima','Preliminary design'],12],
+ ['32',['Bauprojekt','Projet de l’ouvrage','Progetto definitivo','Construction design'],22],
+ ['33',['Bewilligungsverfahren','Procédure d’autorisation','Procedura d’autorizzazione','Permit procedure'],2],
+ ['41',['Ausschreibung, Vergabe','Appel d’offres, adjudication','Appalto, aggiudicazione','Tender, award'],8],
+ ['51',['Ausführungsprojekt','Projet d’exécution','Progetto esecutivo','Detailed design'],18],
+ ['52',['Ausführung (Bauleitung)','Exécution (direction des travaux)','Esecuzione (direzione lavori)','Execution (site supervision)'],33],
+ ['53',['Inbetriebnahme, Abschluss','Mise en service, achèvement','Messa in servizio, chiusura','Commissioning, close-out'],5]];
+const KEY='lv-erfassung-tb-v1';
+const PI=Math.PI;
+
+/* ---------- Kataloge (Auswahl → NPK) ---------- */
+const ROH={
+ 'K55':{l:'151/412.111',v:'151/431.001',s:'151/482.101'},
+ 'KW50':{l:null,v:'151/431.001',s:'151/482.101'},
+ 'K100 PEHD':{l:'151/412.214',v:'151/431.002',s:'151/482.101'},
+ 'K120 PEHD':{l:'151/412.215',v:'151/431.003',s:'151/482.102'},
+ 'K150 PEHD':{l:'151/412.216',v:'151/431.003',s:'151/482.102'},
+ 'K100 mit LV':{l:'151/415.102',v:'151/433.002',s:'151/482.101'},
+ 'K120 mit LV':{l:'151/415.103',v:'151/433.003',s:'151/482.102'},
+ 'K150 mit LV':{l:'151/415.104',v:'151/433.003',s:'151/482.102'}};
+const BOE={
+ 'K55, 90°, R = 0.60 m':{l:'151/421.121',v:'151/441.111'},
+ 'K55, 90°, R = 1.00 m':{l:null,v:'151/441.111'},
+ 'K100, 90°, R = 1.00 m':{l:'151/421.124',v:'151/441.114'},
+ 'K120, 90°, R = 1.20 m':{l:'151/421.125',v:'151/441.115'},
+ 'K150, 90°, R = 1.50 m':{l:'151/421.126',v:'151/441.116'},
+ 'Halbschalenabzweiger, K55':{l:'151/423.303',v:'151/451.303'},
+ 'Halbschalenabzweiger, K100 auf K55':{l:'151/423.304',v:'151/451.304'},
+ 'Halbschalenabzweiger, KK4 auf K55':{l:'151/423.305',v:'151/451.305'},
+ 'Halbschalenabzweiger, KK8 auf K55':{l:'151/423.306',v:'151/451.306'},
+ 'T-KK4 mit 2 K55 Ausgängen':{l:'151/423.302',v:'151/451.302'},
+ 'T-KK8 mit 2 K55 Ausgängen':{l:'151/423.301',v:'151/451.301'},
+ 'Verbindungsstück KK4':{l:'151/423.307',v:'151/451.307'}};
+const MUF={
+ 'Doppelsteckmuffen K55':{l:'151/421.511',v:'151/442.111'},
+ 'Doppelsteckmuffen K100':{l:'151/421.514',v:'151/442.114'},
+ 'Doppelsteckmuffen K120':{l:'151/421.515',v:'151/442.115'},
+ 'Doppelsteckmuffen K100 mit LV':{l:'151/421.562',v:'151/442.162'},
+ 'Doppelsteckmuffen K120 mit LV':{l:'151/421.563',v:'151/442.163'},
+ 'Reparaturmuffen K100 106/100 mm':{l:'151/421.313',v:'151/442.114'}};
+const SCH={ // pos = Lieferung/Erstellung Schacht
+ 'KS 800/600':'151/611.171','KS 1000/800':null,
+ 'PS 1.00 x 1.00 x 0.90 m':null,'PS 1.50 x 1.00 x 0.90 m':null,'PS 2.05 x 1.00 x 0.90 m':null,'PS 2.60 x 1.00 x 0.90 m':null,
+ 'KES Kleineinstiegschacht':null};
+const PS_SIZES=['1.00 x 1.00 m','1.50 x 1.00 m','2.05 x 1.00 m'];
+const PS_AUF=['1.00 x 1.00 m','1.50 x 1.00 m','2.00 x 1.00 m','2.60 x 1.00 m'];
+const VK=['CAB 1-3 L'],KVS=['C 50'];
+const ABSCHL={aB:['bund','117/224.111','222/211.211','222/311.111'],aW:['bundw','117/224.112','222/211.212','222/311.311'],
+ aS:['stellp','117/224.121','222/211.412','222/321.122'],aR:['rand','117/224.141','222/211.413','222/321.123']};
+
+const PDEF=[
+ ['umhH','Höhe Umhüllungszone Rohr [m]',0.25],['ob','Oberboden Wiese [m]',0.20],['ch','Chaussierung [m]',0.10],
+ ['ar','Arbeitsraum Grube je Seite [m]',0.30],['sohle','Mehrtiefe Grubensohle [m]',0.15],
+ ['deckG','Deckschicht AC Gehweg/Vorplatz [m]',0.03],['deckS','Deckschicht AC Strasse [m]',0.035],['deckK','Deckschicht AC Kantonsstrasse [m]',0.04],
+ ['rho','Dichte Asphalt [t/m³]',2.4],['od55','Aussen-Ø K55 [m]',0.063],['od100','Aussen-Ø K100 [m]',0.110],['mwst','MWST [%]',8.1],['z1','KBOB Z1 (SIA 103)',0.075],['z2','KBOB Z2 (SIA 103)',7.23],
+ ['gehMin','Belag Gehweg von [m]',0.06],['gehMax','Belag Gehweg bis [m]',0.12],['strMin','Belag Strasse von [m]',0.09],['strMax','Belag Strasse bis [m]',0.20],
+ ['kanMin','Belag Kantonsstrasse von [m]',0.12],['kanMax','Belag Kantonsstrasse bis [m]',0.30],['vorMin','Belag Vorplatz von [m]',0.06],['vorMax','Belag Vorplatz bis [m]',0.12]];
+const DDEF={
+ sch:{'KS 800/600':[0.96,0.96,1.00],'KS 1000/800':[1.20,1.20,1.20],'PS 1.00 x 1.00 x 0.90 m':[1.20,1.20,1.00],'PS 1.50 x 1.00 x 0.90 m':[1.70,1.20,1.00],
+   'PS 2.05 x 1.00 x 0.90 m':[2.25,1.20,1.00],'PS 2.60 x 1.00 x 0.90 m':[2.80,1.20,1.00],'KES Kleineinstiegschacht':[1.00,1.00,1.00]},
+ wl:{ts:[1.50,1.00,1.00],bo:[1.50,1.00,1.00],sg:[2.00,1.20,1.20],zs:[1.00,0.80,1.00]},
+ fund:{'CAB 1-3 L':[1.00,0.60,0.80],'C 50':[1.20,0.70,0.80]}};
+
+function newRec(tab,n){
+ const b={ind:[],free:[],x:{}};
+ const d={
+  graben:{bez:'Graben',B:0.4,T:0.8,L:0,h:10,bk:'strasse',d:0.10,k55:0,k100:0,umh:'aushub',auf:true,zwt:false,mat:true,wi:'B',uF:0,uP:0,uL:0,aB:0,aW:0,aS:0,aR:0,wlL:0,wlQ:0},
+  rohr:{bez:'Rohranlage',verl:true,rohre:[{typ:'K55',q:0}],schn:[{typ:'K55',q:0}],boe:[{typ:'',q:0}],muf:[{typ:'',q:0}],erd:0,warn:0,schnur:0,kal:0,kalDN:'55'},
+  schacht:{bez:'Schächte',h:10,bk:'strasse',d:0.12,u0:0,u1:0,u2:0,neu:[{typ:'KS 800/600',q:0}],em55:0,em100:0,auf:true,wi:'nein'},
+  werkloch:{bez:'Werklöcher',h:0,bk:'gehweg',d:0.08,auf:true,mat:false,ts:0,bo:0,sg:0,zs:0,iB:0,iT:0,iL:0,p0:0,p1:0,p2:0,p3:0,wi:'A'},
+  fund:{bez:'Fundamente',bk:'chauss',d:0.08,vk:'',kvs:'',wi:'nein'},
+  geb:{bez:'Gebäudeeinführungen',n:0,cm:0,abd:'hauff'},
+  belag:{bez:'Belagsarbeiten',indiv:false,bk:'gehweg',d:0.08,B:0,L:0,wi:'B'},
+  allg:{bez:'Allgemeine Arbeiten',be:0,km:0,ak:0},
+  hon:{bez:'Ingenieurhonorar',src:'lv',B:0,n:1,r:1,u:1,h:140,nk:0,ph:PHDEF.map(([k,,q])=>({k,on:true,q}))}}[tab];
+ const r=Object.assign(JSON.parse(JSON.stringify(d)),b);
+ if(n>1) r.bez+=' '+n;
+ return r;
+}
+function defaults(){
+ const P={};PDEF.forEach(([k,,v])=>P[k]=v);
+ const recs={},idx={};TABS.forEach(t=>{recs[t]=[newRec(t,1)];idx[t]=0});
+ return {v:1,lang:'de',tab:'graben',view:'group',xo:{},head:{sap:'',bem:'',lief:'Cablex AG – LV Swisscom 2026',belMit:true},P,D:JSON.parse(JSON.stringify(DDEF)),recs,idx};
+}
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY));}catch(e){S=null}
+if(!S||S.v!==1)S=defaults();
+(function heal(){const d=defaults();for(const k in d)if(S[k]==null)S[k]=d[k];PDEF.forEach(([k,,v])=>{if(S.P[k]==null)S.P[k]=v});
+ for(const g in DDEF)for(const k in DDEF[g])if(!S.D[g]||!S.D[g][k]){S.D[g]=S.D[g]||{};S.D[g][k]=DDEF[g][k].slice()}
+ healRecs();})();
+function healRecs(){TABS.forEach(tb=>{if(!S.recs[tb]||!S.recs[tb].length){S.recs[tb]=[newRec(tb,1)];S.idx[tb]=0}
+ const d=newRec(tb,1);S.recs[tb].forEach(r=>{for(const k in d)if(r[k]==null)r[k]=JSON.parse(JSON.stringify(d[k]))});
+ if(!(S.idx[tb]>=0&&S.idx[tb]<S.recs[tb].length))S.idx[tb]=0});S.xo=S.xo||{}}
+let saveT;
+function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}},250)}
+const t=k=>{const a=I[k];if(!a)return k;return a[LANGS.indexOf(S.lang)]||a[0]};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num=v=>{const x=parseFloat(v);return isFinite(x)?x:0};
+const r2=x=>Math.round(x*100)/100;
+const fmt=(x,d=2)=>(x||0).toLocaleString('de-CH',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fq=x=>(x||0).toLocaleString('de-CH',{maximumFractionDigits:2});
+const rec=()=>S.recs[S.tab][S.idx[S.tab]];
+const getP=(o,p)=>p.split('.').reduce((a,k)=>a==null?a:a[k],o);
+function setP(o,p,v){const k=p.split('.');let a=o;for(let i=0;i<k.length-1;i++)a=a[k[i]];a[k[k.length-1]]=v}
+
+/* ---------- Rechenkern ---------- */
+function Ctx(src,defKs){
+ const lines=[],notes=[];
+ const c={lines,notes,src,
+  L(pos,q,ks){q=r2(q);if(!(q>0))return;const d=LV[pos];if(!d){lines.push({p:pos,t:'Position nicht im LV gefunden',u:'',q,ep:0,src,ks:ks||defKs,w:1});return}
+   lines.push({p:pos,t:d[0]+' – '+d[1],u:d[2],q,ep:d[3],src,ks:ks||defKs})},
+  SP(text,u,q,ks){q=r2(q);if(!(q>0))return;lines.push({p:'',t:text,u,q,ep:0,src,ks:ks||defKs,w:1})},
+  N(key,extra){const s=t(key)+(extra?' ('+extra+')':'');if(!notes.includes(s))notes.push(s)}};
+ return c;
+}
+const isBel=bk=>['gehweg','strasse','kanton','vorplatz'].includes(bk);
+const rng=bk=>{const P=S.P;return bk==='gehweg'?[P.gehMin,P.gehMax]:bk==='strasse'?[P.strMin,P.strMax]:bk==='kanton'?[P.kanMin,P.kanMax]:bk==='vorplatz'?[P.vorMin,P.vorMax]:null};
+function excav(c,V,T,h,kind){
+ if(!(V>0))return;const vm=V*(1-h),vh=V*h;
+ const pm=kind==='graben'?(T<=1.5?'151/221.111':T<=2?'151/221.112':null):(T<=1.5?'151/231.111':T<=2?'151/231.112':null);
+ if(vm>0){if(pm)c.L(pm,vm);else{c.SP('Aushub maschinell, Tiefe '+fq(T)+' m','m³',vm);c.N('w_depth')}}
+ if(vh>0){const ph=kind==='sond'?'151/121.001':kind==='graben'?(T<=1.5?'151/221.211':null):(T<=1.5?'151/231.211':null);
+  if(ph)c.L(ph,vh);else{c.SP('Aushub von Hand, Tiefe '+fq(T)+' m','m³',vh);c.N('w_hand')}}
+}
+function depo(c,V,ks){if(V>0){c.L('151/252.213',V,ks);c.L('151/261.113',V,ks)}}
+function fill(c,V,h,kies,sond){
+ if(!(V>0))return;
+ if(kies){c.L('151/711.116',V);c.L('151/741.112',V*(1-h));c.L('151/741.122',V*h)}
+ else if(sond){c.L('151/122.001',V*(1-h));c.L('151/122.002',V*h)}
+ else{c.L('151/741.111',V*(1-h));c.L('151/741.121',V*h)}
+}
+function nearest(map,mm){let b=map[0];map.forEach(m=>{if(Math.abs(m[0]-mm)<Math.abs(b[0]-mm))b=m});return b[1]}
+function reinst(c,typ,bk,d,A,per){
+ if(!typ||typ==='nein'||!(A>0))return;
+ if(typ[0]==='C'&&!['strasse','kanton'].includes(bk))return;
+ const P=S.P,K='Belag',deck=bk==='strasse'?P.deckS:bk==='kanton'?P.deckK:P.deckG,rho=P.rho;
+ const acT=dt=>{if(dt<=0.0005)return;const n=Math.max(1,Math.ceil(dt/0.1-1e-9));
+   c.L(nearest([[50,'223/441.212'],[60,'223/441.311'],[70,'223/441.312'],[80,'223/441.313'],[90,'223/441.314'],[100,'223/441.315']],dt/n*1000),A*dt*rho,K)};
+ const acD=dd=>c.L(nearest([[20,'223/442.111'],[25,'223/442.112'],[30,'223/442.113'],[35,'223/442.114'],[40,'223/442.212']],dd*1000),A*dd*rho,K);
+ const fr=dd=>{const mm=dd*1000;c.L(mm>150?'117/223.214':mm>100?'117/223.213':'117/223.212',A,K);c.L('223/263.228',A*dd*rho,K);c.L('117/731.222',A*dd*rho,K)};
+ const naht=dd=>{const mm=dd*1000;c.L(mm<=40?'223/423.111':mm<=80?'223/423.112':'223/423.113',per,K)};
+ const hv=()=>c.L('223/422.101',A,K);
+ const ob=()=>{c.L('151/231.111',A*d,K);depo(c,A*d,K)};
+ const B=()=>{acT(d-deck);acD(deck);hv();naht(d)};
+ switch(typ){
+  case 'A':c.SP('Kaltmischbelag (Provisorium) einbauen und wieder entfernen','m²',A,K);ob();B();break;
+  case 'A1':ob();B();break;
+  case 'B':B();break;
+  case 'C':acT(d);fr(deck);acD(deck);hv();naht(d);break;
+  case 'C1':acT(d);naht(d);c.N('w_c1');break;
+  case 'C2':fr(deck);acD(deck);hv();naht(deck);break;
+ }
+}
+function surface(c,o){ // o:{bk,d,auf,wi,A,per}
+ const P=S.P;
+ if(isBel(o.bk)){const r=rng(o.bk);if(r&&(o.d<r[0]-1e-9||o.d>r[1]+1e-9))c.N('w_range',fq(o.d)+' m');
+  if(o.auf){const mm=o.d*1000,n=mm<=50?1:mm<=100?2:mm<=150?3:4;
+   c.L('223/221.10'+n,o.per);c.L('223/222.12'+n,o.A);c.L('223/262.227',o.A*o.d);c.L('223/266.127',o.A*o.d)}
+  reinst(c,o.wi,o.bk,o.d,o.A,o.per);}
+ if(o.bk==='wiese'){c.L('151/212.101',o.A*P.ob);c.L('151/771.112',o.A);c.L('151/774.101',o.A)}
+ if(o.bk==='chauss'){c.L('223/271.113',o.A*P.ch);c.L('223/272.112',o.A*P.ch)}
+}
+const topCut=(bk,d,auf)=>(isBel(bk)&&auf?d:0)+(bk==='wiese'?S.P.ob:bk==='chauss'?S.P.ch:0);
+function pit(c,n,dim,h,bk,d,auf,kind,withStruct,kies){
+ const P=S.P,[l,b,H]=dim.map(num),lp=l+2*P.ar,bp=b+2*P.ar,Hp=H+P.sohle;
+ const V=n*lp*bp*Math.max(0,Hp-topCut(bk,d,auf));excav(c,V,Hp,h,kind);
+ const Vs=withStruct?n*l*b*H:0;
+ if(kies){depo(c,V);fill(c,V-Vs,h,true)}else{depo(c,Vs);fill(c,V-Vs,h,false,kind==='sond')}
+ return {A:n*lp*bp,per:n*2*(lp+bp)};
+}
+const CALC={
+ graben(r,c){
+  const B=num(r.B),T=num(r.T),Lg=num(r.L),h=num(r.h)/100,P=S.P;
+  if(B>0&&T>0&&Lg>0){
+   const V=B*Lg*Math.max(0,T-topCut(r.bk,num(r.d),r.auf));excav(c,V,T,h,'graben');
+   if(T>1.5){c.L('151/321.102',2*T*Lg);c.N('w_sp')}
+   if(r.zwt)c.L('151/251.111',V);
+   const k55=num(r.k55),k100=num(r.k100);
+   const Vr=Lg*(k55*PI*(P.od55/2)**2+k100*PI*(P.od100/2)**2),Vu=B*P.umhH*Lg;
+   if(r.umh==='beton'&&(k55+k100)>0){let pos=null;
+    if(k100>0)pos=k100<=4?'151/471.111':null;else pos=k55<=3?'151/471.115':null;
+    if(k55>0&&k100>0)c.N('w_rb','K55 + K100');
+    if(pos)c.L(pos,Lg);else{c.SP('Rohrblock '+(k55?k55+'×K55 ':'')+(k100?k100+'×K100':''),'m',Lg);c.N('w_rb')}}
+   if(r.umh==='betonkies'){c.L('151/711.123',Vu-Vr);c.L('151/721.101',Vu-Vr)}
+   const Vf=Math.max(0,r.umh==='aushub'?V-Vr:V-Vu);
+   if(r.mat){depo(c,V);fill(c,Vf,h,true)}else{depo(c,V-Vf);fill(c,Vf,h,false)}
+   surface(c,{bk:r.bk,d:num(r.d),auf:r.auf,wi:isBel(r.bk)?r.wi:'nein',A:B*Lg,per:2*(Lg+B)});
+  }
+  c.L('113/214.111',num(r.uF));c.L('113/214.211',num(r.uP));c.L('113/214.311',num(r.uL));
+  for(const k in ABSCHL){const q=num(r[k]);if(q>0){const a=ABSCHL[k];c.L(a[1],q);c.L(a[2],q);c.L(a[3],q)}}
+  c.L('151/241.001',num(r.wlL));c.L('151/241.002',num(r.wlQ));
+ },
+ rohr(r,c){
+  if(!r.verl)c.N('w_rohrNein');
+  const two=(cat,row)=>{const m=cat[row.typ],q=num(row.q);if(!m||!(q>0))return;
+   if(m.l)c.L(m.l,q);else c.SP(row.typ+' liefern','',q);if(r.verl&&m.v)c.L(m.v,q)};
+  r.rohre.forEach(x=>{const m=ROH[x.typ],q=num(x.q);if(!m||!(q>0))return;if(m.l)c.L(m.l,q);else c.SP(x.typ+' liefern','m',q);if(r.verl)c.L(m.v,q)});
+  r.schn.forEach(x=>{const m=ROH[x.typ];if(m)c.L(m.s,num(x.q))});
+  r.boe.forEach(x=>two(BOE,x));r.muf.forEach(x=>two(MUF,x));
+  c.L('151/484.301',num(r.erd));c.L('151/484.211',num(r.warn));c.L('151/486.001',num(r.schnur));
+  c.L({55:'151/485.004',100:'151/485.001',120:'151/485.002',150:'151/485.003'}[r.kalDN]||'151/485.004',num(r.kal));
+ },
+ schacht(r,c){
+  const h=num(r.h)/100,d=num(r.d);let A=0,per=0;
+  r.neu.forEach(x=>{const q=num(x.q);if(!x.typ||!(q>0))return;const dim=S.D.sch[x.typ];if(!dim)return;
+   const g=pit(c,q,dim,h,r.bk,d,r.auf,'grube',true,true);A+=g.A;per+=g.per;
+   if(SCH[x.typ]){c.L(SCH[x.typ],q);c.N('w_ks')}else c.SP('Schacht '+x.typ+' liefern und versetzen','St',q)});
+  let u=0;PS_SIZES.forEach((s,i)=>{const q=num(r['u'+i]);u+=q;c.SP('Umbau Plattenschacht '+s+' zu KES','St',q)});
+  if(u>0){c.L('151/421.511',num(r.em55));c.L('151/442.111',num(r.em55));c.L('151/421.514',num(r.em100));c.L('151/442.114',num(r.em100))}
+  if(A>0)surface(c,{bk:r.bk,d,auf:r.auf,wi:r.wi,A,per});
+ },
+ werkloch(r,c){
+  const h=num(r.h)/100,d=num(r.d);let A=0,per=0;
+  ['ts','bo','sg','zs'].forEach(k=>{const q=num(r[k]);if(q>0){const g=pit(c,q,S.D.wl[k],h,r.bk,d,r.auf,'sond',false,r.mat);A+=g.A;per+=g.per}});
+  const iB=num(r.iB),iT=num(r.iT),iL=num(r.iL);
+  if(iB>0&&iT>0&&iL>0){const V=iB*iL*Math.max(0,iT-topCut(r.bk,d,r.auf));excav(c,V,iT,h,'sond');
+   if(r.mat){depo(c,V);fill(c,V,h,true)}else fill(c,V,h,false,true);A+=iB*iL;per+=2*(iB+iL)}
+  PS_AUF.forEach((s,i)=>c.SP('Plattenschacht '+s+' öffnen und schliessen','St',num(r['p'+i])));
+  if(A>0)surface(c,{bk:r.bk,d,auf:r.auf,wi:r.wi,A,per});
+ },
+ fund(r,c){
+  let A=0,per=0;const d=num(r.d);
+  [[r.vk,'VK'],[r.kvs,'KVS']].forEach(([typ,lab])=>{if(!typ)return;const dim=S.D.fund[typ];if(!dim)return;
+   const g=pit(c,1,dim,0,r.bk,d,true,'grube',true,true);A+=g.A;per+=g.per;
+   c.SP('Fundament/Sockel '+lab+' '+typ+' erstellen','St',1)});
+  if(A>0)surface(c,{bk:r.bk,d,auf:true,wi:r.bk==='vorplatz'?r.wi:'nein',A,per});
+ },
+ geb(r,c){
+  const n=num(r.n),cm=num(r.cm);c.L('151/672.401',n);
+  if(cm>0){c.SP('Kernbohrung Ø 70 mm, Wandstärke gesamt','cm',cm);c.N('w_geb')}
+  if(r.abd==='kissen')c.SP('Abdichtung Kissen aufblasbar','St',n);
+  if(r.abd==='hauff')c.SP('Abdichtung Hauff-Dichtung','St',n);
+ },
+ belag(r,c){
+  if(r.indiv)return;
+  const B=num(r.B),Lb=num(r.L),d=num(r.d);
+  if((B>0&&B<0.4)||(Lb>0&&Lb<0.4))c.N('w_min');
+  if(B>0&&Lb>0){const g=rng(r.bk);if(g&&(d<g[0]-1e-9||d>g[1]+1e-9))c.N('w_range',fq(d)+' m');
+   reinst(c,r.wi,r.bk,d,B*Lb,2*(B+Lb))}
+ },
+ allg(r,c,noBE){
+  const be=num(r.be);
+  if(be>0&&!noBE){const base=beBase(),d=LV['113/111.002'];
+   c.lines.push({p:'113/111.002',t:d[0]+' – '+be+' % '+t('von')+' CHF '+fmt(base),u:d[2],q:1,ep:r2(base*be/100),src:c.src,ks:'TB'})}
+  const km=num(r.km),ak=num(r.ak);
+  if(km>0)c.lines.push({p:'Pauschal',t:'Kleinmaterial',u:'gl',q:1,ep:km,src:c.src,ks:'TB'});
+  if(ak>0)c.lines.push({p:'Pauschal',t:'Akkordarbeiten',u:'gl',q:1,ep:ak,src:c.src,ks:'TB'});
+ },
+ hon(r,c){
+  const B=r.src==='man'?num(r.B):honB(),q=r.ph.reduce((s,x)=>s+(x.on?num(x.q):0),0);
+  if(!(B>0)||!(q>0)){if(r.src==='man'||q<=0)c.N('w_hon');return}
+  const p=S.P.z1+S.P.z2/Math.cbrt(B),Tm=B*p/100*num(r.n)*q/100*num(r.r)*num(r.u),H=r2(r2(Tm)*num(r.h)),nk=num(r.nk);
+  c.hon={B,p,q,Tm:r2(Tm),H,NK:r2(H*nk/100)};
+  c.lines.push({p:'KBOB',t:'Ingenieurhonorar SIA 103 – Zeitaufwand Tm (B = CHF '+fmt(B,0)+', p = '+p.toFixed(4)+' %, q = '+fq(q)+' %, n = '+fq(num(r.n))+', r = '+fq(num(r.r))+', U = '+fq(num(r.u))+')',u:'h',q:r2(Tm),ep:num(r.h),src:c.src,ks:'HON'});
+  if(nk>0)c.lines.push({p:'KBOB',t:'Nebenkosten '+fq(nk)+' % des Honorars',u:'gl',q:1,ep:c.hon.NK,src:c.src,ks:'HON'});
+ }};
+function calcRec(tab,r,noBE){
+ const ks=tab==='belag'?'Belag':tab==='hon'?'HON':'TB',c=Ctx(t('tab_'+tab)+': '+(r.bez||'–'),ks);
+ try{CALC[tab](r,c,noBE)}catch(e){c.notes.push('Rechenfehler: '+e.message)}
+ for(const p in r.x||{})if(LV[p])c.L(p,num(r.x[p]));
+ (r.ind||[]).forEach(x=>{if(x.p&&LV[x.p])c.L(x.p,num(x.q))});
+ (r.free||[]).forEach(x=>{const q=num(x.q);if(q>0&&x.t)c.lines.push({p:'',t:x.t,u:x.u||'',q:r2(q),ep:num(x.ep),src:c.src,ks,w:1})});
+ c.lines.forEach(l=>l.amt=r2(l.q*l.ep));
+ return c;
+}
+function calcSet(tabs,noBE){const all=[],notes=[];tabs.forEach(tb=>S.recs[tb].forEach(r=>{const c=calcRec(tb,r,noBE);all.push(...c.lines);c.notes.forEach(n=>notes.push(c.src+': '+n))}));return {all,notes}}
+function calcAll(){return calcSet(TABS)}
+function beBase(){return r2(calcSet(LVTABS,true).all.filter(l=>S.head.belMit||l.ks!=='Belag').reduce((s,l)=>s+l.amt,0))}
+function honB(){return totals(calcSet(LVTABS).all).net}
+/* Weitere LV-Positionen: jede LV-Position, die nicht automatisch entsteht, wird einem Reiter zugeordnet */
+function XT(p){const c=p.slice(0,3),u=p.slice(4,7);
+ if(c==='111')return 'allg';
+ if(c==='113')return u==='214'?'graben':'allg';
+ if(c==='117')return u==='223'?'belag':u==='228'?'schacht':'graben';
+ if(c==='151'){if(u==='672')return 'geb';if(u[0]==='6')return 'schacht';if(u==='471')return 'graben';if(u[0]==='4')return 'rohr';
+  if(['121','122','231','232','234'].includes(u))return 'werkloch';return 'graben'}
+ if(c==='222')return 'graben';
+ if(c==='223')return ['921','926'].includes(u)?'schacht':'belag';
+ return 'allg'}
+let AUTO=null;
+function autoSet(){if(AUTO)return AUTO;
+ const src=[...Object.values(CALC),excav,depo,fill,reinst,surface].map(String).join()+JSON.stringify([ROH,BOE,MUF,SCH,ABSCHL]);
+ AUTO=new Set(src.match(/\d{3}\/\d{3}\.\d{3}/g));[1,2,3,4].forEach(n=>{AUTO.add('223/221.10'+n);AUTO.add('223/222.12'+n)});return AUTO}
+function xList(tab){const A=autoSet();return Object.keys(LV).filter(p=>!A.has(p)&&XT(p)===tab)}
+function stage(z){return z<=10000?[1,0,0]:z<=30000?[2,3,700]:z<=50000?[3,5,900]:z<=100000?[4,7,1200]:[5,9,1500]}
+function totals(all){
+ const hon=all.filter(l=>l.ks==='HON'),lv=all.filter(l=>l.ks!=='HON');
+ const inc=S.head.belMit?lv:lv.filter(l=>l.ks!=='Belag');
+ const sep=S.head.belMit?[]:lv.filter(l=>l.ks==='Belag');
+ const hNet=r2(hon.reduce((s,l)=>s+l.amt,0)),hMw=r2(hNet*S.P.mwst/100);
+ const z=r2(inc.reduce((s,l)=>s+l.amt,0)),[st,pc,ins]=stage(z),rb=r2(z*pc/100),nr=r2(z-rb),inst=z>0?ins:0,net=r2(nr+inst),mw=r2(net*S.P.mwst/100);
+ return {inc,sep,z,st,pc,rb,nr,inst,net,mw,br:r2(net+mw),sepSum:r2(sep.reduce((s,l)=>s+l.amt,0)),hon,hNet,hMw,hBr:r2(hNet+hMw)};
+}
+
+/* ---------- Formular-Bausteine ---------- */
+let uid=0;
+const V=k=>getP(rec(),k);
+function fN(k,lab,o={}){const v=V(k);return `<label class="fld ${o.key?'key':''}"><span>${lab}</span><input type="number" inputmode="decimal" step="any" min="0" data-k="${k}" data-t="n" value="${v===0&&!o.key?'':esc(v)}" ${o.dis?'disabled':''}></label>`}
+function fT(k,lab,o={}){return `<label class="fld ${o.key?'key':''}" style="${o.style||''}"><span>${lab}</span><input type="text" data-k="${k}" data-t="s" value="${esc(V(k))}"></label>`}
+function fR(k,opts,dis=[]){const n='r'+(uid++),cur=V(k);return `<div class="seg" role="radiogroup">${opts.map(([v,l])=>{const d=dis.includes(v);return `<label class="${d?'dis':''}"><input type="radio" name="${n}" data-k="${k}" data-t="s" value="${v}" ${String(cur)===String(v)?'checked':''} ${d?'disabled':''}><span>${l}</span></label>`}).join('')}</div>`}
+function fC(k,lab,dis){return `<label><input type="checkbox" data-k="${k}" data-t="b" ${V(k)?'checked':''} ${dis?'disabled':''}> ${lab}</label>`}
+const row=(lab,inner)=>`<div class="row"><div class="lbl">${lab}</div><div>${inner}</div></div>`;
+function fL(k,title,cat,unit){const rows=V(k);return `<div class="lst"><div class="lh"><b>${title}</b><span>${unit}</span></div>${rows.map((x,i)=>`<div class="lr"><select data-k="${k}.${i}.typ" data-t="s" aria-label="${esc(title)}"><option value="">${t('sel')}</option>${Object.keys(cat).map(o=>`<option ${o===x.typ?'selected':''}>${esc(o)}</option>`).join('')}</select><input type="number" step="any" min="0" data-k="${k}.${i}.q" data-t="n" value="${x.q||''}" aria-label="${unit}"><button class="x" data-act="rmrow" data-k="${k}" data-i="${i}" aria-label="${t('del')}">×</button></div>`).join('')}<button class="addrow" data-act="addrow" data-k="${k}">${t('addRow')}</button></div>`}
+function bkRow(opts){
+ const r=rec(),bel=isBel(r.bk),g=rng(r.bk),d=num(r.d),bad=g&&(d<g[0]-1e-9||d>g[1]+1e-9);
+ return row(t('bk'),`<div class="inline" style="align-items:flex-start">${fR('bk',opts.map(o=>[o,t(o)]))}<div>${fN('d',t('bdicke'),{key:true,dis:!bel})}${bel?`<div class="range ${bad?'bad':''}">${t('von')} ${fq(g[0])} ${t('bis')} ${fq(g[1])} m</div>`:''}</div></div>`)}
+function typInfo(list){return `<div class="typ">${list.map(k=>`<div><b>Typ ${k}</b>${t('d'+k)}</div>`).join('')}</div>`}
+function wiRow(list,withNein=true){
+ const r=rec(),bel=isBel(r.bk),dis=[];
+ list.forEach(k=>{if(!bel)dis.push(k);else if(k.startsWith('C')&&!['strasse','kanton'].includes(r.bk))dis.push(k)});
+ if(!bel&&withNein&&r.wi!=='nein'){} 
+ const opts=(withNein?[['nein',t('nein')]]:[]).concat(list.map(k=>[k,'Typ '+k]));
+ return row(t('wi'),typInfo(list)+stagesSVG(r.wi)+fR('wi',opts,dis));
+}
+function indBlock(){
+ const r=rec();
+ return `<div class="ind" id="indBlock"><h3>${t('indivT')}</h3>
+ ${r.ind.map((x,i)=>{const d=LV[x.p];return `<div class="ir"><input list="lvlist" placeholder="${t('search')}" data-k="ind.${i}.p" data-t="s" value="${esc(x.p)}" aria-label="${t('search')}"><input type="number" step="any" min="0" data-k="ind.${i}.q" data-t="n" value="${x.q||''}" aria-label="${t('cQ')}"><button class="x" data-act="rmrow" data-k="ind" data-i="${i}" aria-label="${t('del')}">×</button>${d?`<small>${esc(d[0]+' – '+d[1])} (${esc(d[2])}, CHF ${fmt(d[3])})</small>`:''}</div>`}).join('')}
+ ${r.free.map((x,i)=>`<div class="ir free"><input type="text" placeholder="${t('freeText')}" data-k="free.${i}.t" data-t="s" value="${esc(x.t)}"><input type="text" placeholder="${t('cU')}" data-k="free.${i}.u" data-t="s" value="${esc(x.u)}"><input type="number" step="any" placeholder="${t('cEp')}" data-k="free.${i}.ep" data-t="n" value="${x.ep||''}"><input type="number" step="any" placeholder="${t('cQ')}" data-k="free.${i}.q" data-t="n" value="${x.q||''}"><button class="x" data-act="rmrow" data-k="free" data-i="${i}" aria-label="${t('del')}">×</button></div>`).join('')}
+ <div class="chks" style="margin-top:6px"><button class="addrow" data-act="addind">${t('addInd')}</button><button class="addrow" data-act="addfree">${t('free')}</button></div></div>`;
+}
+const FORMS={
+ graben(){const r=rec(),bel=isBel(r.bk);
+  return `<div class="grid">${fN('B',t('breite'),{key:true})}${fN('T',t('tiefe'),{key:true})}${fN('L',t('laenge'),{key:true})}${fN('h',t('hand'),{key:true})}${fT('bez',t('bez'),{key:true})}</div>`
+  +bkRow(['wiese','chauss','gehweg','strasse','kanton'])
+  +row(t('verdr'),`<div class="inline">${fN('k55','K55 [Stk]',{key:true})}${fN('k100','K100 [Stk]')}</div>`)
+  +row(t('umh'),fR('umh',[['aushub',t('aushubmat')],['betonkies',t('betonkies')],['beton',t('beton')]]))
+  +row(t('opt'),`<div class="chks">${fC('auf',t('auf'),!bel)}${fC('zwt',t('zwt'))}${fC('mat',t('mat'))}</div>`)
+  +wiRow(['A','B','C','C1'])
+  +row(t('ueb'),`<div class="inline">${fN('uF',t('fussg'))}${fN('uP',t('pkw'))}${fN('uL',t('lkw'))}</div>`)
+  +row(t('abschl'),`<div class="inline">${fN('aB',t('bund'))}${fN('aW',t('bundw'))}${fN('aS',t('stellp'))}${fN('aR',t('rand'))}</div>`)
+  +row(t('wlt'),`<div class="inline">${fN('wlL',t('laengs'))}${fN('wlQ',t('quer'))}</div>`)},
+ rohr(){const r=rec();
+  return `<div class="grid">${fT('bez',t('bez'),{key:true,style:'grid-column:span 2'})}</div>`
+  +row(t('verl'),fR('verl',[[true,t('ja')],[false,t('nein')]].map(([v,l])=>[String(v),l])))
+  +`<div class="lists">${fL('rohre',t('rohre'),ROH,t('m'))}${fL('boe',t('boe'),BOE,t('stk'))}${fL('schn',t('schn'),ROH,t('stk'))}${fL('muf',t('muf'),MUF,t('stk'))}</div>`
+  +`<div class="grid">${fN('erd',t('erd'))}${fN('warn',t('warn'))}${fN('schnur',t('schnur'))}${fN('kal',t('kal'))}<label class="fld"><span>${t('kalDN')}</span><select data-k="kalDN" data-t="s">${['55','100','120','150'].map(x=>`<option ${r.kalDN===x?'selected':''}>${x}</option>`).join('')}</select></label></div>`},
+ schacht(){const r=rec(),bel=isBel(r.bk),u=num(r.u0)+num(r.u1)+num(r.u2);
+  return `<div class="grid">${fT('bez',t('bez'),{key:true})}${fN('h',t('hand'),{key:true})}</div>`
+  +bkRow(['wiese','chauss','gehweg','strasse','kanton'])
+  +row(t('umbau'),`<div class="inline">${PS_SIZES.map((s,i)=>fN('u'+i,s)).join('')}</div>`)
+  +row(t('neubau'),`<div class="lists" style="margin:0">${fL('neu',t('schacht'),SCH,t('stk'))}</div>`)
+  +row(t('em'),`<div class="inline">${fN('em55','K55',{dis:!u})}${fN('em100','K100',{dis:!u})}</div>`)
+  +row(t('opt'),`<div class="chks">${fC('auf',t('auf'),!bel)}</div>`)
+  +wiRow(['A','B','C','C1'])},
+ werkloch(){const r=rec(),bel=isBel(r.bk);
+  return `<div class="grid">${fT('bez',t('bez'),{key:true})}${fN('h',t('hand'),{key:true})}</div>`
+  +bkRow(['wiese','chauss','gehweg','strasse','kanton'])
+  +row(t('opt'),`<div class="chks">${fC('auf',t('auf'),!bel)}${fC('mat',t('mat'))}</div>`)
+  +row(t('wl'),`<div class="inline">${fN('ts',t('ts'))}${fN('bo',t('bo'))}${fN('sg',t('sg'))}${fN('zs',t('zs'))}</div>`)
+  +row(t('indWL'),`<div class="inline">${fN('iB',t('zsB'))}${fN('iT',t('zsT'))}${fN('iL',t('zsL'))}<label class="fld"><span>${t('pzve')}</span><input type="number" disabled></label></div>`)
+  +row(t('psauf'),`<div class="inline">${PS_AUF.map((s,i)=>fN('p'+i,s)).join('')}</div>`)
+  +wiRow(['A','B','C','C1'])},
+ fund(){const r=rec(),vp=r.bk==='vorplatz',g=rng('vorplatz');
+  const sel=(k,list)=>`<select data-k="${k}" data-t="s"><option value="">${t('none')}</option>${list.map(o=>`<option ${o===r[k]?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+  return `<div class="grid">${fT('bez',t('bez'),{key:true})}</div>`
+  +row(t('bk'),`<div class="inline" style="align-items:flex-start">${fR('bk',['wiese','chauss','vorplatz'].map(o=>[o,t(o)]))}<div>${fN('d',t('bdicke'),{key:true,dis:!vp})}${vp?`<div class="range">${t('von')} ${fq(g[0])} ${t('bis')} ${fq(g[1])} m</div>`:''}</div></div>`)
+  +row(t('vk'),`<label class="fld" style="max-width:240px">${sel('vk',VK)}</label>`)
+  +row(t('kvs'),`<label class="fld" style="max-width:240px">${sel('kvs',KVS)}</label>`)
+  +row(t('wi'),typInfo(['B'])+stagesSVG(r.wi)+fR('wi',[['nein',t('nein')],['B','Typ B']],vp?[]:['B']))},
+ geb(){return `<div class="grid">${fT('bez',t('bez'),{key:true,style:'grid-column:span 2'})}</div>`
+  +row(t('anz'),`<div style="max-width:160px">${fN('n','',{key:true})}</div>`)
+  +row(t('bohr'),`<div style="max-width:160px">${fN('cm','',{key:true})}</div><div class="range">${t('bohrH')}</div>`)
+  +row(t('abd'),fR('abd',[['keine',t('keineAbd')],['kissen',t('kissen')],['hauff',t('hauff')]]))},
+ belag(){const r=rec(),g=rng(r.bk),B=num(r.B),L=num(r.L);
+  const dis=['strasse','kanton'].includes(r.bk)?[]:['C','C1','C2'];
+  return `<div class="grid">${fT('bez',t('bez'),{key:true,style:'grid-column:span 2'})}</div>`
+  +row(t('belIndiv'),fR('indiv',[['false',t('nein')],['true',t('ja')]])+`<div class="range">${t('ksHint')}</div>`)
+  +(r.indiv?'':bkRow(['gehweg','strasse','kanton'])
+  +row(t('bB'),`<div class="inline">${fN('B',t('bB'),{key:true})}${fN('L',t('bL'),{key:true})}</div><div class="range ${(B>0&&B<0.4)||(L>0&&L<0.4)?'bad':''}">&gt; 0.4 m</div>`)
+  +row(t('wi'),typInfo(['A','A1','B','C','C1','C2'])+fR('wi',['A','A1','B','C','C1','C2'].map(k=>[k,'Typ '+k]),dis)))},
+ allg(){
+  return `<div class="grid">${fT('bez',t('bez'),{key:true,style:'grid-column:span 2'})}</div>`
+  +row(t('be'),`<div style="max-width:180px">${fN('be','',{key:true})}</div><div class="range" id="behint">${beHint()}</div>`)
+  +row(t('km'),`<div style="max-width:180px">${fN('km','')}</div>`)+row(t('ak'),`<div style="max-width:180px">${fN('ak','')}</div>`)},
+ hon(){const r=rec(),lv=r.src!=='man',L=LANGS.indexOf(S.lang);
+  return `<div class="grid">${fT('bez',t('bez'),{key:true,style:'grid-column:span 2'})}</div>`
+  +row(t('hB'),fR('src',[['lv',t('hLv')],['man',t('hMan')]])+`<div class="inline" style="margin-top:8px">${lv?`<label class="fld"><span>B [CHF]</span><input type="text" value="${fmt(honB())}" disabled></label>`:fN('B','B [CHF]',{key:true})}</div>`)
+  +row(t('hFak'),`<div class="inline">${fN('n',t('hn'),{key:true})}${fN('r',t('hr'),{key:true})}${fN('u',t('hu'),{key:true})}${fN('h',t('hh'),{key:true})}${fN('nk',t('hnk'))}</div>`)
+  +row(t('hPh'),`<div class="phs">${r.ph.map((x,i)=>{const d=PHDEF.find(p=>p[0]===x.k);return `<input type="checkbox" data-k="ph.${i}.on" data-t="b" ${x.on?'checked':''} aria-label="${esc(x.k)}"><b>${esc(x.k)}</b><span>${esc(d?d[1][L]||d[1][0]:'')}</span><input type="number" step="any" min="0" data-k="ph.${i}.q" data-t="n" value="${x.q}" aria-label="q ${esc(x.k)}">`}).join('')}<span></span><span></span><span class="sum" id="qsum"></span><span></span></div>`)
+  +row(t('hRes'),`<div id="honres">${honRes()}</div>`)
+  +`<p class="hint" style="margin-top:12px">${t('hHint')}</p>`}
+};
+function beHint(){const be=num(rec().be);if(!(be>0))return t('beH');const base=beBase();return `${t('beH')} – ${t('basis')} CHF ${fmt(base)} → CHF ${fmt(r2(base*be/100))}`}
+function honRes(){const r=rec(),h=calcRec('hon',r).hon,q=r.ph.reduce((s,x)=>s+(x.on?num(x.q):0),0),mw=h?r2((h.H+h.NK)*S.P.mwst/100):0;
+ const qs=document.getElementById('qsum');if(qs)qs.textContent='q = '+fq(q)+' %';
+ return h?`<div class="hres"><div><span>p = Z1 + Z2 / ∛B</span><span>${h.p.toFixed(4)} %</span></div>
+   <div><span>${t('hTm')}</span><span>${fq(h.Tm)} h</span></div><div><span>${t('hHon')} (${fq(h.Tm)} h × CHF ${fmt(num(r.h))})</span><span>CHF ${fmt(h.H)}</span></div>
+   ${h.NK?`<div><span>${t('hNk')}</span><span>CHF ${fmt(h.NK)}</span></div>`:''}<div><span>${t('hTot')}</span><span>CHF ${fmt(h.H+h.NK)}</span></div>
+   <div><span>${t('mwst')} ${fq(S.P.mwst)} %</span><span>CHF ${fmt(mw)}</span></div><div class="big"><span>${t('hTotI')}</span><span>CHF ${fmt(r2(h.H+h.NK+mw))}</span></div></div>`:`<p class="hint">⚠ ${t('w_hon')}</p>`}
+function xBlock(){const list=xList(S.tab);if(!list.length)return '';const r=rec(),x=r.x||{},n=Object.keys(x).filter(p=>num(x[p])>0).length;
+ const g={};list.forEach(p=>{const k=p.slice(0,7);(g[k]=g[k]||[]).push(p)});
+ return `<details class="xp" id="xp" ${S.xo[S.tab]?'open':''}><summary><b>${t('xT')}</b><span>${list.length} ${t('xPos')}${n?' · '+n+' '+t('xCnt'):''}</span></summary>
+ <p class="hint">${t('xH')}</p><input type="search" class="xf" data-xf placeholder="${t('search')}" aria-label="${t('search')}">
+ ${Object.keys(g).map(k=>`<div class="xg"><h4>${esc(k)} ${esc(LV[g[k][0]][0])}</h4>${g[k].map(p=>{const d=LV[p];return `<div class="xr" data-xs="${esc((p+' '+d[0]+' '+d[1]).toLowerCase())}"><span class="pos">${p}</span><span>${esc(d[1])}</span><span class="n">${esc(d[2])} · ${fmt(d[3])}</span><input type="number" step="any" min="0" data-x="${p}" value="${x[p]||''}" aria-label="${p} ${t('cQ')}"></div>`}).join('')}</div>`).join('')}</details>`}
+
+/* ---------- Illustrationen (SVG, live) ---------- */
+const DEFS=`<defs>
+<pattern id="pGr" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="var(--gravel)"/><circle cx="2" cy="2" r="1.1" fill="var(--gravelD)"/><circle cx="6" cy="5.5" r=".9" fill="var(--gravelD)"/></pattern>
+<pattern id="pSo" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="var(--soil)"/><path d="M0 10L10 0" stroke="var(--soilD)" stroke-width=".7"/></pattern>
+<pattern id="pCo" width="9" height="9" patternUnits="userSpaceOnUse"><rect width="9" height="9" fill="var(--conc)"/><circle cx="3" cy="4" r=".9" fill="var(--concD)"/><path d="M6 7l1.6-1.2" stroke="var(--concD)"/></pattern>
+<pattern id="pBk" width="7" height="7" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="var(--conc)"/><circle cx="2" cy="2" r="1.3" fill="var(--gravelD)"/><circle cx="5.5" cy="5" r="1" fill="var(--gravelD)"/></pattern>
+<pattern id="pKm" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="var(--asphT)"/><circle cx="3" cy="3" r="1" fill="var(--asph)"/></pattern>
+<pattern id="pWa" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="var(--conc)"/><path d="M0 8L8 0M-2 2L2 -2M6 10L10 6" stroke="var(--concD)" stroke-width="1"/></pattern>
+</defs>`;
+const svg=(w,h,b,lab)=>`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(lab||'')}" xmlns="http://www.w3.org/2000/svg">${DEFS}${b}</svg>`;
+const tx=(x,y,s,c='sl',a='start')=>`<text x="${x}" y="${y}" class="${c}" text-anchor="${a}">${esc(s)}</text>`;
+const dimH=(x1,x2,y,l)=>`<g class="dim"><path d="M${x1} ${y}H${x2}M${x1} ${y-5}v10M${x2} ${y-5}v10"/></g>`+tx((x1+x2)/2,y-6,l,'sl sb','middle');
+const dimV=(x,y1,y2,l,a='end')=>`<g class="dim"><path d="M${x} ${y1}V${y2}M${x-5} ${y1}h10M${x-5} ${y2}h10"/></g>`+tx(a==='end'?x-8:x+8,(y1+y2)/2+4,l,'sl sb',a);
+const leg=(x,y,items)=>items.map(([f,l],i)=>`<rect x="${x}" y="${y+i*24}" width="18" height="14" fill="${f}" stroke="var(--ink)" stroke-width=".6"/>`+tx(x+26,y+i*24+11,l)).join('');
+const deckOf=bk=>bk==='strasse'?S.P.deckS:bk==='kanton'?S.P.deckK:S.P.deckG;
+function band(x,y,w,bk,d,s){ // Oberflächenschicht, gibt Höhe zurück
+ const P=S.P;
+ if(isBel(bk)){const hd=Math.max(4,deckOf(bk)*s),ht=Math.max(5,(d-deckOf(bk))*s);
+  return {h:hd+ht,o:`<rect x="${x}" y="${y}" width="${w}" height="${hd}" fill="var(--asph)"/><rect x="${x}" y="${y+hd}" width="${w}" height="${ht}" fill="var(--asphT)"/>`}}
+ if(bk==='wiese'){const h=Math.max(8,P.ob*s);let bl='';for(let i=x+4;i<x+w;i+=9)bl+=`<path d="M${i} ${y}l-2 -6M${i} ${y}l2 -5" stroke="var(--grass)" stroke-width="1.2"/>`;
+  return {h,o:`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="var(--grassL)"/>`+bl}}
+ const h=Math.max(6,P.ch*s);return {h,o:`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#pGr)"/>`};
+}
+function patch(x,y,w,bk,d,s,typ){ // wiederhergestellter Belag über Graben/Grube
+ if(!isBel(bk)||!typ||typ==='nein')return '';
+ const hd=Math.max(4,deckOf(bk)*s),ht=Math.max(5,(d-deckOf(bk))*s),full=typ==='C1';
+ return `<rect x="${x}" y="${y}" width="${w}" height="${full?hd+ht:hd}" fill="${typ==='A'?'url(#pKm)':'var(--asph)'}"/>${full?'':`<rect x="${x}" y="${y+hd}" width="${w}" height="${ht}" fill="var(--asphT)"/>`}<rect x="${x-1}" y="${y-1}" width="${w+2}" height="${hd+ht+2}" fill="none" stroke="var(--blue)" stroke-width="1.6" stroke-dasharray="4 2"/>`;
+}
+function stagesSVG(typ,small){
+ if(!typ||typ==='nein')return '';
+ const col=(x,title,layers,note)=>{let y=96,o=`<rect x="${x}" y="96" width="130" height="26" fill="url(#pGr)" stroke="var(--line)"/>`;
+  layers.forEach(L=>{y-=L.h;o+=`<rect x="${x}" y="${y}" width="130" height="${L.h}" fill="${L.f}" ${L.g?'fill-opacity=".25" stroke="var(--warn)" stroke-dasharray="3 2"':'stroke="var(--surface)" stroke-width=".5"'}/>`+(L.l?tx(x+138,y+L.h/2+4,L.l,'sm'):'')});
+  return o+tx(x,16,title,'sl sb')+(note?tx(x,32,note,'sm'):'')+tx(x+138,112,t('oberbau'),'sm')};
+ const T={h:26,f:'var(--asphT)',l:'AC T'},D={h:12,f:'var(--asph)',l:'AC'},F={h:38,f:'var(--asphT)',l:'AC T'},
+  K={h:38,f:'url(#pKm)',l:t('kalt')},Dg={h:12,f:'var(--asph)',l:t('fraes'),g:1};
+ const e1=t('et')+' 1',e2=t('et')+' 2';let o='';
+ switch(typ){
+  case 'A':o=col(10,e1,[K])+col(320,e2,[T,D],t('dA1'));break;
+  case 'A1':o=col(10,e1,[T,D],t('dA1'));break;
+  case 'B':o=col(10,e1,[T,D]);break;
+  case 'C':o=col(10,e1,[F])+col(320,e2,[T,D],t('dC2'));break;
+  case 'C1':o=col(10,e1,[F])+col(320,e2+' – '+t('sepC2'),[T,{...Dg,l:'AC (C2)'}]);break;
+  case 'C2':o=col(10,t('bestand'),[T,Dg])+col(320,e2,[T,D]);break;
+ }
+ return `<div class="figmini">${svg(640,126,o,'Typ '+typ)}</div>`;
+}
+const FIG={
+ graben(r){
+  const P=S.P,B=num(r.B)||0.4,T=num(r.T)||0.8,bel=isBel(r.bk),d=num(r.d),gy=46,s=Math.min(180/T,200/B,420),tw=B*s,th=T*s,x0=250-tw/2;
+  let o=`<rect x="20" y="${gy}" width="460" height="${th+26}" fill="url(#pSo)" opacity=".5"/>`;
+  const bd=band(20,gy,460,r.bk,d,s);o+=bd.o;
+  o+=`<rect x="${x0}" y="${gy}" width="${tw}" height="${th}" fill="${r.mat?'url(#pGr)':'url(#pSo)'}" stroke="var(--ink)" stroke-width="1.2"/>`;
+  const uh=Math.min(th*.85,P.umhH*s),uy=gy+th-uh;
+  o+=`<rect x="${x0}" y="${uy}" width="${tw}" height="${uh}" fill="${r.umh==='beton'?'url(#pCo)':r.umh==='betonkies'?'url(#pBk)':'url(#pSo)'}" stroke="var(--ink)" stroke-width=".8" stroke-dasharray="3 2"/>`;
+  const pipes=[];for(let i=0;i<Math.min(num(r.k100),12);i++)pipes.push(P.od100);for(let i=0;i<Math.min(num(r.k55),16);i++)pipes.push(P.od55);
+  if(pipes.length){const rm=Math.max(3,Math.max(...pipes)/2*s),per=Math.max(1,Math.floor((tw-4)/(2*rm+3)));
+   pipes.forEach((od,i)=>{const row=Math.floor(i/per),n=Math.min(per,pipes.length-row*per),k=i%per,rr=Math.max(3,od/2*s);
+    const cx=x0+tw/2+(k-(n-1)/2)*(2*rm+3),cy=gy+th-rm-4-row*(2*rm+3);
+    o+=`<circle cx="${cx}" cy="${cy}" r="${rr}" fill="${od===P.od100?'var(--pipe2)':'var(--pipe)'}" stroke="var(--ink)" stroke-width=".8"/><circle cx="${cx}" cy="${cy}" r="${rr*.62}" fill="var(--figbg)"/>`})}
+  if(bel)o+=patch(x0,gy,tw,r.bk,d,s,r.wi);
+  if(bel&&r.auf)o+=`<path d="M${x0} ${gy-8}v${bd.h+10}M${x0+tw} ${gy-8}v${bd.h+10}" stroke="var(--cut)" stroke-width="2"/>`;
+  o+=dimH(x0,x0+tw,gy-16,'B = '+fq(B)+' m')+dimV(x0-16,gy,gy+th,'T = '+fq(T)+' m');
+  if(num(r.h)>0)o+=`<rect x="${x0}" y="${gy+bd.h}" width="${tw*num(r.h)/100}" height="${th-bd.h}" fill="var(--blue)" opacity=".15"/>`;
+  const L=[[bel?'var(--asph)':r.bk==='wiese'?'var(--grassL)':'url(#pGr)',t(r.bk)+(bel?' – '+t('bdicke').replace(/ \[.*\]/,'')+' '+fq(d)+' m':'')],
+   [r.umh==='beton'?'url(#pCo)':r.umh==='betonkies'?'url(#pBk)':'url(#pSo)',t('umh')+': '+t(r.umh==='aushub'?'aushubmat':r.umh)],
+   [r.mat?'url(#pGr)':'url(#pSo)',r.mat?t('mat')+' – '+t('kies'):t('aushubmat')],
+   ['var(--pipe)',num(r.k55)+' × K55   '+num(r.k100)+' × K100'],['var(--blue)',t('hand')+': '+fq(num(r.h))]];
+  if(bel&&r.wi!=='nein')L.push(['var(--figbg)',t('wi').replace(' Belag','')+': Typ '+r.wi]);
+  return svg(760,Math.max(gy+th+36,190),o+leg(500,40,L)+tx(500,Math.max(gy+th+30,180),t('laenge').replace(' [m]','')+' = '+fq(num(r.L))+' m','sl sb'),t('h_graben'));
+ },
+ rohr(r){
+  let o='';const lab=(x,s)=>tx(x,150,s,'sl','middle');
+  o+=`<rect x="10" y="60" width="60" height="18" fill="var(--pipe)" stroke="var(--ink)"/><rect x="80" y="60" width="60" height="18" fill="var(--pipe)" stroke="var(--ink)"/><rect x="58" y="55" width="34" height="28" rx="3" fill="var(--pipe2)" stroke="var(--ink)"/>`+lab(75,t('muf'));
+  o+=`<path d="M170 110h40a60 60 0 0 0 60 -60v-30" fill="none" stroke="var(--pipe)" stroke-width="16"/><path d="M210 110a60 60 0 0 0 60 -60" fill="none" stroke="var(--ink)" stroke-dasharray="3 3"/>`+tx(236,86,'R','sl sb')+lab(225,'90° / R');
+  o+=`<path d="M300 90h130" stroke="var(--pipe2)" stroke-width="20"/><path d="M350 90l50 -55" stroke="var(--pipe)" stroke-width="12"/><rect x="340" y="78" width="46" height="24" rx="4" fill="none" stroke="var(--ink)" stroke-width="1.4"/>`+lab(365,'Halbschalenabzweiger');
+  o+=`<rect x="460" y="76" width="110" height="30" rx="3" fill="var(--conc)" stroke="var(--ink)"/><path d="M500 76v-40M530 76v-40" stroke="var(--pipe)" stroke-width="10"/>`+tx(515,96,'KK4 / KK8','sm','middle')+lab(515,'T-KK');
+  o+=`<rect x="600" y="20" width="150" height="110" fill="url(#pSo)" opacity=".6"/><path d="M606 50h138" stroke="var(--cut)" stroke-width="4" stroke-dasharray="8 6"/><path d="M606 50h138" stroke="#fff" stroke-width="4" stroke-dasharray="8 6" stroke-dashoffset="8" opacity=".85"/>`
+   +`<circle cx="675" cy="104" r="14" fill="var(--pipe)" stroke="var(--ink)"/><circle cx="675" cy="104" r="9" fill="var(--figbg)"/><circle cx="675" cy="104" r="1.8" fill="var(--ink)"/><path d="M606 122h138" stroke="var(--copper)" stroke-width="3"/>`
+   +tx(606,44,t('warn').replace(' [m]',''),'sm')+tx(606,138,t('erd').replace(' [m]',''),'sm')+tx(606,84,t('schnur').replace(' [m]',''),'sm');
+  return svg(760,160,o,t('h_rohr'));
+ },
+ schacht(r){
+  const P=S.P,row=(r.neu||[]).find(x=>x.typ&&S.D.sch[x.typ])||{typ:'KS 800/600'},[l,b,H]=S.D.sch[row.typ]||[1,1,1],
+   lp=l+2*P.ar,Hp=H+P.sohle,gy=46,s=Math.min(170/Hp,300/lp),pw=lp*s,ph=Hp*s,x0=250-pw/2,sx=x0+P.ar*s,sw=l*s,sh=H*s,d=num(r.d);
+  let o=`<rect x="20" y="${gy}" width="460" height="${ph+24}" fill="url(#pSo)" opacity=".5"/>`;const bd=band(20,gy,460,r.bk,d,s);o+=bd.o;
+  o+=`<rect x="${x0}" y="${gy}" width="${pw}" height="${ph}" fill="url(#pGr)" stroke="var(--ink)" stroke-width="1.2"/>`;
+  const wt=Math.max(6,0.1*s);
+  o+=`<rect x="${sx}" y="${gy}" width="${sw}" height="${sh}" fill="url(#pCo)" stroke="var(--ink)"/><rect x="${sx+wt}" y="${gy+wt}" width="${sw-2*wt}" height="${sh-2*wt}" fill="var(--figbg)"/>`
+   +`<rect x="${sx+wt}" y="${gy-4}" width="${sw-2*wt}" height="6" fill="var(--ink)"/>`
+   +`<path d="M${x0} ${gy+sh*.7}H${sx+wt}" stroke="var(--pipe)" stroke-width="8"/>`;
+  if(isBel(r.bk))o+=patch(x0,gy,pw,r.bk,d,s,r.wi);
+  o+=dimH(x0,x0+pw,gy-16,fq(lp)+' m')+dimV(x0-16,gy,gy+ph,fq(Hp)+' m')
+   +`<g class="dim"><path d="M${x0} ${gy+ph+10}H${sx}"/></g>`+tx((x0+sx)/2,gy+ph+22,t('ar')+' '+fq(P.ar),'sm','middle')
+   +`<g class="dim"><path d="M${x0+pw+10} ${gy+sh}V${gy+ph}"/></g>`+tx(x0+pw+14,gy+sh+(ph-sh)/2+4,'Sohle '+fq(P.sohle),'sm');
+  return svg(760,gy+ph+36,o+leg(500,40,[['url(#pCo)',row.typ],['url(#pGr)',t('kies')],['var(--pipe)',t('rohre')],['var(--blue)',t('hand')+': '+fq(num(r.h))]]),t('h_schacht'));
+ },
+ werkloch(r){
+  const D=S.D.wl,items=['ts','bo','sg','zs'].map(k=>[k,t(k),D[k],num(r[k])]);
+  if(num(r.iB)&&num(r.iL))items.push(['ind',t('indWL'),[num(r.iL),num(r.iB),num(r.iT)],1]);
+  const tot=items.reduce((a,x)=>a+x[2][0],0),s=Math.min(90,(700-24*items.length)/tot);let x=20,o='';
+  items.forEach(([k,lab,[L,B,H],n])=>{const w=L*s,h=B*s,y=90-h/2,on=n>0;
+   o+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#pSo)" stroke="var(--ink)" stroke-width="${on?2.2:.8}" opacity="${on?1:.55}"/>`;
+   const cy=90;
+   if(k==='ts')o+=`<path d="M${x-8} ${cy}H${x+w+8}M${x+w/2} ${cy}V${y-10}" stroke="var(--pipe)" stroke-width="6"/>`;
+   else if(k==='bo')o+=`<path d="M${x-8} ${cy}H${x+w/2}a${h*.4} ${h*.4} 0 0 0 ${h*.4} ${-h*.4}V${y-10}" fill="none" stroke="var(--pipe)" stroke-width="6"/>`;
+   else if(k==='sg')o+=`<path d="M${x-8} ${cy}H${x+w+8}" stroke="var(--pipe)" stroke-width="6"/><rect x="${x+w/2-14}" y="${cy-8}" width="28" height="16" rx="4" fill="var(--pipe2)" stroke="var(--ink)"/>`;
+   else o+=`<path d="M${x-8} ${cy}H${x+w+8}" stroke="var(--pipe)" stroke-width="6"/><path d="M${x+w/2} ${cy}l12 -10" stroke="var(--ink)" stroke-width="1.5"/>`;
+   o+=tx(x+w/2,y+h+18,lab,'sl sb','middle')+tx(x+w/2,y+h+32,fq(L)+' × '+fq(B)+' × '+fq(H)+' m','sm','middle')+(on?tx(x+w/2,y-16,n+' ×','sl sb','middle'):'');
+   x+=w+24});
+  const mh=Math.max(...items.map(i=>i[2][1]*s));
+  return svg(760,90+mh/2+44,o,t('h_werkloch'));
+ },
+ fund(r){
+  const sel=[[r.vk,'VK'],[r.kvs,'KVS']].filter(x=>x[0]&&S.D.fund[x[0]]);const list=sel.length?sel:[['CAB 1-3 L','VK']];
+  const gy=120,s=110;let x=60,o=`<rect x="20" y="${gy}" width="${list.length*230+40}" height="120" fill="url(#pSo)" opacity=".5"/>`;
+  const bd=band(20,gy,list.length*230+40,r.bk==='vorplatz'?'vorplatz':r.bk,num(r.d),s);o+=bd.o;
+  list.forEach(([typ,lab])=>{const [l,,H]=S.D.fund[typ],w=l*s,h=H*s;
+   o+=`<rect x="${x}" y="${gy}" width="${w}" height="${h}" fill="url(#pCo)" stroke="var(--ink)"/><path d="M${x+w*.3} ${gy+h+18}V${gy+10}M${x+w*.7} ${gy+h+18}V${gy+10}" stroke="var(--pipe)" stroke-width="7"/>`
+    +`<rect x="${x+8}" y="${gy-96}" width="${w-16}" height="96" rx="3" fill="var(--cab)" stroke="var(--ink)"/><path d="M${x+w/2} ${gy-90}v84" stroke="var(--ink)" stroke-width=".8"/>`
+    +tx(x+w/2,gy-102,lab+' '+typ,'sl sb','middle')+dimH(x,x+w,gy+h+34,fq(l)+' m')+dimV(x+w+14,gy,gy+h,fq(H)+' m','start');
+   x+=230});
+  return svg(760,gy+h0(list)+50,o+leg(560,40,[['var(--cab)',t('vk')+' / '+t('kvs')],['url(#pCo)',t('fundament')],['var(--pipe)',t('rohre')]]),t('h_fund'));
+ },
+ geb(r){
+  const n=num(r.n)||1,cm=num(r.cm),avg=cm>0?cm/n:30,w=Math.min(220,Math.max(40,avg*3.2)),x=330;
+  let o=`<rect x="20" y="40" width="${x-20}" height="130" fill="url(#pSo)" opacity=".6"/><path d="M20 40H${x}" stroke="var(--grass)" stroke-width="3"/>`
+   +`<rect x="${x}" y="10" width="${w}" height="170" fill="url(#pWa)" stroke="var(--ink)"/><rect x="${x+w}" y="10" width="${740-x-w}" height="170" fill="var(--figbg)"/>`
+   +`<path d="M${x+w} 150H740" stroke="var(--ink)" stroke-width="2"/>`
+   +`<path d="M30 110H${x+w+60}" stroke="var(--pipe)" stroke-width="12"/><rect x="${x}" y="99" width="${w}" height="22" fill="none" stroke="var(--ink)" stroke-dasharray="3 2"/>`;
+  if(r.abd==='hauff')o+=`<rect x="${x-10}" y="88" width="10" height="44" fill="var(--seal)" stroke="var(--ink)"/><rect x="${x}" y="100" width="${w*.5}" height="20" fill="var(--seal)" opacity=".7"/>`;
+  if(r.abd==='kissen')o+=`<rect x="${x+w*.2}" y="100" width="${w*.5}" height="20" rx="9" fill="var(--seal)" stroke="var(--ink)"/>`;
+  o+=tx(40,32,t('aussen'),'sl sb')+tx(x+w+20,32,t('innen'),'sl sb')+dimH(x,x+w,70,'Ø 70 mm – '+fq(avg)+' cm')
+   +tx(x+w+20,100,n+' × '+t('tab_geb'),'sm')+tx(x-12,150,t(r.abd==='hauff'?'hauff':r.abd==='kissen'?'kissen':'keineAbd'),'sl','end');
+  return svg(760,190,o,t('h_geb'));
+ },
+ belag(r){
+  if(r.indiv)return svg(760,60,tx(10,34,t('ksHint'),'sl'),t('h_belag'));
+  const B=num(r.B),L=num(r.L),A=B*L;
+  return stagesSVG(r.wi).replace('class="figmini"','class="figmini big"')+`<p class="figcap">${B&&L?fq(B)+' m × '+fq(L)+' m = '+fq(A)+' m²  –  ':''}${t(r.bk)}, ${t('bdicke').replace(/ \[.*\]/,'')} ${fq(num(r.d))} m</p>`;
+ },
+ allg(r){
+  let o=`<rect x="40" y="50" width="120" height="80" rx="4" fill="var(--cab)" stroke="var(--ink)"/><path d="M40 70h120" stroke="var(--ink)"/><rect x="85" y="40" width="30" height="14" rx="3" fill="none" stroke="var(--ink)" stroke-width="2"/>`
+   +`<circle cx="70" cy="100" r="7" fill="var(--concD)"/><circle cx="100" cy="104" r="5" fill="var(--concD)"/><circle cx="128" cy="98" r="6" fill="var(--concD)"/>`
+   +tx(100,160,t('km').replace(' [CHF]',''),'sl sb','middle')+tx(100,178,'CHF '+fmt(num(r.km)),'sm','middle');
+  o+=`<circle cx="360" cy="90" r="44" fill="none" stroke="var(--ink)" stroke-width="3"/><path d="M360 90V60M360 90l22 12" stroke="var(--blue)" stroke-width="4" stroke-linecap="round"/>`
+   +tx(360,160,t('ak').replace(' [CHF]',''),'sl sb','middle')+tx(360,178,'CHF '+fmt(num(r.ak)),'sm','middle');
+  const be=num(r.be);
+  o+=`<rect x="540" y="62" width="150" height="68" fill="var(--cab)" stroke="var(--ink)"/><rect x="556" y="76" width="30" height="22" fill="var(--figbg)" stroke="var(--ink)"/><rect x="600" y="76" width="30" height="22" fill="var(--figbg)" stroke="var(--ink)"/><rect x="646" y="90" width="26" height="40" fill="var(--figbg)" stroke="var(--ink)"/><path d="M530 130h170" stroke="var(--ink)" stroke-width="2"/>`
+   +tx(615,160,t('be').replace(/ \[.*\]/,''),'sl sb','middle')+tx(615,178,fq(be)+' %','sm','middle');
+  return svg(760,190,o,t('h_allg'));
+ },
+ hon(r){
+  const c=calcRec('hon',r),h=c.hon,tot=r.ph.reduce((s,x)=>s+Math.max(0,num(x.q)),0)||1;let x=20,o='';
+  r.ph.forEach(p=>{const w=Math.max(0,num(p.q))/tot*720;if(w<=0)return;
+   o+=`<rect x="${x}" y="40" width="${w}" height="40" fill="${p.on?'var(--blue)':'var(--dis)'}" stroke="var(--surface)" stroke-width="2"/>`+(w>26?tx(x+w/2,65,p.k,'sl sb','middle').replace('class="sl sb"','class="sl sb" style="fill:#fff"'):'')+(w>40?tx(x+w/2,98,fq(num(p.q))+' %','sm','middle'):'');x+=w});
+  o+=tx(20,24,t('hPh'),'sl sb');
+  o+=h?tx(20,134,'Tm = '+fmt(h.B,0)+' × '+h.p.toFixed(4)+'/100 × '+fq(num(r.n))+' × '+fq(h.q)+'/100 × '+fq(num(r.r))+' × '+fq(num(r.u))+' = '+fq(h.Tm)+' h','sl')
+   +tx(20,160,t('hHon')+': '+fq(h.Tm)+' h × CHF '+fmt(num(r.h))+' = CHF '+fmt(h.H),'sl sb'):tx(20,140,'⚠ '+t('w_hon'),'sl');
+  return svg(760,180,o,t('h_hon'));
+ }};
+function h0(list){return Math.max(...list.map(([typ])=>S.D.fund[typ][2]*110))}
+function figHTML(){const f=FIG[S.tab];return f?f(rec()):''}
+
+/* ---------- Rendering ---------- */
+const $=s=>document.querySelector(s);
+function renderChrome(){
+ document.documentElement.lang=S.lang;$('#lang').value=S.lang;
+ $('#tTitle').textContent=t('title');$('#tSub').textContent=t('subtitle');
+ $('#bSave').textContent=t('saveJ');$('#bLoad').textContent=t('loadJ');$('#bNew').textContent=t('newP');
+ const h=S.head;
+ $('#head').innerHTML=`<label>${t('sap')}<input type="text" data-h="sap" value="${esc(h.sap)}"></label>
+ <label>${t('bem')}<input type="text" class="wide" data-h="bem" value="${esc(h.bem)}"></label>
+ <label>${t('lief')}<select data-h="lief" class="wide"><option>Cablex AG – LV Swisscom 2026</option></select></label>
+ <label class="chk"><input type="checkbox" data-h="belMit" ${h.belMit?'checked':''}> ${t('belMit')}</label>`;
+ $('#foot').innerHTML=`<p>${t('foot')} ${t('langNote')}</p>`;
+ renderTabs();
+}
+function renderTabs(){
+ $('#tabs').innerHTML=TABS.map(tb=>{const n=S.recs[tb].filter(r=>calcRec(tb,r).lines.length).length;
+  return `<button role="tab" data-tab="${tb}" class="${S.tab===tb?'on':''}" aria-selected="${S.tab===tb}">${t('tab_'+tb)}${n?`<span class="cnt">${n}</span>`:''}</button>`}).join('')
+  +`<button role="tab" data-tab="sum" class="sep ${S.tab==='sum'?'on':''}">${t('tab_sum')}</button><button role="tab" data-tab="par" class="${S.tab==='par'?'on':''}">${t('tab_par')}</button>`;
+}
+function updateCounts(){TABS.forEach(tb=>{const btn=document.querySelector('#tabs [data-tab="'+tb+'"]');if(!btn)return;const n=S.recs[tb].filter(r=>calcRec(tb,r).lines.length).length;let c=btn.querySelector('.cnt');if(n){if(!c){c=document.createElement('span');c.className='cnt';btn.appendChild(c)}c.textContent=n}else if(c)c.remove()})}
+function renderMain(){
+ uid=0;const m=$('#main');
+ if(S.tab==='sum'){m.className='full';m.innerHTML=sumHTML();return}
+ if(S.tab==='par'){m.className='full';m.innerHTML=parHTML();return}
+ m.className='';const list=S.recs[S.tab],i=S.idx[S.tab];
+ m.innerHTML=`<section class="card"><div class="cardhead"><h2>${t('h_'+S.tab)}</h2>
+  <button class="btn pri" data-act="new">${t('saveNew')}</button><button class="btn" data-act="dup">${t('dup')}</button>${S.tab!=='hon'?`<button class="btn" data-act="indiv">${t('indiv')}</button>`:''}</div>
+  <div class="body" id="form"><figure class="fig"><div id="figsvg">${figHTML()}</div>${S.tab!=='hon'?`<figcaption>${t('figHint')}</figcaption>`:''}</figure>${FORMS[S.tab]()}${S.tab!=='hon'?xBlock()+indBlock():''}
+  <div class="row" style="border-top:2px solid var(--line);margin-top:14px"><div class="lbl">${t('rec')}</div><div class="sumbar">
+   <button class="btn" data-act="prev" ${i<=0?'disabled':''} aria-label="◀">◀</button><span>${i+1} ${t('of')} ${list.length}</span>
+   <button class="btn" data-act="next" ${i>=list.length-1?'disabled':''} aria-label="▶">▶</button>
+   <span style="flex:1"></span><button class="btn del" data-act="del">${t('del')}</button></div></div></div></section>
+  <aside class="card panel" id="panel"></aside>`;
+ renderPanel();if(S.tab==='hon')honRes();
+}
+function linesTable(lines,withSrc){
+ if(!withSrc)return `<table class="tbl"><colgroup><col class="c1"><col><col class="c3"><col class="c4"></colgroup><thead><tr><th>${t('cNpk')}</th><th>${t('cText')}</th><th class="n">${t('cQ')} × ${t('cEp')}</th><th class="n">${t('cAmt')}</th></tr></thead><tbody>
+ ${lines.map(l=>`<tr class="${l.w?'w':''} ${l.ks==='Belag'?'bel':''}"><td class="pos">${l.w&&!l.p?'⚠':esc(l.p)}</td><td>${esc(l.t)}${l.w&&!l.p?`<br><small>${t('sonder')}</small>`:''}</td><td class="n">${fq(l.q)} ${esc(l.u)}<br><small>× ${fmt(l.ep)}</small></td><td class="n">${fmt(l.amt)}</td></tr>`).join('')}</tbody></table>`;
+ return `<table class="tbl"><thead><tr><th>${t('cNpk')}</th><th>${t('cText')}</th>${withSrc?`<th>${t('cSrc')}</th>`:''}<th class="n">${t('cQ')}</th><th>${t('cU')}</th><th class="n">${t('cEp')}</th><th class="n">${t('cAmt')}</th></tr></thead><tbody>
+ ${lines.map(l=>`<tr class="${l.w?'w':''} ${l.ks==='Belag'?'bel':''}"><td class="pos">${l.w&&!l.p?'⚠':esc(l.p)}</td><td>${esc(l.t)}${l.w&&!l.p?`<br><small>${t('sonder')}</small>`:''}</td>${withSrc?`<td>${esc(l.src)}</td>`:''}<td class="n">${fq(l.q)}</td><td>${esc(l.u)}</td><td class="n">${fmt(l.ep)}</td><td class="n">${fmt(l.amt)}</td></tr>`).join('')}</tbody></table>`;
+}
+function renderPanel(){
+ const p=$('#panel');if(!p)return;const c=calcRec(S.tab,rec()),sub=r2(c.lines.reduce((s,l)=>s+l.amt,0)),all=calcAll().all.filter(l=>l.ks!=='HON'),z=r2(all.reduce((s,l)=>s+l.amt,0));
+ p.innerHTML=`<h3><span>${t('lines')}</span><span>${c.lines.length}</span></h3>
+ ${c.lines.length?`<div class="scroll">${linesTable(c.lines,false)}</div>`:`<div class="empty">${t('empty')}</div>`}
+ ${c.notes.length?`<ul class="notes">${c.notes.map(n=>`<li>⚠ ${esc(n)}</li>`).join('')}</ul>`:''}
+ <div class="proj" style="border-top:1px solid var(--line)"><span>${t('sub')}</span><span>CHF ${fmt(sub)}</span></div>
+ <div class="proj"><span>${t('proj')}</span><span>CHF ${fmt(z)}</span></div>`;
+}
+function aggregate(lines){
+ const m=new Map();lines.forEach(l=>{const k=(l.p||'⚠')+'|'+l.t+'|'+l.ep+'|'+l.ks;const o=m.get(k);if(o){o.q=r2(o.q+l.q);o.amt=r2(o.amt+l.amt)}else m.set(k,{...l})});
+ return [...m.values()].sort((a,b)=>(a.p||'zzz').localeCompare(b.p||'zzz'));
+}
+function groupRows(lines){
+ const g={};lines.forEach(l=>{const k=l.p&&/^\d/.test(l.p)?'NPK '+l.p.slice(0,3):l.p==='Pauschal'?'Pauschal':'⚠ '+t('sonder');(g[k]=g[k]||[]).push(l)});
+ return Object.keys(g).sort().map(k=>{const s=r2(g[k].reduce((a,l)=>a+l.amt,0));return {k,rows:g[k],s}});
+}
+function sumHTML(){
+ const {all,notes}=calcAll(),T=totals(all),src=S.view==='detail';
+ const body=src?T.inc:aggregate(T.inc);
+ const grp=groupRows(body);
+ const tbl=`<table class="tbl"><thead><tr><th>${t('cNpk')}</th><th>${t('cText')}</th>${src?`<th>${t('cSrc')}</th>`:''}<th class="n">${t('cQ')}</th><th>${t('cU')}</th><th class="n">${t('cEp')}</th><th class="n">${t('cAmt')}</th></tr></thead><tbody>
+ ${grp.map(g=>`<tr class="grp"><td colspan="${src?6:5}">${esc(g.k)}</td><td class="n">${fmt(g.s)}</td></tr>`+g.rows.map(l=>`<tr class="${l.w?'w':''} ${l.ks==='Belag'?'bel':''}"><td class="pos">${l.w&&!l.p?'⚠':esc(l.p)}</td><td>${esc(l.t)}</td>${src?`<td>${esc(l.src)}</td>`:''}<td class="n">${fq(l.q)}</td><td>${esc(l.u)}</td><td class="n">${fmt(l.ep)}</td><td class="n">${fmt(l.amt)}</td></tr>`).join('')).join('')}</tbody></table>`;
+ const h=S.head;
+ return `<section class="card"><div class="cardhead"><h2>${t('tab_sum')}${h.sap?' – SAP_AT '+esc(h.sap):''}${h.bem?' – '+esc(h.bem):''}</h2>
+ <div class="sumbar noprint"><div class="seg">${[['group',t('vGroup')],['detail',t('vDetail')]].map(([v,l])=>`<label><input type="radio" name="view" data-view="${v}" ${S.view===v?'checked':''}><span>${l}</span></label>`).join('')}</div>
+ <button class="btn" data-act="csv">${t('csv')}</button><button class="btn" data-act="print">${t('print')}</button></div></div>
+ <div class="body">${T.inc.length?`<div class="scroll" style="max-height:none">${tbl}</div>`:`<div class="empty">${t('empty')}</div>`}
+ <div class="tot" style="margin-top:16px">
+  <div><span>${t('zws')}</span><span>CHF ${fmt(T.z)}</span></div>
+  <div><span>${t('stufe')} ${T.st} (R151.9${T.st}0) – ${t('rab')} ${T.pc} %</span><span>– CHF ${fmt(T.rb)}</span></div>
+  <div><span>${t('nachR')}</span><span>CHF ${fmt(T.nr)}</span></div>
+  <div><span>${t('inst')} (R152.9${T.st}0)</span><span>CHF ${fmt(T.inst)}</span></div>
+  <div><span>${t('netto')}</span><span>CHF ${fmt(T.net)}</span></div>
+  <div><span>${t('mwst')} ${fq(S.P.mwst)} %</span><span>CHF ${fmt(T.mw)}</span></div>
+  <div class="big"><span>${t('brutto')}</span><span>CHF ${fmt(T.br)}</span></div>
+  ${T.sep.length?`<div class="sep"><span>${t('belSep')}</span><span>CHF ${fmt(T.sepSum)}</span></div>`:''}
+ </div>
+ ${T.hon.length?`<h3 style="margin:26px 0 6px;font-size:15px">${t('hSum')}</h3><div class="scroll" style="max-height:none">${linesTable(T.hon,true)}</div>
+ <div class="tot" style="margin-top:12px"><div><span>${t('hTot')}</span><span>CHF ${fmt(T.hNet)}</span></div><div><span>${t('mwst')} ${fq(S.P.mwst)} %</span><span>CHF ${fmt(T.hMw)}</span></div>
+  <div><span>${t('hTotI')}</span><span>CHF ${fmt(T.hBr)}</span></div><div class="big"><span>${t('gTot')}</span><span>CHF ${fmt(r2(T.br+T.hBr))}</span></div></div>`:''}
+ <h3 style="margin:22px 0 6px;font-size:15px">${t('hints')}</h3>
+ ${notes.length||T.inc.some(l=>l.w)?`<ul class="notes" style="padding-left:18px">${notes.map(n=>`<li>⚠ ${esc(n)}</li>`).join('')}${aggregate(all.filter(l=>l.w)).map(l=>`<li>⚠ ${esc(l.t)} – ${fq(l.q)} ${esc(l.u)}: ${t('sonder')}</li>`).join('')}</ul>`:`<p class="hint">${t('noHints')}</p>`}
+ </div></section>`;
+}
+function parHTML(){
+ const P=S.P,D=S.D;
+ const dimRows=(g,labFn)=>Object.keys(D[g]).map(k=>`<tr><td>${esc(labFn(k))}</td>${[0,1,2].map(i=>`<td><input type="number" step="any" min="0" data-d="${g}|${esc(k)}|${i}" value="${D[g][k][i]}" aria-label="${esc(k)} ${'LBH'[i]}"></td>`).join('')}</tr>`).join('');
+ const mp=(title,cat,fn)=>Object.keys(cat).map(k=>{const v=fn(cat[k]);return `<div><b>${esc(title)}: ${esc(k)}</b> <span>→ ${v.map(p=>p?esc(p):'<span class="no">⚠ '+t('sonder')+'</span>').join(' + ')}</span></div>`}).join('');
+ return `<section class="card"><div class="cardhead"><h2>${t('parT')}</h2></div><div class="body">
+ <p class="hint">${t('parH')}</p>${covHTML()}
+ <table class="ptab"><tbody>${PDEF.map(([k,l])=>`<tr><td>${esc(l)}</td><td><input type="number" step="any" data-p="${k}" value="${P[k]}"></td></tr>`).join('')}</tbody></table>
+ <h3 style="font-size:15px;margin:0 0 6px">${t('dimT')}</h3>
+ <table class="ptab"><tbody>${dimRows('sch',k=>t('schacht')+' '+k)}${dimRows('wl',k=>t('wl').replace(/ \[.*\]/,'')+' '+t(k))}${dimRows('fund',k=>'Fundament '+k)}</tbody></table>
+ <h3 style="font-size:15px;margin:0 0 6px">${t('mapT')}</h3>
+ <div class="maplist">${mp(t('rohre'),ROH,m=>[m.l,m.v])}${mp(t('boe'),BOE,m=>[m.l,m.v])}${mp(t('muf'),MUF,m=>[m.l,m.v])}${mp(t('schacht'),SCH,p=>[p])}
+ ${Object.keys(ABSCHL).map(k=>`<div><b>${t('abschl').replace(/ \[.*\]/,'')}: ${t(ABSCHL[k][0])}</b> <span>→ ${ABSCHL[k].slice(1).join(' + ')}</span></div>`).join('')}
+ <div><b>${t('ueb').replace(/ \[.*\]/,'')}</b> <span>→ 113/214.111 / .211 / .311</span></div>
+ <div><b>${t('h_geb')}</b> <span>→ 151/672.401 + <span class="no">⚠ ${t('abd')}</span></span></div>
+ <div><b>Typ A</b> <span>→ <span class="no">⚠ Kaltmischbelag</span> + 151/231.111 + Typ B</span></div>
+ <div><b>Typ B</b> <span>→ 223/441.xxx (AC T) + 223/442.xxx (AC) + 223/422.101 + 223/423.xxx</span></div>
+ <div><b>Typ C / C2</b> <span>→ 117/223.21x (Fräsen) + 223/263.228 + 117/731.222 + 223/442.xxx</span></div>
+ <div><b>${t('be').replace(/ \[.*\]/,'')}</b> <span>→ 113/111.002 (% × LV-Summe)</span></div>
+ <div><b>VK / KVS</b> <span class="no">→ ⚠ ${t('sonder')}</span></div>
+ <div><b>${t('psauf').replace(/ \[.*\]/,'')} / ${t('umbau').replace(/ \[.*\]/,'')}</b> <span class="no">→ ⚠ ${t('sonder')}</span></div>
+ </div></div></section>`;
+}
+function covHTML(){const A=autoSet(),keys=Object.keys(LV),per={};let auto=0,no=0;
+ keys.forEach(p=>{if(A.has(p)){auto++;return}const tb=XT(p);if(LVTABS.includes(tb))per[tb]=(per[tb]||0)+1;else no++});
+ return `<h3 style="font-size:15px;margin:0 0 6px">${t('covT')}</h3><table class="ptab"><tbody><tr><td>${t('covAll')}</td><td class="n">${keys.length}</td></tr>
+ <tr><td>${t('covAuto')}</td><td class="n">${auto}</td></tr>${LVTABS.filter(tb=>per[tb]).map(tb=>`<tr><td>${t('covX')} ${t('tab_'+tb)}</td><td class="n">${per[tb]}</td></tr>`).join('')}
+ <tr><td><b>${t('covNo')}</b></td><td class="n"><b>${no}</b></td></tr></tbody></table>`}
+function renderAll(){renderChrome();renderMain()}
+let toastT;function toast(msg){const e=$('#toast');e.textContent=msg;e.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('on'),2200)}
+
+/* ---------- Events ---------- */
+function coerce(el){const ty=el.dataset.t;if(ty==='n')return el.value===''?0:num(el.value);if(ty==='b')return el.checked;
+ if(el.type==='radio'&&(el.value==='true'||el.value==='false'))return el.value==='true';return el.value}
+document.addEventListener('input',e=>{
+ const el=e.target;
+ if(el.dataset.h){if(el.type!=='checkbox'){S.head[el.dataset.h]=el.value;save()}return}
+ if(el.dataset.p){S.P[el.dataset.p]=num(el.value);save();return}
+ if(el.dataset.d){const [g,k,i]=el.dataset.d.split('|');S.D[g][k][+i]=num(el.value);save();return}
+ if(el.dataset.xf!=null){const q=el.value.trim().toLowerCase();document.querySelectorAll('#xp .xr').forEach(x=>x.style.display=!q||x.dataset.xs.includes(q)?'':'none');
+  document.querySelectorAll('#xp .xg').forEach(g=>g.style.display=[...g.querySelectorAll('.xr')].some(x=>x.style.display!=='none')?'':'none');return}
+ if(el.dataset.x){const r=rec(),v=num(el.value);if(v>0)r.x[el.dataset.x]=v;else delete r.x[el.dataset.x];el.setAttribute('value',el.value);save();renderPanel();updateCounts();return}
+ if(!el.dataset.k||el.type==='radio'||el.type==='checkbox'||el.tagName==='SELECT')return;
+ setP(rec(),el.dataset.k,coerce(el));save();renderPanel();updateCounts();const fg=document.getElementById('figsvg');if(fg)fg.innerHTML=figHTML();
+ const hr=document.getElementById('honres');if(hr)hr.innerHTML=honRes();const bh=document.getElementById('behint');if(bh)bh.innerHTML=beHint();
+ if(/^ind\.\d+\.p$/.test(el.dataset.k)&&LV[el.value]){const k=el.dataset.k.replace(/p$/,'q');renderMain();renderTabs();const q=document.querySelector('[data-k="'+k+'"]');if(q)q.focus()}
+});
+document.addEventListener('change',e=>{
+ const el=e.target;
+ if(el.id==='lang'){S.lang=el.value;save();renderAll();return}
+ if(el.dataset.h==='belMit'){S.head.belMit=el.checked;save();if(S.tab==='sum')renderMain();return}
+ if(el.dataset.view){S.view=el.dataset.view;save();renderMain();return}
+ if(el.dataset.p||el.dataset.d){updateCounts();return}
+ if(el.id==='fLoad'){const f=el.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const o=JSON.parse(rd.result);if(!o||!o.recs)throw 0;S=o;heal2();save();renderAll();toast(t('loaded'))}catch(x){toast(t('badFile'))}};rd.readAsText(f);el.value='';return}
+ if(!el.dataset.k)return;
+ if(el.type==='radio'||el.type==='checkbox'||el.tagName==='SELECT'){setP(rec(),el.dataset.k,coerce(el));save();renderMain();updateCounts()}
+ else updateCounts();
+});
+function heal2(){const d=defaults();for(const k in d)if(S[k]==null)S[k]=d[k];PDEF.forEach(([k,,v])=>{if(S.P[k]==null)S.P[k]=v});
+ for(const g in DDEF)for(const k in DDEF[g])if(!S.D[g]||!S.D[g][k]){S.D[g]=S.D[g]||{};S.D[g][k]=DDEF[g][k].slice()}healRecs()}
+document.addEventListener('toggle',e=>{if(e.target.id==='xp'){S.xo[S.tab]=e.target.open;save()}},true);
+document.addEventListener('click',async e=>{
+ const tb=e.target.closest('[data-tab]');if(tb){S.tab=tb.dataset.tab;save();renderTabs();renderMain();window.scrollTo({top:0});return}
+ const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,r=S.tab in S.recs?rec():null;
+ if(a==='new'){S.recs[S.tab].push(newRec(S.tab,S.recs[S.tab].length+1));S.idx[S.tab]=S.recs[S.tab].length-1;toast(t('autosave'))}
+ else if(a==='dup'){const cp=JSON.parse(JSON.stringify(r));cp.bez=(cp.bez||'')+' ('+t('copy')+')';S.recs[S.tab].splice(S.idx[S.tab]+1,0,cp);S.idx[S.tab]++;toast(t('autosave'))}
+ else if(a==='prev')S.idx[S.tab]=Math.max(0,S.idx[S.tab]-1);
+ else if(a==='next')S.idx[S.tab]=Math.min(S.recs[S.tab].length-1,S.idx[S.tab]+1);
+ else if(a==='del'){const l=S.recs[S.tab];l.splice(S.idx[S.tab],1);if(!l.length)l.push(newRec(S.tab,1));S.idx[S.tab]=Math.min(S.idx[S.tab],l.length-1)}
+ else if(a==='addrow'){getP(r,b.dataset.k).push({typ:'',q:0})}
+ else if(a==='rmrow'){getP(r,b.dataset.k).splice(+b.dataset.i,1)}
+ else if(a==='indiv'||a==='addind'){r.ind.push({p:'',q:0});save();renderMain();renderTabs();const ib=document.querySelectorAll('#indBlock .ir:not(.free) input[list]');if(ib.length){ib[ib.length-1].focus();ib[ib.length-1].scrollIntoView({block:'center'})}return}
+ else if(a==='addfree'){r.free.push({t:'',u:'',ep:0,q:0})}
+ else if(a==='csv'){exportCSV();return}
+ else if(a==='print'){window.print();return}
+ else return;
+ save();renderMain();renderTabs();
+});
+$('#bNew').onclick=()=>{if(confirm(t('confirmNew'))){const l=S.lang;S=defaults();S.lang=l;save();renderAll()}};
+$('#bLoad').onclick=()=>$('#fLoad').click();
+$('#bSave').onclick=()=>download('LV-Erfassung_'+(S.head.sap||'Projekt')+'.json',JSON.stringify(S,null,1),'application/json');
+async function download(name,data,type){
+ let dl=null;try{dl=window.claude&&await window.claude.use('downloads')}catch(e){}
+ if(dl){try{await dl.save({filename:name,data:new Blob([data],{type})})}catch(err){if(err&&err.code!=='declined')toast(t('dlNo'))}return}
+ try{const u=URL.createObjectURL(new Blob([data],{type}));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}catch(e){toast(t('dlNo'))}
+}
+function exportCSV(){
+ const {all}=calcAll(),T=totals(all),rows=[[t('cNpk'),t('cText'),t('cSrc'),'KS',t('cQ'),t('cU'),t('cEp'),t('cAmt')]];
+ all.forEach(l=>rows.push([l.p||'SONDER',l.t,l.src,l.ks==='Belag'?'Belag':l.ks==='HON'?'Honorar':'Tiefbau',l.q,l.u,l.ep,l.amt]));
+ rows.push([]);[[t('zws'),T.z],[t('rab')+' '+T.pc+' %',-T.rb],[t('inst'),T.inst],[t('netto'),T.net],[t('mwst'),T.mw],[t('brutto'),T.br]].concat(T.hon.length?[[t('hTot'),T.hNet],[t('hTotI'),T.hBr],[t('gTot'),r2(T.br+T.hBr)]]:[]).forEach(([a,b])=>rows.push(['',a,'','','','','',b]));
+ const csv='\ufeff'+rows.map(r=>r.map(v=>typeof v==='number'?String(v).replace('.',','):'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');
+ download('LV-Erfassung_'+(S.head.sap||'Projekt')+'.csv',csv,'text/csv');
+}
+$('#lvlist').innerHTML=Object.entries(LV).map(([k,d])=>`<option value="${k}">${esc(d[0]+' – '+d[1]+' ('+d[2]+', '+fmt(d[3])+')')}</option>`).join('');
+renderAll();
+</script>
+</body>
+</html>
