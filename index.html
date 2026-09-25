@@ -696,6 +696,7 @@ ul.vollst li{min-width:0;flex-wrap:wrap}
 .phs{grid-template-columns:22px 38px minmax(0,1fr) 56px}.phs .num{text-align:right;font-weight:600}
 table.hfak td .rw::before{content:""}
 table.hfak{max-width:none}
+.badge.auto{font-size:9.5px;padding:0 4px;color:var(--navy);border-color:#cfe0fb;background:#eef4fd}
 
 </style>
 </head>
@@ -2148,10 +2149,11 @@ Object.assign(TS.it,{
     confirmNew: ["Alle Eingaben löschen und neu beginnen?", "Effacer toutes les saisies ?", "Cancellare tutti i dati?", "Clear all entries?"],
     btnNew: ["Neues Projekt", "Nouveau projet", "Nuovo progetto", "New project"],
     xT: ["Weitere LV-Positionen", "Autres positions LV", "Altre posizioni LV", "Further BoQ items"], xPos: ["Positionen", "positions", "posizioni", "items"], xCnt: ["erfasst", "saisies", "inserite", "entered"],
-    xH: ["Alle LV-Positionen dieses Bereichs, die nicht automatisch aus den Eingaben entstehen. Menge eintragen – die Position erscheint im Ergebnis.",
-         "Toutes les positions LV de ce domaine qui ne sont pas générées automatiquement. Saisir la quantité.",
-         "Tutte le posizioni LV di quest'ambito non generate automaticamente. Inserire la quantità.",
-         "All BoQ items of this area not generated automatically from the inputs. Enter a quantity."],
+    xH: ["Alle LV-Positionen dieses Bereichs sind hier direkt erfassbar: Menge eintragen – die Position erscheint im Ergebnis. Mit «auto» markierte Positionen entstehen zusätzlich automatisch aus den Eingaben oben; hier nur Mehrmengen erfassen, sonst wird doppelt gezählt.",
+         "Toutes les positions LV de ce domaine sont saisissables ici. Les positions «auto» sont aussi générées automatiquement : ne saisir que les quantités supplémentaires.",
+         "Tutte le posizioni LV di quest'ambito sono inseribili qui. Le posizioni «auto» sono generate anche automaticamente: inserire solo quantità supplementari.",
+         "All BoQ items of this area can be entered here. Items marked “auto” are also generated automatically from the inputs above; enter only additional quantities to avoid double counting."],
+    xAutoT: ["Entsteht auch automatisch aus den Eingaben – nur Mehrmengen erfassen", "Généré aussi automatiquement – saisir seulement les quantités supplémentaires", "Generata anche automaticamente – inserire solo quantità supplementari", "Also generated automatically – enter additional quantities only"],
     xSearch: ["Filtern (Nummer oder Text)", "Filtrer (n° ou texte)", "Filtra (n. o testo)", "Filter (no. or text)"],
     freeT: ["Individuelle LV-Positionen (dieser Datensatz)", "Positions LV individuelles (cet enregistrement)", "Posizioni LV individuali (questo record)", "Custom BoQ items (this record)"],
     g_zus: ["Zusätze", "Compléments", "Complementi", "Additions"], g_weitere: ["Weitere LV-Positionen", "Autres positions LV", "Altre posizioni LV", "Further BoQ items"],
@@ -2310,8 +2312,8 @@ Object.assign(TS.it,{
     p_kanMin: ["Belag Kantonsstrasse von [m]", "Revêtement route cant. de [m]"], p_kanMax: ["Belag Kantonsstrasse bis [m]", "Revêtement route cant. à [m]"],
     dimT: ["Grubenmasse Bauteil L × B × H [m] (ohne Arbeitsraum)", "Dimensions ouvrage L × l × H [m]", "Dimensioni manufatto L × L × H [m]", "Element dimensions L × W × H [m]"],
     covT: ["LV-Abdeckung", "Couverture LV", "Copertura LV", "BoQ coverage"], covAll: ["LV-Positionen total", "Positions LV total", "Posizioni LV totale", "BoQ items total"],
-    covAuto: ["automatisch aus Eingaben", "automatiques depuis les saisies", "automatiche dai dati", "automatic from inputs"],
-    covX: ["als weitere LV-Position im Reiter", "comme autre position dans l'onglet", "come altra posizione nella scheda", "as further item in tab"],
+    covAuto: ["davon auch automatisch aus Eingaben", "dont aussi automatiques", "di cui anche automatiche", "of which also automatic from inputs"],
+    covX: ["direkt erfassbar im Reiter", "saisissables dans l'onglet", "inseribili nella scheda", "directly enterable in tab"],
     covNo: ["nicht erfassbar", "non saisissables", "non inseribili", "not reachable"],
     langT: ["Sprachstand LV-Positionstexte", "Langues des textes LV", "Lingue dei testi LV", "BoQ text languages"],
     langFR: ["FR: LV FR TB Kopa 2026 (V1.0, 27.06.2026) – {n} von {m} Positionen", "FR : LV FR TB Kopa 2026 (V1.0, 27.06.2026) – {n} sur {m} positions", "FR: LV FR TB Kopa 2026 (V1.0, 27.06.2026) – {n} di {m} posizioni", "FR: LV FR TB Kopa 2026 (V1.0, 27.06.2026) – {n} of {m} items"],
@@ -4027,7 +4029,7 @@ var FIG = (function () {
     if (c === "223") return ["921", "926"].indexOf(u) >= 0 ? "schacht" : "belag";
     return "allg";
   }
-  function xList(tab) { var A = autoSet(); return Object.keys(LV).sort().filter(function (p) { return !A[p] && XT(p) === tab; }); }
+  function xList(tab) { return Object.keys(LV).sort().filter(function (p) { return XT(p) === tab; }); }
   function xBlockEl(cfg) {
     var list = xList(S.tab); if (!list.length) return null;
     var n = Object.keys(cfg.x || {}).filter(function (p) { return num(cfg.x[p], 0) > 0; }).length;
@@ -4043,7 +4045,8 @@ var FIG = (function () {
       var h4 = document.createElement("p"); h4.className = "sublab"; h4.textContent = k + " · " + lvC(g[k][0]).split(" › ")[0]; grp.appendChild(h4);
       g[k].forEach(function (p) {
         var row = document.createElement("div"); row.className = "xr"; row.dataset.s = (p + " " + lvT(p) + " " + lvC(p) + " " + LV[p].t).toLowerCase();
-        row.innerHTML = '<span class="art">' + esc(p) + "</span><span>" + esc(lvT(p)) + '</span><span class="num ctx">' + esc(LV[p].u) + " · " + chf(LV[p].ep) + "</span>";
+        var isAuto = !!autoSet()[p];
+        row.innerHTML = '<span class="art">' + esc(p) + (isAuto ? ' <span class="badge auto" title="' + esc(tt("xAutoT")) + '">auto</span>' : "") + "</span><span>" + esc(lvT(p)) + '</span><span class="num ctx">' + esc(LV[p].u) + " · " + chf(LV[p].ep) + "</span>";
         var i = document.createElement("input"); i.type = "text"; i.inputMode = "decimal"; i.value = (cfg.x || {})[p] || ""; i.className = "mini" + (i.value ? " filled" : ""); i.setAttribute("aria-label", p);
         i.addEventListener("input", function () { cfg.x = cfg.x || {}; if (num(i.value, 0) > 0) cfg.x[p] = i.value; else delete cfg.x[p]; i.classList.toggle("filled", !!i.value); save(); scheduleResult(); });
         row.appendChild(i); grp.appendChild(row);
@@ -4171,7 +4174,7 @@ var FIG = (function () {
     });
     h += "</tbody></table>";
     var A = autoSet(), keys = Object.keys(LV), per = {}, auto = 0, no = 0;
-    keys.forEach(function (p) { if (A[p]) { auto++; return; } var t = XT(p); if (LVTABS.indexOf(t) >= 0) per[t] = (per[t] || 0) + 1; else no++; });
+    keys.forEach(function (p) { if (A[p]) auto++; var t = XT(p); if (LVTABS.indexOf(t) >= 0) per[t] = (per[t] || 0) + 1; else no++; });
     h += "<h4>" + esc(tt("covT")) + '</h4><table class="cost ptab"><tbody><tr><td>' + esc(tt("covAll")) + '</td><td class="num">' + keys.length + "</td></tr><tr><td>" + esc(tt("covAuto")) + '</td><td class="num">' + auto + "</td></tr>" +
       LVTABS.filter(function (t) { return per[t]; }).map(function (t) { return "<tr><td>" + esc(tt("covX")) + " " + esc(tt("tab_" + t)) + '</td><td class="num">' + per[t] + "</td></tr>"; }).join("") +
       '<tr class="sum"><td>' + esc(tt("covNo")) + '</td><td class="num">' + no + "</td></tr></tbody></table>";

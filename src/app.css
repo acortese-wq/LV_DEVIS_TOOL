@@ -89,3 +89,4 @@ ul.vollst li{min-width:0;flex-wrap:wrap}
 .phs{grid-template-columns:22px 38px minmax(0,1fr) 56px}.phs .num{text-align:right;font-weight:600}
 table.hfak td .rw::before{content:""}
 table.hfak{max-width:none}
+.badge.auto{font-size:9.5px;padding:0 4px;color:var(--navy);border-color:#cfe0fb;background:#eef4fd}

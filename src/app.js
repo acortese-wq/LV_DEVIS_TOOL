@@ -418,7 +418,7 @@
     if (c === "223") return ["921", "926"].indexOf(u) >= 0 ? "schacht" : "belag";
     return "allg";
   }
-  function xList(tab) { var A = autoSet(); return Object.keys(LV).sort().filter(function (p) { return !A[p] && XT(p) === tab; }); }
+  function xList(tab) { return Object.keys(LV).sort().filter(function (p) { return XT(p) === tab; }); }
   function xBlockEl(cfg) {
     var list = xList(S.tab); if (!list.length) return null;
     var n = Object.keys(cfg.x || {}).filter(function (p) { return num(cfg.x[p], 0) > 0; }).length;
@@ -434,7 +434,8 @@
       var h4 = document.createElement("p"); h4.className = "sublab"; h4.textContent = k + " · " + lvC(g[k][0]).split(" › ")[0]; grp.appendChild(h4);
       g[k].forEach(function (p) {
         var row = document.createElement("div"); row.className = "xr"; row.dataset.s = (p + " " + lvT(p) + " " + lvC(p) + " " + LV[p].t).toLowerCase();
-        row.innerHTML = '<span class="art">' + esc(p) + "</span><span>" + esc(lvT(p)) + '</span><span class="num ctx">' + esc(LV[p].u) + " · " + chf(LV[p].ep) + "</span>";
+        var isAuto = !!autoSet()[p];
+        row.innerHTML = '<span class="art">' + esc(p) + (isAuto ? ' <span class="badge auto" title="' + esc(tt("xAutoT")) + '">auto</span>' : "") + "</span><span>" + esc(lvT(p)) + '</span><span class="num ctx">' + esc(LV[p].u) + " · " + chf(LV[p].ep) + "</span>";
         var i = document.createElement("input"); i.type = "text"; i.inputMode = "decimal"; i.value = (cfg.x || {})[p] || ""; i.className = "mini" + (i.value ? " filled" : ""); i.setAttribute("aria-label", p);
         i.addEventListener("input", function () { cfg.x = cfg.x || {}; if (num(i.value, 0) > 0) cfg.x[p] = i.value; else delete cfg.x[p]; i.classList.toggle("filled", !!i.value); save(); scheduleResult(); });
         row.appendChild(i); grp.appendChild(row);
@@ -562,7 +563,7 @@
     });
     h += "</tbody></table>";
     var A = autoSet(), keys = Object.keys(LV), per = {}, auto = 0, no = 0;
-    keys.forEach(function (p) { if (A[p]) { auto++; return; } var t = XT(p); if (LVTABS.indexOf(t) >= 0) per[t] = (per[t] || 0) + 1; else no++; });
+    keys.forEach(function (p) { if (A[p]) auto++; var t = XT(p); if (LVTABS.indexOf(t) >= 0) per[t] = (per[t] || 0) + 1; else no++; });
     h += "<h4>" + esc(tt("covT")) + '</h4><table class="cost ptab"><tbody><tr><td>' + esc(tt("covAll")) + '</td><td class="num">' + keys.length + "</td></tr><tr><td>" + esc(tt("covAuto")) + '</td><td class="num">' + auto + "</td></tr>" +
       LVTABS.filter(function (t) { return per[t]; }).map(function (t) { return "<tr><td>" + esc(tt("covX")) + " " + esc(tt("tab_" + t)) + '</td><td class="num">' + per[t] + "</td></tr>"; }).join("") +
       '<tr class="sum"><td>' + esc(tt("covNo")) + '</td><td class="num">' + no + "</td></tr></tbody></table>";
