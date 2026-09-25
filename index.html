@@ -693,6 +693,9 @@ ul.vollst{grid-template-columns:repeat(2,minmax(0,1fr))}
 ul.vollst li{min-width:0;flex-wrap:wrap}
 .ptab td input.mini{width:70px}
 @media (max-width:560px){.ptab td{padding:6px 6px}.ptab td input.mini{width:58px}}
+.phs{grid-template-columns:22px 38px minmax(0,1fr) 56px}.phs .num{text-align:right;font-weight:600}
+table.hfak td .rw::before{content:""}
+table.hfak{max-width:none}
 
 </style>
 </head>
@@ -2253,7 +2256,36 @@ Object.assign(TS.it,{
     f_hn: ["n Schwierigkeitsgrad", "n degré de difficulté", "n grado di difficoltà", "n difficulty"], f_hr: ["r Anpassungsfaktor", "r facteur d'ajustement", "r fattore di adattamento", "r adjustment"],
     f_hu: ["U Zuschlagsfaktor", "U facteur de majoration", "U fattore di maggiorazione", "U surcharge factor"], f_hh: ["h Stundenansatz [CHF/h]", "h tarif horaire [CHF/h]", "h tariffa oraria [CHF/h]", "h hourly rate [CHF/h]"],
     f_hnk: ["Nebenkosten [% Honorar]", "Frais accessoires [% honoraires]", "Spese accessorie [% onorario]", "Expenses [% of fee]"],
-    s_hfak: ["Faktoren", "Facteurs", "Fattori", "Factors"], s_hph: ["Teilphasen SIA 103 / Leistungsanteil q [%]", "Phases partielles SIA 103 / part q [%]", "Fasi parziali SIA 103 / quota q [%]", "SIA 103 partial phases / share q [%]"],
+    s_hfak: ["Faktoren (fest nach SIA 103-K 2018)", "Facteurs (fixes selon SIA 103-K 2018)", "Fattori (fissi secondo SIA 103-K 2018)", "Factors (fixed per SIA 103-K 2018)"],
+    s_hvar: ["Auftragsbezogen zu vereinbaren", "À convenir selon le mandat", "Da convenire per il mandato", "To be agreed per mandate"],
+    hint_hB: ["Ba = aufwandbestimmende Baukosten nach Abzug der vertraglichen Rabatte, exkl. MWST (SIA 103-K Art. 7.5.1). «aus LV» übernimmt das LV-Netto exkl. MWST.",
+              "Ba = coûts déterminants après rabais contractuels, hors TVA (SIA 103-K art. 7.5.1).", "Ba = costi determinanti dopo gli sconti contrattuali, IVA esclusa (SIA 103-K art. 7.5.1).", "Ba = fee-relevant construction cost after contractual discounts, excl. VAT (SIA 103-K art. 7.5.1)."],
+    hx_z: ["Koeffizient für den Grundfaktor p = Z1 + Z2 / ∛B (SIA 103-K Art. 7.2.2). Aus statistischen Reihen abgeleitet und vom SIA publiziert; Werte SIA 103, Stand 2018 (letzte Publikation).",
+           "Coefficient du facteur de base p = Z1 + Z2 / ∛B (SIA 103-K art. 7.2.2). Valeurs SIA 103, état 2018.", "Coefficiente del fattore di base p = Z1 + Z2 / ∛B (SIA 103-K art. 7.2.2). Valori SIA 103, stato 2018.",
+           "Coefficient of base factor p = Z1 + Z2 / ∛B (SIA 103-K art. 7.2.2). SIA 103 values, status 2018."],
+    hx_n: ["Schwierigkeitsgrad (Art. 7.6): Verantwortung, Risiko, Berechnung/Konstruktion, Komplexität, Bauausführung. «Ohne besondere Vereinbarung gilt n = 1.0» (Art. 7.6.2). Erhebung KOF 2013: Bandbreite 0.8–1.2.",
+           "Degré de difficulté (art. 7.6). «Sans convention particulière, n = 1.0» (art. 7.6.2). Enquête KOF 2013 : 0.8–1.2.", "Grado di difficoltà (art. 7.6). «Senza accordo particolare vale n = 1.0» (art. 7.6.2). Rilevamento KOF 2013: 0.8–1.2.",
+           "Degree of difficulty (art. 7.6). “Without special agreement n = 1.0” (art. 7.6.2). KOF survey 2013: 0.8–1.2."],
+    hx_r: ["Anpassungsfaktor (Art. 7.8) für besondere lokale, organisatorische Einflüsse oder Bearbeitungsaufwand. «Ohne besondere Vereinbarung gilt r = 1.0», angebracht bei normalem Verlauf (Art. 7.8.2). Erhebung KOF 2013: 0.75–1.25.",
+           "Facteur d'ajustement (art. 7.8). «Sans convention particulière, r = 1.0» (art. 7.8.2). KOF 2013 : 0.75–1.25.", "Fattore di adattamento (art. 7.8). «Senza accordo particolare vale r = 1.0» (art. 7.8.2). KOF 2013: 0.75–1.25.",
+           "Adjustment factor (art. 7.8). “Without special agreement r = 1.0” (art. 7.8.2). KOF 2013: 0.75–1.25."],
+    hx_i: ["Teamfaktor (Art. 7.9), früher als U bezeichnet: teamspezifische Abweichung vom Zeitaufwand, Tp = Tm × i; kein Mass für Qualität. «Ohne besondere Vereinbarung gilt i = 1.0» (Art. 7.9.2).",
+           "Facteur d'équipe (art. 7.9), Tp = Tm × i. «Sans convention particulière, i = 1.0».", "Fattore del team (art. 7.9), Tp = Tm × i. «Senza accordo particolare vale i = 1.0».", "Team factor (art. 7.9), Tp = Tm × i. “Without special agreement i = 1.0”."],
+    hx_s: ["Faktor für Sonderleistungen (Art. 7.10) bei mehrwertbringenden oder kostensenkenden Leistungen, H = Tp × s × h. «Ohne besondere Vereinbarung gilt s = 1.0» (Art. 7.10.2).",
+           "Facteur pour prestations spéciales (art. 7.10), H = Tp × s × h. «Sans convention particulière, s = 1.0».", "Fattore per prestazioni speciali (art. 7.10), H = Tp × s × h. «Senza accordo particolare vale s = 1.0».",
+           "Special services factor (art. 7.10), H = Tp × s × h. “Without special agreement s = 1.0”."],
+    hx_formula: ["Formeln SIA 103-K 2018 Art. 7.2–7.4: Tm = Ba × p/100 × n × q/100 × r; Tp = Tm × i; H = Tp × s × h. Die Faktoren sind fest hinterlegt und nicht übersteuerbar. Hinweis KBOB 2026 Ziff. 1.3: Das Baukostenmodell galt als Empfehlung bis 2019; der SIA entwickelt ein neues Modell.",
+                 "Formules SIA 103-K 2018 art. 7.2–7.4 : Tm = Ba × p/100 × n × q/100 × r ; Tp = Tm × i ; H = Tp × s × h. Facteurs fixes, non modifiables. KBOB 2026 ch. 1.3 : modèle recommandé jusqu'en 2019.",
+                 "Formule SIA 103-K 2018 art. 7.2–7.4: Tm = Ba × p/100 × n × q/100 × r; Tp = Tm × i; H = Tp × s × h. Fattori fissi, non modificabili. KBOB 2026 cifra 1.3: modello raccomandato fino al 2019.",
+                 "Formulas SIA 103-K 2018 art. 7.2–7.4: Tm = Ba × p/100 × n × q/100 × r; Tp = Tm × i; H = Tp × s × h. Factors are fixed and cannot be overridden. KBOB 2026 no. 1.3: model recommended until 2019."],
+    f_hgl: ["Gesamtleitung inkl. Oberbauleitung (+10 % von q)", "Direction générale incl. haute direction (+10 % de q)", "Direzione generale incl. alta direzione (+10 % di q)", "Overall management incl. senior site management (+10 % of q)"],
+    hint_hgl: ["SIA 103-K Art. 7.7.6: in der Regel nach Aufwand, zirka 10 % der Leistungsanteile q.", "SIA 103-K art. 7.7.6 : en règle générale selon dépense, env. 10 % de q.", "SIA 103-K art. 7.7.6: di regola secondo dispendio, circa 10 % di q.", "SIA 103-K art. 7.7.6: usually by effort, approx. 10 % of q."],
+    hx_var: ["h und Nebenkosten sind nicht fest hinterlegt: Die KBOB 2026 (Ziff. 3.2.1/3.2.3 und 4) gibt keine Stundenansätze mehr vor – sie sind auftragsbezogen zu verhandeln; Nebenkosten als Pauschale in % der Honorarsumme.",
+             "h et frais accessoires non fixés : la KBOB 2026 (ch. 3.2 et 4) ne donne plus de tarifs – à négocier par mandat ; frais accessoires en % forfaitaire.",
+             "h e spese accessorie non fissati: la KBOB 2026 (cifre 3.2 e 4) non indica più tariffe – da negoziare per mandato; spese accessorie forfettarie in %.",
+             "h and expenses are not fixed: KBOB 2026 (no. 3.2 and 4) no longer specifies rates – to be negotiated per mandate; expenses as a lump-sum %."],
+    w_honH: ["Stundenansatz h fehlt (auftragsbezogen zu vereinbaren).", "Tarif horaire h manquant.", "Tariffa oraria h mancante.", "Hourly rate h missing."],
+    s_hph: ["Teilphasen SIA 103 / Leistungsanteil q (SIA 103-K Art. 7.7, fest)", "Phases partielles / part q (SIA 103-K art. 7.7, fixe)", "Fasi parziali / quota q (SIA 103-K art. 7.7, fisso)", "Partial phases / share q (SIA 103-K art. 7.7, fixed)"],
     hTm: ["Zeitaufwand Tm", "Temps Tm", "Tempo Tm", "Time Tm"], hHon: ["Honorar", "Honoraires", "Onorario", "Fee"], hNk: ["Nebenkosten", "Frais accessoires", "Spese accessorie", "Expenses"],
     hTot: ["Honorar exkl. MWST", "Honoraires hors TVA", "Onorario IVA escl.", "Fee excl. VAT"], hTotI: ["Honorar inkl. MWST", "Honoraires TVA incl.", "Onorario IVA incl.", "Fee incl. VAT"],
     hHint: ["Formel KBOB: Tm = B × p/100 × n × q/100 × r × U; p = Z1 + Z2 / ∛B (Z1/Z2 im Reiter Annahmen). Leistungsanteile, Faktoren und Stundenansatz sind Vorgabewerte – gemäss aktueller KBOB-Empfehlung, SIA 103 und Vertrag prüfen. Das Honorar ist nicht Teil des Unternehmer-LV.",
@@ -3605,10 +3637,20 @@ var FIG = (function () {
     if (S && S.kopf && S.kopf.belagLief) b.einbau = "dritte";
     return b;
   }
-  var PHDEF = [["31", ["Vorprojekt", "Avant-projet", "Progetto di massima", "Preliminary design"], 12], ["32", ["Bauprojekt", "Projet de l'ouvrage", "Progetto definitivo", "Construction design"], 22],
-    ["33", ["Bewilligungsverfahren", "Procédure d'autorisation", "Procedura d'autorizzazione", "Permit procedure"], 2], ["41", ["Ausschreibung, Vergabe", "Appel d'offres, adjudication", "Appalto, aggiudicazione", "Tender, award"], 8],
-    ["51", ["Ausführungsprojekt", "Projet d'exécution", "Progetto esecutivo", "Detailed design"], 18], ["52", ["Ausführung (Bauleitung)", "Exécution (direction des travaux)", "Esecuzione (direzione lavori)", "Execution (site supervision)"], 33],
-    ["53", ["Inbetriebnahme, Abschluss", "Mise en service, achèvement", "Messa in servizio, chiusura", "Commissioning, close-out"], 5]];
+  /* SIA 103-K 2018, Art. 7.7: Leistungsanteile q (fest, nicht übersteuerbar). Nur die Auswahl der beauftragten Teilphasen ist frei. */
+  var PHDEF = [
+    ["31", ["Vorprojekt", "Avant-projet", "Progetto di massima", "Preliminary design"], 8, true],
+    ["32", ["Bauprojekt", "Projet de l'ouvrage", "Progetto definitivo", "Construction design"], 22, true],
+    ["33", ["Bewilligungsverfahren / Auflageprojekt", "Procédure d'autorisation / mise à l'enquête", "Procedura d'autorizzazione / pubblicazione", "Permit procedure / public display"], 2, true],
+    ["41", ["Ausschreibung, Offertvergleich, Vergabeantrag", "Appel d'offres, comparaison, proposition d'adjudication", "Appalto, confronto offerte, proposta d'aggiudicazione", "Tender, bid comparison, award proposal"], 10, true],
+    ["51", ["Ausführungsprojekt", "Projet d'exécution", "Progetto esecutivo", "Detailed design"], 18, true],
+    ["52a", ["Ausführung – allgemeine Bauleitung", "Exécution – direction générale des travaux", "Esecuzione – direzione lavori generale", "Execution – general site management"], 22, true],
+    ["52b", ["Ausführung – technische Bauleitung", "Exécution – direction technique des travaux", "Esecuzione – direzione lavori tecnica", "Execution – technical site management"], 15, true],
+    ["52c", ["Ausführung – Baukontrolle (nur ohne Bauleitung, Art. 7.7.5)", "Exécution – contrôle (seulement sans direction des travaux)", "Esecuzione – controllo (solo senza direzione lavori)", "Execution – construction control (only without site management)"], 7, false],
+    ["53", ["Inbetriebnahme, Abschluss", "Mise en service, achèvement", "Messa in servizio, chiusura", "Commissioning, close-out"], 3, true]];
+  /* Faktoren SIA 103-K 2018 Art. 7.6–7.10: «Ohne besondere Vereinbarung gilt … 1.0». Z1/Z2: Koeffizienten SIA 103 (Stand 2018). */
+  var HONF = { Z1: 0.075, Z2: 7.23, n: 1.0, r: 1.0, i: 1.0, s: 1.0 };
+
   function newRec(tab, n) {
     var nm = function (s) { return s + " " + n; }, r;
     switch (tab) {
@@ -3627,7 +3669,7 @@ var FIG = (function () {
       case "geb": r = { name: nm("Gebäudeeinführung"), n: "", cm: "", abd: "hauff" }; break;
       case "belag": r = { name: nm("Belagsarbeiten"), indiv: false, bk: "gehweg", d: "0.08", B: "", L: "", wi: "B" }; break;
       case "allg": r = { name: nm("Allgemein"), km: "", ak: "" }; break;
-      case "hon": r = { name: nm("Ingenieurhonorar"), src: "lv", B: "", n: "1", r: "1", u: "1", h: "140", nk: "0", ph: PHDEF.map(function (p) { return { k: p[0], on: true, q: String(p[2]) }; }) }; break;
+      case "hon": r = { name: nm("Ingenieurhonorar"), src: "lv", B: "", h: "", nk: "", gl: false, ph: PHDEF.map(function (p) { return { k: p[0], on: p[3] }; }) }; break;
     }
     r.x = {}; r.free = [];
     return r;
@@ -3637,7 +3679,7 @@ var FIG = (function () {
     TABS.forEach(function (t) { recs[t] = [newRec(t, 1)]; idx[t] = 0; });
     return { v: 2, lang: "de", tab: "graben", kopf: { projekt: "", ort: "", bearb: "", datum: today(), rolle: "anv", devisNr: "", lieferant: "", vertrag: "", termin: "", belagLief: false, sap: "", bem: "" },
       recs: recs, idx: idx, sond: { m3: "", einfHand: false }, wasser: { h: "", sumpf: "" }, be: { pct: "" }, dichte: "2.4", mwst: "8.1",
-      par: { deckG: "0.03", deckS: "0.035", deckK: "0.04", gehMin: "0.06", gehMax: "0.12", strMin: "0.09", strMax: "0.20", kanMin: "0.12", kanMax: "0.30", z1: "0.075", z2: "7.23" },
+      par: { deckG: "0.03", deckS: "0.035", deckK: "0.04", gehMin: "0.06", gehMax: "0.12", strMin: "0.09", strMax: "0.20", kanMin: "0.12", kanMax: "0.30" },
       D: { wl: { ts: [1.50, 1.00, 1.00], bo: [1.50, 1.00, 1.00], sg: [2.00, 1.20, 1.20], zs: [1.00, 0.80, 1.00] }, fund: { "CAB 1-3 L": [1.00, 0.60, 0.80], "C 50": [1.20, 0.70, 0.80] } },
       ui: { closed: {}, xo: {}, printDraw: true } };
   }
@@ -3772,9 +3814,9 @@ var FIG = (function () {
       { sec: "s_pausch" }, { id: "name", t: "text" }, { id: "km", t: "num", half: 1 }, { id: "ak", t: "num", half: 1 }],
     rohr: [{ sec: "s_rohrTab" }, { id: "name", t: "text" }, { id: "verl", t: "chk" }, { t: "rohrLists" },
       { id: "erd", t: "num", half: 1 }, { id: "warn", t: "num", half: 1 }, { id: "schnur", t: "num", half: 1 }, { id: "kal", t: "num", half: 1 }, { id: "kalDN", t: "sel", opts: ["55", "100", "120", "150"] }],
-    hon: [{ sec: "hB" }, { id: "name", t: "text" }, { id: "src", t: "sel", opts: ["lv", "man"], struct: 1 }, { t: "honB" },
-      { sec: "s_hfak" }, { id: "n", t: "num", half: 1, labKey: "f_hn" }, { id: "r", t: "num", half: 1, labKey: "f_hr" }, { id: "u", t: "num", half: 1, labKey: "f_hu" }, { id: "h", t: "num", half: 1, labKey: "f_hh" },
-      { id: "nk", t: "num", labKey: "f_hnk" }, { sec: "s_hph" }, { t: "phases" }, { t: "honRes" }]
+    hon: [{ sec: "hB" }, { id: "name", t: "text" }, { id: "src", t: "sel", opts: ["lv", "man"], struct: 1, hint: "hint_hB" }, { t: "honB" },
+      { sec: "s_hfak" }, { t: "honFak" }, { sec: "s_hph" }, { t: "phases" }, { id: "gl", t: "chk", labKey: "f_hgl", hint: "hint_hgl" },
+      { sec: "s_hvar" }, { id: "h", t: "num", half: 1, labKey: "f_hh" }, { id: "nk", t: "num", half: 1, labKey: "f_hnk" }, { t: "honVarHint" }, { t: "honRes" }]
   };
 
   /* ---------- Zugriff ---------- */
@@ -3913,40 +3955,50 @@ var FIG = (function () {
     });
     return wrap;
   }
+  function phaseList(cfg) { /* feste q-Werte aus PHDEF; Auswahl aus dem Datensatz */
+    return PHDEF.map(function (d) { var x = (cfg.ph || []).filter(function (p) { return p.k === d[0]; })[0]; return { k: d[0], q: d[2], on: x ? !!x.on : d[3], lab: d[1] }; });
+  }
   function phasesEl(cfg) {
     var wrap = document.createElement("div"); wrap.className = "phs"; var L = ["de", "fr", "it", "en"].indexOf(S.lang);
-    cfg.ph.forEach(function (p) {
-      var d = PHDEF.filter(function (x) { return x[0] === p.k; })[0];
-      var c = document.createElement("input"); c.type = "checkbox"; c.checked = !!p.on; c.setAttribute("aria-label", p.k);
-      c.addEventListener("change", function () { p.on = c.checked; save(); refreshHon(); scheduleResult(); });
+    phaseList(cfg).forEach(function (p) {
+      var c = document.createElement("input"); c.type = "checkbox"; c.checked = p.on; c.setAttribute("aria-label", p.k);
+      c.addEventListener("change", function () { cfg.ph = phaseList(cfg).map(function (x) { return { k: x.k, on: x.k === p.k ? c.checked : x.on }; }); save(); refreshHon(); scheduleResult(); });
       var b = document.createElement("b"); b.textContent = p.k;
-      var s = document.createElement("span"); s.textContent = d ? (d[1][L] || d[1][0]) : "";
-      var q = document.createElement("input"); q.type = "text"; q.inputMode = "decimal"; q.value = p.q; q.setAttribute("aria-label", "q " + p.k);
-      q.addEventListener("input", function () { p.q = q.value; save(); refreshHon(); scheduleResult(); });
+      var s = document.createElement("span"); s.textContent = p.lab[L] || p.lab[0];
+      var q = document.createElement("span"); q.className = "num"; q.textContent = qf(p.q) + " %";
       wrap.appendChild(c); wrap.appendChild(b); wrap.appendChild(s); wrap.appendChild(q);
     });
     var sum = document.createElement("p"); sum.className = "phsum"; sum.id = "qsum"; wrap.appendChild(sum);
     return wrap;
   }
+  function honFakEl() {
+    var d = document.createElement("div");
+    var rows = [["Z1", HONF.Z1, "hx_z"], ["Z2", HONF.Z2, "hx_z"], ["n", HONF.n, "hx_n"], ["r", HONF.r, "hx_r"], ["i", HONF.i, "hx_i"], ["s", HONF.s, "hx_s"]];
+    d.innerHTML = '<table class="cost hfak"><tbody>' + rows.map(function (r) { return '<tr><td><b>' + r[0] + '</b><div class="rw">' + esc(tt(r[2])) + '</div></td><td class="num">' + String(r[1]).replace(/^1$/, "1.0") + "</td></tr>"; }).join("") +
+      '</tbody></table><p class="hint">' + esc(tt("hx_formula")) + "</p>";
+    return d;
+  }
   function honCalc(r, netto) {
-    var B = r.src === "man" ? num(r.B, 0) : netto, q = r.ph.reduce(function (s, x) { return s + (x.on ? num(x.q, 0) : 0); }, 0);
-    if (!(B > 0) || !(q > 0)) return { B: B, q: q, ok: false };
-    var p = num(S.par.z1, 0.075) + num(S.par.z2, 7.23) / Math.cbrt(B), Tm = r2(B * p / 100 * num(r.n, 1) * q / 100 * num(r.r, 1) * num(r.u, 1)), H = r2(Tm * num(r.h, 0)), NK = r2(H * num(r.nk, 0) / 100);
-    return { B: B, p: p, q: q, Tm: Tm, H: H, NK: NK, net: r2(H + NK), ok: true };
+    var B = r.src === "man" ? num(r.B, 0) : netto, ph = phaseList(r), q0 = ph.reduce(function (s, x) { return s + (x.on ? x.q : 0); }, 0), q = r2(q0 * (r.gl ? 1.1 : 1));
+    var h = num(r.h, 0);
+    if (!(B > 0) || !(q > 0) || !(h > 0)) return { B: B, q: q, ok: false, noH: !(h > 0) };
+    var p = HONF.Z1 + HONF.Z2 / Math.cbrt(B), Tm = r2(B * p / 100 * HONF.n * q / 100 * HONF.r), Tp = r2(Tm * HONF.i), H = r2(Tp * HONF.s * h), NK = r2(H * num(r.nk, 0) / 100);
+    return { B: B, p: p, q: q, Tm: Tm, Tp: Tp, H: H, NK: NK, net: r2(H + NK), ok: true };
   }
   var lastOut = null;
   function lvNetto() { return (lastOut || KVE.calc(S, LV)).sum.netto; }
   function honResHtml(r) {
     var h = honCalc(r, lvNetto()), mw = h.ok ? r2(h.net * num(S.mwst, 8.1) / 100) : 0;
-    if (!h.ok) return '<p class="hint">⚠ ' + esc(tt("w_hon")) + "</p>";
+    if (!h.ok) return '<p class="hint">⚠ ' + esc(tt(h.noH ? "w_honH" : "w_hon")) + "</p>";
     return '<table class="cost hres"><tbody><tr><td>B</td><td class="num">CHF ' + chf(h.B) + "</td></tr><tr><td>p = Z1 + Z2 / ∛B</td><td class=\"num\">" + h.p.toFixed(4) + " %</td></tr>" +
       "<tr><td>q</td><td class=\"num\">" + qf(h.q) + " %</td></tr><tr><td>" + esc(tt("hTm")) + '</td><td class="num">' + qf(h.Tm) + " h</td></tr>" +
-      "<tr><td>" + esc(tt("hHon")) + " (" + qf(h.Tm) + " h × " + chf(num(r.h)) + ')</td><td class="num">CHF ' + chf(h.H) + "</td></tr>" +
+      "<tr><td>Tp = Tm × i</td><td class=\"num\">" + qf(h.Tp) + " h</td></tr><tr><td>" + esc(tt("hHon")) + " H = Tp × s × h (" + qf(h.Tp) + " h × " + chf(num(r.h)) + ')</td><td class="num">CHF ' + chf(h.H) + "</td></tr>" +
       (h.NK ? "<tr><td>" + esc(tt("hNk")) + '</td><td class="num">CHF ' + chf(h.NK) + "</td></tr>" : "") +
       '<tr class="sub"><td>' + esc(tt("hTot")) + '</td><td class="num">CHF ' + chf(h.net) + "</td></tr><tr><td>" + esc(tt("k_mwst")) + '</td><td class="num">CHF ' + chf(mw) + "</td></tr>" +
       '<tr class="sum"><td>' + esc(tt("hTotI")) + '</td><td class="num">CHF ' + chf(r2(h.net + mw)) + "</td></tr></tbody></table>";
   }
-  function refreshHon() { var e = $("#honres"); if (e) e.innerHTML = honResHtml(rec()); var q = $("#qsum"); if (q) q.textContent = "q = " + qf(rec().ph.reduce(function (s, x) { return s + (x.on ? num(x.q, 0) : 0); }, 0)) + " %"; refreshFig(); }
+  function refreshHon() { var e = $("#honres"); if (e) e.innerHTML = honResHtml(rec()); var r = rec(), q0 = phaseList(r).reduce(function (s, x) { return s + (x.on ? x.q : 0); }, 0), qe = $("#qsum");
+    if (qe) qe.textContent = "q = " + qf(q0) + " %" + (r.gl ? " × 1.10 (" + tt("f_hgl").split(" (")[0] + ") = " + qf(r2(q0 * 1.1)) + " %" : ""); refreshFig(); }
 
   /* Weitere LV-Positionen: alle LV-Positionen, die nicht automatisch entstehen */
   var AUTO = null;
@@ -4048,12 +4100,12 @@ var FIG = (function () {
     return FIG.html(S.tab, rec(), S, tt);
   }
   function honFig(r) {
-    var h = honCalc(r, lvNetto()), tot = r.ph.reduce(function (s, x) { return s + Math.max(0, num(x.q, 0)); }, 0) || 1, x = 20, o = "";
-    r.ph.forEach(function (p) { var w = Math.max(0, num(p.q, 0)) / tot * 720; if (w <= 0) return;
-      o += '<rect x="' + x + '" y="40" width="' + w + '" height="40" fill="' + (p.on ? "var(--navy)" : "var(--rule-strong)") + '" stroke="#fff" stroke-width="2"/>' + (w > 26 ? '<text x="' + (x + w / 2) + '" y="65" class="sl sb" text-anchor="middle" style="fill:#fff">' + p.k + "</text>" : "") + (w > 40 ? FIG.tx(x + w / 2, 98, qf(num(p.q, 0)) + " %", "sm", "middle") : ""); x += w; });
+    var h = honCalc(r, lvNetto()), ph = phaseList(r), x = 20, o = "";
+    ph.forEach(function (p) { var w = p.q / 107 * 720;
+      o += '<rect x="' + x + '" y="40" width="' + w + '" height="40" fill="' + (p.on ? "var(--navy)" : "var(--rule-strong)") + '" stroke="#fff" stroke-width="2"/>' + (w > 24 ? '<text x="' + (x + w / 2) + '" y="65" class="sl sb" text-anchor="middle" style="fill:#fff">' + p.k + "</text>" : "") + (w > 30 ? FIG.tx(x + w / 2, 98, qf(p.q) + " %", "sm", "middle") : ""); x += w; });
     o += FIG.tx(20, 24, tt("s_hph"), "sl sb");
-    o += h.ok ? FIG.tx(20, 134, "Tm = " + qf(Math.round(h.B)) + " × " + h.p.toFixed(4) + "/100 × " + qf(num(r.n, 1)) + " × " + qf(h.q) + "/100 × " + qf(num(r.r, 1)) + " × " + qf(num(r.u, 1)) + " = " + qf(h.Tm) + " h", "sl") +
-      FIG.tx(20, 160, tt("hHon") + ": " + qf(h.Tm) + " h × CHF " + chf(num(r.h)) + " = CHF " + chf(h.H), "sl sb") : FIG.tx(20, 140, "⚠ " + tt("w_hon"), "sl");
+    o += h.ok ? FIG.tx(20, 134, "Tm = " + qf(Math.round(h.B)) + " × " + h.p.toFixed(4) + "/100 × 1.0 × " + qf(h.q) + "/100 × 1.0 = " + qf(h.Tm) + " h", "sl") +
+      FIG.tx(20, 160, "H = Tp × s × h = " + qf(h.Tp) + " h × 1.0 × CHF " + chf(num(r.h)) + " = CHF " + chf(h.H), "sl sb") : FIG.tx(20, 140, "⚠ " + tt(h.noH ? "w_honH" : "w_hon"), "sl");
     return FIG.svg(760, 180, o, tt("ht_hon"));
   }
   function refreshFig() { var e = $("#figsvg"); if (e) { var h = figHtml(); e.innerHTML = h; e.parentNode.hidden = !h; } var be = $("#beHint"); if (be) be.textContent = beHintText(); }
@@ -4091,7 +4143,9 @@ var FIG = (function () {
       if (f.t === "abzwList") { tgt.appendChild(abzwListEl(cfg)); return; }
       if (f.t === "opts") { tgt.appendChild(optsEl(cfg)); return; }
       if (f.t === "phases") { tgt.appendChild(phasesEl(cfg)); return; }
-      if (f.t === "honRes") { var hr = document.createElement("div"); hr.id = "honres"; tgt.appendChild(hr); var hn = document.createElement("p"); hn.className = "hint"; hn.textContent = tt("hHint"); tgt.appendChild(hn); return; }
+      if (f.t === "honFak") { tgt.appendChild(honFakEl()); return; }
+      if (f.t === "honVarHint") { var vh = document.createElement("p"); vh.className = "hint"; vh.textContent = tt("hx_var"); tgt.appendChild(vh); return; }
+      if (f.t === "honRes") { var hr = document.createElement("div"); hr.id = "honres"; tgt.appendChild(hr); return; }
       if (f.t === "honB") { if (cfg.src === "man") tgt.appendChild(fieldEl(cfg, { id: "B", t: "num", labKey: "f_hB" })); else { var d = document.createElement("div"); d.className = "field"; d.innerHTML = '<label>B [CHF]</label><input type="text" id="honBv" disabled>'; tgt.appendChild(d); } return; }
       if (f.t === "printDraw") { var pd = document.createElement("div"); pd.className = "check"; pd.innerHTML = '<input type="checkbox" id="fPrintDraw"' + (S.ui.printDraw ? " checked" : "") + '><label for="fPrintDraw">' + esc(tt("f_printDraw")) + "</label>"; tgt.appendChild(pd);
         pd.querySelector("input").addEventListener("change", function () { S.ui.printDraw = this.checked; save(); renderResult(); }); return; }
@@ -4107,7 +4161,7 @@ var FIG = (function () {
   }
   function parEl() {
     var w = document.createElement("div"); w.className = "elbody formbody";
-    var P = S.par, rows = [["dichte", S], ["mwst", S], ["z1", P], ["z2", P], ["deckG", P], ["deckS", P], ["deckK", P], ["gehMin", P], ["gehMax", P], ["strMin", P], ["strMax", P], ["kanMin", P], ["kanMax", P]];
+    var P = S.par, rows = [["dichte", S], ["mwst", S], ["deckG", P], ["deckS", P], ["deckK", P], ["gehMin", P], ["gehMax", P], ["strMin", P], ["strMax", P], ["kanMin", P], ["kanMax", P]];
     var h = '<p class="hint">' + esc(tt("parH")) + '</p><table class="cost ptab"><tbody>' + rows.map(function (r) { return "<tr><td>" + esc(tt("p_" + r[0])) + '</td><td class="num"><input class="mini" data-p="' + r[0] + '" data-o="' + (r[1] === S ? "S" : "P") + '" value="' + esc(r[1][r[0]]) + '"></td></tr>'; }).join("") + "</tbody></table>";
     h += "<h4>" + esc(tt("dimT")) + '</h4><table class="cost ptab"><tbody>';
     [["wl", function (k) { return tt("tab_werkloch") + " " + String(tt("f_" + k)).replace(/ \[.*\]/, ""); }], ["fund", function (k) { return tt("s_fund") + " " + k; }]].forEach(function (g) {
@@ -4248,7 +4302,7 @@ var FIG = (function () {
     var hon = S.recs.hon.map(function (r) { return [r, honCalc(r, out.sum.netto)]; }).filter(function (x) { return x[1].ok; });
     if (hon.length) {
       var hn = r2(hon.reduce(function (a, x) { return a + x[1].net; }, 0)), hm = r2(hn * num(S.mwst, 8.1) / 100);
-      html += "<h3>" + esc(tt("hSum")) + '</h3><table class="cost"><tbody>' + hon.map(function (x) { return "<tr><td>" + esc(x[0].name) + '<div class="rw">' + qf(x[1].Tm) + " h × CHF " + chf(num(x[0].h)) + (x[1].NK ? " + " + esc(tt("hNk")) + " " + chf(x[1].NK) : "") + " · B = " + chf(x[1].B) + '</div></td><td class="num">' + chf(x[1].net) + "</td></tr>"; }).join("") +
+      html += "<h3>" + esc(tt("hSum")) + '</h3><table class="cost"><tbody>' + hon.map(function (x) { return "<tr><td>" + esc(x[0].name) + '<div class="rw">' + qf(x[1].Tp) + " h (Tp) × CHF " + chf(num(x[0].h)) + (x[1].NK ? " + " + esc(tt("hNk")) + " " + chf(x[1].NK) : "") + " · B = " + chf(x[1].B) + '</div></td><td class="num">' + chf(x[1].net) + "</td></tr>"; }).join("") +
         '<tr class="sub"><td>' + esc(tt("hTot")) + '</td><td class="num">' + chf(hn) + "</td></tr><tr><td>" + esc(tt("k_mwst")) + '</td><td class="num">' + chf(hm) + '</td></tr><tr><td>' + esc(tt("hTotI")) + '</td><td class="num">' + chf(r2(hn + hm)) + "</td></tr>" +
         '<tr class="sum"><td>' + esc(tt("gTot")) + '</td><td class="num">' + chf(r2(out.sum.brutto + hn + hm)) + "</td></tr></tbody></table>";
     }
@@ -4332,8 +4386,8 @@ var FIG = (function () {
     out.complete.forEach(function (it) { V.push([{ v: tt("c_" + it.id), s: vst[it.st] }, { v: tt(vlab[it.st]), s: vst[it.st] }]); });
     var N = [hdr([tt("x_elem"), tt("x_ann"), tt("x_statt"), tt("x_wirkung")])];
     KVE.sens(S, LV).forEach(function (r) { var d = T[S.lang] || T.de, val = d[r.val] != null ? tt(r.val) : r.val, alt = d[r.alt] != null ? tt(r.alt) : r.alt; N.push([{ v: r.el }, { v: tt(r.id) + ": " + val, s: XL.wrap }, { v: alt }, { v: r.d, s: r.d > 0 ? XL.numRed : XL.num }]); });
-    var H = [hdr([tt("tab_hon"), "B", "q %", "Tm h", "h CHF", tt("hHon"), tt("hNk"), tt("hTot")])];
-    S.recs.hon.forEach(function (r) { var h = honCalc(r, sm.netto); if (h.ok) H.push([{ v: r.name }, { v: h.B, s: XL.num }, { v: h.q, s: XL.num }, { v: h.Tm, s: XL.num }, { v: num(r.h), s: XL.num }, { v: h.H, s: XL.num }, { v: h.NK, s: XL.num }, { v: h.net, s: XL.sum }]); });
+    var H = [hdr([tt("tab_hon"), "B", "q %", "Tm h", "Tp h", "h CHF", tt("hHon"), tt("hNk"), tt("hTot")])];
+    S.recs.hon.forEach(function (r) { var h = honCalc(r, sm.netto); if (h.ok) H.push([{ v: r.name }, { v: h.B, s: XL.num }, { v: h.q, s: XL.num }, { v: h.Tm, s: XL.num }, { v: h.Tp, s: XL.num }, { v: num(r.h), s: XL.num }, { v: h.H, s: XL.num }, { v: h.NK, s: XL.num }, { v: h.net, s: XL.sum }]); });
     var G = [[{ v: tt("h_grund"), s: XL.title }], []];
     (T[S.lang] || T.de).g_list.concat([tt("g_lvOnlyDE"), tt("x_stand")]).forEach(function (x) { G.push([{ v: x, s: XL.wrap }]); });
     var sheets = [{ name: nm.k, rows: K, cols: [46, 20, 18] }, { name: nm.a, rows: A, cols: [14, 88, 11, 7, 11, 13], freeze: 1 }, { name: nm.z, rows: Z, cols: [14, 88, 11, 7, 11, 13], freeze: 1 },
