@@ -62,7 +62,7 @@
       case "geb": r = { name: nm("Gebäudeeinführung"), n: "", cm: "", abd: "hauff" }; break;
       case "belag": r = { name: nm("Belagsarbeiten"), indiv: false, bk: "gehweg", d: "0.08", B: "", L: "", wi: "B" }; break;
       case "allg": r = { name: nm("Allgemein"), km: "", ak: "" }; break;
-      case "hon": r = { name: nm("Ingenieurhonorar"), src: "lv", B: "", h: "", nk: "", gl: false, ph: PHDEF.map(function (p) { return { k: p[0], on: p[3] }; }) }; break;
+      case "hon": r = { name: nm("Ingenieurhonorar"), src: "lv", B: "", n: "1.0", r: "1.0", h: "", nk: "", gl: false, ph: PHDEF.map(function (p) { return { k: p[0], on: p[3] }; }) }; break;
     }
     r.x = {}; r.free = [];
     return r;
@@ -208,7 +208,7 @@
     rohr: [{ sec: "s_rohrTab" }, { id: "name", t: "text" }, { id: "verl", t: "chk" }, { t: "rohrLists" },
       { id: "erd", t: "num", half: 1 }, { id: "warn", t: "num", half: 1 }, { id: "schnur", t: "num", half: 1 }, { id: "kal", t: "num", half: 1 }, { id: "kalDN", t: "sel", opts: ["55", "100", "120", "150"] }],
     hon: [{ sec: "hB" }, { id: "name", t: "text" }, { id: "src", t: "sel", opts: ["lv", "man"], struct: 1, hint: "hint_hB" }, { t: "honB" },
-      { sec: "s_hfak" }, { t: "honFak" }, { sec: "s_hph" }, { t: "phases" }, { id: "gl", t: "chk", labKey: "f_hgl", hint: "hint_hgl" },
+      { sec: "s_hfak" }, { id: "n", t: "num", half: 1, labKey: "f_hn" }, { id: "r", t: "num", half: 1, labKey: "f_hr" }, { t: "honFak" }, { sec: "s_hph" }, { t: "phases" }, { id: "gl", t: "chk", labKey: "f_hgl", hint: "hint_hgl" },
       { sec: "s_hvar" }, { id: "h", t: "num", half: 1, labKey: "f_hh" }, { id: "nk", t: "num", half: 1, labKey: "f_hnk" }, { t: "honVarHint" }, { t: "honRes" }]
   };
 
@@ -364,18 +364,18 @@
     var sum = document.createElement("p"); sum.className = "phsum"; sum.id = "qsum"; wrap.appendChild(sum);
     return wrap;
   }
-  function honFakEl() {
-    var d = document.createElement("div");
-    var rows = [["Z1", HONF.Z1, "hx_z"], ["Z2", HONF.Z2, "hx_z"], ["n", HONF.n, "hx_n"], ["r", HONF.r, "hx_r"], ["i", HONF.i, "hx_i"], ["s", HONF.s, "hx_s"]];
-    d.innerHTML = '<table class="cost hfak"><tbody>' + rows.map(function (r) { return '<tr><td><b>' + r[0] + '</b><div class="rw">' + esc(tt(r[2])) + '</div></td><td class="num">' + String(r[1]).replace(/^1$/, "1.0") + "</td></tr>"; }).join("") +
-      '</tbody></table><p class="hint">' + esc(tt("hx_formula")) + "</p>";
-    return d;
+  function honFakEl() { var d = document.createElement("div"); d.id = "honfak"; d.innerHTML = honFakHtml(); return d; }
+  function honFakHtml() { /* Erklärung zu n und r; Z1, Z2, i, s sind fest hinterlegt und nicht sichtbar */
+    var r = rec(), n = num(r.n, 1), rr = num(r.r, 1), w = [];
+    if (n < 0.8 || n > 1.2) w.push(tt("w_hnRange")); if (rr < 0.75 || rr > 1.25) w.push(tt("w_hrRange"));
+    return '<p class="hint"><b>n</b> – ' + esc(tt("hx_n")) + '</p><p class="hint"><b>r</b> – ' + esc(tt("hx_r")) + "</p>" +
+      (w.length ? '<p class="hint" style="color:var(--amber);font-weight:600">⚠ ' + w.map(esc).join(" ") + "</p>" : "") + '<p class="hint">' + esc(tt("hx_formula")) + "</p>";
   }
   function honCalc(r, netto) {
     var B = r.src === "man" ? num(r.B, 0) : netto, ph = phaseList(r), q0 = ph.reduce(function (s, x) { return s + (x.on ? x.q : 0); }, 0), q = r2(q0 * (r.gl ? 1.1 : 1));
     var h = num(r.h, 0);
     if (!(B > 0) || !(q > 0) || !(h > 0)) return { B: B, q: q, ok: false, noH: !(h > 0) };
-    var p = HONF.Z1 + HONF.Z2 / Math.cbrt(B), Tm = r2(B * p / 100 * HONF.n * q / 100 * HONF.r), Tp = r2(Tm * HONF.i), H = r2(Tp * HONF.s * h), NK = r2(H * num(r.nk, 0) / 100);
+    var p = HONF.Z1 + HONF.Z2 / Math.cbrt(B), Tm = r2(B * p / 100 * num(r.n, 1) * q / 100 * num(r.r, 1)), Tp = r2(Tm * HONF.i), H = r2(Tp * HONF.s * h), NK = r2(H * num(r.nk, 0) / 100);
     return { B: B, p: p, q: q, Tm: Tm, Tp: Tp, H: H, NK: NK, net: r2(H + NK), ok: true };
   }
   var lastOut = null;
@@ -383,14 +383,14 @@
   function honResHtml(r) {
     var h = honCalc(r, lvNetto()), mw = h.ok ? r2(h.net * num(S.mwst, 8.1) / 100) : 0;
     if (!h.ok) return '<p class="hint">⚠ ' + esc(tt(h.noH ? "w_honH" : "w_hon")) + "</p>";
-    return '<table class="cost hres"><tbody><tr><td>B</td><td class="num">CHF ' + chf(h.B) + "</td></tr><tr><td>p = Z1 + Z2 / ∛B</td><td class=\"num\">" + h.p.toFixed(4) + " %</td></tr>" +
+    return '<table class="cost hres"><tbody><tr><td>B</td><td class="num">CHF ' + chf(h.B) + "</td></tr><tr><td>p (Grundfaktor)</td><td class=\"num\">" + h.p.toFixed(4) + " %</td></tr>" +
       "<tr><td>q</td><td class=\"num\">" + qf(h.q) + " %</td></tr><tr><td>" + esc(tt("hTm")) + '</td><td class="num">' + qf(h.Tm) + " h</td></tr>" +
-      "<tr><td>Tp = Tm × i</td><td class=\"num\">" + qf(h.Tp) + " h</td></tr><tr><td>" + esc(tt("hHon")) + " H = Tp × s × h (" + qf(h.Tp) + " h × " + chf(num(r.h)) + ')</td><td class="num">CHF ' + chf(h.H) + "</td></tr>" +
+      "<tr><td>" + esc(tt("hHon")) + " (" + qf(h.Tp) + " h × " + chf(num(r.h)) + ')</td><td class="num">CHF ' + chf(h.H) + "</td></tr>" +
       (h.NK ? "<tr><td>" + esc(tt("hNk")) + '</td><td class="num">CHF ' + chf(h.NK) + "</td></tr>" : "") +
       '<tr class="sub"><td>' + esc(tt("hTot")) + '</td><td class="num">CHF ' + chf(h.net) + "</td></tr><tr><td>" + esc(tt("k_mwst")) + '</td><td class="num">CHF ' + chf(mw) + "</td></tr>" +
       '<tr class="sum"><td>' + esc(tt("hTotI")) + '</td><td class="num">CHF ' + chf(r2(h.net + mw)) + "</td></tr></tbody></table>";
   }
-  function refreshHon() { var e = $("#honres"); if (e) e.innerHTML = honResHtml(rec()); var r = rec(), q0 = phaseList(r).reduce(function (s, x) { return s + (x.on ? x.q : 0); }, 0), qe = $("#qsum");
+  function refreshHon() { var hf = $("#honfak"); if (hf) hf.innerHTML = honFakHtml(); var e = $("#honres"); if (e) e.innerHTML = honResHtml(rec()); var r = rec(), q0 = phaseList(r).reduce(function (s, x) { return s + (x.on ? x.q : 0); }, 0), qe = $("#qsum");
     if (qe) qe.textContent = "q = " + qf(q0) + " %" + (r.gl ? " × 1.10 (" + tt("f_hgl").split(" (")[0] + ") = " + qf(r2(q0 * 1.1)) + " %" : ""); refreshFig(); }
 
   /* Weitere LV-Positionen: alle LV-Positionen, die nicht automatisch entstehen */
@@ -497,8 +497,8 @@
     ph.forEach(function (p) { var w = p.q / 107 * 720;
       o += '<rect x="' + x + '" y="40" width="' + w + '" height="40" fill="' + (p.on ? "var(--navy)" : "var(--rule-strong)") + '" stroke="#fff" stroke-width="2"/>' + (w > 24 ? '<text x="' + (x + w / 2) + '" y="65" class="sl sb" text-anchor="middle" style="fill:#fff">' + p.k + "</text>" : "") + (w > 30 ? FIG.tx(x + w / 2, 98, qf(p.q) + " %", "sm", "middle") : ""); x += w; });
     o += FIG.tx(20, 24, tt("s_hph"), "sl sb");
-    o += h.ok ? FIG.tx(20, 134, "Tm = " + qf(Math.round(h.B)) + " × " + h.p.toFixed(4) + "/100 × 1.0 × " + qf(h.q) + "/100 × 1.0 = " + qf(h.Tm) + " h", "sl") +
-      FIG.tx(20, 160, "H = Tp × s × h = " + qf(h.Tp) + " h × 1.0 × CHF " + chf(num(r.h)) + " = CHF " + chf(h.H), "sl sb") : FIG.tx(20, 140, "⚠ " + tt(h.noH ? "w_honH" : "w_hon"), "sl");
+    o += h.ok ? FIG.tx(20, 134, "Tm = " + qf(Math.round(h.B)) + " × " + h.p.toFixed(4) + "/100 × " + qf(num(r.n, 1)) + " × " + qf(h.q) + "/100 × " + qf(num(r.r, 1)) + " = " + qf(h.Tm) + " h", "sl") +
+      FIG.tx(20, 160, tt("hHon") + " = " + qf(h.Tp) + " h × CHF " + chf(num(r.h)) + " = CHF " + chf(h.H), "sl sb") : FIG.tx(20, 140, "⚠ " + tt(h.noH ? "w_honH" : "w_hon"), "sl");
     return FIG.svg(760, 180, o, tt("ht_hon"));
   }
   function refreshFig() { var e = $("#figsvg"); if (e) { var h = figHtml(); e.innerHTML = h; e.parentNode.hidden = !h; } var be = $("#beHint"); if (be) be.textContent = beHintText(); }
