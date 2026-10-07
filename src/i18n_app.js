@@ -3,6 +3,10 @@
   var L = ["de", "fr", "it", "en"];
   function A(o) { Object.keys(o).forEach(function (k) { L.forEach(function (l, i) { T[l][k] = o[k][i] != null ? o[k][i] : o[k][0]; }); }); }
   A({
+    w_erschOhneLV: ["Erschwernis-Zuschlag {k}: im LV nicht vorhanden (Grube von Hand). Position OFFEN – Preis beim Unternehmer anfragen.",
+      "Supplément difficulté {k}: absent du LV (fouille à la main). Position OUVERTE – demander le prix à l'entreprise.",
+      "Supplemento difficoltà {k}: non presente nel LV (scavo a mano). Posizione APERTA – chiedere il prezzo all'impresa.",
+      "Difficulty surcharge {k}: not in the LV (hand excavation). Item OPEN – request a price from the contractor."],
     title: ["LV-Devis Tiefbau", "Devis LV génie civil", "Preventivo LV genio civile", "BoQ estimate civil works"],
     sub: ["Kostenvoranschlag nach Bauteilen – LV Swisscom Infrastrukturarbeiten bei Baukooperationen (V1.1, 10.07.2026).",
           "Devis par éléments – LV Swisscom travaux d'infrastructure lors de coopérations de construction (V1.1, 10.07.2026).",

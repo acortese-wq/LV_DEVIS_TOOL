@@ -9,7 +9,7 @@ App-Konzept und Urheber: **Alessandro Cortese**. Dieser Skill verwendet denselbe
 
 ## Grundregeln (immer einhalten)
 
-1. **Nie selbst rechnen oder Preise schätzen.** Mengen, Einheitspreise, Rabatt, Installationspauschale, MWST und Honorar kommen ausschliesslich aus `scripts/rechne.js`. Keine Preise aus dem Gedächtnis nennen – nachschlagen mit `scripts/lv_suche.js`.
+1. **Nie selbst rechnen oder Preise schätzen.** Mengen, Einheitspreise, Rabatt, Installationspauschale, MWST und Honorar kommen ausschliesslich aus `scripts/rechne.py`. Keine Preise aus dem Gedächtnis nennen – nachschlagen mit `scripts/lv_suche.py`. **Immer das Skript ausführen** – auch für eine schnelle Schätzung.
 2. **OFFEN-Positionen** (kein LV-Preis) sind nicht im Total. Immer ausweisen und empfehlen, den Preis beim Unternehmer anzufragen. Nie einen Preis dafür erfinden.
 3. **Warnungen der Stufe `stop`** (z. B. Schachtgrösse am Einbauort nicht zulässig) dem Benutzer vor der Summe nennen und eine Korrektur vorschlagen.
 4. Fehlende Pflichtangaben **nachfragen**, statt Annahmen still zu treffen. Getroffene Annahmen (Vorgabewerte) am Schluss auflisten.
@@ -20,7 +20,7 @@ App-Konzept und Urheber: **Alessandro Cortese**. Dieser Skill verwendet denselbe
 1. **Projekt erfassen:** Projektname, SAP-/BK-Nummer, Ort, Bearbeiter, Rolle `kopf.rolle` (`anv` = ANV, `bl` = Bauleiter, `bhv` = BHV), ob der Belag durch Dritte eingebaut wird (`kopf.belagLief`).
 2. **Bauteile abfragen** – nur die Reiter, die vorkommen. Pro Reiter wenige, gezielte Fragen (siehe unten). Mehrere Datensätze pro Reiter sind möglich (z. B. Graben Trottoir + Graben Strasse).
 3. **Eingabe-JSON schreiben** (Format unten) – nur Werte angeben, die von der Vorgabe abweichen.
-4. **Rechnen:** `node scripts/rechne.js eingabe.json --out <ordner>` (Ausgabe: Markdown-Zusammenfassung + `LV-Devis_<SAP>.json` + `LV-Devis_<SAP>.xlsx`).
+4. **Rechnen:** `python3 scripts/rechne.py eingabe.json --out <ordner>` (Pfad relativ zum Skill-Ordner; Ausgabe: Markdown-Zusammenfassung + `LV-Devis_<SAP>.json` + `LV-Devis_<SAP>.xlsx`). Nur Python-Standardbibliothek, keine Installation nötig.
 5. **Ergebnis präsentieren:** Elemente, Summen (Zwischensumme → Rabattstufe → Installationspauschale → Netto exkl. MWST → MWST → Total), Honorar, OFFEN-Positionen, Warnungen, offene Punkte der Vollständigkeitsprüfung. Excel und JSON als Dateien anbieten.
 6. Hinweis geben: Die JSON-Datei lässt sich im HTML-Tool «LV-Devis Tiefbau» über **Laden** öffnen – dort sind Druck/PDF, Zeichnungen und das ausführliche Excel verfügbar.
 7. Änderungswünsche: Eingabe-JSON anpassen und erneut rechnen (nie Summen von Hand nachführen).
@@ -58,7 +58,7 @@ Vollständige Felder, Optionen, Vorgaben und Bedingungen: **`references/felder.m
 ```
 
 - Nicht angegebene Felder erhalten die Vorgabe des Tools; Zahlen dürfen als Zahl oder Text kommen.
-- **Weitere LV-Positionen** pro Datensatz: `"x": { "151/485.004": "12" }` (Position → Menge). Jede der 599 Positionen ist so erfassbar; Nummer mit `lv_suche.js` ermitteln.
+- **Weitere LV-Positionen** pro Datensatz: `"x": { "151/485.004": "12" }` (Position → Menge). Jede der 599 Positionen ist so erfassbar; Nummer mit `lv_suche.py` ermitteln.
 - **Freie Positionen** pro Datensatz: `"free": [ { "key": "151/672.401", "qty": "2", "note": "…" } ]` oder ausserhalb LV `{ "custom": true, "text": "…", "unit": "St", "qty": "1", "ep": "350", "reason": "Offerte XY" }` – ausserhalb LV immer mit Begründung, sonst Warnung `stop`.
 - Ingenieurhonorar-Teilphasen: `"ph": [ { "k": "31", "on": true }, … ]` mit k = 31, 32, 33, 41, 51, 52a, 52b, 52c, 53 (q fest nach SIA 103-K Art. 7.7). Ohne Angabe: alle ausser 52c.
 - Eine vollständige Sicherung aus dem HTML-Tool (`{ "v": 2, "data": … }`) wird ebenfalls akzeptiert.
@@ -74,8 +74,15 @@ Vollständige Felder, Optionen, Vorgaben und Bedingungen: **`references/felder.m
 
 | Skript | Zweck |
 |---|---|
-| `scripts/rechne.js eingabe.json [--out dir] [--lang fr] [--md-only] [--json-only]` | Berechnung, Markdown + JSON (für HTML-Tool) + Excel |
-| `scripts/lv_suche.js <Begriff/Nummer> [--lang fr] [--max 50]` | LV-Positionen suchen (Nummer, Einheit, Preis, Text) |
-| `scripts/engine.js` | Rechenkern + LV-Daten (automatisch erzeugt, nicht ändern) |
+| `python3 scripts/rechne.py eingabe.json [--out dir] [--lang fr] [--md-only] [--json-only]` | Berechnung → Markdown + JSON (für HTML-Tool) + Excel |
+| `python3 scripts/lv_suche.py <Begriff/Nummer> [--lang fr] [--max 50]` | LV-Positionen suchen (Nummer, Einheit, Preis, Text) |
+| `scripts/kve.py` | Rechenkern (Python-Portierung des HTML-Tools, rappengenau geprüft) |
+| `scripts/daten.json` | LV-Daten, Schachtauswahl, Texte, Vorgaben (automatisch erzeugt, nicht ändern) |
 
-Benötigt nur Node.js (keine Pakete). Beispiele: `beispiele/`.
+Benötigt nur Python 3 (Standardbibliothek). Beispiele: `beispiele/`.
+
+## Falls keine Code-Ausführung möglich ist
+
+Dann **keine Summen nennen**. Stattdessen die Angaben wie oben erfassen, die vollständige Eingabe als JSON-Codeblock ausgeben und erklären:
+«Datei als `.json` speichern und im HTML-Tool LV-Devis Tiefbau über **Laden** öffnen – das Tool rechnet die Kosten.»
+Das Eingabeformat oben lädt das HTML-Tool direkt, wenn zuoberst **`"v": 2`** steht (z. B. `{ "v": 2, "lang": "de", "kopf": {…}, "recs": {…} }`). Fehlende Reiter und Felder ergänzt das Tool beim Laden mit den Vorgaben.

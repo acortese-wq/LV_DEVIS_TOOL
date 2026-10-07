@@ -4,10 +4,18 @@ import fs from 'fs'; import path from 'path'; import { execSync } from 'child_pr
 const H = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), SK = path.join(H, 'skill/lv-devis-tiefbau');
 const rd = f => fs.readFileSync(path.join(H, 'src', f), 'utf8');
 
-// 1) Rechenkern-Bündel (identisch mit dem HTML-Tool)
-const parts = ['data/lv.js', 'schacht_data.js', 'i18n_kv.js', 'schacht_i18n.js', 'i18n_app.js', 'kve.js', 'model.js', 'xlsxw.js'];
-fs.writeFileSync(path.join(SK, 'scripts/engine.js'), '/* LV-Devis Tiefbau – Rechenkern (automatisch erzeugt aus src/, nicht von Hand ändern)\n   App-Konzept und Urheber: Alessandro Cortese */\n' +
-  parts.map(f => '/* ---- ' + f + ' ---- */\n' + rd(f)).join('\n') + '\n');
+// 1) Daten für den Python-Rechenkern (LV, Schachtauswahl, Texte, Vorgaben) – identisch mit dem HTML-Tool
+const vm = await import('vm');
+const C = { console, Math, JSON, TextEncoder, Uint8Array }; C.window = C; vm.createContext(C);
+['data/lv.js', 'schacht_data.js', 'i18n_kv.js', 'schacht_i18n.js', 'i18n_app.js', 'kve.js', 'model.js'].forEach(f => vm.runInContext(rd(f), C, { filename: f }));
+const daten = vm.runInContext(`(function () {
+  var TABS = KVE.TABS.concat(["hon"]), rec = function (lief) { var o = {}; TABS.forEach(function (t) { var r = LVM.newRec(t, 1, lief); r.name = r.name.replace(/ 1$/, ""); o[t] = r; }); return o; };
+  var T2 = {}; Object.keys(T).forEach(function (l) { T2[l] = {}; Object.keys(T[l]).forEach(function (k) { if (typeof T[l][k] === "string") T2[l][k] = T[l][k]; }); });
+  return JSON.stringify({ LV: LV, LV_FR: LV_FR, LV_IT: LV_IT, SP: SP, LOCS: LOCS, SIZES: SIZES, OPTS: OPTS, T: T2, PHDEF: LVM.PHDEF, HONF: LVM.HONF,
+    REC: { std: rec(false), lief: rec(true) }, DEFAULTS: LVM.defaults(TABS, "") });
+})()`, C);
+fs.writeFileSync(path.join(SK, 'scripts/daten.json'), daten);
+for (const f of ['scripts/engine.js', 'scripts/rechne.js', 'scripts/lv_suche.js']) { try { fs.unlinkSync(path.join(SK, f)); } catch (e) {} }
 
 // 2) Feldreferenz aus den Maskendefinitionen des HTML-Tools
 const { chromium } = await import(execSync('npm root -g').toString().trim() + '/playwright/index.mjs');

@@ -38,14 +38,15 @@ Nach Änderungen in `src/`: `python3 build.py`.
 
 ## Claude-Skill (für Claude-basierte KI-Plattformen)
 
-Ordner `skill/lv-devis-tiefbau/` – derselbe Rechenkern wie das HTML-Tool, als Agent/Skill nutzbar:
+Ordner `skill/lv-devis-tiefbau/` – Rechenkern des HTML-Tools als Python-Portierung (nur Standardbibliothek, keine Installation):
 
-- `SKILL.md` – Anleitung für die KI (Ablauf, Pflichtfragen je Reiter, Eingabeformat, Leitplanken)
-- `scripts/rechne.js` – rechnet eine Eingabe-JSON → Markdown, `LV-Devis_<SAP>.json` (im HTML-Tool über «Laden» öffnen) und Excel
-- `scripts/lv_suche.js` – LV-Positionen suchen (DE/FR/IT)
-- `scripts/engine.js`, `references/felder.md` – automatisch erzeugt, nicht von Hand ändern
+- `SKILL.md` – Anleitung für die KI (Ablauf, Pflichtfragen je Reiter, Eingabeformat, Leitplanken, Notfallweg ohne Code-Ausführung)
+- `scripts/rechne.py` – rechnet eine Eingabe-JSON → Markdown, `LV-Devis_<SAP>.json` (im HTML-Tool über «Laden» öffnen) und Excel
+- `scripts/lv_suche.py` – LV-Positionen suchen (DE/FR/IT)
+- `scripts/kve.py` – Rechenkern (1:1 zu `src/kve.js` und `src/model.js`; Änderungen dort hier nachführen)
+- `scripts/daten.json`, `references/felder.md` – automatisch erzeugt, nicht von Hand ändern
 - `beispiele/` – Eingabebeispiele DE und FR
 
 Neu erzeugen nach Änderungen in `src/`: `python3 build.py && node tools/build_skill.mjs`  
-Prüfen (Skill = HTML-Tool, Rappen-genau): `sh tests/skill_test.sh`  
+Prüfen: `sh tests/skill_test.sh` – Beispiele im HTML-Tool rappengenau, dazu 300 Zufallsprojekte Python gegen Original-Rechenkern, Position für Position  
 Zum Hochladen als ZIP: `cd skill && zip -r ../lv-devis-tiefbau-skill.zip lv-devis-tiefbau`

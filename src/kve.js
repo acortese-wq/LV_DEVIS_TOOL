@@ -375,6 +375,7 @@ var KVE = (function () {
       if (!(qty > 0)) return;
       var key = base + "." + sub;
       if (over) cx.off("erschTiefe", qty, unit || "m³", { T: T }, { rule: rd });
+      else if (!cx.LV[key]) cx.off("erschOhneLV", qty, unit || "m³", { k: key }, { rule: rd });   /* z. B. 151/234.201 fehlt im LV */
       else cx.add(key, qty, { rule: rd });
     };
     var klSub = { "5": "111", "6": "121", "7": "131" }[e.klasse];
