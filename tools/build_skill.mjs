@@ -14,7 +14,13 @@ const daten = vm.runInContext(`(function () {
   return JSON.stringify({ LV: LV, LV_FR: LV_FR, LV_IT: LV_IT, SP: SP, LOCS: LOCS, SIZES: SIZES, OPTS: OPTS, T: T2, PHDEF: LVM.PHDEF, HONF: LVM.HONF,
     REC: { std: rec(false), lief: rec(true) }, DEFAULTS: LVM.defaults(TABS, "") });
 })()`, C);
-fs.writeFileSync(path.join(SK, 'scripts/daten.json'), daten);
+{ /* in Teile < 150 KB, damit kein Werkzeug an Grössenlimits scheitert; werden nur vom Skript geladen */
+  const dd = JSON.parse(daten), dir = path.join(SK, 'scripts/daten'); fs.mkdirSync(dir, { recursive: true });
+  for (const f of fs.readdirSync(dir)) fs.unlinkSync(path.join(dir, f));
+  const parts = { lv_de: ['LV'], lv_fr: ['LV_FR'], lv_it: ['LV_IT'], texte: ['T'], basis: ['SP', 'LOCS', 'SIZES', 'OPTS', 'PHDEF', 'HONF', 'REC', 'DEFAULTS'] };
+  for (const [n, ks] of Object.entries(parts)) { const o = {}; ks.forEach(k => { o[k] = dd[k]; }); fs.writeFileSync(path.join(dir, n + '.json'), JSON.stringify(o)); }
+  try { fs.unlinkSync(path.join(SK, 'scripts/daten.json')); } catch (e) {}
+}
 for (const f of ['scripts/engine.js', 'scripts/rechne.js', 'scripts/lv_suche.js']) { try { fs.unlinkSync(path.join(SK, f)); } catch (e) {} }
 
 // 2) Feldreferenz aus den Maskendefinitionen des HTML-Tools

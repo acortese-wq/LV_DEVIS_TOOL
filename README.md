@@ -44,7 +44,7 @@ Ordner `skill/lv-devis-tiefbau/` – Rechenkern des HTML-Tools als Python-Portie
 - `scripts/rechne.py` – rechnet eine Eingabe-JSON → Markdown, `LV-Devis_<SAP>.json` (im HTML-Tool über «Laden» öffnen) und Excel
 - `scripts/lv_suche.py` – LV-Positionen suchen (DE/FR/IT)
 - `scripts/kve.py` – Rechenkern (1:1 zu `src/kve.js` und `src/model.js`; Änderungen dort hier nachführen)
-- `scripts/daten.json`, `references/felder.md` – automatisch erzeugt, nicht von Hand ändern
+- `scripts/daten/*.json` (in Teile < 150 KB aufgeteilt), `references/felder.md` – automatisch erzeugt, nicht von Hand ändern
 - `beispiele/` – Eingabebeispiele DE und FR
 
 Neu erzeugen nach Änderungen in `src/`: `python3 build.py && node tools/build_skill.mjs`  

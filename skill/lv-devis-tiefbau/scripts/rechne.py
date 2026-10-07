@@ -88,7 +88,7 @@ def tt(k):
 
 
 def fill(s, args):
-    return re.sub(r"\{(\w+)\}", lambda m: kve.jstr(args[m.group(1)]) if args and args.get(m.group(1)) is not None else m.group(0), str(s))
+    return re.sub(r"\{(\w+)\}", lambda m: kve.jstr(kve.r2(args[m.group(1)]) if isinstance(args[m.group(1)], float) else args[m.group(1)]) if args and args.get(m.group(1)) is not None else m.group(0), str(s))
 
 
 def is_pos(k):

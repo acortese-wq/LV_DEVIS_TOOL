@@ -7,6 +7,13 @@ description: Erstellt Kostenvoranschläge (Devis) für Swisscom-Tiefbau bei Bauk
 
 App-Konzept und Urheber: **Alessandro Cortese**. Dieser Skill verwendet denselben Rechenkern wie das HTML-Tool «LV-Devis Tiefbau»; Ergebnisse sind auf den Rappen identisch.
 
+## ⚠ Zuerst lesen: Rechnen = Skript ausführen
+
+- Kosten entstehen **nur durch Ausführen** von `python3 scripts/rechne.py eingabe.json` im Code-/Bash-Werkzeug. Das Skript lädt Preise und Rechenregeln selbst.
+- Die Dateien in `scripts/daten/` und `scripts/kve.py` **nie öffnen oder lesen** – sie sind nicht zum Lesen gedacht, und ihr Inhalt wird für die Rechnung nicht im Chat gebraucht. Ein Grössenlimit beim Lesen ist deshalb **kein** Grund, nicht zu rechnen.
+- **Selbsttest** bei Unsicherheit: `python3 scripts/rechne.py beispiele/beispiel_graben_schacht.json --md-only` → erwartet «Netto exkl. MWST 16'458.13». Klappt das, funktioniert der Skill.
+- Nur wenn **kein** Werkzeug zur Code-Ausführung vorhanden ist (Befehl lässt sich gar nicht starten), gilt der Abschnitt «Falls keine Code-Ausführung möglich ist» am Schluss.
+
 ## Grundregeln (immer einhalten)
 
 1. **Nie selbst rechnen oder Preise schätzen.** Mengen, Einheitspreise, Rabatt, Installationspauschale, MWST und Honorar kommen ausschliesslich aus `scripts/rechne.py`. Keine Preise aus dem Gedächtnis nennen – nachschlagen mit `scripts/lv_suche.py`. **Immer das Skript ausführen** – auch für eine schnelle Schätzung.
@@ -31,7 +38,7 @@ App-Konzept und Urheber: **Alessandro Cortese**. Dieser Skill verwendet denselbe
 |---|---|
 | `graben` | Länge `L`, Tiefe `T`, Breitenregel `bmode`, Handaushub-Anteil `hand` (eng bei Fremdleitungen), Direktverlad `direkt`, Rohrsystem (`k55`/`laengs`/`block`) mit DN und Anzahl Rohre, Bogen, Oberfläche `belag.mode` (`none`/`bit`/`humus`/`pflaster`) inkl. Belagsdicke `belag.d` (mm) und Belagslänge `Lb`, Fremdleitungskreuzungen, Erschwernisse |
 | `rohr` | Nur Rohre/Bogen/Muffen ohne Graben: Listen `rohre`, `schn`, `boe`, `muf` mit `typ` aus Katalog (siehe Feldreferenz) und Menge `q`; `verl` = auch verlegen |
-| `schacht` | `modus` (`neu`/`ersatz`/`deckel`), Einbauort `einbauort` (HLS, HVS, VS50, VS49, SS, ESS, GEH, WIES), Typ `typ` (KS80U … PLS3), Anzahl `n`, Deckelform/-system; Abdeckungen werden automatisch gewählt (liefern + versetzen) |
+| `schacht` | `modus` (`neu`/`ersatz`/`deckel`), Einbauort `einbauort` (HLS, HVS, VS50, VS49, SS, ESS, GEH, WIES), Typ `typ` (KS80U … PLS3), Anzahl `n`, Deckelform/-system; Abdeckungen werden automatisch gewählt (liefern + versetzen). **Umbau eines bestehenden Plattenschachts (PS) in KES = `typ` `PLS1`/`PLS2`/`PLS3`** (Pos. 151/623.001–003, innen 1.00 × 1.00 / 1.50 / 2.00 m, Abdeckung inbegriffen) mit `modus` `neu` – nicht `KES150`. Abbruch der alten Abdeckplatten 120 × 53 cm über `platten` (Anzahl). |
 | `werkloch` | Anzahl Standard-Werklöcher `ts`/`bo`/`sg`/`zs` oder individuelle Masse `iL`/`iB`/`iT`, Pumpenschächte `p0`–`p3`, Oberfläche |
 | `fund` | Fundament VK (`vk`) bzw. KVS (`kvs`), Oberfläche |
 | `geb` | Anzahl Hauseinführungen `n`, Wandstärke `cm`, Abdichtung `abd` |
@@ -76,8 +83,8 @@ Vollständige Felder, Optionen, Vorgaben und Bedingungen: **`references/felder.m
 |---|---|
 | `python3 scripts/rechne.py eingabe.json [--out dir] [--lang fr] [--md-only] [--json-only]` | Berechnung → Markdown + JSON (für HTML-Tool) + Excel |
 | `python3 scripts/lv_suche.py <Begriff/Nummer> [--lang fr] [--max 50]` | LV-Positionen suchen (Nummer, Einheit, Preis, Text) |
-| `scripts/kve.py` | Rechenkern (Python-Portierung des HTML-Tools, rappengenau geprüft) |
-| `scripts/daten.json` | LV-Daten, Schachtauswahl, Texte, Vorgaben (automatisch erzeugt, nicht ändern) |
+| `scripts/kve.py` | Rechenkern (Python-Portierung des HTML-Tools, rappengenau geprüft) – nicht lesen |
+| `scripts/daten/*.json` | LV-Daten, Schachtauswahl, Texte, Vorgaben (automatisch erzeugt) – nicht lesen, das Skript lädt sie |
 
 Benötigt nur Python 3 (Standardbibliothek). Beispiele: `beispiele/`.
 

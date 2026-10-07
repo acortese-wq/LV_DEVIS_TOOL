@@ -10,7 +10,9 @@ while i < len(a):
         opt[a[i][2:]] = a[i + 1]; i += 2
     else:
         q.append(a[i].lower()); i += 1
-D = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "daten.json"), encoding="utf8"))
+D = {}
+for n in ("lv_de", "lv_fr", "lv_it"):
+    D.update(json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "daten", n + ".json"), encoding="utf8")))
 LV = D["LV"]; M = D["LV_FR"] if opt["lang"] == "fr" else D["LV_IT"] if opt["lang"] == "it" else LV
 
 

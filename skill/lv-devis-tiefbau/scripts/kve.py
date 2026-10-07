@@ -1,6 +1,6 @@
 """LV-Devis Tiefbau – Rechenkern in Python (1:1-Portierung von src/kve.js und src/model.js).
 
-Nur Python-Standardbibliothek. Daten (LV, Schachtauswahl, Texte, Vorgaben) aus daten.json,
+Nur Python-Standardbibliothek. Daten (LV, Schachtauswahl, Texte, Vorgaben) aus scripts/daten/*.json,
 das automatisch aus dem HTML-Tool erzeugt wird. Ergebnisse sind rappengenau identisch mit
 dem HTML-Tool (geprüft mit tests/skill_parity.mjs).
 App-Konzept und Urheber: Alessandro Cortese
@@ -8,8 +8,10 @@ App-Konzept und Urheber: Alessandro Cortese
 import json, math, os, re
 
 _H = os.path.dirname(os.path.abspath(__file__))
-with open(os.path.join(_H, "daten.json"), encoding="utf8") as _f:
-    D = json.load(_f)
+D = {}
+for _n in ("lv_de", "lv_fr", "lv_it", "texte", "basis"):  # Daten werden nur hier geladen – nicht von Hand lesen
+    with open(os.path.join(_H, "daten", _n + ".json"), encoding="utf8") as _f:
+        D.update(json.load(_f))
 LV, LV_FR, LV_IT, SP, LOCS, SIZES, OPTS, T = D["LV"], D["LV_FR"], D["LV_IT"], D["SP"], D["LOCS"], D["SIZES"], D["OPTS"], D["T"]
 
 INF = float("inf")
