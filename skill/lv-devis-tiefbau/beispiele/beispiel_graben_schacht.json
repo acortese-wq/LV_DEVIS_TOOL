@@ -1,0 +1,17 @@
+{
+  "lang": "de",
+  "kopf": { "projekt": "FTTH Chur Masanserstrasse", "sap": "BK-4711", "ort": "Chur", "bearb": "A. Cortese" },
+  "be": { "pct": "3" },
+  "recs": {
+    "graben": [
+      { "name": "Graben Trottoir", "L": 45, "T": 0.8, "hand": "eng", "direkt": true,
+        "rohrSystem": "k55", "n": 2, "b90": 1,
+        "belag": { "mode": "bit", "d": "100", "einbau": "typN" }, "Lb": 45 }
+    ],
+    "schacht": [
+      { "name": "Schacht S1", "modus": "neu", "einbauort": "GEH", "typ": "KES150", "n": 1 }
+    ],
+    "geb": [ { "name": "Hauseinführung Nr. 12", "n": 1, "cm": 40, "abd": "hauff" } ],
+    "hon": [ { "name": "Projekt + Bauleitung", "src": "lv", "h": 140, "nk": 3 } ]
+  }
+}

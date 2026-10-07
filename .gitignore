@@ -2,3 +2,4 @@
 *.xlsx
 t.json
 __pycache__/
+*.zip

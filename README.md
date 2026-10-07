@@ -35,3 +35,17 @@ Nach Änderungen in `src/`: `python3 build.py`.
 - FR: LV FR TB Kopa 2026 (V1.0, 27.06.2026), 579 Positionstexte zugeordnet.
 - IT: LV IT TB Kopa 2026 (V1.0, 27.06.2026), 581 Positionstexte (`tools/lv_it_data.py`); Preise identisch mit DE V1.1.
 - Preisabweichung DE ↔ FR: 151/224.301 (108.95 ↔ 108.75); IT bestätigt 108.95.
+
+## Claude-Skill (für Claude-basierte KI-Plattformen)
+
+Ordner `skill/lv-devis-tiefbau/` – derselbe Rechenkern wie das HTML-Tool, als Agent/Skill nutzbar:
+
+- `SKILL.md` – Anleitung für die KI (Ablauf, Pflichtfragen je Reiter, Eingabeformat, Leitplanken)
+- `scripts/rechne.js` – rechnet eine Eingabe-JSON → Markdown, `LV-Devis_<SAP>.json` (im HTML-Tool über «Laden» öffnen) und Excel
+- `scripts/lv_suche.js` – LV-Positionen suchen (DE/FR/IT)
+- `scripts/engine.js`, `references/felder.md` – automatisch erzeugt, nicht von Hand ändern
+- `beispiele/` – Eingabebeispiele DE und FR
+
+Neu erzeugen nach Änderungen in `src/`: `python3 build.py && node tools/build_skill.mjs`  
+Prüfen (Skill = HTML-Tool, Rappen-genau): `sh tests/skill_test.sh`  
+Zum Hochladen als ZIP: `cd skill && zip -r ../lv-devis-tiefbau-skill.zip lv-devis-tiefbau`
