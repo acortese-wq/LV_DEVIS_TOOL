@@ -334,13 +334,19 @@ var KVE = (function () {
     cx.w("blockAnn", "info", {});
   }
 
-  function breite(cx, c) {
-    var T = num(c.T, 0.6), mode = c.bmode || "min60", a = num(c.aussen, 0), b;
+  /* Grabenbreite – einzige Quelle für Rechnung UND Grafik (VSE 1103d Ziff. 3.3.1, BauAV Art. 55) */
+  function grabenBreite(c) {
+    var mode = c.bmode || "min60", a = num(c.aussen, 0), b, fehlt = false;
     if (mode === "begangen") b = a + 0.40;
     else if (mode === "nicht_begangen") b = a + 0.10;
     else if (mode === "manuell") b = num(c.bman, 0.6);
     else b = 0.60;
-    if ((mode === "begangen" || mode === "nicht_begangen") && !(a > 0)) { cx.w("aussenFehlt", "amber", {}); b = 0.60; }
+    if ((mode === "begangen" || mode === "nicht_begangen") && !(a > 0)) { fehlt = true; b = 0.60; }
+    return { b: b, fehlt: fehlt, mode: mode, a: a };
+  }
+  function breite(cx, c) {
+    var T = num(c.T, 0.6), gb = grabenBreite(c), mode = gb.mode, b = gb.b;
+    if (gb.fehlt) cx.w("aussenFehlt", "amber", {});
     if (T > 1.0 && b < 0.60 - 1e-9) cx.w("breite60", "stop", { b: r2(b), T: T });
     if (mode !== "min60" && T > 1.0 && (mode === "begangen" || mode === "nicht_begangen")) cx.w("modusTiefe", "amber", { T: T });
     return b;
@@ -950,5 +956,5 @@ var KVE = (function () {
 
   return { calc: calc, calcRec: calcRec, sens: sens, r2: r2, num: num, STAFFEL: STAFFEL, SCHACHT: SCHACHT, MWST: MWST, HAND: HAND, ASPHALT_T: ASPHALT_T,
            COMPLETE: COMPLETE, LOC_INFO: LOC_INFO, TABS: TABS, ROH: ROH, BOE: BOE, MUF: MUF, VK: VK, KVS: KVS, PS_AUF: PS_AUF, ABSCHL: ABSCHL,
-           sizeOf: sizeOf, sysDefault: sysDefault, shapeOf: shapeOf };
+           sizeOf: sizeOf, sysDefault: sysDefault, shapeOf: shapeOf, grabenBreite: grabenBreite };
 })();

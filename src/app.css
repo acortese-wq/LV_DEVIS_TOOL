@@ -182,3 +182,5 @@ body.rules-on .rw.rule{display:block}
 .tile .tt,.tile .ts{overflow-wrap:anywhere;hyphens:auto}
 @media print{.tiles,.segs{display:none}}
 .tile .tst.none{background:var(--signal);color:#fff}
+input.req{border-color:var(--amber)!important;background:var(--amber-bg)!important}
+.hint.reqmsg{color:var(--amber);font-weight:600;margin-top:4px}

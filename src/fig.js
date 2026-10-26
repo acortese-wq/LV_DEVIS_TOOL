@@ -54,8 +54,8 @@ var FIG = (function () {
   }
   var F = {
     graben: function (r) {
-      var T0 = num(r.T, 0.6), mode = r.bmode || "min60", a = num(r.aussen, 0);
-      var B = mode === "begangen" ? a + 0.40 : mode === "nicht_begangen" ? a + 0.10 : mode === "manuell" ? num(r.bman, 0.6) : 0.60; if (!(B > 0)) B = 0.6;
+      var T0 = num(r.T, 0.6), GB = KVE.grabenBreite(r), B = GB.b;   /* gleiche Regel wie die Rechnung */
+      if (!(B > 0)) B = 0.6;
       var gy = 46, s = Math.min(180 / T0, 200 / B, 420), tw = B * s, th = T0 * s, x0 = 250 - tw / 2, sf = surf(r.belag);
       var o = '<rect x="20" y="' + gy + '" width="460" height="' + (th + 26) + '" fill="url(#pSo)" opacity=".5"/>', bd = band(20, gy, 460, sf, s); o += bd.o;
       var kies = r.verf && r.verf !== "aushub";
@@ -75,7 +75,7 @@ var FIG = (function () {
       if (r.gesp) o += '<path d="M' + (x0 + 2) + " " + gy + "V" + (gy + th) + "M" + (x0 + tw - 2) + " " + gy + "V" + (gy + th) + '" stroke="var(--copper)" stroke-width="4"/>';
       var hk = { normal: 0.10, eng: 0.30, sehr_eng: 0.50 }[r.hand] || 0.10;
       o += '<rect x="' + x0 + '" y="' + (gy + bd.h) + '" width="' + tw * hk + '" height="' + (th - bd.h) + '" fill="var(--navy)" opacity=".12"/>';
-      o += dimH(x0, x0 + tw, gy - 16, "b = " + fq(B) + " m") + dimV(x0 - 16, gy, gy + th, "T = " + fq(T0) + " m");
+      o += dimH(x0, x0 + tw, gy - 16, "b = " + fq(B) + " m" + (GB.fehlt ? " – " + tt("ux_aussenFig") : "")) + dimV(x0 - 16, gy, gy + th, "T = " + fq(T0) + " m");
       var L = [[sf.k === "bit" ? "var(--asph)" : sf.k === "wiese" ? "var(--grassL)" : sf.k === "pflaster" ? "var(--conc)" : "url(#pGr)", surfLabel(r.belag)],
         [ufill, block ? tt("o_rohrSystem_block") : tt("s_zone")], [kies ? "url(#pGr)" : "url(#pSo)", tt("f_verf") + ": " + tt("o_verf_" + (r.verf || "aushub"))],
         ["var(--pipe)", block ? tt("o_rohrSystem_block") : pipes.length + " × DN " + (pipes[0] || "")], ["var(--navy)", tt("f_hand") + ": " + tt("o_hand_" + (r.hand || "normal"))]];

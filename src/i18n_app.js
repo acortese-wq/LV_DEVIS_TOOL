@@ -3,6 +3,8 @@
   var L = ["de", "fr", "it", "en"];
   function A(o) { Object.keys(o).forEach(function (k) { L.forEach(function (l, i) { T[l][k] = o[k][i] != null ? o[k][i] : o[k][0]; }); }); }
   A({
+    ux_aussenFig: ["Aussenmass fehlt", "dimension extérieure manquante", "dimensione esterna mancante", "outer dimension missing"],
+    ux_aussenReq: ["Pflichtfeld bei dieser Breitenregel: Breite = Aussenmass + 0.40 m (begangen) bzw. + 0.10 m (nicht begangen). Ohne Angabe wird mit der Mindestbreite 0.60 m gerechnet.", "Champ obligatoire pour cette règle: largeur = dimension extérieure + 0.40 m (praticable) ou + 0.10 m (non praticable). Sans saisie, la largeur minimale de 0.60 m est utilisée.", "Campo obbligatorio per questa regola: larghezza = dimensione esterna + 0.40 m (praticabile) o + 0.10 m (non praticabile). Senza dato si calcola con la larghezza minima di 0.60 m.", "Required for this rule: width = outer dimension + 0.40 m (walk-in) or + 0.10 m (not walk-in). If empty, the minimum width of 0.60 m is used."],
     ux_t_ok: ["✓ Standard", "✓ Standard", "✓ Standard", "✓ Standard"],
     ux_t_amber: ["prüfen", "à vérifier", "da verificare", "check"],
     ux_t_stop: ["kein Standardmass", "hors dimension standard", "non dimensione standard", "not a standard size"],

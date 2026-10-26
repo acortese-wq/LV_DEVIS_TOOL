@@ -269,7 +269,15 @@
       hr.textContent = g[0] + " – " + g[1] + " m"; wrap.appendChild(hr); }
     return wrap;
   }
+  function aussenReq() {   /* Aussenmass ist bei «begangen / nicht begangen» Pflicht – sonst rechnet der Kern mit 0.60 m */
+    var el = document.getElementById("f_graben_aussen"); if (!el) return;
+    var m = document.getElementById("f_graben_aussen_req"), need = !(num(el.value, 0) > 0);
+    el.classList.toggle("req", need); el.setAttribute("aria-required", "true");
+    if (need && !m) { m = document.createElement("p"); m.className = "hint reqmsg"; m.id = "f_graben_aussen_req"; m.textContent = tt("ux_aussenReq"); el.insertAdjacentElement("afterend", m); }
+    if (!need && m) m.remove();
+  }
   function onChange(f, cfg) {
+    if (f.id === "aussen") aussenReq();
     if (f.id === "einbauort" && cfg) { var l = locOf(cfg); cfg.sys = l ? (l.round === "dsbeton" ? "beton" : l.round) : "nivo"; }
     if (f.id === "typ" && cfg && kindOf(cfg) === "KS") cfg.shape = "rund";
     if (f.id === "name") updateRecLabel();
@@ -548,6 +556,7 @@
     refreshFig(); if (S.tab === "hon") refreshHon();
     renderTabs();
     host.querySelectorAll("input[inputmode=decimal], input.numin").forEach(function (e) { if (window.numCheck) numCheck(e); });
+    aussenReq();
     var tc = $("#tabCur"); if (tc && tc.scrollIntoView && $("#tabs").scrollWidth > $("#tabs").clientWidth) tc.scrollIntoView({ block: "nearest", inline: "center" });
   }
   function parEl() {
