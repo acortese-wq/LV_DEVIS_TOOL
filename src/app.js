@@ -175,6 +175,55 @@
     return d[key] != null ? d[key] : (T.de[key] != null ? T.de[key] : v);
   }
 
+  /* ---------- Auswahlkacheln statt Dropdown ----------
+     "tile": wichtige Entscheidungen als Kacheln mit Kurztext; "seg": kurze Werte als Knopfreihe.
+     Technisch Optionsfelder (radio) – Tastatur (Pfeiltasten) und Screenreader wie gewohnt. */
+  var TILES = { modus: 1, einbauort: 1, typ: 1, shape: 1, sys: 1, deckelFormat2: 1, deckelSockel: 1, alt: 1, deckelRichtung: 1, deckelFormat: 1,
+    bmode: 1, aushubArt: 1, hand: 1, rohrSystem: 1, umhType: 1, umhMat: 1, verf: 1, einzug: 1, muffenMode: 1, "belag.mode": 1, "belag.einbau": 1, "belag.typ": 1, "belag.pak": 1,
+    "belag.trag": 1, "belag.deck": 1, "belag.deckArt": 1, "belag.humus.art": 1, "belag.pflaster.material": 1, "belag.pflaster.abbruchArt": 1, bk: 1, wi: 1, abd: 1, src: 1, indiv: 1,
+    "zores.zustand": 1, "kreuz.richtung": 1 };
+  function tileMode(id, opts) {
+    if (TILES[id]) return "tile";
+    if (opts.length <= 5 && opts.every(function (o) { return String(o[1]).length <= 14; })) return "seg";
+    return "";
+  }
+  function splitLab(s) {   /* «Titel (Zusatz)», «Titel · Zusatz», «A – Text», «X: Y» → [Titel, Zusatz] */
+    s = String(s); var m;
+    if ((m = s.match(/^(.*?)\s+·\s+(.*)$/))) return [m[1], m[2]];
+    if ((m = s.match(/^([^–]{1,4})\s+–\s+(.*)$/))) return [m[1], m[2]];
+    if ((m = s.match(/^(.*?)\s*\((.*)\)$/))) return [m[1], m[2]];
+    if ((m = s.match(/^(.{3,40}?):\s+(.*)$/))) return [m[1], m[2]];
+    return [s, ""];
+  }
+  function typStatus(cfg, typ) {   /* wie Bewertung der Schachtauswahl: ok / amber / stop für den gewählten Einbauort */
+    var loc = locOf(cfg), S0 = KVE.SCHACHT[typ]; if (!loc || !S0 || cfg.modus === "deckel") return "";
+    var shaft = S0.kind === "KS" ? "KS" : S0.kind, sz = KVE.sizeOf ? KVE.sizeOf(typ) : null, lv = "ok";
+    var up = function (l) { var o = { ok: 0, amber: 1, stop: 2 }; if (o[l] > o[lv]) lv = l; };
+    if (cfg.modus === "ersatz") { if (shaft === "PLS") up("amber"); return lv; }
+    if (loc.shafts === "none") return "none";
+    if (loc.shafts === "avoid" && (shaft === "ES" || shaft === "KES")) up("amber");
+    var st = sz ? sz.std[loc.group] : "stop"; if (st === "stop") up("stop"); else if (st === "amber") up("amber");
+    if (shaft === "KS" && loc.group === "fast") return "none";
+    return lv;
+  }
+  function tilesEl(wrap, lab, idn, f, cfg, opts, val, mode) {
+    wrap.classList.add(mode === "tile" ? "tilefield" : "segfield");
+    var leg = document.createElement("span"); leg.className = "lab"; leg.id = idn + "_l"; leg.textContent = lab.textContent; wrap.appendChild(leg);
+    var g = document.createElement("div"); g.className = mode === "tile" ? "tiles" : "segs"; g.setAttribute("role", "radiogroup"); g.setAttribute("aria-labelledby", leg.id);
+    opts.forEach(function (o, i) {
+      var l = document.createElement("label"), r = document.createElement("input"), on = String(o[0]) === val;
+      r.type = "radio"; r.name = idn; r.value = o[0]; r.checked = on; if (i === 0) r.id = idn;
+      l.className = (mode === "tile" ? "tile" : "seg") + (on ? " on" : "");
+      l.appendChild(r);
+      var p = mode === "tile" ? splitLab(o[1]) : [o[1], ""], tt1 = document.createElement("span"); tt1.className = "tt"; tt1.textContent = p[0]; l.appendChild(tt1);
+      if (p[1]) { var ts = document.createElement("span"); ts.className = "ts"; ts.textContent = p[1]; l.appendChild(ts); }
+      if (f.id === "typ") { var s = typStatus(cfg, o[0]); if (s) { var b = document.createElement("span"); b.className = "tst " + s; b.textContent = tt("ux_t_" + s); l.appendChild(b); } }
+      r.addEventListener("change", function () { if (!r.checked) return; g.querySelectorAll("label").forEach(function (x) { x.classList.toggle("on", x.contains(r)); }); setv(cfg, f.id, o[0]); onChange(f, cfg); });
+      g.appendChild(l);
+    });
+    wrap.appendChild(g);
+  }
+
   /* ---------- Formular ---------- */
   function fieldEl(cfg, f) {
     var wrap = document.createElement("div"); wrap.className = "field" + (f.half ? " half" : "");
@@ -200,9 +249,13 @@
       if (f.t === "cover") { opts.push(["", tt("o_none")]); COVERS.forEach(function (k) { opts.push([k, k.replace("151/", "") + "  " + lvT(k).slice(0, 90) + "  (" + chf(LV[k].ep) + ")"]); }); }
       else { var ol = typeof f.opts === "function" ? f.opts(cfg) : f.opts; ol.forEach(function (v) { opts.push([v, optLabel(f.id, v)]); }); }
       opts.forEach(function (o) { var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; if (String(val) === o[0]) op.selected = true; ctl.appendChild(op); });
-      if (!opts.some(function (o) { return String(val) === o[0]; }) && opts.length) setv(cfg, f.id, opts[0][0]);
-      ctl.addEventListener("change", function () { setv(cfg, f.id, ctl.value); onChange(f, cfg); });
-      wrap.appendChild(lab); wrap.appendChild(ctl);
+      if (!opts.some(function (o) { return String(val) === o[0]; }) && opts.length) { setv(cfg, f.id, opts[0][0]); val = opts[0][0]; }
+      var tm = f.t === "sel" ? tileMode(f.id, opts) : "";
+      if (tm) { tilesEl(wrap, lab, idn, f, cfg, opts, String(val), tm); }
+      else {
+        ctl.addEventListener("change", function () { setv(cfg, f.id, ctl.value); onChange(f, cfg); });
+        wrap.appendChild(lab); wrap.appendChild(ctl);
+      }
     } else {
       ctl = document.createElement("input"); ctl.type = "text"; ctl.id = idn; ctl.value = val == null ? "" : val;
       if (f.t === "num") { ctl.setAttribute("inputmode", "decimal"); ctl.className = "numin"; }
@@ -294,7 +347,7 @@
       var d = document.createElement("div"); d.className = "field half";
       var l = document.createElement("label"); l.textContent = (o.n[S.lang] || o.n.de); l.title = o.npk + "/" + o.pos;
       var sm = document.createElement("span"); sm.className = "ctx"; sm.textContent = o.npk + "/" + o.pos + " · " + chf(o.ep) + " / " + o.unit;
-      var i = document.createElement("input"); i.type = "text"; i.inputMode = "decimal"; i.value = (cfg.opts || {})[o.id] || ""; i.className = "numin";
+      var i = document.createElement("input"); i.type = "text"; i.inputMode = "decimal"; i.value = (cfg.opts || {})[o.id] || ""; i.className = "numin"; i.id = "opt_" + o.id; l.htmlFor = i.id;
       i.addEventListener("input", function () { cfg.opts = cfg.opts || {}; cfg.opts[o.id] = i.value; save(); scheduleResult(); });
       d.appendChild(l); d.appendChild(sm); d.appendChild(i); wrap.appendChild(d);
     });
@@ -551,7 +604,7 @@
     var rows = (g.rows || []).filter(function (rw) { return SP[rw[0]]; });
     if (rows.length) {
       var kg = 0, spare = num(c.spare, 0);
-      h += "<h5>" + esc(ts.hStueck) + '</h5><table class="stk"><thead><tr><th>' + esc(ts.thArt) + "</th><th>" + esc(ts.thBez) + '</th><th class="num">' + esc(ts.thStk) + '</th><th class="num">' + esc(ts.thTot) + '</th><th class="num">' + esc(ts.thKg) + '</th><th class="no-print">HGC</th></tr></thead><tbody>';
+      h += '<h4 class="h5">' + esc(ts.hStueck) + '</h4><table class="stk"><thead><tr><th>' + esc(ts.thArt) + "</th><th>" + esc(ts.thBez) + '</th><th class="num">' + esc(ts.thStk) + '</th><th class="num">' + esc(ts.thTot) + '</th><th class="num">' + esc(ts.thKg) + '</th><th class="no-print">HGC</th></tr></thead><tbody>';
       rows.forEach(function (rw) { var p = SP[rw[0]], tot = rw[0] === "137.787.8" ? spare : rw[1] * g.n, w = p.kg != null ? p.kg * tot : null; if (w) kg += w;
         h += '<tr><td class="art">' + esc(rw[0]) + "</td><td>" + esc(p.n[S.lang] || p.n.de) + (g.incl && !g.ersatz ? '<div class="rw">' + esc(ts.kIncl) + "</div>" : "") + '</td><td class="num">' + (rw[0] === "137.787.8" ? "—" : rw[1]) + '</td><td class="num">' + tot + '</td><td class="num">' + (w != null ? qf(w) + " kg" : "—") + '</td><td class="no-print"><a class="hgc" href="' + esc(hgcLink(rw[0])) + '" target="_blank" rel="noopener">' + esc(ts.hgcOpen) + "</a></td></tr>"; });
       h += '</tbody><tfoot><tr><td colspan="4">' + esc(ts.sumWeight) + '</td><td class="num">' + qf(kg) + ' kg</td><td class="no-print"></td></tr></tfoot></table>';
@@ -559,7 +612,7 @@
       h += '<p class="note">' + esc(ts.noteWeights) + "</p>";
     }
     if (g.mass && g.mass.length) {
-      h += "<h5>" + esc(ts.hMassen) + '</h5><table class="stk"><thead><tr><th>' + esc(ts.thPos) + '</th><th>' + esc(ts.thUnit) + '</th><th class="num">' + esc(ts.thPer) + '</th><th class="num">' + esc(ts.thTot2) + "</th></tr></thead><tbody>" +
+      h += '<h4 class="h5">' + esc(ts.hMassen) + '</h4><table class="stk"><thead><tr><th>' + esc(ts.thPos) + '</th><th>' + esc(ts.thUnit) + '</th><th class="num">' + esc(ts.thPer) + '</th><th class="num">' + esc(ts.thTot2) + "</th></tr></thead><tbody>" +
         g.mass.map(function (m) { return "<tr><td>" + esc(ts[m[0]] || m[0]) + "</td><td>" + esc(m[1]) + '</td><td class="num">' + qf(m[3]) + '</td><td class="num">' + qf(r2(m[2])) + "</td></tr>"; }).join("") + '</tbody></table><p class="note">' + esc(ts.noteMass) + "</p>";
     }
     if (lv === "stop" || lv === "amber" || c.deviate) {
@@ -569,7 +622,7 @@
       var figs = [];
       if (!g.ersatz && SIMG["PLAN_" + g.shaft]) figs.push(["PLAN_" + g.shaft, ts.planLabel + " " + SHAFTS[g.shaft].plan, SHAFTS[g.shaft].n[S.lang] || SHAFTS[g.shaft].n.de]);
       rows.forEach(function (rw) { if (SIMG[rw[0]]) figs.push([rw[0], rw[0], (SP[rw[0]].n[S.lang] || SP[rw[0]].n.de).split(",")[0]]); });
-      if (figs.length) h += "<h5>" + esc(ts.hFigs) + '</h5><div class="figs">' + figs.map(function (f) { return '<figure><img src="' + SIMG[f[0]] + '" alt="' + esc(f[1]) + '" loading="lazy" data-lb="' + esc(f[0]) + '"><figcaption><b>' + esc(f[1]) + "</b> · " + esc(f[2]) + "</figcaption></figure>"; }).join("") + "</div>";
+      if (figs.length) h += '<h4 class="h5">' + esc(ts.hFigs) + '</h4><div class="figs">' + figs.map(function (f) { return '<figure><img src="' + SIMG[f[0]] + '" alt="' + esc(f[1]) + '" loading="lazy" data-lb="' + esc(f[0]) + '"><figcaption><b>' + esc(f[1]) + "</b> · " + esc(f[2]) + "</figcaption></figure>"; }).join("") + "</div>";
     }
     return h;
   }

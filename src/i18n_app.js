@@ -3,6 +3,10 @@
   var L = ["de", "fr", "it", "en"];
   function A(o) { Object.keys(o).forEach(function (k) { L.forEach(function (l, i) { T[l][k] = o[k][i] != null ? o[k][i] : o[k][0]; }); }); }
   A({
+    ux_t_ok: ["✓ Standard", "✓ Standard", "✓ Standard", "✓ Standard"],
+    ux_t_amber: ["prüfen", "à vérifier", "da verificare", "check"],
+    ux_t_stop: ["kein Standardmass", "hors dimension standard", "non dimensione standard", "not a standard size"],
+    ux_t_none: ["nicht zulässig", "non admis", "non ammesso", "not allowed"],
     ux_rules: ["Rechenweg anzeigen", "Afficher le calcul", "Mostra il calcolo", "Show calculation"],
     ux_kopf: ["Projektangaben", "Données du projet", "Dati del progetto", "Project details"],
     ux_kopfLeer: ["noch nicht erfasst", "pas encore saisi", "non ancora inserito", "not yet entered"],
