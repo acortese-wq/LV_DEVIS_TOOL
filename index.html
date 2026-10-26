@@ -791,6 +791,7 @@ body.rules-on .rw.rule{display:block}
 .tile .tst.none{background:var(--signal);color:#fff}
 input.req{border-color:var(--amber)!important;background:var(--amber-bg)!important}
 .hint.reqmsg{color:var(--amber);font-weight:600;margin-top:4px}
+svg text.warnTx{fill:var(--signal)!important}
 
 </style>
 </head>
@@ -2223,6 +2224,13 @@ Object.assign(TS.it,{
   var L = ["de", "fr", "it", "en"];
   function A(o) { Object.keys(o).forEach(function (k) { L.forEach(function (l, i) { T[l][k] = o[k][i] != null ? o[k][i] : o[k][0]; }); }); }
   A({
+    ux_blk_title: ["Querschnitt Rohrblock (schematisch)", "Coupe du bloc de tubes (schématique)", "Sezione blocco tubi (schematica)", "Conduit bank cross-section (schematic)"],
+    ux_blk_lv: ["im LV", "dans le LV", "nel LV", "in LV"],
+    ux_blk_offen: ["OFFEN – nicht im LV", "OUVERTE – hors LV", "APERTA – non nel LV", "OPEN – not in LV"],
+    ux_blk_req: ["Platzbedarf Rohre inkl. 4–5 cm Beton", "Encombrement tubes incl. 4–5 cm de béton", "Ingombro tubi incl. 4–5 cm di calcestruzzo", "Space for conduits incl. 4–5 cm concrete"],
+    ux_blk_klein: ["Aussenmass zu klein?", "dimension extérieure trop petite ?", "dimensione esterna troppo piccola?", "outer dimension too small?"],
+    ux_rohr_title: ["Rohranlage – erfasste Mengen", "Installation de tubes – quantités saisies", "Impianto tubi – quantità inserite", "Conduit system – entered quantities"],
+    ux_rohr_nurLief: ["nur Lieferung", "fourniture seule", "solo fornitura", "supply only"],
     ux_aussenFig: ["Aussenmass fehlt", "dimension extérieure manquante", "dimensione esterna mancante", "outer dimension missing"],
     ux_aussenReq: ["Pflichtfeld bei dieser Breitenregel: Breite = Aussenmass + 0.40 m (begangen) bzw. + 0.10 m (nicht begangen). Ohne Angabe wird mit der Mindestbreite 0.60 m gerechnet.", "Champ obligatoire pour cette règle: largeur = dimension extérieure + 0.40 m (praticable) ou + 0.10 m (non praticable). Sans saisie, la largeur minimale de 0.60 m est utilisée.", "Campo obbligatorio per questa regola: larghezza = dimensione esterna + 0.40 m (praticabile) o + 0.10 m (non praticabile). Senza dato si calcola con la larghezza minima di 0.60 m.", "Required for this rule: width = outer dimension + 0.40 m (walk-in) or + 0.10 m (not walk-in). If empty, the minimum width of 0.60 m is used."],
     ux_t_ok: ["✓ Standard", "✓ Standard", "✓ Standard", "✓ Standard"],
@@ -3714,6 +3722,59 @@ var FIG = (function () {
     }
     return svg(640, 126, o, "Typ " + typ);
   }
+  /* Querschnitt Rohrblock: Teilblöcke nebeneinander, Rohre je Lage; Platzbedarf vs. erfasstes Aussenmass (schematisch) */
+  var OD = function (dn) { return (dn * 1.15 + 5) / 1000; };   /* Aussendurchmesser ≈ DN × 1.15 + 5 mm */
+  function blockDetail(r) {
+    var parts = (r.bloecke || []).map(function (bl) {
+      var dn = num(bl.dn, 55), n = Math.max(1, Math.min(num(bl.n, 1), 24)), lg = String(bl.lagen || "1");
+      var rows = lg === "1" ? 1 : lg === "2" ? Math.min(2, n) : Math.min(n, Math.max(3, Math.ceil(n / 3))), cols = Math.ceil(n / rows), d = OD(dn), c = 0.04;
+      var inLV = (dn === 55 && n <= 3) || (dn === 100 && n <= 4);
+      return { dn: dn, n: n, rows: rows, cols: cols, d: d, w: cols * d + (cols - 1) * c, h: rows * d + (rows - 1) * c, lv: inLV, lg: lg };
+    });
+    if (!parts.length) return "";
+    var e = 0.05, c = 0.04, reqW = 2 * e + parts.reduce(function (s, p) { return s + p.w; }, 0) + (parts.length - 1) * c, reqH = 2 * e + Math.max.apply(null, parts.map(function (p) { return p.h; }));
+    var bw = num((r.block || {}).breite, 0), bh = num((r.block || {}).hoehe, 0), has = bw > 0 && bh > 0, W = has ? bw : reqW, H = has ? bh : reqH;
+    var s = Math.min(380 / Math.max(W, reqW), 170 / Math.max(H, reqH)), x0 = 60, y0 = 40, o = "";
+    o += '<rect x="' + x0 + '" y="' + y0 + '" width="' + W * s + '" height="' + H * s + '" fill="url(#pCo)" stroke="var(--ink)" stroke-width="1.4"' + (has ? "" : ' stroke-dasharray="6 4"') + "/>";
+    if (has && (reqW > bw + 0.005 || reqH > bh + 0.005)) o += '<rect x="' + x0 + '" y="' + y0 + '" width="' + reqW * s + '" height="' + reqH * s + '" fill="none" stroke="var(--signal)" stroke-width="1.2" stroke-dasharray="4 3"/>';
+    var gx = x0 + e * s, top = y0 + e * s;
+    parts.forEach(function (p) {
+      for (var i = 0; i < p.n; i++) { var row = Math.floor(i / p.cols), col = i % p.cols, rr = p.d / 2 * s;
+        var cx = gx + (col * (p.d + c) + p.d / 2) * s, cy = top + (row * (p.d + c) + p.d / 2) * s;
+        o += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rr + '" fill="' + (p.dn >= 100 ? "var(--pipe2)" : "var(--pipe)") + '" stroke="var(--ink)" stroke-width=".8"/><circle cx="' + cx + '" cy="' + cy + '" r="' + rr * 0.62 + '" fill="var(--figbg)"/>'; }
+      o += tx(gx + p.w * s / 2, y0 + Math.max(H, reqH) * s + 16, p.n + " × DN " + p.dn, "sm", "middle");
+      gx += (p.w + c) * s;
+    });
+    o += dimH(x0, x0 + W * s, y0 - 12, "b = " + (has ? fq(bw) + " m" : "? (" + tt("ux_aussenFig") + ")")) + dimV(x0 - 14, y0, y0 + H * s, "h = " + (has ? fq(bh) + " m" : "?"));
+    var L = parts.map(function (p) { return [p.dn >= 100 ? "var(--pipe2)" : "var(--pipe)", p.n + " × DN " + p.dn + " · " + tt("o_lagen_" + p.lg) + " · " + (p.lv ? tt("ux_blk_lv") : tt("ux_blk_offen"))]; });
+    var note = tt("ux_blk_req") + " ≈ " + fq(Math.round(reqW * 100) / 100) + " × " + fq(Math.round(reqH * 100) / 100) + " m" + (has && (reqW > bw + 0.005 || reqH > bh + 0.005) ? " – " + tt("ux_blk_klein") : "");
+    var hh = Math.max(y0 + Math.max(H, reqH) * s + 40, 70 + L.length * 24);
+    return svg(760, hh + 22, o + tx(500, 30, tt("ux_blk_title"), "sl sb") + leg(500, 44, L) + tx(x0, hh + 8, note, has && (reqW > bw + 0.005 || reqH > bh + 0.005) ? "sl sb warnTx" : "sm"), tt("ux_blk_title"));
+  }
+  /* Rohranlage (Reiter Rohr): erfasste Rohre als Rohrzug, Formstücke und Zubehör mit Mengen */
+  function rohrPlan(r) {
+    var rows = (r.rohre || []).filter(function (x) { return num(x.q, 0) > 0 && x.typ; });
+    var sumQ = function (l) { return (l || []).reduce(function (s, x) { return s + (x.typ ? num(x.q, 0) : 0); }, 0); };
+    var nB = sumQ(r.boe), nM = sumQ(r.muf), nS = sumQ(r.schn);
+    if (!rows.length && !nB && !nM && !nS && !num(r.warn) && !num(r.erd) && !num(r.schnur) && !num(r.kal)) return "";
+    var o = "", y = 46, maxQ = Math.max.apply(null, rows.map(function (x) { return num(x.q, 0); }).concat([1]));
+    o += tx(20, 24, tt("ux_rohr_title") + (r.verl ? "" : " – " + tt("ux_rohr_nurLief")), "sl sb");
+    rows.slice(0, 6).forEach(function (x) {
+      var dn = num((String(x.typ).match(/K\D*(\d+)/) || [])[1], 55), w = 60 + 300 * num(x.q, 0) / maxQ, hgt = dn >= 100 ? 16 : 11;
+      o += '<rect x="20" y="' + (y - hgt / 2) + '" width="' + w + '" height="' + hgt + '" rx="' + hgt / 2 + '" fill="' + (dn >= 100 ? "var(--pipe2)" : "var(--pipe)") + '" stroke="var(--ink)" stroke-width=".8"/>';
+      o += tx(w + 30, y + 4, x.typ + " · " + fq(num(x.q)) + " m", "sl");
+      y += 28;
+    });
+    if (rows.length > 6) { o += tx(20, y, "+ " + (rows.length - 6) + " …", "sm"); y += 20; }
+    var ic = function (x, sym, n, l) { return '<g transform="translate(' + x + ' ' + (y + 6) + ')">' + sym + "</g>" + tx(x + 24, y + 58, "× " + fq(n), "sl sb", "middle") + tx(x + 24, y + 74, l, "sm", "middle"); };
+    var muf = '<rect x="0" y="16" width="16" height="12" fill="var(--pipe)" stroke="var(--ink)"/><rect x="32" y="16" width="16" height="12" fill="var(--pipe)" stroke="var(--ink)"/><rect x="12" y="12" width="24" height="20" rx="3" fill="var(--pipe2)" stroke="var(--ink)"/>';
+    var boe = '<path d="M2 36h14a22 22 0 0 0 22 -22v-12" fill="none" stroke="var(--pipe)" stroke-width="10"/>';
+    var cut = '<rect x="2" y="16" width="44" height="12" fill="var(--pipe)" stroke="var(--ink)"/><path d="M24 6v32" stroke="var(--signal)" stroke-width="2" stroke-dasharray="3 2"/>';
+    o += ic(20, muf, nM, lab("l_muf")) + ic(150, boe, nB, lab("l_boe")) + ic(280, cut, nS, lab("l_schn"));
+    var acc = [["f_warn", num(r.warn), "var(--cut)"], ["f_erd", num(r.erd), "var(--copper)"], ["f_schnur", num(r.schnur), "var(--ink)"], ["f_kal", num(r.kal), "var(--navy)"]];
+    acc.forEach(function (a, i) { var yy = 46 + i * 30; o += '<path d="M500 ' + yy + 'h70" stroke="' + a[2] + '" stroke-width="' + (i === 2 ? 1.5 : 4) + '"' + (a[1] > 0 ? "" : ' opacity=".25"') + "/>" + tx(580, yy + 4, lab(a[0]) + ": " + (a[1] > 0 ? fq(a[1]) + " m" : "—"), a[1] > 0 ? "sl" : "sm"); });
+    return svg(760, Math.max(y + 86, 170), o, tt("ux_rohr_title"));
+  }
   var F = {
     graben: function (r) {
       var T0 = num(r.T, 0.6), GB = KVE.grabenBreite(r), B = GB.b;   /* gleiche Regel wie die Rechnung */
@@ -3742,9 +3803,10 @@ var FIG = (function () {
         [ufill, block ? tt("o_rohrSystem_block") : tt("s_zone")], [kies ? "url(#pGr)" : "url(#pSo)", tt("f_verf") + ": " + tt("o_verf_" + (r.verf || "aushub"))],
         ["var(--pipe)", block ? tt("o_rohrSystem_block") : pipes.length + " × DN " + (pipes[0] || "")], ["var(--navy)", tt("f_hand") + ": " + tt("o_hand_" + (r.hand || "normal"))]];
       if (r.gesp) L.push(["var(--copper)", tt("f_gesp")]);
-      return svg(760, Math.max(gy + th + 36, 190), o + leg(500, 40, L) + tx(500, Math.max(gy + th + 30, 180), "L = " + fq(num(r.L)) + " m", "sl sb"), tt("ht_graben"));
+      return svg(760, Math.max(gy + th + 36, 190), o + leg(500, 40, L) + tx(500, Math.max(gy + th + 30, 180), "L = " + fq(num(r.L)) + " m", "sl sb"), tt("ht_graben")) + (block ? blockDetail(r) : "");
     },
-    rohr: function () {
+    rohr: function (r) {
+      var plan = rohrPlan(r); if (plan) return plan;   /* ohne Eingaben: Übersicht der Bauteile */
       var o = "", lb = function (x, s) { return tx(x, 150, s, "sl", "middle"); };
       o += '<rect x="10" y="60" width="60" height="18" fill="var(--pipe)" stroke="var(--ink)"/><rect x="80" y="60" width="60" height="18" fill="var(--pipe)" stroke="var(--ink)"/><rect x="58" y="55" width="34" height="28" rx="3" fill="var(--pipe2)" stroke="var(--ink)"/>' + lb(75, lab("l_muf"));
       o += '<path d="M170 110h40a60 60 0 0 0 60 -60v-30" fill="none" stroke="var(--pipe)" stroke-width="16"/><path d="M210 110a60 60 0 0 0 60 -60" fill="none" stroke="var(--ink)" stroke-dasharray="3 3"/>' + tx(236, 86, "R", "sl sb") + lb(225, "90° / R");
@@ -4122,9 +4184,9 @@ var FIG = (function () {
       var r = document.createElement("div"); r.className = "subrow";
       var s = document.createElement("select"); s.style.flex = "1"; s.setAttribute("aria-label", tt(labKey));
       [["", tt("sel")]].concat(Object.keys(cat).map(function (k) { return [k, k + (cat[k].l ? "" : " ⚠")]; })).forEach(function (o) { var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; if (row.typ === o[0]) op.selected = true; s.appendChild(op); });
-      s.addEventListener("change", function () { row.typ = s.value; save(); scheduleResult(); });
+      s.addEventListener("change", function () { row.typ = s.value; save(); refreshFig(); scheduleResult(); });
       var q = document.createElement("input"); q.type = "text"; q.inputMode = "decimal"; q.value = row.q; q.style.width = "70px"; q.setAttribute("aria-label", unit);
-      q.addEventListener("input", function () { row.q = q.value; save(); scheduleResult(); });
+      q.addEventListener("input", function () { row.q = q.value; save(); refreshFig(); scheduleResult(); });
       var del = document.createElement("button"); del.type = "button"; del.className = "x"; del.textContent = "×"; del.setAttribute("aria-label", tt("del"));
       del.onclick = function () { cfg[key].splice(i, 1); save(); renderForm(); scheduleResult(); };
       r.appendChild(s); r.appendChild(q); r.appendChild(del); wrap.appendChild(r);

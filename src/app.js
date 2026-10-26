@@ -295,9 +295,9 @@
       var r = document.createElement("div"); r.className = "subrow";
       var s = document.createElement("select"); s.style.flex = "1"; s.setAttribute("aria-label", tt(labKey));
       [["", tt("sel")]].concat(Object.keys(cat).map(function (k) { return [k, k + (cat[k].l ? "" : " ⚠")]; })).forEach(function (o) { var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; if (row.typ === o[0]) op.selected = true; s.appendChild(op); });
-      s.addEventListener("change", function () { row.typ = s.value; save(); scheduleResult(); });
+      s.addEventListener("change", function () { row.typ = s.value; save(); refreshFig(); scheduleResult(); });
       var q = document.createElement("input"); q.type = "text"; q.inputMode = "decimal"; q.value = row.q; q.style.width = "70px"; q.setAttribute("aria-label", unit);
-      q.addEventListener("input", function () { row.q = q.value; save(); scheduleResult(); });
+      q.addEventListener("input", function () { row.q = q.value; save(); refreshFig(); scheduleResult(); });
       var del = document.createElement("button"); del.type = "button"; del.className = "x"; del.textContent = "×"; del.setAttribute("aria-label", tt("del"));
       del.onclick = function () { cfg[key].splice(i, 1); save(); renderForm(); scheduleResult(); };
       r.appendChild(s); r.appendChild(q); r.appendChild(del); wrap.appendChild(r);

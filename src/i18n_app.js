@@ -3,6 +3,13 @@
   var L = ["de", "fr", "it", "en"];
   function A(o) { Object.keys(o).forEach(function (k) { L.forEach(function (l, i) { T[l][k] = o[k][i] != null ? o[k][i] : o[k][0]; }); }); }
   A({
+    ux_blk_title: ["Querschnitt Rohrblock (schematisch)", "Coupe du bloc de tubes (schématique)", "Sezione blocco tubi (schematica)", "Conduit bank cross-section (schematic)"],
+    ux_blk_lv: ["im LV", "dans le LV", "nel LV", "in LV"],
+    ux_blk_offen: ["OFFEN – nicht im LV", "OUVERTE – hors LV", "APERTA – non nel LV", "OPEN – not in LV"],
+    ux_blk_req: ["Platzbedarf Rohre inkl. 4–5 cm Beton", "Encombrement tubes incl. 4–5 cm de béton", "Ingombro tubi incl. 4–5 cm di calcestruzzo", "Space for conduits incl. 4–5 cm concrete"],
+    ux_blk_klein: ["Aussenmass zu klein?", "dimension extérieure trop petite ?", "dimensione esterna troppo piccola?", "outer dimension too small?"],
+    ux_rohr_title: ["Rohranlage – erfasste Mengen", "Installation de tubes – quantités saisies", "Impianto tubi – quantità inserite", "Conduit system – entered quantities"],
+    ux_rohr_nurLief: ["nur Lieferung", "fourniture seule", "solo fornitura", "supply only"],
     ux_aussenFig: ["Aussenmass fehlt", "dimension extérieure manquante", "dimensione esterna mancante", "outer dimension missing"],
     ux_aussenReq: ["Pflichtfeld bei dieser Breitenregel: Breite = Aussenmass + 0.40 m (begangen) bzw. + 0.10 m (nicht begangen). Ohne Angabe wird mit der Mindestbreite 0.60 m gerechnet.", "Champ obligatoire pour cette règle: largeur = dimension extérieure + 0.40 m (praticable) ou + 0.10 m (non praticable). Sans saisie, la largeur minimale de 0.60 m est utilisée.", "Campo obbligatorio per questa regola: larghezza = dimensione esterna + 0.40 m (praticabile) o + 0.10 m (non praticabile). Senza dato si calcola con la larghezza minima di 0.60 m.", "Required for this rule: width = outer dimension + 0.40 m (walk-in) or + 0.10 m (not walk-in). If empty, the minimum width of 0.60 m is used."],
     ux_t_ok: ["✓ Standard", "✓ Standard", "✓ Standard", "✓ Standard"],

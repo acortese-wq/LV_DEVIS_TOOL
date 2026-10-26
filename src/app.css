@@ -184,3 +184,4 @@ body.rules-on .rw.rule{display:block}
 .tile .tst.none{background:var(--signal);color:#fff}
 input.req{border-color:var(--amber)!important;background:var(--amber-bg)!important}
 .hint.reqmsg{color:var(--amber);font-weight:600;margin-top:4px}
+svg text.warnTx{fill:var(--signal)!important}
