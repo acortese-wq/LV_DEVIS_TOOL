@@ -365,6 +365,25 @@ var KVE = (function () {
     var Ab = b * hZ, Ap = n * Math.PI * d * d / 4, A = Math.max(0, Ab - Ap);
     return { auto: true, A: A, Ab: Ab, Ap: Ap, hZ: hZ, hR: hR, bett: bett, umh: umh, umhIn: umhIn, umhMin: umhIn / 100 < UMH_MIN - 1e-9, zuHoch: zuHoch, n: n, d: d, lagen: lagen };
   }
+  /* Zubehör neuer Rohranlagen (Warnband, Schnur/Draht einziehen, Kalibrieren): fehlt es, ist das ein kritischer Punkt,
+     bis der Verzicht im Datensatz ausdrücklich bestätigt ist (c.zubV.warn / .schnur / .kal). */
+  function zubFehlt(tab, c) {
+    var V = c.zubV || {}, out = [];
+    if (tab === "graben") {
+      if (!(num(c.L, 0) > 0)) return out;
+      if (!c.warnband) out.push("warn");
+      if (c.rohrSystem !== "block" && (c.einzug === "keine" || !c.einzug)) out.push("schnur");
+      if (!c.kalib) out.push("kal");
+    } else if (tab === "rohr") {
+      var neu = c.verl && (c.rohre || []).some(function (x) { return x.typ && num(x.q, 0) > 0; });
+      if (!neu) return out;
+      if (!(num(c.warn, 0) > 0)) out.push("warn");
+      if (!(num(c.schnur, 0) > 0)) out.push("schnur");
+      if (!(num(c.kal, 0) > 0)) out.push("kal");
+    }
+    return out.map(function (k) { return { k: k, ok: !!V[k] }; });
+  }
+  function zubCheck(cx, tab, c) { zubFehlt(tab, c).forEach(function (z) { cx.w(z.ok ? "zubOk_" + z.k : "zub_" + z.k, z.ok ? "info" : "stop", {}); }); }
   /* Grabenbreite – einzige Quelle für Rechnung UND Grafik (VSE 1103d Ziff. 3.3.1, BauAV Art. 55).
      Ohne erfasstes Aussenmass wird es aus dem Rohrverband abgeleitet. */
   function grabenBreite(c) {
@@ -503,6 +522,7 @@ var KVE = (function () {
     if (c.rohrSystem === "block") rohrblock(cx, c, L);
     else if (c.rohrSystem === "laengs") laengsRohr(cx, c, L);
     else rohr(cx, c, L);
+    zubCheck(cx, "graben", c);
     fremdleitungen(cx, c, L);
     boeschung(cx, c);
 
@@ -713,6 +733,7 @@ var KVE = (function () {
     if (w > 0) { cx.add("151/484.111", w, { rule: eing(w, "m") }); cx.add("151/484.211", w, { rule: eing(w, "m") }); }
     if (s > 0) cx.add("151/486.001", s, { rule: eing(s, "m") });
     if (k > 0) cx.add(KAL[c.kalDN] || KAL[55], k, { rule: eing(k, "m") + ", DN " + c.kalDN });
+    zubCheck(cx, "rohr", c);
     return res(cx);
   }
 
@@ -1000,5 +1021,5 @@ var KVE = (function () {
 
   return { calc: calc, calcRec: calcRec, sens: sens, r2: r2, num: num, STAFFEL: STAFFEL, SCHACHT: SCHACHT, MWST: MWST, HAND: HAND, ASPHALT_T: ASPHALT_T,
            COMPLETE: COMPLETE, LOC_INFO: LOC_INFO, TABS: TABS, ROH: ROH, BOE: BOE, MUF: MUF, VK: VK, KVS: KVS, PS_AUF: PS_AUF, ABSCHL: ABSCHL,
-           sizeOf: sizeOf, sysDefault: sysDefault, shapeOf: shapeOf, grabenBreite: grabenBreite, zoneQ: zoneQ, blockMass: blockMass, rohrOD: rohrOD, PER_LAGE: PER_LAGE };
+           sizeOf: sizeOf, sysDefault: sysDefault, shapeOf: shapeOf, grabenBreite: grabenBreite, zoneQ: zoneQ, zubFehlt: zubFehlt, blockMass: blockMass, rohrOD: rohrOD, PER_LAGE: PER_LAGE };
 })();

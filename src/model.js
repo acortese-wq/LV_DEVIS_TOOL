@@ -36,11 +36,11 @@ var LVM = (function () {
         dn2: "100", n2: "1", abzweiger: [], bloecke: [{ dn: "55", n: "1", lagen: "1", len: "10" }], block: { breite: "0.50", hoehe: "0.30" },
         umhType: "kies", umhMat: "betonkies", umhMode: "auto", bett: "5", umh: "5", umhArea: "0.035", verf: "aushub", einfHand: false, Lb: "", belag: mkBelag(null, belagLief),
         mods: { ersch: false, fremd: false, boesch: false }, ersch: ERSCH0(), kreuz: { on: true, n: "1", len: "1.00", richtung: "quer" }, zores: { on: false, len: "0", zustand: "abrechen" },
-        boeschung: { on: true, flaeche: "", geneigt: false }, uF: "", uP: "", uL: "", aB: "", aW: "", aS: "", aR: "" }; break;
+        boeschung: { on: true, flaeche: "", geneigt: false }, zubV: {}, uF: "", uP: "", uL: "", aB: "", aW: "", aS: "", aR: "" }; break;
       case "schacht": r = { name: nm("Schacht"), modus: "neu", einbauort: "SS", typ: "KES150", n: "0", arbeit: "0.50", hand: "normal", direkt: true, beton: "0", platten: "0", anschl: "0", anDN: "80",
         rahmen: "", deckel: "", verf: "kies045", einfHand: true, belag: mkBelag(null, belagLief), mods: { ersch: false }, ersch: ERSCH0(), deckelRichtung: "hoeher", deckelFormat: "rund", deckelN: "0",
         shape: "eckig", sys: "nivo", deckelFormat2: "90", deckelSockel: "ohne", spare: "0", alt: "guss", opts: {}, deviate: false, reason: "", approver: "", journal: false }; break;
-      case "rohr": r = { name: nm("Rohranlage"), verl: true, rohre: [{ typ: "K55", q: "" }], schn: [{ typ: "K55", q: "" }], boe: [{ typ: "", q: "" }], muf: [{ typ: "", q: "" }], erd: "", warn: "", schnur: "", kal: "", kalDN: "55" }; break;
+      case "rohr": r = { name: nm("Rohranlage"), verl: true, rohre: [{ typ: "K55", q: "" }], schn: [{ typ: "K55", q: "" }], boe: [{ typ: "", q: "" }], muf: [{ typ: "", q: "" }], erd: "", warn: "", schnur: "", kal: "", kalDN: "55", zubV: {} }; break;
       case "werkloch": r = { name: nm("Werklöcher"), ts: "", bo: "", sg: "", zs: "", iB: "", iT: "", iL: "", p0: "", p1: "", p2: "", p3: "", arbeit: "0.30", hand: "normal", direkt: false, verf: "aushub", einfHand: false, belag: mkBelag(null, belagLief), mods: { ersch: false }, ersch: ERSCH0() }; break;
       case "fund": r = { name: nm("Fundament"), vk: "", kvs: "", arbeit: "0.30", hand: "normal", direkt: false, verf: "kies045", einfHand: false, belag: mkBelag("none", belagLief), mods: { ersch: false }, ersch: ERSCH0() }; break;
       case "geb": r = { name: nm("Gebäudeeinführung"), n: "", cm: "", abd: "hauff" }; break;

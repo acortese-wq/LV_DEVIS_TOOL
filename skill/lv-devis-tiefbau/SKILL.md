@@ -75,6 +75,9 @@ Vollständige Felder, Optionen, Vorgaben und Bedingungen: **`references/felder.m
 - **Rabatt / Installationspauschale** (R151/R152) nach Zwischensumme: bis 10 000 → 0 % / 0; bis 30 000 → 3 % / 700; bis 50 000 → 5 % / 900; bis 100 000 → 7 % / 1 200; darüber 9 % / 1 500. Wird vom Skript angewendet.
 - **Honorar SIA 103-K (2018) Art. 7:** Tm = B × p/100 × n × q/100 × r, p = Z1 + Z2/∛B; Z1/Z2, i, s sind fest hinterlegt und nicht verhandelbar im Skill; n und r ohne besondere Vereinbarung 1.0 (übliche Bandbreite n 0.8–1.2, r 0.75–1.25). Der Stundenansatz h ist auftragsbezogen zu vereinbaren (KBOB 2026 publiziert keine Ansätze).
 - **Schachtwahl:** Einbauort bestimmt zulässige Typen und Abdeckung (HVS: ES/KES vermeiden; HLS: keine Schächte; Gehweg rund DS 600 – D400; Wiesland Betonplatten). Abdeckung wird inkl. Versetzen (151/632.2xx) gerechnet.
+- **Zubehör neuer Rohre** (Graben mit Rohren, Reiter Rohr mit «verlegen»): Fehlen Warnband, Schnur/Draht einziehen oder Kalibrieren, meldet das Skript eine `stop`-Warnung. Den Benutzer **ausdrücklich fragen**. Nur wenn er bestätigt, dass es bewusst nicht ausgeführt wird, im Datensatz `"zubV": { "warn": true, "schnur": true, "kal": true }` (nur die bestätigten Punkte) setzen – nie von sich aus.
+- **Leitungszone** wird aus Bettung (`bett`, cm, Vorgabe 5) + Rohrlagen + Umhüllung (`umh`, cm, min. 5) über die Grabenbreite berechnet; `umhMode: "manuell"` mit `umhArea` (m²/m) nur auf Wunsch.
+- **Grabenbreite** «begangen/nicht begangen»: ohne `aussen` wird das Aussenmass aus den Rohren abgeleitet (max. 4 je Lage, 4 cm Abstand).
 - Positionen ohne LV-Preis bleiben OFFEN; Abweichungen vom LV-Preis werden als «EP geändert» markiert.
 
 ## Skripte

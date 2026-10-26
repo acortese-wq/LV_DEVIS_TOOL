@@ -101,7 +101,7 @@
       { id: "b90", t: "num", show: isStd }, { id: "b45", t: "num", show: isStd }, { id: "schneiden", t: "num", show: isStd },
       { id: "dn2", t: "sel", opts: ["100", "120", "150"], show: isLaengs }, { id: "n2", t: "num", show: isLaengs },
       { id: "blist", t: "blockList", show: isBlock, struct: 1 }, { id: "block.breite", t: "num", show: isBlock, hint: "hint_block" }, { id: "block.hoehe", t: "num", show: isBlock },
-      { id: "warnband", t: "chk" }, { id: "kalib", t: "chk" }, { id: "einzug", t: "sel", opts: ["keine", "schnur", "draht"], show: function (c) { return !isBlock(c); } },
+      { id: "warnband", t: "chk" }, { id: "kalib", t: "chk" }, { id: "einzug", t: "sel", opts: ["keine", "schnur", "draht"], show: function (c) { return !isBlock(c); } }, { t: "zub" },
       { id: "azlist", t: "abzwList", show: isLaengs },
       { sec: "s_zone" }, { id: "umhType", t: "sel", opts: ["kies", "beton"], struct: 1, show: notBlock },
       { id: "umhMat", t: "sel", opts: ["betonkies", "sand", "kies48"], show: function (c) { return notBlock(c) && c.umhType === "kies"; } },
@@ -162,7 +162,7 @@
       { sec: "s_be" }, { id: "be.pct", t: "num", glob: 1, hint: "hint_bepct", beHint: 1 },
       { sec: "s_pausch" }, { id: "name", t: "text" }, { id: "km", t: "num", half: 1 }, { id: "ak", t: "num", half: 1 }],
     rohr: [{ sec: "s_rohrTab" }, { id: "name", t: "text" }, { id: "verl", t: "chk" }, { t: "rohrLists" },
-      { id: "erd", t: "num", half: 1 }, { id: "warn", t: "num", half: 1 }, { id: "schnur", t: "num", half: 1 }, { id: "kal", t: "num", half: 1 }, { id: "kalDN", t: "sel", opts: ["55", "100", "120", "150"] }],
+      { id: "erd", t: "num", half: 1 }, { id: "warn", t: "num", half: 1 }, { id: "schnur", t: "num", half: 1 }, { id: "kal", t: "num", half: 1 }, { id: "kalDN", t: "sel", opts: ["55", "100", "120", "150"] }, { t: "zub" }],
     hon: [{ sec: "hB" }, { id: "name", t: "text" }, { id: "src", t: "sel", opts: ["lv", "man"], struct: 1, hint: "hint_hB" }, { t: "honB" },
       { sec: "s_hfak" }, { id: "n", t: "num", half: 1, labKey: "f_hn" }, { id: "r", t: "num", half: 1, labKey: "f_hr" }, { t: "honFak" }, { sec: "s_hph" }, { t: "phases" }, { id: "gl", t: "chk", labKey: "f_hgl", hint: "hint_hgl" },
       { sec: "s_hvar" }, { id: "h", t: "num", half: 1, labKey: "f_hh" }, { id: "nk", t: "num", half: 1, labKey: "f_hnk" }, { t: "honVarHint" }, { t: "honRes" }]
@@ -213,11 +213,11 @@
   function tilesEl(wrap, lab, idn, f, cfg, opts, val, mode) {
     wrap.classList.add(mode === "tile" ? "tilefield" : "segfield");
     var leg = document.createElement("span"); leg.className = "lab"; leg.id = idn + "_l"; leg.textContent = lab.textContent; wrap.appendChild(leg);
-    var g = document.createElement("div"); g.className = mode === "tile" ? "tiles" : "segs"; g.setAttribute("role", "radiogroup"); g.setAttribute("aria-labelledby", leg.id);
+    var g = document.createElement("div"); g.className = mode === "tile" ? "tiles" : "sgs"; g.setAttribute("role", "radiogroup"); g.setAttribute("aria-labelledby", leg.id);
     opts.forEach(function (o, i) {
       var l = document.createElement("label"), r = document.createElement("input"), on = String(o[0]) === val;
       r.type = "radio"; r.name = idn; r.value = o[0]; r.checked = on; if (i === 0) r.id = idn;
-      l.className = (mode === "tile" ? "tile" : "seg") + (on ? " on" : "");
+      l.className = (mode === "tile" ? "tile" : "sg") + (on ? " on" : "");
       l.appendChild(r);
       var p = mode === "tile" ? splitLab(o[1]) : [o[1], ""], tt1 = document.createElement("span"); tt1.className = "tt"; tt1.textContent = p[0]; l.appendChild(tt1);
       if (p[1]) { var ts = document.createElement("span"); ts.className = "ts"; ts.textContent = p[1]; l.appendChild(ts); }
@@ -273,6 +273,20 @@
       hr.textContent = g[0] + " – " + g[1] + " m"; wrap.appendChild(hr); }
     return wrap;
   }
+  /* Zubehör neuer Rohre: Fehlendes melden, Verzicht nur mit ausdrücklicher Bestätigung */
+  function zubRender() {
+    var box = document.getElementById("zubbox"); if (!box) return; var cfg = rec(), list = KVE.zubFehlt(S.tab, cfg);
+    box.innerHTML = ""; box.className = list.length ? "zubbox" + (list.some(function (z) { return !z.ok; }) ? " offen" : " ok") : "";
+    if (!list.length) return;
+    var h = document.createElement("p"); h.className = "zubtitle"; h.textContent = tt("ux_zubTitle"); box.appendChild(h);
+    list.forEach(function (z) {
+      var row = document.createElement("label"); row.className = "check zubrow" + (z.ok ? " ok" : "");
+      var c = document.createElement("input"); c.type = "checkbox"; c.checked = z.ok;
+      c.addEventListener("change", function () { cfg.zubV = cfg.zubV || {}; cfg.zubV[z.k] = c.checked; save(); zubRender(); scheduleResult(); });
+      var s = document.createElement("span"); s.innerHTML = "<b>" + esc(tt("ux_zub_" + z.k)) + "</b> – " + esc(tt("ux_zubConfirm"));
+      row.appendChild(c); row.appendChild(s); box.appendChild(row);
+    });
+  }
   function aussenReq() {   /* leer = Aussenmass wird aus den Rohren abgeleitet; Wert als Platzhalter zeigen */
     var el = document.getElementById("f_graben_aussen"); if (!el) return;
     var m = document.getElementById("f_graben_aussen_req"), gb = KVE.grabenBreite(rec()), leer = !(num(el.value, 0) > 0);
@@ -282,6 +296,7 @@
   }
   function onChange(f, cfg) {
     if (S.tab === "graben") aussenReq();
+    zubRender();
     if (f.id === "einbauort" && cfg) { var l = locOf(cfg); cfg.sys = l ? (l.round === "dsbeton" ? "beton" : l.round) : "nivo"; }
     if (f.id === "typ" && cfg && kindOf(cfg) === "KS") cfg.shape = "rund";
     if (f.id === "name") updateRecLabel();
@@ -299,9 +314,9 @@
       var r = document.createElement("div"); r.className = "subrow";
       var s = document.createElement("select"); s.style.flex = "1"; s.setAttribute("aria-label", tt(labKey));
       [["", tt("sel")]].concat(Object.keys(cat).map(function (k) { return [k, k + (cat[k].l ? "" : " ⚠")]; })).forEach(function (o) { var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; if (row.typ === o[0]) op.selected = true; s.appendChild(op); });
-      s.addEventListener("change", function () { row.typ = s.value; save(); refreshFig(); scheduleResult(); });
+      s.addEventListener("change", function () { row.typ = s.value; save(); refreshFig(); zubRender(); scheduleResult(); });
       var q = document.createElement("input"); q.type = "text"; q.inputMode = "decimal"; q.value = row.q; q.style.width = "70px"; q.setAttribute("aria-label", unit);
-      q.addEventListener("input", function () { row.q = q.value; save(); refreshFig(); scheduleResult(); });
+      q.addEventListener("input", function () { row.q = q.value; save(); refreshFig(); zubRender(); scheduleResult(); });
       var del = document.createElement("button"); del.type = "button"; del.className = "x"; del.textContent = "×"; del.setAttribute("aria-label", tt("del"));
       del.onclick = function () { cfg[key].splice(i, 1); save(); renderForm(); scheduleResult(); };
       r.appendChild(s); r.appendChild(q); r.appendChild(del); wrap.appendChild(r);
@@ -550,6 +565,7 @@
       if (f.t === "honB") { if (cfg.src === "man") tgt.appendChild(fieldEl(cfg, { id: "B", t: "num", labKey: "f_hB" })); else { var d = document.createElement("div"); d.className = "field"; d.innerHTML = '<label for="honBv">B [CHF]</label><input type="text" id="honBv" readonly>'; tgt.appendChild(d); } return; }
       if (f.t === "printDraw") { var pd = document.createElement("div"); pd.className = "check"; pd.innerHTML = '<input type="checkbox" id="fPrintDraw"' + (S.ui.printDraw ? " checked" : "") + '><label for="fPrintDraw">' + esc(tt("f_printDraw")) + "</label>"; tgt.appendChild(pd);
         pd.querySelector("input").addEventListener("change", function () { S.ui.printDraw = this.checked; save(); renderResult(); }); return; }
+      if (f.t === "zub") { var zb = document.createElement("div"); zb.id = "zubbox"; tgt.appendChild(zb); zubRender(); return; }
       if (f.t === "rohrLists") { var ls = document.createElement("div"); ls.className = "lists";
         ls.appendChild(listEl(cfg, "rohre", KVE.ROH, "l_rohre", "m")); ls.appendChild(listEl(cfg, "schn", KVE.ROH, "l_schn", "St"));
         ls.appendChild(listEl(cfg, "boe", KVE.BOE, "l_boe", "St")); ls.appendChild(listEl(cfg, "muf", KVE.MUF, "l_muf", "St")); tgt.appendChild(ls); return; }

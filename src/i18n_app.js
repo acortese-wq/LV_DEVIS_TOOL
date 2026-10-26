@@ -3,6 +3,17 @@
   var L = ["de", "fr", "it", "en"];
   function A(o) { Object.keys(o).forEach(function (k) { L.forEach(function (l, i) { T[l][k] = o[k][i] != null ? o[k][i] : o[k][0]; }); }); }
   A({
+    ux_zubTitle: ["⚠ Neue Rohre: Zubehör fehlt", "⚠ Nouveaux tubes: accessoires manquants", "⚠ Nuovi tubi: accessori mancanti", "⚠ New conduits: accessories missing"],
+    ux_zub_warn: ["Warnband fehlt", "Bande d'avertissement manquante", "Nastro segnaletico mancante", "Warning tape missing"],
+    ux_zub_schnur: ["Schnur einziehen fehlt", "Tirage de cordelette manquant", "Infilaggio cordino mancante", "Pull cord missing"],
+    ux_zub_kal: ["Kalibrieren fehlt", "Calibrage manquant", "Calibratura mancante", "Calibration missing"],
+    ux_zubConfirm: ["Ich bestätige, dass dies bewusst nicht ausgeführt wird.", "Je confirme que ceci n'est volontairement pas exécuté.", "Confermo che ciò non viene eseguito intenzionalmente.", "I confirm this is deliberately not carried out."],
+    w_zub_warn: ["Neue Rohre ohne Warnband – erfassen oder Verzicht im Datensatz bestätigen.", "Nouveaux tubes sans bande d'avertissement – saisir ou confirmer la renonciation.", "Nuovi tubi senza nastro segnaletico – inserire o confermare la rinuncia.", "New conduits without warning tape – enter it or confirm the omission."],
+    w_zub_schnur: ["Neue Rohre ohne Schnur einziehen – erfassen oder Verzicht im Datensatz bestätigen.", "Nouveaux tubes sans cordelette – saisir ou confirmer la renonciation.", "Nuovi tubi senza cordino – inserire o confermare la rinuncia.", "New conduits without pull cord – enter it or confirm the omission."],
+    w_zub_kal: ["Neue Rohre ohne Kalibrieren – erfassen oder Verzicht im Datensatz bestätigen.", "Nouveaux tubes sans calibrage – saisir ou confirmer la renonciation.", "Nuovi tubi senza calibratura – inserire o confermare la rinuncia.", "New conduits without calibration – enter it or confirm the omission."],
+    w_zubOk_warn: ["Warnband: Verzicht bestätigt.", "Bande d'avertissement: renonciation confirmée.", "Nastro segnaletico: rinuncia confermata.", "Warning tape: omission confirmed."],
+    w_zubOk_schnur: ["Schnur einziehen: Verzicht bestätigt.", "Cordelette: renonciation confirmée.", "Cordino: rinuncia confermata.", "Pull cord: omission confirmed."],
+    w_zubOk_kal: ["Kalibrieren: Verzicht bestätigt.", "Calibrage: renonciation confirmée.", "Calibratura: rinuncia confermata.", "Calibration: omission confirmed."],
     f_umhMode: ["Querschnitt Leitungszone", "Section de la zone de conduite", "Sezione zona condotte", "Pipe zone cross-section"],
     o_umhMode_auto: ["Aus Rohren berechnen (Bettung + Rohre + Umhüllung)", "Calculer selon les tubes (lit + tubes + enrobage)", "Calcolare dai tubi (letto + tubi + rinfianco)", "Calculate from conduits (bedding + conduits + surround)"],
     o_umhMode_manuell: ["Fläche manuell (m²/m)", "Surface manuelle (m²/m)", "Superficie manuale (m²/m)", "Area manual (m²/m)"],

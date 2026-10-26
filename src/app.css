@@ -171,17 +171,29 @@ body.rules-on .rw.rule{display:block}
 .tile .tst.ok{background:var(--ok-bg);color:var(--ok)}
 .tile .tst.amber{background:var(--amber-bg);color:var(--amber)}
 .tile .tst.stop{background:var(--signal-bg);color:var(--signal)}
-.segs{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule-strong);border-radius:8px;overflow:hidden;background:#fff}
-.seg{position:relative;padding:8px 14px;min-width:44px;text-align:center;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--ink);border-right:1px solid var(--rule)}
-.seg:last-child{border-right:0}
-.seg:hover{background:#f3f5f8}
-.seg.on{background:var(--navy);color:#fff}
-.tile input,.seg input{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}
-.tile:has(input:focus-visible),.seg:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:2px}
+.sgs{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule-strong);border-radius:8px;overflow:hidden;background:#fff}
+.sg{position:relative;padding:8px 14px;min-width:44px;text-align:center;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--ink);border-right:1px solid var(--rule)}
+.sg:last-child{border-right:0}
+.sg:hover{background:#f3f5f8}
+.sg.on{background:var(--navy);color:#fff}
+.tile input,.sg input{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}
+.tile:has(input:focus-visible),.sg:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:2px}
 @media (max-width:560px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .tile .tt,.tile .ts{overflow-wrap:anywhere;hyphens:auto}
-@media print{.tiles,.segs{display:none}}
+@media print{.tiles,.sgs{display:none}}
 .tile .tst.none{background:var(--signal);color:#fff}
 input.req{border-color:var(--amber)!important;background:var(--amber-bg)!important}
 .hint.reqmsg{color:var(--amber);font-weight:600;margin-top:4px}
 svg text.warnTx{fill:var(--signal)!important}
+/* Zubehör neuer Rohre: Verzicht nur mit Bestätigung */
+.zubbox{grid-column:1/-1;margin:6px 0 10px;padding:10px 12px;border-radius:9px}
+.zubbox.offen{background:var(--signal-bg);border:1px solid var(--signal-line)}
+.zubbox.ok{background:#f7f8f9;border:1px solid var(--rule)}
+.zubtitle{margin:0 0 6px;font-weight:700;color:var(--signal)}
+.zubbox.ok .zubtitle{color:var(--ink-soft)}
+.zubrow{margin:4px 0!important;align-items:flex-start!important}
+.zubrow b{color:var(--signal)}
+.zubrow.ok b{color:var(--ink-soft);text-decoration:line-through}
+.zubrow{display:flex!important;flex-wrap:nowrap!important;gap:9px}
+.zubrow input{flex:0 0 18px;margin-top:2px}
+.zubrow span{flex:1}

@@ -521,6 +521,30 @@ def rohrAussen(c):
     return per * d + (per - 1) * PIPE_GAP
 
 
+def zubFehlt(tab, c):
+    """Zubehör neuer Rohranlagen: Warnband, Schnur/Draht, Kalibrieren – Verzicht muss bestätigt sein (c.zubV)."""
+    V = c.get("zubV") or {}; out = []
+    if tab == "graben":
+        if not (num(c.get("L"), 0) > 0):
+            return out
+        if not jt(c.get("warnband")): out.append("warn")
+        if c.get("rohrSystem") != "block" and (c.get("einzug") == "keine" or not jt(c.get("einzug"))): out.append("schnur")
+        if not jt(c.get("kalib")): out.append("kal")
+    elif tab == "rohr":
+        neu = jt(c.get("verl")) and any(jt(g(x, "typ")) and num(g(x, "q"), 0) > 0 for x in (c.get("rohre") or []))
+        if not neu:
+            return out
+        if not (num(c.get("warn"), 0) > 0): out.append("warn")
+        if not (num(c.get("schnur"), 0) > 0): out.append("schnur")
+        if not (num(c.get("kal"), 0) > 0): out.append("kal")
+    return [{"k": k, "ok": jt(g(V, k))} for k in out]
+
+
+def zubCheck(cx, tab, c):
+    for z in zubFehlt(tab, c):
+        cx.w(("zubOk_" if z["ok"] else "zub_") + z["k"], "info" if z["ok"] else "stop", {})
+
+
 UMH_MIN = 0.05
 
 
@@ -698,6 +722,7 @@ def graben(c, LV, P=None):
     if blk: rohrblock(cx, c, L)
     elif c.get("rohrSystem") == "laengs": laengsRohr(cx, c, L)
     else: rohr(cx, c, L)
+    zubCheck(cx, "graben", c)
     fremdleitungen(cx, c, L)
     boeschung(cx, c)
     if Vz != Vu:
@@ -956,6 +981,7 @@ def rohrTab(c, LV, P=None):
         cx.add("151/484.111", w, {"rule": eing(w, "m")}); cx.add("151/484.211", w, {"rule": eing(w, "m")})
     if s > 0: cx.add("151/486.001", s, {"rule": eing(s, "m")})
     if k > 0: cx.add(KAL.get(jstr(c.get("kalDN"))) or KAL["55"], k, {"rule": eing(k, "m") + ", DN " + jstr(c.get("kalDN"))})
+    zubCheck(cx, "rohr", c)
     return res(cx)
 
 

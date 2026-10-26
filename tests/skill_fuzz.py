@@ -40,7 +40,7 @@ def graben(i):
             "mods": {"ersch": True, "fremd": True, "boesch": True}, "ersch": ersch() if R.random() < 0.5 else {"klasse": "keine", "verf": "keine", "hind": "keine", "hindVol": "0.3"},
             "kreuz": {"on": ch([True, False]), "n": ch(["0", "2"]), "len": "1.00", "richtung": ch(["laengs", "quer"])}, "zores": {"on": ch([True, False]), "len": f(0, 10), "zustand": ch(["abrechen", "betrieb", "nicht"])},
             "boeschung": {"on": ch([True, False]), "flaeche": ch(["", f(0, 30)]), "geneigt": ch([True, False])},
-            "uF": ch(["", "1"]), "uP": ch(["", "2"]), "uL": "", "aB": ch(["", f(0, 10)]), "aW": "", "aS": ch(["", "3"]), "aR": "", "x": xs(), "free": free()}
+            "zubV": {k: ch([True, False]) for k in ("warn", "schnur", "kal")}, "uF": ch(["", "1"]), "uP": ch(["", "2"]), "uL": "", "aB": ch(["", f(0, 10)]), "aW": "", "aS": ch(["", "3"]), "aR": "", "x": xs(), "free": free()}
 COV = sorted(k for k in kve.LV if k.startswith("151/632.1"))
 def schacht(i):
     return {"name": "S%d" % i, "modus": ch(["neu", "neu", "ersatz", "deckel"]), "einbauort": ch([l["id"] for l in kve.LOCS]), "typ": ch(list(kve.SCHACHT)), "n": ch(["0", "1", "2"]),
@@ -54,7 +54,7 @@ def rec(t, i):
     if t == "schacht": return schacht(i)
     if t == "rohr": return {"name": "R", "verl": ch([True, False]), "rohre": [{"typ": ch(list(kve.ROH)), "q": f(0, 80)}], "schn": [{"typ": ch(list(kve.ROH)), "q": ch(["", "4"])}],
                             "boe": [{"typ": ch(list(kve.BOE)), "q": ch(["", "2"])}], "muf": [{"typ": ch(list(kve.MUF)), "q": ch(["", "5"])}], "erd": ch(["", "30"]), "warn": ch(["", "20"]),
-                            "schnur": ch(["", "40"]), "kal": ch(["", "40"]), "kalDN": ch(["55", "100", "120", "150"]), "x": xs(), "free": free()}
+                            "schnur": ch(["", "40"]), "kal": ch(["", "40"]), "kalDN": ch(["55", "100", "120", "150"]), "zubV": {k: ch([True, False]) for k in ("warn", "schnur", "kal")}, "x": xs(), "free": free()}
     if t == "werkloch": return {"name": "W", "ts": ch(["", "1", "2"]), "bo": ch(["", "1"]), "sg": ch(["", "1"]), "zs": ch(["", "2"]), "iB": ch(["", "1.2"]), "iT": ch(["", "1.0", "1.8"]), "iL": ch(["", "2"]),
                                 "p0": ch(["", "1"]), "p1": "", "p2": ch(["", "1"]), "p3": "", "arbeit": ch(["0.30", "0.50"]), "hand": ch(list(kve.HAND)), "direkt": ch([True, False]),
                                 "verf": ch(["aushub", "kies045", "kies016", "betonkies"]), "einfHand": ch([True, False]), "belag": belag(), "ersch": ersch(), "x": xs(), "free": free()}
