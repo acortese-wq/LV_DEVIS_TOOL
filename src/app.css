@@ -30,7 +30,7 @@ body{background:var(--page)}
 .cols{grid-template-columns:minmax(360px,470px) minmax(0,1fr)}
 .form h2{margin-bottom:12px}
 .formbody{padding:0}
-.formbody h4:first-child{margin-top:4px}
+.formbody h4:first-child,.formbody h3.sec:first-child{margin-top:4px}
 .row2 .field{margin-bottom:11px}
 .field .ctx{display:block}
 .numin{text-align:right}
@@ -90,3 +90,67 @@ ul.vollst li{min-width:0;flex-wrap:wrap}
 table.hfak td .rw::before{content:""}
 table.hfak{max-width:none}
 .badge.auto{font-size:9.5px;padding:0 4px;color:var(--navy);border-color:#cfe0fb;background:#eef4fd}
+
+/* =====================================================================
+   UX-Überarbeitung (Audit Oktober 2026) – Struktur und Farbwelt bleiben
+   ===================================================================== */
+/* Sprunglink für Tastatur und Screenreader */
+.skip{position:absolute;left:-9999px;top:8px;z-index:50;background:var(--navy);color:#fff;padding:9px 14px;border-radius:7px;font-weight:650;text-decoration:none}
+.skip:focus{left:12px}
+/* Einheitlicher, gut sichtbarer Fokus */
+a:focus-visible,summary:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}
+/* Projektangaben einklappbar */
+.kopfbox>summary{list-style:none;cursor:pointer;display:flex;gap:12px;align-items:baseline;margin-top:14px;padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:#f7f8f9;font-size:13.5px}
+.kopfbox>summary::-webkit-details-marker{display:none}
+.kopfbox>summary::after{content:"▾";margin-left:auto;color:var(--ink-soft)}
+.kopfbox[open]>summary::after{content:"▴"}
+.kopfbox>summary .ks{color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kopfbox[open]>summary{background:transparent;border-color:transparent;padding-left:0}
+.savestate{margin:6px 0 0;font-size:12px;color:var(--ok)}
+.savestate.err{color:var(--signal);font-weight:650}
+.savestate:empty{display:none}
+/* Rolle wie die übrigen Kopffelder */
+.kopfzeile select{border:1px solid var(--rule-strong);border-radius:8px;padding:9px 10px;background:#fff;font-weight:500;min-height:40px}
+/* Grössere Klickziele (WCAG 2.5.8) */
+input[type=checkbox],input[type=radio],.kopf3 .check input[type=checkbox],.elbody .check input[type=checkbox]{width:18px;height:18px;flex:0 0 18px;accent-color:var(--navy);cursor:pointer}
+.recnav .btn.small{min-height:34px}
+.recnav [data-rec=prev],.recnav [data-rec=next]{min-width:36px;color:var(--navy)}
+.recnav .btn.ghost.small:disabled{color:#9aa0a6}
+.gorow a{display:inline-block;padding:5px 0}
+/* Ungültige Zahl */
+input.bad{border-color:var(--signal)!important;background:var(--signal-bg)!important}
+.hint.err{color:var(--signal);font-weight:600;margin-top:4px}
+/* Kostenleiste oben in der Ergebnisspalte, beim Scrollen sichtbar */
+.kpi{position:sticky;top:0;z-index:5;background:var(--paper);margin:0 -22px 10px;padding:10px 22px 10px;border-bottom:1px solid var(--rule)}
+.kpi-main{display:flex;flex-wrap:wrap;gap:8px 26px}
+.kpi .kc{display:flex;flex-direction:column}
+.kpi .kl{font-size:11.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em;font-weight:650}
+.kpi .kv{font-size:17px;font-variant-numeric:tabular-nums}
+.kpi .kc.main .kv{font-size:21px;color:var(--navy)}
+.kpi-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag{display:inline-block;font-size:12px;font-weight:650;padding:3px 9px;border-radius:999px;background:#eef2f9;color:var(--navy);text-decoration:none}
+.tag.amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-line)}
+.tag.stop{background:var(--signal-bg);color:var(--signal);border:1px solid var(--signal-line)}
+a.tag:hover{text-decoration:underline}
+.resbar{margin:0 0 14px}
+.status a,.warns a{color:inherit;text-decoration:underline}
+#warns{scroll-margin-top:110px}
+/* Lightbox schliessen */
+#lb .lbclose{position:fixed;top:14px;right:18px;width:44px;height:44px;border-radius:50%;border:0;background:#fff;color:var(--ink);font-size:26px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+#lb:not(.on) .lbclose{display:none}
+/* Mobile: Reiter in einer wischbaren Zeile, Kostenleiste unten fixiert */
+.mbar{display:none}
+@media (max-width:900px){
+  .tabsbar{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .tab{flex:0 0 auto;scroll-snap-align:start;min-height:40px}
+  .tab.sep{margin-left:0}
+  .kpi{position:static;margin:0 0 10px;padding:0 0 10px}
+  .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;align-items:center;justify-content:space-between;gap:10px;padding:9px 14px calc(9px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--rule-strong);box-shadow:0 -2px 10px rgba(16,24,40,.08)}
+  .mbar .kl{display:block;font-size:11px;color:var(--ink-soft);text-transform:uppercase;font-weight:650}
+  .mbar b{font-size:16px;font-variant-numeric:tabular-nums}
+  .mbar .btn{text-decoration:none}
+  body{padding-bottom:70px}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+@media print{.kopfbox>summary{display:none}.mbar,.kpi,.skip,.savestate{display:none!important}body{padding-bottom:0}}
+.phs label{cursor:pointer;margin:0;font-size:inherit;color:inherit;text-transform:none;letter-spacing:0}.phs .phk{font-weight:700}

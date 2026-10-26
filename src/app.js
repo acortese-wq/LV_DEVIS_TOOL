@@ -42,7 +42,8 @@
   if (!S || S.v !== 2) S = defaults();
   heal();
   var saveT;
-  function save() { clearTimeout(saveT); saveT = setTimeout(function () { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }, 300); }
+  function save() { clearTimeout(saveT); saveT = setTimeout(function () { var el = document.getElementById("saveState"), ok = true; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { ok = false; }
+    if (el) { var d = new Date(); el.className = "savestate no-print" + (ok ? "" : " err"); el.textContent = ok ? fill(tt("ux_saved"), { t: ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) }) : tt("ux_saveErr"); } }, 300); }
   var rec = function () { return S.recs[S.tab][S.idx[S.tab]]; };
 
   /* ---------- Felddefinitionen (KV-Assistent, erweitert) ---------- */
@@ -302,10 +303,10 @@
   function phasesEl(cfg) {
     var wrap = document.createElement("div"); wrap.className = "phs"; var L = ["de", "fr", "it", "en"].indexOf(S.lang);
     phaseList(cfg).forEach(function (p) {
-      var c = document.createElement("input"); c.type = "checkbox"; c.checked = p.on; c.setAttribute("aria-label", p.k);
+      var c = document.createElement("input"); c.type = "checkbox"; c.checked = p.on; c.id = "ph_" + p.k;
       c.addEventListener("change", function () { cfg.ph = phaseList(cfg).map(function (x) { return { k: x.k, on: x.k === p.k ? c.checked : x.on }; }); save(); refreshHon(); scheduleResult(); });
-      var b = document.createElement("b"); b.textContent = p.k;
-      var s = document.createElement("span"); s.textContent = p.lab[L] || p.lab[0];
+      var b = document.createElement("label"); b.htmlFor = c.id; b.className = "phk"; b.textContent = p.k;   /* ganze Zeile anklickbar */
+      var s = document.createElement("label"); s.htmlFor = c.id; s.textContent = p.lab[L] || p.lab[0];
       var q = document.createElement("span"); q.className = "num"; q.textContent = qf(p.q) + " %";
       wrap.appendChild(c); wrap.appendChild(b); wrap.appendChild(s); wrap.appendChild(q);
     });
@@ -451,7 +452,7 @@
     if (out) out.elems.forEach(function (e) { if (e.lines.length) cnt[e.tab] = (cnt[e.tab] || 0) + 1; });
     TABS.forEach(function (t) { if (t === "hon") cnt.hon = S.recs.hon.filter(function (r) { return honCalc(r, out ? out.sum.netto : 0).ok; }).length; });
     $("#tabs").innerHTML = ALLTABS.map(function (t) {
-      return '<button type="button" role="tab" data-tab="' + t + '" class="tab' + (S.tab === t ? " on" : "") + (t === "hon" || t === "par" ? " sep" : "") + '" aria-selected="' + (S.tab === t) + '">' + esc(tt("tab_" + t)) + (cnt[t] ? '<span class="cnt">' + cnt[t] + "</span>" : "") + "</button>";
+      return '<button type="button" role="tab" data-tab="' + t + '"' + (S.tab === t ? ' id="tabCur"' : "") + ' aria-controls="formwrap" tabindex="' + (S.tab === t ? "0" : "-1") + '" class="tab' + (S.tab === t ? " on" : "") + (t === "hon" || t === "par" ? " sep" : "") + '" aria-selected="' + (S.tab === t) + '">' + esc(tt("tab_" + t)) + (cnt[t] ? '<span class="cnt">' + cnt[t] + "</span>" : "") + "</button>";
     }).join("");
   }
   function updateRecLabel() { var e = $("#recName"); if (e && S.tab !== "par") e.textContent = rec().name || ""; }
@@ -462,8 +463,8 @@
     if (S.tab === "par") { host.appendChild(parEl()); renderTabs(); return; }
     var list = S.recs[S.tab], i = S.idx[S.tab], cfg = rec();
     var nav = document.createElement("div"); nav.className = "recnav";
-    nav.innerHTML = '<button type="button" class="btn ghost small" data-rec="prev" aria-label="◀"' + (i <= 0 ? " disabled" : "") + '>◀</button><span class="recpos">' + esc(tt("rec")) + " <b>" + (i + 1) + "</b> " + esc(tt("of")) + " " + list.length +
-      '<br><span class="ctx" id="recName">' + esc(cfg.name) + '</span></span><button type="button" class="btn ghost small" data-rec="next" aria-label="▶"' + (i >= list.length - 1 ? " disabled" : "") + ">▶</button>" +
+    nav.innerHTML = '<button type="button" class="btn ghost small" data-rec="prev" aria-label="' + esc(tt("ux_prev")) + '" title="' + esc(tt("ux_prev")) + '"' + (i <= 0 ? " disabled" : "") + '>◀</button><span class="recpos">' + esc(tt("rec")) + " <b>" + (i + 1) + "</b> " + esc(tt("of")) + " " + list.length +
+      '<br><span class="ctx" id="recName">' + esc(cfg.name) + '</span></span><button type="button" class="btn ghost small" data-rec="next" aria-label="' + esc(tt("ux_next")) + '" title="' + esc(tt("ux_next")) + '"' + (i >= list.length - 1 ? " disabled" : "") + ">▶</button>" +
       '<span class="sp"></span><button type="button" class="btn small" data-rec="new">' + esc(tt("recNew")) + '</button><button type="button" class="btn ghost small" data-rec="dup">' + esc(tt("recDup")) + '</button><button type="button" class="btn ghost small del" data-rec="del">' + esc(tt("recDel")) + "</button>";
     host.appendChild(nav);
     var fig = document.createElement("figure"); fig.className = "fig"; fig.innerHTML = '<div id="figsvg"></div>'; host.appendChild(fig);
@@ -473,7 +474,7 @@
       if (f.show && !f.show(cfg)) return;
       var tgt = body;
       if (f.half) { if (!halfBox) { halfBox = document.createElement("div"); halfBox.className = "row2"; body.appendChild(halfBox); } tgt = halfBox; } else halfBox = null;
-      if (f.sec) { var h4 = document.createElement("h4"); h4.textContent = tt(f.sec); body.appendChild(h4); return; }
+      if (f.sec) { var h4 = document.createElement("h3"); h4.className = "sec"; h4.textContent = tt(f.sec); body.appendChild(h4); return; }
       if (f.t === "blockList") { tgt.appendChild(blockListEl(cfg)); return; }
       if (f.t === "abzwList") { tgt.appendChild(abzwListEl(cfg)); return; }
       if (f.t === "opts") { tgt.appendChild(optsEl(cfg)); return; }
@@ -481,7 +482,7 @@
       if (f.t === "honFak") { tgt.appendChild(honFakEl()); return; }
       if (f.t === "honVarHint") { var vh = document.createElement("p"); vh.className = "hint"; vh.textContent = tt("hx_var"); tgt.appendChild(vh); return; }
       if (f.t === "honRes") { var hr = document.createElement("div"); hr.id = "honres"; tgt.appendChild(hr); return; }
-      if (f.t === "honB") { if (cfg.src === "man") tgt.appendChild(fieldEl(cfg, { id: "B", t: "num", labKey: "f_hB" })); else { var d = document.createElement("div"); d.className = "field"; d.innerHTML = '<label>B [CHF]</label><input type="text" id="honBv" disabled>'; tgt.appendChild(d); } return; }
+      if (f.t === "honB") { if (cfg.src === "man") tgt.appendChild(fieldEl(cfg, { id: "B", t: "num", labKey: "f_hB" })); else { var d = document.createElement("div"); d.className = "field"; d.innerHTML = '<label for="honBv">B [CHF]</label><input type="text" id="honBv" readonly>'; tgt.appendChild(d); } return; }
       if (f.t === "printDraw") { var pd = document.createElement("div"); pd.className = "check"; pd.innerHTML = '<input type="checkbox" id="fPrintDraw"' + (S.ui.printDraw ? " checked" : "") + '><label for="fPrintDraw">' + esc(tt("f_printDraw")) + "</label>"; tgt.appendChild(pd);
         pd.querySelector("input").addEventListener("change", function () { S.ui.printDraw = this.checked; save(); renderResult(); }); return; }
       if (f.t === "rohrLists") { var ls = document.createElement("div"); ls.className = "lists";
@@ -493,6 +494,8 @@
     if (S.tab !== "hon") { var xb = xBlockEl(cfg); if (xb) host.appendChild(xb); host.appendChild(freeEl(cfg)); }
     refreshFig(); if (S.tab === "hon") refreshHon();
     renderTabs();
+    host.querySelectorAll("input[inputmode=decimal], input.numin").forEach(function (e) { if (window.numCheck) numCheck(e); });
+    var tc = $("#tabCur"); if (tc && tc.scrollIntoView && $("#tabs").scrollWidth > $("#tabs").clientWidth) tc.scrollIntoView({ block: "nearest", inline: "center" });
   }
   function parEl() {
     var w = document.createElement("div"); w.className = "elbody formbody";
@@ -533,7 +536,7 @@
   function head() { return "<thead><tr><th>" + esc(tt("c_pos")) + "</th><th>" + esc(tt("c_text")) + '</th><th class="num">' + esc(tt("c_qty")) + "</th><th>" + esc(tt("c_unit")) + '</th><th class="num">' + esc(tt("c_ep")) + '</th><th class="num">' + esc(tt("c_tot")) + "</th></tr></thead>"; }
   function groupedRows(lines) { var h = ""; ORDER.forEach(function (g) { var ls = lines.filter(function (l) { return l.grp === g; }); if (!ls.length) return; h += '<tr class="grp"><td colspan="6">' + esc(tt(g)) + "</td></tr>" + ls.map(rowHtml).join(""); }); return h; }
   function blk(id, title, sum, inner, cur, go) {
-    var closed = cur ? false : S.ui.closed[id];
+    var closed = cur ? false : S.ui.closed[id] !== false;   /* Standard: eingeklappt – nur der bearbeitete Datensatz ist offen */
     return '<div class="elres' + (closed ? " closed" : "") + (cur ? " cur" : "") + '" data-id="' + id + '"><button type="button" class="elhead" data-toggle="' + id + '" aria-expanded="' + (closed ? "false" : "true") + '"><span class="elt">' + esc(title) + "</span>" +
       (sum != null ? '<b class="els">' + chf(sum) + "</b>" : "") + "</button>" + '<div class="elres-body">' + (go && !cur ? '<p class="gorow no-print"><a href="#" data-go="' + go + '">✎ ' + esc(tt("recEdit")) + "</a></p>" : "") + inner + "</div></div>";
   }
@@ -586,15 +589,28 @@
       '<details class="ref no-summary no-print"><summary>' + esc(ts.hGloss) + '</summary><dl class="gloss">' + ts.gloss.map(function (g) { return "<dt>" + esc(g[0]) + "</dt><dd>" + esc(g[1]) + "</dd>"; }).join("") + "</dl></details>";
   }
 
+  /* Kostenleiste (immer sichtbar) und mobile Leiste: Netto, Total, Rabattstufe, OFFEN, Warnungen */
+  function warnGo(w) { return w.tab ? '<a href="#" class="wgo" data-go="' + w.tab + ":" + w.idx + '">' + esc(tt("tab_" + w.tab) + " · " + w.el) + "</a>: " : ""; }
+  function kpiRender(out, hon, n) {
+    var s = out.sum, nStop = out.warn.filter(function (w) { return w.sev === "stop"; }).length, nAmb = out.warn.filter(function (w) { return w.sev === "amber"; }).length;
+    var hn = r2(hon.reduce(function (a, x) { return a + x[1].net; }, 0)), cell = function (lab, v, cls) { return '<div class="kc' + (cls ? " " + cls : "") + '"><span class="kl">' + esc(lab) + '</span><b class="kv">CHF ' + chf(v) + "</b></div>"; };
+    var tags = '<span class="tag">' + esc(fill(tt("ux_stufe"), { s: s.stufe, p: s.pct })) + "</span>" +
+      (out.nOffen ? '<span class="tag amber">' + esc(fill(tt("ux_offen"), { n: out.nOffen })) + "</span>" : "") +
+      (nStop ? '<a href="#warns" class="tag stop">' + esc(fill(tt("ux_stop"), { n: nStop })) + "</a>" : "") +
+      (nAmb ? '<a href="#warns" class="tag amber">' + esc(fill(tt("ux_warn"), { n: nAmb })) + "</a>" : "");
+    $("#kpi").innerHTML = '<div class="kpi-main">' + cell(tt("ux_netto"), s.netto, "main") + cell(tt("ux_brutto"), s.brutto) + (hon.length ? cell(tt("ux_hon"), hn) : "") + "</div>" + (n ? '<div class="kpi-tags">' + tags + "</div>" : "");
+    $("#mbar").innerHTML = '<div><span class="kl">' + esc(tt("ux_netto")) + '</span><b>CHF ' + chf(s.netto) + "</b>" + (nStop ? ' <span class="tag stop">' + nStop + " !</span>" : "") + '</div><a class="btn" href="#kpi">' + esc(tt("ux_toRes")) + " ↓</a>";
+  }
   function renderResult() {
     var out = KVE.calc(S, LV); lastOut = out;
     var html = "", stop = out.warn.some(function (w) { return w.sev === "stop"; }), amber = out.warn.some(function (w) { return w.sev === "amber"; });
     var n = 0; out.elems.forEach(function (e) { n += e.lines.length; }); n += out.vor.lines.length + out.be.lines.length;
     var st = n === 0 ? "empty" : stop ? "stop" : amber ? "amber" : "ok";
     html += '<div class="status no-summary ' + (st === "stop" ? "stop" : st === "amber" ? "amber" : "ok") + '"><p class="stitle">' + esc(tt("st_" + st)) + "</p>";
+    if (st === "empty") html += '<p class="action">' + esc(tt("ux_emptyHint")) + "</p>";
     if (out.nOffen) html += '<p class="offennote">' + esc(fill(tt("x_nOffen"), { n: out.nOffen })) + "</p>";
     var top = out.warn.filter(function (w) { return w.sev !== "info"; }).slice(0, 4);
-    if (top.length) html += "<ul>" + top.map(function (w) { return "<li>" + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul>";
+    if (top.length) html += "<ul>" + top.map(function (w) { return "<li>" + warnGo(w) + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul>" + (out.warn.length > top.length ? '<p><a href="#warns">' + esc(tt("ux_allWarn")) + " (" + out.warn.length + ")</a></p>" : "");
     html += "</div>";
     if (n) {
       html += '<div class="no-summary"><h3>' + esc(tt("h_aufst")) + '</h3><div class="collrow no-print"><button type="button" class="btn ghost" data-act="collapse">' + esc(tt("btnCollapse")) + '</button><button type="button" class="btn ghost" data-act="expand">' + esc(tt("btnExpand")) + "</button></div>";
@@ -642,10 +658,11 @@
         '<tr class="sum"><td>' + esc(tt("gTot")) + '</td><td class="num">' + chf(r2(out.sum.brutto + hn + hm)) + "</td></tr></tbody></table>";
     }
     var ws = out.warn.slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
-    if (ws.length) html += '<div class="no-summary"><h3>' + esc(tt("h_warn")) + '</h3><ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + esc(w.tab ? tt("tab_" + w.tab) + " · " + w.el : (w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul></div>";
+    if (ws.length) html += '<div class="no-summary"><h3 id="warns" tabindex="-1">' + esc(tt("h_warn")) + '</h3><ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + (w.tab ? '<a href="#" data-go="' + w.tab + ":" + w.idx + '" title="' + esc(tt("ux_go")) + '">' + esc(tt("tab_" + w.tab) + " · " + w.el) + "</a>" : esc(w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul></div>";
     html += '<details class="ref no-summary"><summary>' + esc(tt("h_grund")) + "</summary><ul class='doclist' style='padding:6px 14px'>" + (T[S.lang] || T.de).g_list.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "<li>" + esc(tt("g_lvOnlyDE")) + "</li></ul></details>";
     html += '<div class="sigline print-only"><div>' + esc(tt("sigA")) + "</div><div>" + esc(tt("sigB")) + "</div></div>";
     $("#result").innerHTML = html;
+    kpiRender(out, hon, n);
     renderTabs(); refreshFig(); if (S.tab === "hon") refreshHon();
     var hb = $("#honBv"); if (hb) hb.value = chf(out.sum.netto);
     window.__OUT = out;
@@ -767,7 +784,9 @@
 
   /* ---------- Kopf, Sprache, Ereignisse ---------- */
   var KOPF = [["projekt", "projekt"], ["sap", "sap"], ["ort", "ort"], ["bearb", "bearb"], ["datum", "datum"], ["devisNr", "dv_nr"], ["lieferant", "dv_lieferant"], ["vertrag", "dv_vertrag"], ["termin", "dv_termin"], ["bem", "bem"]];
-  function applyKopf() { KOPF.forEach(function (k) { $("#p_" + k[0]).value = S.kopf[k[0]] || ""; }); $("#p_rolle").value = S.kopf.rolle; $("#p_belagLief").checked = !!S.kopf.belagLief; }
+  function applyKopf() { KOPF.forEach(function (k) { $("#p_" + k[0]).value = S.kopf[k[0]] || ""; }); $("#p_rolle").value = S.kopf.rolle; $("#p_belagLief").checked = !!S.kopf.belagLief; kopfSum(); }
+  function kopfSum() { var k = S.kopf, p = [k.projekt, k.sap ? "SAP " + k.sap : "", k.ort].filter(Boolean).join(" · ");
+    $("#kopfSum").innerHTML = "<b>" + esc(tt("ux_kopf")) + '</b><span class="ks">' + esc(p || tt("ux_kopfLeer")) + "</span>"; }
   function applyLang() {
     document.documentElement.lang = S.lang;
     $("#t-title").textContent = tt("title"); $("#t-sub").textContent = tt("sub"); $("#t-role").textContent = tt("creatorRole");
@@ -778,13 +797,30 @@
     $("#bPrint").textContent = tt("btnPrint"); $("#bPrintSum").textContent = tt("btnPrintSum"); $("#bXlsx").textContent = tt("btnXlsx"); $("#bSave").textContent = tt("btnSave"); $("#bLoad").textContent = tt("btnLoad"); $("#bNew").textContent = tt("btnNew");
     document.querySelectorAll(".langs button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.lang === S.lang ? "true" : "false"); });
     $("#versionline").innerHTML = "<b>" + esc(tt("version")) + " 2.0</b><span>Build " + BUILD + "</span><span>LV DE V1.1 (10.07.2026)</span><span>LV FR V1.0 (27.06.2026)</span><span>LV IT V1.0 (27.06.2026)</span>";
+    $("#skipRes").textContent = tt("ux_skip"); $("#lbClose").setAttribute("aria-label", tt("ux_close")); kopfSum();
     LVARR = null; renderForm(); renderResult();
   }
   function init() {
-    KOPF.forEach(function (k) { $("#p_" + k[0]).addEventListener("input", function () { S.kopf[k[0]] = this.value; save(); }); });
+    KOPF.forEach(function (k) { $("#p_" + k[0]).addEventListener("input", function () { S.kopf[k[0]] = this.value; save(); kopfSum(); }); });
+    if (S.ui.kopfZu) $("#kopfbox").open = false;
+    $("#kopfbox").addEventListener("toggle", function () { S.ui.kopfZu = !this.open; save(); });
     $("#p_rolle").addEventListener("change", function () { S.kopf.rolle = this.value; save(); });
     $("#p_belagLief").addEventListener("change", function () { S.kopf.belagLief = this.checked; var v = this.checked ? "dritte" : "typN";
       LVTABS.forEach(function (t) { S.recs[t].forEach(function (e) { if (e.belag) e.belag.einbau = v; }); }); save(); renderForm(); renderResult(); });
+    var NUMOK = /^[+-]?(\d+([.,]\d*)?|[.,]\d+)$/;
+    window.numCheck = function (el) {
+      var v = el.value.trim(), bad = v !== "" && !NUMOK.test(v), id = el.id ? el.id + "_err" : "", m = id && document.getElementById(id);
+      el.classList.toggle("bad", bad); if (bad) el.setAttribute("aria-invalid", "true"); else el.removeAttribute("aria-invalid");
+      if (bad && !m && id) { m = document.createElement("p"); m.className = "hint err"; m.id = id; m.textContent = tt("ux_numBad"); el.insertAdjacentElement("afterend", m); el.setAttribute("aria-describedby", id); }
+      if (!bad && m) { m.remove(); el.removeAttribute("aria-describedby"); }
+    };
+    $("#formwrap").addEventListener("input", function (ev) { var e = ev.target; if (e.matches && e.matches("input[inputmode=decimal], input.numin")) numCheck(e); });
+    /* Reiter: Pfeiltasten, Pos1/Ende (WAI-ARIA Tabs) */
+    $("#tabs").addEventListener("keydown", function (ev) {
+      var keys = { ArrowRight: 1, ArrowLeft: -1, Home: "first", End: "last" }, k = keys[ev.key]; if (!k) return; ev.preventDefault();
+      var i = ALLTABS.indexOf(S.tab), j = k === "first" ? 0 : k === "last" ? ALLTABS.length - 1 : (i + k + ALLTABS.length) % ALLTABS.length;
+      S.tab = ALLTABS[j]; save(); renderForm(); renderResult(); var b = $("#tabCur"); if (b) b.focus();
+    });
     $("#tabs").addEventListener("click", function (ev) { var b = ev.target.closest("[data-tab]"); if (!b) return; S.tab = b.dataset.tab; save(); renderForm(); renderResult(); });
     $("#form").addEventListener("click", function (ev) {
       var b = ev.target.closest("[data-rec]"); if (!b) return; var a = b.dataset.rec, L = S.recs[S.tab];
@@ -797,14 +833,16 @@
     });
     $("#result").addEventListener("click", function (ev) {
       var g = ev.target.closest("[data-go]"); if (g) { ev.preventDefault(); var p = g.dataset.go.split(":"); S.tab = p[0]; S.idx[p[0]] = +p[1]; save(); renderForm(); renderResult(); window.scrollTo({ top: $("#tabs").offsetTop - 8, behavior: "smooth" }); return; }
-      var im = ev.target.closest("img[data-lb]"); if (im) { $("#lb img").src = im.src; $("#lb").classList.add("on"); return; }
+      var im = ev.target.closest("img[data-lb]"); if (im) { $("#lb img").src = im.src; $("#lb img").alt = im.alt || ""; $("#lb").classList.add("on"); lbFrom = im; $("#lbClose").focus(); return; }
       var t = ev.target.closest("[data-toggle]"); if (t) { var box = t.closest(".elres"), cl = !box.classList.contains("closed"); box.classList.toggle("closed", cl); t.setAttribute("aria-expanded", cl ? "false" : "true"); S.ui.closed[t.dataset.toggle] = cl; save(); return; }
       var a = ev.target.closest("[data-act]"); if (!a) return; var c = a.dataset.act === "collapse";
       document.querySelectorAll("#result .elres").forEach(function (bx) { bx.classList.toggle("closed", c); S.ui.closed[bx.dataset.id] = c; });
     });
-    $("#lb").addEventListener("click", function () { this.classList.remove("on"); });
+    var lbFrom = null, lbShut = function () { if (!$("#lb").classList.contains("on")) return; $("#lb").classList.remove("on"); if (lbFrom && lbFrom.focus) lbFrom.focus(); };
+    $("#lb").addEventListener("click", lbShut);
+    document.addEventListener("keydown", function (ev) { if (ev.key === "Escape") lbShut(); });
     var st = [];
-    window.addEventListener("beforeprint", function () { st = []; document.querySelectorAll("#result details").forEach(function (d) { st.push([d, d.open]); d.open = true; }); });
+    window.addEventListener("beforeprint", function () { st = []; document.querySelectorAll("#result details, #kopfbox").forEach(function (d) { st.push([d, d.open]); d.open = true; }); });
     window.addEventListener("afterprint", function () { st.forEach(function (x) { x[0].open = x[1]; }); document.body.classList.remove("summary-print"); });
     document.querySelectorAll(".langs button").forEach(function (b) { b.onclick = function () { S.lang = b.dataset.lang; save(); applyLang(); }; });
     $("#bPrint").onclick = function () { window.print(); };

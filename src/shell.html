@@ -13,6 +13,7 @@
 </style>
 </head>
 <body>
+<a class="skip no-print" href="#result" id="skipRes"></a>
 <div class="sheet">
   <header class="plankopf">
     <div class="brandrow">
@@ -37,6 +38,8 @@
         <button type="button" class="btn ghost" id="bNew"></button>
       </div>
     </div>
+    <details class="kopfbox" id="kopfbox" open>
+    <summary id="kopfSum"></summary>
     <div class="kopfzeile">
       <div><label for="p_projekt" id="l_projekt"></label><input id="p_projekt" type="text" autocomplete="off"></div>
       <div><label for="p_sap" id="l_sap"></label><input id="p_sap" type="text" autocomplete="off"></div>
@@ -55,23 +58,25 @@
       <div><label for="p_bem" id="l_bem"></label><input id="p_bem" type="text" autocomplete="off"></div>
       <div class="chk"><label class="check"><input type="checkbox" id="p_belagLief"><span id="l_belagLief"></span></label></div>
     </div>
+    </details>
     <p class="versionline" id="versionline"></p>
+    <p class="savestate no-print" id="saveState" role="status" aria-live="polite"></p>
   </header>
 
-  <nav class="tabsbar no-print" id="tabs" role="tablist" aria-label="Reiter"></nav>
+  <nav class="no-print" aria-label="Reiter"><div class="tabsbar" id="tabs" role="tablist" aria-label="Reiter"></div></nav>
 
-  <div class="cols">
+  <main class="cols" id="main">
     <form class="form no-print" id="formwrap" autocomplete="off" onsubmit="return false">
       <details class="help no-print">
         <summary id="helpTitle"></summary>
         <ol id="helpSteps"></ol>
         <p id="helpNote"></p>
       </details>
-      <div id="form"></div>
+      <div id="form" role="tabpanel" aria-labelledby="tabCur"></div>
     </form>
     <section class="result">
       <h2><span class="num">2</span><span id="h-result"></span></h2>
-      <div id="result"></div>
+      <div class="kpi no-print" id="kpi" aria-live="polite"></div>
       <div class="resbar no-print">
         <button type="button" class="btn" id="bPrint"></button>
         <button type="button" class="btn ghost" id="bPrintSum"></button>
@@ -80,11 +85,13 @@
         <button type="button" class="btn ghost" id="bLoad"></button>
         <input type="file" id="fileIn" accept=".json,application/json">
       </div>
+      <div id="result" tabindex="-1"></div>
     </section>
-  </div>
+  </main>
+  <div class="mbar no-print" id="mbar"></div>
   <footer>© 2026 Alessandro Cortese · LV-Devis Tiefbau · App-Konzept, Struktur und fachliche Ausgestaltung. Enthält KV-Assistent Tiefbau und Auswahl Schachtbau und Abdeckungen (A. Cortese). LV V1.1 (10.07.2026).</footer>
 </div>
-<div id="lb" role="dialog" aria-label="Zeichnung"><img alt=""></div>
+<div id="lb" role="dialog" aria-modal="true" aria-label="Zeichnung"><button type="button" class="lbclose" id="lbClose">×</button><img alt=""></div>
 <script>var BUILD = "/*@@BUILD@@*/";</script>
 /*@@SCRIPTS@@*/
 </body>

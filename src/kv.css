@@ -270,7 +270,7 @@ dl.gloss dd{margin:0;color:var(--ink)}
   --page:#f0f1f3;
   --paper:#ffffff;
   --ink:#1a1c1e;
-  --ink-soft:#71767c;
+  --ink-soft:#5d6167;   /* vorher #71767c: 4.3:1 auf Hellgrau, jetzt ≥ 5.8:1 (WCAG AA) */
   --rule:#e4e6e9;
   --rule-strong:#d3d7dc;
   --navy:#0d47c8;
@@ -491,11 +491,11 @@ body.expired .cols{display:none}
 .kopfzeile select:hover{background:#f6f7f8}
 .elem{margin-bottom:12px}
 .elbody{padding:6px 15px 14px}
-.elbody h4{
+.elbody h4,.elbody h3.sec{
   font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);
   margin:18px 0 10px;padding-top:12px;border-top:1px solid var(--rule);
 }
-.elbody h4:first-child{border-top:0;margin-top:6px;padding-top:0}
+.elbody h4:first-child,.elbody h3.sec:first-child{border-top:0;margin-top:6px;padding-top:0}
 .elbody .field{margin-bottom:11px}
 .elbody .btns{margin-top:14px}
 .btn.ghost{padding:8px 13px;font-size:13px}
