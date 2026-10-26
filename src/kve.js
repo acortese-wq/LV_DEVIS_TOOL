@@ -353,6 +353,18 @@ var KVE = (function () {
     var lae = c.rohrSystem === "laengs", n = Math.max(1, num(lae ? c.n2 : c.n, 1)), d = rohrOD(lae ? c.dn2 : c.dn), per = Math.min(n, PER_LAGE);
     return { a: per * d + (per - 1) * PIPE_GAP, src: "rohre", lagen: Math.ceil(n / PER_LAGE) };
   }
+  /* Leitungszone aus dem Rohrverband: Bettung unter den Rohren + Rohrlagen + Umhüllung über den Rohren (min. 5 cm),
+     über die ganze Grabenbreite; Material = Querschnitt − Rohrquerschnitte. Modus «manuell»: erfasste Fläche (m²/m). */
+  var UMH_MIN = 0.05;
+  function zoneQ(c, b, T) {
+    if (c.umhMode === "manuell") { var A0 = num(c.umhArea, 0.035); return { auto: false, A: A0, Ab: A0, Ap: 0, hZ: b > 0 ? A0 / b : 0, hR: 0, bett: 0, umh: 0 }; }
+    var lae = c.rohrSystem === "laengs", n = Math.max(1, num(lae ? c.n2 : c.n, 1)), d = rohrOD(lae ? c.dn2 : c.dn), lagen = Math.ceil(n / PER_LAGE);
+    var umhIn = num(c.umh, 5), umh = Math.max(UMH_MIN, umhIn / 100), bett = Math.max(0, num(c.bett, 5) / 100);
+    var hR = lagen * d + (lagen - 1) * PIPE_GAP, hZ = bett + hR + umh, zuHoch = T > 0 && hZ > T + 1e-9;
+    if (zuHoch) hZ = T;
+    var Ab = b * hZ, Ap = n * Math.PI * d * d / 4, A = Math.max(0, Ab - Ap);
+    return { auto: true, A: A, Ab: Ab, Ap: Ap, hZ: hZ, hR: hR, bett: bett, umh: umh, umhIn: umhIn, umhMin: umhIn / 100 < UMH_MIN - 1e-9, zuHoch: zuHoch, n: n, d: d, lagen: lagen };
+  }
   /* Grabenbreite – einzige Quelle für Rechnung UND Grafik (VSE 1103d Ziff. 3.3.1, BauAV Art. 55).
      Ohne erfasstes Aussenmass wird es aus dem Rohrverband abgeleitet. */
   function grabenBreite(c) {
@@ -472,14 +484,20 @@ var KVE = (function () {
       cx.w("spriesAnn", "info", {});
     }
 
-    var Ve = Math.max(0, V - bi.Valt);
-    var au = num(c.umhArea, 0.035), blockA = 0;
+    var Ve = Math.max(0, V - bi.Valt), blockA = 0, zq = null, Vz, Vu;
     if (c.rohrSystem === "block" && c.block) blockA = num(c.block.breite, 0) * num(c.block.hoehe, 0);
-    var Vu = c.rohrSystem === "block" ? L * blockA : L * au;
-    var Vv = Math.max(0, V - Vu - bi.Vneu);
-    var vvr = "V " + s2(V) + " − " + (c.rohrSystem === "block" ? "Rohrblock (Eingabe Aussenmass)" : "Leitungszone") + " " + s2(Vu) + " − Belag/Fundation " + s2(bi.Vneu) + " = " + s2(Vv) + " m³";
+    if (c.rohrSystem === "block") { Vz = Vu = L * blockA; }
+    else {
+      zq = zoneQ(c, b, T);
+      if (zq.umhMin) cx.w("umhMin", "amber", { u: zq.umhIn });
+      if (zq.zuHoch) cx.w("zoneHoch", "amber", { h: r2(zq.hZ), T: T });
+      Vz = L * zq.Ab; Vu = L * zq.A;   /* Vz: Raum der Zone inkl. Rohre (wird nicht verfüllt); Vu: Material ohne Rohre */
+    }
+    var Vv = Math.max(0, V - Vz - bi.Vneu);
+    var vvr = "V " + s2(V) + " − " + (c.rohrSystem === "block" ? "Rohrblock (Eingabe Aussenmass)" : "Leitungszone inkl. Rohre") + " " + s2(Vz) + " − Belag/Fundation " + s2(bi.Vneu) + " = " + s2(Vv) + " m³";
     if (c.rohrSystem === "block") { if (blockA <= 0) cx.w("blockMassFehlt", "amber", {}); }
-    else zone(cx, Vu, c, s2(L) + " m × " + au + " m²/m = " + s2(Vu) + " m³");
+    else zone(cx, Vu, c, zq.auto ? s2(L) + " m × (" + s2(b) + " m × " + s2(zq.hZ) + " m [" + s2(zq.bett) + " Bettung + " + s2(zq.hR) + " Rohre + " + s2(zq.umh) + " Umhüllung] − " + s2(zq.Ap) + " m² Rohre) = " + s2(Vu) + " m³"
+      : s2(L) + " m × " + zq.A + " m²/m = " + s2(Vu) + " m³");
     var vrs = verfuellung(cx, Ve, Vv, c, !!c.direkt, vvr);
     if (Vv <= 0 && V > 0) cx.w("verfNull", "amber", {});
     if (c.rohrSystem === "block") rohrblock(cx, c, L);
@@ -489,7 +507,7 @@ var KVE = (function () {
     boeschung(cx, c);
 
     cx.b("b_V", "m³", V); cx.b("b_Vbelag", "m³", bi.Valt); cx.b("b_Ve", "m³", Ve);
-    cx.b("b_Vu", "m³", Vu); cx.b("b_Vneu", "m³", bi.Vneu); cx.b("b_Vv", "m³", Vv);
+    cx.b("b_Vu", "m³", Vu); if (Vz !== Vu) cx.b("b_Vz", "m³", Vz); cx.b("b_Vneu", "m³", bi.Vneu); cx.b("b_Vv", "m³", Vv);
     cx.b("b_R", "m³", vrs.R); cx.b("b_fremd", "m³", vrs.fremd); cx.b("b_Vs", "m³", vrs.Vs);
     return { lines: cx.lines, warn: cx.warn, bal: cx.bal, geo: { b: b, V: V, A: A, Schnitt: Schnitt } };
   }
@@ -961,8 +979,10 @@ var KVE = (function () {
         var h = e.hand || "normal", ha = h === "normal" ? "eng" : h === "eng" ? "sehr_eng" : "eng";
         rows.push({ el: e.name, id: "a_hand", val: "o_hand_" + h, alt: "o_hand_" + ha, d: delta(function (Q) { Q.recs[tab][i].hand = ha; }) });
         if (tab === "graben") {
-          var u = num(e.umhArea, 0.035);
-          rows.push({ el: e.name, id: "a_umh", val: String(u) + " m²/m", alt: String(r2(u + 0.01)) + " m²/m", d: delta(function (Q) { Q.recs[tab][i].umhArea = String(u + 0.01); }) });
+          if (e.umhMode === "manuell") { var u = num(e.umhArea, 0.035);
+            rows.push({ el: e.name, id: "a_umh", val: String(u) + " m²/m", alt: String(r2(u + 0.01)) + " m²/m", d: delta(function (Q) { Q.recs[tab][i].umhArea = String(u + 0.01); }) }); }
+          else if (e.rohrSystem !== "block") { var uu = Math.max(5, num(e.umh, 5));
+            rows.push({ el: e.name, id: "a_umhCm", val: uu + " cm", alt: (uu + 5) + " cm", d: delta(function (Q) { Q.recs[tab][i].umh = String(uu + 5); }) }); }
         } else {
           var ar = num(e.arbeit, 0.5), ara = ar >= 0.5 ? 0.75 : 0.5;
           rows.push({ el: e.name, id: "a_arbeit", val: ar.toFixed(2) + " m", alt: ara.toFixed(2) + " m", d: delta(function (Q) { Q.recs[tab][i].arbeit = String(ara); }) });
@@ -980,5 +1000,5 @@ var KVE = (function () {
 
   return { calc: calc, calcRec: calcRec, sens: sens, r2: r2, num: num, STAFFEL: STAFFEL, SCHACHT: SCHACHT, MWST: MWST, HAND: HAND, ASPHALT_T: ASPHALT_T,
            COMPLETE: COMPLETE, LOC_INFO: LOC_INFO, TABS: TABS, ROH: ROH, BOE: BOE, MUF: MUF, VK: VK, KVS: KVS, PS_AUF: PS_AUF, ABSCHL: ABSCHL,
-           sizeOf: sizeOf, sysDefault: sysDefault, shapeOf: shapeOf, grabenBreite: grabenBreite, blockMass: blockMass, rohrOD: rohrOD, PER_LAGE: PER_LAGE };
+           sizeOf: sizeOf, sysDefault: sysDefault, shapeOf: shapeOf, grabenBreite: grabenBreite, zoneQ: zoneQ, blockMass: blockMass, rohrOD: rohrOD, PER_LAGE: PER_LAGE };
 })();

@@ -11,7 +11,7 @@ App-Konzept und Urheber: **Alessandro Cortese**. Dieser Skill verwendet denselbe
 
 - Kosten entstehen **nur durch Ausführen** von `python3 scripts/rechne.py eingabe.json` im Code-/Bash-Werkzeug. Das Skript lädt Preise und Rechenregeln selbst.
 - Die Dateien in `scripts/daten/` und `scripts/kve.py` **nie öffnen oder lesen** – sie sind nicht zum Lesen gedacht, und ihr Inhalt wird für die Rechnung nicht im Chat gebraucht. Ein Grössenlimit beim Lesen ist deshalb **kein** Grund, nicht zu rechnen.
-- **Selbsttest** bei Unsicherheit: `python3 scripts/rechne.py beispiele/beispiel_graben_schacht.json --md-only` → erwartet «Netto exkl. MWST 16'458.13». Klappt das, funktioniert der Skill.
+- **Selbsttest** bei Unsicherheit: `python3 scripts/rechne.py beispiele/beispiel_graben_schacht.json --md-only` → erwartet «Netto exkl. MWST 16'876.68». Klappt das, funktioniert der Skill.
 - Nur wenn **kein** Werkzeug zur Code-Ausführung vorhanden ist (Befehl lässt sich gar nicht starten), gilt der Abschnitt «Falls keine Code-Ausführung möglich ist» am Schluss.
 
 ## Grundregeln (immer einhalten)

@@ -44,9 +44,12 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 | `einzug` | Einzug | `keine` Keiner<br>`schnur` Schnur<br>`draht` Draht | `"schnur"` | !isBlock(c) |
 | `azlist` | Abzweiger / T-Stücke | abzweiger `[{…}]` | `""` | rohrSystem === "laengs" |
 | **Leitungszone und Verfüllung** | | | | |
-| `umhType` | Leitungszone | `kies` Kies/Sand (Bettung, Verdämmung)<br>`beton` Beton (Zementgehalt 200 kg/m³) | `"kies"` | rohrSystem === "k55" |
-| `umhMat` | Material Umhüllung | `betonkies` Betonkies 0/16<br>`sand` Sand 0/4<br>`kies48` Kies 4/8 | `"betonkies"` | isStd(c) && umhType === "kies" |
-| `umhArea` | Querschnitt Leitungszone (m²/m)<br><i>Vorschlagswert; bei Bedarf überschreiben.</i> | Zahl (Text) | `"0.035"` | rohrSystem === "k55" |
+| `umhType` | Leitungszone | `kies` Kies/Sand (Bettung, Verdämmung)<br>`beton` Beton (Zementgehalt 200 kg/m³) | `"kies"` | rohrSystem !== "block" |
+| `umhMat` | Material Umhüllung | `betonkies` Betonkies 0/16<br>`sand` Sand 0/4<br>`kies48` Kies 4/8 | `"betonkies"` | notBlock(c) && umhType === "kies" |
+| `umhMode` | Querschnitt Leitungszone | `auto` Aus Rohren berechnen (Bettung + Rohre + Umhüllung)<br>`manuell` Fläche manuell (m²/m) | `"auto"` | rohrSystem !== "block" |
+| `bett` | Bettung unter Rohr (cm) | Zahl (Text) | `"5"` | notBlock(c) && umhMode !== "manuell" |
+| `umh` | Umhüllung über Rohr (cm, min. 5)<br><i>Leitungszone = Grabenbreite × (Bettung + Rohrlagen + Umhüllung) − Rohrquerschnitte. Umhüllung mindestens 5 cm.</i> | Zahl (Text) | `"5"` | notBlock(c) && umhMode !== "manuell" |
+| `umhArea` | Querschnitt Leitungszone (m²/m)<br><i>Vorschlagswert; bei Bedarf überschreiben.</i> | Zahl (Text) | `"0.035"` | notBlock(c) && umhMode === "manuell" |
 | `verf` | Verfüllung<br><i>Menge = Aushub abzüglich Einbauten (LV 151, Ausmassbestimmung 026.200); durchgehend Volumen fest.</i> | `aushub` Aushubmaterial wiederverwenden<br>`kies045` Kiesgemisch 0/45 frostsicher (geliefert)<br>`kies016` Kiesgemisch 0/16 frostsicher (geliefert)<br>`betonkies` Betonkies 0/16 (geliefert) | `"aushub"` |  |
 | `einfHand` | Einfüllen von Hand | true/false | `false` |  |
 | **Belag** | | | | |

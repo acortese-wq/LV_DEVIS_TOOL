@@ -35,7 +35,7 @@ def graben(i):
             "einzug": ch(["keine", "schnur", "draht"]), "dn2": ch(["100", "120", "150"]), "n2": ch(["1", "2"]),
             "abzweiger": [{"art": ch(list(kve.ABZW)), "n": ch(["1", "2"])}] if R.random() < 0.5 else [],
             "bloecke": [{"dn": ch(["55", "100", "120"]), "n": ch(["1", "3", "5"]), "lagen": ch(["1", "2", "m"]), "len": ch(["5", "10"])} for _ in range(R.randint(1, 2))],
-            "block": {"breite": ch(["0", "0.5"]), "hoehe": "0.3"}, "umhType": ch(["kies", "beton"]), "umhMat": ch(["betonkies", "sand", "kies48"]), "umhArea": ch(["0.035", "0.05"]),
+            "block": {"breite": ch(["0", "0.5"]), "hoehe": "0.3"}, "umhType": ch(["kies", "beton"]), "umhMat": ch(["betonkies", "sand", "kies48"]), "umhArea": ch(["0.035", "0.05"]), "umhMode": ch(["auto", "auto", "manuell"]), "bett": ch(["5", "10", ""]), "umh": ch(["5", "3", "10", ""]),
             "verf": ch(["aushub", "kies045", "kies016", "betonkies"]), "einfHand": ch([True, False]), "Lb": ch(["", f(0, 60, 1)]), "belag": belag(),
             "mods": {"ersch": True, "fremd": True, "boesch": True}, "ersch": ersch() if R.random() < 0.5 else {"klasse": "keine", "verf": "keine", "hind": "keine", "hindVol": "0.3"},
             "kreuz": {"on": ch([True, False]), "n": ch(["0", "2"]), "len": "1.00", "richtung": ch(["laengs", "quer"])}, "zores": {"on": ch([True, False]), "len": f(0, 10), "zustand": ch(["abrechen", "betrieb", "nicht"])},

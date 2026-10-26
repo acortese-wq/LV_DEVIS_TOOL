@@ -106,7 +106,8 @@ var FIG = (function () {
       var o = '<rect x="20" y="' + gy + '" width="460" height="' + (th + 26) + '" fill="url(#pSo)" opacity=".5"/>', bd = band(20, gy, 460, sf, s); o += bd.o;
       var kies = r.verf && r.verf !== "aushub";
       o += '<rect x="' + x0 + '" y="' + gy + '" width="' + tw + '" height="' + th + '" fill="' + (kies ? "url(#pGr)" : "url(#pSo)") + '" stroke="var(--ink)" stroke-width="1.2"/>';
-      var block = r.rohrSystem === "block", uh = block ? Math.min(th * 0.85, num((r.block || {}).hoehe, 0.3) * s) : Math.min(th * 0.85, Math.max(0.12, num(r.umhArea, 0.035) / B) * s), uy = gy + th - uh;
+      var block = r.rohrSystem === "block", ZQ = block ? null : KVE.zoneQ(r, B, T0);   /* Leitungszone wie in der Rechnung */
+      var uh = block ? Math.min(th * 0.85, num((r.block || {}).hoehe, 0.3) * s) : Math.min(th, Math.max(4, ZQ.hZ * s)), uy = gy + th - uh;
       var ufill = block || r.umhType === "beton" ? "url(#pCo)" : "url(#pBk)", uw = block ? Math.min(tw, num((r.block || {}).breite, 0.5) * s) : tw;
       o += '<rect x="' + (x0 + (tw - uw) / 2) + '" y="' + uy + '" width="' + uw + '" height="' + uh + '" fill="' + ufill + '" stroke="var(--ink)" stroke-width=".8" stroke-dasharray="3 2"/>';
       var pipes = [];
@@ -116,13 +117,14 @@ var FIG = (function () {
       if (pipes.length) { var od = KVE.rohrOD, rm = Math.max(3, od(Math.max.apply(null, pipes)) / 2 * s), gap = Math.max(3, 0.04 * s), per = Math.max(1, Math.floor((uw - 4) / (2 * rm + gap)));
         if (!block) per = Math.min(per, KVE.PER_LAGE);
         pipes.forEach(function (dn, i) { var row = Math.floor(i / per), n = Math.min(per, pipes.length - row * per), k = i % per, rr = Math.max(3, od(dn) / 2 * s);
-          var cx = x0 + tw / 2 + (k - (n - 1) / 2) * (2 * rm + gap), cy = gy + th - rm - 4 - row * (2 * rm + gap);
+          var cx = x0 + tw / 2 + (k - (n - 1) / 2) * (2 * rm + gap), cy = gy + th - rm - (ZQ && ZQ.auto ? ZQ.bett * s : 4) - row * (2 * rm + gap);
           o += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rr + '" fill="' + (dn >= 100 ? "var(--pipe2)" : "var(--pipe)") + '" stroke="var(--ink)" stroke-width=".8"/><circle cx="' + cx + '" cy="' + cy + '" r="' + rr * 0.62 + '" fill="var(--figbg)"/>'; }); }
       if (sf.k === "bit") o += '<path d="M' + x0 + " " + (gy - 8) + "v" + (bd.h + 10) + "M" + (x0 + tw) + " " + (gy - 8) + "v" + (bd.h + 10) + '" stroke="var(--cut)" stroke-width="2"/>';
       if (r.gesp) o += '<path d="M' + (x0 + 2) + " " + gy + "V" + (gy + th) + "M" + (x0 + tw - 2) + " " + gy + "V" + (gy + th) + '" stroke="var(--copper)" stroke-width="4"/>';
       var hk = { normal: 0.10, eng: 0.30, sehr_eng: 0.50 }[r.hand] || 0.10;
       o += '<rect x="' + x0 + '" y="' + (gy + bd.h) + '" width="' + tw * hk + '" height="' + (th - bd.h) + '" fill="var(--navy)" opacity=".12"/>';
-      o += dimH(x0, x0 + tw, gy - 16, (GB.abgel || (GB.a > 0 && (GB.mode === "begangen" || GB.mode === "nicht_begangen")) ? "b = " + fq(Math.round(GB.a * 100) / 100) + (GB.abgel ? " (" + tt(GB.src === "block" ? "ux_aussenBlock" : "ux_aussenAuto") + ")" : "") + " + " + (GB.mode === "begangen" ? "0.40" : "0.10") + " = " : "b = ") + fq(Math.round(B * 100) / 100) + " m" + (GB.fehlt ? " – " + tt("ux_aussenFig") : "")) + dimV(x0 - 16, gy, gy + th, "T = " + fq(T0) + " m");
+      o += dimH(x0, x0 + tw, gy - 16, (GB.abgel || (GB.a > 0 && (GB.mode === "begangen" || GB.mode === "nicht_begangen")) ? "b = " + fq(Math.round(GB.a * 100) / 100) + (GB.abgel ? " (" + tt(GB.src === "block" ? "ux_aussenBlock" : "ux_aussenAuto") + ")" : "") + " + " + (GB.mode === "begangen" ? "0.40" : "0.10") + " = " : "b = ") + fq(Math.round(B * 100) / 100) + " m" + (GB.fehlt ? " – " + tt("ux_aussenFig") : "")) + dimV(x0 - 16, gy, gy + th, "T = " + fq(T0) + " m")
+        + (ZQ && ZQ.auto ? dimV(x0 + tw + 12, uy, gy + th, fq(Math.round(ZQ.hZ * 100) / 100) + " m", "start") : "");
       var L = [[sf.k === "bit" ? "var(--asph)" : sf.k === "wiese" ? "var(--grassL)" : sf.k === "pflaster" ? "var(--conc)" : "url(#pGr)", surfLabel(r.belag)],
         [ufill, block ? tt("o_rohrSystem_block") : tt("s_zone")], [kies ? "url(#pGr)" : "url(#pSo)", tt("f_verf") + ": " + tt("o_verf_" + (r.verf || "aushub"))],
         ["var(--pipe)", block ? tt("o_rohrSystem_block") : pipes.length + " × DN " + (pipes[0] || "")], ["var(--navy)", tt("f_hand") + ": " + tt("o_hand_" + (r.hand || "normal"))]];

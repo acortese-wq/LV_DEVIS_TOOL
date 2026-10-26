@@ -47,6 +47,7 @@ App-Konzept und Urheber: Alessandro Cortese. Prüfung mit Chromium (Desktop 1440
 | 27 | Rohrblock | Block nur als graues Rechteck im Graben | Zusätzlicher Querschnitt: Teilblöcke mit Rohren je Lage, DN, Aussenmass b × h, Hinweis «im LV / OFFEN», Platzbedarf und Warnung «Aussenmass zu klein?» |
 | 28 | Rohranlage | Statische Übersicht der Bauteile | Live-Darstellung der erfassten Mengen: Rohre als Balken (Länge proportional), Muffen, Bogen, Rohrschnitte, Warnband, Erdband, Schnur, Kalibrieren |
 | 29 | Grabenbreite nach VSE | Ohne erfasstes Aussenmass immer 0.60 m – Anzahl und DN der Rohre ohne Einfluss | Aussenmass wird aus dem Rohrverband abgeleitet (max. 4 Rohre je Lage, 4 cm Abstand, Ø ≈ DN × 1.15 + 5 mm; Rohrblock: erfasste Breite bzw. Platzbedarf), Breite = Aussenmass + 0.40 / + 0.10 m; Grafik, Rechnung und Skill identisch; Hinweis «abgeleitet» und Warnung, wenn der Rohrverband nicht in die Breite passt |
+| 30 | Leitungszone | Pauschal 0.035 m²/m, unabhängig von Rohren und Grabenbreite; Rohre ragten in der Grafik aus der Zone | Berechnet aus Bettung (Vorgabe 5 cm) + Rohrlagen + Umhüllung (min. 5 cm, kleinere Eingaben werden auf 5 cm angehoben) über die Grabenbreite, abzüglich Rohrquerschnitte; Raum der Zone inkl. Rohre wird nicht verfüllt. Modus «Fläche manuell» bleibt. Grafik, Rechnung und Skill identisch |
 
 ## Nicht umgesetzt – Empfehlungen
 

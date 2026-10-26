@@ -2224,6 +2224,16 @@ Object.assign(TS.it,{
   var L = ["de", "fr", "it", "en"];
   function A(o) { Object.keys(o).forEach(function (k) { L.forEach(function (l, i) { T[l][k] = o[k][i] != null ? o[k][i] : o[k][0]; }); }); }
   A({
+    f_umhMode: ["Querschnitt Leitungszone", "Section de la zone de conduite", "Sezione zona condotte", "Pipe zone cross-section"],
+    o_umhMode_auto: ["Aus Rohren berechnen (Bettung + Rohre + Umhüllung)", "Calculer selon les tubes (lit + tubes + enrobage)", "Calcolare dai tubi (letto + tubi + rinfianco)", "Calculate from conduits (bedding + conduits + surround)"],
+    o_umhMode_manuell: ["Fläche manuell (m²/m)", "Surface manuelle (m²/m)", "Superficie manuale (m²/m)", "Area manual (m²/m)"],
+    f_bett: ["Bettung unter Rohr (cm)", "Lit de pose sous tube (cm)", "Letto sotto il tubo (cm)", "Bedding below conduit (cm)"],
+    f_umh: ["Umhüllung über Rohr (cm, min. 5)", "Enrobage au-dessus du tube (cm, min. 5)", "Rinfianco sopra il tubo (cm, min. 5)", "Surround above conduit (cm, min. 5)"],
+    hint_umhAuto: ["Leitungszone = Grabenbreite × (Bettung + Rohrlagen + Umhüllung) − Rohrquerschnitte. Umhüllung mindestens 5 cm.", "Zone = largeur × (lit + couches de tubes + enrobage) − sections des tubes. Enrobage au moins 5 cm.", "Zona = larghezza × (letto + strati di tubi + rinfianco) − sezioni dei tubi. Rinfianco almeno 5 cm.", "Zone = trench width × (bedding + conduit layers + surround) − conduit sections. Surround at least 5 cm."],
+    w_umhMin: ["Umhüllung {u} cm unter dem Minimum von 5 cm – gerechnet mit 5 cm.", "Enrobage {u} cm inférieur au minimum de 5 cm – calculé avec 5 cm.", "Rinfianco {u} cm sotto il minimo di 5 cm – calcolato con 5 cm.", "Surround {u} cm below the 5 cm minimum – 5 cm used."],
+    w_zoneHoch: ["Leitungszone ({h} m) höher als die Grabentiefe {T} m – Tiefe oder Anordnung prüfen.", "Zone de conduite ({h} m) plus haute que la profondeur {T} m – vérifier.", "Zona condotte ({h} m) più alta della profondità {T} m – verificare.", "Pipe zone ({h} m) higher than trench depth {T} m – check depth or layout."],
+    b_Vz: ["Leitungszone inkl. Rohre (nicht verfüllt)", "Zone de conduite y c. tubes (non remblayée)", "Zona condotte incl. tubi (non riempita)", "Pipe zone incl. conduits (not backfilled)"],
+    a_umhCm: ["Umhüllung über Rohr", "Enrobage au-dessus du tube", "Rinfianco sopra il tubo", "Surround above conduit"],
     ux_aussenBlock: ["aus Rohrblock", "selon bloc de tubes", "dal blocco tubi", "from conduit bank"],
     w_aussenAbgel: ["Aussenmass aus den erfassten Rohren abgeleitet: {a} m (Annahme: max. 4 Rohre je Lage, 4 cm Abstand). Bei anderer Anordnung Aussenmass erfassen.", "Dimension extérieure déduite des tubes saisis: {a} m (hypothèse: max. 4 tubes par couche, 4 cm d'écart). Pour une autre disposition, saisir la dimension.", "Dimensione esterna dedotta dai tubi inseriti: {a} m (ipotesi: max. 4 tubi per strato, 4 cm di distanza). Per altra disposizione inserire la dimensione.", "Outer dimension derived from the entered conduits: {a} m (assumption: max. 4 conduits per layer, 4 cm spacing). Enter the dimension for other layouts."],
     w_rohrBreit: ["Rohrverband ({a} m) passt kaum in die Grabenbreite {b} m – Breitenregel oder Anordnung prüfen.", "Le faisceau de tubes ({a} m) tient à peine dans la largeur {b} m – vérifier la règle ou la disposition.", "Il fascio di tubi ({a} m) entra a fatica nella larghezza {b} m – verificare regola o disposizione.", "Conduit group ({a} m) hardly fits the trench width {b} m – check width rule or layout."],
@@ -2838,6 +2848,18 @@ var KVE = (function () {
     var lae = c.rohrSystem === "laengs", n = Math.max(1, num(lae ? c.n2 : c.n, 1)), d = rohrOD(lae ? c.dn2 : c.dn), per = Math.min(n, PER_LAGE);
     return { a: per * d + (per - 1) * PIPE_GAP, src: "rohre", lagen: Math.ceil(n / PER_LAGE) };
   }
+  /* Leitungszone aus dem Rohrverband: Bettung unter den Rohren + Rohrlagen + Umhüllung über den Rohren (min. 5 cm),
+     über die ganze Grabenbreite; Material = Querschnitt − Rohrquerschnitte. Modus «manuell»: erfasste Fläche (m²/m). */
+  var UMH_MIN = 0.05;
+  function zoneQ(c, b, T) {
+    if (c.umhMode === "manuell") { var A0 = num(c.umhArea, 0.035); return { auto: false, A: A0, Ab: A0, Ap: 0, hZ: b > 0 ? A0 / b : 0, hR: 0, bett: 0, umh: 0 }; }
+    var lae = c.rohrSystem === "laengs", n = Math.max(1, num(lae ? c.n2 : c.n, 1)), d = rohrOD(lae ? c.dn2 : c.dn), lagen = Math.ceil(n / PER_LAGE);
+    var umhIn = num(c.umh, 5), umh = Math.max(UMH_MIN, umhIn / 100), bett = Math.max(0, num(c.bett, 5) / 100);
+    var hR = lagen * d + (lagen - 1) * PIPE_GAP, hZ = bett + hR + umh, zuHoch = T > 0 && hZ > T + 1e-9;
+    if (zuHoch) hZ = T;
+    var Ab = b * hZ, Ap = n * Math.PI * d * d / 4, A = Math.max(0, Ab - Ap);
+    return { auto: true, A: A, Ab: Ab, Ap: Ap, hZ: hZ, hR: hR, bett: bett, umh: umh, umhIn: umhIn, umhMin: umhIn / 100 < UMH_MIN - 1e-9, zuHoch: zuHoch, n: n, d: d, lagen: lagen };
+  }
   /* Grabenbreite – einzige Quelle für Rechnung UND Grafik (VSE 1103d Ziff. 3.3.1, BauAV Art. 55).
      Ohne erfasstes Aussenmass wird es aus dem Rohrverband abgeleitet. */
   function grabenBreite(c) {
@@ -2957,14 +2979,20 @@ var KVE = (function () {
       cx.w("spriesAnn", "info", {});
     }
 
-    var Ve = Math.max(0, V - bi.Valt);
-    var au = num(c.umhArea, 0.035), blockA = 0;
+    var Ve = Math.max(0, V - bi.Valt), blockA = 0, zq = null, Vz, Vu;
     if (c.rohrSystem === "block" && c.block) blockA = num(c.block.breite, 0) * num(c.block.hoehe, 0);
-    var Vu = c.rohrSystem === "block" ? L * blockA : L * au;
-    var Vv = Math.max(0, V - Vu - bi.Vneu);
-    var vvr = "V " + s2(V) + " − " + (c.rohrSystem === "block" ? "Rohrblock (Eingabe Aussenmass)" : "Leitungszone") + " " + s2(Vu) + " − Belag/Fundation " + s2(bi.Vneu) + " = " + s2(Vv) + " m³";
+    if (c.rohrSystem === "block") { Vz = Vu = L * blockA; }
+    else {
+      zq = zoneQ(c, b, T);
+      if (zq.umhMin) cx.w("umhMin", "amber", { u: zq.umhIn });
+      if (zq.zuHoch) cx.w("zoneHoch", "amber", { h: r2(zq.hZ), T: T });
+      Vz = L * zq.Ab; Vu = L * zq.A;   /* Vz: Raum der Zone inkl. Rohre (wird nicht verfüllt); Vu: Material ohne Rohre */
+    }
+    var Vv = Math.max(0, V - Vz - bi.Vneu);
+    var vvr = "V " + s2(V) + " − " + (c.rohrSystem === "block" ? "Rohrblock (Eingabe Aussenmass)" : "Leitungszone inkl. Rohre") + " " + s2(Vz) + " − Belag/Fundation " + s2(bi.Vneu) + " = " + s2(Vv) + " m³";
     if (c.rohrSystem === "block") { if (blockA <= 0) cx.w("blockMassFehlt", "amber", {}); }
-    else zone(cx, Vu, c, s2(L) + " m × " + au + " m²/m = " + s2(Vu) + " m³");
+    else zone(cx, Vu, c, zq.auto ? s2(L) + " m × (" + s2(b) + " m × " + s2(zq.hZ) + " m [" + s2(zq.bett) + " Bettung + " + s2(zq.hR) + " Rohre + " + s2(zq.umh) + " Umhüllung] − " + s2(zq.Ap) + " m² Rohre) = " + s2(Vu) + " m³"
+      : s2(L) + " m × " + zq.A + " m²/m = " + s2(Vu) + " m³");
     var vrs = verfuellung(cx, Ve, Vv, c, !!c.direkt, vvr);
     if (Vv <= 0 && V > 0) cx.w("verfNull", "amber", {});
     if (c.rohrSystem === "block") rohrblock(cx, c, L);
@@ -2974,7 +3002,7 @@ var KVE = (function () {
     boeschung(cx, c);
 
     cx.b("b_V", "m³", V); cx.b("b_Vbelag", "m³", bi.Valt); cx.b("b_Ve", "m³", Ve);
-    cx.b("b_Vu", "m³", Vu); cx.b("b_Vneu", "m³", bi.Vneu); cx.b("b_Vv", "m³", Vv);
+    cx.b("b_Vu", "m³", Vu); if (Vz !== Vu) cx.b("b_Vz", "m³", Vz); cx.b("b_Vneu", "m³", bi.Vneu); cx.b("b_Vv", "m³", Vv);
     cx.b("b_R", "m³", vrs.R); cx.b("b_fremd", "m³", vrs.fremd); cx.b("b_Vs", "m³", vrs.Vs);
     return { lines: cx.lines, warn: cx.warn, bal: cx.bal, geo: { b: b, V: V, A: A, Schnitt: Schnitt } };
   }
@@ -3446,8 +3474,10 @@ var KVE = (function () {
         var h = e.hand || "normal", ha = h === "normal" ? "eng" : h === "eng" ? "sehr_eng" : "eng";
         rows.push({ el: e.name, id: "a_hand", val: "o_hand_" + h, alt: "o_hand_" + ha, d: delta(function (Q) { Q.recs[tab][i].hand = ha; }) });
         if (tab === "graben") {
-          var u = num(e.umhArea, 0.035);
-          rows.push({ el: e.name, id: "a_umh", val: String(u) + " m²/m", alt: String(r2(u + 0.01)) + " m²/m", d: delta(function (Q) { Q.recs[tab][i].umhArea = String(u + 0.01); }) });
+          if (e.umhMode === "manuell") { var u = num(e.umhArea, 0.035);
+            rows.push({ el: e.name, id: "a_umh", val: String(u) + " m²/m", alt: String(r2(u + 0.01)) + " m²/m", d: delta(function (Q) { Q.recs[tab][i].umhArea = String(u + 0.01); }) }); }
+          else if (e.rohrSystem !== "block") { var uu = Math.max(5, num(e.umh, 5));
+            rows.push({ el: e.name, id: "a_umhCm", val: uu + " cm", alt: (uu + 5) + " cm", d: delta(function (Q) { Q.recs[tab][i].umh = String(uu + 5); }) }); }
         } else {
           var ar = num(e.arbeit, 0.5), ara = ar >= 0.5 ? 0.75 : 0.5;
           rows.push({ el: e.name, id: "a_arbeit", val: ar.toFixed(2) + " m", alt: ara.toFixed(2) + " m", d: delta(function (Q) { Q.recs[tab][i].arbeit = String(ara); }) });
@@ -3465,7 +3495,7 @@ var KVE = (function () {
 
   return { calc: calc, calcRec: calcRec, sens: sens, r2: r2, num: num, STAFFEL: STAFFEL, SCHACHT: SCHACHT, MWST: MWST, HAND: HAND, ASPHALT_T: ASPHALT_T,
            COMPLETE: COMPLETE, LOC_INFO: LOC_INFO, TABS: TABS, ROH: ROH, BOE: BOE, MUF: MUF, VK: VK, KVS: KVS, PS_AUF: PS_AUF, ABSCHL: ABSCHL,
-           sizeOf: sizeOf, sysDefault: sysDefault, shapeOf: shapeOf, grabenBreite: grabenBreite, blockMass: blockMass, rohrOD: rohrOD, PER_LAGE: PER_LAGE };
+           sizeOf: sizeOf, sysDefault: sysDefault, shapeOf: shapeOf, grabenBreite: grabenBreite, zoneQ: zoneQ, blockMass: blockMass, rohrOD: rohrOD, PER_LAGE: PER_LAGE };
 })();
 
 </script>
@@ -3506,7 +3536,7 @@ var LVM = (function () {
       case "graben": r = { name: nm("Leitungsgraben"), L: "", T: "0.60", bmode: "min60", aussen: "", bman: "0.60", hand: "normal", gesp: false, direkt: false, aushubArt: "normal", saugH: "0",
         rohrSystem: "k55", dn: "55", len: "10", n: "1", muffenMode: "auto", muffenN: "0", b90: "0", b45: "0", schneiden: "0", warnband: true, kalib: true, einzug: "schnur",
         dn2: "100", n2: "1", abzweiger: [], bloecke: [{ dn: "55", n: "1", lagen: "1", len: "10" }], block: { breite: "0.50", hoehe: "0.30" },
-        umhType: "kies", umhMat: "betonkies", umhArea: "0.035", verf: "aushub", einfHand: false, Lb: "", belag: mkBelag(null, belagLief),
+        umhType: "kies", umhMat: "betonkies", umhMode: "auto", bett: "5", umh: "5", umhArea: "0.035", verf: "aushub", einfHand: false, Lb: "", belag: mkBelag(null, belagLief),
         mods: { ersch: false, fremd: false, boesch: false }, ersch: ERSCH0(), kreuz: { on: true, n: "1", len: "1.00", richtung: "quer" }, zores: { on: false, len: "0", zustand: "abrechen" },
         boeschung: { on: true, flaeche: "", geneigt: false }, uF: "", uP: "", uL: "", aB: "", aW: "", aS: "", aR: "" }; break;
       case "schacht": r = { name: nm("Schacht"), modus: "neu", einbauort: "SS", typ: "KES150", n: "0", arbeit: "0.50", hand: "normal", direkt: true, beton: "0", platten: "0", anschl: "0", anDN: "80",
@@ -3804,7 +3834,8 @@ var FIG = (function () {
       var o = '<rect x="20" y="' + gy + '" width="460" height="' + (th + 26) + '" fill="url(#pSo)" opacity=".5"/>', bd = band(20, gy, 460, sf, s); o += bd.o;
       var kies = r.verf && r.verf !== "aushub";
       o += '<rect x="' + x0 + '" y="' + gy + '" width="' + tw + '" height="' + th + '" fill="' + (kies ? "url(#pGr)" : "url(#pSo)") + '" stroke="var(--ink)" stroke-width="1.2"/>';
-      var block = r.rohrSystem === "block", uh = block ? Math.min(th * 0.85, num((r.block || {}).hoehe, 0.3) * s) : Math.min(th * 0.85, Math.max(0.12, num(r.umhArea, 0.035) / B) * s), uy = gy + th - uh;
+      var block = r.rohrSystem === "block", ZQ = block ? null : KVE.zoneQ(r, B, T0);   /* Leitungszone wie in der Rechnung */
+      var uh = block ? Math.min(th * 0.85, num((r.block || {}).hoehe, 0.3) * s) : Math.min(th, Math.max(4, ZQ.hZ * s)), uy = gy + th - uh;
       var ufill = block || r.umhType === "beton" ? "url(#pCo)" : "url(#pBk)", uw = block ? Math.min(tw, num((r.block || {}).breite, 0.5) * s) : tw;
       o += '<rect x="' + (x0 + (tw - uw) / 2) + '" y="' + uy + '" width="' + uw + '" height="' + uh + '" fill="' + ufill + '" stroke="var(--ink)" stroke-width=".8" stroke-dasharray="3 2"/>';
       var pipes = [];
@@ -3814,13 +3845,14 @@ var FIG = (function () {
       if (pipes.length) { var od = KVE.rohrOD, rm = Math.max(3, od(Math.max.apply(null, pipes)) / 2 * s), gap = Math.max(3, 0.04 * s), per = Math.max(1, Math.floor((uw - 4) / (2 * rm + gap)));
         if (!block) per = Math.min(per, KVE.PER_LAGE);
         pipes.forEach(function (dn, i) { var row = Math.floor(i / per), n = Math.min(per, pipes.length - row * per), k = i % per, rr = Math.max(3, od(dn) / 2 * s);
-          var cx = x0 + tw / 2 + (k - (n - 1) / 2) * (2 * rm + gap), cy = gy + th - rm - 4 - row * (2 * rm + gap);
+          var cx = x0 + tw / 2 + (k - (n - 1) / 2) * (2 * rm + gap), cy = gy + th - rm - (ZQ && ZQ.auto ? ZQ.bett * s : 4) - row * (2 * rm + gap);
           o += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rr + '" fill="' + (dn >= 100 ? "var(--pipe2)" : "var(--pipe)") + '" stroke="var(--ink)" stroke-width=".8"/><circle cx="' + cx + '" cy="' + cy + '" r="' + rr * 0.62 + '" fill="var(--figbg)"/>'; }); }
       if (sf.k === "bit") o += '<path d="M' + x0 + " " + (gy - 8) + "v" + (bd.h + 10) + "M" + (x0 + tw) + " " + (gy - 8) + "v" + (bd.h + 10) + '" stroke="var(--cut)" stroke-width="2"/>';
       if (r.gesp) o += '<path d="M' + (x0 + 2) + " " + gy + "V" + (gy + th) + "M" + (x0 + tw - 2) + " " + gy + "V" + (gy + th) + '" stroke="var(--copper)" stroke-width="4"/>';
       var hk = { normal: 0.10, eng: 0.30, sehr_eng: 0.50 }[r.hand] || 0.10;
       o += '<rect x="' + x0 + '" y="' + (gy + bd.h) + '" width="' + tw * hk + '" height="' + (th - bd.h) + '" fill="var(--navy)" opacity=".12"/>';
-      o += dimH(x0, x0 + tw, gy - 16, (GB.abgel || (GB.a > 0 && (GB.mode === "begangen" || GB.mode === "nicht_begangen")) ? "b = " + fq(Math.round(GB.a * 100) / 100) + (GB.abgel ? " (" + tt(GB.src === "block" ? "ux_aussenBlock" : "ux_aussenAuto") + ")" : "") + " + " + (GB.mode === "begangen" ? "0.40" : "0.10") + " = " : "b = ") + fq(Math.round(B * 100) / 100) + " m" + (GB.fehlt ? " – " + tt("ux_aussenFig") : "")) + dimV(x0 - 16, gy, gy + th, "T = " + fq(T0) + " m");
+      o += dimH(x0, x0 + tw, gy - 16, (GB.abgel || (GB.a > 0 && (GB.mode === "begangen" || GB.mode === "nicht_begangen")) ? "b = " + fq(Math.round(GB.a * 100) / 100) + (GB.abgel ? " (" + tt(GB.src === "block" ? "ux_aussenBlock" : "ux_aussenAuto") + ")" : "") + " + " + (GB.mode === "begangen" ? "0.40" : "0.10") + " = " : "b = ") + fq(Math.round(B * 100) / 100) + " m" + (GB.fehlt ? " – " + tt("ux_aussenFig") : "")) + dimV(x0 - 16, gy, gy + th, "T = " + fq(T0) + " m")
+        + (ZQ && ZQ.auto ? dimV(x0 + tw + 12, uy, gy + th, fq(Math.round(ZQ.hZ * 100) / 100) + " m", "start") : "");
       var L = [[sf.k === "bit" ? "var(--asph)" : sf.k === "wiese" ? "var(--grassL)" : sf.k === "pflaster" ? "var(--conc)" : "url(#pGr)", surfLabel(r.belag)],
         [ufill, block ? tt("o_rohrSystem_block") : tt("s_zone")], [kies ? "url(#pGr)" : "url(#pSo)", tt("f_verf") + ": " + tt("o_verf_" + (r.verf || "aushub"))],
         ["var(--pipe)", block ? tt("o_rohrSystem_block") : pipes.length + " × DN " + (pipes[0] || "")], ["var(--navy)", tt("f_hand") + ": " + tt("o_hand_" + (r.hand || "normal"))]];
@@ -3988,6 +4020,7 @@ var FIG = (function () {
     { id: "ersch.hindVol", t: "num", show: function (c) { return c.mods.ersch && c.ersch.hind !== "keine"; } }];
   var PIT_FIELDS = [{ id: "arbeit", t: "sel", opts: ["0.30", "0.50", "0.75"] }, { id: "hand", t: "sel", opts: ["normal", "eng", "sehr_eng"] }, { id: "direkt", t: "chk", hint: "hint_direkt" }];
   var isLaengs = function (c) { return c.rohrSystem === "laengs"; }, isBlock = function (c) { return c.rohrSystem === "block"; }, isStd = function (c) { return c.rohrSystem === "k55"; };
+  var notBlock = function (c) { return c.rohrSystem !== "block"; };
   var withShow = function (list, fn) { return list.map(function (f) { return Object.assign({}, f, { show: function (c) { return fn(c) && (f.show ? f.show(c) : true); }, _w: [fn, f.show] }); }); };
   function locOf(c) { return LOCS.filter(function (l) { return l.id === c.einbauort; })[0]; }
   function kindOf(c) { var s = KVE.SCHACHT[c.typ]; return s ? s.kind : null; }
@@ -4013,9 +4046,12 @@ var FIG = (function () {
       { id: "blist", t: "blockList", show: isBlock, struct: 1 }, { id: "block.breite", t: "num", show: isBlock, hint: "hint_block" }, { id: "block.hoehe", t: "num", show: isBlock },
       { id: "warnband", t: "chk" }, { id: "kalib", t: "chk" }, { id: "einzug", t: "sel", opts: ["keine", "schnur", "draht"], show: function (c) { return !isBlock(c); } },
       { id: "azlist", t: "abzwList", show: isLaengs },
-      { sec: "s_zone" }, { id: "umhType", t: "sel", opts: ["kies", "beton"], struct: 1, show: isStd },
-      { id: "umhMat", t: "sel", opts: ["betonkies", "sand", "kies48"], show: function (c) { return isStd(c) && c.umhType === "kies"; } },
-      { id: "umhArea", t: "num", hint: "hint_umh", show: isStd }
+      { sec: "s_zone" }, { id: "umhType", t: "sel", opts: ["kies", "beton"], struct: 1, show: notBlock },
+      { id: "umhMat", t: "sel", opts: ["betonkies", "sand", "kies48"], show: function (c) { return notBlock(c) && c.umhType === "kies"; } },
+      { id: "umhMode", t: "sel", opts: ["auto", "manuell"], struct: 1, show: notBlock },
+      { id: "bett", t: "num", half: 1, show: function (c) { return notBlock(c) && c.umhMode !== "manuell"; } },
+      { id: "umh", t: "num", half: 1, hint: "hint_umhAuto", show: function (c) { return notBlock(c) && c.umhMode !== "manuell"; } },
+      { id: "umhArea", t: "num", hint: "hint_umh", show: function (c) { return notBlock(c) && c.umhMode === "manuell"; } }
     ], VERF_FIELDS, [{ sec: "s_belag" }, { id: "belag.mode", t: "sel", opts: ["none", "bit", "humus", "pflaster"], struct: 1 },
       { id: "Lb", t: "num", show: function (c) { return c.belag.mode !== "none"; } }], BELAG_FIELDS.slice(1), [
       { sec: "s_zus" }, { id: "uF", t: "num", half: 1 }, { id: "uP", t: "num", half: 1 }, { id: "uL", t: "num", half: 1 },
@@ -4090,7 +4126,7 @@ var FIG = (function () {
      "tile": wichtige Entscheidungen als Kacheln mit Kurztext; "seg": kurze Werte als Knopfreihe.
      Technisch Optionsfelder (radio) – Tastatur (Pfeiltasten) und Screenreader wie gewohnt. */
   var TILES = { modus: 1, einbauort: 1, typ: 1, shape: 1, sys: 1, deckelFormat2: 1, deckelSockel: 1, alt: 1, deckelRichtung: 1, deckelFormat: 1,
-    bmode: 1, aushubArt: 1, hand: 1, rohrSystem: 1, umhType: 1, umhMat: 1, verf: 1, einzug: 1, muffenMode: 1, "belag.mode": 1, "belag.einbau": 1, "belag.typ": 1, "belag.pak": 1,
+    bmode: 1, aushubArt: 1, hand: 1, rohrSystem: 1, umhType: 1, umhMat: 1, umhMode: 1, verf: 1, einzug: 1, muffenMode: 1, "belag.mode": 1, "belag.einbau": 1, "belag.typ": 1, "belag.pak": 1,
     "belag.trag": 1, "belag.deck": 1, "belag.deckArt": 1, "belag.humus.art": 1, "belag.pflaster.material": 1, "belag.pflaster.abbruchArt": 1, bk: 1, wi: 1, abd: 1, src: 1, indiv: 1,
     "zores.zustand": 1, "kreuz.richtung": 1 };
   function tileMode(id, opts) {

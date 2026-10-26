@@ -77,6 +77,7 @@
     { id: "ersch.hindVol", t: "num", show: function (c) { return c.mods.ersch && c.ersch.hind !== "keine"; } }];
   var PIT_FIELDS = [{ id: "arbeit", t: "sel", opts: ["0.30", "0.50", "0.75"] }, { id: "hand", t: "sel", opts: ["normal", "eng", "sehr_eng"] }, { id: "direkt", t: "chk", hint: "hint_direkt" }];
   var isLaengs = function (c) { return c.rohrSystem === "laengs"; }, isBlock = function (c) { return c.rohrSystem === "block"; }, isStd = function (c) { return c.rohrSystem === "k55"; };
+  var notBlock = function (c) { return c.rohrSystem !== "block"; };
   var withShow = function (list, fn) { return list.map(function (f) { return Object.assign({}, f, { show: function (c) { return fn(c) && (f.show ? f.show(c) : true); }, _w: [fn, f.show] }); }); };
   function locOf(c) { return LOCS.filter(function (l) { return l.id === c.einbauort; })[0]; }
   function kindOf(c) { var s = KVE.SCHACHT[c.typ]; return s ? s.kind : null; }
@@ -102,9 +103,12 @@
       { id: "blist", t: "blockList", show: isBlock, struct: 1 }, { id: "block.breite", t: "num", show: isBlock, hint: "hint_block" }, { id: "block.hoehe", t: "num", show: isBlock },
       { id: "warnband", t: "chk" }, { id: "kalib", t: "chk" }, { id: "einzug", t: "sel", opts: ["keine", "schnur", "draht"], show: function (c) { return !isBlock(c); } },
       { id: "azlist", t: "abzwList", show: isLaengs },
-      { sec: "s_zone" }, { id: "umhType", t: "sel", opts: ["kies", "beton"], struct: 1, show: isStd },
-      { id: "umhMat", t: "sel", opts: ["betonkies", "sand", "kies48"], show: function (c) { return isStd(c) && c.umhType === "kies"; } },
-      { id: "umhArea", t: "num", hint: "hint_umh", show: isStd }
+      { sec: "s_zone" }, { id: "umhType", t: "sel", opts: ["kies", "beton"], struct: 1, show: notBlock },
+      { id: "umhMat", t: "sel", opts: ["betonkies", "sand", "kies48"], show: function (c) { return notBlock(c) && c.umhType === "kies"; } },
+      { id: "umhMode", t: "sel", opts: ["auto", "manuell"], struct: 1, show: notBlock },
+      { id: "bett", t: "num", half: 1, show: function (c) { return notBlock(c) && c.umhMode !== "manuell"; } },
+      { id: "umh", t: "num", half: 1, hint: "hint_umhAuto", show: function (c) { return notBlock(c) && c.umhMode !== "manuell"; } },
+      { id: "umhArea", t: "num", hint: "hint_umh", show: function (c) { return notBlock(c) && c.umhMode === "manuell"; } }
     ], VERF_FIELDS, [{ sec: "s_belag" }, { id: "belag.mode", t: "sel", opts: ["none", "bit", "humus", "pflaster"], struct: 1 },
       { id: "Lb", t: "num", show: function (c) { return c.belag.mode !== "none"; } }], BELAG_FIELDS.slice(1), [
       { sec: "s_zus" }, { id: "uF", t: "num", half: 1 }, { id: "uP", t: "num", half: 1 }, { id: "uL", t: "num", half: 1 },
@@ -179,7 +183,7 @@
      "tile": wichtige Entscheidungen als Kacheln mit Kurztext; "seg": kurze Werte als Knopfreihe.
      Technisch Optionsfelder (radio) – Tastatur (Pfeiltasten) und Screenreader wie gewohnt. */
   var TILES = { modus: 1, einbauort: 1, typ: 1, shape: 1, sys: 1, deckelFormat2: 1, deckelSockel: 1, alt: 1, deckelRichtung: 1, deckelFormat: 1,
-    bmode: 1, aushubArt: 1, hand: 1, rohrSystem: 1, umhType: 1, umhMat: 1, verf: 1, einzug: 1, muffenMode: 1, "belag.mode": 1, "belag.einbau": 1, "belag.typ": 1, "belag.pak": 1,
+    bmode: 1, aushubArt: 1, hand: 1, rohrSystem: 1, umhType: 1, umhMat: 1, umhMode: 1, verf: 1, einzug: 1, muffenMode: 1, "belag.mode": 1, "belag.einbau": 1, "belag.typ": 1, "belag.pak": 1,
     "belag.trag": 1, "belag.deck": 1, "belag.deckArt": 1, "belag.humus.art": 1, "belag.pflaster.material": 1, "belag.pflaster.abbruchArt": 1, bk: 1, wi: 1, abd: 1, src: 1, indiv: 1,
     "zores.zustand": 1, "kreuz.richtung": 1 };
   function tileMode(id, opts) {

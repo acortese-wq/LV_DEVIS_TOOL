@@ -521,6 +521,24 @@ def rohrAussen(c):
     return per * d + (per - 1) * PIPE_GAP
 
 
+UMH_MIN = 0.05
+
+
+def zoneQ(c, b, T_):
+    """Leitungszone: Bettung + Rohrlagen + Umhüllung (min. 5 cm) über die Grabenbreite, abzüglich Rohrquerschnitte."""
+    if c.get("umhMode") == "manuell":
+        A0 = num(c.get("umhArea"), 0.035)
+        return {"auto": False, "A": A0, "Ab": A0, "Ap": 0, "hZ": A0 / b if b > 0 else 0, "hR": 0, "bett": 0, "umh": 0}
+    lae = c.get("rohrSystem") == "laengs"
+    n = max(1, num(c.get("n2") if lae else c.get("n"), 1)); d = rohrOD(c.get("dn2") if lae else c.get("dn")); lagen = ceil(n / PER_LAGE)
+    umhIn = num(c.get("umh"), 5); umh = max(UMH_MIN, umhIn / 100); bett = max(0, num(c.get("bett"), 5) / 100)
+    hR = lagen * d + (lagen - 1) * PIPE_GAP; hZ = bett + hR + umh; zuHoch = T_ > 0 and hZ > T_ + 1e-9
+    if zuHoch:
+        hZ = T_
+    Ab = b * hZ; Ap = n * math.pi * d * d / 4; A = max(0, Ab - Ap)
+    return {"auto": True, "A": A, "Ab": Ab, "Ap": Ap, "hZ": hZ, "hR": hR, "bett": bett, "umh": umh, "umhIn": umhIn, "umhMin": umhIn / 100 < UMH_MIN - 1e-9, "zuHoch": zuHoch}
+
+
 def grabenBreite(c):
     mode = c.get("bmode") if jt(c.get("bmode")) else "min60"; a = num(c.get("aussen"), 0); fehlt = False; abgel = False; ra = rohrAussen(c)
     need = mode in ("begangen", "nicht_begangen")
@@ -656,18 +674,24 @@ def graben(c, LV, P=None):
         if T_ > 2.0: cx.off("spries2", Fs, "m²", {"T": T_}, {"rule": fr})
         else: cx.add("151/321.101" if T_ <= 1.5 else "151/321.102", Fs, {"rule": fr})
         cx.w("spriesAnn", "info", {})
-    Ve = max(0, V - bi["Valt"])
-    au = num(c.get("umhArea"), 0.035); blockA = 0
+    Ve = max(0, V - bi["Valt"]); blockA = 0; zq = None
     blk = c.get("rohrSystem") == "block"
     if blk and jt(c.get("block")):
         blockA = num(g(c["block"], "breite"), 0) * num(g(c["block"], "hoehe"), 0)
-    Vu = L * blockA if blk else L * au
-    Vv = max(0, V - Vu - bi["Vneu"])
-    vvr = "V " + s2(V) + " − " + ("Rohrblock (Eingabe Aussenmass)" if blk else "Leitungszone") + " " + s2(Vu) + " − Belag/Fundation " + s2(bi["Vneu"]) + " = " + s2(Vv) + " m³"
+    if blk:
+        Vz = Vu = L * blockA
+    else:
+        zq = zoneQ(c, b, T_)
+        if zq.get("umhMin"): cx.w("umhMin", "amber", {"u": zq["umhIn"]})
+        if zq.get("zuHoch"): cx.w("zoneHoch", "amber", {"h": r2(zq["hZ"]), "T": T_})
+        Vz = L * zq["Ab"]; Vu = L * zq["A"]
+    Vv = max(0, V - Vz - bi["Vneu"])
+    vvr = "V " + s2(V) + " − " + ("Rohrblock (Eingabe Aussenmass)" if blk else "Leitungszone inkl. Rohre") + " " + s2(Vz) + " − Belag/Fundation " + s2(bi["Vneu"]) + " = " + s2(Vv) + " m³"
     if blk:
         if blockA <= 0: cx.w("blockMassFehlt", "amber", {})
     else:
-        zone(cx, Vu, c, s2(L) + " m × " + jstr(au) + " m²/m = " + s2(Vu) + " m³")
+        zone(cx, Vu, c, (s2(L) + " m × (" + s2(b) + " m × " + s2(zq["hZ"]) + " m [" + s2(zq["bett"]) + " Bettung + " + s2(zq["hR"]) + " Rohre + " + s2(zq["umh"]) + " Umhüllung] − " + s2(zq["Ap"]) + " m² Rohre) = " + s2(Vu) + " m³")
+             if zq["auto"] else (s2(L) + " m × " + jstr(zq["A"]) + " m²/m = " + s2(Vu) + " m³"))
     vrs = verfuellung(cx, Ve, Vv, c, jt(c.get("direkt")), vvr)
     if Vv <= 0 and V > 0:
         cx.w("verfNull", "amber", {})
@@ -676,6 +700,8 @@ def graben(c, LV, P=None):
     else: rohr(cx, c, L)
     fremdleitungen(cx, c, L)
     boeschung(cx, c)
+    if Vz != Vu:
+        cx.b("b_Vz", "m³", Vz)
     for i, u, v in [("b_V", "m³", V), ("b_Vbelag", "m³", bi["Valt"]), ("b_Ve", "m³", Ve), ("b_Vu", "m³", Vu), ("b_Vneu", "m³", bi["Vneu"]), ("b_Vv", "m³", Vv),
                     ("b_R", "m³", vrs["R"]), ("b_fremd", "m³", vrs["fremd"]), ("b_Vs", "m³", vrs["Vs"])]:
         cx.b(i, u, v)
