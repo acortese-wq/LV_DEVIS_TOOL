@@ -526,12 +526,12 @@
   function rowHtml(l) {
     if (l.flag === "offen") {
       return '<tr class="open"><td class="art"><span class="badge">' + esc(tt("c_offenTag")) + "</span></td><td>" + esc(l.text || openText(l)) + (l.text ? '<div class="rw">' + esc(openText(l)) + "</div>" : "") +
-        (l.rule ? '<div class="rw">' + esc(l.rule) + "</div>" : "") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit) + '</td><td class="num">—</td><td class="num">—</td></tr>';
+        (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit) + '</td><td class="num">—</td><td class="num">—</td></tr>';
     }
     var cls = l.flag === "ausserLV" ? "bad" : l.flag === "epGeaendert" ? "chg" : "", mark = l.flag === "ausserLV" ? " ⚠" : l.flag === "epGeaendert" ? " ✎" : "";
     var txt = /^\d{3}\//.test(l.key) ? lvT(l.key) : l.text, ctx = /^\d{3}\//.test(l.key) ? lvC(l.key) : l.ctx;
     return '<tr class="' + cls + '"><td class="art">' + esc(l.key) + (l.ks === "Belag" ? '<sup class="ks">B</sup>' : "") + "</td><td>" + (ctx ? '<span class="ctx">' + esc(ctx) + "</span>" : "") + "<div>" + esc(txt) + mark + "</div>" +
-      (l.rule ? '<div class="rw">' + esc(l.rule) + "</div>" : "") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit) + '</td><td class="num">' + chf(l.ep) + '</td><td class="num">' + chf(l.total) + "</td></tr>";
+      (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit) + '</td><td class="num">' + chf(l.ep) + '</td><td class="num">' + chf(l.total) + "</td></tr>";
   }
   function head() { return "<thead><tr><th>" + esc(tt("c_pos")) + "</th><th>" + esc(tt("c_text")) + '</th><th class="num">' + esc(tt("c_qty")) + "</th><th>" + esc(tt("c_unit")) + '</th><th class="num">' + esc(tt("c_ep")) + '</th><th class="num">' + esc(tt("c_tot")) + "</th></tr></thead>"; }
   function groupedRows(lines) { var h = ""; ORDER.forEach(function (g) { var ls = lines.filter(function (l) { return l.grp === g; }); if (!ls.length) return; h += '<tr class="grp"><td colspan="6">' + esc(tt(g)) + "</td></tr>" + ls.map(rowHtml).join(""); }); return h; }
@@ -613,11 +613,11 @@
     if (top.length) html += "<ul>" + top.map(function (w) { return "<li>" + warnGo(w) + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul>" + (out.warn.length > top.length ? '<p><a href="#warns">' + esc(tt("ux_allWarn")) + " (" + out.warn.length + ")</a></p>" : "");
     html += "</div>";
     if (n) {
-      html += '<div class="no-summary"><h3>' + esc(tt("h_aufst")) + '</h3><div class="collrow no-print"><button type="button" class="btn ghost" data-act="collapse">' + esc(tt("btnCollapse")) + '</button><button type="button" class="btn ghost" data-act="expand">' + esc(tt("btnExpand")) + "</button></div>";
+      html += '<div class="no-summary"><h3>' + esc(tt("h_aufst")) + '</h3><div class="collrow no-print"><button type="button" class="btn ghost" data-act="collapse">' + esc(tt("btnCollapse")) + '</button><button type="button" class="btn ghost" data-act="expand">' + esc(tt("btnExpand")) + '</button><button type="button" class="btn ghost" data-act="rules" aria-pressed="' + !!S.ui.rules + '">' + (S.ui.rules ? "✓ " : "") + esc(tt("ux_rules")) + "</button></div>";
       out.elems.forEach(function (e) {
         var cur = S.tab === e.tab && S.idx[e.tab] === e.idx, extra = e.tab === "schacht" ? schachtExtra(e) : "";
         if (!e.lines.length && !extra) return;
-        var bal = e.bal && e.bal.length ? '<details class="opts bal" open><summary>' + esc(tt("h_bal")) + "</summary><table><tbody>" + e.bal.map(function (b) { return "<tr><td>" + esc(tt(b.id)) + '</td><td class="num">' + qf(r2(b.v)) + " " + esc(b.unit) + "</td></tr>"; }).join("") + "</tbody></table></details>" : "";
+        var bal = e.bal && e.bal.length ? '<details class="opts bal"' + (S.ui.rules ? " open" : "") + "><summary>" + esc(tt("h_bal")) + "</summary><table><tbody>" + e.bal.map(function (b) { return "<tr><td>" + esc(tt(b.id)) + '</td><td class="num">' + qf(r2(b.v)) + " " + esc(b.unit) + "</td></tr>"; }).join("") + "</tbody></table></details>" : "";
         html += blk(e.id, tt("tab_" + e.tab) + " · " + e.name, e.sum, extra + bal + (e.lines.length ? "<table>" + head() + "<tbody>" + groupedRows(e.lines) + "</tbody>" + foot(e.sum) + "</table>" : ""), cur, e.tab + ":" + e.idx);
       });
       if (out.vor.lines.length) html += blk("vor", tt("h_vorarbeiten"), out.vor.sum, "<table>" + head() + "<tbody>" + out.vor.lines.map(rowHtml).join("") + "</tbody>" + foot(out.vor.sum) + "</table>", false, "allg:" + S.idx.allg);
@@ -803,6 +803,7 @@
   function init() {
     KOPF.forEach(function (k) { $("#p_" + k[0]).addEventListener("input", function () { S.kopf[k[0]] = this.value; save(); kopfSum(); }); });
     if (S.ui.kopfZu) $("#kopfbox").open = false;
+    document.body.classList.toggle("rules-on", !!S.ui.rules);   /* Rechenweg nur auf Wunsch */
     $("#kopfbox").addEventListener("toggle", function () { S.ui.kopfZu = !this.open; save(); });
     $("#p_rolle").addEventListener("change", function () { S.kopf.rolle = this.value; save(); });
     $("#p_belagLief").addEventListener("change", function () { S.kopf.belagLief = this.checked; var v = this.checked ? "dritte" : "typN";
@@ -835,7 +836,10 @@
       var g = ev.target.closest("[data-go]"); if (g) { ev.preventDefault(); var p = g.dataset.go.split(":"); S.tab = p[0]; S.idx[p[0]] = +p[1]; save(); renderForm(); renderResult(); window.scrollTo({ top: $("#tabs").offsetTop - 8, behavior: "smooth" }); return; }
       var im = ev.target.closest("img[data-lb]"); if (im) { $("#lb img").src = im.src; $("#lb img").alt = im.alt || ""; $("#lb").classList.add("on"); lbFrom = im; $("#lbClose").focus(); return; }
       var t = ev.target.closest("[data-toggle]"); if (t) { var box = t.closest(".elres"), cl = !box.classList.contains("closed"); box.classList.toggle("closed", cl); t.setAttribute("aria-expanded", cl ? "false" : "true"); S.ui.closed[t.dataset.toggle] = cl; save(); return; }
-      var a = ev.target.closest("[data-act]"); if (!a) return; var c = a.dataset.act === "collapse";
+      var a = ev.target.closest("[data-act]"); if (!a) return;
+      if (a.dataset.act === "rules") { S.ui.rules = !S.ui.rules; save(); document.body.classList.toggle("rules-on", S.ui.rules); a.setAttribute("aria-pressed", S.ui.rules); a.textContent = (S.ui.rules ? "✓ " : "") + tt("ux_rules");
+        document.querySelectorAll("#result details.bal").forEach(function (d) { d.open = S.ui.rules; }); return; }
+      var c = a.dataset.act === "collapse";
       document.querySelectorAll("#result .elres").forEach(function (bx) { bx.classList.toggle("closed", c); S.ui.closed[bx.dataset.id] = c; });
     });
     var lbFrom = null, lbShut = function () { if (!$("#lb").classList.contains("on")) return; $("#lb").classList.remove("on"); if (lbFrom && lbFrom.focus) lbFrom.focus(); };

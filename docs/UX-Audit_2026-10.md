@@ -39,6 +39,7 @@ App-Konzept und Urheber: Alessandro Cortese. Prüfung mit Chromium (Desktop 1440
 | 19 | Formular | Feld «B [CHF]» im Honorar ohne Beschriftung (kritisch) | Beschriftet, schreibgeschützt statt deaktiviert (lesbar, kopierbar) |
 | 20 | Zeichnungen | Vergrösserung nur per Klick schliessbar | Schliessen-Knopf, Escape, Fokus kehrt zurück |
 | 21 | Bewegung | – | Animationen aus bei «Bewegung reduzieren» |
+| 22 | Rechenweg | Unter jeder Position «ƒ 2.9 × 2.4 = 6.96 m²», Massenbilanz immer offen | Ausgeblendet; Schalter «Rechenweg anzeigen» blendet beides ein (Bildschirm und Druck), Einstellung wird gemerkt. Excel enthält den Rechenweg weiterhin |
 
 ## Nicht umgesetzt – Empfehlungen
 

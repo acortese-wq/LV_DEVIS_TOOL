@@ -154,3 +154,6 @@ a.tag:hover{text-decoration:underline}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 @media print{.kopfbox>summary{display:none}.mbar,.kpi,.skip,.savestate{display:none!important}body{padding-bottom:0}}
 .phs label{cursor:pointer;margin:0;font-size:inherit;color:inherit;text-transform:none;letter-spacing:0}.phs .phk{font-weight:700}
+/* Rechenweg (ƒ …) nur auf Wunsch – gilt für Bildschirm und Druck */
+.rw.rule{display:none}
+body.rules-on .rw.rule{display:block}
