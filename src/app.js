@@ -269,15 +269,15 @@
       hr.textContent = g[0] + " – " + g[1] + " m"; wrap.appendChild(hr); }
     return wrap;
   }
-  function aussenReq() {   /* Aussenmass ist bei «begangen / nicht begangen» Pflicht – sonst rechnet der Kern mit 0.60 m */
+  function aussenReq() {   /* leer = Aussenmass wird aus den Rohren abgeleitet; Wert als Platzhalter zeigen */
     var el = document.getElementById("f_graben_aussen"); if (!el) return;
-    var m = document.getElementById("f_graben_aussen_req"), need = !(num(el.value, 0) > 0);
-    el.classList.toggle("req", need); el.setAttribute("aria-required", "true");
-    if (need && !m) { m = document.createElement("p"); m.className = "hint reqmsg"; m.id = "f_graben_aussen_req"; m.textContent = tt("ux_aussenReq"); el.insertAdjacentElement("afterend", m); }
-    if (!need && m) m.remove();
+    var m = document.getElementById("f_graben_aussen_req"), gb = KVE.grabenBreite(rec()), leer = !(num(el.value, 0) > 0);
+    el.placeholder = leer && gb.abgel ? tt(gb.src === "block" ? "ux_aussenBlock" : "ux_aussenAuto") + " ≈ " + qf(r2(gb.a)) : "";
+    if (!m) { m = document.createElement("p"); m.className = "hint"; m.id = "f_graben_aussen_req"; el.insertAdjacentElement("afterend", m); }
+    m.textContent = tt("ux_aussenReq");
   }
   function onChange(f, cfg) {
-    if (f.id === "aussen") aussenReq();
+    if (S.tab === "graben") aussenReq();
     if (f.id === "einbauort" && cfg) { var l = locOf(cfg); cfg.sys = l ? (l.round === "dsbeton" ? "beton" : l.round) : "nivo"; }
     if (f.id === "typ" && cfg && kindOf(cfg) === "KS") cfg.shape = "rund";
     if (f.id === "name") updateRecLabel();

@@ -53,16 +53,9 @@ var FIG = (function () {
     return svg(640, 126, o, "Typ " + typ);
   }
   /* Querschnitt Rohrblock: Teilblöcke nebeneinander, Rohre je Lage; Platzbedarf vs. erfasstes Aussenmass (schematisch) */
-  var OD = function (dn) { return (dn * 1.15 + 5) / 1000; };   /* Aussendurchmesser ≈ DN × 1.15 + 5 mm */
   function blockDetail(r) {
-    var parts = (r.bloecke || []).map(function (bl) {
-      var dn = num(bl.dn, 55), n = Math.max(1, Math.min(num(bl.n, 1), 24)), lg = String(bl.lagen || "1");
-      var rows = lg === "1" ? 1 : lg === "2" ? Math.min(2, n) : Math.min(n, Math.max(3, Math.ceil(n / 3))), cols = Math.ceil(n / rows), d = OD(dn), c = 0.04;
-      var inLV = (dn === 55 && n <= 3) || (dn === 100 && n <= 4);
-      return { dn: dn, n: n, rows: rows, cols: cols, d: d, w: cols * d + (cols - 1) * c, h: rows * d + (rows - 1) * c, lv: inLV, lg: lg };
-    });
+    var BM = KVE.blockMass(r.bloecke), parts = BM.parts, c = 0.04, e = 0.05, reqW = BM.reqW, reqH = BM.reqH;   /* gleiche Annahmen wie die Rechnung */
     if (!parts.length) return "";
-    var e = 0.05, c = 0.04, reqW = 2 * e + parts.reduce(function (s, p) { return s + p.w; }, 0) + (parts.length - 1) * c, reqH = 2 * e + Math.max.apply(null, parts.map(function (p) { return p.h; }));
     var bw = num((r.block || {}).breite, 0), bh = num((r.block || {}).hoehe, 0), has = bw > 0 && bh > 0, W = has ? bw : reqW, H = has ? bh : reqH;
     var s = Math.min(380 / Math.max(W, reqW), 170 / Math.max(H, reqH)), x0 = 60, y0 = 40, o = "";
     o += '<rect x="' + x0 + '" y="' + y0 + '" width="' + W * s + '" height="' + H * s + '" fill="url(#pCo)" stroke="var(--ink)" stroke-width="1.4"' + (has ? "" : ' stroke-dasharray="6 4"') + "/>";
@@ -120,15 +113,16 @@ var FIG = (function () {
       if (block) (r.bloecke || []).forEach(function (bl) { for (var i = 0; i < Math.min(num(bl.n, 1), 8); i++) pipes.push(num(bl.dn, 55)); });
       else if (r.rohrSystem === "laengs") for (var i2 = 0; i2 < Math.min(num(r.n2, 1), 8); i2++) pipes.push(num(r.dn2, 100));
       else for (var i3 = 0; i3 < Math.min(num(r.n, 1), 12); i3++) pipes.push(num(r.dn, 55));
-      if (pipes.length) { var od = function (dn) { return (dn * 1.15 + 5) / 1000; }, rm = Math.max(3, od(Math.max.apply(null, pipes)) / 2 * s), per = Math.max(1, Math.floor((uw - 4) / (2 * rm + 3)));
+      if (pipes.length) { var od = KVE.rohrOD, rm = Math.max(3, od(Math.max.apply(null, pipes)) / 2 * s), gap = Math.max(3, 0.04 * s), per = Math.max(1, Math.floor((uw - 4) / (2 * rm + gap)));
+        if (!block) per = Math.min(per, KVE.PER_LAGE);
         pipes.forEach(function (dn, i) { var row = Math.floor(i / per), n = Math.min(per, pipes.length - row * per), k = i % per, rr = Math.max(3, od(dn) / 2 * s);
-          var cx = x0 + tw / 2 + (k - (n - 1) / 2) * (2 * rm + 3), cy = gy + th - rm - 4 - row * (2 * rm + 3);
+          var cx = x0 + tw / 2 + (k - (n - 1) / 2) * (2 * rm + gap), cy = gy + th - rm - 4 - row * (2 * rm + gap);
           o += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rr + '" fill="' + (dn >= 100 ? "var(--pipe2)" : "var(--pipe)") + '" stroke="var(--ink)" stroke-width=".8"/><circle cx="' + cx + '" cy="' + cy + '" r="' + rr * 0.62 + '" fill="var(--figbg)"/>'; }); }
       if (sf.k === "bit") o += '<path d="M' + x0 + " " + (gy - 8) + "v" + (bd.h + 10) + "M" + (x0 + tw) + " " + (gy - 8) + "v" + (bd.h + 10) + '" stroke="var(--cut)" stroke-width="2"/>';
       if (r.gesp) o += '<path d="M' + (x0 + 2) + " " + gy + "V" + (gy + th) + "M" + (x0 + tw - 2) + " " + gy + "V" + (gy + th) + '" stroke="var(--copper)" stroke-width="4"/>';
       var hk = { normal: 0.10, eng: 0.30, sehr_eng: 0.50 }[r.hand] || 0.10;
       o += '<rect x="' + x0 + '" y="' + (gy + bd.h) + '" width="' + tw * hk + '" height="' + (th - bd.h) + '" fill="var(--navy)" opacity=".12"/>';
-      o += dimH(x0, x0 + tw, gy - 16, "b = " + fq(B) + " m" + (GB.fehlt ? " – " + tt("ux_aussenFig") : "")) + dimV(x0 - 16, gy, gy + th, "T = " + fq(T0) + " m");
+      o += dimH(x0, x0 + tw, gy - 16, (GB.abgel || (GB.a > 0 && (GB.mode === "begangen" || GB.mode === "nicht_begangen")) ? "b = " + fq(Math.round(GB.a * 100) / 100) + (GB.abgel ? " (" + tt(GB.src === "block" ? "ux_aussenBlock" : "ux_aussenAuto") + ")" : "") + " + " + (GB.mode === "begangen" ? "0.40" : "0.10") + " = " : "b = ") + fq(Math.round(B * 100) / 100) + " m" + (GB.fehlt ? " – " + tt("ux_aussenFig") : "")) + dimV(x0 - 16, gy, gy + th, "T = " + fq(T0) + " m");
       var L = [[sf.k === "bit" ? "var(--asph)" : sf.k === "wiese" ? "var(--grassL)" : sf.k === "pflaster" ? "var(--conc)" : "url(#pGr)", surfLabel(r.belag)],
         [ufill, block ? tt("o_rohrSystem_block") : tt("s_zone")], [kies ? "url(#pGr)" : "url(#pSo)", tt("f_verf") + ": " + tt("o_verf_" + (r.verf || "aushub"))],
         ["var(--pipe)", block ? tt("o_rohrSystem_block") : pipes.length + " × DN " + (pipes[0] || "")], ["var(--navy)", tt("f_hand") + ": " + tt("o_hand_" + (r.hand || "normal"))]];

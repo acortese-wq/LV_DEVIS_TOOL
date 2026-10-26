@@ -2224,6 +2224,10 @@ Object.assign(TS.it,{
   var L = ["de", "fr", "it", "en"];
   function A(o) { Object.keys(o).forEach(function (k) { L.forEach(function (l, i) { T[l][k] = o[k][i] != null ? o[k][i] : o[k][0]; }); }); }
   A({
+    ux_aussenBlock: ["aus Rohrblock", "selon bloc de tubes", "dal blocco tubi", "from conduit bank"],
+    w_aussenAbgel: ["Aussenmass aus den erfassten Rohren abgeleitet: {a} m (Annahme: max. 4 Rohre je Lage, 4 cm Abstand). Bei anderer Anordnung Aussenmass erfassen.", "Dimension extérieure déduite des tubes saisis: {a} m (hypothèse: max. 4 tubes par couche, 4 cm d'écart). Pour une autre disposition, saisir la dimension.", "Dimensione esterna dedotta dai tubi inseriti: {a} m (ipotesi: max. 4 tubi per strato, 4 cm di distanza). Per altra disposizione inserire la dimensione.", "Outer dimension derived from the entered conduits: {a} m (assumption: max. 4 conduits per layer, 4 cm spacing). Enter the dimension for other layouts."],
+    w_rohrBreit: ["Rohrverband ({a} m) passt kaum in die Grabenbreite {b} m – Breitenregel oder Anordnung prüfen.", "Le faisceau de tubes ({a} m) tient à peine dans la largeur {b} m – vérifier la règle ou la disposition.", "Il fascio di tubi ({a} m) entra a fatica nella larghezza {b} m – verificare regola o disposizione.", "Conduit group ({a} m) hardly fits the trench width {b} m – check width rule or layout."],
+    ux_aussenAuto: ["aus Rohren", "selon tubes", "dai tubi", "from conduits"],
     ux_blk_title: ["Querschnitt Rohrblock (schematisch)", "Coupe du bloc de tubes (schématique)", "Sezione blocco tubi (schematica)", "Conduit bank cross-section (schematic)"],
     ux_blk_lv: ["im LV", "dans le LV", "nel LV", "in LV"],
     ux_blk_offen: ["OFFEN – nicht im LV", "OUVERTE – hors LV", "APERTA – non nel LV", "OPEN – not in LV"],
@@ -2232,7 +2236,7 @@ Object.assign(TS.it,{
     ux_rohr_title: ["Rohranlage – erfasste Mengen", "Installation de tubes – quantités saisies", "Impianto tubi – quantità inserite", "Conduit system – entered quantities"],
     ux_rohr_nurLief: ["nur Lieferung", "fourniture seule", "solo fornitura", "supply only"],
     ux_aussenFig: ["Aussenmass fehlt", "dimension extérieure manquante", "dimensione esterna mancante", "outer dimension missing"],
-    ux_aussenReq: ["Pflichtfeld bei dieser Breitenregel: Breite = Aussenmass + 0.40 m (begangen) bzw. + 0.10 m (nicht begangen). Ohne Angabe wird mit der Mindestbreite 0.60 m gerechnet.", "Champ obligatoire pour cette règle: largeur = dimension extérieure + 0.40 m (praticable) ou + 0.10 m (non praticable). Sans saisie, la largeur minimale de 0.60 m est utilisée.", "Campo obbligatorio per questa regola: larghezza = dimensione esterna + 0.40 m (praticabile) o + 0.10 m (non praticabile). Senza dato si calcola con la larghezza minima di 0.60 m.", "Required for this rule: width = outer dimension + 0.40 m (walk-in) or + 0.10 m (not walk-in). If empty, the minimum width of 0.60 m is used."],
+    ux_aussenReq: ["Breite = Aussenmass + 0.40 m (begangen) bzw. + 0.10 m (nicht begangen). Leer: Aussenmass wird aus den erfassten Rohren abgeleitet (max. 4 je Lage, 4 cm Abstand).", "Largeur = dimension extérieure + 0.40 m (praticable) ou + 0.10 m (non praticable). Vide: dimension déduite des tubes saisis (max. 4 par couche, 4 cm d'écart).", "Larghezza = dimensione esterna + 0.40 m (praticabile) o + 0.10 m (non praticabile). Vuoto: dimensione dedotta dai tubi inseriti (max. 4 per strato, 4 cm di distanza).", "Width = outer dimension + 0.40 m (walk-in) or + 0.10 m (not walk-in). Empty: derived from the entered conduits (max. 4 per layer, 4 cm spacing)."],
     ux_t_ok: ["✓ Standard", "✓ Standard", "✓ Standard", "✓ Standard"],
     ux_t_amber: ["prüfen", "à vérifier", "da verificare", "check"],
     ux_t_stop: ["kein Standardmass", "hors dimension standard", "non dimensione standard", "not a standard size"],
@@ -2815,19 +2819,43 @@ var KVE = (function () {
     cx.w("blockAnn", "info", {});
   }
 
-  /* Grabenbreite – einzige Quelle für Rechnung UND Grafik (VSE 1103d Ziff. 3.3.1, BauAV Art. 55) */
+  /* Rohrverband (Platzbedarf der Rohre) – Annahmen: Aussendurchmesser ≈ DN × 1.15 + 5 mm, 4 cm Abstand,
+     max. 4 Rohre je Lage; Rohrblock zusätzlich 5 cm Beton zum Rand. Gilt für Rechnung UND Grafik. */
+  var PIPE_GAP = 0.04, BLOCK_EDGE = 0.05, PER_LAGE = 4;
+  function rohrOD(dn) { return (num(dn, 55) * 1.15 + 5) / 1000; }
+  function blockMass(bloecke) {
+    var parts = (bloecke || []).map(function (bl) {
+      var dn = num(bl.dn, 55), n = Math.max(1, num(bl.n, 1)), lg = String(bl.lagen || "1");
+      var rows = lg === "1" ? 1 : lg === "2" ? Math.min(2, n) : Math.min(n, Math.max(3, Math.ceil(n / 3))), cols = Math.ceil(n / rows), d = rohrOD(dn);
+      return { dn: dn, n: n, lg: lg, rows: rows, cols: cols, d: d, w: cols * d + (cols - 1) * PIPE_GAP, h: rows * d + (rows - 1) * PIPE_GAP, lv: (dn === 55 && n <= 3) || (dn === 100 && n <= 4) };
+    });
+    if (!parts.length) return { parts: parts, reqW: 0, reqH: 0 };
+    return { parts: parts, reqW: 2 * BLOCK_EDGE + parts.reduce(function (s, p) { return s + p.w; }, 0) + (parts.length - 1) * PIPE_GAP,
+             reqH: 2 * BLOCK_EDGE + Math.max.apply(null, parts.map(function (p) { return p.h; })) };
+  }
+  function rohrAussen(c) {
+    if (c.rohrSystem === "block") { var bw = num((c.block || {}).breite, 0); return bw > 0 ? { a: bw, src: "block" } : { a: blockMass(c.bloecke).reqW, src: "blockAuto" }; }
+    var lae = c.rohrSystem === "laengs", n = Math.max(1, num(lae ? c.n2 : c.n, 1)), d = rohrOD(lae ? c.dn2 : c.dn), per = Math.min(n, PER_LAGE);
+    return { a: per * d + (per - 1) * PIPE_GAP, src: "rohre", lagen: Math.ceil(n / PER_LAGE) };
+  }
+  /* Grabenbreite – einzige Quelle für Rechnung UND Grafik (VSE 1103d Ziff. 3.3.1, BauAV Art. 55).
+     Ohne erfasstes Aussenmass wird es aus dem Rohrverband abgeleitet. */
   function grabenBreite(c) {
-    var mode = c.bmode || "min60", a = num(c.aussen, 0), b, fehlt = false;
+    var mode = c.bmode || "min60", a = num(c.aussen, 0), b, fehlt = false, abgel = false, ra = rohrAussen(c);
+    var need = mode === "begangen" || mode === "nicht_begangen";
+    if (need && !(a > 0) && ra.a > 0) { a = ra.a; abgel = true; }
     if (mode === "begangen") b = a + 0.40;
     else if (mode === "nicht_begangen") b = a + 0.10;
     else if (mode === "manuell") b = num(c.bman, 0.6);
     else b = 0.60;
-    if ((mode === "begangen" || mode === "nicht_begangen") && !(a > 0)) { fehlt = true; b = 0.60; }
-    return { b: b, fehlt: fehlt, mode: mode, a: a };
+    if (need && !(a > 0)) { fehlt = true; b = 0.60; }
+    return { b: b, fehlt: fehlt, abgel: abgel, src: ra.src, mode: mode, a: a, rohr: ra.a };
   }
   function breite(cx, c) {
     var T = num(c.T, 0.6), gb = grabenBreite(c), mode = gb.mode, b = gb.b;
     if (gb.fehlt) cx.w("aussenFehlt", "amber", {});
+    if (gb.abgel) cx.w("aussenAbgel", "info", { a: r2(gb.a) });
+    if (!gb.fehlt && gb.rohr + 0.10 > b + 1e-9) cx.w("rohrBreit", "amber", { a: r2(gb.rohr), b: r2(b) });
     if (T > 1.0 && b < 0.60 - 1e-9) cx.w("breite60", "stop", { b: r2(b), T: T });
     if (mode !== "min60" && T > 1.0 && (mode === "begangen" || mode === "nicht_begangen")) cx.w("modusTiefe", "amber", { T: T });
     return b;
@@ -3437,7 +3465,7 @@ var KVE = (function () {
 
   return { calc: calc, calcRec: calcRec, sens: sens, r2: r2, num: num, STAFFEL: STAFFEL, SCHACHT: SCHACHT, MWST: MWST, HAND: HAND, ASPHALT_T: ASPHALT_T,
            COMPLETE: COMPLETE, LOC_INFO: LOC_INFO, TABS: TABS, ROH: ROH, BOE: BOE, MUF: MUF, VK: VK, KVS: KVS, PS_AUF: PS_AUF, ABSCHL: ABSCHL,
-           sizeOf: sizeOf, sysDefault: sysDefault, shapeOf: shapeOf, grabenBreite: grabenBreite };
+           sizeOf: sizeOf, sysDefault: sysDefault, shapeOf: shapeOf, grabenBreite: grabenBreite, blockMass: blockMass, rohrOD: rohrOD, PER_LAGE: PER_LAGE };
 })();
 
 </script>
@@ -3723,16 +3751,9 @@ var FIG = (function () {
     return svg(640, 126, o, "Typ " + typ);
   }
   /* Querschnitt Rohrblock: Teilblöcke nebeneinander, Rohre je Lage; Platzbedarf vs. erfasstes Aussenmass (schematisch) */
-  var OD = function (dn) { return (dn * 1.15 + 5) / 1000; };   /* Aussendurchmesser ≈ DN × 1.15 + 5 mm */
   function blockDetail(r) {
-    var parts = (r.bloecke || []).map(function (bl) {
-      var dn = num(bl.dn, 55), n = Math.max(1, Math.min(num(bl.n, 1), 24)), lg = String(bl.lagen || "1");
-      var rows = lg === "1" ? 1 : lg === "2" ? Math.min(2, n) : Math.min(n, Math.max(3, Math.ceil(n / 3))), cols = Math.ceil(n / rows), d = OD(dn), c = 0.04;
-      var inLV = (dn === 55 && n <= 3) || (dn === 100 && n <= 4);
-      return { dn: dn, n: n, rows: rows, cols: cols, d: d, w: cols * d + (cols - 1) * c, h: rows * d + (rows - 1) * c, lv: inLV, lg: lg };
-    });
+    var BM = KVE.blockMass(r.bloecke), parts = BM.parts, c = 0.04, e = 0.05, reqW = BM.reqW, reqH = BM.reqH;   /* gleiche Annahmen wie die Rechnung */
     if (!parts.length) return "";
-    var e = 0.05, c = 0.04, reqW = 2 * e + parts.reduce(function (s, p) { return s + p.w; }, 0) + (parts.length - 1) * c, reqH = 2 * e + Math.max.apply(null, parts.map(function (p) { return p.h; }));
     var bw = num((r.block || {}).breite, 0), bh = num((r.block || {}).hoehe, 0), has = bw > 0 && bh > 0, W = has ? bw : reqW, H = has ? bh : reqH;
     var s = Math.min(380 / Math.max(W, reqW), 170 / Math.max(H, reqH)), x0 = 60, y0 = 40, o = "";
     o += '<rect x="' + x0 + '" y="' + y0 + '" width="' + W * s + '" height="' + H * s + '" fill="url(#pCo)" stroke="var(--ink)" stroke-width="1.4"' + (has ? "" : ' stroke-dasharray="6 4"') + "/>";
@@ -3790,15 +3811,16 @@ var FIG = (function () {
       if (block) (r.bloecke || []).forEach(function (bl) { for (var i = 0; i < Math.min(num(bl.n, 1), 8); i++) pipes.push(num(bl.dn, 55)); });
       else if (r.rohrSystem === "laengs") for (var i2 = 0; i2 < Math.min(num(r.n2, 1), 8); i2++) pipes.push(num(r.dn2, 100));
       else for (var i3 = 0; i3 < Math.min(num(r.n, 1), 12); i3++) pipes.push(num(r.dn, 55));
-      if (pipes.length) { var od = function (dn) { return (dn * 1.15 + 5) / 1000; }, rm = Math.max(3, od(Math.max.apply(null, pipes)) / 2 * s), per = Math.max(1, Math.floor((uw - 4) / (2 * rm + 3)));
+      if (pipes.length) { var od = KVE.rohrOD, rm = Math.max(3, od(Math.max.apply(null, pipes)) / 2 * s), gap = Math.max(3, 0.04 * s), per = Math.max(1, Math.floor((uw - 4) / (2 * rm + gap)));
+        if (!block) per = Math.min(per, KVE.PER_LAGE);
         pipes.forEach(function (dn, i) { var row = Math.floor(i / per), n = Math.min(per, pipes.length - row * per), k = i % per, rr = Math.max(3, od(dn) / 2 * s);
-          var cx = x0 + tw / 2 + (k - (n - 1) / 2) * (2 * rm + 3), cy = gy + th - rm - 4 - row * (2 * rm + 3);
+          var cx = x0 + tw / 2 + (k - (n - 1) / 2) * (2 * rm + gap), cy = gy + th - rm - 4 - row * (2 * rm + gap);
           o += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rr + '" fill="' + (dn >= 100 ? "var(--pipe2)" : "var(--pipe)") + '" stroke="var(--ink)" stroke-width=".8"/><circle cx="' + cx + '" cy="' + cy + '" r="' + rr * 0.62 + '" fill="var(--figbg)"/>'; }); }
       if (sf.k === "bit") o += '<path d="M' + x0 + " " + (gy - 8) + "v" + (bd.h + 10) + "M" + (x0 + tw) + " " + (gy - 8) + "v" + (bd.h + 10) + '" stroke="var(--cut)" stroke-width="2"/>';
       if (r.gesp) o += '<path d="M' + (x0 + 2) + " " + gy + "V" + (gy + th) + "M" + (x0 + tw - 2) + " " + gy + "V" + (gy + th) + '" stroke="var(--copper)" stroke-width="4"/>';
       var hk = { normal: 0.10, eng: 0.30, sehr_eng: 0.50 }[r.hand] || 0.10;
       o += '<rect x="' + x0 + '" y="' + (gy + bd.h) + '" width="' + tw * hk + '" height="' + (th - bd.h) + '" fill="var(--navy)" opacity=".12"/>';
-      o += dimH(x0, x0 + tw, gy - 16, "b = " + fq(B) + " m" + (GB.fehlt ? " – " + tt("ux_aussenFig") : "")) + dimV(x0 - 16, gy, gy + th, "T = " + fq(T0) + " m");
+      o += dimH(x0, x0 + tw, gy - 16, (GB.abgel || (GB.a > 0 && (GB.mode === "begangen" || GB.mode === "nicht_begangen")) ? "b = " + fq(Math.round(GB.a * 100) / 100) + (GB.abgel ? " (" + tt(GB.src === "block" ? "ux_aussenBlock" : "ux_aussenAuto") + ")" : "") + " + " + (GB.mode === "begangen" ? "0.40" : "0.10") + " = " : "b = ") + fq(Math.round(B * 100) / 100) + " m" + (GB.fehlt ? " – " + tt("ux_aussenFig") : "")) + dimV(x0 - 16, gy, gy + th, "T = " + fq(T0) + " m");
       var L = [[sf.k === "bit" ? "var(--asph)" : sf.k === "wiese" ? "var(--grassL)" : sf.k === "pflaster" ? "var(--conc)" : "url(#pGr)", surfLabel(r.belag)],
         [ufill, block ? tt("o_rohrSystem_block") : tt("s_zone")], [kies ? "url(#pGr)" : "url(#pSo)", tt("f_verf") + ": " + tt("o_verf_" + (r.verf || "aushub"))],
         ["var(--pipe)", block ? tt("o_rohrSystem_block") : pipes.length + " × DN " + (pipes[0] || "")], ["var(--navy)", tt("f_hand") + ": " + tt("o_hand_" + (r.hand || "normal"))]];
@@ -4158,15 +4180,15 @@ var FIG = (function () {
       hr.textContent = g[0] + " – " + g[1] + " m"; wrap.appendChild(hr); }
     return wrap;
   }
-  function aussenReq() {   /* Aussenmass ist bei «begangen / nicht begangen» Pflicht – sonst rechnet der Kern mit 0.60 m */
+  function aussenReq() {   /* leer = Aussenmass wird aus den Rohren abgeleitet; Wert als Platzhalter zeigen */
     var el = document.getElementById("f_graben_aussen"); if (!el) return;
-    var m = document.getElementById("f_graben_aussen_req"), need = !(num(el.value, 0) > 0);
-    el.classList.toggle("req", need); el.setAttribute("aria-required", "true");
-    if (need && !m) { m = document.createElement("p"); m.className = "hint reqmsg"; m.id = "f_graben_aussen_req"; m.textContent = tt("ux_aussenReq"); el.insertAdjacentElement("afterend", m); }
-    if (!need && m) m.remove();
+    var m = document.getElementById("f_graben_aussen_req"), gb = KVE.grabenBreite(rec()), leer = !(num(el.value, 0) > 0);
+    el.placeholder = leer && gb.abgel ? tt(gb.src === "block" ? "ux_aussenBlock" : "ux_aussenAuto") + " ≈ " + qf(r2(gb.a)) : "";
+    if (!m) { m = document.createElement("p"); m.className = "hint"; m.id = "f_graben_aussen_req"; el.insertAdjacentElement("afterend", m); }
+    m.textContent = tt("ux_aussenReq");
   }
   function onChange(f, cfg) {
-    if (f.id === "aussen") aussenReq();
+    if (S.tab === "graben") aussenReq();
     if (f.id === "einbauort" && cfg) { var l = locOf(cfg); cfg.sys = l ? (l.round === "dsbeton" ? "beton" : l.round) : "nivo"; }
     if (f.id === "typ" && cfg && kindOf(cfg) === "KS") cfg.shape = "rund";
     if (f.id === "name") updateRecLabel();

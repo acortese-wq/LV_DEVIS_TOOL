@@ -46,6 +46,7 @@ App-Konzept und Urheber: Alessandro Cortese. Prüfung mit Chromium (Desktop 1440
 | 26 | Graben-Grafik | Eigene Breitenregel: ohne Aussenmass «b = 0.40 m», gerechnet wurde 0.60 m | Grafik nutzt die Breitenregel des Rechenkerns; ohne Aussenmass «b = 0.6 m – Aussenmass fehlt», Feld gelb mit Erklärung der Regel |
 | 27 | Rohrblock | Block nur als graues Rechteck im Graben | Zusätzlicher Querschnitt: Teilblöcke mit Rohren je Lage, DN, Aussenmass b × h, Hinweis «im LV / OFFEN», Platzbedarf und Warnung «Aussenmass zu klein?» |
 | 28 | Rohranlage | Statische Übersicht der Bauteile | Live-Darstellung der erfassten Mengen: Rohre als Balken (Länge proportional), Muffen, Bogen, Rohrschnitte, Warnband, Erdband, Schnur, Kalibrieren |
+| 29 | Grabenbreite nach VSE | Ohne erfasstes Aussenmass immer 0.60 m – Anzahl und DN der Rohre ohne Einfluss | Aussenmass wird aus dem Rohrverband abgeleitet (max. 4 Rohre je Lage, 4 cm Abstand, Ø ≈ DN × 1.15 + 5 mm; Rohrblock: erfasste Breite bzw. Platzbedarf), Breite = Aussenmass + 0.40 / + 0.10 m; Grafik, Rechnung und Skill identisch; Hinweis «abgeleitet» und Warnung, wenn der Rohrverband nicht in die Breite passt |
 
 ## Nicht umgesetzt – Empfehlungen
 

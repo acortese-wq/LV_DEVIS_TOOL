@@ -492,14 +492,57 @@ def rohrblock(cx, c, L):
     cx.w("blockAnn", "info", {})
 
 
-def breite(cx, c):
-    T_ = num(c.get("T"), 0.6); mode = c.get("bmode") if jt(c.get("bmode")) else "min60"; a = num(c.get("aussen"), 0)
+PIPE_GAP, BLOCK_EDGE, PER_LAGE = 0.04, 0.05, 4
+
+
+def rohrOD(dn):
+    return (num(dn, 55) * 1.15 + 5) / 1000
+
+
+def blockMass(bloecke):
+    parts = []
+    for bl in (bloecke or []):
+        dn = num(g(bl, "dn"), 55); n = max(1, num(g(bl, "n"), 1)); lg = jstr(g(bl, "lagen")) if jt(g(bl, "lagen")) else "1"
+        rows = 1 if lg == "1" else min(2, n) if lg == "2" else min(n, max(3, ceil(n / 3)))
+        cols = ceil(n / rows); d = rohrOD(dn)
+        parts.append({"w": cols * d + (cols - 1) * PIPE_GAP, "h": rows * d + (rows - 1) * PIPE_GAP})
+    if not parts:
+        return {"reqW": 0, "reqH": 0}
+    return {"reqW": 2 * BLOCK_EDGE + sum(p["w"] for p in parts) + (len(parts) - 1) * PIPE_GAP,
+            "reqH": 2 * BLOCK_EDGE + max(p["h"] for p in parts)}
+
+
+def rohrAussen(c):
+    if c.get("rohrSystem") == "block":
+        bw = num(g(c.get("block") or {}, "breite"), 0)
+        return bw if bw > 0 else blockMass(c.get("bloecke"))["reqW"]
+    lae = c.get("rohrSystem") == "laengs"
+    n = max(1, num(c.get("n2") if lae else c.get("n"), 1)); d = rohrOD(c.get("dn2") if lae else c.get("dn")); per = min(n, PER_LAGE)
+    return per * d + (per - 1) * PIPE_GAP
+
+
+def grabenBreite(c):
+    mode = c.get("bmode") if jt(c.get("bmode")) else "min60"; a = num(c.get("aussen"), 0); fehlt = False; abgel = False; ra = rohrAussen(c)
+    need = mode in ("begangen", "nicht_begangen")
+    if need and not (a > 0) and ra > 0:
+        a = ra; abgel = True
     if mode == "begangen": b = a + 0.40
     elif mode == "nicht_begangen": b = a + 0.10
     elif mode == "manuell": b = num(c.get("bman"), 0.6)
     else: b = 0.60
-    if mode in ("begangen", "nicht_begangen") and not (a > 0):
-        cx.w("aussenFehlt", "amber", {}); b = 0.60
+    if need and not (a > 0):
+        fehlt = True; b = 0.60
+    return {"b": b, "fehlt": fehlt, "abgel": abgel, "mode": mode, "a": a, "rohr": ra}
+
+
+def breite(cx, c):
+    T_ = num(c.get("T"), 0.6); gb = grabenBreite(c); mode = gb["mode"]; b = gb["b"]
+    if gb["fehlt"]:
+        cx.w("aussenFehlt", "amber", {})
+    if gb["abgel"]:
+        cx.w("aussenAbgel", "info", {"a": r2(gb["a"])})
+    if not gb["fehlt"] and gb["rohr"] + 0.10 > b + 1e-9:
+        cx.w("rohrBreit", "amber", {"a": r2(gb["rohr"]), "b": r2(b)})
     if T_ > 1.0 and b < 0.60 - 1e-9:
         cx.w("breite60", "stop", {"b": r2(b), "T": T_})
     if mode != "min60" and T_ > 1.0 and mode in ("begangen", "nicht_begangen"):

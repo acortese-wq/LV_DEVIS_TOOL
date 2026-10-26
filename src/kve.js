@@ -334,19 +334,43 @@ var KVE = (function () {
     cx.w("blockAnn", "info", {});
   }
 
-  /* Grabenbreite – einzige Quelle für Rechnung UND Grafik (VSE 1103d Ziff. 3.3.1, BauAV Art. 55) */
+  /* Rohrverband (Platzbedarf der Rohre) – Annahmen: Aussendurchmesser ≈ DN × 1.15 + 5 mm, 4 cm Abstand,
+     max. 4 Rohre je Lage; Rohrblock zusätzlich 5 cm Beton zum Rand. Gilt für Rechnung UND Grafik. */
+  var PIPE_GAP = 0.04, BLOCK_EDGE = 0.05, PER_LAGE = 4;
+  function rohrOD(dn) { return (num(dn, 55) * 1.15 + 5) / 1000; }
+  function blockMass(bloecke) {
+    var parts = (bloecke || []).map(function (bl) {
+      var dn = num(bl.dn, 55), n = Math.max(1, num(bl.n, 1)), lg = String(bl.lagen || "1");
+      var rows = lg === "1" ? 1 : lg === "2" ? Math.min(2, n) : Math.min(n, Math.max(3, Math.ceil(n / 3))), cols = Math.ceil(n / rows), d = rohrOD(dn);
+      return { dn: dn, n: n, lg: lg, rows: rows, cols: cols, d: d, w: cols * d + (cols - 1) * PIPE_GAP, h: rows * d + (rows - 1) * PIPE_GAP, lv: (dn === 55 && n <= 3) || (dn === 100 && n <= 4) };
+    });
+    if (!parts.length) return { parts: parts, reqW: 0, reqH: 0 };
+    return { parts: parts, reqW: 2 * BLOCK_EDGE + parts.reduce(function (s, p) { return s + p.w; }, 0) + (parts.length - 1) * PIPE_GAP,
+             reqH: 2 * BLOCK_EDGE + Math.max.apply(null, parts.map(function (p) { return p.h; })) };
+  }
+  function rohrAussen(c) {
+    if (c.rohrSystem === "block") { var bw = num((c.block || {}).breite, 0); return bw > 0 ? { a: bw, src: "block" } : { a: blockMass(c.bloecke).reqW, src: "blockAuto" }; }
+    var lae = c.rohrSystem === "laengs", n = Math.max(1, num(lae ? c.n2 : c.n, 1)), d = rohrOD(lae ? c.dn2 : c.dn), per = Math.min(n, PER_LAGE);
+    return { a: per * d + (per - 1) * PIPE_GAP, src: "rohre", lagen: Math.ceil(n / PER_LAGE) };
+  }
+  /* Grabenbreite – einzige Quelle für Rechnung UND Grafik (VSE 1103d Ziff. 3.3.1, BauAV Art. 55).
+     Ohne erfasstes Aussenmass wird es aus dem Rohrverband abgeleitet. */
   function grabenBreite(c) {
-    var mode = c.bmode || "min60", a = num(c.aussen, 0), b, fehlt = false;
+    var mode = c.bmode || "min60", a = num(c.aussen, 0), b, fehlt = false, abgel = false, ra = rohrAussen(c);
+    var need = mode === "begangen" || mode === "nicht_begangen";
+    if (need && !(a > 0) && ra.a > 0) { a = ra.a; abgel = true; }
     if (mode === "begangen") b = a + 0.40;
     else if (mode === "nicht_begangen") b = a + 0.10;
     else if (mode === "manuell") b = num(c.bman, 0.6);
     else b = 0.60;
-    if ((mode === "begangen" || mode === "nicht_begangen") && !(a > 0)) { fehlt = true; b = 0.60; }
-    return { b: b, fehlt: fehlt, mode: mode, a: a };
+    if (need && !(a > 0)) { fehlt = true; b = 0.60; }
+    return { b: b, fehlt: fehlt, abgel: abgel, src: ra.src, mode: mode, a: a, rohr: ra.a };
   }
   function breite(cx, c) {
     var T = num(c.T, 0.6), gb = grabenBreite(c), mode = gb.mode, b = gb.b;
     if (gb.fehlt) cx.w("aussenFehlt", "amber", {});
+    if (gb.abgel) cx.w("aussenAbgel", "info", { a: r2(gb.a) });
+    if (!gb.fehlt && gb.rohr + 0.10 > b + 1e-9) cx.w("rohrBreit", "amber", { a: r2(gb.rohr), b: r2(b) });
     if (T > 1.0 && b < 0.60 - 1e-9) cx.w("breite60", "stop", { b: r2(b), T: T });
     if (mode !== "min60" && T > 1.0 && (mode === "begangen" || mode === "nicht_begangen")) cx.w("modusTiefe", "amber", { T: T });
     return b;
@@ -956,5 +980,5 @@ var KVE = (function () {
 
   return { calc: calc, calcRec: calcRec, sens: sens, r2: r2, num: num, STAFFEL: STAFFEL, SCHACHT: SCHACHT, MWST: MWST, HAND: HAND, ASPHALT_T: ASPHALT_T,
            COMPLETE: COMPLETE, LOC_INFO: LOC_INFO, TABS: TABS, ROH: ROH, BOE: BOE, MUF: MUF, VK: VK, KVS: KVS, PS_AUF: PS_AUF, ABSCHL: ABSCHL,
-           sizeOf: sizeOf, sysDefault: sysDefault, shapeOf: shapeOf, grabenBreite: grabenBreite };
+           sizeOf: sizeOf, sysDefault: sysDefault, shapeOf: shapeOf, grabenBreite: grabenBreite, blockMass: blockMass, rohrOD: rohrOD, PER_LAGE: PER_LAGE };
 })();

@@ -3,6 +3,10 @@
   var L = ["de", "fr", "it", "en"];
   function A(o) { Object.keys(o).forEach(function (k) { L.forEach(function (l, i) { T[l][k] = o[k][i] != null ? o[k][i] : o[k][0]; }); }); }
   A({
+    ux_aussenBlock: ["aus Rohrblock", "selon bloc de tubes", "dal blocco tubi", "from conduit bank"],
+    w_aussenAbgel: ["Aussenmass aus den erfassten Rohren abgeleitet: {a} m (Annahme: max. 4 Rohre je Lage, 4 cm Abstand). Bei anderer Anordnung Aussenmass erfassen.", "Dimension extérieure déduite des tubes saisis: {a} m (hypothèse: max. 4 tubes par couche, 4 cm d'écart). Pour une autre disposition, saisir la dimension.", "Dimensione esterna dedotta dai tubi inseriti: {a} m (ipotesi: max. 4 tubi per strato, 4 cm di distanza). Per altra disposizione inserire la dimensione.", "Outer dimension derived from the entered conduits: {a} m (assumption: max. 4 conduits per layer, 4 cm spacing). Enter the dimension for other layouts."],
+    w_rohrBreit: ["Rohrverband ({a} m) passt kaum in die Grabenbreite {b} m – Breitenregel oder Anordnung prüfen.", "Le faisceau de tubes ({a} m) tient à peine dans la largeur {b} m – vérifier la règle ou la disposition.", "Il fascio di tubi ({a} m) entra a fatica nella larghezza {b} m – verificare regola o disposizione.", "Conduit group ({a} m) hardly fits the trench width {b} m – check width rule or layout."],
+    ux_aussenAuto: ["aus Rohren", "selon tubes", "dai tubi", "from conduits"],
     ux_blk_title: ["Querschnitt Rohrblock (schematisch)", "Coupe du bloc de tubes (schématique)", "Sezione blocco tubi (schematica)", "Conduit bank cross-section (schematic)"],
     ux_blk_lv: ["im LV", "dans le LV", "nel LV", "in LV"],
     ux_blk_offen: ["OFFEN – nicht im LV", "OUVERTE – hors LV", "APERTA – non nel LV", "OPEN – not in LV"],
@@ -11,7 +15,7 @@
     ux_rohr_title: ["Rohranlage – erfasste Mengen", "Installation de tubes – quantités saisies", "Impianto tubi – quantità inserite", "Conduit system – entered quantities"],
     ux_rohr_nurLief: ["nur Lieferung", "fourniture seule", "solo fornitura", "supply only"],
     ux_aussenFig: ["Aussenmass fehlt", "dimension extérieure manquante", "dimensione esterna mancante", "outer dimension missing"],
-    ux_aussenReq: ["Pflichtfeld bei dieser Breitenregel: Breite = Aussenmass + 0.40 m (begangen) bzw. + 0.10 m (nicht begangen). Ohne Angabe wird mit der Mindestbreite 0.60 m gerechnet.", "Champ obligatoire pour cette règle: largeur = dimension extérieure + 0.40 m (praticable) ou + 0.10 m (non praticable). Sans saisie, la largeur minimale de 0.60 m est utilisée.", "Campo obbligatorio per questa regola: larghezza = dimensione esterna + 0.40 m (praticabile) o + 0.10 m (non praticabile). Senza dato si calcola con la larghezza minima di 0.60 m.", "Required for this rule: width = outer dimension + 0.40 m (walk-in) or + 0.10 m (not walk-in). If empty, the minimum width of 0.60 m is used."],
+    ux_aussenReq: ["Breite = Aussenmass + 0.40 m (begangen) bzw. + 0.10 m (nicht begangen). Leer: Aussenmass wird aus den erfassten Rohren abgeleitet (max. 4 je Lage, 4 cm Abstand).", "Largeur = dimension extérieure + 0.40 m (praticable) ou + 0.10 m (non praticable). Vide: dimension déduite des tubes saisis (max. 4 par couche, 4 cm d'écart).", "Larghezza = dimensione esterna + 0.40 m (praticabile) o + 0.10 m (non praticabile). Vuoto: dimensione dedotta dai tubi inseriti (max. 4 per strato, 4 cm di distanza).", "Width = outer dimension + 0.40 m (walk-in) or + 0.10 m (not walk-in). Empty: derived from the entered conduits (max. 4 per layer, 4 cm spacing)."],
     ux_t_ok: ["✓ Standard", "✓ Standard", "✓ Standard", "✓ Standard"],
     ux_t_amber: ["prüfen", "à vérifier", "da verificare", "check"],
     ux_t_stop: ["kein Standardmass", "hors dimension standard", "non dimensione standard", "not a standard size"],
