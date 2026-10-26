@@ -40,6 +40,9 @@ App-Konzept und Urheber: Alessandro Cortese. Prüfung mit Chromium (Desktop 1440
 | 20 | Zeichnungen | Vergrösserung nur per Klick schliessbar | Schliessen-Knopf, Escape, Fokus kehrt zurück |
 | 21 | Bewegung | – | Animationen aus bei «Bewegung reduzieren» |
 | 22 | Rechenweg | Unter jeder Position «ƒ 2.9 × 2.4 = 6.96 m²», Massenbilanz immer offen | Ausgeblendet; Schalter «Rechenweg anzeigen» blendet beides ein (Bildschirm und Druck), Einstellung wird gemerkt. Excel enthält den Rechenweg weiterhin |
+| 23 | Auswahlfelder | Dropdowns: Optionen erst nach Aufklappen sichtbar, lange Texte abgeschnitten | Entscheidungsfelder als Kacheln mit Kurztext (Einbauort, Schachttyp, Modus, Belag, Rohrsystem, Breitenregel, Handaushub, Verfüllung, Belagsklasse, Wiederinstandstellung …), kurze Werte (DN, Länge, Arbeitsraum, Dicken) als Knopfreihe; nur die Abdeckungsliste (21 Positionen) bleibt Dropdown |
+| 24 | Schachttyp | Zulässigkeit erst nach Auswahl als Warnung | Jede Typ-Kachel zeigt für den gewählten Einbauort «✓ Standard», «prüfen», «kein Standardmass» oder «nicht zulässig» |
+| 25 | Schacht (Zusatzleistungen) | 12 Eingabefelder ohne verknüpfte Beschriftung, Überschrift h5 nach h3 | Beschriftungen verknüpft, Überschriftenebene korrigiert |
 
 ## Nicht umgesetzt – Empfehlungen
 
