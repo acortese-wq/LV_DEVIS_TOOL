@@ -265,7 +265,7 @@
     } else {
       ctl = document.createElement("input"); ctl.type = "text"; ctl.id = idn; ctl.value = val == null ? "" : val;
       if (f.t === "num") { ctl.setAttribute("inputmode", "decimal"); ctl.className = "numin"; }
-      ctl.addEventListener("input", function () { setv(cfg, f.id, ctl.value); onChange(f, cfg); });
+      ctl.addEventListener("input", function () { setv(cfg, f.id, ctl.value); if (f.id === "sond.m3") S.sond.fromMap = false; onChange(f, cfg); });
       wrap.appendChild(lab); wrap.appendChild(ctl);
     }
     if (f.hint) { var h = document.createElement("p"); h.className = "hint"; h.textContent = tt(f.hint); wrap.appendChild(h); }
@@ -559,8 +559,9 @@
   /* Belagsfläche -> Breite B und Länge L, so dass B × L = Fläche und 2 × (B + L) = Umfang (sonst Quadrat); Rechenkern unverändert */
   function solveBL(A, P) { var h = P / 2, d = h * h - 4 * A; if (d >= 0) { var r = Math.sqrt(d); return [(h + r) / 2, (h - r) / 2]; } var q = Math.sqrt(A); return [q, q]; }
   function karteApply(M, cfg, lenFn, fns) {
-    var st = { g: 0, gn: 0, s: 0, sn: 0, o: 0, f: 0, fn: 0, w: 0, wn: 0, e: 0, en: 0 }, used = {}, G = S.recs.graben;
+    var st = { g: 0, gn: 0, s: 0, sn: 0, o: 0, f: 0, fn: 0, w: 0, wn: 0, e: 0, en: 0, x: 0, z: 0 }, used = {}, G = S.recs.graben;
     M.lines = M.lines.filter(function (l) { return l.pts.length > 1; });
+    M.areas = (M.areas || []).filter(function (f) { return f.pts.length > 2; });
     M.lines.forEach(function (l) {
       var r = recByUid("graben", l.rid);
       if (!r) {
@@ -581,10 +582,9 @@
       }
       used[ensureUid(r)] = 1; p.sid = r.uid; st.s++; r.typ = p.typ; if (p.name) r.name = p.name;
     });
-    /* Anzahl Schächte = Anzahl gesetzter Punkte je Datensatz (sonst bliebe n = 0 und der Schacht ohne Kosten) */
-    S.recs.schacht.forEach(function (r) { var k = M.pts.filter(function (p) { return p.sid === r.uid; }).length; if (k && r.modus !== "deckel") r.n = String(k); });
-    (M.areas || []).filter(function (f) { return f.pts.length > 2; }).forEach(function (f) {
+    (M.areas || []).forEach(function (f) {
       var Bl = S.recs.belag, r = recByUid("belag", f.rid), A = fns.area(f.pts), P = fns.perim(f.pts);
+      if (!(A > 0.01)) { st.z++; return; }   /* Fläche ohne Ausdehnung (Punkte auf einer Linie): kein Datensatz */
       if (!r) {
         if (S.tab === "belag" && !used[ensureUid(cfg)] && !M.areas.some(function (x) { return x !== f && x.rid === cfg.uid; })) r = cfg;
         else if (Bl.length === 1 && pristine("belag", Bl[0]) && !used[ensureUid(Bl[0])]) r = Bl[0];
@@ -593,17 +593,6 @@
       used[ensureUid(r)] = 1; f.rid = r.uid; st.f++;
       var bl = solveBL(A, P); r.indiv = "false"; r.bk = f.belag.bk; r.wi = f.belag.wi; r.d = String(f.belag.d || "0.08"); r.B = String(Math.round(bl[0] * 1000) / 1000); r.L = String(Math.round(bl[1] * 1000) / 1000);
     });
-    /* Werklöcher: ein Datensatz zählt die Punkte je Typ (T-Stück, Bogen, Spleissgrube, Zugschlitz) */
-    if ((M.wl || []).length) {
-      var W = S.recs.werkloch, rw = null; M.wl.forEach(function (p) { rw = rw || recByUid("werkloch", p.sid); });
-      if (!rw) {
-        if (S.tab === "werkloch" && !used[ensureUid(cfg)]) rw = cfg;
-        else if (W.length === 1 && pristine("werkloch", W[0])) rw = W[0];
-        else { rw = newRec("werkloch", W.length + 1); W.push(rw); st.wn++; }
-      }
-      ensureUid(rw); var cnt = { ts: 0, bo: 0, sg: 0, zs: 0 }; M.wl.forEach(function (p) { p.sid = rw.uid; cnt[p.wt] = (cnt[p.wt] || 0) + 1; st.w++; });
-      ["ts", "bo", "sg", "zs"].forEach(function (k) { rw[k] = cnt[k] ? String(cnt[k]) : ""; });
-    }
     /* Gebäudeeinführungen: je Punkt ein Datensatz (Anzahl 1) */
     (M.geb || []).forEach(function (p) {
       var r = recByUid("geb", p.sid), E = S.recs.geb;
@@ -614,12 +603,29 @@
       }
       used[ensureUid(r)] = 1; p.sid = r.uid; st.e++; r.n = "1"; r.cm = String(p.cm || ""); r.abd = p.abd || "hauff"; if (p.name) r.name = p.name;
     });
+    /* Konflikt: derselbe Datensatz wird auch von der anderen Quelle (Karte/Plan) gesteuert -> letzte Übernahme gilt */
+    var OT = fns.src === "plan" ? S.karte : S.plan, ids = {}; [["lines", "rid"], ["areas", "rid"], ["pts", "sid"], ["geb", "sid"]].forEach(function (a) { (OT[a[0]] || []).forEach(function (o) { if (o[a[1]]) ids[o[a[1]]] = 1; }); });
+    M.lines.concat(M.areas || [], M.pts, M.geb || []).forEach(function (o) { if (ids[o.rid || o.sid]) st.x++; });
     st.o = (M.sond || []).length; return st;
   }
-  /* Sondagen (Karte + Plan) -> Sondieraushub m³ im Reiter Allgemein (nur wenn Sondagen vorhanden) */
+  /* Abgeleitete Werte aus Karte UND Plan (Summe beider Quellen): Sondieraushub, Schacht-Anzahl, Werkloch-Zähler.
+     Fehlt die letzte Sondage/das letzte Werkloch, wird der abgeleitete Wert wieder zurückgesetzt (manuelle Eingaben bleiben unberührt). */
   function sondSync() {
-    var all = (S.karte.sond || []).concat(S.plan.sond || []); if (!all.length) return;
-    S.sond.m3 = String(Math.round(all.reduce(function (a, o) { return a + num(o.l, 0) * num(o.b, 0) * num(o.t, 0); }, 0) * 100) / 100);
+    var all = (S.karte.sond || []).concat(S.plan.sond || []);
+    if (!all.length) { if (S.sond.fromMap) { S.sond.m3 = ""; S.sond.fromMap = false; } return; }
+    S.sond.m3 = String(Math.round(all.reduce(function (a, o) { return a + num(o.l, 0) * num(o.b, 0) * num(o.t, 0); }, 0) * 100) / 100); S.sond.fromMap = true;
+  }
+  function syncDerived(cfg, st) {
+    var KP = (S.karte.pts || []).concat(S.plan.pts || []);   /* Anzahl Schächte = Anzahl gesetzter Punkte je Datensatz (sonst bliebe n = 0 ohne Kosten) */
+    S.recs.schacht.forEach(function (r) { var k = r.uid ? KP.filter(function (p) { return p.sid === r.uid; }).length : 0; if (k && r.modus !== "deckel") r.n = String(k); });
+    var WL = (S.karte.wl || []).concat(S.plan.wl || []), W = S.recs.werkloch, rw = null;
+    WL.forEach(function (p) { rw = rw || recByUid("werkloch", p.sid); });
+    if (WL.length) {
+      if (!rw) { if (S.tab === "werkloch" && cfg) rw = cfg; else if (W.length === 1 && pristine("werkloch", W[0])) rw = W[0]; else { rw = newRec("werkloch", W.length + 1); W.push(rw); if (st) st.wn++; } }
+      ensureUid(rw); var cnt = { ts: 0, bo: 0, sg: 0, zs: 0 }; WL.forEach(function (p) { p.sid = rw.uid; cnt[p.wt] = (cnt[p.wt] || 0) + 1; });
+      ["ts", "bo", "sg", "zs"].forEach(function (k) { rw[k] = cnt[k] ? String(cnt[k]) : ""; }); rw.wlMap = true; if (st) st.w = WL.length;
+    } else W.forEach(function (r) { if (r.wlMap) { ["ts", "bo", "sg", "zs"].forEach(function (k) { r[k] = ""; }); r.wlMap = false; } });
+    sondSync();
   }
   function lineLen(pts) { return KARTE.total([pts]); }
   function trasseEl(cfg) {
@@ -648,8 +654,8 @@
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" ? cfg.cm : "", abd: tab === "geb" ? cfg.abd : "hauff" }, defBelag: tab === "belag" ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
           onClose: function () { var o = $("#kmOpen"); if (o) o.focus(); },
-          onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st = karteApply(M, cfg, lenFn, fns), bs = fns.base === "luft" ? "luft" : fns.base === "grau" || fns.base === "kataster" ? "grau" : "farbe", keep = S.karte.bg;
-            S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; sondSync(); save(); renderForm(); scheduleResult(); undoToast(fill(tt("km_done"), st), sn); cacheSitu(); }
+          onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st = karteApply(M, cfg, Object.assign({ src: "karte" }, fns) && lenFn, Object.assign({ src: "karte" }, fns)), bs = fns.base === "luft" ? "luft" : fns.base === "grau" || fns.base === "kataster" ? "grau" : "farbe", keep = S.karte.bg;
+            S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; syncDerived(cfg, st); save(); renderForm(); scheduleResult(); undoToast(fill(tt("km_done"), st) + (st.z ? " ⚠ " + fill(tt("km_zero"), st) : "") + (st.x ? " ⚠ " + fill(tt("km_conflict"), st) : ""), sn); cacheSitu(); }
         });
       }).catch(function () { b.disabled = false; m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); });
     });
@@ -731,7 +737,7 @@
           KARTE.open({ kind: "plan", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, plan: { img: P.img, w: P.w, h: P.h, cal: P.cal }, model: { lines: JSON.parse(JSON.stringify(P.lines)), pts: JSON.parse(JSON.stringify(P.pts)), sond: JSON.parse(JSON.stringify(P.sond)), notes: JSON.parse(JSON.stringify(P.notes || [])), areas: JSON.parse(JSON.stringify(P.areas || [])), wl: JSON.parse(JSON.stringify(P.wl || [])), geb: JSON.parse(JSON.stringify(P.geb || [])) },
             defRohr: { sys: "k55", dn: "55", len: "10", n: "1" }, defTyp: "KES150", defGeb: { cm: "", abd: "hauff" }, defBelag: { bk: "gehweg", d: "0.08", wi: "B" }, recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
             onClose: function () { var o = $("#plOpen"); if (o) o.focus(); },
-            onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st2 = karteApply(M, null, lenFn, fns); S.plan.areas = M.areas || []; S.plan.wl = M.wl || []; S.plan.geb = M.geb || []; S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; sondSync(); save(); renderForm(); renderResult(); undoToast(fill(tt("km_done"), st2), sn); }
+            onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st2 = karteApply(M, null, lenFn, Object.assign({ src: "plan" }, fns)); S.plan.areas = M.areas || []; S.plan.wl = M.wl || []; S.plan.geb = M.geb || []; S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; syncDerived(null, st2); save(); renderForm(); renderResult(); undoToast(fill(tt("km_done"), st2) + (st2.x ? " ⚠ " + fill(tt("km_conflict"), st2) : ""), sn); }
           });
         }).catch(function () { msg.className = "hint kmmsg reqmsg"; msg.textContent = tt("km_offline"); });
       });

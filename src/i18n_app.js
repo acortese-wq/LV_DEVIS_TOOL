@@ -501,6 +501,8 @@
     ex_h_date: ["Datum", "Date", "Data", "Date"],
     ex_h_by: ["Bearbeitet", "Traité par", "Elaborato", "Prepared by"],
     ex_prevLbl: ["Vorschau des Plans (scrollbar)", "Aperçu du plan (défilement)", "Anteprima del piano (scorrevole)", "Plan preview (scrollable)"],
+    km_conflict: ["{x} Datensatz/-sätze werden auch von der anderen Quelle (Karte bzw. Plan) gesteuert – die letzte Übernahme gilt.", "{x} fiche(s) aussi pilotée(s) par l'autre source (carte ou plan) – la dernière reprise prévaut.", "{x} scheda/e pilotata/e anche dall'altra fonte (carta o pianta) – vale l'ultima ripresa.", "{x} record(s) also driven by the other source (map or plan) – the last apply wins."],
+    km_zero: ["{z} Fläche(n) ohne Ausdehnung (Punkte auf einer Linie) wurden nicht übernommen.", "{z} surface(s) sans étendue (points alignés) non reprises.", "{z} superficie/i senza estensione (punti allineati) non riprese.", "{z} area(s) without extent (points on a line) were not applied."],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
     km_ptOn: ["Schacht setzen aktiv", "Pose de regard active", "Posa pozzetto attiva", "Placing manholes"],
     km_obj: ["Objekte auf der Karte", "Objets sur la carte", "Oggetti sulla carta", "Objects on the map"],
