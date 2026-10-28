@@ -225,3 +225,15 @@ svg text.warnTx{fill:var(--signal)!important}
 .kmlen{margin:0;font-weight:700;color:var(--navy);font-size:16px}
 .leaflet-container a{color:#00397a}
 @media print{.kmdlg,.kmfield .btn,.kmmsg{display:none!important}}
+.kmdlg[open]{overflow:auto}
+.kmmap{height:min(46vh,420px)}
+.kmobj{display:flex;flex-direction:column;gap:8px}
+.kmrow{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;padding:8px 10px;border:1px solid var(--rule);border-radius:8px;background:#f7f8f9}
+.kmrow.on{border:2px solid var(--navy);padding:7px 9px}
+.kmt{flex:0 0 100%;font-size:13px}.kmlnk{color:var(--ink-soft)}
+.kmc{display:flex;flex-direction:column;gap:2px;font-size:11.5px;color:var(--ink-soft);min-width:0}
+.kmc select,.kmc input{font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--rule-strong);border-radius:6px;background:#fff;color:var(--ink);max-width:100%}
+.kmc .kmn{width:64px}
+.kmbtn{display:flex;gap:6px;margin-left:auto}
+.kmsch span{display:flex;width:26px;height:26px;align-items:center;justify-content:center;background:var(--navy);color:#fff;border:2px solid #fff;border-radius:4px;font:700 12px "Segoe UI",sans-serif;box-shadow:0 0 0 1px var(--navy)}
+.kmsch.on span{background:#b8332a;box-shadow:0 0 0 1px #b8332a}

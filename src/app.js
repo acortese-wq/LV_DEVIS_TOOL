@@ -36,6 +36,7 @@
       var nr = newRec(t, 1); S.recs[t].forEach(function (r) { deepFill(r, nr); });
       if (!(S.idx[t] >= 0 && S.idx[t] < S.recs[t].length)) S.idx[t] = 0;
     });
+    if (!S.karte || !Array.isArray(S.karte.lines)) S.karte = { lines: [], pts: [] }; if (!Array.isArray(S.karte.pts)) S.karte.pts = [];
     if (ALLTABS.indexOf(S.tab) < 0) S.tab = "graben";
   }
   try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
@@ -121,7 +122,7 @@
       { id: "zores.zustand", t: "sel", opts: ["abrechen", "betrieb", "nicht"], show: function (c) { return c.mods.fremd && c.zores.on; } },
       { id: "zores.len", t: "num", show: function (c) { return c.mods.fremd && c.zores.on; } },
       { id: "mods.boesch", t: "chip" }, { id: "boeschung.flaeche", t: "num", show: function (c) { return c.mods.boesch; } }, { id: "boeschung.geneigt", t: "chk", show: function (c) { return c.mods.boesch; } }]),
-    schacht: [{ sec: "s_schacht" }, { id: "name", t: "text" }, { id: "modus", t: "sel", opts: ["neu", "ersatz", "deckel"], struct: 1 },
+    schacht: [{ sec: "s_schacht" }, { id: "name", t: "text" }, { t: "trasse" }, { id: "modus", t: "sel", opts: ["neu", "ersatz", "deckel"], struct: 1 },
       { id: "deckelRichtung", t: "sel", opts: ["hoeher", "tiefer"], show: function (c) { return c.modus === "deckel"; } },
       { id: "deckelFormat", t: "sel", opts: ["rund", "rechteckig"], show: function (c) { return c.modus === "deckel"; } },
       { id: "deckelN", t: "num", show: function (c) { return c.modus === "deckel"; } },
@@ -537,16 +538,50 @@
   }
   function updateRecLabel() { var e = $("#recName"); if (e && S.tab !== "par") e.textContent = rec().name || ""; }
 
-  /* Kartenmessung Grabenlänge (swisstopo): Trasse im Datensatz, Länge -> Feld L */
+  /* Karte (swisstopo): Linien = Rohranlage je Graben-Datensatz, Punkte = Schacht-Datensätze; Verknüpfung über rec.uid */
+  var newUid = function () { return "r" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); };
+  var ensureUid = function (r) { if (!r.uid) r.uid = newUid(); return r.uid; };
+  var recByUid = function (tab, u) { return u ? S.recs[tab].filter(function (r) { return r.uid === u; })[0] : null; };
+  var recName = function (tab) { return function (u) { var r = recByUid(tab, u); return r ? r.name : ""; }; };
+  var pristine = function (tab, r) { var a = JSON.parse(JSON.stringify(r)), b = newRec(tab, 1); delete a.uid; return JSON.stringify(a) === JSON.stringify(b); };
+  var round1 = function (v) { return String(Math.round(v * 10) / 10); };
+  function karteCat() {
+    return { schacht: Object.keys(KVE.SCHACHT).map(function (k) { return [k, optLabel("typ", k)]; }),
+      sys: ["k55", "laengs", "block"].map(function (v) { return [v, optLabel("rohrSystem", v)]; }),
+      dn: ["55", "100", "120", "150"].map(function (v) { return [v, "DN " + v]; }), len: ["5", "10"].map(function (v) { return [v, v + " m"]; }) };
+  }
+  function karteApply(M, cfg) {
+    var K = S.karte, st = { g: 0, gn: 0, s: 0, sn: 0 }, used = {};
+    M.lines = M.lines.filter(function (l) { return l.pts.length > 1; });
+    M.lines.forEach(function (l) {
+      var r = recByUid("graben", l.rid);
+      if (!r) {
+        if (S.tab === "graben" && !used[ensureUid(cfg)] && !M.lines.some(function (x) { return x !== l && x.rid === cfg.uid; })) r = cfg;
+        else { r = JSON.parse(JSON.stringify(S.tab === "graben" ? cfg : newRec("graben", 1))); delete r.uid; r.x = {}; r.free = []; r.name = tt("tab_graben") + " " + (S.recs.graben.length + 1); S.recs.graben.push(r); st.gn++; }
+      }
+      used[ensureUid(r)] = 1; l.rid = r.uid; st.g++;
+      r.L = round1(lineLen(l.pts)); r.rohrSystem = l.rohr.sys;
+      if (l.rohr.sys !== "block") { r.dn = l.rohr.dn; r.len = l.rohr.len; r.n = String(l.rohr.n || "1"); }
+    });
+    M.pts.forEach(function (p) {
+      var r = recByUid("schacht", p.sid), L = S.recs.schacht;
+      if (!r) {
+        if (S.tab === "schacht" && !used[ensureUid(cfg)] && !M.pts.some(function (x) { return x !== p && x.sid === cfg.uid; })) r = cfg;
+        else if (L.length === 1 && pristine("schacht", L[0]) && !used[ensureUid(L[0])]) r = L[0];
+        else { r = newRec("schacht", L.length + 1); L.push(r); st.sn++; }
+      }
+      used[ensureUid(r)] = 1; p.sid = r.uid; st.s++; r.typ = p.typ; if (p.name) r.name = p.name;
+    });
+    S.karte = { lines: M.lines, pts: M.pts }; return st;
+  }
+  function lineLen(pts) { return KARTE.total([pts]); }
   function trasseEl(cfg) {
-    var w = document.createElement("div"); w.className = "field kmfield";
+    var w = document.createElement("div"); w.className = "field kmfield"; var tab = S.tab;
     var b = document.createElement("button"); b.type = "button"; b.className = "btn small"; b.id = "kmOpen"; b.textContent = tt("km_btn"); w.appendChild(b);
     var m = document.createElement("p"); m.className = "hint kmmsg"; m.setAttribute("role", "status"); w.appendChild(m);
-    var tr = cfg.trasse;
-    if (tr && tr.length) {
-      var pv = KARTE.preview(tr, tt); if (pv) w.appendChild(pv);
-      var d = document.createElement("button"); d.type = "button"; d.className = "btn ghost small del"; d.textContent = tt("km_remove");
-      d.addEventListener("click", function () { delete cfg.trasse; save(); renderForm(); var o = $("#kmOpen"); if (o) o.focus(); }); w.appendChild(d);
+    var u = cfg.uid, ls = (S.karte.lines || []).filter(function (l) { return u && l.rid === u; }), ps = (S.karte.pts || []).filter(function (p) { return u && p.sid === u; });
+    if (tab === "schacht" ? ps.length : ls.length) {
+      var pv = KARTE.preview(ls.map(function (l) { return l.pts; }), tt, tab === "schacht" ? ps.map(function (p) { return p.pt; }) : []); if (pv) w.appendChild(pv);
     }
     b.addEventListener("click", function () {
       m.className = "hint kmmsg";
@@ -554,11 +589,16 @@
       m.textContent = tt("km_loading"); b.disabled = true;
       KARTE.load().then(function () {
         b.disabled = false; m.textContent = "";
-        KARTE.open({ tt: tt, lang: S.lang, lines: cfg.trasse || [], onClose: function () { var o = $("#kmOpen"); if (o) o.focus(); },
-          onApply: function (lines, tot) {
-            lines = lines.filter(function (l) { return l.length > 1; });
-            if (lines.length) { cfg.trasse = lines; cfg.L = String(Math.round(tot * 10) / 10); } else delete cfg.trasse;
-            save(); renderForm(); scheduleResult(); }
+        if (cfg.trasse) {   /* Übernahme der Version 1 (nur Linien) */
+          var u0 = ensureUid(cfg); cfg.trasse.forEach(function (pts, i) { S.karte.lines.push({ id: "m" + i + u0, pts: pts, rid: i === 0 ? u0 : null, rohr: { sys: cfg.rohrSystem, dn: cfg.dn, len: cfg.len, n: cfg.n } }); }); delete cfg.trasse;
+        }
+        var g = tab === "graben";
+        KARTE.open({ tt: tt, lang: S.lang, cat: karteCat(), model: JSON.parse(JSON.stringify(S.karte)),
+          defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : cfg.typ,
+          recName: function (id) { return recName("graben")(id) || recName("schacht")(id); },
+          onClose: function () { var o = $("#kmOpen"); if (o) o.focus(); },
+          onApply: function (M) { var st = karteApply(M, cfg); save(); renderForm(); scheduleResult();
+            var mm = $("#kmOpen") && $("#kmOpen").parentNode.querySelector(".kmmsg"); if (mm) mm.textContent = fill(tt("km_done"), st); }
         });
       }).catch(function () { b.disabled = false; m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); });
     });
@@ -938,7 +978,7 @@
       if (a === "prev") S.idx[S.tab] = Math.max(0, S.idx[S.tab] - 1);
       else if (a === "next") S.idx[S.tab] = Math.min(L.length - 1, S.idx[S.tab] + 1);
       else if (a === "new") { L.push(newRec(S.tab, L.length + 1)); S.idx[S.tab] = L.length - 1; }
-      else if (a === "dup") { var c = JSON.parse(JSON.stringify(rec())); c.name = (c.name || "") + " (2)"; L.splice(S.idx[S.tab] + 1, 0, c); S.idx[S.tab]++; }
+      else if (a === "dup") { var c = JSON.parse(JSON.stringify(rec())); c.name = (c.name || "") + " (2)"; delete c.uid; L.splice(S.idx[S.tab] + 1, 0, c); S.idx[S.tab]++; }
       else if (a === "del") { if (!confirm(tt("confirmDel"))) return; L.splice(S.idx[S.tab], 1); if (!L.length) L.push(newRec(S.tab, 1)); S.idx[S.tab] = Math.min(S.idx[S.tab], L.length - 1); }
       save(); renderForm(); renderResult();
     });
