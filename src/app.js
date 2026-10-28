@@ -629,6 +629,8 @@
     var u = cfg.uid, ls = (S.karte.lines || []).filter(function (l) { return u && l.rid === u; }), ps = (S.karte.pts || []).filter(function (p) { return u && p.sid === u; });
     var as = (S.karte.areas || []).filter(function (f) { return u && f.rid === u; });
     var wls = (S.karte.wl || []).filter(function (p) { return u && p.sid === u; }), gbs = (S.karte.geb || []).filter(function (p) { return u && p.sid === u; });
+    var anyK = S.karte.lines.length || S.karte.pts.length || (S.karte.areas || []).length || (S.karte.wl || []).length || (S.karte.geb || []).length || S.karte.sond.length || S.karte.notes.length || S.karte.overlay;
+    if (anyK) { var xb = document.createElement("button"); xb.type = "button"; xb.className = "btn ghost small"; xb.textContent = tt("ex_btn"); xb.addEventListener("click", exportOpen); w.appendChild(xb); }
     if (tab === "schacht" ? ps.length : tab === "belag" ? as.length : tab === "werkloch" ? wls.length : tab === "geb" ? gbs.length : ls.length) {
       var pv = KARTE.preview(ls.map(function (l) { return l.pts; }), tt, tab === "schacht" ? ps.map(function (p) { return p.pt; }) : [], tab === "belag" ? as.map(function (f) { return f.pts; }) : [], tab === "werkloch" ? wls.map(function (p) { return p.pt; }) : [], tab === "geb" ? gbs.map(function (p) { return p.pt; }) : []); if (pv) w.appendChild(pv);
     }
@@ -642,7 +644,7 @@
           var u0 = ensureUid(cfg); cfg.trasse.forEach(function (pts, i) { S.karte.lines.push({ id: "m" + i + u0, pts: pts, rid: i === 0 ? u0 : null, rohr: { sys: cfg.rohrSystem, dn: cfg.dn, len: cfg.len, n: cfg.n } }); }); delete cfg.trasse;
         }
         var g = tab === "graben";
-        KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), model: JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
+        KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, model: JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" ? cfg.cm : "", abd: tab === "geb" ? cfg.abd : "hauff" }, defBelag: tab === "belag" ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
           onClose: function () { var o = $("#kmOpen"); if (o) o.focus(); },
@@ -718,14 +720,15 @@
       w.appendChild(st);
       var pv = KARTE.planPreview(P, tt); if (pv) w.appendChild(pv);
       var bt = document.createElement("div"); bt.className = "toolrow";
-      bt.innerHTML = '<button type="button" class="btn" id="plOpen">' + esc(tt("pl_open")) + '</button><button type="button" class="btn ghost small del" id="plDel">' + esc(tt("pl_remove")) + "</button>";
+      bt.innerHTML = '<button type="button" class="btn" id="plOpen">' + esc(tt("pl_open")) + '</button><button type="button" class="btn ghost" id="plExp">' + esc(tt("ex_btn")) + '</button><button type="button" class="btn ghost small del" id="plDel">' + esc(tt("pl_remove")) + "</button>";
       w.appendChild(bt);
+      bt.querySelector("#plExp").addEventListener("click", exportOpen);
       bt.querySelector("#plDel").addEventListener("click", function () { var sn = snapState(); S.plan = { img: "", w: 0, h: 0, cal: {}, lines: [], pts: [], sond: [] }; sondSync(); save(); renderForm(); undoToast(tt("pl_removed"), sn); });
       bt.querySelector("#plOpen").addEventListener("click", function () {
         msg.className = "hint kmmsg"; msg.textContent = tt("km_loading");
         KARTE.load().then(function () {
           msg.textContent = "";
-          KARTE.open({ kind: "plan", tt: tt, lang: S.lang, cat: karteCat(), plan: { img: P.img, w: P.w, h: P.h, cal: P.cal }, model: { lines: JSON.parse(JSON.stringify(P.lines)), pts: JSON.parse(JSON.stringify(P.pts)), sond: JSON.parse(JSON.stringify(P.sond)), notes: JSON.parse(JSON.stringify(P.notes || [])), areas: JSON.parse(JSON.stringify(P.areas || [])), wl: JSON.parse(JSON.stringify(P.wl || [])), geb: JSON.parse(JSON.stringify(P.geb || [])) },
+          KARTE.open({ kind: "plan", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, plan: { img: P.img, w: P.w, h: P.h, cal: P.cal }, model: { lines: JSON.parse(JSON.stringify(P.lines)), pts: JSON.parse(JSON.stringify(P.pts)), sond: JSON.parse(JSON.stringify(P.sond)), notes: JSON.parse(JSON.stringify(P.notes || [])), areas: JSON.parse(JSON.stringify(P.areas || [])), wl: JSON.parse(JSON.stringify(P.wl || [])), geb: JSON.parse(JSON.stringify(P.geb || [])) },
             defRohr: { sys: "k55", dn: "55", len: "10", n: "1" }, defTyp: "KES150", defGeb: { cm: "", abd: "hauff" }, defBelag: { bk: "gehweg", d: "0.08", wi: "B" }, recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
             onClose: function () { var o = $("#plOpen"); if (o) o.focus(); },
             onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st2 = karteApply(M, null, lenFn, fns); S.plan.areas = M.areas || []; S.plan.wl = M.wl || []; S.plan.geb = M.geb || []; S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; sondSync(); save(); renderForm(); renderResult(); undoToast(fill(tt("km_done"), st2), sn); }
@@ -897,12 +900,37 @@
     var sec = document.createElement("section"); sec.className = "situ no-summary"; sec.innerHTML = "<h3>" + esc(tt("sit_h")) + "</h3>";
     if (hasMap) {
       var g = situGeo(), base = K.base || "farbe", bg = K.bg && K.bg.key === KARTE.bgKey(g, 760, 420, base) ? K.bg.src : null;
-      var fig = KARTE.mapFigure(g, tt, { W: 760, H: 420, base: base, bg: bg, overlay: ovResolve(K.overlay), cls: "situfig", cap: fill(tt("sit_capMap"), { m: KARTE.fmt(KARTE.total(g.lines)), n: K.pts.length, s: K.sond.length, f: (K.areas || []).length }) }); if (fig) sec.appendChild(fig);
+      g.lab = mkLabels(K, mapFns()); var fig = KARTE.mapFigure(g, tt, { W: 760, H: 420, base: base, bg: bg, labels: true, overlay: ovResolve(K.overlay), cls: "situfig", cap: fill(tt("sit_capMap"), { m: KARTE.fmt(KARTE.total(g.lines)), n: K.pts.length, s: K.sond.length, f: (K.areas || []).length }) }); if (fig) sec.appendChild(fig);
     }
-    if (hasPlan) { var pv = KARTE.planPreview(P, tt); if (pv) { pv.className = "situfig"; var cap = document.createElement("figcaption"); cap.textContent = tt("sit_capPlan") + (P.cal && P.cal.scale ? " · " + (P.cal.auto ? "1:" + P.cal.auto : "1 px = " + Math.round(P.cal.scale * 1000) / 1000 + " m") : ""); pv.appendChild(cap); sec.appendChild(pv); } }
+    if (hasPlan) { var pv = KARTE.planPreview(P, tt, mkLabels(P, planFns())); if (pv) { pv.className = "situfig"; var cap = document.createElement("figcaption"); cap.textContent = tt("sit_capPlan") + (P.cal && P.cal.scale ? " · " + (P.cal.auto ? "1:" + P.cal.auto : "1 px = " + Math.round(P.cal.scale * 1000) / 1000 + " m") : ""); pv.appendChild(cap); sec.appendChild(pv); } }
+    var eb = document.createElement("button"); eb.type = "button"; eb.className = "btn ghost small no-print"; eb.textContent = tt("ex_btn"); eb.addEventListener("click", exportOpen); sec.insertBefore(eb, sec.children[1] || null);
     var st = $("#result .status"); if (st) st.insertAdjacentElement("afterend", sec); else $("#result").insertBefore(sec, $("#result").firstChild);
   }
   function situGeo() { var K = S.karte; return { lines: K.lines.map(function (l) { return l.pts; }), pts: K.pts.map(function (p) { return p.pt; }), areas: (K.areas || []).map(function (a) { return a.pts; }), sond: K.sond.map(function (p) { return p.pt; }), wl: (K.wl || []).map(function (p) { return p.pt; }), geb: (K.geb || []).map(function (p) { return p.pt; }), notes: K.notes, extra: KARTE.ovCorners(ovResolve(K.overlay)) }; }
+  /* Beschriftungen: Linie = Name · Länge · Rohranlage; Schacht = Name · Typ; Sondage, Werkloch, Gebäudeeinführung, Fläche */
+  function mkLabels(M, fns) {
+    var rn = function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); };
+    var SYS = { k55: "K55", laengs: tt("o_rohrSystem_laengs").split(" (")[0], block: tt("o_rohrSystem_block").split(" (")[0] };
+    return {
+      lines: (M.lines || []).map(function (l, i) { var s2 = (rn(l.rid) || tt("km_lineN").replace("{n}", i + 1)) + " · " + KARTE.fmt(fns.len(l.pts)) + " m"; if (l.rohr) s2 += " · " + (l.rohr.sys === "block" ? SYS.block : SYS[l.rohr.sys] + " DN" + l.rohr.dn + " ×" + (l.rohr.n || "1")); return s2; }),
+      pts: (M.pts || []).map(function (p, i) { return (p.name || rn(p.sid) || tt("km_schN").replace("{n}", i + 1)) + " · " + p.typ; }),
+      sond: (M.sond || []).map(function (p, i) { return (p.name || "S" + (i + 1)) + " · " + p.l + "×" + p.b + "×" + p.t + " m"; }),
+      wl: (M.wl || []).map(function (p, i) { return (p.name || "W" + (i + 1)) + " · " + tt("km_wl" + p.wt); }),
+      geb: (M.geb || []).map(function (p, i) { return (p.name || rn(p.sid) || "G" + (i + 1)) + (p.cm ? " · " + p.cm + " cm" : ""); }),
+      areas: (M.areas || []).map(function (f, i) { return (rn(f.rid) || tt("km_areaN").replace("{n}", i + 1)) + " · " + KARTE.fmt(fns.area(f.pts)) + " m²"; })
+    };
+  }
+  var mapFns = function () { return { len: function (pts) { return KARTE.total([pts]); }, area: function (pts) { return KARTE.polyArea(pts); } }; };
+  var planFns = function () { var sc = (S.plan.cal && S.plan.cal.scale) || 0; return { len: function (pts) { return KARTE.total([pts]) * sc; }, area: function (pts) { return KARTE.polyArea(pts) * sc * sc; } }; };
+  function exportOpen() {
+    var K = S.karte, P = S.plan, src = {}, hasMap = (K.overlay && ovResolve(K.overlay)) || K.lines.length || K.pts.length || K.sond.length || K.notes.length || (K.areas || []).length || (K.wl || []).length || (K.geb || []).length;
+    if (hasMap) { var g = situGeo(); g.lab = mkLabels(K, mapFns()); src.map = { geo: g, overlay: ovResolve(K.overlay), base: K.base || "farbe" }; }
+    if (P.img) { var pg = KARTE.planGeo(P); pg.lab = mkLabels(P, planFns()); src.plan = { geo: pg, P: { img: P.img, w: P.w, h: P.h, mpp: (P.cal && P.cal.scale) || 0 } }; }
+    if (!src.map && !src.plan) return;
+    KARTE.load().catch(function () { }).then(function () {
+      KARTE.exportDlg({ tt: tt, lang: S.lang, src: src, meta: { projekt: S.kopf.projekt || "", datum: S.kopf.datum || today(), bearb: S.kopf.bearb || "", title: "" } });
+    });
+  }
   /* Overlay-Bild: Verweis auf den Plan-Reiter (keine Doppelspeicherung) oder eingebettet */
   function ovResolve(o) { if (!o) return null; var r = Object.assign({}, o); if (o.ref === "plan") { if (!S.plan.img) return null; r.img = S.plan.img; r.w = S.plan.w; r.h = S.plan.h; } return r.img ? r : null; }
   function cacheSitu() { var g = situGeo(), base = S.karte.base || "farbe"; KARTE.cacheBg(g, base, 760, 420, function (bg) { S.karte.bg = bg; save(); situRender(); }); }

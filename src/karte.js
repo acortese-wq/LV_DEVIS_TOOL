@@ -84,14 +84,25 @@
       var fr = new FileReader(); fr.onload = function () { cb({ key: bgKey(g, W, H, base), src: fr.result }); }; fr.readAsDataURL(bl);
     }).catch(function () { });
   }
-  function mapFigure(g, tt, o) {
-    var W = o.W, H = o.H, box = geoBox(g, W, H); if (!box) return null;
-    var bb = box.bb, sc = box.sc, k = W / 360, px = function (p) { return [((p[0] - bb[0]) / sc), ((bb[3] - p[1]) / sc)]; }, f1 = function (v) { return Math.round(v * 10) / 10; };
-    var ovs = ""; if (o.overlay && o.overlay.img) { var oc = ovCorners(o.overlay).map(px), ow = o.overlay.w, oh = o.overlay.h;
-      ovs = '<image href="' + o.overlay.img + '" width="' + ow + '" height="' + oh + '" opacity="' + (o.overlay.op || 0.6) + '" transform="matrix(' + [(oc[1][0] - oc[0][0]) / ow, (oc[1][1] - oc[0][1]) / ow, (oc[3][0] - oc[0][0]) / oh, (oc[3][1] - oc[0][1]) / oh, oc[0][0], oc[0][1]].map(function (v) { return Math.round(v * 1e6) / 1e6; }).join(" ") + ')"/>'; }
-    var pl = function (pts) { return pts.map(function (p) { var q = px(p); return f1(q[0]) + "," + f1(q[1]); }).join(" "); }, o2 = "";
-    (g.areas || []).forEach(function (a) { if (a.length > 2) o2 += '<polygon points="' + pl(a) + '" fill="#f28c00" fill-opacity=".3" stroke="#8a5b00" stroke-width="' + 2 * k + '"/>'; });
-    (g.lines || []).forEach(function (l) { if (l.length > 1) o2 += '<polyline points="' + pl(l) + '" fill="none" stroke="#fff" stroke-width="' + 6 * k + '" stroke-linejoin="round"/><polyline points="' + pl(l) + '" fill="none" stroke="#b8332a" stroke-width="' + 3 * k + '" stroke-linejoin="round"/>'; });
+  /* Gemeinsame Zeichnung (SVG-Text): px = Abbildung Punkt -> Zeichnungseinheit, k = Grösse einer Bildschirm-Einheit (1 px bei 360 px Breite)
+     g.lab = { lines:[txt], pts:[txt], areas:[txt], sond:[txt], wl:[txt], geb:[txt] } (optional); o.labels schaltet die Beschriftung ein */
+  function geoSvg(g, px, k, o) {
+    o = o || {}; var f1 = function (v) { return Math.round(v * 100) / 100; }, o2 = "", lab = o.labels ? (g.lab || {}) : {};
+    var pl = function (pts) { return pts.map(function (p) { var q = px(p); return f1(q[0]) + "," + f1(q[1]); }).join(" "); };
+    var txt = function (x, y, s, extra) { return s ? '<text x="' + f1(x) + '" y="' + f1(y) + '" font-size="' + 9 * k + '" font-weight="600" fill="#1a1c1e" stroke="#fff" stroke-width="' + 2.6 * k + '" stroke-linejoin="round" paint-order="stroke" ' + (extra || "") + ">" + esc(s) + "</text>" : ""; };
+    (g.areas || []).forEach(function (a, i) {
+      if (a.length > 2) { o2 += '<polygon points="' + pl(a) + '" fill="#f28c00" fill-opacity=".3" stroke="#8a5b00" stroke-width="' + 2 * k + '"/>';
+        var cx = 0, cy = 0; a.forEach(function (p) { var q = px(p); cx += q[0]; cy += q[1]; }); o2 += txt(cx / a.length, cy / a.length + 3 * k, lab.areas && lab.areas[i], 'text-anchor="middle"'); }
+    });
+    (g.lines || []).forEach(function (l, i) {
+      if (l.length < 2) return;
+      o2 += '<polyline points="' + pl(l) + '" fill="none" stroke="#fff" stroke-width="' + 6 * k + '" stroke-linejoin="round"/><polyline points="' + pl(l) + '" fill="none" stroke="#b8332a" stroke-width="' + 3 * k + '" stroke-linejoin="round"/>';
+      if (lab.lines && lab.lines[i]) {   /* Beschriftung entlang des längsten Abschnitts */
+        var best = 0, bj = 0; for (var j = 1; j < l.length; j++) { var a = px(l[j - 1]), b = px(l[j]), d = Math.hypot(b[0] - a[0], b[1] - a[1]); if (d > best) { best = d; bj = j; } }
+        var A = px(l[bj - 1]), B = px(l[bj]), mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2, ang = Math.atan2(B[1] - A[1], B[0] - A[0]) * 180 / Math.PI; if (ang > 90) ang -= 180; if (ang < -90) ang += 180;
+        o2 += txt(mx, my, lab.lines[i], 'dy="' + -4.5 * k + '" text-anchor="middle" transform="rotate(' + f1(ang) + " " + f1(mx) + " " + f1(my) + ')"');
+      }
+    });
     (g.notes || []).forEach(function (n) {
       var c = n.color || "#0d47c8", q = n.pts.map(px);
       if (n.type === "text") o2 += '<text x="' + f1(q[0][0]) + '" y="' + f1(q[0][1]) + '" font-size="' + ({ s: 10, m: 13, l: 19 }[n.size || "m"] * k) + '" font-weight="700" fill="' + c + '" stroke="#fff" stroke-width="' + 0.8 * k + '" paint-order="stroke">' + esc(n.text || "") + "</text>";
@@ -99,12 +110,24 @@
       else { o2 += '<polyline points="' + q.map(function (p) { return f1(p[0]) + "," + f1(p[1]); }).join(" ") + '" fill="none" stroke="' + c + '" stroke-width="' + 2.5 * k + '"/>';
         if (n.type === "arrow" && q.length > 1) { var a = q[0], b = q[q.length - 1], ang = Math.atan2(b[1] - a[1], b[0] - a[0]), s2 = 13 * k; o2 += '<polygon points="' + f1(b[0]) + "," + f1(b[1]) + " " + f1(b[0] - s2 * Math.cos(ang - 0.4)) + "," + f1(b[1] - s2 * Math.sin(ang - 0.4)) + " " + f1(b[0] - s2 * Math.cos(ang + 0.4)) + "," + f1(b[1] - s2 * Math.sin(ang + 0.4)) + '" fill="' + c + '"/>'; } }
     });
-    (g.pts || []).forEach(function (p, i) { var q = px(p), r = 9 * k; o2 += '<rect x="' + f1(q[0] - r) + '" y="' + f1(q[1] - r) + '" width="' + 2 * r + '" height="' + 2 * r + '" fill="#0d47c8" stroke="#fff" stroke-width="' + 1.5 * k + '"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 4 * k) + '" text-anchor="middle" font-size="' + 11 * k + '" font-weight="700" fill="#fff">' + (i + 1) + "</text>"; });
-    (g.sond || []).forEach(function (p, i) { var q = px(p), r = 9 * k; o2 += '<circle cx="' + f1(q[0]) + '" cy="' + f1(q[1]) + '" r="' + r + '" fill="#8a5b00" stroke="#fff" stroke-width="' + 1.5 * k + '"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 4 * k) + '" text-anchor="middle" font-size="' + 10 * k + '" font-weight="700" fill="#fff">S' + (i + 1) + "</text>"; });
-    (g.wl || []).forEach(function (p, i) { var q = px(p), r = 8 * k; o2 += '<rect x="' + f1(q[0] - r) + '" y="' + f1(q[1] - r) + '" width="' + 2 * r + '" height="' + 2 * r + '" fill="#b25e00" stroke="#fff" stroke-width="' + 1.5 * k + '" transform="rotate(45 ' + f1(q[0]) + " " + f1(q[1]) + ')"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 4 * k) + '" text-anchor="middle" font-size="' + 10 * k + '" font-weight="700" fill="#fff">W' + (i + 1) + "</text>"; });
-    (g.geb || []).forEach(function (p, i) { var q = px(p), r = 8 * k; o2 += '<polygon points="' + f1(q[0] - r) + "," + f1(q[1] + r) + " " + f1(q[0] - r) + "," + f1(q[1] - r / 3) + " " + f1(q[0]) + "," + f1(q[1] - r) + " " + f1(q[0] + r) + "," + f1(q[1] - r / 3) + " " + f1(q[0] + r) + "," + f1(q[1] + r) + '" fill="#1c6b3f" stroke="#fff" stroke-width="' + 1.5 * k + '"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 5 * k) + '" text-anchor="middle" font-size="' + 9 * k + '" font-weight="700" fill="#fff">G' + (i + 1) + "</text>"; });
+    var sym = function (arr, fn, key, nm, r0) {
+      (arr || []).forEach(function (p, i) { var q = px(p), r = r0 * k; o2 += fn(q, r, i) + txt(q[0] + r + 2.5 * k, q[1] + 3 * k, lab[key] && lab[key][i]); });
+    };
+    sym(g.pts, function (q, r, i) { return '<rect x="' + f1(q[0] - r) + '" y="' + f1(q[1] - r) + '" width="' + 2 * r + '" height="' + 2 * r + '" fill="#0d47c8" stroke="#fff" stroke-width="' + 1.5 * k + '"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 4 * k) + '" text-anchor="middle" font-size="' + 11 * k + '" font-weight="700" fill="#fff">' + (i + 1) + "</text>"; }, "pts", "", 9);
+    sym(g.sond, function (q, r, i) { return '<circle cx="' + f1(q[0]) + '" cy="' + f1(q[1]) + '" r="' + r + '" fill="#8a5b00" stroke="#fff" stroke-width="' + 1.5 * k + '"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 4 * k) + '" text-anchor="middle" font-size="' + 10 * k + '" font-weight="700" fill="#fff">S' + (i + 1) + "</text>"; }, "sond", "", 9);
+    sym(g.wl, function (q, r, i) { return '<rect x="' + f1(q[0] - r) + '" y="' + f1(q[1] - r) + '" width="' + 2 * r + '" height="' + 2 * r + '" fill="#b25e00" stroke="#fff" stroke-width="' + 1.5 * k + '" transform="rotate(45 ' + f1(q[0]) + " " + f1(q[1]) + ')"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 4 * k) + '" text-anchor="middle" font-size="' + 10 * k + '" font-weight="700" fill="#fff">W' + (i + 1) + "</text>"; }, "wl", "", 8);
+    sym(g.geb, function (q, r, i) { return '<polygon points="' + f1(q[0] - r) + "," + f1(q[1] + r) + " " + f1(q[0] - r) + "," + f1(q[1] - r / 3) + " " + f1(q[0]) + "," + f1(q[1] - r) + " " + f1(q[0] + r) + "," + f1(q[1] - r / 3) + " " + f1(q[0] + r) + "," + f1(q[1] + r) + '" fill="#1c6b3f" stroke="#fff" stroke-width="' + 1.5 * k + '"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 5 * k) + '" text-anchor="middle" font-size="' + 9 * k + '" font-weight="700" fill="#fff">G' + (i + 1) + "</text>"; }, "geb", "", 8);
+    return o2;
+  }
+  function overlaySvg(ov, px) {
+    if (!ov || !ov.img) return ""; var oc = ovCorners(ov).map(px), ow = ov.w, oh = ov.h;
+    return '<image href="' + ov.img + '" width="' + ow + '" height="' + oh + '" opacity="' + (ov.op || 0.6) + '" transform="matrix(' + [(oc[1][0] - oc[0][0]) / ow, (oc[1][1] - oc[0][1]) / ow, (oc[3][0] - oc[0][0]) / oh, (oc[3][1] - oc[0][1]) / oh, oc[0][0], oc[0][1]].map(function (v) { return Math.round(v * 1e6) / 1e6; }).join(" ") + ')"/>';
+  }
+  function mapFigure(g, tt, o) {
+    var W = o.W, H = o.H, box = geoBox(g, W, H); if (!box) return null;
+    var bb = box.bb, sc = box.sc, k = W / 360, px = function (p) { return [((p[0] - bb[0]) / sc), ((bb[3] - p[1]) / sc)]; };
     var fig = document.createElement("figure"); fig.className = o.cls || "kmprev";
-    fig.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(tt("km_prevAlt")) + '"><rect width="' + W + '" height="' + H + '" fill="#eef1f3"/><image href="' + esc(o.bg || bgUrl(box, o.base)) + '" width="' + W + '" height="' + H + '"/>' + ovs + o2 + '</svg><figcaption>' + esc(o.cap || "") + " · © swisstopo</figcaption>";
+    fig.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(tt("km_prevAlt")) + '"><rect width="' + W + '" height="' + H + '" fill="#eef1f3"/><image href="' + esc(o.bg || bgUrl(box, o.base)) + '" width="' + W + '" height="' + H + '"/>' + overlaySvg(o.overlay, px) + geoSvg(g, px, k, { labels: o.labels }) + '</svg><figcaption>' + esc(o.cap || "") + " · © swisstopo</figcaption>";
     var im = fig.querySelector("image"); im.addEventListener("error", function () { im.remove(); });
     return fig;
   }
@@ -193,26 +216,126 @@
     });
   }
 
-  /* Vorschau Plan (SVG über dem Plan-JPEG) */
-  function planPreview(P, tt) {
+  /* Vorschau Plan (SVG über dem Plan-JPEG); lab = Beschriftungen (optional) */
+  function planGeo(P) {
+    return { lines: (P.lines || []).map(function (l) { return l.pts; }), pts: (P.pts || []).map(function (p) { return p.pt; }), areas: (P.areas || []).map(function (a) { return a.pts; }), sond: (P.sond || []).map(function (p) { return p.pt; }), wl: (P.wl || []).map(function (p) { return p.pt; }), geb: (P.geb || []).map(function (p) { return p.pt; }), notes: P.notes || [] };
+  }
+  function planPreview(P, tt, lab) {
     if (!P || !P.img) return null;
-    var k = Math.max(P.w, P.h) / 360, sw = 3 * k, fig = document.createElement("figure"); fig.className = "kmprev";
-    var g = (P.lines || []).map(function (l) { var pts = l.pts.map(function (p) { return p.join(","); }).join(" "); return l.pts.length > 1 ? '<polyline points="' + pts + '" fill="none" stroke="#fff" stroke-width="' + sw * 2 + '"/><polyline points="' + pts + '" fill="none" stroke="#b8332a" stroke-width="' + sw + '"/>' : ""; }).join("");
-    g += (P.pts || []).map(function (p, i) { return '<rect x="' + (p.pt[0] - 6 * k) + '" y="' + (p.pt[1] - 6 * k) + '" width="' + 12 * k + '" height="' + 12 * k + '" fill="#0d47c8" stroke="#fff" stroke-width="' + k + '"/><text x="' + p.pt[0] + '" y="' + (p.pt[1] + 4 * k) + '" text-anchor="middle" font-size="' + 10 * k + '" font-weight="700" fill="#fff">' + (i + 1) + "</text>"; }).join("");
-    g = (P.areas || []).map(function (a) { return a.pts.length > 2 ? '<polygon points="' + a.pts.map(function (q) { return q.join(","); }).join(" ") + '" fill="#f28c00" fill-opacity=".3" stroke="#8a5b00" stroke-width="' + sw + '"/>' : ""; }).join("") + g;
-    g += (P.wl || []).map(function (p, i) { return '<rect x="' + (p.pt[0] - 6 * k) + '" y="' + (p.pt[1] - 6 * k) + '" width="' + 12 * k + '" height="' + 12 * k + '" fill="#b25e00" stroke="#fff" stroke-width="' + k + '" transform="rotate(45 ' + p.pt[0] + " " + p.pt[1] + ')"/><text x="' + p.pt[0] + '" y="' + (p.pt[1] + 4 * k) + '" text-anchor="middle" font-size="' + 9 * k + '" font-weight="700" fill="#fff">W' + (i + 1) + "</text>"; }).join("");
-    g += (P.geb || []).map(function (p, i) { return '<rect x="' + (p.pt[0] - 6 * k) + '" y="' + (p.pt[1] - 6 * k) + '" width="' + 12 * k + '" height="' + 12 * k + '" fill="#1c6b3f" stroke="#fff" stroke-width="' + k + '"/><text x="' + p.pt[0] + '" y="' + (p.pt[1] + 4 * k) + '" text-anchor="middle" font-size="' + 9 * k + '" font-weight="700" fill="#fff">G' + (i + 1) + "</text>"; }).join("");
-    g += (P.sond || []).map(function (p) { return '<circle cx="' + p.pt[0] + '" cy="' + p.pt[1] + '" r="' + 6 * k + '" fill="#f28c00" stroke="#fff" stroke-width="' + k + '"/>'; }).join("");
-    g += (P.notes || []).map(function (n) {
-      var c = n.color || "#0d47c8", pa = n.pts;
-      if (n.type === "text") return '<text x="' + pa[0][0] + '" y="' + pa[0][1] + '" font-size="' + ({ s: 9, m: 12, l: 18 }[n.size || "m"] * k) + '" font-weight="700" fill="' + c + '" stroke="#fff" stroke-width="' + k * 0.6 + '" paint-order="stroke">' + esc(n.text || "") + "</text>";
-      if (n.type === "rect") return '<rect x="' + Math.min(pa[0][0], pa[1][0]) + '" y="' + Math.min(pa[0][1], pa[1][1]) + '" width="' + Math.abs(pa[0][0] - pa[1][0]) + '" height="' + Math.abs(pa[0][1] - pa[1][1]) + '" fill="' + c + '" fill-opacity=".08" stroke="' + c + '" stroke-width="' + sw + '"/>';
-      var out = '<polyline points="' + pa.map(function (p) { return p.join(","); }).join(" ") + '" fill="none" stroke="' + c + '" stroke-width="' + sw + '"/>';
-      if (n.type === "arrow" && pa.length > 1) { var a = pa[0], b = pa[pa.length - 1], ang = Math.atan2(b[1] - a[1], b[0] - a[0]), s2 = 14 * k; out += '<polygon points="' + b.join(",") + " " + (b[0] - s2 * Math.cos(ang - 0.4)) + "," + (b[1] - s2 * Math.sin(ang - 0.4)) + " " + (b[0] - s2 * Math.cos(ang + 0.4)) + "," + (b[1] - s2 * Math.sin(ang + 0.4)) + '" fill="' + c + '"/>'; }
-      return out;
-    }).join("");
-    fig.innerHTML = '<svg viewBox="0 0 ' + P.w + " " + P.h + '" role="img" aria-label="' + esc(tt("pl_prevAlt")) + '"><image href="' + P.img + '" width="' + P.w + '" height="' + P.h + '"/>' + g + "</svg>";
+    var k = Math.max(P.w, P.h) / 360, fig = document.createElement("figure"), g = planGeo(P); fig.className = "kmprev"; g.lab = lab || null;
+    fig.innerHTML = '<svg viewBox="0 0 ' + P.w + " " + P.h + '" role="img" aria-label="' + esc(tt("pl_prevAlt")) + '"><image href="' + P.img + '" width="' + P.w + '" height="' + P.h + '"/>' + geoSvg(g, function (p) { return p; }, k, { labels: !!lab }) + "</svg>";
     return fig;
+  }
+
+  /* ---------- Plan-Export A4/A3, massstäblich (PDF über den Druckdialog, PNG als Datei) ---------- */
+  var PAPER = { A4: [297, 210], A3: [420, 297] }, NSTD = [50, 100, 200, 250, 500, 1000, 2000, 2500, 5000, 10000], MMPX = 0.2646;
+  function polyArea(pts) { var a = 0; for (var i = 0; i < pts.length; i++) { var p = pts[i], q = pts[(i + 1) % pts.length]; a += p[0] * q[1] - q[0] * p[1]; } return Math.abs(a) / 2; }
+  function sheetSvg(c) {
+    var tt = c.tt, d = PAPER[c.fmt], W = c.orient === "hoch" ? d[1] : d[0], H = c.orient === "hoch" ? d[0] : d[1], M = 10, tb = c.fmt === "A3" ? 26 : 22, F = { x: M, y: M, w: W - 2 * M, h: H - 2 * M - tb };
+    var N = c.N, f2 = function (v) { return Math.round(v * 100) / 100; }, px, bg = "", scaled = true;
+    if (c.kind === "map") {
+      var fw = F.w * N / 1000, fh = F.h * N / 1000, x0 = c.center[0] - fw / 2 + c.off[0], y1 = c.center[1] + fh / 2 + c.off[1];
+      px = function (p) { return [F.x + (p[0] - x0) * 1000 / N, F.y + (y1 - p[1]) * 1000 / N]; };
+      if (c.base !== "none") bg = '<image href="' + esc(c.bg || c.bgUrl) + '" x="' + F.x + '" y="' + F.y + '" width="' + F.w + '" height="' + F.h + '" preserveAspectRatio="none"/>';
+      bg += overlaySvg(c.overlay, px);
+    } else {
+      var P = c.P, mpp = P.mpp, f = mpp ? mpp * 1000 / N : Math.min(F.w / P.w, F.h / P.h), cx = c.center[0] + (mpp ? c.off[0] / mpp : 0), cy = c.center[1] - (mpp ? c.off[1] / mpp : 0); scaled = !!mpp;
+      px = function (p) { return [F.x + F.w / 2 + (p[0] - cx) * f, F.y + F.h / 2 + (p[1] - cy) * f]; };
+      var o0 = px([0, 0]); bg = '<image href="' + P.img + '" x="' + f2(o0[0]) + '" y="' + f2(o0[1]) + '" width="' + f2(P.w * f) + '" height="' + f2(P.h * f) + '"/>';
+    }
+    var g = Object.assign({}, c.geo, { lab: c.labels ? c.geo.lab : null }), geo = geoSvg(g, px, MMPX, { labels: c.labels });
+    /* Massstabsbalken */
+    var bar = "", L0 = 0, ok = c.kind === "map" || scaled;
+    if (ok) { [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000].some(function (L) { var mm = L * 1000 / N; if (mm >= 22 && mm <= 60) { L0 = L; return true; } return false; }); if (!L0) L0 = 10;
+      var mmB = L0 * 1000 / N, bx = F.x + 6, by = F.y + F.h - 9; bar = '<rect x="' + bx + '" y="' + (by - 4) + '" width="' + (mmB + 14) + '" height="12" fill="#fff" fill-opacity=".85"/>';
+      bar += '<rect x="' + (bx + 4) + '" y="' + by + '" width="' + f2(mmB / 2) + '" height="1.6" fill="#1a1c1e"/><rect x="' + f2(bx + 4 + mmB / 2) + '" y="' + by + '" width="' + f2(mmB / 2) + '" height="1.6" fill="#fff" stroke="#1a1c1e" stroke-width=".25"/><rect x="' + (bx + 4) + '" y="' + by + '" width="' + f2(mmB) + '" height="1.6" fill="none" stroke="#1a1c1e" stroke-width=".25"/>';
+      bar += '<g font-size="2.4" fill="#1a1c1e"><text x="' + (bx + 4) + '" y="' + (by - 1) + '" text-anchor="middle">0</text><text x="' + f2(bx + 4 + mmB / 2) + '" y="' + (by - 1) + '" text-anchor="middle">' + L0 / 2 + '</text><text x="' + f2(bx + 4 + mmB) + '" y="' + (by - 1) + '" text-anchor="middle">' + L0 + ' m</text></g>'; }
+    /* Nordpfeil (Karte ist nach Norden ausgerichtet) */
+    var north = c.kind === "map" ? '<g transform="translate(' + (F.x + 10) + " " + (F.y + 16) + ')"><rect x="-6" y="-12" width="12" height="22" fill="#fff" fill-opacity=".85"/><polygon points="0,-10 4,6 0,3 -4,6" fill="#1a1c1e"/><text y="9.5" font-size="3.2" font-weight="700" text-anchor="middle" fill="#1a1c1e">N</text></g>' : "";
+    /* Legende */
+    var items = []; if ((c.geo.lines || []).length) items.push(["l", tt("ex_lLine")]); if ((c.geo.pts || []).length) items.push(["s", tt("ex_lSch")]); if ((c.geo.sond || []).length) items.push(["o", tt("ex_lSond")]); if ((c.geo.wl || []).length) items.push(["w", tt("ex_lWl")]); if ((c.geo.geb || []).length) items.push(["g", tt("ex_lGeb")]); if ((c.geo.areas || []).length) items.push(["a", tt("ex_lArea")]);
+    var leg = ""; if (c.legend && items.length) { var lw = 46, lh = 7 + items.length * 5.4, lx = F.x + F.w - lw - 4, ly = F.y + 4;
+      leg = '<rect x="' + lx + '" y="' + ly + '" width="' + lw + '" height="' + lh + '" fill="#fff" fill-opacity=".92" stroke="#1a1c1e" stroke-width=".25"/><text x="' + (lx + 2.5) + '" y="' + (ly + 4.2) + '" font-size="2.6" font-weight="700">' + esc(tt("ex_legend")) + "</text>";
+      items.forEach(function (it, i) { var y = ly + 9 + i * 5.4, x = lx + 3.5, sy = "";
+        if (it[0] === "l") sy = '<line x1="' + (x - 2.5) + '" y1="' + y + '" x2="' + (x + 2.5) + '" y2="' + y + '" stroke="#b8332a" stroke-width=".8"/>'; else if (it[0] === "s") sy = '<rect x="' + (x - 1.8) + '" y="' + (y - 1.8) + '" width="3.6" height="3.6" fill="#0d47c8"/>'; else if (it[0] === "o") sy = '<circle cx="' + x + '" cy="' + y + '" r="1.9" fill="#8a5b00"/>';
+        else if (it[0] === "w") sy = '<rect x="' + (x - 1.6) + '" y="' + (y - 1.6) + '" width="3.2" height="3.2" fill="#b25e00" transform="rotate(45 ' + x + " " + y + ')"/>'; else if (it[0] === "g") sy = '<polygon points="' + (x - 1.9) + "," + (y + 1.8) + " " + (x - 1.9) + "," + y + " " + x + "," + (y - 1.9) + " " + (x + 1.9) + "," + y + " " + (x + 1.9) + "," + (y + 1.8) + '" fill="#1c6b3f"/>'; else sy = '<rect x="' + (x - 2.2) + '" y="' + (y - 1.6) + '" width="4.4" height="3.2" fill="#f28c00" fill-opacity=".4" stroke="#8a5b00" stroke-width=".3"/>';
+        leg += sy + '<text x="' + (lx + 8.5) + '" y="' + (y + 0.9) + '" font-size="2.4">' + esc(it[1]) + "</text>"; }); }
+    /* Schriftfeld */
+    var ty = H - M - tb, m = c.meta || {}, cols = [F.w * 0.46, F.w * 0.14, F.w * 0.12, F.w * 0.14, F.w * 0.14], cx0 = F.x, tbs = '<rect x="' + F.x + '" y="' + ty + '" width="' + F.w + '" height="' + tb + '" fill="#fff" stroke="#1a1c1e" stroke-width=".5"/><line x1="' + F.x + '" y1="' + (ty + tb * 0.58) + '" x2="' + (F.x + F.w) + '" y2="' + (ty + tb * 0.58) + '" stroke="#1a1c1e" stroke-width=".25"/>';
+    var heads = [tt("ex_h_title"), tt("ex_h_scale"), tt("ex_h_fmt"), tt("ex_h_date"), tt("ex_h_by")], vals = [c.title || m.projekt || "", scaled ? "1 : " + N : tt("ex_noscaleShort"), c.fmt + " " + tt(c.orient === "hoch" ? "ex_hoch" : "ex_quer"), m.datum || "", m.bearb || ""];
+    cols.forEach(function (w, i) { if (i) tbs += '<line x1="' + f2(cx0) + '" y1="' + ty + '" x2="' + f2(cx0) + '" y2="' + (ty + tb * 0.58) + '" stroke="#1a1c1e" stroke-width=".25"/>';
+      tbs += '<text x="' + f2(cx0 + 1.5) + '" y="' + (ty + 3.2) + '" font-size="2" fill="#516470">' + esc(heads[i]) + '</text><text x="' + f2(cx0 + 1.5) + '" y="' + (ty + tb * 0.58 - 2.2) + '" font-size="' + (i ? 3.4 : 4) + '" font-weight="700" fill="#1a1c1e">' + esc(vals[i]) + "</text>"; cx0 += w; });
+    tbs += '<text x="' + (F.x + 1.5) + '" y="' + (ty + tb - 2.4) + '" font-size="2.2" fill="#516470">' + esc((m.projekt && c.title ? m.projekt + " · " : "") + (c.kind === "map" ? "© swisstopo · " : "") + "LV-Devis Tiefbau – App-Konzept: Alessandro Cortese") + "</text>";
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + 'mm" height="' + H + 'mm" viewBox="0 0 ' + W + " " + H + '" font-family="Segoe UI, Arial, sans-serif"><rect width="' + W + '" height="' + H + '" fill="#fff"/><defs><clipPath id="plotclip"><rect x="' + F.x + '" y="' + F.y + '" width="' + F.w + '" height="' + F.h + '"/></clipPath></defs><g clip-path="url(#plotclip)">' + bg + geo + bar + north + leg + '</g><rect x="' + F.x + '" y="' + F.y + '" width="' + F.w + '" height="' + F.h + '" fill="none" stroke="#1a1c1e" stroke-width=".5"/>' + tbs + "</svg>";
+  }
+  function printSheet(svg, fmt, orient) {
+    var st = document.createElement("style"); st.id = "plotStyle";
+    st.textContent = "@page{size:" + fmt + " " + (orient === "hoch" ? "portrait" : "landscape") + ";margin:0}@media print{body>*:not(#plotSheet){display:none!important}#plotSheet{display:block!important}html,body{margin:0!important;padding:0!important;background:#fff!important}#plotSheet svg{display:block}}#plotSheet{display:none}";
+    var box = document.createElement("div"); box.id = "plotSheet"; box.innerHTML = svg; document.head.appendChild(st); document.body.appendChild(box);
+    var done = function () { st.remove(); box.remove(); window.removeEventListener("afterprint", done); }; window.addEventListener("afterprint", done); window.print(); setTimeout(function () { if (document.getElementById("plotSheet")) done(); }, 60000);
+  }
+  function svgPng(svg, Wmm, Hmm, dpi, name, fail) {
+    var w = Math.round(Wmm / 25.4 * dpi), h = Math.round(Hmm / 25.4 * dpi), url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })), im = new Image();
+    im.onload = function () { var cv = document.createElement("canvas"); cv.width = w; cv.height = h; var cx = cv.getContext("2d"); cx.fillStyle = "#fff"; cx.fillRect(0, 0, w, h); cx.drawImage(im, 0, 0, w, h); URL.revokeObjectURL(url);
+      try { cv.toBlob(function (b) { var a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); a.remove(); }, "image/png"); } catch (e) { fail(); } };
+    im.onerror = function () { URL.revokeObjectURL(url); fail(); }; im.src = url;
+  }
+  /* opt: { tt, src:{ map:{geo,overlay,base}|null, plan:{geo,P}|null }, meta:{projekt,datum,bearb,title}, lang } */
+  function exportDlg(opt) {
+    var tt = opt.tt, kinds = ["map", "plan"].filter(function (k) { return opt.src[k]; }); if (!kinds.length) return;
+    var S = { kind: kinds[0], fmt: "A3", orient: "quer", N: 0, base: (opt.src.map && opt.src.map.base) || "farbe", labels: true, legend: true, off: [0, 0], title: (opt.meta && opt.meta.title) || "" }, bgCache = {}, dpi = 150;
+    var dlg = document.createElement("dialog"); dlg.className = "kmdlg kmexp"; dlg.setAttribute("aria-labelledby", "exTitle");
+    var sel = function (id, lab, arr) { return '<label class="kmbl" for="' + id + '">' + esc(lab) + '</label><select id="' + id + '">' + arr.map(function (o) { return '<option value="' + o[0] + '">' + esc(o[1]) + "</option>"; }).join("") + "</select>"; };
+    dlg.innerHTML = '<div class="kmhead"><h2 id="exTitle">' + esc(tt("ex_title")) + '</h2><button type="button" class="btn ghost small" data-x="close">' + esc(tt("km_close")) + "</button></div>" +
+      '<div class="kmbar" role="group" aria-label="' + esc(tt("ex_opts")) + '">' + (kinds.length > 1 ? sel("exKind", tt("ex_src"), [["map", tt("ex_srcMap")], ["plan", tt("ex_srcPlan")]]) : "") +
+      sel("exFmt", tt("ex_fmt"), [["A3", "A3"], ["A4", "A4"]]) + sel("exOr", tt("ex_orient"), [["quer", tt("ex_quer")], ["hoch", tt("ex_hoch")]]) +
+      sel("exN", tt("ex_scale"), [["0", tt("ex_auto")]].concat(NSTD.map(function (n) { return [String(n), "1 : " + n]; }))) +
+      '<span id="exBaseW">' + sel("exBase", tt("ex_base"), [["farbe", tt("km_bFarbe")], ["grau", tt("km_bGrau")], ["luft", tt("km_aerial")], ["none", tt("ex_noBase")]]) + "</span></div>" +
+      '<div class="kmbar"><label class="kmbl" for="exT">' + esc(tt("ex_ttl")) + '</label><input type="text" id="exT" class="kmw" value="' + esc(S.title) + '" style="width:260px"><label class="check"><input type="checkbox" id="exLbl" checked> <span>' + esc(tt("ex_lbl")) + '</span></label><label class="check"><input type="checkbox" id="exLeg" checked> <span>' + esc(tt("ex_leg")) + "</span></label>" +
+      '<span class="kmnudge" role="group" aria-label="' + esc(tt("ex_pos")) + '">' + [["l", "←", "km_nl"], ["u", "↑", "km_nu"], ["d", "↓", "km_nd"], ["r", "→", "km_nr"], ["0", "◎", "ex_posReset"]].map(function (a) { return '<button type="button" class="btn ghost small" data-x="' + a[0] + '" aria-label="' + esc(tt(a[2])) + '">' + a[1] + "</button>"; }).join("") + "</span></div>" +
+      '<p class="hint" id="exInfo" role="status"></p><div class="exprev" id="exPrev" tabindex="0" role="region" aria-label="' + esc(tt("ex_prevLbl")) + '"></div><p class="hint">' + esc(tt("ex_note")) + '</p><div class="kmfoot"><span></span><span class="kmbar"><button type="button" class="btn ghost" data-x="png">' + esc(tt("ex_png")) + '</button><button type="button" class="btn" data-x="print">' + esc(tt("ex_print")) + "</button></span></div>";
+    document.body.appendChild(dlg);
+    var $ = function (s) { return dlg.querySelector(s); }, cur = null;
+    function build() {
+      var src = opt.src[S.kind], g = src.geo, pts = S.kind === "map" ? geoPoints(Object.assign({}, g, { extra: src.overlay ? ovCorners(src.overlay) : [] })) : (function () { var a = []; geoPoints(g).forEach(function (p) { a.push(p); }); return a; })();
+      var d = PAPER[S.fmt], W = S.orient === "hoch" ? d[1] : d[0], H = S.orient === "hoch" ? d[0] : d[1], tb = S.fmt === "A3" ? 26 : 22, Fw = W - 20, Fh = H - 20 - tb;
+      var e0 = Infinity, e1 = -Infinity, n0 = Infinity, n1 = -Infinity; pts.forEach(function (p) { e0 = Math.min(e0, p[0]); e1 = Math.max(e1, p[0]); n0 = Math.min(n0, p[1]); n1 = Math.max(n1, p[1]); });
+      if (!pts.length) { e0 = e1 = n0 = n1 = 0; }
+      var mpp = S.kind === "plan" ? src.P.mpp : 1, ctr = [(e0 + e1) / 2, (n0 + n1) / 2], ew = (e1 - e0) * mpp * 1.2 + 20 * mpp, eh = (n1 - n0) * mpp * 1.2 + 20 * mpp;
+      var Nauto = NSTD.filter(function (n) { return ew <= Fw * n / 1000 && eh <= Fh * n / 1000; })[0] || 20000, N = S.N || Nauto;
+      var c = { tt: tt, kind: S.kind, geo: g, P: src.P, overlay: src.overlay, base: S.base, fmt: S.fmt, orient: S.orient, N: N, center: ctr, off: S.off, labels: S.labels, legend: S.legend, title: S.title, meta: opt.meta };
+      if (S.kind === "map" && S.base !== "none") {
+        var fw = Fw * N / 1000, fh = Fh * N / 1000, bb = [ctr[0] - fw / 2 + S.off[0], ctr[1] - fh / 2 + S.off[1], ctr[0] + fw / 2 + S.off[0], ctr[1] + fh / 2 + S.off[1]], sc = Math.min(1, 3600 / Math.max(Fw, Fh) / (dpi / 25.4)), Wp = Math.round(Fw / 25.4 * dpi * sc), Hp = Math.round(Fh / 25.4 * dpi * sc);
+        c.bgUrl = WMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=" + (BGL[S.base] || BGL.farbe) + "&STYLES=&SRS=EPSG:2056&BBOX=" + bb.map(function (v) { return v.toFixed(1); }).join(",") + "&WIDTH=" + Wp + "&HEIGHT=" + Hp + "&FORMAT=image/jpeg"; c.bg = bgCache[c.bgUrl] || null;
+      }
+      c.Nauto = Nauto; c.W = W; c.H = H; return c;
+    }
+    function render() {
+      cur = build(); var scaled = S.kind === "map" || (opt.src.plan && opt.src.plan.P.mpp);
+      $("#exPrev").innerHTML = sheetSvg(cur); $("#exBaseW").hidden = S.kind !== "map";
+      $("#exInfo").textContent = (scaled ? tt("ex_infoScale").replace("{n}", cur.N).replace("{a}", cur.Nauto) : tt("ex_noscale")); $("#exInfo").className = "hint" + (scaled ? "" : " reqmsg");
+      if (cur.bgUrl && !cur.bg && !bgCache["x" + cur.bgUrl]) { bgCache["x" + cur.bgUrl] = 1; var u = cur.bgUrl;
+        fetch(u, { mode: "cors" }).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (bl) { var fr = new FileReader(); fr.onload = function () { bgCache[u] = fr.result; if (cur && cur.bgUrl === u) render(); }; fr.readAsDataURL(bl); }).catch(function () { bgCache["x" + u] = 2; }); }
+    }
+    function ready(cb) { var u = cur.bgUrl; if (!u || cur.bg) return cb(true); var t = setInterval(function () { if (bgCache[u]) { clearInterval(t); render(); cb(true); } else if (bgCache["x" + u] === 2) { clearInterval(t); cb(false); } }, 150); setTimeout(function () { clearInterval(t); cb(!!bgCache[u]); }, 15000); }
+    var wire = function (id, fn, ev) { var e = $(id); if (e) e.addEventListener(ev || "change", function () { fn(e); render(); }); };
+    wire("#exKind", function (e) { S.kind = e.value; S.N = 0; S.off = [0, 0]; }); wire("#exFmt", function (e) { S.fmt = e.value; S.off = [0, 0]; }); wire("#exOr", function (e) { S.orient = e.value; S.off = [0, 0]; });
+    wire("#exN", function (e) { S.N = +e.value; }); wire("#exBase", function (e) { S.base = e.value; }); wire("#exT", function (e) { S.title = e.value; }, "input"); wire("#exLbl", function (e) { S.labels = e.checked; }); wire("#exLeg", function (e) { S.legend = e.checked; });
+    var fname = function (ext) { return "Plan_" + (S.title || (opt.meta && opt.meta.projekt) || "LV-Devis").replace(/[^\w\-äöüÄÖÜéèàç]+/g, "_") + "_1-" + cur.N + "_" + S.fmt + "." + ext; };
+    dlg.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-x]"); if (!b) return; var x = b.dataset.x;
+      if (x === "close") { dlg.close(); dlg.remove(); return; }
+      if (["l", "r", "u", "d", "0"].indexOf(x) >= 0) { var st = cur.N * 0.05; if (x === "0") S.off = [0, 0]; else S.off = [S.off[0] + (x === "l" ? -st : x === "r" ? st : 0), S.off[1] + (x === "u" ? st : x === "d" ? -st : 0)]; render(); return; }
+      var inf = $("#exInfo"); inf.textContent = tt("ex_prep");
+      ready(function (okBg) {
+        if (!okBg) { inf.textContent = tt("ex_bgFail"); inf.className = "hint reqmsg"; }
+        var svg = sheetSvg(cur);
+        if (x === "print") { dlg.close(); printSheet(svg, S.fmt, S.orient); dlg.remove(); }
+        else svgPng(svg, cur.W, cur.H, 150, fname("png"), function () { inf.textContent = tt("ex_pngFail"); inf.className = "hint reqmsg"; });
+      });
+    });
+    dlg.addEventListener("cancel", function (e) { e.preventDefault(); dlg.close(); dlg.remove(); });
+    dlg.showModal(); render(); $("#exFmt").focus();
   }
 
   /* Dialog: Linien (Rohranlage je Linie), Schächte, Sondagen – auf swisstopo-Karte (LV95) oder kalibriertem Plan (Pixel)
@@ -229,7 +352,7 @@
         dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); } };
     var lineLen = function (pts) { var s = 0; for (var i = 1; i < pts.length; i++) s += AD.dist(pts[i - 1], pts[i]); return s; };
     var COL = [["#0d47c8", "km_cBlau"], ["#b8332a", "km_cRot"], ["#1a1c1e", "km_cSchwarz"], ["#b25e00", "km_cOrange"], ["#1c6b3f", "km_cGruen"]];
-    var ov0 = null, ovl = plan ? null : (opt.overlay ? JSON.parse(JSON.stringify(opt.overlay)) : null), ovImg = null, gcp = [];
+    var showLbl = true, ov0 = null, ovl = plan ? null : (opt.overlay ? JSON.parse(JSON.stringify(opt.overlay)) : null), ovImg = null, gcp = [];
     var perim = function (pts) { var s = lineLen(pts); return pts.length > 2 ? s + AD.dist(pts[pts.length - 1], pts[0]) : s; };
     var area = function (pts) { var a = 0; for (var i = 0; i < pts.length; i++) { var p = pts[i], q = pts[(i + 1) % pts.length]; a += p[0] * q[1] - q[0] * p[1]; } a = Math.abs(a) / 2; return plan ? a * Math.pow(cal.scale || 0, 2) : a; };
     var intro = false; try { intro = !localStorage.getItem(INTRO); } catch (e) { }
@@ -256,6 +379,7 @@
       '<button type="button" class="btn small" data-k="marea" aria-pressed="false">' + esc(tt("km_area")) + "</button>" +
       '<button type="button" class="btn small" data-k="mwl" aria-pressed="false">' + esc(tt("km_wl")) + "</button>" +
       '<button type="button" class="btn small" data-k="mgeb" aria-pressed="false">' + esc(tt("km_geb")) + "</button>" +
+      '<button type="button" class="btn ghost small" data-k="lbl" aria-pressed="true">' + esc(tt("km_lbl")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="fit">' + esc(tt("km_fit")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="center">' + esc(tt("km_center")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="end">' + esc(tt("km_end")) + "</button>" +
@@ -470,6 +594,13 @@
         });
       };
       pm(M.pts, "kmsch", ""); pm(M.sond, "kmsond", "S"); pm(M.wl, "kmwl", "W"); pm(M.geb, "kmgeb", "G");
+      if (showLbl && opt.labels) {   /* Beschriftung: Linie mit Name, Länge und Rohranlage; Schächte, Sondagen, Werklöcher, Einführungen, Flächen mit Name */
+        var lb = opt.labels(M, { len: lineLen, area: area }), put = function (ll, t, cls) { if (t) L.marker(ll, { interactive: false, keyboard: false, zIndexOffset: -500, icon: L.divIcon({ className: "kmlbl " + cls, html: "<span>" + esc(t) + "</span>", iconSize: [0, 0] }) }).addTo(grp); };
+        M.lines.forEach(function (l, i) { if (l.pts.length < 2) return; var bj = 1, bd = -1; for (var j = 1; j < l.pts.length; j++) { var dd = AD.dist(l.pts[j - 1], l.pts[j]) || Math.hypot(l.pts[j][0] - l.pts[j - 1][0], l.pts[j][1] - l.pts[j - 1][1]); if (dd > bd) { bd = dd; bj = j; } }
+          put(AD.ll([(l.pts[bj - 1][0] + l.pts[bj][0]) / 2, (l.pts[bj - 1][1] + l.pts[bj][1]) / 2]), lb.lines && lb.lines[i], "c"); });
+        [["pts", M.pts], ["sond", M.sond], ["wl", M.wl], ["geb", M.geb]].forEach(function (a) { a[1].forEach(function (p, i) { put(AD.ll(p.pt), lb[a[0]] && lb[a[0]][i], "r"); }); });
+        M.areas.forEach(function (f, i) { if (f.pts.length < 3) return; var cx = 0, cy = 0; f.pts.forEach(function (p) { cx += p[0]; cy += p[1]; }); put(AD.ll([cx / f.pts.length, cy / f.pts.length]), lb.areas && lb.areas[i], "c"); });
+      }
       tmp.forEach(function (q) { L.circleMarker(AD.ll(q), { radius: 5, color: "#0d47c8", weight: 2, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
       if (plan) { calPts.forEach(function (q) { L.circleMarker(AD.ll(q), { radius: 6, color: "#0d47c8", weight: 3, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
         if (cal.a && cal.b && !cal.auto && !calPts.length) L.polyline([AD.ll(cal.a), AD.ll(cal.b)], { color: "#0d47c8", weight: 2, dashArray: "6 5", interactive: false }).addTo(grp); }
@@ -676,6 +807,7 @@
       else if (k === "clear") { var sn0 = JSON.stringify(M); snap(); M.lines = []; M.pts = []; M.sond = []; M.notes = []; M.areas = []; M.wl = []; M.geb = []; cur = null; curN = null; curA = null; sel = null; refresh(); toast(dlg, tt("km_cleared"), tt("km_undoBtn"), function () { M = JSON.parse(sn0); M.notes = M.notes || []; M.areas = M.areas || []; M.wl = M.wl || []; M.geb = M.geb || []; refresh(); }); }
       else if (k === "geo") openGeo();
       else if (k === "fit") fitAll();
+      else if (k === "lbl") { showLbl = !showLbl; b.setAttribute("aria-pressed", showLbl ? "true" : "false"); draw(); }
       else if (k === "apply") {
         endLine();
         if (plan && !cal.scale && (M.lines.length || M.areas.length)) { toast(dlg, tt("pl_calNeed")); return; }
@@ -725,5 +857,5 @@
     dlg.showModal(); map.invalidateSize(); fitAll(); ovDraw(); refresh(); (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
-  window.KARTE = { ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
+  window.KARTE = { planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
 })();
