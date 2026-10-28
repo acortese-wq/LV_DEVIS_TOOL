@@ -298,3 +298,21 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 .tscroll{overflow-x:auto;max-width:100%}.tscroll:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .status p a{display:inline-block;padding:4px 0;min-height:24px}
 @media (min-width:900px){.brandrow{margin-bottom:6px}.logo{width:170px}}
+
+/* Bearbeiten / Beschriften */
+.kmv span{display:block;width:14px;height:14px;background:#fff;border:2px solid #0d47c8;border-radius:50%;cursor:grab;box-shadow:0 0 0 1px #fff}
+.kmm span{display:block;width:10px;height:10px;background:#0d47c8;border:1px solid #fff;border-radius:50%;opacity:.7;cursor:copy}
+.kmtext span{display:inline-block;white-space:nowrap;font:700 14px "Segoe UI",sans-serif;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;cursor:move}
+.kmtext.sS span,.kmtext.ss span{font-size:11px}.kmtext.sl span{font-size:20px}.kmtext.on span{outline:2px dashed #0d47c8;outline-offset:2px}
+.kmnudge{display:inline-flex;gap:2px}.kmnudge .btn{min-width:30px;padding:4px 6px}
+.kmbar .kmn{width:56px;padding:6px 8px;border:1px solid var(--rule-strong);border-radius:6px;font:inherit;font-size:13px}
+#kmCol{font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--rule-strong);border-radius:6px;background:#fff}
+/* Dialog: Karte füllt den freien Platz, Objektliste fest hoch (scrollt), Fuss bleibt sichtbar */
+.kmdlg[open]{overflow:hidden}
+.kmdlg>*{flex:0 0 auto}
+.kmmap,.kmframe{flex:1 1 300px;height:auto;min-height:240px}
+.kmobj{flex:0 0 auto;height:min(24vh,230px);min-height:90px;overflow:auto}
+@media (max-height:760px){.kmdlg[open]{overflow:auto}.kmmap,.kmframe{flex:0 0 300px}.kmobj{height:auto;max-height:none;overflow:visible}}
+.kmbar select,.kmbar input{width:auto;max-width:210px}
+.kmbar .kmn{width:64px}
+.kmobj{height:min(20vh,190px)}.kmslot{min-height:0}

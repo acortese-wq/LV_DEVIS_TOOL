@@ -36,8 +36,8 @@
       var nr = newRec(t, 1); S.recs[t].forEach(function (r) { deepFill(r, nr); });
       if (!(S.idx[t] >= 0 && S.idx[t] < S.recs[t].length)) S.idx[t] = 0;
     });
-    if (!S.karte || !Array.isArray(S.karte.lines)) S.karte = { lines: [], pts: [], sond: [] }; if (!Array.isArray(S.karte.pts)) S.karte.pts = []; if (!Array.isArray(S.karte.sond)) S.karte.sond = [];
-    if (!S.plan || !Array.isArray(S.plan.lines)) S.plan = { img: "", w: 0, h: 0, cal: {}, lines: [], pts: [], sond: [] }; if (!Array.isArray(S.plan.pts)) S.plan.pts = []; if (!Array.isArray(S.plan.sond)) S.plan.sond = []; if (!S.plan.cal) S.plan.cal = {};
+    if (!S.karte || !Array.isArray(S.karte.lines)) S.karte = { lines: [], pts: [], sond: [] }; if (!Array.isArray(S.karte.pts)) S.karte.pts = []; if (!Array.isArray(S.karte.sond)) S.karte.sond = []; if (!Array.isArray(S.karte.notes)) S.karte.notes = [];
+    if (!S.plan || !Array.isArray(S.plan.lines)) S.plan = { img: "", w: 0, h: 0, cal: {}, lines: [], pts: [], sond: [], notes: [] }; if (!Array.isArray(S.plan.pts)) S.plan.pts = []; if (!Array.isArray(S.plan.sond)) S.plan.sond = []; if (!Array.isArray(S.plan.notes)) S.plan.notes = []; if (!S.plan.cal) S.plan.cal = {};
     if (ALLTABS.indexOf(S.tab) < 0) S.tab = "graben";
   }
   try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
@@ -611,7 +611,7 @@
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : cfg.typ,
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id); },
           onClose: function () { var o = $("#kmOpen"); if (o) o.focus(); },
-          onApply: function (M, cal, lenFn) { var sn = snapState(), st = karteApply(M, cfg, lenFn); S.karte = { lines: M.lines, pts: M.pts, sond: M.sond }; sondSync(); save(); renderForm(); scheduleResult(); undoToast(fill(tt("km_done"), st), sn); }
+          onApply: function (M, cal, lenFn) { var sn = snapState(), st = karteApply(M, cfg, lenFn); S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [] }; sondSync(); save(); renderForm(); scheduleResult(); undoToast(fill(tt("km_done"), st), sn); }
         });
       }).catch(function () { b.disabled = false; m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); });
     });
@@ -689,10 +689,10 @@
         msg.className = "hint kmmsg"; msg.textContent = tt("km_loading");
         KARTE.load().then(function () {
           msg.textContent = "";
-          KARTE.open({ kind: "plan", tt: tt, lang: S.lang, cat: karteCat(), plan: { img: P.img, w: P.w, h: P.h, cal: P.cal }, model: { lines: JSON.parse(JSON.stringify(P.lines)), pts: JSON.parse(JSON.stringify(P.pts)), sond: JSON.parse(JSON.stringify(P.sond)) },
+          KARTE.open({ kind: "plan", tt: tt, lang: S.lang, cat: karteCat(), plan: { img: P.img, w: P.w, h: P.h, cal: P.cal }, model: { lines: JSON.parse(JSON.stringify(P.lines)), pts: JSON.parse(JSON.stringify(P.pts)), sond: JSON.parse(JSON.stringify(P.sond)), notes: JSON.parse(JSON.stringify(P.notes || [])) },
             defRohr: { sys: "k55", dn: "55", len: "10", n: "1" }, defTyp: "KES150", recName: function (id) { return recName("graben")(id) || recName("schacht")(id); },
             onClose: function () { var o = $("#plOpen"); if (o) o.focus(); },
-            onApply: function (M, cal, lenFn) { var sn = snapState(), st2 = karteApply(M, null, lenFn); S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; sondSync(); save(); renderForm(); renderResult(); undoToast(fill(tt("km_done"), st2), sn); }
+            onApply: function (M, cal, lenFn) { var sn = snapState(), st2 = karteApply(M, null, lenFn); S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; sondSync(); save(); renderForm(); renderResult(); undoToast(fill(tt("km_done"), st2), sn); }
           });
         }).catch(function () { msg.className = "hint kmmsg reqmsg"; msg.textContent = tt("km_offline"); });
       });

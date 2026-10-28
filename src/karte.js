@@ -151,6 +151,14 @@
     var g = (P.lines || []).map(function (l) { var pts = l.pts.map(function (p) { return p.join(","); }).join(" "); return l.pts.length > 1 ? '<polyline points="' + pts + '" fill="none" stroke="#fff" stroke-width="' + sw * 2 + '"/><polyline points="' + pts + '" fill="none" stroke="#b8332a" stroke-width="' + sw + '"/>' : ""; }).join("");
     g += (P.pts || []).map(function (p, i) { return '<rect x="' + (p.pt[0] - 6 * k) + '" y="' + (p.pt[1] - 6 * k) + '" width="' + 12 * k + '" height="' + 12 * k + '" fill="#0d47c8" stroke="#fff" stroke-width="' + k + '"/><text x="' + p.pt[0] + '" y="' + (p.pt[1] + 4 * k) + '" text-anchor="middle" font-size="' + 10 * k + '" font-weight="700" fill="#fff">' + (i + 1) + "</text>"; }).join("");
     g += (P.sond || []).map(function (p) { return '<circle cx="' + p.pt[0] + '" cy="' + p.pt[1] + '" r="' + 6 * k + '" fill="#f28c00" stroke="#fff" stroke-width="' + k + '"/>'; }).join("");
+    g += (P.notes || []).map(function (n) {
+      var c = n.color || "#0d47c8", pa = n.pts;
+      if (n.type === "text") return '<text x="' + pa[0][0] + '" y="' + pa[0][1] + '" font-size="' + ({ s: 9, m: 12, l: 18 }[n.size || "m"] * k) + '" font-weight="700" fill="' + c + '" stroke="#fff" stroke-width="' + k * 0.6 + '" paint-order="stroke">' + esc(n.text || "") + "</text>";
+      if (n.type === "rect") return '<rect x="' + Math.min(pa[0][0], pa[1][0]) + '" y="' + Math.min(pa[0][1], pa[1][1]) + '" width="' + Math.abs(pa[0][0] - pa[1][0]) + '" height="' + Math.abs(pa[0][1] - pa[1][1]) + '" fill="' + c + '" fill-opacity=".08" stroke="' + c + '" stroke-width="' + sw + '"/>';
+      var out = '<polyline points="' + pa.map(function (p) { return p.join(","); }).join(" ") + '" fill="none" stroke="' + c + '" stroke-width="' + sw + '"/>';
+      if (n.type === "arrow" && pa.length > 1) { var a = pa[0], b = pa[pa.length - 1], ang = Math.atan2(b[1] - a[1], b[0] - a[0]), s2 = 14 * k; out += '<polygon points="' + b.join(",") + " " + (b[0] - s2 * Math.cos(ang - 0.4)) + "," + (b[1] - s2 * Math.sin(ang - 0.4)) + " " + (b[0] - s2 * Math.cos(ang + 0.4)) + "," + (b[1] - s2 * Math.sin(ang + 0.4)) + '" fill="' + c + '"/>'; }
+      return out;
+    }).join("");
     fig.innerHTML = '<svg viewBox="0 0 ' + P.w + " " + P.h + '" role="img" aria-label="' + esc(tt("pl_prevAlt")) + '"><image href="' + P.img + '" width="' + P.w + '" height="' + P.h + '"/>' + g + "</svg>";
     return fig;
   }
@@ -160,14 +168,15 @@
   var seq = 0, nid = function (p) { return p + Date.now().toString(36) + (seq++).toString(36); };
   var INTRO = "lvd-km-intro";
   function open(opt) {
-    var tt = opt.tt, cat = opt.cat, plan = opt.kind === "plan", M = JSON.parse(JSON.stringify(opt.model || { lines: [], pts: [], sond: [] })), cur = null, mode = "", hist = [], sel = null, base = "farbe", map, layer, grp, calPts = [];
-    M.sond = M.sond || [];
+    var tt = opt.tt, cat = opt.cat, plan = opt.kind === "plan", M = JSON.parse(JSON.stringify(opt.model || { lines: [], pts: [], sond: [] })), cur = null, mode = "", sel = null, base = "farbe", map, layer, grp, calPts = [];
+    M.sond = M.sond || []; M.notes = M.notes || [];
     var cal = plan ? JSON.parse(JSON.stringify(opt.plan.cal || {})) : null;
     var AD = plan ? { ll: function (p) { return [-p[1], p[0]]; }, pt: function (ll) { return [Math.round(ll.lng * 10) / 10, Math.round(-ll.lat * 10) / 10]; },
       dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]) * (cal.scale || 0); } }
       : { ll: function (p) { return toWGS(p[0], p[1]); }, pt: function (ll) { return toLV95(ll.lat, ll.lng).map(function (v) { return Math.round(v * 100) / 100; }); },
         dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); } };
     var lineLen = function (pts) { var s = 0; for (var i = 1; i < pts.length; i++) s += AD.dist(pts[i - 1], pts[i]); return s; };
+    var COL = [["#0d47c8", "km_cBlau"], ["#b8332a", "km_cRot"], ["#1a1c1e", "km_cSchwarz"], ["#b25e00", "km_cOrange"], ["#1c6b3f", "km_cGruen"]];
     var intro = false; try { intro = !localStorage.getItem(INTRO); } catch (e) { }
     var dlg = document.createElement("dialog"); dlg.className = "kmdlg"; dlg.setAttribute("aria-labelledby", "kmTitle");
     var ip = plan ? ["km_i1p", "km_i2p", "km_i3p"] : ["km_i1", "km_i2", "km_i3"];
@@ -176,6 +185,14 @@
       '<details class="kmintro"' + (intro ? " open" : "") + "><summary>" + esc(tt("km_intro")) + "</summary><ol>" + ip.map(function (k) { return "<li>" + esc(tt(k)) + "</li>"; }).join("") + "</ol></details>" +
       (plan ? "" : '<form class="kmsearch" role="search"><label for="kmQ">' + esc(tt("km_search")) + '</label><input type="search" id="kmQ" autocomplete="off" placeholder="' + esc(tt("km_searchPh")) + '"><button type="submit" class="btn small">' + esc(tt("km_go")) + "</button></form>" +
         '<ul class="kmhits" id="kmHits" aria-label="' + esc(tt("km_hits")) + '"></ul>') +
+      '<div class="kmbar" role="group" aria-label="' + esc(tt("km_tools2")) + '">' +
+      '<button type="button" class="btn small" data-k="medit" aria-pressed="false">' + esc(tt("km_edit")) + "</button>" +
+      '<button type="button" class="btn small" data-k="mtext" aria-pressed="false">' + esc(tt("km_nText")) + "</button>" +
+      '<button type="button" class="btn small" data-k="marrow" aria-pressed="false">' + esc(tt("km_nArrow")) + "</button>" +
+      '<button type="button" class="btn small" data-k="msline" aria-pressed="false">' + esc(tt("km_nLine")) + "</button>" +
+      '<button type="button" class="btn small" data-k="mrect" aria-pressed="false">' + esc(tt("km_nRect")) + "</button>" +
+      '<label class="kmbl" for="kmCol">' + esc(tt("km_col")) + '</label><select id="kmCol">' + COL.map(function (c) { return '<option value="' + c[0] + '">' + esc(tt(c[1])) + "</option>"; }).join("") + "</select>" +
+      '<label class="kmbl" for="kmStep">' + esc(tt("km_step")) + '</label><input type="text" inputmode="decimal" id="kmStep" class="kmn" value="1"></div>' +
       '<div class="kmbar" role="group" aria-label="' + esc(tt("km_tools")) + '">' +
       (plan ? '<button type="button" class="btn small" data-k="mcal" aria-pressed="false">' + esc(tt("pl_cal")) + "</button>" : "") +
       '<button type="button" class="btn small" data-k="mline" aria-pressed="false">' + esc(tt("km_draw")) + "</button>" +
@@ -274,7 +291,7 @@
     function openGeo() { window.open(geoUrl(false), "_blank", "noopener"); }
     /* immer auf den Bestand (alle Linien, Schächte, Sondagen) zoomen */
     function fitAll() {
-      var pts = []; M.lines.forEach(function (l) { l.pts.forEach(function (p) { pts.push(AD.ll(p)); }); }); M.pts.concat(M.sond).forEach(function (p) { pts.push(AD.ll(p.pt)); });
+      var pts = []; M.lines.forEach(function (l) { l.pts.forEach(function (p) { pts.push(AD.ll(p)); }); }); M.pts.concat(M.sond).forEach(function (p) { pts.push(AD.ll(p.pt)); }); M.notes.forEach(function (n) { n.pts.forEach(function (p) { pts.push(AD.ll(p)); }); });
       if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.3), { maxZoom: plan ? 3 : 19, animate: false });
       else if (plan) map.fitBounds([[-opt.plan.h, 0], [0, opt.plan.w]], { animate: false });
     }
@@ -285,31 +302,104 @@
       refresh();
     }
     function calTxt() { return cal.scale && cal.auto ? tt("pl_calAuto").replace("{r}", cal.auto).replace("{s}", (Math.round(cal.scale * 1000) / 1000)) : cal.scale ? tt("pl_calOk").replace("{m}", fmt(cal.m)).replace("{s}", (Math.round(cal.scale * 1000) / 1000)) : tt("pl_calNo"); }
-    function draw() {
-      grp.clearLayers();
-      M.lines.forEach(function (l) {
-        var ll = l.pts.map(AD.ll), on = sel && sel.id === l.id;
-        if (ll.length > 1) { L.polyline(ll, { color: "#fff", weight: 8, interactive: false }).addTo(grp); L.polyline(ll, { color: on ? "#0d47c8" : "#b8332a", weight: on ? 5 : 3.5, interactive: false }).addTo(grp); }
-        ll.forEach(function (q, j) { L.circleMarker(q, { radius: l.id === cur && j === ll.length - 1 ? 6 : 4, color: on ? "#0d47c8" : "#b8332a", weight: 2, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
+    var undoSt = [], curN = null, tmp = [], layers = {}, lastMove = 0, noteCol = "#0d47c8";
+    var NT = { text: "km_nText", arrow: "km_nArrow", sline: "km_nLine", rect: "km_nRect" };
+    var snap = function () { undoSt.push(JSON.stringify(M)); if (undoSt.length > 100) undoSt.shift(); };
+    var findObj = function (id) { var a = [M.lines, M.pts, M.sond, M.notes]; for (var i = 0; i < a.length; i++) { var o = byId(a[i], id); if (o) return { arr: a[i], o: o }; } return null; };
+    function select(id) { sel = { id: id }; refresh(); }
+    function bindObj(lay, id, noMove) {
+      lay.on("click", function (e) { L.DomEvent.stop(e); if (Date.now() - lastMove < 250) return; select(id); });
+      if (!noMove) lay.on("mousedown", function (e) { startMove(e, id); });
+    }
+    /* ganzes Objekt am Strich verschieben */
+    function startMove(e, id) {
+      var f = findObj(id); if (!f || !f.o.pts || !f.o.pts.length || mode !== "edit") return;
+      L.DomEvent.stop(e); sel = { id: id }; snap();
+      var start = AD.pt(e.latlng), base = f.o.pts.map(function (p) { return p.slice(); }), moved = false;
+      map.dragging.disable();
+      function mm(ev) { var c = AD.pt(ev.latlng), dx = c[0] - start[0], dy = c[1] - start[1]; if (dx || dy) moved = true; f.o.pts = base.map(function (p) { return [p[0] + dx, p[1] + dy]; }); if (layers[id] && layers[id].upd) layers[id].upd(); updTotal(); }
+      function up() { map.off("mousemove", mm); document.removeEventListener("mouseup", up); map.dragging.enable(); if (moved) { lastMove = Date.now(); refresh(); } else undoSt.pop(); }
+      map.on("mousemove", mm); document.addEventListener("mouseup", up);
+    }
+    function vmark(q, cls, size) { return L.marker(q, { draggable: cls === "kmv", keyboard: false, zIndexOffset: 1000, icon: L.divIcon({ className: cls, html: "<span></span>", iconSize: [size, size], iconAnchor: [size / 2, size / 2] }) }).addTo(grp); }
+    /* Eckpunkte ziehen, Mittelpunkt einfügen, Doppelklick löscht Eckpunkt */
+    function handles(o, poly, minPts) {
+      o.pts.forEach(function (q, j) {
+        var m = vmark(AD.ll(q), "kmv", 14);
+        m.on("dragstart", function () { snap(); });
+        m.on("drag", function (e) { o.pts[j] = AD.pt(e.target.getLatLng()); if (layers[o.id] && layers[o.id].upd) layers[o.id].upd(); updTotal(); });
+        m.on("dragend", function () { lastMove = Date.now(); refresh(); });
+        m.on("dblclick contextmenu", function (e) { L.DomEvent.stop(e); if (poly && o.pts.length > minPts) { snap(); o.pts.splice(j, 1); refresh(); } });
       });
-      M.pts.forEach(function (p, i) {
-        var on = sel && sel.id === p.id;
-        L.marker(AD.ll(p.pt), { interactive: false, keyboard: false, icon: L.divIcon({ className: "kmsch" + (on ? " on" : ""), html: "<span>" + (i + 1) + "</span>", iconSize: [26, 26], iconAnchor: [13, 13] }) }).addTo(grp);
-      });
-      M.sond.forEach(function (p, i) {
-        var on = sel && sel.id === p.id;
-        L.marker(AD.ll(p.pt), { interactive: false, keyboard: false, icon: L.divIcon({ className: "kmsond" + (on ? " on" : ""), html: "<span>S" + (i + 1) + "</span>", iconSize: [26, 26], iconAnchor: [13, 13] }) }).addTo(grp);
-      });
-      if (plan) { calPts.forEach(function (q) { L.circleMarker(AD.ll(q), { radius: 6, color: "#0d47c8", weight: 3, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
-        if (cal.a && cal.b && !cal.auto && !calPts.length) L.polyline([AD.ll(cal.a), AD.ll(cal.b)], { color: "#0d47c8", weight: 2, dashArray: "6 5", interactive: false }).addTo(grp); }
+      if (!poly) return;
+      for (var j = 0; j < o.pts.length - 1; j++) (function (j) {
+        var a = o.pts[j], b = o.pts[j + 1], m = L.marker(AD.ll([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]), { keyboard: false, icon: L.divIcon({ className: "kmm", html: "<span></span>", iconSize: [10, 10], iconAnchor: [5, 5] }) }).addTo(grp);
+        m.on("click", function (e) { L.DomEvent.stop(e); snap(); o.pts.splice(j + 1, 0, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]); refresh(); });
+      })(j);
+    }
+    function dragPt(m, o, key) {
+      m.on("dragstart", function () { snap(); }); m.on("drag", function (e) { o[key] = AD.pt(e.target.getLatLng()); });
+      m.on("dragend", function () { lastMove = Date.now(); refresh(); });
+    }
+    function noteLayers(n, edit, on) {
+      var col = n.color || "#0d47c8", L0 = [], upd;
+      if (n.type === "text") {
+        var m = L.marker(AD.ll(n.pts[0]), { interactive: edit, draggable: edit, keyboard: false, icon: L.divIcon({ className: "kmtext s" + (n.size || "m") + (on ? " on" : ""), html: '<span style="color:' + col + '">' + esc(n.text || "") + "</span>", iconSize: null, iconAnchor: [0, 10] }) }).addTo(grp);
+        if (edit) { dragPt(m, n, "pts"); m.off("drag"); m.on("drag", function (e) { n.pts[0] = AD.pt(e.target.getLatLng()); }); bindObj(m, n.id, true); }
+        return { upd: function () { m.setLatLng(AD.ll(n.pts[0])); } };
+      }
+      if (n.type === "rect") {
+        var r = L.rectangle([AD.ll(n.pts[0]), AD.ll(n.pts[1])], { color: col, weight: on ? 4 : 2.5, fillColor: col, fillOpacity: 0.08, interactive: edit, bubblingMouseEvents: false }).addTo(grp);
+        if (edit) bindObj(r, n.id);
+        return { upd: function () { r.setBounds([AD.ll(n.pts[0]), AD.ll(n.pts[1])]); } };
+      }
+      var ln = L.polyline(n.pts.map(AD.ll), { color: col, weight: on ? 5 : 3, interactive: edit, bubblingMouseEvents: false }).addTo(grp), hd = null;
+      function head() {
+        var a = map.latLngToLayerPoint(AD.ll(n.pts[0])), b = map.latLngToLayerPoint(AD.ll(n.pts[n.pts.length - 1])), ang = Math.atan2(b.y - a.y, b.x - a.x), s = 16;
+        return [b, L.point(b.x - s * Math.cos(ang - 0.4), b.y - s * Math.sin(ang - 0.4)), L.point(b.x - s * Math.cos(ang + 0.4), b.y - s * Math.sin(ang + 0.4))].map(function (p) { return map.layerPointToLatLng(p); });
+      }
+      if (n.type === "arrow" && n.pts.length > 1) hd = L.polygon(head(), { color: col, fillColor: col, fillOpacity: 1, weight: 1, interactive: false }).addTo(grp);
+      if (edit) bindObj(ln, n.id);
+      return { upd: function () { ln.setLatLngs(n.pts.map(AD.ll)); if (hd) hd.setLatLngs(head()); } };
+    }
+    function updTotal() {
       var tot = M.lines.reduce(function (a, l) { return a + lineLen(l.pts); }, 0);
       $("#kmLen").textContent = tt("km_total").replace("{m}", fmt(tot)).replace("{n}", M.lines.filter(function (l) { return l.pts.length > 1; }).length).replace("{s}", M.pts.length).replace("{o}", M.sond.length) + (plan ? " · " + calTxt() : "");
-      ["cal", "line", "pt", "sond"].forEach(function (m) { var b = $("[data-k=m" + m + "]"); if (b) b.setAttribute("aria-pressed", mode === m ? "true" : "false"); });
+    }
+    var MODES = { line: "mline", pt: "mpt", sond: "msond", cal: "mcal", edit: "medit", text: "mtext", arrow: "marrow", sline: "msline", rect: "mrect" };
+    function draw() {
+      grp.clearLayers(); layers = {}; var edit = mode === "edit";
+      M.lines.forEach(function (l) {
+        var ll = l.pts.map(AD.ll), on = sel && sel.id === l.id, col = on ? "#0d47c8" : "#b8332a";
+        if (ll.length > 1) {
+          var halo = L.polyline(ll, { color: "#fff", weight: 8, interactive: false }).addTo(grp), main = L.polyline(ll, { color: col, weight: on ? 5 : 3.5, interactive: edit, bubblingMouseEvents: false }).addTo(grp);
+          layers[l.id] = { upd: function () { var q = l.pts.map(AD.ll); halo.setLatLngs(q); main.setLatLngs(q); } };
+          if (edit) bindObj(main, l.id);
+        }
+        if (!(edit && on)) ll.forEach(function (q, j) { L.circleMarker(q, { radius: l.id === cur && j === ll.length - 1 ? 6 : 4, color: col, weight: 2, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
+        else handles(l, true, 2);
+      });
+      M.notes.forEach(function (n) {
+        var on = sel && sel.id === n.id; layers[n.id] = noteLayers(n, edit, on);
+        if (edit && on && n.type !== "text") handles(n, n.type === "sline", 2);
+      });
+      var pm = function (arr, cls, lbl) {
+        arr.forEach(function (p, i) {
+          var on = sel && sel.id === p.id, m = L.marker(AD.ll(p.pt), { interactive: edit, draggable: edit, keyboard: false, icon: L.divIcon({ className: cls + (on ? " on" : ""), html: "<span>" + lbl + (i + 1) + "</span>", iconSize: [26, 26], iconAnchor: [13, 13] }) }).addTo(grp);
+          if (edit) { dragPt(m, p, "pt"); bindObj(m, p.id, true); }
+        });
+      };
+      pm(M.pts, "kmsch", ""); pm(M.sond, "kmsond", "S");
+      tmp.forEach(function (q) { L.circleMarker(AD.ll(q), { radius: 5, color: "#0d47c8", weight: 2, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
+      if (plan) { calPts.forEach(function (q) { L.circleMarker(AD.ll(q), { radius: 6, color: "#0d47c8", weight: 3, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
+        if (cal.a && cal.b && !cal.auto && !calPts.length) L.polyline([AD.ll(cal.a), AD.ll(cal.b)], { color: "#0d47c8", weight: 2, dashArray: "6 5", interactive: false }).addTo(grp); }
+      updTotal();
+      Object.keys(MODES).forEach(function (m) { var b = $("[data-k=" + MODES[m] + "]"); if (b) b.setAttribute("aria-pressed", mode === m ? "true" : "false"); });
       $("[data-k=mline]").textContent = mode === "line" ? tt("km_drawOn") : tt("km_draw"); $("[data-k=mpt]").textContent = mode === "pt" ? tt("km_ptOn") : tt("km_pt"); $("[data-k=msond]").textContent = mode === "sond" ? tt("km_sondOn") : tt("km_sond");
       if (plan) $("[data-k=mcal]").textContent = mode === "cal" ? tt("pl_calOn") : tt("pl_cal");
-      $("[data-k=end]").disabled = !cur; $("[data-k=undo]").disabled = !hist.length; $("[data-k=clear]").disabled = !(M.lines.length || M.pts.length || M.sond.length); $("[data-k=center]").disabled = !mode;
-      $("#kmHelp").textContent = mode === "cal" ? tt("pl_helpCal") : mode ? tt("km_helpOn") : plan && !cal.scale ? tt("pl_calNeed") : tt("km_helpOff");
-      map.getContainer().style.cursor = mode ? "crosshair" : "";
+      $("[data-k=end]").disabled = !(cur || curN); $("[data-k=undo]").disabled = !(undoSt.length || tmp.length); $("[data-k=clear]").disabled = !(M.lines.length || M.pts.length || M.sond.length || M.notes.length); $("[data-k=center]").disabled = !mode || mode === "edit";
+      $("#kmHelp").textContent = mode === "cal" ? tt("pl_helpCal") : mode === "edit" ? tt("km_helpEdit") : mode === "text" ? tt("km_helpText") : mode === "arrow" || mode === "rect" ? tt("km_helpTwo") : mode ? tt("km_helpOn") : plan && !cal.scale ? tt("pl_calNeed") : tt("km_helpOff");
+      map.getContainer().style.cursor = mode && mode !== "edit" ? "crosshair" : "";
       var vw = base === "viewer"; dlg.querySelectorAll(".kmbar [data-k^=m],[data-k=center],[data-k=end],[data-k=fit]").forEach(function (b) { if (vw) b.disabled = true; else if (b.dataset.k !== "end" && b.dataset.k !== "center") b.disabled = false; });
       if (vw) $("#kmHelp").textContent = tt("km_viewerHelp");
     }
@@ -319,13 +409,25 @@
       s.addEventListener("change", function () { on(s.value); }); return s;
     }
     function cell(label, el) { var d = document.createElement("div"); d.className = "kmc"; var l = document.createElement("span"); l.textContent = label; d.appendChild(l); d.appendChild(el); return d; }
-    function inp(label, val, cls, on) { var n = document.createElement("input"); n.type = "text"; n.inputMode = "decimal"; n.className = cls; n.value = val; n.setAttribute("aria-label", label); n.addEventListener("input", function () { on(n.value); }); return n; }
+    function inp(label, val, cls, on, txt) { var n = document.createElement("input"); n.type = "text"; if (!txt) n.inputMode = "decimal"; n.className = cls; n.value = val; n.setAttribute("aria-label", label); n.addEventListener("input", function () { on(n.value); }); return n; }
     function head(r, title, rid) { var t = document.createElement("div"); t.className = "kmt"; t.innerHTML = "<b>" + esc(title) + "</b>" + (rid === undefined ? "" : " · " + (rid ? '<span class="kmlnk">→ ' + esc(opt.recName(rid) || tt("km_new")) + "</span>" : '<span class="kmlnk">' + esc(tt("km_new")) + "</span>")); r.appendChild(t); return t; }
-    function btns(r, id) { var bs = document.createElement("div"); bs.className = "kmbtn"; bs.innerHTML = '<button type="button" class="btn ghost small" data-z="' + id + '">' + esc(tt("km_show")) + '</button><button type="button" class="btn ghost small del" data-d="' + id + '">' + esc(tt("km_del")) + "</button>"; r.appendChild(bs); }
+    function btns(r, id) {
+      var bs = document.createElement("div"); bs.className = "kmbtn";
+      bs.innerHTML = '<span class="kmnudge" role="group" aria-label="' + esc(tt("km_nudge")) + '">' + [["l", "←", "km_nl"], ["u", "↑", "km_nu"], ["d", "↓", "km_nd"], ["r", "→", "km_nr"]].map(function (a) { return '<button type="button" class="btn ghost small" data-n="' + id + "|" + a[0] + '" aria-label="' + esc(tt(a[2])) + '">' + a[1] + "</button>"; }).join("") + "</span>" +
+        '<button type="button" class="btn ghost small" data-z="' + id + '">' + esc(tt("km_show")) + '</button><button type="button" class="btn ghost small del" data-d="' + id + '">' + esc(tt("km_del")) + "</button>";
+      r.appendChild(bs);
+    }
+    function nudge(id, dir) {
+      var f = findObj(id); if (!f) return; var st = parseFloat(String($("#kmStep").value).replace(",", ".")) || 1, k = plan ? (cal.scale ? st / cal.scale : st * 5) : st;
+      var dx = dir === "l" ? -k : dir === "r" ? k : 0, dy = dir === "u" ? k : dir === "d" ? -k : 0; if (plan) dy = -dy;
+      snap(); var sh = function (p) { return [Math.round((p[0] + dx) * 100) / 100, Math.round((p[1] + dy) * 100) / 100]; };
+      if (f.o.pts) f.o.pts = f.o.pts.map(sh); else f.o.pt = sh(f.o.pt); refresh();
+    }
     function rows() {
       var h = $("#kmObj"); h.innerHTML = "";
+      var rowOf = function (o) { var r = document.createElement("div"); r.className = "kmrow" + (sel && sel.id === o.id ? " on" : ""); r.setAttribute("data-rid", o.id); return r; };
       M.lines.forEach(function (l, i) {
-        var r = document.createElement("div"); r.className = "kmrow" + (sel && sel.id === l.id ? " on" : "");
+        var r = rowOf(l);
         var t = head(r, tt("km_lineN").replace("{n}", i + 1), l.rid); t.insertAdjacentHTML("beforeend", " · " + fmt(lineLen(l.pts)) + " m");
         r.appendChild(cell(tt("km_sys"), sel1(tt("km_sys"), cat.sys, l.rohr.sys, function (v) { l.rohr.sys = v; rows(); })));
         if (l.rohr.sys !== "block") {
@@ -336,50 +438,74 @@
         btns(r, l.id); h.appendChild(r);
       });
       M.pts.forEach(function (p, i) {
-        var r = document.createElement("div"); r.className = "kmrow" + (sel && sel.id === p.id ? " on" : ""); head(r, tt("km_schN").replace("{n}", i + 1), p.sid);
-        r.appendChild(cell(tt("km_name"), inp(tt("km_name"), p.name || "", "kmw", function (v) { p.name = v; })));
+        var r = rowOf(p); head(r, tt("km_schN").replace("{n}", i + 1), p.sid);
+        r.appendChild(cell(tt("km_name"), inp(tt("km_name"), p.name || "", "kmw", function (v) { p.name = v; }, 1)));
         r.appendChild(cell(tt("km_typ"), sel1(tt("km_typ"), cat.schacht, p.typ, function (v) { p.typ = v; })));
         btns(r, p.id); h.appendChild(r);
       });
       M.sond.forEach(function (p, i) {
-        var r = document.createElement("div"); r.className = "kmrow" + (sel && sel.id === p.id ? " on" : ""); head(r, tt("km_sondN").replace("{n}", i + 1));
-        r.appendChild(cell(tt("km_name"), inp(tt("km_name"), p.name || "", "kmw", function (v) { p.name = v; })));
+        var r = rowOf(p); head(r, tt("km_sondN").replace("{n}", i + 1));
+        r.appendChild(cell(tt("km_name"), inp(tt("km_name"), p.name || "", "kmw", function (v) { p.name = v; }, 1)));
         [["l", "km_sL"], ["b", "km_sB"], ["t", "km_sT"]].forEach(function (f) { r.appendChild(cell(tt(f[1]), inp(tt(f[1]), p[f[0]], "kmn", function (v) { p[f[0]] = v; }))); });
         btns(r, p.id); h.appendChild(r);
       });
+      M.notes.forEach(function (n, i) {
+        var r = rowOf(n); head(r, tt(NT[n.type]) + " " + (i + 1));
+        if (n.type === "text") {
+          r.appendChild(cell(tt("km_text"), inp(tt("km_text"), n.text || "", "kmw", function (v) { n.text = v; if (layers[n.id]) draw(); }, 1)));
+          r.appendChild(cell(tt("km_size"), sel1(tt("km_size"), [["s", tt("km_sS")], ["m", tt("km_sM")], ["l", tt("km_sLg")]], n.size || "m", function (v) { n.size = v; draw(); })));
+        }
+        r.appendChild(cell(tt("km_col"), sel1(tt("km_col"), COL.map(function (c) { return [c[0], tt(c[1])]; }), n.color || "#0d47c8", function (v) { n.color = v; draw(); })));
+        btns(r, n.id); h.appendChild(r);
+      });
     }
     function refresh() { draw(); rows(); }
+    function newNote(type, pts) { snap(); var n = { id: nid("n"), type: type, pts: pts, color: noteCol, text: type === "text" ? "Text" : "", size: "m" }; M.notes.push(n); sel = { id: n.id }; return n; }
     function addPt(ll) {
       if (!mode) return;
+      if (mode === "edit") { if (Date.now() - lastMove < 250) return; sel = null; refresh(); return; }
       var c = AD.pt(ll);
       if (mode === "cal") {
         calPts.push(c); if (calPts.length === 2) { $("#kmCalF").hidden = false; $("#kmCalM").value = ""; $("#kmCalM").focus(); } draw(); return;
       }
-      if (mode === "pt") { var p = { id: nid("p"), pt: c, sid: null, typ: opt.defTyp, name: "" }; M.pts.push(p); hist.push(p.id); sel = { id: p.id }; }
-      else if (mode === "sond") { var o = { id: nid("s"), pt: c, name: "", l: "1.0", b: "1.0", t: "1.5" }; M.sond.push(o); hist.push(o.id); sel = { id: o.id }; }
+      if (mode === "text") { var tn = newNote("text", [c]); refresh(); var ti = $('[data-rid="' + tn.id + '"] input[type=text]'); if (ti) { ti.focus(); ti.select(); } return; }
+      if (mode === "arrow" || mode === "rect") { tmp.push(c); if (tmp.length === 2) { newNote(mode, tmp); tmp = []; } refresh(); return; }
+      if (mode === "sline") {
+        var sn = curN && byId(M.notes, curN);
+        if (!sn) { sn = newNote("sline", [c]); curN = sn.id; } else { snap(); sn.pts.push(c); }
+        refresh(); return;
+      }
+      snap();
+      if (mode === "pt") { var p = { id: nid("p"), pt: c, sid: null, typ: opt.defTyp, name: "" }; M.pts.push(p); sel = { id: p.id }; }
+      else if (mode === "sond") { var o = { id: nid("s"), pt: c, name: "", l: "1.0", b: "1.0", t: "1.5" }; M.sond.push(o); sel = { id: o.id }; }
       else {
         var l = cur && byId(M.lines, cur);
         if (!l) { l = { id: nid("l"), pts: [], rid: null, rohr: JSON.parse(JSON.stringify(opt.defRohr)) }; M.lines.push(l); cur = l.id; sel = { id: l.id }; }
-        l.pts.push(c); hist.push(l.id);
+        l.pts.push(c);
       }
       refresh();
     }
-    function endLine() { var l = cur && byId(M.lines, cur); if (l && l.pts.length < 2) M.lines.splice(M.lines.indexOf(l), 1); cur = null; refresh(); }
+    function endLine() {
+      var l = cur && byId(M.lines, cur); if (l && l.pts.length < 2) M.lines.splice(M.lines.indexOf(l), 1);
+      var n = curN && byId(M.notes, curN); if (n && n.pts.length < 2) M.notes.splice(M.notes.indexOf(n), 1);
+      cur = null; curN = null; tmp = []; refresh();
+    }
     function undo() {
       if (mode === "cal" && calPts.length) { calPts.pop(); $("#kmCalF").hidden = true; return draw(); }
-      var id = hist.pop(); if (!id) return;
-      var p = byId(M.pts, id) || byId(M.sond, id); if (p) (M.pts.indexOf(p) >= 0 ? M.pts : M.sond).splice((M.pts.indexOf(p) >= 0 ? M.pts : M.sond).indexOf(p), 1);
-      else { var l = byId(M.lines, id); if (l) { l.pts.pop(); if (!l.pts.length) { M.lines.splice(M.lines.indexOf(l), 1); if (cur === id) cur = null; } } }
+      if (tmp.length) { tmp.pop(); return draw(); }
+      var s = undoSt.pop(); if (!s) return;
+      M = JSON.parse(s); M.sond = M.sond || []; M.notes = M.notes || [];
+      if (cur && !byId(M.lines, cur)) cur = null; if (curN && !byId(M.notes, curN)) curN = null; if (sel && !findObj(sel.id)) sel = null;
       refresh();
     }
     function del(id) {
-      [M.lines, M.pts, M.sond].forEach(function (a) { var x = byId(a, id); if (x) a.splice(a.indexOf(x), 1); });
-      if (cur === id) cur = null; hist = hist.filter(function (x) { return x !== id; }); sel = null; refresh();
+      var f = findObj(id); if (!f) return; snap(); f.arr.splice(f.arr.indexOf(f.o), 1);
+      if (cur === id) cur = null; if (curN === id) curN = null; sel = null; refresh();
     }
     function show(id) {
-      var l = byId(M.lines, id), p = byId(M.pts, id) || byId(M.sond, id); sel = { id: id };
-      if (l && l.pts.length) map.fitBounds(L.latLngBounds(l.pts.map(AD.ll)).pad(0.3), { maxZoom: plan ? 3 : 19 });
-      if (p) map.setView(AD.ll(p.pt), Math.max(map.getZoom(), plan ? 1 : 18));
+      var f = findObj(id); if (!f) return; sel = { id: id }; var ps = f.o.pts || [f.o.pt];
+      if (ps.length > 1) map.fitBounds(L.latLngBounds(ps.map(AD.ll)).pad(0.3), { maxZoom: plan ? 3 : 19, animate: false });
+      else map.setView(AD.ll(ps[0]), Math.max(map.getZoom(), plan ? 1 : 18), { animate: false });
       refresh();
     }
     function close() { try { map.remove(); } catch (e) { } dlg.close(); dlg.remove(); if (opt.onClose) opt.onClose(); }
@@ -401,19 +527,22 @@
       $("#kmCatQ").addEventListener("input", resList);
       $("#kmCatS").addEventListener("click", function (e) { var b = e.target.closest("[data-ovdel]"); if (!b) return; ov.splice(+b.dataset.ovdel, 1); saveOv(); drawOv(); selList(); resList(); });
     }
-    map.on("click", function (e) { addPt(e.latlng); });
-    map.on("dblclick", function () { if (mode === "line") endLine(); });
+    map.on("click", function (e) { var t = e.originalEvent && e.originalEvent.target; if (mode === "edit" && t && t.closest && t.closest(".leaflet-marker-icon,.leaflet-interactive")) return; addPt(e.latlng); });
+    map.on("dblclick", function () { if (mode === "line" || mode === "sline") endLine(); });
+    map.on("zoomend", function () { if (mode === "edit" || M.notes.some(function (n) { return n.type === "arrow"; })) draw(); });
+    var cs = $("#kmCol"); cs.addEventListener("change", function () { noteCol = cs.value; });
 
     dlg.addEventListener("click", function (e) {
-      var b = e.target.closest("[data-k],[data-z],[data-d]"); if (!b) return;
+      var b = e.target.closest("[data-k],[data-z],[data-d],[data-n]"); if (!b) return;
+      if (b.dataset.n) { var nn = b.dataset.n.split("|"); return nudge(nn[0], nn[1]); }
       if (b.dataset.z) return show(b.dataset.z); if (b.dataset.d) return del(b.dataset.d);
       var k = b.getAttribute("data-k");
       if (k === "close") close();
-      else if (k === "mline" || k === "mpt" || k === "msond" || k === "mcal") { var m = k.slice(1); if (mode === "line") endLine(); calPts = []; if (plan) $("#kmCalF").hidden = true; mode = mode === m ? "" : m; refresh(); }
+      else if (/^m(line|pt|sond|cal|edit|text|arrow|sline|rect)$/.test(k)) { var m = k.slice(1); if (mode === "line" || mode === "sline") endLine(); tmp = []; calPts = []; if (plan) $("#kmCalF").hidden = true; mode = mode === m ? "" : m; refresh(); }
       else if (k === "center") addPt(map.getCenter());
       else if (k === "end") endLine();
       else if (k === "undo") undo();
-      else if (k === "clear") { var snap = JSON.stringify(M); M.lines = []; M.pts = []; M.sond = []; cur = null; hist = []; sel = null; refresh(); toast(dlg, tt("km_cleared"), tt("km_undoBtn"), function () { M = JSON.parse(snap); refresh(); }); }
+      else if (k === "clear") { var sn0 = JSON.stringify(M); snap(); M.lines = []; M.pts = []; M.sond = []; M.notes = []; cur = null; curN = null; sel = null; refresh(); toast(dlg, tt("km_cleared"), tt("km_undoBtn"), function () { M = JSON.parse(sn0); M.notes = M.notes || []; refresh(); }); }
       else if (k === "geo") openGeo();
       else if (k === "fit") fitAll();
       else if (k === "apply") {
