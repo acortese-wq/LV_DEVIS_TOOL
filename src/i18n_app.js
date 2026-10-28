@@ -280,3 +280,40 @@
     L.forEach(function (l) { var src = TS[l] || TS.de; T[l]["w_sa_" + k] = src[k] != null ? src[k] : TS.de[k]; });
   });
 })();
+/* Kartenmessung (swisstopo) – [de, fr, it, en] */
+(function () {
+  var L = ["de", "fr", "it", "en"];
+  function A(o) { Object.keys(o).forEach(function (k) { L.forEach(function (l, i) { T[l][k] = o[k][i] != null ? o[k][i] : o[k][0]; }); }); }
+  A({
+    km_btn: ["📍 Auf Karte messen", "📍 Mesurer sur la carte", "📍 Misurare sulla carta", "📍 Measure on map"],
+    km_remove: ["Trasse entfernen", "Supprimer le tracé", "Rimuovere il tracciato", "Remove route"],
+    km_offline: ["Karte nicht erreichbar (kein Internet oder Kartendienst gesperrt). Länge bitte von Hand eingeben – das Tool funktioniert unverändert.", "Carte inaccessible (pas d'Internet ou service bloqué). Saisir la longueur à la main – l'outil fonctionne comme avant.", "Carta non raggiungibile (nessuna connessione o servizio bloccato). Inserire la lunghezza a mano – lo strumento funziona come prima.", "Map not reachable (no internet or map service blocked). Please enter the length by hand – the tool works as before."],
+    km_loading: ["Karte wird geladen …", "Chargement de la carte …", "Caricamento della carta …", "Loading map …"],
+    km_title: ["Grabenlänge auf der Karte messen", "Mesurer la longueur de la fouille sur la carte", "Misurare la lunghezza dello scavo sulla carta", "Measure trench length on the map"],
+    km_close: ["Schliessen", "Fermer", "Chiudere", "Close"],
+    km_search: ["Adresse oder Ort suchen", "Rechercher une adresse ou un lieu", "Cercare indirizzo o località", "Search address or place"],
+    km_searchPh: ["z. B. Bahnhofstrasse 1, Chur", "p. ex. Rue de la Gare 1, Sion", "p. es. Via Stazione 1, Bellinzona", "e.g. Bahnhofstrasse 1, Chur"],
+    km_go: ["Suchen", "Chercher", "Cercare", "Search"],
+    km_hits: ["Suchresultate", "Résultats", "Risultati", "Search results"],
+    km_searching: ["Suche läuft …", "Recherche …", "Ricerca …", "Searching …"],
+    km_none: ["Nichts gefunden.", "Aucun résultat.", "Nessun risultato.", "Nothing found."],
+    km_searchErr: ["Suche nicht erreichbar.", "Recherche inaccessible.", "Ricerca non raggiungibile.", "Search not reachable."],
+    km_tools: ["Zeichenwerkzeuge", "Outils de dessin", "Strumenti di disegno", "Drawing tools"],
+    km_draw: ["Linie zeichnen", "Dessiner une ligne", "Disegnare una linea", "Draw line"],
+    km_drawOn: ["Zeichnen aktiv", "Dessin actif", "Disegno attivo", "Drawing on"],
+    km_center: ["Punkt in Kartenmitte", "Point au centre", "Punto al centro", "Point at map centre"],
+    km_end: ["Linie beenden", "Terminer la ligne", "Terminare la linea", "Finish line"],
+    km_undo: ["Rückgängig", "Annuler", "Annulla", "Undo"],
+    km_clear: ["Alles löschen", "Tout effacer", "Cancellare tutto", "Clear all"],
+    km_clearQ: ["Alle gezeichneten Linien löschen?", "Effacer toutes les lignes?", "Cancellare tutte le linee?", "Delete all drawn lines?"],
+    km_aerial: ["Luftbild", "Photo aérienne", "Foto aerea", "Aerial"],
+    km_map: ["Landeskarte", "Carte nationale", "Carta nazionale", "Map"],
+    km_mapLbl: ["Karte. Pfeiltasten verschieben, Plus und Minus zoomen.", "Carte. Flèches pour déplacer, plus et moins pour zoomer.", "Carta. Frecce per spostare, più e meno per zoomare.", "Map. Arrow keys pan, plus and minus zoom."],
+    km_helpOff: ["«Linie zeichnen» wählen, dann Punkte auf der Karte anklicken. Mehrere Linien werden summiert.", "Choisir «Dessiner une ligne», puis cliquer les points sur la carte. Plusieurs lignes sont additionnées.", "Scegliere «Disegnare una linea», poi cliccare i punti sulla carta. Più linee vengono sommate.", "Choose “Draw line”, then click points on the map. Several lines are added up."],
+    km_helpOn: ["Punkte anklicken (Tastatur: Karte mit Pfeiltasten verschieben, «Punkt in Kartenmitte»). Doppelklick oder «Linie beenden» schliesst die Linie ab.", "Cliquer les points (clavier: déplacer la carte avec les flèches, «Point au centre»). Double-clic ou «Terminer la ligne» ferme la ligne.", "Cliccare i punti (tastiera: spostare la carta con le frecce, «Punto al centro»). Doppio clic o «Terminare la linea» chiude la linea.", "Click points (keyboard: pan with arrow keys, “Point at map centre”). Double-click or “Finish line” ends the line."],
+    km_total: ["Gesamtlänge: {m} m (LV95, {n} Linie(n))", "Longueur totale: {m} m (MN95, {n} ligne(s))", "Lunghezza totale: {m} m (MN95, {n} linea/e)", "Total length: {m} m (LV95, {n} line(s))"],
+    km_apply: ["Länge übernehmen", "Reprendre la longueur", "Riprendere la lunghezza", "Use length"],
+    km_prevAlt: ["Kartenausschnitt der gemessenen Trasse", "Extrait de carte du tracé mesuré", "Estratto di carta del tracciato misurato", "Map extract of the measured route"],
+    km_prevCap: ["Trasse {m} m", "Tracé {m} m", "Tracciato {m} m", "Route {m} m"]
+  });
+})();

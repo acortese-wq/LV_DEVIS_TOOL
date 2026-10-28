@@ -805,6 +805,34 @@ svg text.warnTx{fill:var(--signal)!important}
 .zubrow input{flex:0 0 18px;margin-top:2px}
 .zubrow span{flex:1}
 
+/* Kartenmessung swisstopo */
+.kmfield{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.kmprev{margin:4px 0 0;max-width:360px}
+.kmprev svg{width:100%;height:auto;display:block;border:1px solid var(--rule-strong);border-radius:8px}
+.kmprev figcaption{font-size:12px;color:var(--ink-soft);margin-top:3px}
+.kmdlg{width:min(980px,96vw);max-height:96vh;padding:0;border:1px solid var(--rule-strong);border-radius:10px;color:var(--ink);background:var(--paper)}
+.kmdlg[open]{display:flex;flex-direction:column;gap:8px;padding:12px 14px}
+.kmdlg::backdrop{background:rgba(16,32,43,.55)}
+.kmhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.kmhead h2{margin:0;font-size:18px;color:var(--navy)}
+.kmsearch{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.kmsearch label{font-weight:600;font-size:13px;flex:0 0 100%}
+.kmsearch input{flex:1 1 200px;min-width:0;padding:8px 10px;border:1px solid var(--rule-strong);border-radius:6px;font:inherit}
+.kmhits{list-style:none;margin:0;padding:0;max-height:140px;overflow:auto}
+.kmhits:empty{display:none}
+.kmhit{display:block;width:100%;text-align:left;background:#fff;border:0;border-bottom:1px solid var(--rule);padding:8px 10px;font:inherit;color:var(--ink);cursor:pointer}
+.kmhit:hover{background:var(--panel)}
+.kmhit:focus-visible,.kmmap:focus-visible,.kmsearch input:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.kmnote{padding:6px 10px;font-size:13px;color:var(--ink-soft)}.kmnote.err{color:var(--signal)}
+.kmbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.kmbar .sp{flex:1}
+.kmbar [aria-pressed=true]:not(.ghost),.kmbar .ghost[aria-pressed=true]{background:var(--navy);color:#fff}
+.kmmap{height:min(52vh,480px);min-height:260px;border:1px solid var(--rule-strong);border-radius:8px}
+.kmhelp{margin:0}
+.kmfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.kmlen{margin:0;font-weight:700;color:var(--navy);font-size:16px}
+.leaflet-container a{color:#00397a}
+@media print{.kmdlg,.kmfield .btn,.kmmsg{display:none!important}}
+
 </style>
 </head>
 <body>
@@ -887,7 +915,7 @@ svg text.warnTx{fill:var(--signal)!important}
   <footer>© 2026 Alessandro Cortese · LV-Devis Tiefbau · App-Konzept, Struktur und fachliche Ausgestaltung. Enthält KV-Assistent Tiefbau und Auswahl Schachtbau und Abdeckungen (A. Cortese). LV V1.1 (10.07.2026).</footer>
 </div>
 <div id="lb" role="dialog" aria-modal="true" aria-label="Zeichnung"><button type="button" class="lbclose" id="lbClose">×</button><img alt=""></div>
-<script>var BUILD = "2026-10-26";</script>
+<script>var BUILD = "2026-10-28";</script>
 <script id="lv">
 /* LV Swisscom Infrastrukturarbeiten bei Baukooperationen
    DE: V1.1 vom 10.07.2026 (Datensatz KV-Assistent), korrigiert gem. tools/build_lv.py
@@ -2513,6 +2541,43 @@ Object.assign(TS.it,{
     L.forEach(function (l) { var src = TS[l] || TS.de; T[l]["w_sa_" + k] = src[k] != null ? src[k] : TS.de[k]; });
   });
 })();
+/* Kartenmessung (swisstopo) – [de, fr, it, en] */
+(function () {
+  var L = ["de", "fr", "it", "en"];
+  function A(o) { Object.keys(o).forEach(function (k) { L.forEach(function (l, i) { T[l][k] = o[k][i] != null ? o[k][i] : o[k][0]; }); }); }
+  A({
+    km_btn: ["📍 Auf Karte messen", "📍 Mesurer sur la carte", "📍 Misurare sulla carta", "📍 Measure on map"],
+    km_remove: ["Trasse entfernen", "Supprimer le tracé", "Rimuovere il tracciato", "Remove route"],
+    km_offline: ["Karte nicht erreichbar (kein Internet oder Kartendienst gesperrt). Länge bitte von Hand eingeben – das Tool funktioniert unverändert.", "Carte inaccessible (pas d'Internet ou service bloqué). Saisir la longueur à la main – l'outil fonctionne comme avant.", "Carta non raggiungibile (nessuna connessione o servizio bloccato). Inserire la lunghezza a mano – lo strumento funziona come prima.", "Map not reachable (no internet or map service blocked). Please enter the length by hand – the tool works as before."],
+    km_loading: ["Karte wird geladen …", "Chargement de la carte …", "Caricamento della carta …", "Loading map …"],
+    km_title: ["Grabenlänge auf der Karte messen", "Mesurer la longueur de la fouille sur la carte", "Misurare la lunghezza dello scavo sulla carta", "Measure trench length on the map"],
+    km_close: ["Schliessen", "Fermer", "Chiudere", "Close"],
+    km_search: ["Adresse oder Ort suchen", "Rechercher une adresse ou un lieu", "Cercare indirizzo o località", "Search address or place"],
+    km_searchPh: ["z. B. Bahnhofstrasse 1, Chur", "p. ex. Rue de la Gare 1, Sion", "p. es. Via Stazione 1, Bellinzona", "e.g. Bahnhofstrasse 1, Chur"],
+    km_go: ["Suchen", "Chercher", "Cercare", "Search"],
+    km_hits: ["Suchresultate", "Résultats", "Risultati", "Search results"],
+    km_searching: ["Suche läuft …", "Recherche …", "Ricerca …", "Searching …"],
+    km_none: ["Nichts gefunden.", "Aucun résultat.", "Nessun risultato.", "Nothing found."],
+    km_searchErr: ["Suche nicht erreichbar.", "Recherche inaccessible.", "Ricerca non raggiungibile.", "Search not reachable."],
+    km_tools: ["Zeichenwerkzeuge", "Outils de dessin", "Strumenti di disegno", "Drawing tools"],
+    km_draw: ["Linie zeichnen", "Dessiner une ligne", "Disegnare una linea", "Draw line"],
+    km_drawOn: ["Zeichnen aktiv", "Dessin actif", "Disegno attivo", "Drawing on"],
+    km_center: ["Punkt in Kartenmitte", "Point au centre", "Punto al centro", "Point at map centre"],
+    km_end: ["Linie beenden", "Terminer la ligne", "Terminare la linea", "Finish line"],
+    km_undo: ["Rückgängig", "Annuler", "Annulla", "Undo"],
+    km_clear: ["Alles löschen", "Tout effacer", "Cancellare tutto", "Clear all"],
+    km_clearQ: ["Alle gezeichneten Linien löschen?", "Effacer toutes les lignes?", "Cancellare tutte le linee?", "Delete all drawn lines?"],
+    km_aerial: ["Luftbild", "Photo aérienne", "Foto aerea", "Aerial"],
+    km_map: ["Landeskarte", "Carte nationale", "Carta nazionale", "Map"],
+    km_mapLbl: ["Karte. Pfeiltasten verschieben, Plus und Minus zoomen.", "Carte. Flèches pour déplacer, plus et moins pour zoomer.", "Carta. Frecce per spostare, più e meno per zoomare.", "Map. Arrow keys pan, plus and minus zoom."],
+    km_helpOff: ["«Linie zeichnen» wählen, dann Punkte auf der Karte anklicken. Mehrere Linien werden summiert.", "Choisir «Dessiner une ligne», puis cliquer les points sur la carte. Plusieurs lignes sont additionnées.", "Scegliere «Disegnare una linea», poi cliccare i punti sulla carta. Più linee vengono sommate.", "Choose “Draw line”, then click points on the map. Several lines are added up."],
+    km_helpOn: ["Punkte anklicken (Tastatur: Karte mit Pfeiltasten verschieben, «Punkt in Kartenmitte»). Doppelklick oder «Linie beenden» schliesst die Linie ab.", "Cliquer les points (clavier: déplacer la carte avec les flèches, «Point au centre»). Double-clic ou «Terminer la ligne» ferme la ligne.", "Cliccare i punti (tastiera: spostare la carta con le frecce, «Punto al centro»). Doppio clic o «Terminare la linea» chiude la linea.", "Click points (keyboard: pan with arrow keys, “Point at map centre”). Double-click or “Finish line” ends the line."],
+    km_total: ["Gesamtlänge: {m} m (LV95, {n} Linie(n))", "Longueur totale: {m} m (MN95, {n} ligne(s))", "Lunghezza totale: {m} m (MN95, {n} linea/e)", "Total length: {m} m (LV95, {n} line(s))"],
+    km_apply: ["Länge übernehmen", "Reprendre la longueur", "Riprendere la lunghezza", "Use length"],
+    km_prevAlt: ["Kartenausschnitt der gemessenen Trasse", "Extrait de carte du tracé mesuré", "Estratto di carta del tracciato misurato", "Map extract of the measured route"],
+    km_prevCap: ["Trasse {m} m", "Tracé {m} m", "Tracciato {m} m", "Route {m} m"]
+  });
+})();
 
 </script>
 <script id="kve">
@@ -3984,6 +4049,169 @@ var FIG = (function () {
 })();
 
 </script>
+<script id="karte">
+/* =====================================================================
+   Kartenmessung Grabenlänge – swisstopo (WMTS) + Leaflet (cdnjs, bei Bedarf geladen)
+   Trasse = Linien in LV95 [E,N]; Länge = Summe der Strecken in LV95.
+   App-Konzept und Urheber: Alessandro Cortese
+   ===================================================================== */
+(function () {
+  "use strict";
+  var LEAF = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.", WMTS = "https://wmts.geo.admin.ch/1.0.0/";
+  var SEARCH = "https://api3.geo.admin.ch/rest/services/ech/SearchServer", WMS = "https://wms.geo.admin.ch/";
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+
+  /* WGS84 <-> LV95 (swisstopo-Näherungsformeln, < 1 m) */
+  function toLV95(lat, lon) {
+    var p = (lat * 3600 - 169028.66) / 10000, l = (lon * 3600 - 26782.5) / 10000;
+    return [2600072.37 + 211455.93 * l - 10938.51 * l * p - 0.36 * l * p * p - 44.54 * l * l * l,
+      1200147.07 + 308807.95 * p + 3745.25 * l * l + 76.63 * p * p - 194.56 * l * l * p + 119.79 * p * p * p];
+  }
+  function toWGS(e, n) {
+    var y = (e - 2600000) / 1e6, x = (n - 1200000) / 1e6;
+    var l = 2.6779094 + 4.728982 * y + 0.791484 * y * x + 0.1306 * y * x * x - 0.0436 * y * y * y;
+    var p = 16.9023892 + 3.238272 * x - 0.270978 * y * y - 0.002528 * x * x - 0.0447 * y * y * x - 0.0140 * x * x * x;
+    return [p * 100 / 36, l * 100 / 36];
+  }
+  function lineLen(pts) { var s = 0; for (var i = 1; i < pts.length; i++) s += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return s; }
+  function total(lines) { return (lines || []).reduce(function (a, l) { return a + lineLen(l); }, 0); }
+  function fmt(v) { return (Math.round(v * 10) / 10).toLocaleString("de-CH", { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
+
+  /* Leaflet bei Bedarf nachladen */
+  var loading = null;
+  function loadLeaflet() {
+    if (window.L && window.L.map) return Promise.resolve();
+    if (loading) return loading;
+    loading = new Promise(function (ok, no) {
+      var done = false, t = setTimeout(function () { fail(); }, 10000);
+      function fail() { if (done) return; done = true; clearTimeout(t); loading = null; no(new Error("leaflet")); }
+      var css = document.createElement("link"); css.rel = "stylesheet"; css.href = LEAF + "css"; document.head.appendChild(css);
+      var s = document.createElement("script"); s.src = LEAF + "js"; s.crossOrigin = "anonymous";
+      s.onload = function () { if (done) return; done = true; clearTimeout(t); window.L && window.L.map ? ok() : (loading = null, no(new Error("leaflet"))); };
+      s.onerror = fail; document.head.appendChild(s);
+    });
+    return loading;
+  }
+
+  /* Kleine Vorschau (SVG, Hintergrund = swisstopo-Landeskarte per WMS; ohne Internet nur die Trasse) */
+  function preview(lines, tt) {
+    var all = []; (lines || []).forEach(function (l) { l.forEach(function (p) { all.push(p); }); });
+    if (!all.length) return null;
+    var W = 360, H = 220, e0 = Infinity, e1 = -Infinity, n0 = Infinity, n1 = -Infinity;
+    all.forEach(function (p) { e0 = Math.min(e0, p[0]); e1 = Math.max(e1, p[0]); n0 = Math.min(n0, p[1]); n1 = Math.max(n1, p[1]); });
+    var cx = (e0 + e1) / 2, cy = (n0 + n1) / 2, w = Math.max((e1 - e0) * 1.3, 60), h = Math.max((n1 - n0) * 1.3, 60 * H / W);
+    var sc = Math.max(w / W, h / H); w = sc * W; h = sc * H;
+    var bb = [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2];
+    var px = function (p) { return [((p[0] - bb[0]) / sc).toFixed(1), ((bb[3] - p[1]) / sc).toFixed(1)]; };
+    var url = WMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=ch.swisstopo.pixelkarte-farbe&STYLES=&SRS=EPSG:2056&BBOX=" + bb.map(function (v) { return v.toFixed(1); }).join(",") +
+      "&WIDTH=" + W + "&HEIGHT=" + H + "&FORMAT=image/jpeg";
+    var g = lines.map(function (l) { return l.length > 1 ? '<polyline points="' + l.map(function (p) { return px(p).join(","); }).join(" ") + '" fill="none" stroke="#fff" stroke-width="6" stroke-linejoin="round"/><polyline points="' + l.map(function (p) { return px(p).join(","); }).join(" ") + '" fill="none" stroke="#b8332a" stroke-width="3" stroke-linejoin="round"/>' : ""; }).join("");
+    var fig = document.createElement("figure"); fig.className = "kmprev";
+    fig.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(tt("km_prevAlt")) + '"><rect width="' + W + '" height="' + H + '" fill="#eef1f3"/><image href="' + esc(url) + '" width="' + W + '" height="' + H + '"/>' + g +
+      '</svg><figcaption>' + esc(tt("km_prevCap").replace("{m}", fmt(total(lines)))) + " · © swisstopo</figcaption>";
+    var im = fig.querySelector("image"); im.addEventListener("error", function () { im.remove(); });
+    return fig;
+  }
+
+  /* Dialog */
+  function open(opt) {   /* opt: { tt, lines, onApply(lines,total), onClose } */
+    var tt = opt.tt, lines = JSON.parse(JSON.stringify(opt.lines || [])), cur = -1, drawing = false, base = "farbe", map, layer, grp, hits = [];
+    var dlg = document.createElement("dialog"); dlg.className = "kmdlg"; dlg.setAttribute("aria-labelledby", "kmTitle");
+    dlg.innerHTML =
+      '<div class="kmhead"><h2 id="kmTitle">' + esc(tt("km_title")) + '</h2><button type="button" class="btn ghost small" data-k="close">' + esc(tt("km_close")) + "</button></div>" +
+      '<form class="kmsearch" role="search"><label for="kmQ">' + esc(tt("km_search")) + '</label><input type="search" id="kmQ" autocomplete="off" placeholder="' + esc(tt("km_searchPh")) + '"><button type="submit" class="btn small">' + esc(tt("km_go")) + "</button></form>" +
+      '<ul class="kmhits" id="kmHits" aria-label="' + esc(tt("km_hits")) + '"></ul>' +
+      '<div class="kmbar" role="group" aria-label="' + esc(tt("km_tools")) + '">' +
+      '<button type="button" class="btn small" data-k="draw" aria-pressed="false">' + esc(tt("km_draw")) + "</button>" +
+      '<button type="button" class="btn ghost small" data-k="center">' + esc(tt("km_center")) + "</button>" +
+      '<button type="button" class="btn ghost small" data-k="end">' + esc(tt("km_end")) + "</button>" +
+      '<button type="button" class="btn ghost small" data-k="undo">' + esc(tt("km_undo")) + "</button>" +
+      '<button type="button" class="btn ghost small del" data-k="clear">' + esc(tt("km_clear")) + "</button>" +
+      '<span class="sp"></span><button type="button" class="btn ghost small" data-k="base" aria-pressed="false">' + esc(tt("km_aerial")) + "</button></div>" +
+      '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div>' +
+      '<p class="hint kmhelp" id="kmHelp"></p>' +
+      '<div class="kmfoot"><p class="kmlen" id="kmLen" role="status" aria-live="polite"></p><button type="button" class="btn" data-k="apply">' + esc(tt("km_apply")) + "</button></div>";
+    document.body.appendChild(dlg);
+    var $ = function (s) { return dlg.querySelector(s); };
+
+    function tiles() {
+      if (layer) map.removeLayer(layer);
+      var id = base === "luft" ? "ch.swisstopo.swissimage" : "ch.swisstopo.pixelkarte-farbe";
+      layer = L.tileLayer(WMTS + id + "/default/current/3857/{z}/{x}/{y}." + (base === "luft" ? "jpeg" : "jpeg"), { maxZoom: 20, maxNativeZoom: base === "luft" ? 19 : 18, attribution: "© swisstopo" }).addTo(map);
+      layer.bringToBack();
+    }
+    function draw() {
+      grp.clearLayers();
+      lines.forEach(function (l, i) {
+        var ll = l.map(function (p) { return toWGS(p[0], p[1]); });
+        if (ll.length > 1) { L.polyline(ll, { color: "#fff", weight: 7, interactive: false }).addTo(grp); L.polyline(ll, { color: "#b8332a", weight: 3.5, interactive: false }).addTo(grp); }
+        ll.forEach(function (q, j) { L.circleMarker(q, { radius: i === cur && j === ll.length - 1 ? 6 : 4, color: "#b8332a", weight: 2, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
+      });
+      var n = lines.filter(function (l) { return l.length > 1; }).length;
+      $("#kmLen").textContent = tt("km_total").replace("{m}", fmt(total(lines))).replace("{n}", n);
+      $('[data-k=draw]').setAttribute("aria-pressed", drawing ? "true" : "false");
+      $('[data-k=draw]').textContent = drawing ? tt("km_drawOn") : tt("km_draw");
+      $('[data-k=end]').disabled = cur < 0; $('[data-k=undo]').disabled = !lines.length; $('[data-k=clear]').disabled = !lines.length;
+      $('[data-k=center]').disabled = !drawing;
+      $("#kmHelp").textContent = drawing ? tt("km_helpOn") : tt("km_helpOff");
+      map.getContainer().style.cursor = drawing ? "crosshair" : "";
+    }
+    function addPt(ll) {
+      if (!drawing) return;
+      if (cur < 0) { lines.push([]); cur = lines.length - 1; }
+      lines[cur].push(toLV95(ll.lat, ll.lng).map(function (v) { return Math.round(v * 100) / 100; })); draw();
+    }
+    function endLine() { if (cur >= 0 && lines[cur].length < 2) lines.splice(cur, 1); cur = -1; draw(); }
+    function undo() {
+      if (cur < 0 && lines.length) cur = lines.length - 1;
+      if (cur >= 0) { lines[cur].pop(); if (!lines[cur].length) { lines.splice(cur, 1); cur = -1; } }
+      draw();
+    }
+    function close() { try { map.remove(); } catch (e) { } dlg.close(); dlg.remove(); if (opt.onClose) opt.onClose(); }
+
+    L.Icon.Default.imagePath = "";
+    map = L.map($("#kmMap"), { center: [46.8, 8.23], zoom: 8, minZoom: 7, maxZoom: 20, doubleClickZoom: false });
+    grp = L.layerGroup().addTo(map); tiles();
+    var all = []; lines.forEach(function (l) { l.forEach(function (p) { all.push(toWGS(p[0], p[1])); }); });
+    if (all.length) map.fitBounds(L.latLngBounds(all).pad(0.3), { maxZoom: 19 });
+    map.on("click", function (e) { addPt(e.latlng); });
+    map.on("dblclick", function () { if (drawing) endLine(); });
+
+    dlg.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-k]"); if (!b) return; var k = b.getAttribute("data-k");
+      if (k === "close") close();
+      else if (k === "draw") { drawing = !drawing; if (!drawing) endLine(); else draw(); }
+      else if (k === "center") addPt(map.getCenter());
+      else if (k === "end") endLine();
+      else if (k === "undo") undo();
+      else if (k === "clear") { if (confirm(tt("km_clearQ"))) { lines = []; cur = -1; draw(); } }
+      else if (k === "base") { base = base === "luft" ? "farbe" : "luft"; b.setAttribute("aria-pressed", base === "luft" ? "true" : "false"); b.textContent = base === "luft" ? tt("km_map") : tt("km_aerial"); tiles(); }
+      else if (k === "apply") { endLine(); opt.onApply(lines, total(lines)); close(); }
+    });
+    dlg.addEventListener("cancel", function (e) { e.preventDefault(); close(); });
+    $(".kmsearch").addEventListener("submit", function (e) {
+      e.preventDefault(); var q = $("#kmQ").value.trim(), ul = $("#kmHits"); if (!q) return;
+      ul.innerHTML = '<li class="kmnote">' + esc(tt("km_searching")) + "</li>";
+      fetch(SEARCH + "?type=locations&limit=8&sr=2056&lang=" + (opt.lang || "de") + "&searchText=" + encodeURIComponent(q))
+        .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+        .then(function (j) {
+          hits = (j.results || []).filter(function (r) { return r.attrs && isFinite(r.attrs.lat) && isFinite(r.attrs.lon); });
+          ul.innerHTML = hits.length ? "" : '<li class="kmnote">' + esc(tt("km_none")) + "</li>";
+          hits.forEach(function (r) {
+            var li = document.createElement("li"), b = document.createElement("button"); b.type = "button"; b.className = "kmhit";
+            b.textContent = String(r.attrs.label || "").replace(/<[^>]*>/g, "");
+            b.addEventListener("click", function () { map.setView([r.attrs.lat, r.attrs.lon], 18); ul.innerHTML = ""; $("#kmMap").focus(); });
+            li.appendChild(b); ul.appendChild(li);
+          });
+        }).catch(function () { ul.innerHTML = '<li class="kmnote err">' + esc(tt("km_searchErr")) + "</li>"; });
+    });
+    dlg.showModal(); map.invalidateSize(); draw(); $("#kmQ").focus();
+  }
+
+  window.KARTE = { open: open, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
+})();
+
+</script>
 <script id="app">
 /* =====================================================================
    LV-Devis Tiefbau – Oberfläche
@@ -4073,7 +4301,7 @@ var FIG = (function () {
   var curShape = function (c) { return kindOf(c) === "KS" ? "rund" : c.shape; };
   var COVERS = Object.keys(LV).filter(function (k) { return k.indexOf("151/632.1") === 0; }).sort();
   var F = {
-    graben: [{ sec: "s_graben" }, { id: "name", t: "text" }, { id: "L", t: "num" }, { id: "T", t: "num" },
+    graben: [{ sec: "s_graben" }, { id: "name", t: "text" }, { id: "L", t: "num" }, { t: "trasse" }, { id: "T", t: "num" },
       { id: "bmode", t: "sel", opts: ["min60", "begangen", "nicht_begangen", "manuell"], struct: 1, hint: "hint_breite" },
       { id: "aussen", t: "num", show: function (c) { return c.bmode === "begangen" || c.bmode === "nicht_begangen"; } },
       { id: "bman", t: "num", show: function (c) { return c.bmode === "manuell"; } },
@@ -4524,6 +4752,33 @@ var FIG = (function () {
   }
   function updateRecLabel() { var e = $("#recName"); if (e && S.tab !== "par") e.textContent = rec().name || ""; }
 
+  /* Kartenmessung Grabenlänge (swisstopo): Trasse im Datensatz, Länge -> Feld L */
+  function trasseEl(cfg) {
+    var w = document.createElement("div"); w.className = "field kmfield";
+    var b = document.createElement("button"); b.type = "button"; b.className = "btn small"; b.id = "kmOpen"; b.textContent = tt("km_btn"); w.appendChild(b);
+    var m = document.createElement("p"); m.className = "hint kmmsg"; m.setAttribute("role", "status"); w.appendChild(m);
+    var tr = cfg.trasse;
+    if (tr && tr.length) {
+      var pv = KARTE.preview(tr, tt); if (pv) w.appendChild(pv);
+      var d = document.createElement("button"); d.type = "button"; d.className = "btn ghost small del"; d.textContent = tt("km_remove");
+      d.addEventListener("click", function () { delete cfg.trasse; save(); renderForm(); var o = $("#kmOpen"); if (o) o.focus(); }); w.appendChild(d);
+    }
+    b.addEventListener("click", function () {
+      m.className = "hint kmmsg";
+      if (navigator.onLine === false) { m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); return; }
+      m.textContent = tt("km_loading"); b.disabled = true;
+      KARTE.load().then(function () {
+        b.disabled = false; m.textContent = "";
+        KARTE.open({ tt: tt, lang: S.lang, lines: cfg.trasse || [], onClose: function () { var o = $("#kmOpen"); if (o) o.focus(); },
+          onApply: function (lines, tot) {
+            lines = lines.filter(function (l) { return l.length > 1; });
+            if (lines.length) { cfg.trasse = lines; cfg.L = String(Math.round(tot * 10) / 10); } else delete cfg.trasse;
+            save(); renderForm(); scheduleResult(); }
+        });
+      }).catch(function () { b.disabled = false; m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); });
+    });
+    return w;
+  }
   function renderForm() {
     var host = $("#form"); host.innerHTML = "";
     var h = document.createElement("h2"); h.innerHTML = '<span class="num">1</span>' + esc(tt("ht_" + S.tab)); host.appendChild(h);
@@ -4542,6 +4797,7 @@ var FIG = (function () {
       var tgt = body;
       if (f.half) { if (!halfBox) { halfBox = document.createElement("div"); halfBox.className = "row2"; body.appendChild(halfBox); } tgt = halfBox; } else halfBox = null;
       if (f.sec) { var h4 = document.createElement("h3"); h4.className = "sec"; h4.textContent = tt(f.sec); body.appendChild(h4); return; }
+      if (f.t === "trasse") { tgt.appendChild(trasseEl(cfg)); return; }
       if (f.t === "blockList") { tgt.appendChild(blockListEl(cfg)); return; }
       if (f.t === "abzwList") { tgt.appendChild(abzwListEl(cfg)); return; }
       if (f.t === "opts") { tgt.appendChild(optsEl(cfg)); return; }

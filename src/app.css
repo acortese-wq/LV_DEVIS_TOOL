@@ -197,3 +197,31 @@ svg text.warnTx{fill:var(--signal)!important}
 .zubrow{display:flex!important;flex-wrap:nowrap!important;gap:9px}
 .zubrow input{flex:0 0 18px;margin-top:2px}
 .zubrow span{flex:1}
+
+/* Kartenmessung swisstopo */
+.kmfield{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.kmprev{margin:4px 0 0;max-width:360px}
+.kmprev svg{width:100%;height:auto;display:block;border:1px solid var(--rule-strong);border-radius:8px}
+.kmprev figcaption{font-size:12px;color:var(--ink-soft);margin-top:3px}
+.kmdlg{width:min(980px,96vw);max-height:96vh;padding:0;border:1px solid var(--rule-strong);border-radius:10px;color:var(--ink);background:var(--paper)}
+.kmdlg[open]{display:flex;flex-direction:column;gap:8px;padding:12px 14px}
+.kmdlg::backdrop{background:rgba(16,32,43,.55)}
+.kmhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.kmhead h2{margin:0;font-size:18px;color:var(--navy)}
+.kmsearch{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.kmsearch label{font-weight:600;font-size:13px;flex:0 0 100%}
+.kmsearch input{flex:1 1 200px;min-width:0;padding:8px 10px;border:1px solid var(--rule-strong);border-radius:6px;font:inherit}
+.kmhits{list-style:none;margin:0;padding:0;max-height:140px;overflow:auto}
+.kmhits:empty{display:none}
+.kmhit{display:block;width:100%;text-align:left;background:#fff;border:0;border-bottom:1px solid var(--rule);padding:8px 10px;font:inherit;color:var(--ink);cursor:pointer}
+.kmhit:hover{background:var(--panel)}
+.kmhit:focus-visible,.kmmap:focus-visible,.kmsearch input:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.kmnote{padding:6px 10px;font-size:13px;color:var(--ink-soft)}.kmnote.err{color:var(--signal)}
+.kmbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.kmbar .sp{flex:1}
+.kmbar [aria-pressed=true]:not(.ghost),.kmbar .ghost[aria-pressed=true]{background:var(--navy);color:#fff}
+.kmmap{height:min(52vh,480px);min-height:260px;border:1px solid var(--rule-strong);border-radius:8px}
+.kmhelp{margin:0}
+.kmfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.kmlen{margin:0;font-weight:700;color:var(--navy);font-size:16px}
+.leaflet-container a{color:#00397a}
+@media print{.kmdlg,.kmfield .btn,.kmmsg{display:none!important}}

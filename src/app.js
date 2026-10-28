@@ -86,7 +86,7 @@
   var curShape = function (c) { return kindOf(c) === "KS" ? "rund" : c.shape; };
   var COVERS = Object.keys(LV).filter(function (k) { return k.indexOf("151/632.1") === 0; }).sort();
   var F = {
-    graben: [{ sec: "s_graben" }, { id: "name", t: "text" }, { id: "L", t: "num" }, { id: "T", t: "num" },
+    graben: [{ sec: "s_graben" }, { id: "name", t: "text" }, { id: "L", t: "num" }, { t: "trasse" }, { id: "T", t: "num" },
       { id: "bmode", t: "sel", opts: ["min60", "begangen", "nicht_begangen", "manuell"], struct: 1, hint: "hint_breite" },
       { id: "aussen", t: "num", show: function (c) { return c.bmode === "begangen" || c.bmode === "nicht_begangen"; } },
       { id: "bman", t: "num", show: function (c) { return c.bmode === "manuell"; } },
@@ -537,6 +537,33 @@
   }
   function updateRecLabel() { var e = $("#recName"); if (e && S.tab !== "par") e.textContent = rec().name || ""; }
 
+  /* Kartenmessung Grabenlänge (swisstopo): Trasse im Datensatz, Länge -> Feld L */
+  function trasseEl(cfg) {
+    var w = document.createElement("div"); w.className = "field kmfield";
+    var b = document.createElement("button"); b.type = "button"; b.className = "btn small"; b.id = "kmOpen"; b.textContent = tt("km_btn"); w.appendChild(b);
+    var m = document.createElement("p"); m.className = "hint kmmsg"; m.setAttribute("role", "status"); w.appendChild(m);
+    var tr = cfg.trasse;
+    if (tr && tr.length) {
+      var pv = KARTE.preview(tr, tt); if (pv) w.appendChild(pv);
+      var d = document.createElement("button"); d.type = "button"; d.className = "btn ghost small del"; d.textContent = tt("km_remove");
+      d.addEventListener("click", function () { delete cfg.trasse; save(); renderForm(); var o = $("#kmOpen"); if (o) o.focus(); }); w.appendChild(d);
+    }
+    b.addEventListener("click", function () {
+      m.className = "hint kmmsg";
+      if (navigator.onLine === false) { m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); return; }
+      m.textContent = tt("km_loading"); b.disabled = true;
+      KARTE.load().then(function () {
+        b.disabled = false; m.textContent = "";
+        KARTE.open({ tt: tt, lang: S.lang, lines: cfg.trasse || [], onClose: function () { var o = $("#kmOpen"); if (o) o.focus(); },
+          onApply: function (lines, tot) {
+            lines = lines.filter(function (l) { return l.length > 1; });
+            if (lines.length) { cfg.trasse = lines; cfg.L = String(Math.round(tot * 10) / 10); } else delete cfg.trasse;
+            save(); renderForm(); scheduleResult(); }
+        });
+      }).catch(function () { b.disabled = false; m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); });
+    });
+    return w;
+  }
   function renderForm() {
     var host = $("#form"); host.innerHTML = "";
     var h = document.createElement("h2"); h.innerHTML = '<span class="num">1</span>' + esc(tt("ht_" + S.tab)); host.appendChild(h);
@@ -555,6 +582,7 @@
       var tgt = body;
       if (f.half) { if (!halfBox) { halfBox = document.createElement("div"); halfBox.className = "row2"; body.appendChild(halfBox); } tgt = halfBox; } else halfBox = null;
       if (f.sec) { var h4 = document.createElement("h3"); h4.className = "sec"; h4.textContent = tt(f.sec); body.appendChild(h4); return; }
+      if (f.t === "trasse") { tgt.appendChild(trasseEl(cfg)); return; }
       if (f.t === "blockList") { tgt.appendChild(blockListEl(cfg)); return; }
       if (f.t === "abzwList") { tgt.appendChild(abzwListEl(cfg)); return; }
       if (f.t === "opts") { tgt.appendChild(optsEl(cfg)); return; }
