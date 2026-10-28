@@ -15,7 +15,7 @@
   var fill = function (s, a) { return String(s).replace(/\{(\w+)\}/g, function (m, k) { return a && a[k] != null ? (typeof a[k] === "number" ? String(r2(a[k])) : a[k]) : m; }); };
   var today = function () { var d = new Date(); return ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." + d.getFullYear(); };
   var KEY = "lv-devis-tiefbau-v2";
-  var LVTABS = KVE.TABS, TABS = LVTABS.concat(["hon"]), ALLTABS = TABS.concat(["par"]);
+  var LVTABS = KVE.TABS, TABS = LVTABS.concat(["hon"]), ALLTABS = TABS.concat(["plan", "par"]);
 
   /* Positionstexte je Sprache (FR aus LV FR, IT sobald hinterlegt) */
   window.lvT = function (k) { var m = S && S.lang === "fr" ? LV_FR : S && S.lang === "it" ? LV_IT : null; return m && m[k] && m[k].t ? m[k].t : (LV[k] ? LV[k].t : k); };
@@ -36,7 +36,8 @@
       var nr = newRec(t, 1); S.recs[t].forEach(function (r) { deepFill(r, nr); });
       if (!(S.idx[t] >= 0 && S.idx[t] < S.recs[t].length)) S.idx[t] = 0;
     });
-    if (!S.karte || !Array.isArray(S.karte.lines)) S.karte = { lines: [], pts: [] }; if (!Array.isArray(S.karte.pts)) S.karte.pts = [];
+    if (!S.karte || !Array.isArray(S.karte.lines)) S.karte = { lines: [], pts: [], sond: [] }; if (!Array.isArray(S.karte.pts)) S.karte.pts = []; if (!Array.isArray(S.karte.sond)) S.karte.sond = [];
+    if (!S.plan || !Array.isArray(S.plan.lines)) S.plan = { img: "", w: 0, h: 0, cal: {}, lines: [], pts: [], sond: [] }; if (!Array.isArray(S.plan.pts)) S.plan.pts = []; if (!Array.isArray(S.plan.sond)) S.plan.sond = []; if (!S.plan.cal) S.plan.cal = {};
     if (ALLTABS.indexOf(S.tab) < 0) S.tab = "graben";
   }
   try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
@@ -513,7 +514,7 @@
 
   function figHtml() {
     if (S.tab === "hon") return honFig(rec());
-    if (S.tab === "par") return "";
+    if (S.tab === "par" || S.tab === "plan") return "";
     return FIG.html(S.tab, rec(), S, tt);
   }
   function honFig(r) {
@@ -533,10 +534,10 @@
     if (out) out.elems.forEach(function (e) { if (e.lines.length) cnt[e.tab] = (cnt[e.tab] || 0) + 1; });
     TABS.forEach(function (t) { if (t === "hon") cnt.hon = S.recs.hon.filter(function (r) { return honCalc(r, out ? out.sum.netto : 0).ok; }).length; });
     $("#tabs").innerHTML = ALLTABS.map(function (t) {
-      return '<button type="button" role="tab" data-tab="' + t + '"' + (S.tab === t ? ' id="tabCur"' : "") + ' aria-controls="formwrap" tabindex="' + (S.tab === t ? "0" : "-1") + '" class="tab' + (S.tab === t ? " on" : "") + (t === "hon" || t === "par" ? " sep" : "") + '" aria-selected="' + (S.tab === t) + '">' + esc(tt("tab_" + t)) + (cnt[t] ? '<span class="cnt">' + cnt[t] + "</span>" : "") + "</button>";
+      return '<button type="button" role="tab" data-tab="' + t + '"' + (S.tab === t ? ' id="tabCur"' : "") + ' aria-controls="formwrap" tabindex="' + (S.tab === t ? "0" : "-1") + '" class="tab' + (S.tab === t ? " on" : "") + (t === "hon" || t === "plan" || t === "par" ? " sep" : "") + '" aria-selected="' + (S.tab === t) + '">' + esc(tt("tab_" + t)) + (cnt[t] ? '<span class="cnt">' + cnt[t] + "</span>" : "") + "</button>";
     }).join("");
   }
-  function updateRecLabel() { var e = $("#recName"); if (e && S.tab !== "par") e.textContent = rec().name || ""; }
+  function updateRecLabel() { var e = $("#recName"); if (e && S.tab !== "par" && S.tab !== "plan") e.textContent = rec().name || ""; }
 
   /* Karte (swisstopo): Linien = Rohranlage je Graben-Datensatz, Punkte = Schacht-Datensätze; Verknüpfung über rec.uid */
   var newUid = function () { return "r" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); };
@@ -550,17 +551,21 @@
       sys: ["k55", "laengs", "block"].map(function (v) { return [v, optLabel("rohrSystem", v)]; }),
       dn: ["55", "100", "120", "150"].map(function (v) { return [v, "DN " + v]; }), len: ["5", "10"].map(function (v) { return [v, v + " m"]; }) };
   }
-  function karteApply(M, cfg) {
-    var K = S.karte, st = { g: 0, gn: 0, s: 0, sn: 0 }, used = {};
+  function snapState() { return JSON.stringify({ recs: S.recs, idx: S.idx, karte: S.karte, plan: S.plan, sond: S.sond }); }
+  function restoreState(j) { var o = JSON.parse(j); S.recs = o.recs; S.idx = o.idx; S.karte = o.karte; S.plan = o.plan; S.sond = o.sond; save(); renderForm(); renderResult(); }
+  function undoToast(msg, sn) { KARTE.toast(document.body, msg, tt("km_undoBtn"), function () { restoreState(sn); }); }
+  function karteApply(M, cfg, lenFn) {
+    var st = { g: 0, gn: 0, s: 0, sn: 0, o: 0 }, used = {}, G = S.recs.graben;
     M.lines = M.lines.filter(function (l) { return l.pts.length > 1; });
     M.lines.forEach(function (l) {
       var r = recByUid("graben", l.rid);
       if (!r) {
         if (S.tab === "graben" && !used[ensureUid(cfg)] && !M.lines.some(function (x) { return x !== l && x.rid === cfg.uid; })) r = cfg;
-        else { r = JSON.parse(JSON.stringify(S.tab === "graben" ? cfg : newRec("graben", 1))); delete r.uid; r.x = {}; r.free = []; r.name = tt("tab_graben") + " " + (S.recs.graben.length + 1); S.recs.graben.push(r); st.gn++; }
+        else if (G.length === 1 && pristine("graben", G[0]) && !used[ensureUid(G[0])]) r = G[0];
+        else { r = JSON.parse(JSON.stringify(S.tab === "graben" ? cfg : newRec("graben", 1))); delete r.uid; r.x = {}; r.free = []; r.name = tt("tab_graben") + " " + (G.length + 1); G.push(r); st.gn++; }
       }
       used[ensureUid(r)] = 1; l.rid = r.uid; st.g++;
-      r.L = round1(lineLen(l.pts)); r.rohrSystem = l.rohr.sys;
+      r.L = round1(lenFn(l.pts)); r.rohrSystem = l.rohr.sys;
       if (l.rohr.sys !== "block") { r.dn = l.rohr.dn; r.len = l.rohr.len; r.n = String(l.rohr.n || "1"); }
     });
     M.pts.forEach(function (p) {
@@ -572,7 +577,12 @@
       }
       used[ensureUid(r)] = 1; p.sid = r.uid; st.s++; r.typ = p.typ; if (p.name) r.name = p.name;
     });
-    S.karte = { lines: M.lines, pts: M.pts }; return st;
+    st.o = (M.sond || []).length; return st;
+  }
+  /* Sondagen (Karte + Plan) -> Sondieraushub m³ im Reiter Allgemein (nur wenn Sondagen vorhanden) */
+  function sondSync() {
+    var all = (S.karte.sond || []).concat(S.plan.sond || []); if (!all.length) return;
+    S.sond.m3 = String(Math.round(all.reduce(function (a, o) { return a + num(o.l, 0) * num(o.b, 0) * num(o.t, 0); }, 0) * 100) / 100);
   }
   function lineLen(pts) { return KARTE.total([pts]); }
   function trasseEl(cfg) {
@@ -593,27 +603,111 @@
           var u0 = ensureUid(cfg); cfg.trasse.forEach(function (pts, i) { S.karte.lines.push({ id: "m" + i + u0, pts: pts, rid: i === 0 ? u0 : null, rohr: { sys: cfg.rohrSystem, dn: cfg.dn, len: cfg.len, n: cfg.n } }); }); delete cfg.trasse;
         }
         var g = tab === "graben";
-        KARTE.open({ tt: tt, lang: S.lang, cat: karteCat(), model: JSON.parse(JSON.stringify(S.karte)),
+        KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), model: JSON.parse(JSON.stringify(S.karte)),
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : cfg.typ,
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id); },
           onClose: function () { var o = $("#kmOpen"); if (o) o.focus(); },
-          onApply: function (M) { var st = karteApply(M, cfg); save(); renderForm(); scheduleResult();
-            var mm = $("#kmOpen") && $("#kmOpen").parentNode.querySelector(".kmmsg"); if (mm) mm.textContent = fill(tt("km_done"), st); }
+          onApply: function (M, cal, lenFn) { var sn = snapState(), st = karteApply(M, cfg, lenFn); S.karte = { lines: M.lines, pts: M.pts, sond: M.sond }; sondSync(); save(); renderForm(); scheduleResult(); undoToast(fill(tt("km_done"), st), sn); }
         });
       }).catch(function () { b.disabled = false; m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); });
     });
     return w;
   }
+  /* Pflichtangaben je Datensatz */
+  function reqInfo(tab, c) {
+    var ch = [["f_name", String(c.name || "").trim() !== ""]];
+    if (tab === "graben") ch.push(["f_L", num(c.L, 0) > 0], ["f_T", num(c.T, 0) > 0], ["f_n", c.rohrSystem === "block" || num(c.n, 0) > 0]);
+    else if (tab === "schacht") ch.push(["f_typ", !!c.typ]);
+    else if (tab === "werkloch") ch.push(["f_ts", ["ts", "bo", "sg", "zs"].some(function (k) { return num(c[k], 0) > 0; })]);
+    else if (tab === "fund") ch.push(["f_vk", !!(c.vk || c.kvs)]);
+    else if (tab === "geb") ch.push(["f_n", num(c.n, 0) > 0]);
+    else if (tab === "belag" && c.indiv) ch.push(["f_B", num(c.B, 0) > 0], ["f_Lbel", num(c.L, 0) > 0]);
+    var miss = ch.filter(function (x) { return !x[1]; }).map(function (x) { return tt(x[0]).replace(/ \[.*\]/, ""); });
+    return { tot: ch.length, ok: ch.length - miss.length, miss: miss };
+  }
+  function reqEl(tab, c) {
+    var p = document.createElement("p"); if (tab === "hon" || tab === "allg") return p;
+    var r = reqInfo(tab, c); p.className = "reqline " + (r.miss.length ? "open" : "ok");
+    p.textContent = r.miss.length ? fill(tt("ux_reqOpen"), { a: r.ok, b: r.tot }) + " – " + tt("ux_reqMiss") + " " + r.miss.join(", ") : "✓ " + tt("ux_reqOk");
+    return p;
+  }
+  var recListOpen = false;
+  function recListEl(list, cur) {
+    var d = document.createElement("details"); d.className = "reclist"; if (list.length < 2) { d.hidden = true; return d; } d.open = recListOpen;
+    d.addEventListener("toggle", function () { recListOpen = d.open; });
+    d.innerHTML = "<summary>" + esc(tt("ux_recAll")) + " (" + list.length + ')</summary><input type="search" class="recq" aria-label="' + esc(tt("ux_recSearch")) + '" placeholder="' + esc(tt("ux_recSearch")) + '"><ul class="recul"></ul>';
+    var ul = d.querySelector("ul"), q = d.querySelector("input");
+    function fillList() {
+      var f = q.value.trim().toLowerCase(); ul.innerHTML = "";
+      list.forEach(function (r, i) {
+        if (f && String(r.name || "").toLowerCase().indexOf(f) < 0) return;
+        var ok = !reqInfo(S.tab, r).miss.length, li = document.createElement("li");
+        li.innerHTML = '<button type="button" data-recgo="' + i + '"' + (i === cur ? ' aria-current="true"' : "") + ">" + (i + 1) + ". " + esc(r.name || "–") + ' <span class="' + (ok ? "ok" : "open") + '">' + (ok ? "✓" : "⚠ " + esc(tt("ux_reqShort"))) + "</span></button>";
+        ul.appendChild(li);
+      });
+      if (!ul.children.length) ul.innerHTML = '<li class="kmnote">' + esc(tt("km_none")) + "</li>";
+    }
+    q.addEventListener("input", fillList); fillList(); return d;
+  }
+
+  /* Reiter Plan: PDF/Bild einsetzen, kalibrieren, Linien/Schächte/Sondagen setzen */
+  var planSrc = null;
+  function planEl() {
+    var w = document.createElement("div"); w.className = "elbody formbody planbox"; var P = S.plan;
+    var h = document.createElement("p"); h.className = "hint"; h.textContent = tt("pl_intro"); w.appendChild(h);
+    var f = document.createElement("div"); f.className = "field";
+    f.innerHTML = '<label for="plFile">' + esc(tt("pl_file")) + '</label><input type="file" id="plFile" accept=".pdf,application/pdf,image/*">';
+    var msg = document.createElement("p"); msg.className = "hint kmmsg"; msg.setAttribute("role", "status"); f.appendChild(msg); w.appendChild(f);
+    var pg = document.createElement("div"); pg.className = "field"; pg.hidden = true; w.appendChild(pg);
+    function setPlan(r) {
+      var sn = snapState(); S.plan = { img: r.img, w: r.w, h: r.h, cal: {}, lines: [], pts: [], sond: [] }; sondSync(); save(); renderForm(); undoToast(tt("pl_loaded"), sn);
+    }
+    f.querySelector("input").addEventListener("change", function (e) {
+      var file = e.target.files[0]; if (!file) return; msg.className = "hint kmmsg"; msg.textContent = tt("pl_reading"); planSrc = null;
+      KARTE.planSource(file).then(function (src) {
+        planSrc = src; msg.textContent = "";
+        if (src.pages > 1) {
+          pg.hidden = false; pg.innerHTML = '<label for="plPage">' + esc(tt("pl_page")) + '</label><select id="plPage">' + Array.apply(null, Array(src.pages)).map(function (_, i) { return '<option value="' + (i + 1) + '">' + (i + 1) + " / " + src.pages + "</option>"; }).join("") + '</select> <button type="button" class="btn small" id="plPageGo">' + esc(tt("pl_pageGo")) + "</button>";
+          pg.querySelector("button").addEventListener("click", function () { msg.textContent = tt("pl_reading"); src.render(+pg.querySelector("select").value).then(setPlan).catch(function () { msg.className = "hint kmmsg reqmsg"; msg.textContent = tt("pl_err"); }); });
+        } else src.render(1).then(setPlan);
+      }).catch(function () { msg.className = "hint kmmsg reqmsg"; msg.textContent = tt("pl_err"); });
+    });
+    if (P.img) {
+      var c = P.cal && P.cal.scale, st = document.createElement("p"); st.className = "reqline " + (c ? "ok" : "open");
+      st.textContent = (c ? "✓ " + fill(tt("pl_calOk"), { m: KARTE.fmt(P.cal.m), s: Math.round(P.cal.scale * 1000) / 1000 }) : "⚠ " + tt("pl_calNo")) + " · " + fill(tt("km_total"), { m: KARTE.fmt(P.lines.reduce(function (a, l) { return a + (c ? KARTE.total([l.pts]) * P.cal.scale : 0); }, 0)), n: P.lines.length, s: P.pts.length, o: P.sond.length });
+      w.appendChild(st);
+      var pv = KARTE.planPreview(P, tt); if (pv) w.appendChild(pv);
+      var bt = document.createElement("div"); bt.className = "toolrow";
+      bt.innerHTML = '<button type="button" class="btn" id="plOpen">' + esc(tt("pl_open")) + '</button><button type="button" class="btn ghost small del" id="plDel">' + esc(tt("pl_remove")) + "</button>";
+      w.appendChild(bt);
+      bt.querySelector("#plDel").addEventListener("click", function () { var sn = snapState(); S.plan = { img: "", w: 0, h: 0, cal: {}, lines: [], pts: [], sond: [] }; sondSync(); save(); renderForm(); undoToast(tt("pl_removed"), sn); });
+      bt.querySelector("#plOpen").addEventListener("click", function () {
+        msg.className = "hint kmmsg"; msg.textContent = tt("km_loading");
+        KARTE.load().then(function () {
+          msg.textContent = "";
+          KARTE.open({ kind: "plan", tt: tt, lang: S.lang, cat: karteCat(), plan: { img: P.img, w: P.w, h: P.h, cal: P.cal }, model: { lines: JSON.parse(JSON.stringify(P.lines)), pts: JSON.parse(JSON.stringify(P.pts)), sond: JSON.parse(JSON.stringify(P.sond)) },
+            defRohr: { sys: "k55", dn: "55", len: "10", n: "1" }, defTyp: "KES150", recName: function (id) { return recName("graben")(id) || recName("schacht")(id); },
+            onClose: function () { var o = $("#plOpen"); if (o) o.focus(); },
+            onApply: function (M, cal, lenFn) { var sn = snapState(), st2 = karteApply(M, null, lenFn); S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; sondSync(); save(); renderForm(); renderResult(); undoToast(fill(tt("km_done"), st2), sn); }
+          });
+        }).catch(function () { msg.className = "hint kmmsg reqmsg"; msg.textContent = tt("km_offline"); });
+      });
+    }
+    return w;
+  }
   function renderForm() {
     var host = $("#form"); host.innerHTML = "";
     var h = document.createElement("h2"); h.innerHTML = '<span class="num">1</span>' + esc(tt("ht_" + S.tab)); host.appendChild(h);
+    $("#main").classList.toggle("planmode", S.tab === "plan");
     if (S.tab === "par") { host.appendChild(parEl()); renderTabs(); return; }
+    if (S.tab === "plan") { host.appendChild(planEl()); renderTabs(); return; }
     var list = S.recs[S.tab], i = S.idx[S.tab], cfg = rec();
     var nav = document.createElement("div"); nav.className = "recnav";
     nav.innerHTML = '<button type="button" class="btn ghost small" data-rec="prev" aria-label="' + esc(tt("ux_prev")) + '" title="' + esc(tt("ux_prev")) + '"' + (i <= 0 ? " disabled" : "") + '>◀</button><span class="recpos">' + esc(tt("rec")) + " <b>" + (i + 1) + "</b> " + esc(tt("of")) + " " + list.length +
       '<br><span class="ctx" id="recName">' + esc(cfg.name) + '</span></span><button type="button" class="btn ghost small" data-rec="next" aria-label="' + esc(tt("ux_next")) + '" title="' + esc(tt("ux_next")) + '"' + (i >= list.length - 1 ? " disabled" : "") + ">▶</button>" +
       '<span class="sp"></span><button type="button" class="btn small" data-rec="new">' + esc(tt("recNew")) + '</button><button type="button" class="btn ghost small" data-rec="dup">' + esc(tt("recDup")) + '</button><button type="button" class="btn ghost small del" data-rec="del">' + esc(tt("recDel")) + "</button>";
     host.appendChild(nav);
+    host.appendChild(recListEl(list, i)); host.appendChild(reqEl(S.tab, cfg));
     var fig = document.createElement("figure"); fig.className = "fig"; fig.innerHTML = '<div id="figsvg"></div>'; host.appendChild(fig);
     var body = document.createElement("div"); body.className = "elbody formbody";
     var halfBox = null;
@@ -640,6 +734,8 @@
       tgt.appendChild(fieldEl(f.glob ? S : cfg, f));
     });
     host.appendChild(body);
+    var ni = ALLTABS.indexOf(S.tab) + 1;
+    if (ni < ALLTABS.length) { var nx = document.createElement("div"); nx.className = "nextrow"; nx.innerHTML = '<button type="button" class="btn" data-nexttab="' + ALLTABS[ni] + '">' + esc(fill(tt("ux_nextTab"), { t: tt("tab_" + ALLTABS[ni]) })) + "</button>"; host.appendChild(nx); }
     if (S.tab !== "hon") { var xb = xBlockEl(cfg); if (xb) host.appendChild(xb); host.appendChild(freeEl(cfg)); }
     refreshFig(); if (S.tab === "hon") refreshHon();
     renderTabs();
@@ -974,13 +1070,15 @@
     });
     $("#tabs").addEventListener("click", function (ev) { var b = ev.target.closest("[data-tab]"); if (!b) return; S.tab = b.dataset.tab; save(); renderForm(); renderResult(); });
     $("#form").addEventListener("click", function (ev) {
-      var b = ev.target.closest("[data-rec]"); if (!b) return; var a = b.dataset.rec, L = S.recs[S.tab];
+      var nt = ev.target.closest("[data-nexttab]"); if (nt) { S.tab = nt.dataset.nexttab; save(); renderForm(); renderResult(); window.scrollTo({ top: $("#tabs").offsetTop - 8 }); return; }
+      var rg = ev.target.closest("[data-recgo]"); if (rg) { S.idx[S.tab] = +rg.dataset.recgo; save(); renderForm(); renderResult(); return; }
+      var b = ev.target.closest("[data-rec]"); if (!b) return; var a = b.dataset.rec, L = S.recs[S.tab], undoSn = null;
       if (a === "prev") S.idx[S.tab] = Math.max(0, S.idx[S.tab] - 1);
       else if (a === "next") S.idx[S.tab] = Math.min(L.length - 1, S.idx[S.tab] + 1);
       else if (a === "new") { L.push(newRec(S.tab, L.length + 1)); S.idx[S.tab] = L.length - 1; }
       else if (a === "dup") { var c = JSON.parse(JSON.stringify(rec())); c.name = (c.name || "") + " (2)"; delete c.uid; L.splice(S.idx[S.tab] + 1, 0, c); S.idx[S.tab]++; }
-      else if (a === "del") { if (!confirm(tt("confirmDel"))) return; L.splice(S.idx[S.tab], 1); if (!L.length) L.push(newRec(S.tab, 1)); S.idx[S.tab] = Math.min(S.idx[S.tab], L.length - 1); }
-      save(); renderForm(); renderResult();
+      else if (a === "del") { undoSn = snapState(); L.splice(S.idx[S.tab], 1); if (!L.length) L.push(newRec(S.tab, 1)); S.idx[S.tab] = Math.min(S.idx[S.tab], L.length - 1); }
+      save(); renderForm(); renderResult(); if (undoSn) undoToast(tt("ux_recDeleted"), undoSn);
     });
     $("#result").addEventListener("click", function (ev) {
       var g = ev.target.closest("[data-go]"); if (g) { ev.preventDefault(); var p = g.dataset.go.split(":"); S.tab = p[0]; S.idx[p[0]] = +p[1]; save(); renderForm(); renderResult(); window.scrollTo({ top: $("#tabs").offsetTop - 8, behavior: "smooth" }); return; }

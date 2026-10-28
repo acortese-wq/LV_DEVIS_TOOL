@@ -237,3 +237,27 @@ svg text.warnTx{fill:var(--signal)!important}
 .kmbtn{display:flex;gap:6px;margin-left:auto}
 .kmsch span{display:flex;width:26px;height:26px;align-items:center;justify-content:center;background:var(--navy);color:#fff;border:2px solid #fff;border-radius:4px;font:700 12px "Segoe UI",sans-serif;box-shadow:0 0 0 1px var(--navy)}
 .kmsch.on span{background:#b8332a;box-shadow:0 0 0 1px #b8332a}
+
+/* Plan-Reiter, Toast, Datensatzliste, Pflichtangaben */
+.cols.planmode{grid-template-columns:minmax(0,1fr)}.planmode .result{display:none}
+.planbox .kmprev{max-width:none}
+.kmtoast{position:fixed;left:16px;bottom:16px;z-index:300;display:flex;align-items:center;gap:12px;max-width:min(560px,calc(100vw - 32px));padding:10px 14px;background:var(--ink);color:#fff;border-radius:9px;box-shadow:0 4px 16px rgba(0,0,0,.3);font-size:13.5px}
+.kmtoast .btn{background:#fff;color:var(--navy);border-color:#fff}
+@media (max-width:900px){.kmtoast{bottom:80px}}
+.reqline{margin:0 0 10px;font-size:12.5px;font-weight:650}.reqline.ok{color:var(--ok)}.reqline.open{color:var(--amber)}
+.reqline:empty{display:none}
+.nextrow{margin-top:16px;display:flex;justify-content:flex-end}
+.reclist{margin:0 0 10px;border:1px solid var(--rule);border-radius:9px;background:#fff}
+.reclist summary{padding:9px 12px;cursor:pointer;font-size:13px;font-weight:600}
+.reclist .recq{display:block;width:calc(100% - 24px);margin:0 12px 8px;padding:7px 9px;border:1px solid var(--rule-strong);border-radius:6px;font:inherit;font-size:13px}
+.recul{list-style:none;margin:0;padding:0 0 6px;max-height:220px;overflow:auto}
+.recul button{display:flex;justify-content:space-between;gap:8px;width:100%;text-align:left;border:0;background:#fff;padding:8px 12px;font:inherit;font-size:13px;color:var(--ink);cursor:pointer;min-height:40px}
+.recul button:hover{background:var(--panel)}.recul button[aria-current=true]{background:#eef3fd;font-weight:650}
+.recul .ok{color:var(--ok)}.recul .open{color:var(--amber);font-weight:650}
+.kmintro{border:1px solid #cfe0fb;background:#eef4fd;border-radius:8px;font-size:13px}
+.kmintro summary{padding:8px 12px;cursor:pointer;font-weight:650;color:var(--navy)}.kmintro ol{margin:0;padding:0 14px 8px 30px}
+.kmcalf{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.kmcalf[hidden]{display:none}.kmcalf input{width:110px;padding:7px 9px;border:1px solid var(--rule-strong);border-radius:6px;font:inherit}
+.kmsond span{display:flex;width:26px;height:26px;align-items:center;justify-content:center;background:#8a5b00;color:#fff;border:2px solid #fff;border-radius:50%;font:700 11px "Segoe UI",sans-serif;box-shadow:0 0 0 1px #8a5b00}
+.kmsond.on span{background:#b8332a;box-shadow:0 0 0 1px #b8332a}
+.kmc .kmw{width:150px}
+@media print{.kmtoast,.reclist,.nextrow{display:none!important}}

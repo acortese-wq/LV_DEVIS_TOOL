@@ -62,33 +62,106 @@
     return fig;
   }
 
-  /* Dialog: Linien (Rohranlage je Linie) und Schächte (Punkte) auf der swisstopo-Karte
-     opt: { tt, lang, model:{lines:[{id,pts,rid,rohr:{sys,dn,len,n}}],pts:[{id,pt,sid,typ,name}]}, cat, defRohr, defTyp, recName(rid), onApply(model), onClose } */
+  /* Toast mit «Rückgängig» (host: Dialog oder body, damit er über dem Dialog sichtbar bleibt) */
+  var toastT;
+  function toast(host, msg, undoLabel, undo) {
+    var old = host.querySelector(".kmtoast"); if (old) old.remove(); clearTimeout(toastT);
+    var t = document.createElement("div"); t.className = "kmtoast"; t.setAttribute("role", "status");
+    var sp = document.createElement("span"); sp.textContent = msg; t.appendChild(sp);
+    if (undo) { var b = document.createElement("button"); b.type = "button"; b.className = "btn small"; b.textContent = undoLabel; b.addEventListener("click", function () { t.remove(); undo(); }); t.appendChild(b); }
+    host.appendChild(t); toastT = setTimeout(function () { t.remove(); }, 9000);
+  }
+
+  /* Plan (PDF/Bild) -> JPEG; pdf.js wird bei Bedarf von cdnjs geladen */
+  var PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js", PDFW = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js", pdfLoading = null;
+  function loadPdfJs() {
+    if (window.pdfjsLib) return Promise.resolve();
+    if (pdfLoading) return pdfLoading;
+    pdfLoading = new Promise(function (ok, no) {
+      var s = document.createElement("script"); s.src = PDFJS; s.crossOrigin = "anonymous";
+      s.onload = function () {
+        fetch(PDFW).then(function (r) { return r.blob(); }).then(function (bl) { window.pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(bl); ok(); }).catch(function (e) { pdfLoading = null; no(e); });
+      };
+      s.onerror = function () { pdfLoading = null; no(new Error("pdfjs")); }; document.head.appendChild(s);
+    });
+    return pdfLoading;
+  }
+  var MAXPX = 2200;
+  function canvasOut(src, w, h) {
+    var k = Math.min(1, MAXPX / Math.max(w, h)), c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+    var x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(src, 0, 0, c.width, c.height);
+    return { img: c.toDataURL("image/jpeg", 0.82), w: c.width, h: c.height };
+  }
+  /* file -> Promise<{pages, render(n)->Promise<{img,w,h}>}> */
+  function planSource(file) {
+    if (/\.pdf$/i.test(file.name) || file.type === "application/pdf") {
+      return loadPdfJs().then(function () { return file.arrayBuffer(); }).then(function (buf) { return window.pdfjsLib.getDocument({ data: buf }).promise; }).then(function (doc) {
+        return { pages: doc.numPages, render: function (n) {
+          return doc.getPage(n).then(function (pg) {
+            var v1 = pg.getViewport({ scale: 1 }), sc = MAXPX / Math.max(v1.width, v1.height), vp = pg.getViewport({ scale: sc }), c = document.createElement("canvas"); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+            return pg.render({ canvasContext: c.getContext("2d"), viewport: vp, background: "#fff" }).promise.then(function () { return { img: c.toDataURL("image/jpeg", 0.82), w: c.width, h: c.height }; });
+          });
+        } };
+      });
+    }
+    return new Promise(function (ok, no) {
+      var fr = new FileReader(); fr.onerror = no;
+      fr.onload = function () { var im = new Image(); im.onerror = no; im.onload = function () { var r = canvasOut(im, im.naturalWidth, im.naturalHeight); ok({ pages: 1, render: function () { return Promise.resolve(r); } }); }; im.src = fr.result; };
+      fr.readAsDataURL(file);
+    });
+  }
+
+  /* Vorschau Plan (SVG über dem Plan-JPEG) */
+  function planPreview(P, tt) {
+    if (!P || !P.img) return null;
+    var k = Math.max(P.w, P.h) / 360, sw = 3 * k, fig = document.createElement("figure"); fig.className = "kmprev";
+    var g = (P.lines || []).map(function (l) { var pts = l.pts.map(function (p) { return p.join(","); }).join(" "); return l.pts.length > 1 ? '<polyline points="' + pts + '" fill="none" stroke="#fff" stroke-width="' + sw * 2 + '"/><polyline points="' + pts + '" fill="none" stroke="#b8332a" stroke-width="' + sw + '"/>' : ""; }).join("");
+    g += (P.pts || []).map(function (p, i) { return '<rect x="' + (p.pt[0] - 6 * k) + '" y="' + (p.pt[1] - 6 * k) + '" width="' + 12 * k + '" height="' + 12 * k + '" fill="#0d47c8" stroke="#fff" stroke-width="' + k + '"/><text x="' + p.pt[0] + '" y="' + (p.pt[1] + 4 * k) + '" text-anchor="middle" font-size="' + 10 * k + '" font-weight="700" fill="#fff">' + (i + 1) + "</text>"; }).join("");
+    g += (P.sond || []).map(function (p) { return '<circle cx="' + p.pt[0] + '" cy="' + p.pt[1] + '" r="' + 6 * k + '" fill="#f28c00" stroke="#fff" stroke-width="' + k + '"/>'; }).join("");
+    fig.innerHTML = '<svg viewBox="0 0 ' + P.w + " " + P.h + '" role="img" aria-label="' + esc(tt("pl_prevAlt")) + '"><image href="' + P.img + '" width="' + P.w + '" height="' + P.h + '"/>' + g + "</svg>";
+    return fig;
+  }
+
+  /* Dialog: Linien (Rohranlage je Linie), Schächte, Sondagen – auf swisstopo-Karte (LV95) oder kalibriertem Plan (Pixel)
+     opt: { kind:"map"|"plan", tt, lang, model:{lines,pts,sond}, cat, defRohr, defTyp, recName(rid), plan:{img,w,h,cal}, onApply(model,cal), onClose } */
   var seq = 0, nid = function (p) { return p + Date.now().toString(36) + (seq++).toString(36); };
+  var INTRO = "lvd-km-intro";
   function open(opt) {
-    var tt = opt.tt, cat = opt.cat, M = JSON.parse(JSON.stringify(opt.model || { lines: [], pts: [] })), cur = null, mode = "", hist = [], sel = null, base = "farbe", map, layer, grp;
+    var tt = opt.tt, cat = opt.cat, plan = opt.kind === "plan", M = JSON.parse(JSON.stringify(opt.model || { lines: [], pts: [], sond: [] })), cur = null, mode = "", hist = [], sel = null, base = "farbe", map, layer, grp, calPts = [];
+    M.sond = M.sond || [];
+    var cal = plan ? JSON.parse(JSON.stringify(opt.plan.cal || {})) : null;
+    var AD = plan ? { ll: function (p) { return [-p[1], p[0]]; }, pt: function (ll) { return [Math.round(ll.lng * 10) / 10, Math.round(-ll.lat * 10) / 10]; },
+      dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]) * (cal.scale || 0); } }
+      : { ll: function (p) { return toWGS(p[0], p[1]); }, pt: function (ll) { return toLV95(ll.lat, ll.lng).map(function (v) { return Math.round(v * 100) / 100; }); },
+        dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); } };
+    var lineLen = function (pts) { var s = 0; for (var i = 1; i < pts.length; i++) s += AD.dist(pts[i - 1], pts[i]); return s; };
+    var intro = false; try { intro = !localStorage.getItem(INTRO); } catch (e) { }
     var dlg = document.createElement("dialog"); dlg.className = "kmdlg"; dlg.setAttribute("aria-labelledby", "kmTitle");
+    var ip = plan ? ["km_i1p", "km_i2p", "km_i3p"] : ["km_i1", "km_i2", "km_i3"];
     dlg.innerHTML =
-      '<div class="kmhead"><h2 id="kmTitle">' + esc(tt("km_title")) + '</h2><button type="button" class="btn ghost small" data-k="close">' + esc(tt("km_close")) + "</button></div>" +
-      '<form class="kmsearch" role="search"><label for="kmQ">' + esc(tt("km_search")) + '</label><input type="search" id="kmQ" autocomplete="off" placeholder="' + esc(tt("km_searchPh")) + '"><button type="submit" class="btn small">' + esc(tt("km_go")) + "</button></form>" +
-      '<ul class="kmhits" id="kmHits" aria-label="' + esc(tt("km_hits")) + '"></ul>' +
+      '<div class="kmhead"><h2 id="kmTitle">' + esc(tt(plan ? "pl_title" : "km_title")) + '</h2><button type="button" class="btn ghost small" data-k="close">' + esc(tt("km_close")) + "</button></div>" +
+      '<details class="kmintro"' + (intro ? " open" : "") + "><summary>" + esc(tt("km_intro")) + "</summary><ol>" + ip.map(function (k) { return "<li>" + esc(tt(k)) + "</li>"; }).join("") + "</ol></details>" +
+      (plan ? "" : '<form class="kmsearch" role="search"><label for="kmQ">' + esc(tt("km_search")) + '</label><input type="search" id="kmQ" autocomplete="off" placeholder="' + esc(tt("km_searchPh")) + '"><button type="submit" class="btn small">' + esc(tt("km_go")) + "</button></form>" +
+        '<ul class="kmhits" id="kmHits" aria-label="' + esc(tt("km_hits")) + '"></ul>') +
       '<div class="kmbar" role="group" aria-label="' + esc(tt("km_tools")) + '">' +
+      (plan ? '<button type="button" class="btn small" data-k="mcal" aria-pressed="false">' + esc(tt("pl_cal")) + "</button>" : "") +
       '<button type="button" class="btn small" data-k="mline" aria-pressed="false">' + esc(tt("km_draw")) + "</button>" +
       '<button type="button" class="btn small" data-k="mpt" aria-pressed="false">' + esc(tt("km_pt")) + "</button>" +
+      '<button type="button" class="btn small" data-k="msond" aria-pressed="false">' + esc(tt("km_sond")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="center">' + esc(tt("km_center")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="end">' + esc(tt("km_end")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="undo">' + esc(tt("km_undo")) + "</button>" +
       '<button type="button" class="btn ghost small del" data-k="clear">' + esc(tt("km_clear")) + "</button>" +
-      '<span class="sp"></span><button type="button" class="btn ghost small" data-k="base" aria-pressed="false">' + esc(tt("km_aerial")) + "</button></div>" +
+      (plan ? "" : '<span class="sp"></span><button type="button" class="btn ghost small" data-k="base" aria-pressed="false">' + esc(tt("km_aerial")) + "</button>") + "</div>" +
+      (plan ? '<form class="kmcalf" id="kmCalF" hidden><label for="kmCalM">' + esc(tt("pl_calAsk")) + '</label><input type="text" inputmode="decimal" id="kmCalM" class="numin"><button type="submit" class="btn small">' + esc(tt("pl_calSet")) + "</button></form>" : "") +
       '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div>' +
       '<p class="hint kmhelp" id="kmHelp"></p>' +
       '<div class="kmobj" id="kmObj" aria-label="' + esc(tt("km_obj")) + '"></div>' +
       '<div class="kmfoot"><p class="kmlen" id="kmLen" role="status" aria-live="polite"></p><button type="button" class="btn" data-k="apply">' + esc(tt("km_apply")) + "</button></div>";
     document.body.appendChild(dlg);
     var $ = function (s) { return dlg.querySelector(s); };
-    var lineBy = function (id) { return M.lines.filter(function (l) { return l.id === id; })[0]; };
-    var ptBy = function (id) { return M.pts.filter(function (p) { return p.id === id; })[0]; };
-    var lab = function (a, v) { var o = a.filter(function (x) { return x[0] === v; })[0]; return o ? o[1] : v; };
+    dlg.querySelector(".kmintro").addEventListener("toggle", function (e) { if (!e.target.open) try { localStorage.setItem(INTRO, "1"); } catch (x) { } });
+    var byId = function (arr, id) { return arr.filter(function (l) { return l.id === id; })[0]; };
 
     function tiles() {
       if (layer) map.removeLayer(layer);
@@ -96,23 +169,31 @@
       layer = L.tileLayer(WMTS + id + "/default/current/3857/{z}/{x}/{y}.jpeg", { maxZoom: 20, maxNativeZoom: base === "luft" ? 19 : 18, attribution: "© swisstopo" }).addTo(map);
       layer.bringToBack();
     }
+    function calTxt() { return cal.scale ? tt("pl_calOk").replace("{m}", fmt(cal.m)).replace("{s}", (Math.round(cal.scale * 1000) / 1000)) : tt("pl_calNo"); }
     function draw() {
       grp.clearLayers();
       M.lines.forEach(function (l) {
-        var ll = l.pts.map(function (p) { return toWGS(p[0], p[1]); }), on = sel && sel.id === l.id;
+        var ll = l.pts.map(AD.ll), on = sel && sel.id === l.id;
         if (ll.length > 1) { L.polyline(ll, { color: "#fff", weight: 8, interactive: false }).addTo(grp); L.polyline(ll, { color: on ? "#0d47c8" : "#b8332a", weight: on ? 5 : 3.5, interactive: false }).addTo(grp); }
         ll.forEach(function (q, j) { L.circleMarker(q, { radius: l.id === cur && j === ll.length - 1 ? 6 : 4, color: on ? "#0d47c8" : "#b8332a", weight: 2, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
       });
       M.pts.forEach(function (p, i) {
         var on = sel && sel.id === p.id;
-        L.marker(toWGS(p.pt[0], p.pt[1]), { interactive: false, keyboard: false, icon: L.divIcon({ className: "kmsch" + (on ? " on" : ""), html: "<span>" + (i + 1) + "</span>", iconSize: [26, 26], iconAnchor: [13, 13] }) }).addTo(grp);
+        L.marker(AD.ll(p.pt), { interactive: false, keyboard: false, icon: L.divIcon({ className: "kmsch" + (on ? " on" : ""), html: "<span>" + (i + 1) + "</span>", iconSize: [26, 26], iconAnchor: [13, 13] }) }).addTo(grp);
       });
+      M.sond.forEach(function (p, i) {
+        var on = sel && sel.id === p.id;
+        L.marker(AD.ll(p.pt), { interactive: false, keyboard: false, icon: L.divIcon({ className: "kmsond" + (on ? " on" : ""), html: "<span>S" + (i + 1) + "</span>", iconSize: [26, 26], iconAnchor: [13, 13] }) }).addTo(grp);
+      });
+      if (plan) { calPts.forEach(function (q) { L.circleMarker(AD.ll(q), { radius: 6, color: "#0d47c8", weight: 3, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
+        if (cal.a && cal.b && !calPts.length) L.polyline([AD.ll(cal.a), AD.ll(cal.b)], { color: "#0d47c8", weight: 2, dashArray: "6 5", interactive: false }).addTo(grp); }
       var tot = M.lines.reduce(function (a, l) { return a + lineLen(l.pts); }, 0);
-      $("#kmLen").textContent = tt("km_total").replace("{m}", fmt(tot)).replace("{n}", M.lines.filter(function (l) { return l.pts.length > 1; }).length).replace("{s}", M.pts.length);
-      ["line", "pt"].forEach(function (m) { var b = $("[data-k=m" + m + "]"); b.setAttribute("aria-pressed", mode === m ? "true" : "false"); });
-      $("[data-k=mline]").textContent = mode === "line" ? tt("km_drawOn") : tt("km_draw"); $("[data-k=mpt]").textContent = mode === "pt" ? tt("km_ptOn") : tt("km_pt");
-      $("[data-k=end]").disabled = !cur; $("[data-k=undo]").disabled = !hist.length; $("[data-k=clear]").disabled = !(M.lines.length || M.pts.length); $("[data-k=center]").disabled = !mode;
-      $("#kmHelp").textContent = mode ? tt("km_helpOn") : tt("km_helpOff");
+      $("#kmLen").textContent = tt("km_total").replace("{m}", fmt(tot)).replace("{n}", M.lines.filter(function (l) { return l.pts.length > 1; }).length).replace("{s}", M.pts.length).replace("{o}", M.sond.length) + (plan ? " · " + calTxt() : "");
+      ["cal", "line", "pt", "sond"].forEach(function (m) { var b = $("[data-k=m" + m + "]"); if (b) b.setAttribute("aria-pressed", mode === m ? "true" : "false"); });
+      $("[data-k=mline]").textContent = mode === "line" ? tt("km_drawOn") : tt("km_draw"); $("[data-k=mpt]").textContent = mode === "pt" ? tt("km_ptOn") : tt("km_pt"); $("[data-k=msond]").textContent = mode === "sond" ? tt("km_sondOn") : tt("km_sond");
+      if (plan) $("[data-k=mcal]").textContent = mode === "cal" ? tt("pl_calOn") : tt("pl_cal");
+      $("[data-k=end]").disabled = !cur; $("[data-k=undo]").disabled = !hist.length; $("[data-k=clear]").disabled = !(M.lines.length || M.pts.length || M.sond.length); $("[data-k=center]").disabled = !mode;
+      $("#kmHelp").textContent = mode === "cal" ? tt("pl_helpCal") : mode ? tt("km_helpOn") : plan && !cal.scale ? tt("pl_calNeed") : tt("km_helpOff");
       map.getContainer().style.cursor = mode ? "crosshair" : "";
     }
     function sel1(label, arr, val, on) {
@@ -121,86 +202,110 @@
       s.addEventListener("change", function () { on(s.value); }); return s;
     }
     function cell(label, el) { var d = document.createElement("div"); d.className = "kmc"; var l = document.createElement("span"); l.textContent = label; d.appendChild(l); d.appendChild(el); return d; }
+    function inp(label, val, cls, on) { var n = document.createElement("input"); n.type = "text"; n.inputMode = "decimal"; n.className = cls; n.value = val; n.setAttribute("aria-label", label); n.addEventListener("input", function () { on(n.value); }); return n; }
+    function head(r, title, rid) { var t = document.createElement("div"); t.className = "kmt"; t.innerHTML = "<b>" + esc(title) + "</b>" + (rid === undefined ? "" : " · " + (rid ? '<span class="kmlnk">→ ' + esc(opt.recName(rid) || tt("km_new")) + "</span>" : '<span class="kmlnk">' + esc(tt("km_new")) + "</span>")); r.appendChild(t); return t; }
+    function btns(r, id) { var bs = document.createElement("div"); bs.className = "kmbtn"; bs.innerHTML = '<button type="button" class="btn ghost small" data-z="' + id + '">' + esc(tt("km_show")) + '</button><button type="button" class="btn ghost small del" data-d="' + id + '">' + esc(tt("km_del")) + "</button>"; r.appendChild(bs); }
     function rows() {
       var h = $("#kmObj"); h.innerHTML = "";
       M.lines.forEach(function (l, i) {
         var r = document.createElement("div"); r.className = "kmrow" + (sel && sel.id === l.id ? " on" : "");
-        var t = document.createElement("div"); t.className = "kmt"; var nm = tt("km_lineN").replace("{n}", i + 1);
-        t.innerHTML = "<b>" + esc(nm) + "</b> · " + fmt(lineLen(l.pts)) + " m" + (l.rid ? ' · <span class="kmlnk">→ ' + esc(opt.recName(l.rid) || tt("km_new")) + "</span>" : ' · <span class="kmlnk">' + esc(tt("km_new")) + "</span>");
-        r.appendChild(t);
+        var t = head(r, tt("km_lineN").replace("{n}", i + 1), l.rid); t.insertAdjacentHTML("beforeend", " · " + fmt(lineLen(l.pts)) + " m");
         r.appendChild(cell(tt("km_sys"), sel1(tt("km_sys"), cat.sys, l.rohr.sys, function (v) { l.rohr.sys = v; rows(); })));
         if (l.rohr.sys !== "block") {
           r.appendChild(cell(tt("km_dn"), sel1(tt("km_dn"), cat.dn, l.rohr.dn, function (v) { l.rohr.dn = v; })));
           r.appendChild(cell(tt("km_len"), sel1(tt("km_len"), cat.len, l.rohr.len, function (v) { l.rohr.len = v; })));
-          var n = document.createElement("input"); n.type = "text"; n.inputMode = "numeric"; n.className = "kmn"; n.value = l.rohr.n; n.setAttribute("aria-label", tt("km_n")); n.addEventListener("input", function () { l.rohr.n = n.value; });
-          r.appendChild(cell(tt("km_n"), n));
+          r.appendChild(cell(tt("km_n"), inp(tt("km_n"), l.rohr.n, "kmn", function (v) { l.rohr.n = v; })));
         } else { var bn = document.createElement("p"); bn.className = "hint"; bn.textContent = tt("km_blockNote"); r.appendChild(bn); }
-        var bs = document.createElement("div"); bs.className = "kmbtn";
-        bs.innerHTML = '<button type="button" class="btn ghost small" data-z="l' + l.id + '">' + esc(tt("km_show")) + '</button><button type="button" class="btn ghost small del" data-d="' + l.id + '">' + esc(tt("km_del")) + "</button>";
-        r.appendChild(bs); h.appendChild(r);
+        btns(r, l.id); h.appendChild(r);
       });
       M.pts.forEach(function (p, i) {
-        var r = document.createElement("div"); r.className = "kmrow" + (sel && sel.id === p.id ? " on" : "");
-        var t = document.createElement("div"); t.className = "kmt"; t.innerHTML = "<b>" + esc(tt("km_schN").replace("{n}", i + 1)) + "</b> · " + (p.sid ? '<span class="kmlnk">→ ' + esc(opt.recName(p.sid) || tt("km_new")) + "</span>" : '<span class="kmlnk">' + esc(tt("km_new")) + "</span>");
-        r.appendChild(t);
-        var nm = document.createElement("input"); nm.type = "text"; nm.value = p.name || ""; nm.setAttribute("aria-label", tt("km_name")); nm.addEventListener("input", function () { p.name = nm.value; });
-        r.appendChild(cell(tt("km_name"), nm));
+        var r = document.createElement("div"); r.className = "kmrow" + (sel && sel.id === p.id ? " on" : ""); head(r, tt("km_schN").replace("{n}", i + 1), p.sid);
+        r.appendChild(cell(tt("km_name"), inp(tt("km_name"), p.name || "", "kmw", function (v) { p.name = v; })));
         r.appendChild(cell(tt("km_typ"), sel1(tt("km_typ"), cat.schacht, p.typ, function (v) { p.typ = v; })));
-        var bs = document.createElement("div"); bs.className = "kmbtn";
-        bs.innerHTML = '<button type="button" class="btn ghost small" data-z="p' + p.id + '">' + esc(tt("km_show")) + '</button><button type="button" class="btn ghost small del" data-d="' + p.id + '">' + esc(tt("km_del")) + "</button>";
-        r.appendChild(bs); h.appendChild(r);
+        btns(r, p.id); h.appendChild(r);
+      });
+      M.sond.forEach(function (p, i) {
+        var r = document.createElement("div"); r.className = "kmrow" + (sel && sel.id === p.id ? " on" : ""); head(r, tt("km_sondN").replace("{n}", i + 1));
+        r.appendChild(cell(tt("km_name"), inp(tt("km_name"), p.name || "", "kmw", function (v) { p.name = v; })));
+        [["l", "km_sL"], ["b", "km_sB"], ["t", "km_sT"]].forEach(function (f) { r.appendChild(cell(tt(f[1]), inp(tt(f[1]), p[f[0]], "kmn", function (v) { p[f[0]] = v; }))); });
+        btns(r, p.id); h.appendChild(r);
       });
     }
     function refresh() { draw(); rows(); }
     function addPt(ll) {
       if (!mode) return;
-      var c = toLV95(ll.lat, ll.lng).map(function (v) { return Math.round(v * 100) / 100; });
+      var c = AD.pt(ll);
+      if (mode === "cal") {
+        calPts.push(c); if (calPts.length === 2) { $("#kmCalF").hidden = false; $("#kmCalM").value = ""; $("#kmCalM").focus(); } draw(); return;
+      }
       if (mode === "pt") { var p = { id: nid("p"), pt: c, sid: null, typ: opt.defTyp, name: "" }; M.pts.push(p); hist.push(p.id); sel = { id: p.id }; }
+      else if (mode === "sond") { var o = { id: nid("s"), pt: c, name: "", l: "1.0", b: "1.0", t: "1.5" }; M.sond.push(o); hist.push(o.id); sel = { id: o.id }; }
       else {
-        var l = cur && lineBy(cur);
+        var l = cur && byId(M.lines, cur);
         if (!l) { l = { id: nid("l"), pts: [], rid: null, rohr: JSON.parse(JSON.stringify(opt.defRohr)) }; M.lines.push(l); cur = l.id; sel = { id: l.id }; }
         l.pts.push(c); hist.push(l.id);
       }
       refresh();
     }
-    function endLine() { var l = cur && lineBy(cur); if (l && l.pts.length < 2) M.lines.splice(M.lines.indexOf(l), 1); cur = null; refresh(); }
+    function endLine() { var l = cur && byId(M.lines, cur); if (l && l.pts.length < 2) M.lines.splice(M.lines.indexOf(l), 1); cur = null; refresh(); }
     function undo() {
+      if (mode === "cal" && calPts.length) { calPts.pop(); $("#kmCalF").hidden = true; return draw(); }
       var id = hist.pop(); if (!id) return;
-      var p = ptBy(id); if (p) M.pts.splice(M.pts.indexOf(p), 1);
-      else { var l = lineBy(id); if (l) { l.pts.pop(); if (!l.pts.length) { M.lines.splice(M.lines.indexOf(l), 1); if (cur === id) cur = null; } } }
+      var p = byId(M.pts, id) || byId(M.sond, id); if (p) (M.pts.indexOf(p) >= 0 ? M.pts : M.sond).splice((M.pts.indexOf(p) >= 0 ? M.pts : M.sond).indexOf(p), 1);
+      else { var l = byId(M.lines, id); if (l) { l.pts.pop(); if (!l.pts.length) { M.lines.splice(M.lines.indexOf(l), 1); if (cur === id) cur = null; } } }
       refresh();
     }
-    function del(id) { var l = lineBy(id); if (l) M.lines.splice(M.lines.indexOf(l), 1); var p = ptBy(id); if (p) M.pts.splice(M.pts.indexOf(p), 1); if (cur === id) cur = null; hist = hist.filter(function (x) { return x !== id; }); sel = null; refresh(); }
+    function del(id) {
+      [M.lines, M.pts, M.sond].forEach(function (a) { var x = byId(a, id); if (x) a.splice(a.indexOf(x), 1); });
+      if (cur === id) cur = null; hist = hist.filter(function (x) { return x !== id; }); sel = null; refresh();
+    }
     function show(id) {
-      var l = lineBy(id), p = ptBy(id); sel = { id: id };
-      if (l && l.pts.length) map.fitBounds(L.latLngBounds(l.pts.map(function (q) { return toWGS(q[0], q[1]); })).pad(0.3), { maxZoom: 19 });
-      if (p) map.setView(toWGS(p.pt[0], p.pt[1]), Math.max(map.getZoom(), 18));
+      var l = byId(M.lines, id), p = byId(M.pts, id) || byId(M.sond, id); sel = { id: id };
+      if (l && l.pts.length) map.fitBounds(L.latLngBounds(l.pts.map(AD.ll)).pad(0.3), { maxZoom: plan ? 3 : 19 });
+      if (p) map.setView(AD.ll(p.pt), Math.max(map.getZoom(), plan ? 1 : 18));
       refresh();
     }
     function close() { try { map.remove(); } catch (e) { } dlg.close(); dlg.remove(); if (opt.onClose) opt.onClose(); }
 
-    map = L.map($("#kmMap"), { center: [46.8, 8.23], zoom: 8, minZoom: 7, maxZoom: 20, doubleClickZoom: false });
-    grp = L.layerGroup().addTo(map); tiles();
-    var all = []; M.lines.forEach(function (l) { l.pts.forEach(function (p) { all.push(toWGS(p[0], p[1])); }); }); M.pts.forEach(function (p) { all.push(toWGS(p.pt[0], p.pt[1])); });
-    if (all.length) map.fitBounds(L.latLngBounds(all).pad(0.3), { maxZoom: 19 });
+    if (plan) {
+      var P = opt.plan; map = L.map($("#kmMap"), { crs: L.CRS.Simple, minZoom: -4, maxZoom: 4, zoomSnap: 0.25, doubleClickZoom: false, attributionControl: false });
+      var bd = [[-P.h, 0], [0, P.w]]; L.imageOverlay(P.img, bd).addTo(map); map.fitBounds(bd);
+      grp = L.layerGroup().addTo(map);
+      $("#kmCalF").addEventListener("submit", function (e) {
+        e.preventDefault(); var m = parseFloat(String($("#kmCalM").value).replace(",", ".")), d = Math.hypot(calPts[0][0] - calPts[1][0], calPts[0][1] - calPts[1][1]);
+        if (!(m > 0) || !(d > 0)) { $("#kmCalM").focus(); return; }
+        var old = JSON.stringify(cal); cal = { a: calPts[0], b: calPts[1], m: m, scale: m / d }; calPts = []; $("#kmCalF").hidden = true; mode = ""; refresh();
+        toast(dlg, tt("pl_calDone"), tt("km_undoBtn"), function () { cal = JSON.parse(old); refresh(); });
+      });
+    } else {
+      map = L.map($("#kmMap"), { center: [46.8, 8.23], zoom: 8, minZoom: 7, maxZoom: 20, doubleClickZoom: false });
+      grp = L.layerGroup().addTo(map); tiles();
+    }
+    var all = []; M.lines.forEach(function (l) { l.pts.forEach(function (p) { all.push(AD.ll(p)); }); }); M.pts.concat(M.sond).forEach(function (p) { all.push(AD.ll(p.pt)); });
+    if (all.length) map.fitBounds(L.latLngBounds(all).pad(0.3), { maxZoom: plan ? 3 : 19 });
     map.on("click", function (e) { addPt(e.latlng); });
     map.on("dblclick", function () { if (mode === "line") endLine(); });
 
     dlg.addEventListener("click", function (e) {
       var b = e.target.closest("[data-k],[data-z],[data-d]"); if (!b) return;
-      if (b.dataset.z) return show(b.dataset.z.slice(1)); if (b.dataset.d) return del(b.dataset.d);
+      if (b.dataset.z) return show(b.dataset.z); if (b.dataset.d) return del(b.dataset.d);
       var k = b.getAttribute("data-k");
       if (k === "close") close();
-      else if (k === "mline" || k === "mpt") { var m = k === "mline" ? "line" : "pt"; if (mode === "line") endLine(); mode = mode === m ? "" : m; refresh(); }
+      else if (k === "mline" || k === "mpt" || k === "msond" || k === "mcal") { var m = k.slice(1); if (mode === "line") endLine(); calPts = []; if (plan) $("#kmCalF").hidden = true; mode = mode === m ? "" : m; refresh(); }
       else if (k === "center") addPt(map.getCenter());
       else if (k === "end") endLine();
       else if (k === "undo") undo();
-      else if (k === "clear") { if (confirm(tt("km_clearQ"))) { M.lines = []; M.pts = []; cur = null; hist = []; sel = null; refresh(); } }
+      else if (k === "clear") { var snap = JSON.stringify(M); M.lines = []; M.pts = []; M.sond = []; cur = null; hist = []; sel = null; refresh(); toast(dlg, tt("km_cleared"), tt("km_undoBtn"), function () { M = JSON.parse(snap); refresh(); }); }
       else if (k === "base") { base = base === "luft" ? "farbe" : "luft"; b.setAttribute("aria-pressed", base === "luft" ? "true" : "false"); b.textContent = base === "luft" ? tt("km_map") : tt("km_aerial"); tiles(); }
-      else if (k === "apply") { endLine(); opt.onApply(M); close(); }
+      else if (k === "apply") {
+        endLine();
+        if (plan && !cal.scale && M.lines.length) { toast(dlg, tt("pl_calNeed")); return; }
+        opt.onApply(M, cal, function (m) { return lineLen(m); }); close();
+      }
     });
     dlg.addEventListener("cancel", function (e) { e.preventDefault(); close(); });
-    $(".kmsearch").addEventListener("submit", function (e) {
+    var sf = $(".kmsearch");
+    if (sf) sf.addEventListener("submit", function (e) {
       e.preventDefault(); var q = $("#kmQ").value.trim(), ul = $("#kmHits"); if (!q) return;
       ul.innerHTML = '<li class="kmnote">' + esc(tt("km_searching")) + "</li>";
       fetch(SEARCH + "?type=locations&limit=8&sr=2056&lang=" + (opt.lang || "de") + "&searchText=" + encodeURIComponent(q))
@@ -216,8 +321,8 @@
           });
         }).catch(function () { ul.innerHTML = '<li class="kmnote err">' + esc(tt("km_searchErr")) + "</li>"; });
     });
-    dlg.showModal(); map.invalidateSize(); refresh(); $("#kmQ").focus();
+    dlg.showModal(); map.invalidateSize(); if (plan && !all.length) map.fitBounds([[-opt.plan.h, 0], [0, opt.plan.w]]); refresh(); (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
-  window.KARTE = { open: open, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
+  window.KARTE = { open: open, toast: toast, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
 })();
