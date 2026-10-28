@@ -287,3 +287,9 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 .kmframe{width:100%;height:min(56vh,560px);border:1px solid var(--rule-strong);border-radius:8px}.kmframe[hidden]{display:none}
 .kmmap[hidden]{display:none}
 @media print{.lvcol{display:none!important}}
+.kmcat{border:1px solid var(--rule);border-radius:8px;background:#fff;font-size:13px}.kmcat summary{padding:8px 12px;cursor:pointer;font-weight:650;color:var(--navy)}
+.kmcatb{padding:0 12px 10px}.kmcatb label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:3px}.kmcatb input[type=search]{width:100%;padding:7px 9px;border:1px solid var(--rule-strong);border-radius:6px;font:inherit}
+.kmcatl{list-style:none;margin:6px 0 0;padding:0;max-height:150px;overflow:auto}.kmcath{font-size:12px;margin:10px 0 0}
+.kmhit[aria-pressed=true]{background:#eef3fd;font-weight:650}
+.kmov{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--rule)}.kmovn{flex:1 1 220px}.kmov label{margin:0;display:flex;gap:6px;align-items:center}
+.leaflet-control-attribution a{text-decoration:underline}

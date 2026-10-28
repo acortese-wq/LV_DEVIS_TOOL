@@ -62,6 +62,18 @@
     return fig;
   }
 
+  /* Geokatalog: alle WMTS/WMS-Ebenen von geo.admin.ch (Konfiguration wird einmal geladen) */
+  var catPromise = null, CATKEY = "lvd-km-ov";
+  function loadCatalog(lang) {
+    if (catPromise) return catPromise;
+    catPromise = fetch("https://api3.geo.admin.ch/rest/services/api/MapServer/layersConfig?lang=" + (lang || "de")).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) {
+      return Object.keys(j).filter(function (k) { var c = j[k]; return c && (c.type === "wmts" || c.type === "wms") && c.label; })
+        .map(function (k) { var c = j[k]; return { id: k, label: c.label, type: c.type, srv: c.serverLayerName || k, fmt: c.format || "png" }; })
+        .sort(function (a, b) { return a.label.localeCompare(b.label); });
+    }).catch(function (e) { catPromise = null; throw e; });
+    return catPromise;
+  }
+
   /* Toast mit «Rückgängig» (host: Dialog oder body, damit er über dem Dialog sichtbar bleibt) */
   var toastT;
   function toast(host, msg, undoLabel, undo) {
@@ -177,9 +189,10 @@
       (plan ? "" : '<span class="sp"></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase">' + [["farbe", "km_bFarbe"], ["grau", "km_bGrau"], ["luft", "km_aerial"], ["kataster", "km_bKat"], ["viewer", "km_bViewer"]].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join("") + '</select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + "</button>") + "</div>" +
       (plan ? '<form class="kmcalf" id="kmCalF" hidden><label for="kmCalM">' + esc(tt("pl_calAsk")) + '</label><input type="text" inputmode="decimal" id="kmCalM" class="numin"><button type="submit" class="btn small">' + esc(tt("pl_calSet")) + "</button></form>" : "") +
       '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div>' +
+      (plan ? "" : '<details class="kmcat" id="kmCat"><summary>' + esc(tt("km_cat")) + '</summary><div class="kmcatb"><label for="kmCatQ">' + esc(tt("km_catSearch")) + '</label><input type="search" id="kmCatQ" autocomplete="off" placeholder="' + esc(tt("km_catPh")) + '"><p class="hint" id="kmCatMsg" role="status"></p><ul class="kmcatl" id="kmCatL" aria-label="' + esc(tt("km_catRes")) + '"></ul><h3 class="kmcath">' + esc(tt("km_catSel")) + '</h3><ul class="kmcatl kmcats" id="kmCatS"></ul></div></details>') +
       (plan ? "" : '<iframe id="kmView" class="kmframe" hidden title="map.geo.admin.ch" referrerpolicy="no-referrer"></iframe>') +
       '<p class="hint kmhelp" id="kmHelp"></p>' +
-      '<div class="kmobj" id="kmObj" aria-label="' + esc(tt("km_obj")) + '"></div>' +
+      '<div class="kmobj" id="kmObj" role="group" aria-label="' + esc(tt("km_obj")) + '"></div>' +
       '<div class="kmslot" id="kmSlot"></div>' +
       '<div class="kmfoot"><p class="kmlen" id="kmLen" role="status" aria-live="polite"></p><button type="button" class="btn" data-k="apply">' + esc(tt("km_apply")) + "</button></div>";
     document.body.appendChild(dlg);
@@ -197,12 +210,55 @@
       layer.addTo(map); layer.eachLayer(function (l) { l.bringToBack(); });
     }
     /* Ausschnitt im Kartenviewer map.geo.admin.ch öffnen (gleicher Hintergrund, aktuelles Zentrum) */
+    /* gewählte Katalog-Ebenen (Deckkraft einstellbar), werden im Browser gemerkt */
+    var ov = []; try { ov = JSON.parse(localStorage.getItem(CATKEY) || "[]"); } catch (e) { ov = []; } if (!Array.isArray(ov)) ov = [];
+    var ovGrp = null, catList = null;
+    function saveOv() { try { localStorage.setItem(CATKEY, JSON.stringify(ov)); } catch (e) { } }
+    function ovLayer(o) {
+      var op = { maxZoom: 20, maxNativeZoom: 18, opacity: o.op, attribution: "© geo.admin.ch" };
+      return o.type === "wms" ? L.tileLayer.wms("https://wms.geo.admin.ch/", { layers: o.srv, format: "image/png", transparent: true, maxZoom: 20, opacity: o.op, attribution: "© geo.admin.ch" })
+        : L.tileLayer(WMTS + o.srv + "/default/current/3857/{z}/{x}/{y}." + o.fmt, op);
+    }
+    function drawOv() {
+      if (!ovGrp) return; ovGrp.clearLayers(); if (base === "viewer") return;
+      ov.forEach(function (o) { ovLayer(o).addTo(ovGrp); }); ovGrp.eachLayer(function (l) { l.bringToFront(); });
+    }
+    function selList() {
+      var ul = $("#kmCatS"); ul.innerHTML = "";
+      if (!ov.length) { ul.innerHTML = '<li class="kmnote">' + esc(tt("km_catNone")) + "</li>"; return; }
+      ov.forEach(function (o, i) {
+        var li = document.createElement("li"); li.className = "kmov";
+        li.innerHTML = '<span class="kmovn">' + esc(o.label) + '</span><label>' + esc(tt("km_opacity")) + ' <input type="range" min="10" max="100" step="10" value="' + Math.round(o.op * 100) + '" aria-label="' + esc(tt("km_opacity") + ": " + o.label) + '"></label><button type="button" class="btn ghost small del" data-ovdel="' + i + '" aria-label="' + esc(tt("km_catRemove") + ": " + o.label) + '">' + esc(tt("km_catRemove")) + "</button>";
+        li.querySelector("input").addEventListener("input", function (e) { o.op = e.target.value / 100; saveOv(); drawOv(); });
+        ul.appendChild(li);
+      });
+    }
+    function resList() {
+      var q = $("#kmCatQ").value.trim().toLowerCase(), ul = $("#kmCatL"), msg = $("#kmCatMsg"); ul.innerHTML = "";
+      if (!catList) return;
+      var hits = catList.filter(function (c) { return !q || c.label.toLowerCase().indexOf(q) >= 0 || c.id.toLowerCase().indexOf(q) >= 0; });
+      msg.textContent = tt("km_catCount").replace("{n}", hits.length).replace("{m}", catList.length);
+      hits.slice(0, 40).forEach(function (c) {
+        var li = document.createElement("li"), on = ov.some(function (o) { return o.id === c.id; }), b = document.createElement("button"); b.type = "button"; b.className = "kmhit";
+        b.setAttribute("aria-pressed", on ? "true" : "false"); b.textContent = (on ? "✓ " : "+ ") + c.label; b.title = c.id;
+        b.addEventListener("click", function () {
+          var i = ov.findIndex(function (o) { return o.id === c.id; });
+          if (i >= 0) ov.splice(i, 1); else ov.push({ id: c.id, label: c.label, type: c.type, srv: c.srv, fmt: c.fmt, op: 0.8 });
+          saveOv(); drawOv(); selList(); resList();
+        });
+        li.appendChild(b); ul.appendChild(li);
+      });
+    }
+    function openCat() {
+      if (catList) return resList(); $("#kmCatMsg").textContent = tt("km_searching");
+      loadCatalog(opt.lang).then(function (l) { catList = l; resList(); }).catch(function () { $("#kmCatMsg").textContent = tt("km_catErr"); });
+    }
     function geoUrl(embed) {
       var c = map.getCenter(), e = toLV95(c.lat, c.lng), res = 156543.03 * Math.cos(c.lat * Math.PI / 180) / Math.pow(2, map.getZoom()),
         R = [4000, 3750, 3500, 3250, 3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250, 1000, 750, 650, 500, 250, 100, 50, 20, 10, 5, 2.5, 2, 1.5, 1, 0.5], z = 0, d = 1e9;
       R.forEach(function (r, i) { var x = Math.abs(Math.log(r / res)); if (x < d) { d = x; z = i; } });
       var bg = base === "luft" ? "ch.swisstopo.swissimage" : base === "grau" || base === "kataster" ? "ch.swisstopo.pixelkarte-grau" : "ch.swisstopo.pixelkarte-farbe";
-      return "https://map.geo.admin.ch/#/" + (embed ? "embed" : "map") + "?lang=" + (opt.lang || "de") + "&center=" + Math.round(e[0]) + "," + Math.round(e[1]) + "&z=" + z + "&bgLayer=" + bg + (base === "kataster" ? "&layers=ch.kantone.cadastralwebmap-farbe" : "");
+      return "https://map.geo.admin.ch/#/" + (embed ? "embed" : "map") + "?lang=" + (opt.lang || "de") + "&center=" + Math.round(e[0]) + "," + Math.round(e[1]) + "&z=" + z + "&bgLayer=" + bg + (base === "kataster" || ov.length ? "&layers=" + (base === "kataster" ? ["ch.kantone.cadastralwebmap-farbe"] : []).concat(ov.map(function (o) { return o.id; })).join(";") : "");
     }
     function openGeo() { window.open(geoUrl(false), "_blank", "noopener"); }
     /* immer auf den Bestand (alle Linien, Schächte, Sondagen) zoomen */
@@ -214,7 +270,7 @@
     function setBase(v) {
       var was = base === "viewer"; base = v; var vw = $("#kmView"), mp = $("#kmMap");
       if (v === "viewer") { if (layer) { map.removeLayer(layer); layer = null; } mode = ""; vw.src = geoUrl(true).replace("&bgLayer=", "&bgLayer="); vw.hidden = false; mp.hidden = true; }
-      else { if (vw) { vw.hidden = true; vw.removeAttribute("src"); } mp.hidden = false; map.invalidateSize(); tiles(); if (was) fitAll(); }
+      else { if (vw) { vw.hidden = true; vw.removeAttribute("src"); } mp.hidden = false; map.invalidateSize(); tiles(); drawOv(); if (was) fitAll(); }
       refresh();
     }
     function calTxt() { return cal.scale && cal.auto ? tt("pl_calAuto").replace("{r}", cal.auto).replace("{s}", (Math.round(cal.scale * 1000) / 1000)) : cal.scale ? tt("pl_calOk").replace("{m}", fmt(cal.m)).replace("{s}", (Math.round(cal.scale * 1000) / 1000)) : tt("pl_calNo"); }
@@ -328,8 +384,11 @@
         toast(dlg, tt("pl_calDone"), tt("km_undoBtn"), function () { cal = JSON.parse(old); refresh(); });
       });
     } else {
-      map = L.map($("#kmMap"), { center: [46.8, 8.23], zoom: 8, minZoom: 7, maxZoom: 20, doubleClickZoom: false });
-      grp = L.layerGroup().addTo(map); tiles();
+      map = L.map($("#kmMap"), { center: [46.8, 8.23], zoom: 8, minZoom: 7, maxZoom: 20, doubleClickZoom: false, attributionControl: false }); L.control.attribution({ prefix: "Leaflet" }).addTo(map);
+      ovGrp = L.layerGroup().addTo(map); grp = L.layerGroup().addTo(map); tiles(); drawOv(); selList();
+      $("#kmCat").addEventListener("toggle", function (e) { if (e.target.open) openCat(); });
+      $("#kmCatQ").addEventListener("input", resList);
+      $("#kmCatS").addEventListener("click", function (e) { var b = e.target.closest("[data-ovdel]"); if (!b) return; ov.splice(+b.dataset.ovdel, 1); saveOv(); drawOv(); selList(); resList(); });
     }
     map.on("click", function (e) { addPt(e.latlng); });
     map.on("dblclick", function () { if (mode === "line") endLine(); });
