@@ -533,6 +533,8 @@
     var out = lastOut, cnt = {};
     if (out) out.elems.forEach(function (e) { if (e.lines.length) cnt[e.tab] = (cnt[e.tab] || 0) + 1; });
     TABS.forEach(function (t) { if (t === "hon") cnt.hon = S.recs.hon.filter(function (r) { return honCalc(r, out ? out.sum.netto : 0).ok; }).length; });
+    document.body.classList.toggle("lv-on", S.ui.lvCol !== false);
+    var lb = $("#lvBtn"); if (lb) { lb.textContent = tt(S.ui.lvCol !== false ? "lv_hide" : "lv_show"); lb.setAttribute("aria-pressed", S.ui.lvCol !== false); }
     $("#tabs").innerHTML = ALLTABS.map(function (t) {
       return '<button type="button" role="tab" data-tab="' + t + '"' + (S.tab === t ? ' id="tabCur"' : "") + ' aria-controls="formwrap" tabindex="' + (S.tab === t ? "0" : "-1") + '" class="tab' + (S.tab === t ? " on" : "") + (t === "hon" || t === "plan" || t === "par" ? " sep" : "") + '" aria-selected="' + (S.tab === t) + '">' + esc(tt("tab_" + t)) + (cnt[t] ? '<span class="cnt">' + cnt[t] + "</span>" : "") + "</button>";
     }).join("");
@@ -849,9 +851,16 @@
     $("#kpi").innerHTML = '<div class="kpi-main">' + cell(tt("ux_netto"), s.netto, "main") + cell(tt("ux_brutto"), s.brutto) + (hon.length ? cell(tt("ux_hon"), hn) : "") + "</div>" + (n ? '<div class="kpi-tags">' + tags + "</div>" : "");
     $("#mbar").innerHTML = '<div><span class="kl">' + esc(tt("ux_netto")) + '</span><b>CHF ' + chf(s.netto) + "</b>" + (nStop ? ' <span class="tag stop">' + nStop + " !</span>" : "") + '</div><a class="btn" href="#kpi">' + esc(tt("ux_toRes")) + " ↓</a>";
   }
+  /* LV rechts (ab 1500 px): Zusammenstellung und Kosten wie im Ausdruck, live */
+  function lvRender(lvHtml, hon, out) {
+    var el = $("#lvcol"); if (!el) return;
+    document.body.classList.toggle("lv-on", S.ui.lvCol !== false);
+    var h = '<div class="lvhead"><h2>' + esc(tt("lv_title")) + '</h2><button type="button" class="btn ghost small" data-lvtoggle>' + esc(tt("lv_hide")) + "</button></div>";
+    el.innerHTML = lvHtml ? h + lvHtml : h + '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>";
+  }
   function renderResult() {
     var out = KVE.calc(S, LV); lastOut = out;
-    var html = "", stop = out.warn.some(function (w) { return w.sev === "stop"; }), amber = out.warn.some(function (w) { return w.sev === "amber"; });
+    var lvHtml = "", html = "", stop = out.warn.some(function (w) { return w.sev === "stop"; }), amber = out.warn.some(function (w) { return w.sev === "amber"; });
     var n = 0; out.elems.forEach(function (e) { n += e.lines.length; }); n += out.vor.lines.length + out.be.lines.length;
     var st = n === 0 ? "empty" : stop ? "stop" : amber ? "amber" : "ok";
     html += '<div class="status no-summary ' + (st === "stop" ? "stop" : st === "amber" ? "amber" : "ok") + '"><p class="stitle">' + esc(tt("st_" + st)) + "</p>";
@@ -878,7 +887,8 @@
         if (ch !== curCh) { curCh = ch; z += '<tr class="grp"><td colspan="6">' + (ch === "—" ? esc(tt("g_frei")) : ch === "OFFEN" ? esc(tt("c_offenTag")) : ch === "P" ? esc(tt("g_pausch")) : "NPK " + ch + " · " + esc(CHAPTERS[ch] || "")) + "</td></tr>"; }
         z += rowHtml(l);
       });
-      html += '<div class="no-summary">' + blk("zus", tt("h_zus"), out.sum.zwischen, z + "</tbody></table>") + "</div>";
+      lvHtml = "<h3>" + esc(tt("h_zus")) + "</h3>" + z + "</tbody></table>";
+      html += '<div class="no-summary zusblk">' + blk("zus", tt("h_zus"), out.sum.zwischen, z + "</tbody></table>") + "</div>";
       var chapTot = {}, chapOrder = [];
       out.summary.forEach(function (l) { var ch = l.key === "—" ? tt("g_frei") : l.key === "OFFEN" ? null : l.key === "Pauschal" ? tt("g_pausch") : "NPK " + l.key.split("/")[0] + " · " + (CHAPTERS[l.key.split("/")[0]] || ""); if (!ch) return;
         if (!(ch in chapTot)) { chapTot[ch] = 0; chapOrder.push(ch); } chapTot[ch] = r2(chapTot[ch] + l.total); });
@@ -892,11 +902,12 @@
           return "<tr><td>" + esc(r.el) + "</td><td>" + esc(tt(r.id)) + ": " + esc(val) + "</td><td>" + esc(alt) + '</td><td class="num">' + (r.d >= 0 ? "+ " : "− ") + chf(Math.abs(r.d)) + "</td></tr>"; }).join("") + "</tbody></table>";
       html += "</div>";
       var s = out.sum;
-      html += "<h3>" + esc(tt("h_kosten")) + '</h3><table class="cost"><tbody><tr><td>' + esc(tt("k_zw")) + '</td><td class="num">' + chf(s.zwischen) + "</td></tr>" +
+      var kost = "<h3>" + esc(tt("h_kosten")) + '</h3><table class="cost"><tbody><tr><td>' + esc(tt("k_zw")) + '</td><td class="num">' + chf(s.zwischen) + "</td></tr>" +
         (s.belag ? '<tr class="sub"><td>' + esc(tt("k_belagKS")) + '</td><td class="num">' + chf(s.belag) + "</td></tr>" : "") +
         "<tr><td>" + esc(fill(tt("k_rabatt"), { s: s.stufe, p: s.pct })) + '</td><td class="num">− ' + chf(s.rabatt) + "</td></tr><tr><td>" + esc(tt("k_nach")) + '</td><td class="num">' + chf(s.nachRabatt) + "</td></tr>" +
         "<tr><td>" + esc(tt("k_inst")) + '</td><td class="num">+ ' + chf(s.inst) + '</td></tr><tr class="sub"><td>' + esc(tt("k_netto")) + '</td><td class="num">' + chf(s.netto) + "</td></tr>" +
         "<tr><td>" + esc(tt("k_mwst")) + " " + qf(s.mwSatz * 100) + ' %</td><td class="num">' + chf(s.mwst) + '</td></tr><tr class="sum"><td>' + esc(tt("k_brutto")) + '</td><td class="num">' + chf(s.brutto) + "</td></tr></tbody></table>";
+      html += '<div class="kostblk">' + kost + "</div>"; lvHtml += kost;
     }
     var hon = S.recs.hon.map(function (r) { return [r, honCalc(r, out.sum.netto)]; }).filter(function (x) { return x[1].ok; });
     if (hon.length) {
@@ -910,6 +921,7 @@
     html += '<details class="ref no-summary"><summary>' + esc(tt("h_grund")) + "</summary><ul class='doclist' style='padding:6px 14px'>" + (T[S.lang] || T.de).g_list.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "<li>" + esc(tt("g_lvOnlyDE")) + "</li></ul></details>";
     html += '<div class="sigline print-only"><div>' + esc(tt("sigA")) + "</div><div>" + esc(tt("sigB")) + "</div></div>";
     $("#result").innerHTML = html;
+    lvRender(lvHtml, hon, out);
     kpiRender(out, hon, n);
     renderTabs(); refreshFig(); if (S.tab === "hon") refreshHon();
     var hb = $("#honBv"); if (hb) hb.value = chf(out.sum.netto);
@@ -1070,6 +1082,7 @@
       var i = ALLTABS.indexOf(S.tab), j = k === "first" ? 0 : k === "last" ? ALLTABS.length - 1 : (i + k + ALLTABS.length) % ALLTABS.length;
       S.tab = ALLTABS[j]; save(); renderForm(); renderResult(); var b = $("#tabCur"); if (b) b.focus();
     });
+    document.addEventListener("click", function (ev) { var t = ev.target.closest("[data-lvtoggle]"); if (!t) return; S.ui.lvCol = S.ui.lvCol === false; save(); renderTabs(); renderResult(); });
     $("#tabs").addEventListener("click", function (ev) { var b = ev.target.closest("[data-tab]"); if (!b) return; S.tab = b.dataset.tab; save(); renderForm(); renderResult(); });
     $("#form").addEventListener("click", function (ev) {
       var nt = ev.target.closest("[data-nexttab]"); if (nt) { S.tab = nt.dataset.nexttab; save(); renderForm(); renderResult(); window.scrollTo({ top: $("#tabs").offsetTop - 8 }); return; }

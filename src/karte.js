@@ -169,13 +169,15 @@
       '<button type="button" class="btn small" data-k="mline" aria-pressed="false">' + esc(tt("km_draw")) + "</button>" +
       '<button type="button" class="btn small" data-k="mpt" aria-pressed="false">' + esc(tt("km_pt")) + "</button>" +
       '<button type="button" class="btn small" data-k="msond" aria-pressed="false">' + esc(tt("km_sond")) + "</button>" +
+      '<button type="button" class="btn ghost small" data-k="fit">' + esc(tt("km_fit")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="center">' + esc(tt("km_center")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="end">' + esc(tt("km_end")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="undo">' + esc(tt("km_undo")) + "</button>" +
       '<button type="button" class="btn ghost small del" data-k="clear">' + esc(tt("km_clear")) + "</button>" +
-      (plan ? "" : '<span class="sp"></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase">' + [["farbe", "km_bFarbe"], ["grau", "km_bGrau"], ["luft", "km_aerial"], ["kataster", "km_bKat"]].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join("") + '</select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + "</button>") + "</div>" +
+      (plan ? "" : '<span class="sp"></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase">' + [["farbe", "km_bFarbe"], ["grau", "km_bGrau"], ["luft", "km_aerial"], ["kataster", "km_bKat"], ["viewer", "km_bViewer"]].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join("") + '</select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + "</button>") + "</div>" +
       (plan ? '<form class="kmcalf" id="kmCalF" hidden><label for="kmCalM">' + esc(tt("pl_calAsk")) + '</label><input type="text" inputmode="decimal" id="kmCalM" class="numin"><button type="submit" class="btn small">' + esc(tt("pl_calSet")) + "</button></form>" : "") +
       '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div>' +
+      (plan ? "" : '<iframe id="kmView" class="kmframe" hidden title="map.geo.admin.ch" referrerpolicy="no-referrer"></iframe>') +
       '<p class="hint kmhelp" id="kmHelp"></p>' +
       '<div class="kmobj" id="kmObj" aria-label="' + esc(tt("km_obj")) + '"></div>' +
       '<div class="kmslot" id="kmSlot"></div>' +
@@ -195,12 +197,25 @@
       layer.addTo(map); layer.eachLayer(function (l) { l.bringToBack(); });
     }
     /* Ausschnitt im Kartenviewer map.geo.admin.ch öffnen (gleicher Hintergrund, aktuelles Zentrum) */
-    function openGeo() {
+    function geoUrl(embed) {
       var c = map.getCenter(), e = toLV95(c.lat, c.lng), res = 156543.03 * Math.cos(c.lat * Math.PI / 180) / Math.pow(2, map.getZoom()),
         R = [4000, 3750, 3500, 3250, 3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250, 1000, 750, 650, 500, 250, 100, 50, 20, 10, 5, 2.5, 2, 1.5, 1, 0.5], z = 0, d = 1e9;
       R.forEach(function (r, i) { var x = Math.abs(Math.log(r / res)); if (x < d) { d = x; z = i; } });
       var bg = base === "luft" ? "ch.swisstopo.swissimage" : base === "grau" || base === "kataster" ? "ch.swisstopo.pixelkarte-grau" : "ch.swisstopo.pixelkarte-farbe";
-      window.open("https://map.geo.admin.ch/#/map?lang=" + (opt.lang || "de") + "&center=" + Math.round(e[0]) + "," + Math.round(e[1]) + "&z=" + z + "&bgLayer=" + bg + (base === "kataster" ? "&layers=ch.kantone.cadastralwebmap-farbe" : ""), "_blank", "noopener");
+      return "https://map.geo.admin.ch/#/" + (embed ? "embed" : "map") + "?lang=" + (opt.lang || "de") + "&center=" + Math.round(e[0]) + "," + Math.round(e[1]) + "&z=" + z + "&bgLayer=" + bg + (base === "kataster" ? "&layers=ch.kantone.cadastralwebmap-farbe" : "");
+    }
+    function openGeo() { window.open(geoUrl(false), "_blank", "noopener"); }
+    /* immer auf den Bestand (alle Linien, Schächte, Sondagen) zoomen */
+    function fitAll() {
+      var pts = []; M.lines.forEach(function (l) { l.pts.forEach(function (p) { pts.push(AD.ll(p)); }); }); M.pts.concat(M.sond).forEach(function (p) { pts.push(AD.ll(p.pt)); });
+      if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.3), { maxZoom: plan ? 3 : 19, animate: false });
+      else if (plan) map.fitBounds([[-opt.plan.h, 0], [0, opt.plan.w]], { animate: false });
+    }
+    function setBase(v) {
+      var was = base === "viewer"; base = v; var vw = $("#kmView"), mp = $("#kmMap");
+      if (v === "viewer") { if (layer) { map.removeLayer(layer); layer = null; } mode = ""; vw.src = geoUrl(true).replace("&bgLayer=", "&bgLayer="); vw.hidden = false; mp.hidden = true; }
+      else { if (vw) { vw.hidden = true; vw.removeAttribute("src"); } mp.hidden = false; map.invalidateSize(); tiles(); if (was) fitAll(); }
+      refresh();
     }
     function calTxt() { return cal.scale && cal.auto ? tt("pl_calAuto").replace("{r}", cal.auto).replace("{s}", (Math.round(cal.scale * 1000) / 1000)) : cal.scale ? tt("pl_calOk").replace("{m}", fmt(cal.m)).replace("{s}", (Math.round(cal.scale * 1000) / 1000)) : tt("pl_calNo"); }
     function draw() {
@@ -228,6 +243,8 @@
       $("[data-k=end]").disabled = !cur; $("[data-k=undo]").disabled = !hist.length; $("[data-k=clear]").disabled = !(M.lines.length || M.pts.length || M.sond.length); $("[data-k=center]").disabled = !mode;
       $("#kmHelp").textContent = mode === "cal" ? tt("pl_helpCal") : mode ? tt("km_helpOn") : plan && !cal.scale ? tt("pl_calNeed") : tt("km_helpOff");
       map.getContainer().style.cursor = mode ? "crosshair" : "";
+      var vw = base === "viewer"; dlg.querySelectorAll(".kmbar [data-k^=m],[data-k=center],[data-k=end],[data-k=fit]").forEach(function (b) { if (vw) b.disabled = true; else if (b.dataset.k !== "end" && b.dataset.k !== "center") b.disabled = false; });
+      if (vw) $("#kmHelp").textContent = tt("km_viewerHelp");
     }
     function sel1(label, arr, val, on) {
       var s = document.createElement("select"); s.setAttribute("aria-label", label);
@@ -314,8 +331,6 @@
       map = L.map($("#kmMap"), { center: [46.8, 8.23], zoom: 8, minZoom: 7, maxZoom: 20, doubleClickZoom: false });
       grp = L.layerGroup().addTo(map); tiles();
     }
-    var all = []; M.lines.forEach(function (l) { l.pts.forEach(function (p) { all.push(AD.ll(p)); }); }); M.pts.concat(M.sond).forEach(function (p) { all.push(AD.ll(p.pt)); });
-    if (all.length) map.fitBounds(L.latLngBounds(all).pad(0.3), { maxZoom: plan ? 3 : 19 });
     map.on("click", function (e) { addPt(e.latlng); });
     map.on("dblclick", function () { if (mode === "line") endLine(); });
 
@@ -330,6 +345,7 @@
       else if (k === "undo") undo();
       else if (k === "clear") { var snap = JSON.stringify(M); M.lines = []; M.pts = []; M.sond = []; cur = null; hist = []; sel = null; refresh(); toast(dlg, tt("km_cleared"), tt("km_undoBtn"), function () { M = JSON.parse(snap); refresh(); }); }
       else if (k === "geo") openGeo();
+      else if (k === "fit") fitAll();
       else if (k === "apply") {
         endLine();
         if (plan && !cal.scale && M.lines.length) { toast(dlg, tt("pl_calNeed")); return; }
@@ -337,7 +353,7 @@
       }
     });
     dlg.addEventListener("cancel", function (e) { e.preventDefault(); close(); });
-    var bs = $("#kmBase"); if (bs) bs.addEventListener("change", function () { base = bs.value; tiles(); });
+    var bs = $("#kmBase"); if (bs) bs.addEventListener("change", function () { setBase(bs.value); });
     var sf = $(".kmsearch");
     if (sf) sf.addEventListener("submit", function (e) {
       e.preventDefault(); var q = $("#kmQ").value.trim(), ul = $("#kmHits"); if (!q) return;
@@ -355,7 +371,7 @@
           });
         }).catch(function () { ul.innerHTML = '<li class="kmnote err">' + esc(tt("km_searchErr")) + "</li>"; });
     });
-    dlg.showModal(); map.invalidateSize(); if (plan && !all.length) map.fitBounds([[-opt.plan.h, 0], [0, opt.plan.w]]); refresh(); (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
+    dlg.showModal(); map.invalidateSize(); fitAll(); refresh(); (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
   window.KARTE = { open: open, toast: toast, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };

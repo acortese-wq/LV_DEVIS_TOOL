@@ -877,6 +877,24 @@ svg text.warnTx{fill:var(--signal)!important}
 .kmmap{height:min(56vh,560px)}
 .kmbl{font-size:12px;color:var(--ink-soft)}#kmBase{font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--rule-strong);border-radius:6px;background:#fff;color:var(--ink);max-width:100%}
 
+/* Volle Seitenbreite am Desktop; ab 1500 px LV rechts wie im Ausdruck */
+@media (min-width:1100px){.sheet{max-width:none;padding:18px 28px 44px}}
+.lvcol,.lvbtn{display:none}
+.lvcol{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:12px 16px;box-shadow:var(--shadow)}
+.lvhead{display:flex;justify-content:space-between;align-items:center;gap:10px}.lvhead h2{margin:0}
+.lvcol h3{font-size:14px;margin:16px 0 6px}.lvcol table{font-size:12px}.lvcol th,.lvcol td{padding:5px 7px}
+nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-label=Reiter] .tabsbar{flex:1;min-width:0}
+@media screen and (min-width:1500px){
+  .lvbtn{display:inline-block;margin-top:8px;white-space:nowrap}
+  body.lv-on .cols{grid-template-columns:minmax(380px,460px) minmax(0,1fr) minmax(480px,36vw)}
+  body.lv-on .cols.planmode{grid-template-columns:minmax(0,1fr) minmax(480px,36vw)}
+  body.lv-on .lvcol{display:block}
+  body.lv-on .zusblk,body.lv-on .kostblk{display:none}
+}
+.kmframe{width:100%;height:min(56vh,560px);border:1px solid var(--rule-strong);border-radius:8px}.kmframe[hidden]{display:none}
+.kmmap[hidden]{display:none}
+@media print{.lvcol{display:none!important}}
+
 </style>
 </head>
 <body>
@@ -930,7 +948,7 @@ svg text.warnTx{fill:var(--signal)!important}
     <p class="savestate no-print" id="saveState" role="status" aria-live="polite"></p>
   </header>
 
-  <nav class="no-print" aria-label="Reiter"><div class="tabsbar" id="tabs" role="tablist" aria-label="Reiter"></div></nav>
+  <nav class="no-print" aria-label="Reiter"><div class="tabsbar" id="tabs" role="tablist" aria-label="Reiter"></div><button type="button" class="btn ghost small lvbtn" id="lvBtn" data-lvtoggle></button></nav>
 
   <main class="cols" id="main">
     <form class="form no-print" id="formwrap" autocomplete="off" onsubmit="return false">
@@ -954,6 +972,7 @@ svg text.warnTx{fill:var(--signal)!important}
       </div>
       <div id="result" tabindex="-1"></div>
     </section>
+    <aside id="lvcol" class="lvcol no-print" aria-label="LV"></aside>
   </main>
   <div class="mbar no-print" id="mbar"></div>
   <footer>© 2026 Alessandro Cortese · LV-Devis Tiefbau · App-Konzept, Struktur und fachliche Ausgestaltung. Enthält KV-Assistent Tiefbau und Auswahl Schachtbau und Abdeckungen (A. Cortese). LV V1.1 (10.07.2026).</footer>
@@ -2672,6 +2691,12 @@ Object.assign(TS.it,{
     km_bGrau: ["swisstopo Landeskarte grau", "swisstopo carte nationale gris", "swisstopo carta nazionale grigia", "swisstopo map (grey)"],
     km_bKat: ["geo.admin: Amtliche Vermessung (Parzellen)", "geo.admin: mensuration officielle (parcelles)", "geo.admin: misurazione ufficiale (particelle)", "geo.admin: cadastral survey (parcels)"],
     km_geo: ["In map.geo.admin.ch öffnen", "Ouvrir dans map.geo.admin.ch", "Aprire in map.geo.admin.ch", "Open in map.geo.admin.ch"],
+    km_bViewer: ["map.geo.admin.ch (Viewer, nur Ansicht)", "map.geo.admin.ch (visionneuse, consultation)", "map.geo.admin.ch (visualizzatore, sola vista)", "map.geo.admin.ch (viewer, view only)"],
+    km_fit: ["Auf Bestand zoomen", "Zoom sur l'existant", "Zoom sull'esistente", "Zoom to existing"],
+    km_viewerHelp: ["Viewer map.geo.admin.ch: nur Ansicht (weitere Karten, Ebenen, Messen). Zum Zeichnen die Kartenquelle wieder auf eine swisstopo-Karte stellen.", "Visionneuse map.geo.admin.ch: consultation seulement. Pour dessiner, revenir à une carte swisstopo.", "Visualizzatore map.geo.admin.ch: sola vista. Per disegnare tornare a una carta swisstopo.", "map.geo.admin.ch viewer: view only. To draw, switch the map source back to a swisstopo map."],
+    lv_title: ["LV wie im Ausdruck", "LV comme à l'impression", "LV come nella stampa", "LV as in the printout"],
+    lv_hide: ["LV ausblenden", "Masquer le LV", "Nascondere il LV", "Hide LV"],
+    lv_show: ["LV rechts zeigen", "Afficher le LV à droite", "Mostrare il LV a destra", "Show LV on the right"],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
     km_ptOn: ["Schacht setzen aktiv", "Pose de regard active", "Posa pozzetto attiva", "Placing manholes"],
     km_obj: ["Objekte auf der Karte", "Objets sur la carte", "Oggetti sulla carta", "Objects on the map"],
@@ -4334,13 +4359,15 @@ var FIG = (function () {
       '<button type="button" class="btn small" data-k="mline" aria-pressed="false">' + esc(tt("km_draw")) + "</button>" +
       '<button type="button" class="btn small" data-k="mpt" aria-pressed="false">' + esc(tt("km_pt")) + "</button>" +
       '<button type="button" class="btn small" data-k="msond" aria-pressed="false">' + esc(tt("km_sond")) + "</button>" +
+      '<button type="button" class="btn ghost small" data-k="fit">' + esc(tt("km_fit")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="center">' + esc(tt("km_center")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="end">' + esc(tt("km_end")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="undo">' + esc(tt("km_undo")) + "</button>" +
       '<button type="button" class="btn ghost small del" data-k="clear">' + esc(tt("km_clear")) + "</button>" +
-      (plan ? "" : '<span class="sp"></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase">' + [["farbe", "km_bFarbe"], ["grau", "km_bGrau"], ["luft", "km_aerial"], ["kataster", "km_bKat"]].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join("") + '</select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + "</button>") + "</div>" +
+      (plan ? "" : '<span class="sp"></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase">' + [["farbe", "km_bFarbe"], ["grau", "km_bGrau"], ["luft", "km_aerial"], ["kataster", "km_bKat"], ["viewer", "km_bViewer"]].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join("") + '</select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + "</button>") + "</div>" +
       (plan ? '<form class="kmcalf" id="kmCalF" hidden><label for="kmCalM">' + esc(tt("pl_calAsk")) + '</label><input type="text" inputmode="decimal" id="kmCalM" class="numin"><button type="submit" class="btn small">' + esc(tt("pl_calSet")) + "</button></form>" : "") +
       '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div>' +
+      (plan ? "" : '<iframe id="kmView" class="kmframe" hidden title="map.geo.admin.ch" referrerpolicy="no-referrer"></iframe>') +
       '<p class="hint kmhelp" id="kmHelp"></p>' +
       '<div class="kmobj" id="kmObj" aria-label="' + esc(tt("km_obj")) + '"></div>' +
       '<div class="kmslot" id="kmSlot"></div>' +
@@ -4360,12 +4387,25 @@ var FIG = (function () {
       layer.addTo(map); layer.eachLayer(function (l) { l.bringToBack(); });
     }
     /* Ausschnitt im Kartenviewer map.geo.admin.ch öffnen (gleicher Hintergrund, aktuelles Zentrum) */
-    function openGeo() {
+    function geoUrl(embed) {
       var c = map.getCenter(), e = toLV95(c.lat, c.lng), res = 156543.03 * Math.cos(c.lat * Math.PI / 180) / Math.pow(2, map.getZoom()),
         R = [4000, 3750, 3500, 3250, 3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250, 1000, 750, 650, 500, 250, 100, 50, 20, 10, 5, 2.5, 2, 1.5, 1, 0.5], z = 0, d = 1e9;
       R.forEach(function (r, i) { var x = Math.abs(Math.log(r / res)); if (x < d) { d = x; z = i; } });
       var bg = base === "luft" ? "ch.swisstopo.swissimage" : base === "grau" || base === "kataster" ? "ch.swisstopo.pixelkarte-grau" : "ch.swisstopo.pixelkarte-farbe";
-      window.open("https://map.geo.admin.ch/#/map?lang=" + (opt.lang || "de") + "&center=" + Math.round(e[0]) + "," + Math.round(e[1]) + "&z=" + z + "&bgLayer=" + bg + (base === "kataster" ? "&layers=ch.kantone.cadastralwebmap-farbe" : ""), "_blank", "noopener");
+      return "https://map.geo.admin.ch/#/" + (embed ? "embed" : "map") + "?lang=" + (opt.lang || "de") + "&center=" + Math.round(e[0]) + "," + Math.round(e[1]) + "&z=" + z + "&bgLayer=" + bg + (base === "kataster" ? "&layers=ch.kantone.cadastralwebmap-farbe" : "");
+    }
+    function openGeo() { window.open(geoUrl(false), "_blank", "noopener"); }
+    /* immer auf den Bestand (alle Linien, Schächte, Sondagen) zoomen */
+    function fitAll() {
+      var pts = []; M.lines.forEach(function (l) { l.pts.forEach(function (p) { pts.push(AD.ll(p)); }); }); M.pts.concat(M.sond).forEach(function (p) { pts.push(AD.ll(p.pt)); });
+      if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.3), { maxZoom: plan ? 3 : 19, animate: false });
+      else if (plan) map.fitBounds([[-opt.plan.h, 0], [0, opt.plan.w]], { animate: false });
+    }
+    function setBase(v) {
+      var was = base === "viewer"; base = v; var vw = $("#kmView"), mp = $("#kmMap");
+      if (v === "viewer") { if (layer) { map.removeLayer(layer); layer = null; } mode = ""; vw.src = geoUrl(true).replace("&bgLayer=", "&bgLayer="); vw.hidden = false; mp.hidden = true; }
+      else { if (vw) { vw.hidden = true; vw.removeAttribute("src"); } mp.hidden = false; map.invalidateSize(); tiles(); if (was) fitAll(); }
+      refresh();
     }
     function calTxt() { return cal.scale && cal.auto ? tt("pl_calAuto").replace("{r}", cal.auto).replace("{s}", (Math.round(cal.scale * 1000) / 1000)) : cal.scale ? tt("pl_calOk").replace("{m}", fmt(cal.m)).replace("{s}", (Math.round(cal.scale * 1000) / 1000)) : tt("pl_calNo"); }
     function draw() {
@@ -4393,6 +4433,8 @@ var FIG = (function () {
       $("[data-k=end]").disabled = !cur; $("[data-k=undo]").disabled = !hist.length; $("[data-k=clear]").disabled = !(M.lines.length || M.pts.length || M.sond.length); $("[data-k=center]").disabled = !mode;
       $("#kmHelp").textContent = mode === "cal" ? tt("pl_helpCal") : mode ? tt("km_helpOn") : plan && !cal.scale ? tt("pl_calNeed") : tt("km_helpOff");
       map.getContainer().style.cursor = mode ? "crosshair" : "";
+      var vw = base === "viewer"; dlg.querySelectorAll(".kmbar [data-k^=m],[data-k=center],[data-k=end],[data-k=fit]").forEach(function (b) { if (vw) b.disabled = true; else if (b.dataset.k !== "end" && b.dataset.k !== "center") b.disabled = false; });
+      if (vw) $("#kmHelp").textContent = tt("km_viewerHelp");
     }
     function sel1(label, arr, val, on) {
       var s = document.createElement("select"); s.setAttribute("aria-label", label);
@@ -4479,8 +4521,6 @@ var FIG = (function () {
       map = L.map($("#kmMap"), { center: [46.8, 8.23], zoom: 8, minZoom: 7, maxZoom: 20, doubleClickZoom: false });
       grp = L.layerGroup().addTo(map); tiles();
     }
-    var all = []; M.lines.forEach(function (l) { l.pts.forEach(function (p) { all.push(AD.ll(p)); }); }); M.pts.concat(M.sond).forEach(function (p) { all.push(AD.ll(p.pt)); });
-    if (all.length) map.fitBounds(L.latLngBounds(all).pad(0.3), { maxZoom: plan ? 3 : 19 });
     map.on("click", function (e) { addPt(e.latlng); });
     map.on("dblclick", function () { if (mode === "line") endLine(); });
 
@@ -4495,6 +4535,7 @@ var FIG = (function () {
       else if (k === "undo") undo();
       else if (k === "clear") { var snap = JSON.stringify(M); M.lines = []; M.pts = []; M.sond = []; cur = null; hist = []; sel = null; refresh(); toast(dlg, tt("km_cleared"), tt("km_undoBtn"), function () { M = JSON.parse(snap); refresh(); }); }
       else if (k === "geo") openGeo();
+      else if (k === "fit") fitAll();
       else if (k === "apply") {
         endLine();
         if (plan && !cal.scale && M.lines.length) { toast(dlg, tt("pl_calNeed")); return; }
@@ -4502,7 +4543,7 @@ var FIG = (function () {
       }
     });
     dlg.addEventListener("cancel", function (e) { e.preventDefault(); close(); });
-    var bs = $("#kmBase"); if (bs) bs.addEventListener("change", function () { base = bs.value; tiles(); });
+    var bs = $("#kmBase"); if (bs) bs.addEventListener("change", function () { setBase(bs.value); });
     var sf = $(".kmsearch");
     if (sf) sf.addEventListener("submit", function (e) {
       e.preventDefault(); var q = $("#kmQ").value.trim(), ul = $("#kmHits"); if (!q) return;
@@ -4520,7 +4561,7 @@ var FIG = (function () {
           });
         }).catch(function () { ul.innerHTML = '<li class="kmnote err">' + esc(tt("km_searchErr")) + "</li>"; });
     });
-    dlg.showModal(); map.invalidateSize(); if (plan && !all.length) map.fitBounds([[-opt.plan.h, 0], [0, opt.plan.w]]); refresh(); (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
+    dlg.showModal(); map.invalidateSize(); fitAll(); refresh(); (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
   window.KARTE = { open: open, toast: toast, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
@@ -5063,6 +5104,8 @@ var FIG = (function () {
     var out = lastOut, cnt = {};
     if (out) out.elems.forEach(function (e) { if (e.lines.length) cnt[e.tab] = (cnt[e.tab] || 0) + 1; });
     TABS.forEach(function (t) { if (t === "hon") cnt.hon = S.recs.hon.filter(function (r) { return honCalc(r, out ? out.sum.netto : 0).ok; }).length; });
+    document.body.classList.toggle("lv-on", S.ui.lvCol !== false);
+    var lb = $("#lvBtn"); if (lb) { lb.textContent = tt(S.ui.lvCol !== false ? "lv_hide" : "lv_show"); lb.setAttribute("aria-pressed", S.ui.lvCol !== false); }
     $("#tabs").innerHTML = ALLTABS.map(function (t) {
       return '<button type="button" role="tab" data-tab="' + t + '"' + (S.tab === t ? ' id="tabCur"' : "") + ' aria-controls="formwrap" tabindex="' + (S.tab === t ? "0" : "-1") + '" class="tab' + (S.tab === t ? " on" : "") + (t === "hon" || t === "plan" || t === "par" ? " sep" : "") + '" aria-selected="' + (S.tab === t) + '">' + esc(tt("tab_" + t)) + (cnt[t] ? '<span class="cnt">' + cnt[t] + "</span>" : "") + "</button>";
     }).join("");
@@ -5379,9 +5422,16 @@ var FIG = (function () {
     $("#kpi").innerHTML = '<div class="kpi-main">' + cell(tt("ux_netto"), s.netto, "main") + cell(tt("ux_brutto"), s.brutto) + (hon.length ? cell(tt("ux_hon"), hn) : "") + "</div>" + (n ? '<div class="kpi-tags">' + tags + "</div>" : "");
     $("#mbar").innerHTML = '<div><span class="kl">' + esc(tt("ux_netto")) + '</span><b>CHF ' + chf(s.netto) + "</b>" + (nStop ? ' <span class="tag stop">' + nStop + " !</span>" : "") + '</div><a class="btn" href="#kpi">' + esc(tt("ux_toRes")) + " ↓</a>";
   }
+  /* LV rechts (ab 1500 px): Zusammenstellung und Kosten wie im Ausdruck, live */
+  function lvRender(lvHtml, hon, out) {
+    var el = $("#lvcol"); if (!el) return;
+    document.body.classList.toggle("lv-on", S.ui.lvCol !== false);
+    var h = '<div class="lvhead"><h2>' + esc(tt("lv_title")) + '</h2><button type="button" class="btn ghost small" data-lvtoggle>' + esc(tt("lv_hide")) + "</button></div>";
+    el.innerHTML = lvHtml ? h + lvHtml : h + '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>";
+  }
   function renderResult() {
     var out = KVE.calc(S, LV); lastOut = out;
-    var html = "", stop = out.warn.some(function (w) { return w.sev === "stop"; }), amber = out.warn.some(function (w) { return w.sev === "amber"; });
+    var lvHtml = "", html = "", stop = out.warn.some(function (w) { return w.sev === "stop"; }), amber = out.warn.some(function (w) { return w.sev === "amber"; });
     var n = 0; out.elems.forEach(function (e) { n += e.lines.length; }); n += out.vor.lines.length + out.be.lines.length;
     var st = n === 0 ? "empty" : stop ? "stop" : amber ? "amber" : "ok";
     html += '<div class="status no-summary ' + (st === "stop" ? "stop" : st === "amber" ? "amber" : "ok") + '"><p class="stitle">' + esc(tt("st_" + st)) + "</p>";
@@ -5408,7 +5458,8 @@ var FIG = (function () {
         if (ch !== curCh) { curCh = ch; z += '<tr class="grp"><td colspan="6">' + (ch === "—" ? esc(tt("g_frei")) : ch === "OFFEN" ? esc(tt("c_offenTag")) : ch === "P" ? esc(tt("g_pausch")) : "NPK " + ch + " · " + esc(CHAPTERS[ch] || "")) + "</td></tr>"; }
         z += rowHtml(l);
       });
-      html += '<div class="no-summary">' + blk("zus", tt("h_zus"), out.sum.zwischen, z + "</tbody></table>") + "</div>";
+      lvHtml = "<h3>" + esc(tt("h_zus")) + "</h3>" + z + "</tbody></table>";
+      html += '<div class="no-summary zusblk">' + blk("zus", tt("h_zus"), out.sum.zwischen, z + "</tbody></table>") + "</div>";
       var chapTot = {}, chapOrder = [];
       out.summary.forEach(function (l) { var ch = l.key === "—" ? tt("g_frei") : l.key === "OFFEN" ? null : l.key === "Pauschal" ? tt("g_pausch") : "NPK " + l.key.split("/")[0] + " · " + (CHAPTERS[l.key.split("/")[0]] || ""); if (!ch) return;
         if (!(ch in chapTot)) { chapTot[ch] = 0; chapOrder.push(ch); } chapTot[ch] = r2(chapTot[ch] + l.total); });
@@ -5422,11 +5473,12 @@ var FIG = (function () {
           return "<tr><td>" + esc(r.el) + "</td><td>" + esc(tt(r.id)) + ": " + esc(val) + "</td><td>" + esc(alt) + '</td><td class="num">' + (r.d >= 0 ? "+ " : "− ") + chf(Math.abs(r.d)) + "</td></tr>"; }).join("") + "</tbody></table>";
       html += "</div>";
       var s = out.sum;
-      html += "<h3>" + esc(tt("h_kosten")) + '</h3><table class="cost"><tbody><tr><td>' + esc(tt("k_zw")) + '</td><td class="num">' + chf(s.zwischen) + "</td></tr>" +
+      var kost = "<h3>" + esc(tt("h_kosten")) + '</h3><table class="cost"><tbody><tr><td>' + esc(tt("k_zw")) + '</td><td class="num">' + chf(s.zwischen) + "</td></tr>" +
         (s.belag ? '<tr class="sub"><td>' + esc(tt("k_belagKS")) + '</td><td class="num">' + chf(s.belag) + "</td></tr>" : "") +
         "<tr><td>" + esc(fill(tt("k_rabatt"), { s: s.stufe, p: s.pct })) + '</td><td class="num">− ' + chf(s.rabatt) + "</td></tr><tr><td>" + esc(tt("k_nach")) + '</td><td class="num">' + chf(s.nachRabatt) + "</td></tr>" +
         "<tr><td>" + esc(tt("k_inst")) + '</td><td class="num">+ ' + chf(s.inst) + '</td></tr><tr class="sub"><td>' + esc(tt("k_netto")) + '</td><td class="num">' + chf(s.netto) + "</td></tr>" +
         "<tr><td>" + esc(tt("k_mwst")) + " " + qf(s.mwSatz * 100) + ' %</td><td class="num">' + chf(s.mwst) + '</td></tr><tr class="sum"><td>' + esc(tt("k_brutto")) + '</td><td class="num">' + chf(s.brutto) + "</td></tr></tbody></table>";
+      html += '<div class="kostblk">' + kost + "</div>"; lvHtml += kost;
     }
     var hon = S.recs.hon.map(function (r) { return [r, honCalc(r, out.sum.netto)]; }).filter(function (x) { return x[1].ok; });
     if (hon.length) {
@@ -5440,6 +5492,7 @@ var FIG = (function () {
     html += '<details class="ref no-summary"><summary>' + esc(tt("h_grund")) + "</summary><ul class='doclist' style='padding:6px 14px'>" + (T[S.lang] || T.de).g_list.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "<li>" + esc(tt("g_lvOnlyDE")) + "</li></ul></details>";
     html += '<div class="sigline print-only"><div>' + esc(tt("sigA")) + "</div><div>" + esc(tt("sigB")) + "</div></div>";
     $("#result").innerHTML = html;
+    lvRender(lvHtml, hon, out);
     kpiRender(out, hon, n);
     renderTabs(); refreshFig(); if (S.tab === "hon") refreshHon();
     var hb = $("#honBv"); if (hb) hb.value = chf(out.sum.netto);
@@ -5600,6 +5653,7 @@ var FIG = (function () {
       var i = ALLTABS.indexOf(S.tab), j = k === "first" ? 0 : k === "last" ? ALLTABS.length - 1 : (i + k + ALLTABS.length) % ALLTABS.length;
       S.tab = ALLTABS[j]; save(); renderForm(); renderResult(); var b = $("#tabCur"); if (b) b.focus();
     });
+    document.addEventListener("click", function (ev) { var t = ev.target.closest("[data-lvtoggle]"); if (!t) return; S.ui.lvCol = S.ui.lvCol === false; save(); renderTabs(); renderResult(); });
     $("#tabs").addEventListener("click", function (ev) { var b = ev.target.closest("[data-tab]"); if (!b) return; S.tab = b.dataset.tab; save(); renderForm(); renderResult(); });
     $("#form").addEventListener("click", function (ev) {
       var nt = ev.target.closest("[data-nexttab]"); if (nt) { S.tab = nt.dataset.nexttab; save(); renderForm(); renderResult(); window.scrollTo({ top: $("#tabs").offsetTop - 8 }); return; }
