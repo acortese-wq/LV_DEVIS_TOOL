@@ -868,6 +868,12 @@ svg text.warnTx{fill:var(--signal)!important}
 .kmsond.on span{background:#b8332a;box-shadow:0 0 0 1px #b8332a}
 .kmc .kmw{width:150px}
 @media print{.kmtoast,.reclist,.nextrow{display:none!important}}
+.kmslot{min-height:44px}.kmtoast.in{position:static;max-width:none;box-shadow:none}
+/* Dialog: feste Höhe und oben ausgerichtet – die Karte darf beim Hinzufügen von Objekten nicht wandern */
+.kmdlg{margin:2vh auto auto}
+.kmdlg[open]{height:min(96vh,940px);overflow:auto}
+.kmobj{flex:1 1 auto;min-height:110px;overflow:auto}
+.kmmap{flex:0 0 auto}
 
 </style>
 </head>
@@ -4215,7 +4221,8 @@ var FIG = (function () {
   var toastT;
   function toast(host, msg, undoLabel, undo) {
     var old = host.querySelector(".kmtoast"); if (old) old.remove(); clearTimeout(toastT);
-    var t = document.createElement("div"); t.className = "kmtoast"; t.setAttribute("role", "status");
+    var slot = host.querySelector && host.querySelector(".kmslot"); if (slot) host = slot;   /* im Dialog: eigener Platz, verdeckt die Karte nicht */
+    var t = document.createElement("div"); t.className = "kmtoast" + (slot ? " in" : ""); t.setAttribute("role", "status");
     var sp = document.createElement("span"); sp.textContent = msg; t.appendChild(sp);
     if (undo) { var b = document.createElement("button"); b.type = "button"; b.className = "btn small"; b.textContent = undoLabel; b.addEventListener("click", function () { t.remove(); undo(); }); t.appendChild(b); }
     host.appendChild(t); toastT = setTimeout(function () { t.remove(); }, 9000);
@@ -4306,6 +4313,7 @@ var FIG = (function () {
       '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div>' +
       '<p class="hint kmhelp" id="kmHelp"></p>' +
       '<div class="kmobj" id="kmObj" aria-label="' + esc(tt("km_obj")) + '"></div>' +
+      '<div class="kmslot" id="kmSlot"></div>' +
       '<div class="kmfoot"><p class="kmlen" id="kmLen" role="status" aria-live="polite"></p><button type="button" class="btn" data-k="apply">' + esc(tt("km_apply")) + "</button></div>";
     document.body.appendChild(dlg);
     var $ = function (s) { return dlg.querySelector(s); };
@@ -5057,6 +5065,8 @@ var FIG = (function () {
       }
       used[ensureUid(r)] = 1; p.sid = r.uid; st.s++; r.typ = p.typ; if (p.name) r.name = p.name;
     });
+    /* Anzahl Schächte = Anzahl gesetzter Punkte je Datensatz (sonst bliebe n = 0 und der Schacht ohne Kosten) */
+    S.recs.schacht.forEach(function (r) { var k = M.pts.filter(function (p) { return p.sid === r.uid; }).length; if (k && r.modus !== "deckel") r.n = String(k); });
     st.o = (M.sond || []).length; return st;
   }
   /* Sondagen (Karte + Plan) -> Sondieraushub m³ im Reiter Allgemein (nur wenn Sondagen vorhanden) */

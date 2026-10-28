@@ -577,6 +577,8 @@
       }
       used[ensureUid(r)] = 1; p.sid = r.uid; st.s++; r.typ = p.typ; if (p.name) r.name = p.name;
     });
+    /* Anzahl Schächte = Anzahl gesetzter Punkte je Datensatz (sonst bliebe n = 0 und der Schacht ohne Kosten) */
+    S.recs.schacht.forEach(function (r) { var k = M.pts.filter(function (p) { return p.sid === r.uid; }).length; if (k && r.modus !== "deckel") r.n = String(k); });
     st.o = (M.sond || []).length; return st;
   }
   /* Sondagen (Karte + Plan) -> Sondieraushub m³ im Reiter Allgemein (nur wenn Sondagen vorhanden) */

@@ -66,7 +66,8 @@
   var toastT;
   function toast(host, msg, undoLabel, undo) {
     var old = host.querySelector(".kmtoast"); if (old) old.remove(); clearTimeout(toastT);
-    var t = document.createElement("div"); t.className = "kmtoast"; t.setAttribute("role", "status");
+    var slot = host.querySelector && host.querySelector(".kmslot"); if (slot) host = slot;   /* im Dialog: eigener Platz, verdeckt die Karte nicht */
+    var t = document.createElement("div"); t.className = "kmtoast" + (slot ? " in" : ""); t.setAttribute("role", "status");
     var sp = document.createElement("span"); sp.textContent = msg; t.appendChild(sp);
     if (undo) { var b = document.createElement("button"); b.type = "button"; b.className = "btn small"; b.textContent = undoLabel; b.addEventListener("click", function () { t.remove(); undo(); }); t.appendChild(b); }
     host.appendChild(t); toastT = setTimeout(function () { t.remove(); }, 9000);
@@ -157,6 +158,7 @@
       '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div>' +
       '<p class="hint kmhelp" id="kmHelp"></p>' +
       '<div class="kmobj" id="kmObj" aria-label="' + esc(tt("km_obj")) + '"></div>' +
+      '<div class="kmslot" id="kmSlot"></div>' +
       '<div class="kmfoot"><p class="kmlen" id="kmLen" role="status" aria-live="polite"></p><button type="button" class="btn" data-k="apply">' + esc(tt("km_apply")) + "</button></div>";
     document.body.appendChild(dlg);
     var $ = function (s) { return dlg.querySelector(s); };
