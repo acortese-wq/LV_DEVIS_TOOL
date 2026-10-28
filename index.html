@@ -928,6 +928,17 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 .situ{margin:18px 0}.situfig{margin:0 0 12px;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:#fff}.situfig svg{display:block;width:100%;height:auto}
 @media print{.situ{break-inside:avoid;page-break-inside:avoid;margin:10px 0}.situfig{break-inside:avoid;page-break-inside:avoid;border-radius:0}}
 
+.kmwl span{display:flex;width:26px;height:26px;align-items:center;justify-content:center;background:#b25e00;color:#fff;border:2px solid #fff;border-radius:4px;font:700 11px "Segoe UI",sans-serif;box-shadow:0 0 0 1px #b25e00}
+.kmwl.on span,.kmgeb.on span{background:#b8332a;box-shadow:0 0 0 1px #b8332a}
+.kmgeb span{display:flex;width:26px;height:26px;align-items:center;justify-content:center;background:#1c6b3f;color:#fff;border:2px solid #fff;border-radius:4px 4px 0 0;font:700 11px "Segoe UI",sans-serif;box-shadow:0 0 0 1px #1c6b3f}
+
+.kmovimg{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;pointer-events:none}
+.kmovc{align-items:center}.kmovc input[type=range]{width:120px}
+
+.kmdlg[open]{overflow:auto}
+.kmfoot{position:sticky;bottom:0;background:var(--paper);padding-top:8px;border-top:1px solid var(--rule);z-index:5}
+.kmmap,.kmframe{flex:1 1 300px;min-height:260px}
+
 </style>
 </head>
 <body>
@@ -2781,6 +2792,41 @@ Object.assign(TS.it,{
     sit_h: ["Situation (Karte / Plan)", "Situation (carte / plan)", "Situazione (carta / pianta)", "Situation (map / plan)"],
     sit_capMap: ["Situation: Trasse {m} m, {n} Schacht/Schächte, {s} Sondage(n), {f} Belagsfläche(n)", "Situation: tracé {m} m, {n} regard(s), {s} sondage(s), {f} surface(s)", "Situazione: tracciato {m} m, {n} pozzetto/i, {s} sondaggio/i, {f} superficie/i", "Situation: route {m} m, {n} manhole(s), {s} trial pit(s), {f} area(s)"],
     sit_capPlan: ["Plan", "Plan", "Pianta", "Plan"],
+    km_wl: ["Werkloch setzen", "Placer une fouille ponctuelle", "Posare una buca di lavoro", "Place work pit"],
+    km_geb: ["Gebäudeeinführung setzen", "Placer une introduction de bâtiment", "Posare un'introduzione edificio", "Place building entry"],
+    km_wlN: ["Werkloch {n}", "Fouille ponctuelle {n}", "Buca di lavoro {n}", "Work pit {n}"],
+    km_gebN: ["Gebäudeeinführung {n}", "Introduction de bâtiment {n}", "Introduzione edificio {n}", "Building entry {n}"],
+    km_wlT: ["Werkloch-Typ", "Type de fouille", "Tipo di buca", "Pit type"],
+    km_wlts: ["T-Stück", "Pièce en T", "Raccordo a T", "T-piece"],
+    km_wlbo: ["Bogen", "Coude", "Curva", "Bend"],
+    km_wlsg: ["Spleissgrube", "Fosse d'épissure", "Fossa di giunzione", "Splice pit"],
+    km_wlzs: ["Zugschlitz", "Fente de tirage", "Fessura di tiro", "Pulling slot"],
+    km_cm: ["Wandstärke total [cm]", "Épaisseur de paroi totale [cm]", "Spessore totale parete [cm]", "Total wall thickness [cm]"],
+    km_abd: ["Abdichtung", "Étanchéité", "Impermeabilizzazione", "Sealing"],
+    km_abdK: ["Keine", "Aucune", "Nessuna", "None"],
+    km_abdKi: ["Kissen aufblasbar", "Coussin gonflable", "Cuscino gonfiabile", "Inflatable cushion"],
+    km_abdH: ["Hauff-Dichtung", "Joint Hauff", "Guarnizione Hauff", "Hauff seal"],
+    km_gebHint: ["Wandstärke eintragen, sonst entsteht keine Position.", "Saisir l'épaisseur de paroi, sinon aucune position.", "Inserire lo spessore, altrimenti nessuna posizione.", "Enter the wall thickness, otherwise no item is created."],
+    km_wgTot: ["{w} Werkloch/Werklöcher · {g} Gebäudeeinführung(en)", "{w} fouille(s) ponctuelle(s) · {g} introduction(s)", "{w} buca/e di lavoro · {g} introduzione/i", "{w} work pit(s) · {g} building entry/ies"],
+    ov_title: ["Plan (PDF/Bild) als Hintergrund einsetzen und ausrichten", "Insérer un plan (PDF/image) en arrière-plan et l'aligner", "Inserire una pianta (PDF/immagine) come sfondo e allinearla", "Insert a plan (PDF/image) as background and align it"],
+    ov_hint: ["Plan laden, dann mit «Passpunkte setzen» zwei Punkte des Plans auf die richtige Stelle der Karte legen (Massstab, Drehung und Lage werden berechnet). Feinjustierung mit den Knöpfen unten. Hat der Plan einen Massstab (1:500 …), wird er automatisch gesetzt.", "Charger le plan, puis avec «Points de calage» placer deux points du plan au bon endroit de la carte (échelle, rotation et position sont calculées). Réglage fin avec les boutons ci-dessous.", "Caricare la pianta, poi con «Punti di appoggio» posizionare due punti della pianta nel punto giusto della carta (scala, rotazione e posizione vengono calcolate). Regolazione fine con i pulsanti sotto.", "Load the plan, then use “Set control points” to place two points of the plan at the right spot on the map (scale, rotation and position are computed). Fine-tune with the buttons below."],
+    ov_fromPlan: ["Plan aus Reiter «Plan» verwenden", "Utiliser le plan de l'onglet «Plan»", "Usare la pianta della scheda «Pianta»", "Use plan from the “Plan” tab"],
+    ov_geo: ["Passpunkte setzen (2)", "Points de calage (2)", "Punti di appoggio (2)", "Set control points (2)"],
+    ov_center: ["In Kartenmitte", "Au centre de la carte", "Al centro della carta", "To map centre"],
+    ov_rot: ["Drehung [°]", "Rotation [°]", "Rotazione [°]", "Rotation [°]"],
+    ov_mpp: ["Meter pro Pixel", "Mètres par pixel", "Metri per pixel", "Metres per pixel"],
+    ov_adj: ["Plan verschieben, drehen, skalieren", "Déplacer, tourner, mettre à l'échelle le plan", "Spostare, ruotare, scalare la pianta", "Move, rotate, scale the plan"],
+    ov_rl: ["0.5° links drehen", "tourner 0.5° à gauche", "ruotare 0.5° a sinistra", "rotate 0.5° left"],
+    ov_rr: ["0.5° rechts drehen", "tourner 0.5° à droite", "ruotare 0.5° a destra", "rotate 0.5° right"],
+    ov_sm: ["1 % kleiner", "1 % plus petit", "1 % più piccolo", "1 % smaller"],
+    ov_sp: ["1 % grösser", "1 % plus grand", "1 % più grande", "1 % larger"],
+    ov_loaded: ["Plan eingesetzt (ungefähre Grösse). Bitte mit «Passpunkte setzen» ausrichten.", "Plan inséré (taille approximative). Aligner avec «Points de calage».", "Pianta inserita (dimensione approssimativa). Allineare con «Punti di appoggio».", "Plan inserted (approximate size). Please align with “Set control points”."],
+    ov_loadedAuto: ["Plan eingesetzt, Massstab 1:{r} automatisch gesetzt. Lage und Drehung mit «Passpunkte setzen» ausrichten.", "Plan inséré, échelle 1:{r} fixée automatiquement. Aligner position et rotation avec «Points de calage».", "Pianta inserita, scala 1:{r} impostata automaticamente. Allineare posizione e rotazione con «Punti di appoggio».", "Plan inserted, scale 1:{r} set automatically. Align position and rotation with “Set control points”."],
+    ov_g1: ["Passpunkt 1: Punkt auf dem Plan anklicken (z. B. Gebäudeecke).", "Point de calage 1: cliquer un point du plan (p. ex. coin de bâtiment).", "Punto di appoggio 1: cliccare un punto sulla pianta (p. es. angolo edificio).", "Control point 1: click a point on the plan (e.g. building corner)."],
+    ov_g2: ["Passpunkt 1: jetzt die richtige Stelle auf der Karte anklicken.", "Point de calage 1: cliquer maintenant le bon endroit sur la carte.", "Punto di appoggio 1: ora cliccare il punto giusto sulla carta.", "Control point 1: now click the right spot on the map."],
+    ov_g3: ["Passpunkt 2: zweiten Punkt auf dem Plan anklicken (weit vom ersten entfernt).", "Point de calage 2: cliquer un second point du plan (éloigné du premier).", "Punto di appoggio 2: cliccare un secondo punto sulla pianta (lontano dal primo).", "Control point 2: click a second point on the plan (far from the first)."],
+    ov_g4: ["Passpunkt 2: jetzt die richtige Stelle auf der Karte anklicken.", "Point de calage 2: cliquer maintenant le bon endroit sur la carte.", "Punto di appoggio 2: ora cliccare il punto giusto sulla carta.", "Control point 2: now click the right spot on the map."],
+    ov_done: ["Plan ausgerichtet (Lage, Drehung, Massstab).", "Plan aligné (position, rotation, échelle).", "Pianta allineata (posizione, rotazione, scala).", "Plan aligned (position, rotation, scale)."],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
     km_ptOn: ["Schacht setzen aktiv", "Pose de regard active", "Posa pozzetto attiva", "Placing manholes"],
     km_obj: ["Objekte auf der Karte", "Objets sur la carte", "Oggetti sulla carta", "Objects on the map"],
@@ -2796,7 +2842,7 @@ Object.assign(TS.it,{
     km_del: ["Entfernen", "Supprimer", "Rimuovere", "Remove"],
     km_new: ["wird neu angelegt", "sera créé", "sarà creato", "will be created"],
     km_blockNote: ["Rohrblock: Details (Lagen, Rohre) im Reiter Graben erfassen.", "Bloc de tubes: détails (couches, tubes) dans l'onglet Fouille.", "Blocco di tubi: dettagli (strati, tubi) nella scheda Scavo.", "Duct bank: enter details (layers, ducts) in the Trench tab."],
-    km_done: ["Übernommen: {g} Graben-Datensatz/-sätze ({gn} neu), {s} Schacht-Datensatz/-sätze ({sn} neu), {f} Belagsfläche(n) ({fn} neu; Breite × Länge aus Fläche und Umfang), {o} Sondage(n) (Sondieraushub im Reiter Allgemein).", "Repris: {g} fouille(s) ({gn} nouvelles), {s} regard(s) ({sn} nouveaux), {f} surface(s) ({fn} nouvelles; largeur × longueur d'après surface et périmètre), {o} sondage(s) (déblai de sondage dans Général).", "Ripresi: {g} scavo/i ({gn} nuovi), {s} pozzetto/i ({sn} nuovi), {f} superficie/i ({fn} nuove; larghezza × lunghezza da superficie e perimetro), {o} sondaggio/i (scavo di sondaggio in Generale).", "Applied: {g} trench record(s) ({gn} new), {s} manhole record(s) ({sn} new), {f} paving area(s) ({fn} new; width × length from area and perimeter), {o} trial pit(s) (trial excavation in General)."],
+    km_done: ["Übernommen: {g} Graben ({gn} neu), {s} Schacht/Schächte ({sn} neu), {f} Belagsfläche(n) ({fn} neu), {w} Werkloch/Werklöcher (Zähler im Reiter Werkloch), {e} Gebäudeeinführung(en) ({en} neu), {o} Sondage(n) (Sondieraushub im Reiter Allgemein). Belag: Breite × Länge aus Fläche und Umfang.", "Repris: {g} fouille(s) ({gn} nouvelles), {s} regard(s) ({sn} nouveaux), {f} surface(s) ({fn} nouvelles), {w} fouille(s) ponctuelle(s) (compteurs dans Fouilles ponctuelles), {e} introduction(s) ({en} nouvelles), {o} sondage(s) (dans Général). Revêtement: largeur × longueur d'après surface et périmètre.", "Ripresi: {g} scavo/i ({gn} nuovi), {s} pozzetto/i ({sn} nuovi), {f} superficie/i ({fn} nuove), {w} buca/e di lavoro (contatori in Buche di lavoro), {e} introduzione/i ({en} nuove), {o} sondaggio/i (in Generale). Pavimentazione: larghezza × lunghezza da superficie e perimetro.", "Applied: {g} trench record(s) ({gn} new), {s} manhole(s) ({sn} new), {f} paving area(s) ({fn} new), {w} work pit(s) (counters in Work pits), {e} building entry/ies ({en} new), {o} trial pit(s) (in General). Paving: width × length from area and perimeter."],
     km_prevCap: ["Trasse {m} m", "Tracé {m} m", "Tracciato {m} m", "Route {m} m"],
   });
 })();
@@ -4315,11 +4361,28 @@ var FIG = (function () {
     return loading;
   }
 
+  /* Plan-Overlay (PDF/Bild) auf der Karte: Mittelpunkt E/N (LV95), Drehung rot (° gegen den Uhrzeigersinn), mpp = Meter pro Bildpixel */
+  function ovPx(o, x, y) {
+    var ux = (x - o.w / 2) * o.mpp, uy = (o.h / 2 - y) * o.mpp, a = (o.rot || 0) * Math.PI / 180;
+    return [o.E + ux * Math.cos(a) - uy * Math.sin(a), o.N + ux * Math.sin(a) + uy * Math.cos(a)];
+  }
+  function ovInv(o, e, n) {
+    var a = (o.rot || 0) * Math.PI / 180, dx = e - o.E, dy = n - o.N, ux = dx * Math.cos(a) + dy * Math.sin(a), uy = -dx * Math.sin(a) + dy * Math.cos(a);
+    return [ux / o.mpp + o.w / 2, o.h / 2 - uy / o.mpp];
+  }
+  function ovCorners(o) { return o && o.w ? [ovPx(o, 0, 0), ovPx(o, o.w, 0), ovPx(o, o.w, o.h), ovPx(o, 0, o.h)] : []; }
+  /* Zwei Passpunkte -> Mittelpunkt, Drehung, Massstab */
+  function ovSolve(o, s1, t1, s2, t2) {
+    var u1 = [s1[0] - o.w / 2, o.h / 2 - s1[1]], u2 = [s2[0] - o.w / 2, o.h / 2 - s2[1]], du = [u2[0] - u1[0], u2[1] - u1[1]], dt = [t2[0] - t1[0], t2[1] - t1[1]];
+    var lu = Math.hypot(du[0], du[1]), lt = Math.hypot(dt[0], dt[1]); if (!(lu > 0) || !(lt > 0)) return null;
+    var mpp = lt / lu, th = Math.atan2(dt[1], dt[0]) - Math.atan2(du[1], du[0]), c = Math.cos(th), sn = Math.sin(th);
+    return { mpp: mpp, rot: th * 180 / Math.PI, E: t1[0] - mpp * (u1[0] * c - u1[1] * sn), N: t1[1] - mpp * (u1[0] * sn + u1[1] * c) };
+  }
   /* Kartenbild (SVG): swisstopo-Hintergrund per WMS + Trasse, Schächte, Sondagen, Flächen und Notizen. Für Vorschau und Ausdruck.
      geo: { lines:[pts], pts:[pt], areas:[pts], sond:[pt], notes:[...] } in LV95 */
   function geoPoints(g) {
     var a = []; (g.lines || []).concat(g.areas || []).forEach(function (l) { l.forEach(function (p) { a.push(p); }); });
-    (g.pts || []).concat(g.sond || []).forEach(function (p) { a.push(p); }); (g.notes || []).forEach(function (n) { n.pts.forEach(function (p) { a.push(p); }); });
+    (g.pts || []).concat(g.sond || [], g.wl || [], g.geb || [], g.extra || []).forEach(function (p) { a.push(p); }); (g.notes || []).forEach(function (n) { n.pts.forEach(function (p) { a.push(p); }); });
     return a;
   }
   function geoBox(g, W, H) {
@@ -4344,6 +4407,8 @@ var FIG = (function () {
   function mapFigure(g, tt, o) {
     var W = o.W, H = o.H, box = geoBox(g, W, H); if (!box) return null;
     var bb = box.bb, sc = box.sc, k = W / 360, px = function (p) { return [((p[0] - bb[0]) / sc), ((bb[3] - p[1]) / sc)]; }, f1 = function (v) { return Math.round(v * 10) / 10; };
+    var ovs = ""; if (o.overlay && o.overlay.img) { var oc = ovCorners(o.overlay).map(px), ow = o.overlay.w, oh = o.overlay.h;
+      ovs = '<image href="' + o.overlay.img + '" width="' + ow + '" height="' + oh + '" opacity="' + (o.overlay.op || 0.6) + '" transform="matrix(' + [(oc[1][0] - oc[0][0]) / ow, (oc[1][1] - oc[0][1]) / ow, (oc[3][0] - oc[0][0]) / oh, (oc[3][1] - oc[0][1]) / oh, oc[0][0], oc[0][1]].map(function (v) { return Math.round(v * 1e6) / 1e6; }).join(" ") + ')"/>'; }
     var pl = function (pts) { return pts.map(function (p) { var q = px(p); return f1(q[0]) + "," + f1(q[1]); }).join(" "); }, o2 = "";
     (g.areas || []).forEach(function (a) { if (a.length > 2) o2 += '<polygon points="' + pl(a) + '" fill="#f28c00" fill-opacity=".3" stroke="#8a5b00" stroke-width="' + 2 * k + '"/>'; });
     (g.lines || []).forEach(function (l) { if (l.length > 1) o2 += '<polyline points="' + pl(l) + '" fill="none" stroke="#fff" stroke-width="' + 6 * k + '" stroke-linejoin="round"/><polyline points="' + pl(l) + '" fill="none" stroke="#b8332a" stroke-width="' + 3 * k + '" stroke-linejoin="round"/>'; });
@@ -4356,13 +4421,15 @@ var FIG = (function () {
     });
     (g.pts || []).forEach(function (p, i) { var q = px(p), r = 9 * k; o2 += '<rect x="' + f1(q[0] - r) + '" y="' + f1(q[1] - r) + '" width="' + 2 * r + '" height="' + 2 * r + '" fill="#0d47c8" stroke="#fff" stroke-width="' + 1.5 * k + '"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 4 * k) + '" text-anchor="middle" font-size="' + 11 * k + '" font-weight="700" fill="#fff">' + (i + 1) + "</text>"; });
     (g.sond || []).forEach(function (p, i) { var q = px(p), r = 9 * k; o2 += '<circle cx="' + f1(q[0]) + '" cy="' + f1(q[1]) + '" r="' + r + '" fill="#8a5b00" stroke="#fff" stroke-width="' + 1.5 * k + '"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 4 * k) + '" text-anchor="middle" font-size="' + 10 * k + '" font-weight="700" fill="#fff">S' + (i + 1) + "</text>"; });
+    (g.wl || []).forEach(function (p, i) { var q = px(p), r = 8 * k; o2 += '<rect x="' + f1(q[0] - r) + '" y="' + f1(q[1] - r) + '" width="' + 2 * r + '" height="' + 2 * r + '" fill="#b25e00" stroke="#fff" stroke-width="' + 1.5 * k + '" transform="rotate(45 ' + f1(q[0]) + " " + f1(q[1]) + ')"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 4 * k) + '" text-anchor="middle" font-size="' + 10 * k + '" font-weight="700" fill="#fff">W' + (i + 1) + "</text>"; });
+    (g.geb || []).forEach(function (p, i) { var q = px(p), r = 8 * k; o2 += '<polygon points="' + f1(q[0] - r) + "," + f1(q[1] + r) + " " + f1(q[0] - r) + "," + f1(q[1] - r / 3) + " " + f1(q[0]) + "," + f1(q[1] - r) + " " + f1(q[0] + r) + "," + f1(q[1] - r / 3) + " " + f1(q[0] + r) + "," + f1(q[1] + r) + '" fill="#1c6b3f" stroke="#fff" stroke-width="' + 1.5 * k + '"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 5 * k) + '" text-anchor="middle" font-size="' + 9 * k + '" font-weight="700" fill="#fff">G' + (i + 1) + "</text>"; });
     var fig = document.createElement("figure"); fig.className = o.cls || "kmprev";
-    fig.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(tt("km_prevAlt")) + '"><rect width="' + W + '" height="' + H + '" fill="#eef1f3"/><image href="' + esc(o.bg || bgUrl(box, o.base)) + '" width="' + W + '" height="' + H + '"/>' + o2 + '</svg><figcaption>' + esc(o.cap || "") + " · © swisstopo</figcaption>";
+    fig.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(tt("km_prevAlt")) + '"><rect width="' + W + '" height="' + H + '" fill="#eef1f3"/><image href="' + esc(o.bg || bgUrl(box, o.base)) + '" width="' + W + '" height="' + H + '"/>' + ovs + o2 + '</svg><figcaption>' + esc(o.cap || "") + " · © swisstopo</figcaption>";
     var im = fig.querySelector("image"); im.addEventListener("error", function () { im.remove(); });
     return fig;
   }
   /* kleine Vorschau je Datensatz */
-  function preview(lines, tt, pts, areas) { return mapFigure({ lines: lines || [], pts: pts || [], areas: areas || [] }, tt, { W: 360, H: 220, base: "farbe", cap: tt("km_prevCap").replace("{m}", fmt(total(lines))) }); }
+  function preview(lines, tt, pts, areas, wl, geb) { return mapFigure({ lines: lines || [], pts: pts || [], areas: areas || [], wl: wl || [], geb: geb || [] }, tt, { W: 360, H: 220, base: "farbe", cap: tt("km_prevCap").replace("{m}", fmt(total(lines))) }); }
 
   /* Geokatalog: alle WMTS/WMS-Ebenen von geo.admin.ch (Konfiguration wird einmal geladen) */
   var catPromise = null, CATKEY = "lvd-km-ov";
@@ -4453,6 +4520,8 @@ var FIG = (function () {
     var g = (P.lines || []).map(function (l) { var pts = l.pts.map(function (p) { return p.join(","); }).join(" "); return l.pts.length > 1 ? '<polyline points="' + pts + '" fill="none" stroke="#fff" stroke-width="' + sw * 2 + '"/><polyline points="' + pts + '" fill="none" stroke="#b8332a" stroke-width="' + sw + '"/>' : ""; }).join("");
     g += (P.pts || []).map(function (p, i) { return '<rect x="' + (p.pt[0] - 6 * k) + '" y="' + (p.pt[1] - 6 * k) + '" width="' + 12 * k + '" height="' + 12 * k + '" fill="#0d47c8" stroke="#fff" stroke-width="' + k + '"/><text x="' + p.pt[0] + '" y="' + (p.pt[1] + 4 * k) + '" text-anchor="middle" font-size="' + 10 * k + '" font-weight="700" fill="#fff">' + (i + 1) + "</text>"; }).join("");
     g = (P.areas || []).map(function (a) { return a.pts.length > 2 ? '<polygon points="' + a.pts.map(function (q) { return q.join(","); }).join(" ") + '" fill="#f28c00" fill-opacity=".3" stroke="#8a5b00" stroke-width="' + sw + '"/>' : ""; }).join("") + g;
+    g += (P.wl || []).map(function (p, i) { return '<rect x="' + (p.pt[0] - 6 * k) + '" y="' + (p.pt[1] - 6 * k) + '" width="' + 12 * k + '" height="' + 12 * k + '" fill="#b25e00" stroke="#fff" stroke-width="' + k + '" transform="rotate(45 ' + p.pt[0] + " " + p.pt[1] + ')"/><text x="' + p.pt[0] + '" y="' + (p.pt[1] + 4 * k) + '" text-anchor="middle" font-size="' + 9 * k + '" font-weight="700" fill="#fff">W' + (i + 1) + "</text>"; }).join("");
+    g += (P.geb || []).map(function (p, i) { return '<rect x="' + (p.pt[0] - 6 * k) + '" y="' + (p.pt[1] - 6 * k) + '" width="' + 12 * k + '" height="' + 12 * k + '" fill="#1c6b3f" stroke="#fff" stroke-width="' + k + '"/><text x="' + p.pt[0] + '" y="' + (p.pt[1] + 4 * k) + '" text-anchor="middle" font-size="' + 9 * k + '" font-weight="700" fill="#fff">G' + (i + 1) + "</text>"; }).join("");
     g += (P.sond || []).map(function (p) { return '<circle cx="' + p.pt[0] + '" cy="' + p.pt[1] + '" r="' + 6 * k + '" fill="#f28c00" stroke="#fff" stroke-width="' + k + '"/>'; }).join("");
     g += (P.notes || []).map(function (n) {
       var c = n.color || "#0d47c8", pa = n.pts;
@@ -4472,7 +4541,7 @@ var FIG = (function () {
   var INTRO = "lvd-km-intro";
   function open(opt) {
     var tt = opt.tt, cat = opt.cat, plan = opt.kind === "plan", M = JSON.parse(JSON.stringify(opt.model || { lines: [], pts: [], sond: [] })), cur = null, mode = "", sel = null, base = "farbe", map, layer, grp, calPts = [];
-    M.sond = M.sond || []; M.notes = M.notes || []; M.areas = M.areas || [];
+    M.sond = M.sond || []; M.notes = M.notes || []; M.areas = M.areas || []; M.wl = M.wl || []; M.geb = M.geb || [];
     var cal = plan ? JSON.parse(JSON.stringify(opt.plan.cal || {})) : null;
     var AD = plan ? { ll: function (p) { return [-p[1], p[0]]; }, pt: function (ll) { return [Math.round(ll.lng * 10) / 10, Math.round(-ll.lat * 10) / 10]; },
       dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]) * (cal.scale || 0); } }
@@ -4480,6 +4549,7 @@ var FIG = (function () {
         dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); } };
     var lineLen = function (pts) { var s = 0; for (var i = 1; i < pts.length; i++) s += AD.dist(pts[i - 1], pts[i]); return s; };
     var COL = [["#0d47c8", "km_cBlau"], ["#b8332a", "km_cRot"], ["#1a1c1e", "km_cSchwarz"], ["#b25e00", "km_cOrange"], ["#1c6b3f", "km_cGruen"]];
+    var ov0 = null, ovl = plan ? null : (opt.overlay ? JSON.parse(JSON.stringify(opt.overlay)) : null), ovImg = null, gcp = [];
     var perim = function (pts) { var s = lineLen(pts); return pts.length > 2 ? s + AD.dist(pts[pts.length - 1], pts[0]) : s; };
     var area = function (pts) { var a = 0; for (var i = 0; i < pts.length; i++) { var p = pts[i], q = pts[(i + 1) % pts.length]; a += p[0] * q[1] - q[0] * p[1]; } a = Math.abs(a) / 2; return plan ? a * Math.pow(cal.scale || 0, 2) : a; };
     var intro = false; try { intro = !localStorage.getItem(INTRO); } catch (e) { }
@@ -4504,6 +4574,8 @@ var FIG = (function () {
       '<button type="button" class="btn small" data-k="mpt" aria-pressed="false">' + esc(tt("km_pt")) + "</button>" +
       '<button type="button" class="btn small" data-k="msond" aria-pressed="false">' + esc(tt("km_sond")) + "</button>" +
       '<button type="button" class="btn small" data-k="marea" aria-pressed="false">' + esc(tt("km_area")) + "</button>" +
+      '<button type="button" class="btn small" data-k="mwl" aria-pressed="false">' + esc(tt("km_wl")) + "</button>" +
+      '<button type="button" class="btn small" data-k="mgeb" aria-pressed="false">' + esc(tt("km_geb")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="fit">' + esc(tt("km_fit")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="center">' + esc(tt("km_center")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="end">' + esc(tt("km_end")) + "</button>" +
@@ -4513,6 +4585,11 @@ var FIG = (function () {
       (plan ? '<form class="kmcalf" id="kmCalF" hidden><label for="kmCalM">' + esc(tt("pl_calAsk")) + '</label><input type="text" inputmode="decimal" id="kmCalM" class="numin"><button type="submit" class="btn small">' + esc(tt("pl_calSet")) + "</button></form>" : "") +
       '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div>' +
       (plan ? "" : '<details class="kmcat" id="kmCat"><summary>' + esc(tt("km_cat")) + '</summary><div class="kmcatb"><label for="kmCatQ">' + esc(tt("km_catSearch")) + '</label><input type="search" id="kmCatQ" autocomplete="off" placeholder="' + esc(tt("km_catPh")) + '"><p class="hint" id="kmCatMsg" role="status"></p><ul class="kmcatl" id="kmCatL" aria-label="' + esc(tt("km_catRes")) + '"></ul><h3 class="kmcath">' + esc(tt("km_catSel")) + '</h3><ul class="kmcatl kmcats" id="kmCatS"></ul></div></details>') +
+      (plan ? "" : '<details class="kmcat kmovd" id="kmOvD"><summary>' + esc(tt("ov_title")) + '</summary><div class="kmcatb"><p class="hint">' + esc(tt("ov_hint")) + '</p>' +
+        '<label for="kmOvF">' + esc(tt("pl_file")) + '</label><input type="file" id="kmOvF" accept=".pdf,application/pdf,image/*"><p class="hint" id="kmOvMsg" role="status"></p>' +
+        '<div class="kmbar"><button type="button" class="btn small" id="kmOvPlan">' + esc(tt("ov_fromPlan")) + '</button><button type="button" class="btn small" data-k="mgeo" aria-pressed="false">' + esc(tt("ov_geo")) + '</button><button type="button" class="btn ghost small" data-ov="c">' + esc(tt("ov_center")) + '</button><button type="button" class="btn ghost small del" data-ov="x">' + esc(tt("km_catRemove")) + '</button></div>' +
+        '<div class="kmbar kmovc"><label class="kmbl" for="kmOvO">' + esc(tt("km_opacity")) + '</label><input type="range" id="kmOvO" min="10" max="100" step="10" value="60"><label class="kmbl" for="kmOvR">' + esc(tt("ov_rot")) + '</label><input type="text" inputmode="decimal" id="kmOvR" class="kmn"><label class="kmbl" for="kmOvS">' + esc(tt("ov_mpp")) + '</label><input type="text" inputmode="decimal" id="kmOvS" class="kmn">' +
+        '<span class="kmnudge" role="group" aria-label="' + esc(tt("ov_adj")) + '">' + [["l", "←", "km_nl"], ["u", "↑", "km_nu"], ["d", "↓", "km_nd"], ["r", "→", "km_nr"], ["rl", "⟲", "ov_rl"], ["rr", "⟳", "ov_rr"], ["sm", "−", "ov_sm"], ["sp", "+", "ov_sp"]].map(function (a) { return '<button type="button" class="btn ghost small" data-ov="' + a[0] + '" aria-label="' + esc(tt(a[2])) + '">' + a[1] + "</button>"; }).join("") + '</span></div></div></details>') +
       (plan ? "" : '<iframe id="kmView" class="kmframe" hidden title="map.geo.admin.ch" referrerpolicy="no-referrer"></iframe>') +
       '<p class="hint kmhelp" id="kmHelp"></p>' +
       '<div class="kmobj" id="kmObj" role="group" aria-label="' + esc(tt("km_obj")) + '"></div>' +
@@ -4597,7 +4674,7 @@ var FIG = (function () {
     function openGeo() { window.open(geoUrl(false), "_blank", "noopener"); }
     /* immer auf den Bestand (alle Linien, Schächte, Sondagen) zoomen */
     function fitAll() {
-      var pts = []; M.lines.forEach(function (l) { l.pts.forEach(function (p) { pts.push(AD.ll(p)); }); }); M.pts.concat(M.sond).forEach(function (p) { pts.push(AD.ll(p.pt)); }); M.notes.concat(M.areas).forEach(function (n) { n.pts.forEach(function (p) { pts.push(AD.ll(p)); }); });
+      var pts = []; M.lines.forEach(function (l) { l.pts.forEach(function (p) { pts.push(AD.ll(p)); }); }); M.pts.concat(M.sond, M.wl, M.geb).forEach(function (p) { pts.push(AD.ll(p.pt)); }); M.notes.concat(M.areas).forEach(function (n) { n.pts.forEach(function (p) { pts.push(AD.ll(p)); }); }); if (ovl) ovCorners(ovl).forEach(function (q) { pts.push(toWGS(q[0], q[1])); });
       if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.3), { maxZoom: plan ? 3 : 19, animate: false });
       else if (plan) map.fitBounds([[-opt.plan.h, 0], [0, opt.plan.w]], { animate: false });
     }
@@ -4611,7 +4688,7 @@ var FIG = (function () {
     var undoSt = [], curN = null, curA = null, tmp = [], layers = {}, lastMove = 0, noteCol = "#0d47c8";
     var NT = { text: "km_nText", arrow: "km_nArrow", sline: "km_nLine", rect: "km_nRect" };
     var snap = function () { undoSt.push(JSON.stringify(M)); if (undoSt.length > 100) undoSt.shift(); };
-    var findObj = function (id) { var a = [M.lines, M.pts, M.sond, M.notes, M.areas]; for (var i = 0; i < a.length; i++) { var o = byId(a[i], id); if (o) return { arr: a[i], o: o }; } return null; };
+    var findObj = function (id) { var a = [M.lines, M.pts, M.sond, M.notes, M.areas, M.wl, M.geb]; for (var i = 0; i < a.length; i++) { var o = byId(a[i], id); if (o) return { arr: a[i], o: o }; } return null; };
     function select(id) { sel = { id: id }; refresh(); }
     function bindObj(lay, id, noMove) {
       lay.on("click", function (e) { L.DomEvent.stop(e); if (Date.now() - lastMove < 250) return; select(id); });
@@ -4668,11 +4745,21 @@ var FIG = (function () {
       if (edit) bindObj(ln, n.id);
       return { upd: function () { ln.setLatLngs(n.pts.map(AD.ll)); if (hd) hd.setLatLngs(head()); } };
     }
+    function ovDraw() {
+      if (plan || !map) return;
+      if (!ovl || !ovl.img) { if (ovImg) { ovImg.remove(); ovImg = null; } return; }
+      var pane = map.getPane("kmov"); if (!ovImg) { ovImg = document.createElement("img"); ovImg.alt = ""; ovImg.className = "kmovimg"; pane.appendChild(ovImg); }
+      if (ovImg.getAttribute("data-k") !== ovl.img.slice(-40) + ovl.w) { ovImg.src = ovl.img; ovImg.setAttribute("data-k", ovl.img.slice(-40) + ovl.w); }
+      var c = ovCorners(ovl).map(function (q) { return map.latLngToLayerPoint(toWGS(q[0], q[1])); }), w = ovl.w, h = ovl.h;
+      ovImg.style.width = w + "px"; ovImg.style.height = h + "px"; ovImg.style.opacity = ovl.op || 0.6;
+      ovImg.style.transform = "matrix(" + [(c[1].x - c[0].x) / w, (c[1].y - c[0].y) / w, (c[3].x - c[0].x) / h, (c[3].y - c[0].y) / h, c[0].x, c[0].y].join(",") + ")";
+      var R = $("#kmOvR"), S2 = $("#kmOvS"), O = $("#kmOvO"); if (document.activeElement !== R) R.value = Math.round(ovl.rot * 100) / 100; if (document.activeElement !== S2) S2.value = Math.round(ovl.mpp * 10000) / 10000; O.value = Math.round((ovl.op || 0.6) * 100);
+    }
     function updTotal() {
       var tot = M.lines.reduce(function (a, l) { return a + lineLen(l.pts); }, 0);
-      $("#kmLen").textContent = tt("km_total").replace("{m}", fmt(tot)).replace("{n}", M.lines.filter(function (l) { return l.pts.length > 1; }).length).replace("{s}", M.pts.length).replace("{o}", M.sond.length) + (M.areas.length ? " · " + tt("km_areaTot").replace("{a}", fmt(M.areas.reduce(function (a, f) { return a + area(f.pts); }, 0))) : "") + (plan ? " · " + calTxt() : "");
+      $("#kmLen").textContent = tt("km_total").replace("{m}", fmt(tot)).replace("{n}", M.lines.filter(function (l) { return l.pts.length > 1; }).length).replace("{s}", M.pts.length).replace("{o}", M.sond.length) + (M.wl.length || M.geb.length ? " · " + tt("km_wgTot").replace("{w}", M.wl.length).replace("{g}", M.geb.length) : "") + (M.areas.length ? " · " + tt("km_areaTot").replace("{a}", fmt(M.areas.reduce(function (a, f) { return a + area(f.pts); }, 0))) : "") + (plan ? " · " + calTxt() : "");
     }
-    var MODES = { line: "mline", pt: "mpt", sond: "msond", cal: "mcal", edit: "medit", area: "marea", text: "mtext", arrow: "marrow", sline: "msline", rect: "mrect" };
+    var MODES = { geo: "mgeo", line: "mline", pt: "mpt", sond: "msond", cal: "mcal", edit: "medit", area: "marea", wl: "mwl", geb: "mgeb", text: "mtext", arrow: "marrow", sline: "msline", rect: "mrect" };
     function draw() {
       grp.clearLayers(); layers = {}; var edit = mode === "edit";
       M.lines.forEach(function (l) {
@@ -4702,7 +4789,7 @@ var FIG = (function () {
           if (edit) { dragPt(m, p, "pt"); bindObj(m, p.id, true); }
         });
       };
-      pm(M.pts, "kmsch", ""); pm(M.sond, "kmsond", "S");
+      pm(M.pts, "kmsch", ""); pm(M.sond, "kmsond", "S"); pm(M.wl, "kmwl", "W"); pm(M.geb, "kmgeb", "G");
       tmp.forEach(function (q) { L.circleMarker(AD.ll(q), { radius: 5, color: "#0d47c8", weight: 2, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
       if (plan) { calPts.forEach(function (q) { L.circleMarker(AD.ll(q), { radius: 6, color: "#0d47c8", weight: 3, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
         if (cal.a && cal.b && !cal.auto && !calPts.length) L.polyline([AD.ll(cal.a), AD.ll(cal.b)], { color: "#0d47c8", weight: 2, dashArray: "6 5", interactive: false }).addTo(grp); }
@@ -4710,8 +4797,8 @@ var FIG = (function () {
       Object.keys(MODES).forEach(function (m) { var b = $("[data-k=" + MODES[m] + "]"); if (b) b.setAttribute("aria-pressed", mode === m ? "true" : "false"); });
       $("[data-k=marea]").textContent = mode === "area" ? tt("km_areaOn") : tt("km_area"); $("[data-k=mline]").textContent = mode === "line" ? tt("km_drawOn") : tt("km_draw"); $("[data-k=mpt]").textContent = mode === "pt" ? tt("km_ptOn") : tt("km_pt"); $("[data-k=msond]").textContent = mode === "sond" ? tt("km_sondOn") : tt("km_sond");
       if (plan) $("[data-k=mcal]").textContent = mode === "cal" ? tt("pl_calOn") : tt("pl_cal");
-      $("[data-k=end]").disabled = !(cur || curN || curA); $("[data-k=undo]").disabled = !(undoSt.length || tmp.length); $("[data-k=clear]").disabled = !(M.lines.length || M.pts.length || M.sond.length || M.notes.length || M.areas.length); $("[data-k=center]").disabled = !mode || mode === "edit";
-      $("#kmHelp").textContent = mode === "cal" ? tt("pl_helpCal") : mode === "edit" ? tt("km_helpEdit") : mode === "text" ? tt("km_helpText") : mode === "arrow" || mode === "rect" ? tt("km_helpTwo") : mode ? tt("km_helpOn") : plan && !cal.scale ? tt("pl_calNeed") : tt("km_helpOff");
+      $("[data-k=end]").disabled = !(cur || curN || curA); $("[data-k=undo]").disabled = !(undoSt.length || tmp.length); $("[data-k=clear]").disabled = !(M.lines.length || M.pts.length || M.sond.length || M.notes.length || M.areas.length || M.wl.length || M.geb.length); $("[data-k=center]").disabled = !mode || mode === "edit";
+      $("#kmHelp").textContent = mode === "geo" ? tt(!gcp.length ? "ov_g1" : !gcp[gcp.length - 1].t ? (gcp.length === 1 ? "ov_g2" : "ov_g4") : "ov_g3") : mode === "cal" ? tt("pl_helpCal") : mode === "edit" ? tt("km_helpEdit") : mode === "text" ? tt("km_helpText") : mode === "arrow" || mode === "rect" ? tt("km_helpTwo") : mode ? tt("km_helpOn") : plan && !cal.scale ? tt("pl_calNeed") : tt("km_helpOff");
       map.getContainer().style.cursor = mode && mode !== "edit" ? "crosshair" : "";
       var vw = base === "viewer"; dlg.querySelectorAll(".kmbar [data-k^=m],[data-k=center],[data-k=end],[data-k=fit]").forEach(function (b) { if (vw) b.disabled = true; else if (b.dataset.k !== "end" && b.dataset.k !== "center") b.disabled = false; });
       if (vw) $("#kmHelp").textContent = tt("km_viewerHelp");
@@ -4762,6 +4849,20 @@ var FIG = (function () {
         [["l", "km_sL"], ["b", "km_sB"], ["t", "km_sT"]].forEach(function (f) { r.appendChild(cell(tt(f[1]), inp(tt(f[1]), p[f[0]], "kmn", function (v) { p[f[0]] = v; }))); });
         btns(r, p.id); h.appendChild(r);
       });
+      M.wl.forEach(function (p, i) {
+        var r = rowOf(p); head(r, tt("km_wlN").replace("{n}", i + 1), p.sid);
+        r.appendChild(cell(tt("km_name"), inp(tt("km_name"), p.name || "", "kmw", function (v) { p.name = v; }, 1)));
+        r.appendChild(cell(tt("km_wlT"), sel1(tt("km_wlT"), [["ts", tt("km_wlts")], ["bo", tt("km_wlbo")], ["sg", tt("km_wlsg")], ["zs", tt("km_wlzs")]], p.wt, function (v) { p.wt = v; })));
+        btns(r, p.id); h.appendChild(r);
+      });
+      M.geb.forEach(function (p, i) {
+        var r = rowOf(p); head(r, tt("km_gebN").replace("{n}", i + 1), p.sid);
+        r.appendChild(cell(tt("km_name"), inp(tt("km_name"), p.name || "", "kmw", function (v) { p.name = v; }, 1)));
+        r.appendChild(cell(tt("km_cm"), inp(tt("km_cm"), p.cm || "", "kmn", function (v) { p.cm = v; })));
+        r.appendChild(cell(tt("km_abd"), sel1(tt("km_abd"), [["keine", tt("km_abdK")], ["kissen", tt("km_abdKi")], ["hauff", tt("km_abdH")]], p.abd, function (v) { p.abd = v; })));
+        if (!String(p.cm || "").trim()) { var hn = document.createElement("p"); hn.className = "hint"; hn.textContent = tt("km_gebHint"); r.appendChild(hn); }
+        btns(r, p.id); h.appendChild(r);
+      });
       M.areas.forEach(function (f, i) {
         var r = rowOf(f), t = head(r, tt("km_areaN").replace("{n}", i + 1), f.rid); t.insertAdjacentHTML("beforeend", " · " + fmt(area(f.pts)) + " m² · " + tt("km_perim") + " " + fmt(perim(f.pts)) + " m");
         r.appendChild(cell(tt("km_bk"), sel1(tt("km_bk"), [["gehweg", tt("km_bkG")], ["strasse", tt("km_bkS")], ["kanton", tt("km_bkK")]], f.belag.bk, function (v) { f.belag.bk = v; if (["strasse", "kanton"].indexOf(v) < 0 && ["A", "A1", "B"].indexOf(f.belag.wi) < 0) f.belag.wi = "B"; rows(); })));
@@ -4785,11 +4886,22 @@ var FIG = (function () {
       if (!mode) return;
       if (mode === "edit") { if (Date.now() - lastMove < 250) return; sel = null; refresh(); return; }
       var c = AD.pt(ll);
+      if (mode === "geo") {
+        if (!ovl) return; var last = gcp[gcp.length - 1];
+        if (!last || last.t) gcp.push({ s: ovInv(ovl, c[0], c[1]), t: null }); else last.t = c;
+        if (gcp.length === 2 && gcp[1].t) { var sol = ovSolve(ovl, gcp[0].s, gcp[0].t, gcp[1].s, gcp[1].t); if (sol) { ovl.mpp = sol.mpp; ovl.rot = sol.rot; ovl.E = sol.E; ovl.N = sol.N; toast(dlg, tt("ov_done"), tt("km_undoBtn"), function () { ovl = JSON.parse(ov0); ovDraw(); }); } gcp = []; mode = ""; }
+        else tmp = gcp.reduce(function (a, g2) { a.push(ovPx(ovl, g2.s[0], g2.s[1])); if (g2.t) a.push(g2.t); return a; }, []);
+        ovDraw(); refresh(); return;
+      }
       if (mode === "cal") {
         calPts.push(c); if (calPts.length === 2) { $("#kmCalF").hidden = false; $("#kmCalM").value = ""; $("#kmCalM").focus(); } draw(); return;
       }
       if (mode === "text") { var tn = newNote("text", [c]); refresh(); var ti = $('[data-rid="' + tn.id + '"] input[type=text]'); if (ti) { ti.focus(); ti.select(); } return; }
       if (mode === "arrow" || mode === "rect") { tmp.push(c); if (tmp.length === 2) { newNote(mode, tmp); tmp = []; } refresh(); return; }
+      if (mode === "wl" || mode === "geb") {
+        snap(); var q = mode === "wl" ? { id: nid("w"), pt: c, sid: null, wt: "sg", name: "" } : { id: nid("g"), pt: c, sid: null, cm: opt.defGeb.cm, abd: opt.defGeb.abd, name: "" };
+        (mode === "wl" ? M.wl : M.geb).push(q); sel = { id: q.id }; refresh(); return;
+      }
       if (mode === "area") {
         snap(); var fa = curA && byId(M.areas, curA);
         if (!fa) { fa = { id: nid("f"), pts: [], rid: null, belag: JSON.parse(JSON.stringify(opt.defBelag)) }; M.areas.push(fa); curA = fa.id; sel = { id: fa.id }; }
@@ -4820,7 +4932,7 @@ var FIG = (function () {
       if (mode === "cal" && calPts.length) { calPts.pop(); $("#kmCalF").hidden = true; return draw(); }
       if (tmp.length) { tmp.pop(); return draw(); }
       var s = undoSt.pop(); if (!s) return;
-      M = JSON.parse(s); M.sond = M.sond || []; M.notes = M.notes || []; M.areas = M.areas || [];
+      M = JSON.parse(s); M.sond = M.sond || []; M.notes = M.notes || []; M.areas = M.areas || []; M.wl = M.wl || []; M.geb = M.geb || [];
       if (cur && !byId(M.lines, cur)) cur = null; if (curN && !byId(M.notes, curN)) curN = null; if (curA && !byId(M.areas, curA)) curA = null; if (sel && !findObj(sel.id)) sel = null;
       refresh();
     }
@@ -4834,7 +4946,8 @@ var FIG = (function () {
       else map.setView(AD.ll(ps[0]), Math.max(map.getZoom(), plan ? 1 : 18), { animate: false });
       refresh();
     }
-    function close() { try { map.remove(); } catch (e) { } dlg.close(); dlg.remove(); if (opt.onClose) opt.onClose(); }
+    var ro = null;
+    function close() { try { if (ro) ro.disconnect(); map.remove(); } catch (e) { } dlg.close(); dlg.remove(); if (opt.onClose) opt.onClose(); }
 
     if (plan) {
       var P = opt.plan; map = L.map($("#kmMap"), { crs: L.CRS.Simple, minZoom: -4, maxZoom: 4, zoomSnap: 0.25, doubleClickZoom: false, attributionControl: false });
@@ -4847,34 +4960,46 @@ var FIG = (function () {
         toast(dlg, tt("pl_calDone"), tt("km_undoBtn"), function () { cal = JSON.parse(old); refresh(); });
       });
     } else {
-      map = L.map($("#kmMap"), { center: [46.8, 8.23], zoom: 8, minZoom: 7, maxZoom: 20, doubleClickZoom: false, attributionControl: false }); L.control.attribution({ prefix: "Leaflet" }).addTo(map);
+      map = L.map($("#kmMap"), { center: [46.8, 8.23], zoom: 8, minZoom: 7, maxZoom: 20, doubleClickZoom: false, zoomAnimation: false, attributionControl: false }); L.control.attribution({ prefix: "Leaflet" }).addTo(map);
+      var op0 = map.createPane("kmov"); op0.style.zIndex = 250; op0.style.pointerEvents = "none"; map.on("zoom move viewreset resize", ovDraw);
       ovGrp = L.layerGroup().addTo(map); grp = L.layerGroup().addTo(map); tiles(); drawOv(); selList();
       $("#kmCat").addEventListener("toggle", function (e) { if (e.target.open) openCat(); });
       $("#kmCatQ").addEventListener("input", resList);
       $("#kmCatS").addEventListener("click", function (e) { var b = e.target.closest("[data-ovdel]"); if (!b) return; ov.splice(+b.dataset.ovdel, 1); saveOv(); drawOv(); selList(); resList(); });
     }
+    if (window.ResizeObserver) { ro = new ResizeObserver(function () { try { map.invalidateSize({ animate: false }); ovDraw(); } catch (e) { } }); ro.observe($("#kmMap")); }
     map.on("click", function (e) { var t = e.originalEvent && e.originalEvent.target; if (mode === "edit" && t && t.closest && t.closest(".leaflet-marker-icon,.leaflet-interactive")) return; addPt(e.latlng); });
     map.on("dblclick", function () { if (mode === "line" || mode === "sline" || mode === "area") endLine(); });
     map.on("zoomend", function () { if (mode === "edit" || M.notes.some(function (n) { return n.type === "arrow"; })) draw(); });
     var cs = $("#kmCol"); cs.addEventListener("change", function () { noteCol = cs.value; });
 
     dlg.addEventListener("click", function (e) {
+      var ob = e.target.closest("[data-ov]");
+      if (ob && ovl !== undefined) {
+        var k2 = ob.dataset.ov, st = parseFloat(String($("#kmStep").value).replace(",", ".")) || 1;
+        if (k2 === "x") { ov0 = JSON.stringify(ovl); ovl = null; ovDraw(); refresh(); return; }
+        if (!ovl) return; ov0 = JSON.stringify(ovl);
+        if (k2 === "c") { var cc = map.getCenter(), ee = toLV95(cc.lat, cc.lng); ovl.E = ee[0]; ovl.N = ee[1]; }
+        else if (k2 === "l") ovl.E -= st; else if (k2 === "r") ovl.E += st; else if (k2 === "u") ovl.N += st; else if (k2 === "d") ovl.N -= st;
+        else if (k2 === "rl") ovl.rot += 0.5; else if (k2 === "rr") ovl.rot -= 0.5; else if (k2 === "sm") { ovl.mpp *= 0.99; ovl.auto = 0; } else if (k2 === "sp") { ovl.mpp *= 1.01; ovl.auto = 0; }
+        ovDraw(); return;
+      }
       var b = e.target.closest("[data-k],[data-z],[data-d],[data-n]"); if (!b) return;
       if (b.dataset.n) { var nn = b.dataset.n.split("|"); return nudge(nn[0], nn[1]); }
       if (b.dataset.z) return show(b.dataset.z); if (b.dataset.d) return del(b.dataset.d);
       var k = b.getAttribute("data-k");
       if (k === "close") close();
-      else if (/^m(line|pt|sond|cal|edit|text|arrow|sline|rect|area)$/.test(k)) { var m = k.slice(1); if (mode === "line" || mode === "sline" || mode === "area") endLine(); tmp = []; calPts = []; if (plan) $("#kmCalF").hidden = true; mode = mode === m ? "" : m; refresh(); }
+      else if (/^m(geo|line|pt|sond|cal|edit|text|arrow|sline|rect|area|wl|geb)$/.test(k)) { var m = k.slice(1); if (m === "geo") { ov0 = JSON.stringify(ovl); gcp = []; } if (mode === "line" || mode === "sline" || mode === "area") endLine(); tmp = []; calPts = []; if (plan) $("#kmCalF").hidden = true; mode = mode === m ? "" : m; refresh(); }
       else if (k === "center") addPt(map.getCenter());
       else if (k === "end") endLine();
       else if (k === "undo") undo();
-      else if (k === "clear") { var sn0 = JSON.stringify(M); snap(); M.lines = []; M.pts = []; M.sond = []; M.notes = []; M.areas = []; cur = null; curN = null; curA = null; sel = null; refresh(); toast(dlg, tt("km_cleared"), tt("km_undoBtn"), function () { M = JSON.parse(sn0); M.notes = M.notes || []; M.areas = M.areas || []; refresh(); }); }
+      else if (k === "clear") { var sn0 = JSON.stringify(M); snap(); M.lines = []; M.pts = []; M.sond = []; M.notes = []; M.areas = []; M.wl = []; M.geb = []; cur = null; curN = null; curA = null; sel = null; refresh(); toast(dlg, tt("km_cleared"), tt("km_undoBtn"), function () { M = JSON.parse(sn0); M.notes = M.notes || []; M.areas = M.areas || []; M.wl = M.wl || []; M.geb = M.geb || []; refresh(); }); }
       else if (k === "geo") openGeo();
       else if (k === "fit") fitAll();
       else if (k === "apply") {
         endLine();
         if (plan && !cal.scale && (M.lines.length || M.areas.length)) { toast(dlg, tt("pl_calNeed")); return; }
-        opt.onApply(M, cal, function (m) { return lineLen(m); }, { area: area, perim: perim, base: base }); close();
+        opt.onApply(M, cal, function (m) { return lineLen(m); }, { area: area, perim: perim, base: base, overlay: ovl }); close();
       }
     });
     dlg.addEventListener("cancel", function (e) { e.preventDefault(); close(); });
@@ -4896,10 +5021,31 @@ var FIG = (function () {
           });
         }).catch(function () { ul.innerHTML = '<li class="kmnote err">' + esc(tt("km_searchErr")) + "</li>"; });
     });
-    dlg.showModal(); map.invalidateSize(); fitAll(); refresh(); (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
+    if (!plan) {
+      var ovMsg = function (k, err) { var m = $("#kmOvMsg"); m.textContent = k ? tt(k) : ""; m.className = "hint" + (err ? " reqmsg" : ""); };
+      var setOvl = function (r, ratioMpp) {
+        var c = map.getCenter(), e = toLV95(c.lat, c.lng); ov0 = JSON.stringify(ovl);
+        ovl = { img: r.img, w: r.w, h: r.h, E: e[0], N: e[1], rot: 0, mpp: ratioMpp || Math.max(0.05, 200 / r.w), op: 0.6, auto: ratioMpp ? r.ratio : 0 }; $("#kmOvD").open = true; refresh(); requestAnimationFrame(function () { requestAnimationFrame(function () { try { map.invalidateSize({ animate: false }); fitAll(); ovDraw(); } catch (x) { } }); });
+        ovMsg(ratioMpp ? "ov_loadedAuto" : "ov_loaded"); if (ratioMpp) $("#kmOvMsg").textContent = tt("ov_loadedAuto").replace("{r}", r.ratio); $("#kmOvD").open = true;
+      };
+      $("#kmOvF").addEventListener("change", function (e) {
+        var file = e.target.files[0]; if (!file) return; ovMsg("pl_reading");
+        planSource(file).then(function (src) {
+          var go = function (n) { return src.render(n).then(function (r) { setOvl(r, r.mpp); }); };
+          if (src.pages > 1) { var pg = +(prompt(tt("pl_page") + " (1–" + src.pages + ")", "1") || 1); go(Math.min(Math.max(1, pg), src.pages)); } else go(1);
+        }).catch(function () { ovMsg("pl_err", 1); });
+      });
+      var pb = $("#kmOvPlan"); pb.disabled = !(opt.planImg && opt.planImg.img);
+      pb.addEventListener("click", function () { var P = opt.planImg; setOvl({ img: P.img, w: P.w, h: P.h }, P.cal && P.cal.scale ? P.cal.scale : 0); ovl.ref = "plan"; });
+      $("#kmOvO").addEventListener("input", function (e) { if (ovl) { ovl.op = e.target.value / 100; ovDraw(); } });
+      var num2 = function (v) { return parseFloat(String(v).replace(",", ".")); };
+      $("#kmOvR").addEventListener("change", function (e) { var v = num2(e.target.value); if (ovl && isFinite(v)) { ov0 = JSON.stringify(ovl); ovl.rot = v; ovDraw(); } });
+      $("#kmOvS").addEventListener("change", function (e) { var v = num2(e.target.value); if (ovl && v > 0) { ov0 = JSON.stringify(ovl); ovl.mpp = v; ovl.auto = 0; ovDraw(); } });
+    }
+    dlg.showModal(); map.invalidateSize(); fitAll(); ovDraw(); refresh(); (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
-  window.KARTE = { open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
+  window.KARTE = { ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
 })();
 
 </script>
@@ -4942,8 +5088,8 @@ var FIG = (function () {
       var nr = newRec(t, 1); S.recs[t].forEach(function (r) { deepFill(r, nr); });
       if (!(S.idx[t] >= 0 && S.idx[t] < S.recs[t].length)) S.idx[t] = 0;
     });
-    if (!S.karte || !Array.isArray(S.karte.lines)) S.karte = { lines: [], pts: [], sond: [] }; if (!Array.isArray(S.karte.pts)) S.karte.pts = []; if (!Array.isArray(S.karte.sond)) S.karte.sond = []; if (!Array.isArray(S.karte.notes)) S.karte.notes = []; if (!Array.isArray(S.karte.areas)) S.karte.areas = [];
-    if (!S.plan || !Array.isArray(S.plan.lines)) S.plan = { img: "", w: 0, h: 0, cal: {}, lines: [], pts: [], sond: [], notes: [], areas: [] }; if (!Array.isArray(S.plan.pts)) S.plan.pts = []; if (!Array.isArray(S.plan.sond)) S.plan.sond = []; if (!Array.isArray(S.plan.notes)) S.plan.notes = []; if (!Array.isArray(S.plan.areas)) S.plan.areas = []; if (!S.plan.cal) S.plan.cal = {};
+    if (!S.karte || !Array.isArray(S.karte.lines)) S.karte = { lines: [], pts: [], sond: [] }; if (!Array.isArray(S.karte.pts)) S.karte.pts = []; if (!Array.isArray(S.karte.sond)) S.karte.sond = []; if (!Array.isArray(S.karte.notes)) S.karte.notes = []; if (!Array.isArray(S.karte.areas)) S.karte.areas = []; if (!Array.isArray(S.karte.wl)) S.karte.wl = []; if (!Array.isArray(S.karte.geb)) S.karte.geb = [];
+    if (!S.plan || !Array.isArray(S.plan.lines)) S.plan = { img: "", w: 0, h: 0, cal: {}, lines: [], pts: [], sond: [], notes: [], areas: [], wl: [], geb: [] }; if (!Array.isArray(S.plan.pts)) S.plan.pts = []; if (!Array.isArray(S.plan.sond)) S.plan.sond = []; if (!Array.isArray(S.plan.notes)) S.plan.notes = []; if (!Array.isArray(S.plan.areas)) S.plan.areas = []; if (!Array.isArray(S.plan.wl)) S.plan.wl = []; if (!Array.isArray(S.plan.geb)) S.plan.geb = []; if (!S.plan.cal) S.plan.cal = {};
     if (ALLTABS.indexOf(S.tab) < 0) S.tab = "graben";
   }
   try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
@@ -5054,13 +5200,13 @@ var FIG = (function () {
       { sec: "s_opts" }, { t: "opts" }, { sec: "s_freigabe", show: notDeckel },
       { id: "deviate", t: "chk", show: notDeckel }, { id: "reason", t: "text", show: notDeckel }, { id: "approver", t: "text", show: notDeckel }, { id: "journal", t: "chk", show: notDeckel },
       { t: "printDraw", show: notDeckel }])),
-    werkloch: [{ sec: "s_wl" }, { id: "name", t: "text" }, { id: "ts", t: "num", half: 1 }, { id: "bo", t: "num", half: 1 }, { id: "sg", t: "num", half: 1 }, { id: "zs", t: "num", half: 1 },
+    werkloch: [{ sec: "s_wl" }, { id: "name", t: "text" }, { t: "trasse" }, { id: "ts", t: "num", half: 1 }, { id: "bo", t: "num", half: 1 }, { id: "sg", t: "num", half: 1 }, { id: "zs", t: "num", half: 1 },
       { sec: "s_indWL" }, { id: "iL", t: "num", half: 1 }, { id: "iB", t: "num", half: 1 }, { id: "iT", t: "num", half: 1 },
       { sec: "s_psauf" }, { id: "p0", t: "num", half: 1 }, { id: "p1", t: "num", half: 1 }, { id: "p2", t: "num", half: 1 }, { id: "p3", t: "num", half: 1 },
       { sec: "s_graben" }].concat(PIT_FIELDS, ERSCH_FIELDS, [{ sec: "s_zone" }], VERF_FIELDS, [{ sec: "s_belag" }], BELAG_FIELDS),
     fund: [{ sec: "s_fund" }, { id: "name", t: "text" }, { id: "vk", t: "sel", opts: [""].concat(KVE.VK) }, { id: "kvs", t: "sel", opts: [""].concat(KVE.KVS) }]
       .concat(PIT_FIELDS, ERSCH_FIELDS, [{ sec: "s_zone" }], VERF_FIELDS, [{ sec: "s_belag" }], BELAG_FIELDS),
-    geb: [{ sec: "s_geb" }, { id: "name", t: "text" }, { id: "n", t: "num", labKey: "f_gn" }, { id: "cm", t: "num" }, { id: "abd", t: "sel", opts: ["keine", "kissen", "hauff"] }],
+    geb: [{ sec: "s_geb" }, { id: "name", t: "text" }, { t: "trasse" }, { id: "n", t: "num", labKey: "f_gn" }, { id: "cm", t: "num" }, { id: "abd", t: "sel", opts: ["keine", "kissen", "hauff"] }],
     belag: [{ sec: "s_wi" }, { id: "name", t: "text" }, { t: "trasse" }, { id: "indiv", t: "sel", opts: ["false", "true"], struct: 1, hint: "ksHint" },
       { id: "bk", t: "sel", opts: ["gehweg", "strasse", "kanton"], struct: 1, show: function (c) { return String(c.indiv) !== "true"; } },
       { id: "d", t: "num", show: function (c) { return String(c.indiv) !== "true"; }, rangeHint: 1 },
@@ -5465,7 +5611,7 @@ var FIG = (function () {
   /* Belagsfläche -> Breite B und Länge L, so dass B × L = Fläche und 2 × (B + L) = Umfang (sonst Quadrat); Rechenkern unverändert */
   function solveBL(A, P) { var h = P / 2, d = h * h - 4 * A; if (d >= 0) { var r = Math.sqrt(d); return [(h + r) / 2, (h - r) / 2]; } var q = Math.sqrt(A); return [q, q]; }
   function karteApply(M, cfg, lenFn, fns) {
-    var st = { g: 0, gn: 0, s: 0, sn: 0, o: 0, f: 0, fn: 0 }, used = {}, G = S.recs.graben;
+    var st = { g: 0, gn: 0, s: 0, sn: 0, o: 0, f: 0, fn: 0, w: 0, wn: 0, e: 0, en: 0 }, used = {}, G = S.recs.graben;
     M.lines = M.lines.filter(function (l) { return l.pts.length > 1; });
     M.lines.forEach(function (l) {
       var r = recByUid("graben", l.rid);
@@ -5499,6 +5645,27 @@ var FIG = (function () {
       used[ensureUid(r)] = 1; f.rid = r.uid; st.f++;
       var bl = solveBL(A, P); r.indiv = "false"; r.bk = f.belag.bk; r.wi = f.belag.wi; r.d = String(f.belag.d || "0.08"); r.B = String(Math.round(bl[0] * 1000) / 1000); r.L = String(Math.round(bl[1] * 1000) / 1000);
     });
+    /* Werklöcher: ein Datensatz zählt die Punkte je Typ (T-Stück, Bogen, Spleissgrube, Zugschlitz) */
+    if ((M.wl || []).length) {
+      var W = S.recs.werkloch, rw = null; M.wl.forEach(function (p) { rw = rw || recByUid("werkloch", p.sid); });
+      if (!rw) {
+        if (S.tab === "werkloch" && !used[ensureUid(cfg)]) rw = cfg;
+        else if (W.length === 1 && pristine("werkloch", W[0])) rw = W[0];
+        else { rw = newRec("werkloch", W.length + 1); W.push(rw); st.wn++; }
+      }
+      ensureUid(rw); var cnt = { ts: 0, bo: 0, sg: 0, zs: 0 }; M.wl.forEach(function (p) { p.sid = rw.uid; cnt[p.wt] = (cnt[p.wt] || 0) + 1; st.w++; });
+      ["ts", "bo", "sg", "zs"].forEach(function (k) { rw[k] = cnt[k] ? String(cnt[k]) : ""; });
+    }
+    /* Gebäudeeinführungen: je Punkt ein Datensatz (Anzahl 1) */
+    (M.geb || []).forEach(function (p) {
+      var r = recByUid("geb", p.sid), E = S.recs.geb;
+      if (!r) {
+        if (S.tab === "geb" && !used[ensureUid(cfg)] && !M.geb.some(function (x) { return x !== p && x.sid === cfg.uid; })) r = cfg;
+        else if (E.length === 1 && pristine("geb", E[0]) && !used[ensureUid(E[0])]) r = E[0];
+        else { r = newRec("geb", E.length + 1); E.push(r); st.en++; }
+      }
+      used[ensureUid(r)] = 1; p.sid = r.uid; st.e++; r.n = "1"; r.cm = String(p.cm || ""); r.abd = p.abd || "hauff"; if (p.name) r.name = p.name;
+    });
     st.o = (M.sond || []).length; return st;
   }
   /* Sondagen (Karte + Plan) -> Sondieraushub m³ im Reiter Allgemein (nur wenn Sondagen vorhanden) */
@@ -5513,8 +5680,9 @@ var FIG = (function () {
     var m = document.createElement("p"); m.className = "hint kmmsg"; m.setAttribute("role", "status"); w.appendChild(m);
     var u = cfg.uid, ls = (S.karte.lines || []).filter(function (l) { return u && l.rid === u; }), ps = (S.karte.pts || []).filter(function (p) { return u && p.sid === u; });
     var as = (S.karte.areas || []).filter(function (f) { return u && f.rid === u; });
-    if (tab === "schacht" ? ps.length : tab === "belag" ? as.length : ls.length) {
-      var pv = KARTE.preview(ls.map(function (l) { return l.pts; }), tt, tab === "schacht" ? ps.map(function (p) { return p.pt; }) : [], tab === "belag" ? as.map(function (f) { return f.pts; }) : []); if (pv) w.appendChild(pv);
+    var wls = (S.karte.wl || []).filter(function (p) { return u && p.sid === u; }), gbs = (S.karte.geb || []).filter(function (p) { return u && p.sid === u; });
+    if (tab === "schacht" ? ps.length : tab === "belag" ? as.length : tab === "werkloch" ? wls.length : tab === "geb" ? gbs.length : ls.length) {
+      var pv = KARTE.preview(ls.map(function (l) { return l.pts; }), tt, tab === "schacht" ? ps.map(function (p) { return p.pt; }) : [], tab === "belag" ? as.map(function (f) { return f.pts; }) : [], tab === "werkloch" ? wls.map(function (p) { return p.pt; }) : [], tab === "geb" ? gbs.map(function (p) { return p.pt; }) : []); if (pv) w.appendChild(pv);
     }
     b.addEventListener("click", function () {
       m.className = "hint kmmsg";
@@ -5526,12 +5694,12 @@ var FIG = (function () {
           var u0 = ensureUid(cfg); cfg.trasse.forEach(function (pts, i) { S.karte.lines.push({ id: "m" + i + u0, pts: pts, rid: i === 0 ? u0 : null, rohr: { sys: cfg.rohrSystem, dn: cfg.dn, len: cfg.len, n: cfg.n } }); }); delete cfg.trasse;
         }
         var g = tab === "graben";
-        KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), model: JSON.parse(JSON.stringify(S.karte)),
-          defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" ? cfg.typ : "KES150", defBelag: tab === "belag" ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
-          recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id); },
+        KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), model: JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
+          defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" ? cfg.cm : "", abd: tab === "geb" ? cfg.abd : "hauff" }, defBelag: tab === "belag" ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
+          recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
           onClose: function () { var o = $("#kmOpen"); if (o) o.focus(); },
           onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st = karteApply(M, cfg, lenFn, fns), bs = fns.base === "luft" ? "luft" : fns.base === "grau" || fns.base === "kataster" ? "grau" : "farbe", keep = S.karte.bg;
-            S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], base: bs, bg: keep }; sondSync(); save(); renderForm(); scheduleResult(); undoToast(fill(tt("km_done"), st), sn); cacheSitu(); }
+            S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; sondSync(); save(); renderForm(); scheduleResult(); undoToast(fill(tt("km_done"), st), sn); cacheSitu(); }
         });
       }).catch(function () { b.disabled = false; m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); });
     });
@@ -5609,10 +5777,10 @@ var FIG = (function () {
         msg.className = "hint kmmsg"; msg.textContent = tt("km_loading");
         KARTE.load().then(function () {
           msg.textContent = "";
-          KARTE.open({ kind: "plan", tt: tt, lang: S.lang, cat: karteCat(), plan: { img: P.img, w: P.w, h: P.h, cal: P.cal }, model: { lines: JSON.parse(JSON.stringify(P.lines)), pts: JSON.parse(JSON.stringify(P.pts)), sond: JSON.parse(JSON.stringify(P.sond)), notes: JSON.parse(JSON.stringify(P.notes || [])), areas: JSON.parse(JSON.stringify(P.areas || [])) },
-            defRohr: { sys: "k55", dn: "55", len: "10", n: "1" }, defTyp: "KES150", defBelag: { bk: "gehweg", d: "0.08", wi: "B" }, recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id); },
+          KARTE.open({ kind: "plan", tt: tt, lang: S.lang, cat: karteCat(), plan: { img: P.img, w: P.w, h: P.h, cal: P.cal }, model: { lines: JSON.parse(JSON.stringify(P.lines)), pts: JSON.parse(JSON.stringify(P.pts)), sond: JSON.parse(JSON.stringify(P.sond)), notes: JSON.parse(JSON.stringify(P.notes || [])), areas: JSON.parse(JSON.stringify(P.areas || [])), wl: JSON.parse(JSON.stringify(P.wl || [])), geb: JSON.parse(JSON.stringify(P.geb || [])) },
+            defRohr: { sys: "k55", dn: "55", len: "10", n: "1" }, defTyp: "KES150", defGeb: { cm: "", abd: "hauff" }, defBelag: { bk: "gehweg", d: "0.08", wi: "B" }, recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
             onClose: function () { var o = $("#plOpen"); if (o) o.focus(); },
-            onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st2 = karteApply(M, null, lenFn, fns); S.plan.areas = M.areas || []; S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; sondSync(); save(); renderForm(); renderResult(); undoToast(fill(tt("km_done"), st2), sn); }
+            onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st2 = karteApply(M, null, lenFn, fns); S.plan.areas = M.areas || []; S.plan.wl = M.wl || []; S.plan.geb = M.geb || []; S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; sondSync(); save(); renderForm(); renderResult(); undoToast(fill(tt("km_done"), st2), sn); }
           });
         }).catch(function () { msg.className = "hint kmmsg reqmsg"; msg.textContent = tt("km_offline"); });
       });
@@ -5776,17 +5944,19 @@ var FIG = (function () {
   /* Situation (Karte/Plan) im Ausdruck */
   function situRender() {
     var old = $("#result .situ"); if (old) old.remove();
-    var K = S.karte, P = S.plan, hasMap = K.lines.length || K.pts.length || K.sond.length || K.notes.length || (K.areas || []).length, hasPlan = !!P.img;
+    var K = S.karte, P = S.plan, hasMap = (K.overlay && ovResolve(K.overlay)) || K.lines.length || K.pts.length || K.sond.length || K.notes.length || (K.areas || []).length || (K.wl || []).length || (K.geb || []).length, hasPlan = !!P.img;
     if (!hasMap && !hasPlan) return;
     var sec = document.createElement("section"); sec.className = "situ no-summary"; sec.innerHTML = "<h3>" + esc(tt("sit_h")) + "</h3>";
     if (hasMap) {
       var g = situGeo(), base = K.base || "farbe", bg = K.bg && K.bg.key === KARTE.bgKey(g, 760, 420, base) ? K.bg.src : null;
-      var fig = KARTE.mapFigure(g, tt, { W: 760, H: 420, base: base, bg: bg, cls: "situfig", cap: fill(tt("sit_capMap"), { m: KARTE.fmt(KARTE.total(g.lines)), n: K.pts.length, s: K.sond.length, f: (K.areas || []).length }) }); if (fig) sec.appendChild(fig);
+      var fig = KARTE.mapFigure(g, tt, { W: 760, H: 420, base: base, bg: bg, overlay: ovResolve(K.overlay), cls: "situfig", cap: fill(tt("sit_capMap"), { m: KARTE.fmt(KARTE.total(g.lines)), n: K.pts.length, s: K.sond.length, f: (K.areas || []).length }) }); if (fig) sec.appendChild(fig);
     }
     if (hasPlan) { var pv = KARTE.planPreview(P, tt); if (pv) { pv.className = "situfig"; var cap = document.createElement("figcaption"); cap.textContent = tt("sit_capPlan") + (P.cal && P.cal.scale ? " · " + (P.cal.auto ? "1:" + P.cal.auto : "1 px = " + Math.round(P.cal.scale * 1000) / 1000 + " m") : ""); pv.appendChild(cap); sec.appendChild(pv); } }
     var st = $("#result .status"); if (st) st.insertAdjacentElement("afterend", sec); else $("#result").insertBefore(sec, $("#result").firstChild);
   }
-  function situGeo() { var K = S.karte; return { lines: K.lines.map(function (l) { return l.pts; }), pts: K.pts.map(function (p) { return p.pt; }), areas: (K.areas || []).map(function (a) { return a.pts; }), sond: K.sond.map(function (p) { return p.pt; }), notes: K.notes }; }
+  function situGeo() { var K = S.karte; return { lines: K.lines.map(function (l) { return l.pts; }), pts: K.pts.map(function (p) { return p.pt; }), areas: (K.areas || []).map(function (a) { return a.pts; }), sond: K.sond.map(function (p) { return p.pt; }), wl: (K.wl || []).map(function (p) { return p.pt; }), geb: (K.geb || []).map(function (p) { return p.pt; }), notes: K.notes, extra: KARTE.ovCorners(ovResolve(K.overlay)) }; }
+  /* Overlay-Bild: Verweis auf den Plan-Reiter (keine Doppelspeicherung) oder eingebettet */
+  function ovResolve(o) { if (!o) return null; var r = Object.assign({}, o); if (o.ref === "plan") { if (!S.plan.img) return null; r.img = S.plan.img; r.w = S.plan.w; r.h = S.plan.h; } return r.img ? r : null; }
   function cacheSitu() { var g = situGeo(), base = S.karte.base || "farbe"; KARTE.cacheBg(g, base, 760, 420, function (bg) { S.karte.bg = bg; save(); situRender(); }); }
   /* Breite Tabellen: horizontal scrollbar UND per Tastatur erreichbar (WCAG 2.1.1) */
   function wrapTables(root) {

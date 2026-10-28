@@ -320,3 +320,14 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 /* Situation im Ausdruck */
 .situ{margin:18px 0}.situfig{margin:0 0 12px;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:#fff}.situfig svg{display:block;width:100%;height:auto}
 @media print{.situ{break-inside:avoid;page-break-inside:avoid;margin:10px 0}.situfig{break-inside:avoid;page-break-inside:avoid;border-radius:0}}
+
+.kmwl span{display:flex;width:26px;height:26px;align-items:center;justify-content:center;background:#b25e00;color:#fff;border:2px solid #fff;border-radius:4px;font:700 11px "Segoe UI",sans-serif;box-shadow:0 0 0 1px #b25e00}
+.kmwl.on span,.kmgeb.on span{background:#b8332a;box-shadow:0 0 0 1px #b8332a}
+.kmgeb span{display:flex;width:26px;height:26px;align-items:center;justify-content:center;background:#1c6b3f;color:#fff;border:2px solid #fff;border-radius:4px 4px 0 0;font:700 11px "Segoe UI",sans-serif;box-shadow:0 0 0 1px #1c6b3f}
+
+.kmovimg{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;pointer-events:none}
+.kmovc{align-items:center}.kmovc input[type=range]{width:120px}
+
+.kmdlg[open]{overflow:auto}
+.kmfoot{position:sticky;bottom:0;background:var(--paper);padding-top:8px;border-top:1px solid var(--rule);z-index:5}
+.kmmap,.kmframe{flex:1 1 300px;min-height:260px}
