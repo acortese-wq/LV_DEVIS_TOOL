@@ -383,6 +383,7 @@
     km_catErr: ["Geokatalog nicht erreichbar (kein Internet?).", "Géocatalogue inaccessible (pas d'Internet ?).", "Geocatalogo non raggiungibile (nessuna connessione?).", "Geo catalogue not reachable (no internet?)."],
     km_catRemove: ["Entfernen", "Retirer", "Rimuovere", "Remove"],
     km_opacity: ["Deckkraft", "Opacité", "Opacità", "Opacity"],
+    ux_tableScroll: ["Tabelle (mit Pfeiltasten horizontal scrollbar)", "Tableau (défilement horizontal avec les flèches)", "Tabella (scorrimento orizzontale con le frecce)", "Table (scroll horizontally with arrow keys)"],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
     km_ptOn: ["Schacht setzen aktiv", "Pose de regard active", "Posa pozzetto attiva", "Placing manholes"],
     km_obj: ["Objekte auf der Karte", "Objets sur la carte", "Oggetti sulla carta", "Objects on the map"],

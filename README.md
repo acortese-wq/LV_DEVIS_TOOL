@@ -50,3 +50,14 @@ Ordner `skill/lv-devis-tiefbau/` – Rechenkern des HTML-Tools als Python-Portie
 Neu erzeugen nach Änderungen in `src/`: `python3 build.py && node tools/build_skill.mjs`  
 Prüfen: `sh tests/skill_test.sh` – Beispiele im HTML-Tool rappengenau, dazu 300 Zufallsprojekte Python gegen Original-Rechenkern, Position für Position  
 Zum Hochladen als ZIP: `cd skill && zip -r ../lv-devis-tiefbau-skill.zip lv-devis-tiefbau`
+
+## Qualitätssicherung
+
+| Befehl | Prüft |
+|---|---|
+| `python3 build.py && node tools/build_skill.mjs` | Build (Einzeldatei `index.html`, Skill) |
+| `sh tests/skill_test.sh` | Rechenkern HTML ↔ Python-Skill, 300 Zufallsprojekte (muss «0 Abweichungen» zeigen) |
+| `AXE=/pfad/axe.min.js node tests/ui_qa.js` | Browser: Konsole, Überlauf (360–1800 px), axe WCAG 2.2 AA je Reiter, Tastaturfokus, Datenerhalt, JSON-/Excel-Export, Zurücksetzen |
+
+Audit und Entscheidungen: `docs/UX_AUDIT.md`, `docs/UX-Audit_2026-10.md`.
+GitHub Pages: reine Einzeldatei, keine relativen Unterpfade nötig; CDN-Skripte (Leaflet, pdf.js) werden nur bei Bedarf geladen.

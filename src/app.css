@@ -80,7 +80,7 @@ sup.ks{font-size:9.5px;color:var(--navy);margin-left:2px;font-family:inherit}
 @media print{.tabsbar,.toolrow,.gorow{display:none!important}.elres.cur{box-shadow:none}body.nodraw .figs{display:none}}
 .cols>*{min-width:0}
 .elres-body,.result .cost-wrap{overflow-x:auto}
-@media (max-width:700px){.result table{display:block;overflow-x:auto}.result table.cost{display:table}.sheet{padding:10px 8px 30px}.form,.result,.plankopf{padding-left:14px;padding-right:14px}}
+@media (max-width:700px){.tscroll table{min-width:560px}.sheet{padding:10px 8px 30px}.form,.result,.plankopf{padding-left:14px;padding-right:14px}}
 ul.vollst{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media (max-width:700px){ul.vollst{grid-template-columns:minmax(0,1fr)}}
 ul.vollst li{min-width:0;flex-wrap:wrap}
@@ -293,3 +293,8 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 .kmhit[aria-pressed=true]{background:#eef3fd;font-weight:650}
 .kmov{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--rule)}.kmovn{flex:1 1 220px}.kmov label{margin:0;display:flex;gap:6px;align-items:center}
 .leaflet-control-attribution a{text-decoration:underline}
+
+/* Tabellen-Scrollbereiche, Linkziele, kompakter Kopf */
+.tscroll{overflow-x:auto;max-width:100%}.tscroll:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.status p a{display:inline-block;padding:4px 0;min-height:24px}
+@media (min-width:900px){.brandrow{margin-bottom:6px}.logo{width:170px}}

@@ -750,10 +750,10 @@
   function parEl() {
     var w = document.createElement("div"); w.className = "elbody formbody";
     var P = S.par, rows = [["dichte", S], ["mwst", S], ["deckG", P], ["deckS", P], ["deckK", P], ["gehMin", P], ["gehMax", P], ["strMin", P], ["strMax", P], ["kanMin", P], ["kanMax", P]];
-    var h = '<p class="hint">' + esc(tt("parH")) + '</p><table class="cost ptab"><tbody>' + rows.map(function (r) { return "<tr><td>" + esc(tt("p_" + r[0])) + '</td><td class="num"><input class="mini" data-p="' + r[0] + '" data-o="' + (r[1] === S ? "S" : "P") + '" value="' + esc(r[1][r[0]]) + '"></td></tr>'; }).join("") + "</tbody></table>";
-    h += "<h4>" + esc(tt("dimT")) + '</h4><table class="cost ptab"><tbody>';
+    var h = '<p class="hint">' + esc(tt("parH")) + '</p><table class="cost ptab"><tbody>' + rows.map(function (r) { return "<tr><td>" + esc(tt("p_" + r[0])) + '</td><td class="num"><input class="mini" data-p="' + r[0] + '" data-o="' + (r[1] === S ? "S" : "P") + '" aria-label="' + esc(tt("p_" + r[0])) + '" value="' + esc(r[1][r[0]]) + '"></td></tr>'; }).join("") + "</tbody></table>";
+    h += "<h3>" + esc(tt("dimT")) + '</h3><table class="cost ptab"><tbody>';
     [["wl", function (k) { return tt("tab_werkloch") + " " + String(tt("f_" + k)).replace(/ \[.*\]/, ""); }], ["fund", function (k) { return tt("s_fund") + " " + k; }]].forEach(function (g) {
-      Object.keys(S.D[g[0]]).forEach(function (k) { h += "<tr><td>" + esc(g[1](k)) + "</td>" + [0, 1, 2].map(function (i) { return '<td class="num"><input class="mini" data-d="' + g[0] + "|" + esc(k) + "|" + i + '" value="' + S.D[g[0]][k][i] + '" aria-label="' + "LBH"[i] + '"></td>'; }).join("") + "</tr>"; });
+      Object.keys(S.D[g[0]]).forEach(function (k) { h += "<tr><td>" + esc(g[1](k)) + "</td>" + [0, 1, 2].map(function (i) { return '<td class="num"><input class="mini" data-d="' + g[0] + "|" + esc(k) + "|" + i + '" value="' + S.D[g[0]][k][i] + '" aria-label="' + esc(g[1](k)) + " " + "LBH"[i] + '"></td>'; }).join("") + "</tr>"; });
     });
     h += "</tbody></table>";
     var A = autoSet(), keys = Object.keys(LV), per = {}, auto = 0, no = 0;
@@ -849,14 +849,25 @@
       (nStop ? '<a href="#warns" class="tag stop">' + esc(fill(tt("ux_stop"), { n: nStop })) + "</a>" : "") +
       (nAmb ? '<a href="#warns" class="tag amber">' + esc(fill(tt("ux_warn"), { n: nAmb })) + "</a>" : "");
     $("#kpi").innerHTML = '<div class="kpi-main">' + cell(tt("ux_netto"), s.netto, "main") + cell(tt("ux_brutto"), s.brutto) + (hon.length ? cell(tt("ux_hon"), hn) : "") + "</div>" + (n ? '<div class="kpi-tags">' + tags + "</div>" : "");
+    $("#mbar").setAttribute("role", "region"); $("#mbar").setAttribute("aria-label", tt("h_kosten"));
     $("#mbar").innerHTML = '<div><span class="kl">' + esc(tt("ux_netto")) + '</span><b>CHF ' + chf(s.netto) + "</b>" + (nStop ? ' <span class="tag stop">' + nStop + " !</span>" : "") + '</div><a class="btn" href="#kpi">' + esc(tt("ux_toRes")) + " ↓</a>";
   }
   /* LV rechts (ab 1500 px): Zusammenstellung und Kosten wie im Ausdruck, live */
+  /* Breite Tabellen: horizontal scrollbar UND per Tastatur erreichbar (WCAG 2.1.1) */
+  function wrapTables(root) {
+    var k = 0;
+    root.querySelectorAll("table").forEach(function (t) {
+      if (t.classList.contains("cost") || (t.parentNode && t.parentNode.classList.contains("tscroll"))) return;
+      var w = document.createElement("div"); w.className = "tscroll"; w.tabIndex = 0; w.setAttribute("role", "region"); var box = t.closest(".elres"), ttl = box && box.querySelector(".elhead") ? box.querySelector(".elhead").firstChild.textContent.trim() : "";
+      w.setAttribute("aria-label", (ttl ? ttl + " – " : "") + tt("ux_tableScroll") + " " + (++k));
+      t.parentNode.insertBefore(w, t); w.appendChild(t);
+    });
+  }
   function lvRender(lvHtml, hon, out) {
     var el = $("#lvcol"); if (!el) return;
     document.body.classList.toggle("lv-on", S.ui.lvCol !== false);
     var h = '<div class="lvhead"><h2>' + esc(tt("lv_title")) + '</h2><button type="button" class="btn ghost small" data-lvtoggle>' + esc(tt("lv_hide")) + "</button></div>";
-    el.innerHTML = lvHtml ? h + lvHtml : h + '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>";
+    el.innerHTML = lvHtml ? h + lvHtml : h + '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>"; wrapTables(el);
   }
   function renderResult() {
     var out = KVE.calc(S, LV); lastOut = out;
@@ -920,7 +931,7 @@
     if (ws.length) html += '<div class="no-summary"><h3 id="warns" tabindex="-1">' + esc(tt("h_warn")) + '</h3><ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + (w.tab ? '<a href="#" data-go="' + w.tab + ":" + w.idx + '" title="' + esc(tt("ux_go")) + '">' + esc(tt("tab_" + w.tab) + " · " + w.el) + "</a>" : esc(w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul></div>";
     html += '<details class="ref no-summary"><summary>' + esc(tt("h_grund")) + "</summary><ul class='doclist' style='padding:6px 14px'>" + (T[S.lang] || T.de).g_list.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "<li>" + esc(tt("g_lvOnlyDE")) + "</li></ul></details>";
     html += '<div class="sigline print-only"><div>' + esc(tt("sigA")) + "</div><div>" + esc(tt("sigB")) + "</div></div>";
-    $("#result").innerHTML = html;
+    $("#result").innerHTML = html; wrapTables($("#result"));
     lvRender(lvHtml, hon, out);
     kpiRender(out, hon, n);
     renderTabs(); refreshFig(); if (S.tab === "hon") refreshHon();
@@ -1062,7 +1073,7 @@
   }
   function init() {
     KOPF.forEach(function (k) { $("#p_" + k[0]).addEventListener("input", function () { S.kopf[k[0]] = this.value; save(); kopfSum(); }); });
-    if (S.ui.kopfZu) $("#kopfbox").open = false;
+    if (S.ui.kopfZu !== false) $("#kopfbox").open = false;   /* Projektangaben standardmässig eingeklappt: Arbeitsbereich sofort sichtbar */
     document.body.classList.toggle("rules-on", !!S.ui.rules);   /* Rechenweg nur auf Wunsch */
     $("#kopfbox").addEventListener("toggle", function () { S.ui.kopfZu = !this.open; save(); });
     $("#p_rolle").addEventListener("change", function () { S.kopf.rolle = this.value; save(); });
