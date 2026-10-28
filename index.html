@@ -4221,7 +4221,7 @@ var FIG = (function () {
   var toastT;
   function toast(host, msg, undoLabel, undo) {
     var old = host.querySelector(".kmtoast"); if (old) old.remove(); clearTimeout(toastT);
-    var slot = host.querySelector && host.querySelector(".kmslot"); if (slot) host = slot;   /* im Dialog: eigener Platz, verdeckt die Karte nicht */
+    var slot = host.classList && host.classList.contains("kmdlg") ? host.querySelector(".kmslot") : null; if (slot) host = slot;   /* im Dialog: eigener Platz, verdeckt die Karte nicht */
     var t = document.createElement("div"); t.className = "kmtoast" + (slot ? " in" : ""); t.setAttribute("role", "status");
     var sp = document.createElement("span"); sp.textContent = msg; t.appendChild(sp);
     if (undo) { var b = document.createElement("button"); b.type = "button"; b.className = "btn small"; b.textContent = undoLabel; b.addEventListener("click", function () { t.remove(); undo(); }); t.appendChild(b); }
