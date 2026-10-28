@@ -267,3 +267,5 @@ svg text.warnTx{fill:var(--signal)!important}
 .kmdlg[open]{height:min(96vh,940px);overflow:auto}
 .kmobj{flex:1 1 auto;min-height:110px;overflow:auto}
 .kmmap{flex:0 0 auto}
+.kmmap{height:min(56vh,560px)}
+.kmbl{font-size:12px;color:var(--ink-soft)}#kmBase{font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--rule-strong);border-radius:6px;background:#fff;color:var(--ink);max-width:100%}

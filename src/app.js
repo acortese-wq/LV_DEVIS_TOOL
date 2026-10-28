@@ -662,7 +662,7 @@
     var msg = document.createElement("p"); msg.className = "hint kmmsg"; msg.setAttribute("role", "status"); f.appendChild(msg); w.appendChild(f);
     var pg = document.createElement("div"); pg.className = "field"; pg.hidden = true; w.appendChild(pg);
     function setPlan(r) {
-      var sn = snapState(); S.plan = { img: r.img, w: r.w, h: r.h, cal: {}, lines: [], pts: [], sond: [] }; sondSync(); save(); renderForm(); undoToast(tt("pl_loaded"), sn);
+      var sn = snapState(); S.plan = { img: r.img, w: r.w, h: r.h, cal: r.mpp ? { scale: r.mpp, m: r.w * r.mpp, a: [0, r.h / 2], b: [r.w, r.h / 2], auto: r.ratio } : {}, lines: [], pts: [], sond: [] }; sondSync(); save(); renderForm(); undoToast(r.mpp ? fill(tt("pl_loadedAuto"), { r: r.ratio }) : tt("pl_loaded"), sn);
     }
     f.querySelector("input").addEventListener("change", function (e) {
       var file = e.target.files[0]; if (!file) return; msg.className = "hint kmmsg"; msg.textContent = tt("pl_reading"); planSrc = null;
@@ -676,7 +676,7 @@
     });
     if (P.img) {
       var c = P.cal && P.cal.scale, st = document.createElement("p"); st.className = "reqline " + (c ? "ok" : "open");
-      st.textContent = (c ? "✓ " + fill(tt("pl_calOk"), { m: KARTE.fmt(P.cal.m), s: Math.round(P.cal.scale * 1000) / 1000 }) : "⚠ " + tt("pl_calNo")) + " · " + fill(tt("km_total"), { m: KARTE.fmt(P.lines.reduce(function (a, l) { return a + (c ? KARTE.total([l.pts]) * P.cal.scale : 0); }, 0)), n: P.lines.length, s: P.pts.length, o: P.sond.length });
+      st.textContent = (c ? "✓ " + (P.cal.auto ? fill(tt("pl_calAuto"), { r: P.cal.auto, s: Math.round(P.cal.scale * 1000) / 1000 }) : fill(tt("pl_calOk"), { m: KARTE.fmt(P.cal.m), s: Math.round(P.cal.scale * 1000) / 1000 })) : "⚠ " + tt("pl_calNo")) + " · " + fill(tt("km_total"), { m: KARTE.fmt(P.lines.reduce(function (a, l) { return a + (c ? KARTE.total([l.pts]) * P.cal.scale : 0); }, 0)), n: P.lines.length, s: P.pts.length, o: P.sond.length });
       w.appendChild(st);
       var pv = KARTE.planPreview(P, tt); if (pv) w.appendChild(pv);
       var bt = document.createElement("div"); bt.className = "toolrow";

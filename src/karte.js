@@ -87,20 +87,40 @@
     });
     return pdfLoading;
   }
-  var MAXPX = 2200;
+  var MAXPX = 6000, MAXAREA = 7e6, MAXCHARS = 2.4e6;   /* lange Streifenpläne (z. B. 1:500) brauchen mehr Auflösung als 2200 px */
+  var fit = function (w, h) { return Math.min(1, MAXPX / Math.max(w, h), Math.sqrt(MAXAREA / (w * h))); };
+  function jpeg(c) { var q = 0.82, d = c.toDataURL("image/jpeg", q); while (d.length > MAXCHARS && q > 0.45) { q -= 0.1; d = c.toDataURL("image/jpeg", q); } return d; }
   function canvasOut(src, w, h) {
-    var k = Math.min(1, MAXPX / Math.max(w, h)), c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+    var k = fit(w, h), c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
     var x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(src, 0, 0, c.width, c.height);
-    return { img: c.toDataURL("image/jpeg", 0.82), w: c.width, h: c.height };
+    return { img: jpeg(c), w: c.width, h: c.height };
   }
-  /* file -> Promise<{pages, render(n)->Promise<{img,w,h}>}> */
+  /* Massstab 1:N aus Plantext/Dateiname erkennen (nur bei eindeutigem Treffer) */
+  var NORM = [20, 25, 50, 100, 200, 250, 500, 1000, 2000, 2500, 5000, 10000];
+  function detectRatio(text, name) {
+    var c = {}, re = /(?:^|[^\d:.,])1\s{0,3}:\s{0,3}(\d{2,5})(?!\d)/g, m, kw = null;
+    while ((m = re.exec(text))) { var n = +m[1]; if (NORM.indexOf(n) < 0) continue; c[n] = (c[n] || 0) + 1; if (!kw && /(Mass|Situation|Echelle|Scala|Scale|Plan)[^\d]{0,25}$/i.test(text.slice(Math.max(0, m.index - 30), m.index + 1))) kw = n; }
+    var ks = Object.keys(c).map(Number), fm = /(?:^|[^0-9])(\d{2,5})\.[a-z0-9]{2,4}$/i.exec(name || ""), fn = fm && NORM.indexOf(+fm[1]) >= 0 ? +fm[1] : 0;
+    if (fn) return !ks.length || ks.indexOf(fn) >= 0 ? fn : 0;   /* Dateiname «…_500.pdf»; bei widersprüchlichem Plantext lieber nicht automatisch */
+    if (!ks.length) return 0;
+    ks.sort(function (a, b) { return c[b] - c[a]; });
+    return ks.length === 1 || c[ks[0]] > c[ks[1]] ? ks[0] : 0;
+  }
+  /* file -> Promise<{pages, render(n)->Promise<{img,w,h,ratio,mpp}>}> */
   function planSource(file) {
     if (/\.pdf$/i.test(file.name) || file.type === "application/pdf") {
       return loadPdfJs().then(function () { return file.arrayBuffer(); }).then(function (buf) { return window.pdfjsLib.getDocument({ data: buf }).promise; }).then(function (doc) {
         return { pages: doc.numPages, render: function (n) {
           return doc.getPage(n).then(function (pg) {
-            var v1 = pg.getViewport({ scale: 1 }), sc = MAXPX / Math.max(v1.width, v1.height), vp = pg.getViewport({ scale: sc }), c = document.createElement("canvas"); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
-            return pg.render({ canvasContext: c.getContext("2d"), viewport: vp, background: "#fff" }).promise.then(function () { return { img: c.toDataURL("image/jpeg", 0.82), w: c.width, h: c.height }; });
+            var v1 = pg.getViewport({ scale: 1 }), sc = Math.min(MAXPX / Math.max(v1.width, v1.height), Math.sqrt(MAXAREA / (v1.width * v1.height))), vp = pg.getViewport({ scale: sc }), c = document.createElement("canvas"); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+            return pg.render({ canvasContext: c.getContext("2d"), viewport: vp, background: "#fff" }).promise.then(function () {
+              var r = { img: jpeg(c), w: c.width, h: c.height };
+              return pg.getTextContent().then(function (tc) {
+                var N = detectRatio(tc.items.map(function (i) { return i.str; }).join(""), file.name);
+                if (N) { r.ratio = N; r.mpp = 0.0003528 * N / sc; }   /* 1 pt = 0.3528 mm */
+                return r;
+              }, function () { return r; });
+            });
           });
         } };
       });
@@ -153,7 +173,7 @@
       '<button type="button" class="btn ghost small" data-k="end">' + esc(tt("km_end")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="undo">' + esc(tt("km_undo")) + "</button>" +
       '<button type="button" class="btn ghost small del" data-k="clear">' + esc(tt("km_clear")) + "</button>" +
-      (plan ? "" : '<span class="sp"></span><button type="button" class="btn ghost small" data-k="base" aria-pressed="false">' + esc(tt("km_aerial")) + "</button>") + "</div>" +
+      (plan ? "" : '<span class="sp"></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase">' + [["farbe", "km_bFarbe"], ["grau", "km_bGrau"], ["luft", "km_aerial"], ["kataster", "km_bKat"]].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join("") + '</select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + "</button>") + "</div>" +
       (plan ? '<form class="kmcalf" id="kmCalF" hidden><label for="kmCalM">' + esc(tt("pl_calAsk")) + '</label><input type="text" inputmode="decimal" id="kmCalM" class="numin"><button type="submit" class="btn small">' + esc(tt("pl_calSet")) + "</button></form>" : "") +
       '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div>' +
       '<p class="hint kmhelp" id="kmHelp"></p>' +
@@ -167,11 +187,22 @@
 
     function tiles() {
       if (layer) map.removeLayer(layer);
-      var id = base === "luft" ? "ch.swisstopo.swissimage" : "ch.swisstopo.pixelkarte-farbe";
-      layer = L.tileLayer(WMTS + id + "/default/current/3857/{z}/{x}/{y}.jpeg", { maxZoom: 20, maxNativeZoom: base === "luft" ? 19 : 18, attribution: "© swisstopo" }).addTo(map);
-      layer.bringToBack();
+      var T = function (id, ext, o) { return L.tileLayer(WMTS + id + "/default/current/3857/{z}/{x}/{y}." + ext, Object.assign({ maxZoom: 20, maxNativeZoom: 18, attribution: "© swisstopo / geo.admin.ch" }, o || {})); };
+      layer = base === "luft" ? L.layerGroup([T("ch.swisstopo.swissimage", "jpeg", { maxNativeZoom: 19 })])
+        : base === "grau" ? L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")])
+        : base === "kataster" ? L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg"), T("ch.kantone.cadastralwebmap-farbe", "png", { opacity: 0.75 })])
+        : L.layerGroup([T("ch.swisstopo.pixelkarte-farbe", "jpeg")]);
+      layer.addTo(map); layer.eachLayer(function (l) { l.bringToBack(); });
     }
-    function calTxt() { return cal.scale ? tt("pl_calOk").replace("{m}", fmt(cal.m)).replace("{s}", (Math.round(cal.scale * 1000) / 1000)) : tt("pl_calNo"); }
+    /* Ausschnitt im Kartenviewer map.geo.admin.ch öffnen (gleicher Hintergrund, aktuelles Zentrum) */
+    function openGeo() {
+      var c = map.getCenter(), e = toLV95(c.lat, c.lng), res = 156543.03 * Math.cos(c.lat * Math.PI / 180) / Math.pow(2, map.getZoom()),
+        R = [4000, 3750, 3500, 3250, 3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250, 1000, 750, 650, 500, 250, 100, 50, 20, 10, 5, 2.5, 2, 1.5, 1, 0.5], z = 0, d = 1e9;
+      R.forEach(function (r, i) { var x = Math.abs(Math.log(r / res)); if (x < d) { d = x; z = i; } });
+      var bg = base === "luft" ? "ch.swisstopo.swissimage" : base === "grau" || base === "kataster" ? "ch.swisstopo.pixelkarte-grau" : "ch.swisstopo.pixelkarte-farbe";
+      window.open("https://map.geo.admin.ch/#/map?lang=" + (opt.lang || "de") + "&center=" + Math.round(e[0]) + "," + Math.round(e[1]) + "&z=" + z + "&bgLayer=" + bg + (base === "kataster" ? "&layers=ch.kantone.cadastralwebmap-farbe" : ""), "_blank", "noopener");
+    }
+    function calTxt() { return cal.scale && cal.auto ? tt("pl_calAuto").replace("{r}", cal.auto).replace("{s}", (Math.round(cal.scale * 1000) / 1000)) : cal.scale ? tt("pl_calOk").replace("{m}", fmt(cal.m)).replace("{s}", (Math.round(cal.scale * 1000) / 1000)) : tt("pl_calNo"); }
     function draw() {
       grp.clearLayers();
       M.lines.forEach(function (l) {
@@ -188,7 +219,7 @@
         L.marker(AD.ll(p.pt), { interactive: false, keyboard: false, icon: L.divIcon({ className: "kmsond" + (on ? " on" : ""), html: "<span>S" + (i + 1) + "</span>", iconSize: [26, 26], iconAnchor: [13, 13] }) }).addTo(grp);
       });
       if (plan) { calPts.forEach(function (q) { L.circleMarker(AD.ll(q), { radius: 6, color: "#0d47c8", weight: 3, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
-        if (cal.a && cal.b && !calPts.length) L.polyline([AD.ll(cal.a), AD.ll(cal.b)], { color: "#0d47c8", weight: 2, dashArray: "6 5", interactive: false }).addTo(grp); }
+        if (cal.a && cal.b && !cal.auto && !calPts.length) L.polyline([AD.ll(cal.a), AD.ll(cal.b)], { color: "#0d47c8", weight: 2, dashArray: "6 5", interactive: false }).addTo(grp); }
       var tot = M.lines.reduce(function (a, l) { return a + lineLen(l.pts); }, 0);
       $("#kmLen").textContent = tt("km_total").replace("{m}", fmt(tot)).replace("{n}", M.lines.filter(function (l) { return l.pts.length > 1; }).length).replace("{s}", M.pts.length).replace("{o}", M.sond.length) + (plan ? " · " + calTxt() : "");
       ["cal", "line", "pt", "sond"].forEach(function (m) { var b = $("[data-k=m" + m + "]"); if (b) b.setAttribute("aria-pressed", mode === m ? "true" : "false"); });
@@ -298,7 +329,7 @@
       else if (k === "end") endLine();
       else if (k === "undo") undo();
       else if (k === "clear") { var snap = JSON.stringify(M); M.lines = []; M.pts = []; M.sond = []; cur = null; hist = []; sel = null; refresh(); toast(dlg, tt("km_cleared"), tt("km_undoBtn"), function () { M = JSON.parse(snap); refresh(); }); }
-      else if (k === "base") { base = base === "luft" ? "farbe" : "luft"; b.setAttribute("aria-pressed", base === "luft" ? "true" : "false"); b.textContent = base === "luft" ? tt("km_map") : tt("km_aerial"); tiles(); }
+      else if (k === "geo") openGeo();
       else if (k === "apply") {
         endLine();
         if (plan && !cal.scale && M.lines.length) { toast(dlg, tt("pl_calNeed")); return; }
@@ -306,6 +337,7 @@
       }
     });
     dlg.addEventListener("cancel", function (e) { e.preventDefault(); close(); });
+    var bs = $("#kmBase"); if (bs) bs.addEventListener("change", function () { base = bs.value; tiles(); });
     var sf = $(".kmsearch");
     if (sf) sf.addEventListener("submit", function (e) {
       e.preventDefault(); var q = $("#kmQ").value.trim(), ul = $("#kmHits"); if (!q) return;
