@@ -316,3 +316,7 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 .kmbar select,.kmbar input{width:auto;max-width:210px}
 .kmbar .kmn{width:64px}
 .kmobj{height:min(20vh,190px)}.kmslot{min-height:0}
+
+/* Situation im Ausdruck */
+.situ{margin:18px 0}.situfig{margin:0 0 12px;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:#fff}.situfig svg{display:block;width:100%;height:auto}
+@media print{.situ{break-inside:avoid;page-break-inside:avoid;margin:10px 0}.situfig{break-inside:avoid;page-break-inside:avoid;border-radius:0}}

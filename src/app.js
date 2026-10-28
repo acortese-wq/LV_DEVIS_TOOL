@@ -36,8 +36,8 @@
       var nr = newRec(t, 1); S.recs[t].forEach(function (r) { deepFill(r, nr); });
       if (!(S.idx[t] >= 0 && S.idx[t] < S.recs[t].length)) S.idx[t] = 0;
     });
-    if (!S.karte || !Array.isArray(S.karte.lines)) S.karte = { lines: [], pts: [], sond: [] }; if (!Array.isArray(S.karte.pts)) S.karte.pts = []; if (!Array.isArray(S.karte.sond)) S.karte.sond = []; if (!Array.isArray(S.karte.notes)) S.karte.notes = [];
-    if (!S.plan || !Array.isArray(S.plan.lines)) S.plan = { img: "", w: 0, h: 0, cal: {}, lines: [], pts: [], sond: [], notes: [] }; if (!Array.isArray(S.plan.pts)) S.plan.pts = []; if (!Array.isArray(S.plan.sond)) S.plan.sond = []; if (!Array.isArray(S.plan.notes)) S.plan.notes = []; if (!S.plan.cal) S.plan.cal = {};
+    if (!S.karte || !Array.isArray(S.karte.lines)) S.karte = { lines: [], pts: [], sond: [] }; if (!Array.isArray(S.karte.pts)) S.karte.pts = []; if (!Array.isArray(S.karte.sond)) S.karte.sond = []; if (!Array.isArray(S.karte.notes)) S.karte.notes = []; if (!Array.isArray(S.karte.areas)) S.karte.areas = [];
+    if (!S.plan || !Array.isArray(S.plan.lines)) S.plan = { img: "", w: 0, h: 0, cal: {}, lines: [], pts: [], sond: [], notes: [], areas: [] }; if (!Array.isArray(S.plan.pts)) S.plan.pts = []; if (!Array.isArray(S.plan.sond)) S.plan.sond = []; if (!Array.isArray(S.plan.notes)) S.plan.notes = []; if (!Array.isArray(S.plan.areas)) S.plan.areas = []; if (!S.plan.cal) S.plan.cal = {};
     if (ALLTABS.indexOf(S.tab) < 0) S.tab = "graben";
   }
   try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
@@ -155,7 +155,7 @@
     fund: [{ sec: "s_fund" }, { id: "name", t: "text" }, { id: "vk", t: "sel", opts: [""].concat(KVE.VK) }, { id: "kvs", t: "sel", opts: [""].concat(KVE.KVS) }]
       .concat(PIT_FIELDS, ERSCH_FIELDS, [{ sec: "s_zone" }], VERF_FIELDS, [{ sec: "s_belag" }], BELAG_FIELDS),
     geb: [{ sec: "s_geb" }, { id: "name", t: "text" }, { id: "n", t: "num", labKey: "f_gn" }, { id: "cm", t: "num" }, { id: "abd", t: "sel", opts: ["keine", "kissen", "hauff"] }],
-    belag: [{ sec: "s_wi" }, { id: "name", t: "text" }, { id: "indiv", t: "sel", opts: ["false", "true"], struct: 1, hint: "ksHint" },
+    belag: [{ sec: "s_wi" }, { id: "name", t: "text" }, { t: "trasse" }, { id: "indiv", t: "sel", opts: ["false", "true"], struct: 1, hint: "ksHint" },
       { id: "bk", t: "sel", opts: ["gehweg", "strasse", "kanton"], struct: 1, show: function (c) { return String(c.indiv) !== "true"; } },
       { id: "d", t: "num", show: function (c) { return String(c.indiv) !== "true"; }, rangeHint: 1 },
       { id: "B", t: "num", half: 1, show: function (c) { return String(c.indiv) !== "true"; } }, { id: "L", t: "num", half: 1, labKey: "f_Lbel", show: function (c) { return String(c.indiv) !== "true"; } },
@@ -556,8 +556,10 @@
   function snapState() { return JSON.stringify({ recs: S.recs, idx: S.idx, karte: S.karte, plan: S.plan, sond: S.sond }); }
   function restoreState(j) { var o = JSON.parse(j); S.recs = o.recs; S.idx = o.idx; S.karte = o.karte; S.plan = o.plan; S.sond = o.sond; save(); renderForm(); renderResult(); }
   function undoToast(msg, sn) { KARTE.toast(document.body, msg, tt("km_undoBtn"), function () { restoreState(sn); }); }
-  function karteApply(M, cfg, lenFn) {
-    var st = { g: 0, gn: 0, s: 0, sn: 0, o: 0 }, used = {}, G = S.recs.graben;
+  /* Belagsfläche -> Breite B und Länge L, so dass B × L = Fläche und 2 × (B + L) = Umfang (sonst Quadrat); Rechenkern unverändert */
+  function solveBL(A, P) { var h = P / 2, d = h * h - 4 * A; if (d >= 0) { var r = Math.sqrt(d); return [(h + r) / 2, (h - r) / 2]; } var q = Math.sqrt(A); return [q, q]; }
+  function karteApply(M, cfg, lenFn, fns) {
+    var st = { g: 0, gn: 0, s: 0, sn: 0, o: 0, f: 0, fn: 0 }, used = {}, G = S.recs.graben;
     M.lines = M.lines.filter(function (l) { return l.pts.length > 1; });
     M.lines.forEach(function (l) {
       var r = recByUid("graben", l.rid);
@@ -581,6 +583,16 @@
     });
     /* Anzahl Schächte = Anzahl gesetzter Punkte je Datensatz (sonst bliebe n = 0 und der Schacht ohne Kosten) */
     S.recs.schacht.forEach(function (r) { var k = M.pts.filter(function (p) { return p.sid === r.uid; }).length; if (k && r.modus !== "deckel") r.n = String(k); });
+    (M.areas || []).filter(function (f) { return f.pts.length > 2; }).forEach(function (f) {
+      var Bl = S.recs.belag, r = recByUid("belag", f.rid), A = fns.area(f.pts), P = fns.perim(f.pts);
+      if (!r) {
+        if (S.tab === "belag" && !used[ensureUid(cfg)] && !M.areas.some(function (x) { return x !== f && x.rid === cfg.uid; })) r = cfg;
+        else if (Bl.length === 1 && pristine("belag", Bl[0]) && !used[ensureUid(Bl[0])]) r = Bl[0];
+        else { r = newRec("belag", Bl.length + 1); Bl.push(r); st.fn++; }
+      }
+      used[ensureUid(r)] = 1; f.rid = r.uid; st.f++;
+      var bl = solveBL(A, P); r.indiv = "false"; r.bk = f.belag.bk; r.wi = f.belag.wi; r.d = String(f.belag.d || "0.08"); r.B = String(Math.round(bl[0] * 1000) / 1000); r.L = String(Math.round(bl[1] * 1000) / 1000);
+    });
     st.o = (M.sond || []).length; return st;
   }
   /* Sondagen (Karte + Plan) -> Sondieraushub m³ im Reiter Allgemein (nur wenn Sondagen vorhanden) */
@@ -594,8 +606,9 @@
     var b = document.createElement("button"); b.type = "button"; b.className = "btn small"; b.id = "kmOpen"; b.textContent = tt("km_btn"); w.appendChild(b);
     var m = document.createElement("p"); m.className = "hint kmmsg"; m.setAttribute("role", "status"); w.appendChild(m);
     var u = cfg.uid, ls = (S.karte.lines || []).filter(function (l) { return u && l.rid === u; }), ps = (S.karte.pts || []).filter(function (p) { return u && p.sid === u; });
-    if (tab === "schacht" ? ps.length : ls.length) {
-      var pv = KARTE.preview(ls.map(function (l) { return l.pts; }), tt, tab === "schacht" ? ps.map(function (p) { return p.pt; }) : []); if (pv) w.appendChild(pv);
+    var as = (S.karte.areas || []).filter(function (f) { return u && f.rid === u; });
+    if (tab === "schacht" ? ps.length : tab === "belag" ? as.length : ls.length) {
+      var pv = KARTE.preview(ls.map(function (l) { return l.pts; }), tt, tab === "schacht" ? ps.map(function (p) { return p.pt; }) : [], tab === "belag" ? as.map(function (f) { return f.pts; }) : []); if (pv) w.appendChild(pv);
     }
     b.addEventListener("click", function () {
       m.className = "hint kmmsg";
@@ -608,10 +621,11 @@
         }
         var g = tab === "graben";
         KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), model: JSON.parse(JSON.stringify(S.karte)),
-          defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : cfg.typ,
-          recName: function (id) { return recName("graben")(id) || recName("schacht")(id); },
+          defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" ? cfg.typ : "KES150", defBelag: tab === "belag" ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
+          recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id); },
           onClose: function () { var o = $("#kmOpen"); if (o) o.focus(); },
-          onApply: function (M, cal, lenFn) { var sn = snapState(), st = karteApply(M, cfg, lenFn); S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [] }; sondSync(); save(); renderForm(); scheduleResult(); undoToast(fill(tt("km_done"), st), sn); }
+          onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st = karteApply(M, cfg, lenFn, fns), bs = fns.base === "luft" ? "luft" : fns.base === "grau" || fns.base === "kataster" ? "grau" : "farbe", keep = S.karte.bg;
+            S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], base: bs, bg: keep }; sondSync(); save(); renderForm(); scheduleResult(); undoToast(fill(tt("km_done"), st), sn); cacheSitu(); }
         });
       }).catch(function () { b.disabled = false; m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); });
     });
@@ -689,10 +703,10 @@
         msg.className = "hint kmmsg"; msg.textContent = tt("km_loading");
         KARTE.load().then(function () {
           msg.textContent = "";
-          KARTE.open({ kind: "plan", tt: tt, lang: S.lang, cat: karteCat(), plan: { img: P.img, w: P.w, h: P.h, cal: P.cal }, model: { lines: JSON.parse(JSON.stringify(P.lines)), pts: JSON.parse(JSON.stringify(P.pts)), sond: JSON.parse(JSON.stringify(P.sond)), notes: JSON.parse(JSON.stringify(P.notes || [])) },
-            defRohr: { sys: "k55", dn: "55", len: "10", n: "1" }, defTyp: "KES150", recName: function (id) { return recName("graben")(id) || recName("schacht")(id); },
+          KARTE.open({ kind: "plan", tt: tt, lang: S.lang, cat: karteCat(), plan: { img: P.img, w: P.w, h: P.h, cal: P.cal }, model: { lines: JSON.parse(JSON.stringify(P.lines)), pts: JSON.parse(JSON.stringify(P.pts)), sond: JSON.parse(JSON.stringify(P.sond)), notes: JSON.parse(JSON.stringify(P.notes || [])), areas: JSON.parse(JSON.stringify(P.areas || [])) },
+            defRohr: { sys: "k55", dn: "55", len: "10", n: "1" }, defTyp: "KES150", defBelag: { bk: "gehweg", d: "0.08", wi: "B" }, recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id); },
             onClose: function () { var o = $("#plOpen"); if (o) o.focus(); },
-            onApply: function (M, cal, lenFn) { var sn = snapState(), st2 = karteApply(M, null, lenFn); S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; sondSync(); save(); renderForm(); renderResult(); undoToast(fill(tt("km_done"), st2), sn); }
+            onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st2 = karteApply(M, null, lenFn, fns); S.plan.areas = M.areas || []; S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; sondSync(); save(); renderForm(); renderResult(); undoToast(fill(tt("km_done"), st2), sn); }
           });
         }).catch(function () { msg.className = "hint kmmsg reqmsg"; msg.textContent = tt("km_offline"); });
       });
@@ -853,6 +867,21 @@
     $("#mbar").innerHTML = '<div><span class="kl">' + esc(tt("ux_netto")) + '</span><b>CHF ' + chf(s.netto) + "</b>" + (nStop ? ' <span class="tag stop">' + nStop + " !</span>" : "") + '</div><a class="btn" href="#kpi">' + esc(tt("ux_toRes")) + " ↓</a>";
   }
   /* LV rechts (ab 1500 px): Zusammenstellung und Kosten wie im Ausdruck, live */
+  /* Situation (Karte/Plan) im Ausdruck */
+  function situRender() {
+    var old = $("#result .situ"); if (old) old.remove();
+    var K = S.karte, P = S.plan, hasMap = K.lines.length || K.pts.length || K.sond.length || K.notes.length || (K.areas || []).length, hasPlan = !!P.img;
+    if (!hasMap && !hasPlan) return;
+    var sec = document.createElement("section"); sec.className = "situ no-summary"; sec.innerHTML = "<h3>" + esc(tt("sit_h")) + "</h3>";
+    if (hasMap) {
+      var g = situGeo(), base = K.base || "farbe", bg = K.bg && K.bg.key === KARTE.bgKey(g, 760, 420, base) ? K.bg.src : null;
+      var fig = KARTE.mapFigure(g, tt, { W: 760, H: 420, base: base, bg: bg, cls: "situfig", cap: fill(tt("sit_capMap"), { m: KARTE.fmt(KARTE.total(g.lines)), n: K.pts.length, s: K.sond.length, f: (K.areas || []).length }) }); if (fig) sec.appendChild(fig);
+    }
+    if (hasPlan) { var pv = KARTE.planPreview(P, tt); if (pv) { pv.className = "situfig"; var cap = document.createElement("figcaption"); cap.textContent = tt("sit_capPlan") + (P.cal && P.cal.scale ? " · " + (P.cal.auto ? "1:" + P.cal.auto : "1 px = " + Math.round(P.cal.scale * 1000) / 1000 + " m") : ""); pv.appendChild(cap); sec.appendChild(pv); } }
+    var st = $("#result .status"); if (st) st.insertAdjacentElement("afterend", sec); else $("#result").insertBefore(sec, $("#result").firstChild);
+  }
+  function situGeo() { var K = S.karte; return { lines: K.lines.map(function (l) { return l.pts; }), pts: K.pts.map(function (p) { return p.pt; }), areas: (K.areas || []).map(function (a) { return a.pts; }), sond: K.sond.map(function (p) { return p.pt; }), notes: K.notes }; }
+  function cacheSitu() { var g = situGeo(), base = S.karte.base || "farbe"; KARTE.cacheBg(g, base, 760, 420, function (bg) { S.karte.bg = bg; save(); situRender(); }); }
   /* Breite Tabellen: horizontal scrollbar UND per Tastatur erreichbar (WCAG 2.1.1) */
   function wrapTables(root) {
     var k = 0;
@@ -931,7 +960,7 @@
     if (ws.length) html += '<div class="no-summary"><h3 id="warns" tabindex="-1">' + esc(tt("h_warn")) + '</h3><ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + (w.tab ? '<a href="#" data-go="' + w.tab + ":" + w.idx + '" title="' + esc(tt("ux_go")) + '">' + esc(tt("tab_" + w.tab) + " · " + w.el) + "</a>" : esc(w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul></div>";
     html += '<details class="ref no-summary"><summary>' + esc(tt("h_grund")) + "</summary><ul class='doclist' style='padding:6px 14px'>" + (T[S.lang] || T.de).g_list.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "<li>" + esc(tt("g_lvOnlyDE")) + "</li></ul></details>";
     html += '<div class="sigline print-only"><div>' + esc(tt("sigA")) + "</div><div>" + esc(tt("sigB")) + "</div></div>";
-    $("#result").innerHTML = html; wrapTables($("#result"));
+    $("#result").innerHTML = html; wrapTables($("#result")); situRender();
     lvRender(lvHtml, hon, out);
     kpiRender(out, hon, n);
     renderTabs(); refreshFig(); if (S.tab === "hon") refreshHon();
