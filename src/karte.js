@@ -202,12 +202,23 @@
 
     function tiles() {
       if (layer) map.removeLayer(layer);
-      var T = function (id, ext, o) { return L.tileLayer(WMTS + id + "/default/current/3857/{z}/{x}/{y}." + ext, Object.assign({ maxZoom: 20, maxNativeZoom: 18, attribution: "© swisstopo / geo.admin.ch" }, o || {})); };
+      /* Ebene ohne bekannten Typ: zuerst WMS, bei Fehlern (z. B. nur als WMTS verfügbar) automatisch WMTS – und umgekehrt */
+      var flex = function (id, op) {
+        var grp2 = L.layerGroup(), tries = ["wms", "wmts"], ti = 0, ok = 0, bad = 0, cur;
+        function mk(t) { return t === "wms" ? L.tileLayer.wms("https://wms.geo.admin.ch/", { layers: id, format: "image/png", transparent: true, maxZoom: 20, opacity: op, zIndex: 5, attribution: "© geo.admin.ch" }) : T(id, "png", { opacity: op, zIndex: 5 }); }
+        function go() {
+          if (cur) grp2.removeLayer(cur); ok = 0; bad = 0; cur = mk(tries[ti]);
+          cur.on("tileload", function () { ok++; }); cur.on("tileerror", function () { bad++; if (!ok && bad >= 4 && ti < tries.length - 1) { ti++; go(); } });
+          grp2.addLayer(cur);
+        }
+        go(); return grp2;
+      };
+      var T = function (id, ext, o) { return L.tileLayer(WMTS + id + "/default/current/3857/{z}/{x}/{y}." + ext, Object.assign({ maxZoom: 20, maxNativeZoom: 18, zIndex: 1, attribution: "© swisstopo / geo.admin.ch" }, o || {})); };
       layer = base === "luft" ? L.layerGroup([T("ch.swisstopo.swissimage", "jpeg", { maxNativeZoom: 19 })])
         : base === "grau" ? L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")])
-        : base === "kataster" ? L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg"), T("ch.kantone.cadastralwebmap-farbe", "png", { opacity: 0.75 })])
+        : base === "kataster" ? L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg"), flex("ch.kantone.cadastralwebmap-farbe", 0.8)])
         : L.layerGroup([T("ch.swisstopo.pixelkarte-farbe", "jpeg")]);
-      layer.addTo(map); layer.eachLayer(function (l) { l.bringToBack(); });
+      layer.addTo(map);   /* Reihenfolge über zIndex: Basiskarte 1, Deckschichten 5/10 */
     }
     /* Ausschnitt im Kartenviewer map.geo.admin.ch öffnen (gleicher Hintergrund, aktuelles Zentrum) */
     /* gewählte Katalog-Ebenen (Deckkraft einstellbar), werden im Browser gemerkt */
@@ -215,13 +226,13 @@
     var ovGrp = null, catList = null;
     function saveOv() { try { localStorage.setItem(CATKEY, JSON.stringify(ov)); } catch (e) { } }
     function ovLayer(o) {
-      var op = { maxZoom: 20, maxNativeZoom: 18, opacity: o.op, attribution: "© geo.admin.ch" };
-      return o.type === "wms" ? L.tileLayer.wms("https://wms.geo.admin.ch/", { layers: o.srv, format: "image/png", transparent: true, maxZoom: 20, opacity: o.op, attribution: "© geo.admin.ch" })
+      var op = { maxZoom: 20, maxNativeZoom: 18, opacity: o.op, zIndex: 10, attribution: "© geo.admin.ch" };
+      return o.type === "wms" ? L.tileLayer.wms("https://wms.geo.admin.ch/", { layers: o.srv, format: "image/png", transparent: true, maxZoom: 20, opacity: o.op, zIndex: 10, attribution: "© geo.admin.ch" })
         : L.tileLayer(WMTS + o.srv + "/default/current/3857/{z}/{x}/{y}." + o.fmt, op);
     }
     function drawOv() {
       if (!ovGrp) return; ovGrp.clearLayers(); if (base === "viewer") return;
-      ov.forEach(function (o) { ovLayer(o).addTo(ovGrp); }); ovGrp.eachLayer(function (l) { l.bringToFront(); });
+      ov.forEach(function (o) { ovLayer(o).addTo(ovGrp); });
     }
     function selList() {
       var ul = $("#kmCatS"); ul.innerHTML = "";
