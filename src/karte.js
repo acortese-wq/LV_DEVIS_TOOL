@@ -388,7 +388,7 @@
       (plan ? "" : '<span class="sp"></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase">' + [["farbe", "km_bFarbe"], ["grau", "km_bGrau"], ["luft", "km_aerial"], ["kataster", "km_bKat"], ["viewer", "km_bViewer"]].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join("") + '</select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + "</button>") + "</div>" +
       (plan ? '<form class="kmcalf" id="kmCalF" hidden><label for="kmCalM">' + esc(tt("pl_calAsk")) + '</label><input type="text" inputmode="decimal" id="kmCalM" class="numin"><button type="submit" class="btn small">' + esc(tt("pl_calSet")) + "</button></form>" : "") +
       '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div>' +
-      (plan ? "" : '<details class="kmcat" id="kmCat"><summary>' + esc(tt("km_cat")) + '</summary><div class="kmcatb"><p class="hint kmtel">' + esc(tt("km_catTel")) + '</p><div class="kmchips" role="group" aria-label="' + esc(tt("km_catChips")) + '">' + ["4G", "5G", "Mobilfunk", "Antenne", "Breitband", "Glasfaser", "Telekommunikation"].map(function (w) { return '<button type="button" class="chip" data-q="' + w + '">' + w + "</button>"; }).join("") + '</div><label for="kmCatQ">' + esc(tt("km_catSearch")) + '</label><input type="search" id="kmCatQ" autocomplete="off" placeholder="' + esc(tt("km_catPh")) + '"><p class="hint" id="kmCatMsg" role="status"></p><ul class="kmcatl" id="kmCatL" aria-label="' + esc(tt("km_catRes")) + '"></ul><h3 class="kmcath">' + esc(tt("km_catSel")) + '</h3><ul class="kmcatl kmcats" id="kmCatS"></ul></div></details>') +
+      (plan ? "" : '<details class="kmcat" id="kmCat"><summary>' + esc(tt("km_cat")) + '</summary><div class="kmcatb"><p class="hint kmtel">' + esc(tt("km_catTel")) + '</p><div class="kmchips" id="kmChips" role="group" aria-label="' + esc(tt("km_catChips")) + '" hidden></div><label for="kmCatQ">' + esc(tt("km_catSearch")) + '</label><input type="search" id="kmCatQ" autocomplete="off" placeholder="' + esc(tt("km_catPh")) + '"><p class="hint" id="kmCatMsg" role="status"></p><ul class="kmcatl" id="kmCatL" aria-label="' + esc(tt("km_catRes")) + '"></ul><h3 class="kmcath">' + esc(tt("km_catSel")) + '</h3><ul class="kmcatl kmcats" id="kmCatS"></ul></div></details>') +
       (plan ? "" : '<details class="kmcat kmovd" id="kmOvD"><summary>' + esc(tt("ov_title")) + '</summary><div class="kmcatb"><p class="hint">' + esc(tt("ov_hint")) + '</p>' +
         '<label for="kmOvF">' + esc(tt("pl_file")) + '</label><input type="file" id="kmOvF" accept=".pdf,application/pdf,image/*"><p class="hint" id="kmOvMsg" role="status"></p>' +
         '<div class="kmbar"><button type="button" class="btn small" id="kmOvPlan">' + esc(tt("ov_fromPlan")) + '</button><button type="button" class="btn small" data-k="mgeo" aria-pressed="false">' + esc(tt("ov_geo")) + '</button><button type="button" class="btn small" data-ov="tr" id="kmOvTr">' + esc(tt("ov_tr")) + '</button><button type="button" class="btn ghost small" data-ov="c">' + esc(tt("ov_center")) + '</button><button type="button" class="btn ghost small del" data-ov="x">' + esc(tt("km_catRemove")) + '</button></div>' +
@@ -464,9 +464,18 @@
         li.appendChild(b); ul.appendChild(li);
       });
     }
+    /* Schnellsuche: nur Stichwörter mit Treffern im Katalog anzeigen (mit Anzahl) */
+    function chips() {
+      var box = $("#kmChips"); if (!catList) return; box.innerHTML = "";
+      ["4G", "5G", "Mobilfunk", "Antenne", "Breitband", "Glasfaser", "Telekommunikation"].forEach(function (w) {
+        var n = catList.filter(function (c) { var q = w.toLowerCase(); return c.label.toLowerCase().indexOf(q) >= 0 || c.id.toLowerCase().indexOf(q) >= 0; }).length;
+        if (!n) return; var b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.dataset.q = w; b.textContent = w + " (" + n + ")"; box.appendChild(b);
+      });
+      box.hidden = !box.children.length;
+    }
     function openCat() {
-      if (catList) return resList(); $("#kmCatMsg").textContent = tt("km_searching");
-      loadCatalog(opt.lang).then(function (l) { catList = l; resList(); }).catch(function () { $("#kmCatMsg").textContent = tt("km_catErr"); });
+      if (catList) { chips(); return resList(); } $("#kmCatMsg").textContent = tt("km_searching");
+      loadCatalog(opt.lang).then(function (l) { catList = l; chips(); resList(); }).catch(function () { $("#kmCatMsg").textContent = tt("km_catErr"); });
     }
     function geoUrl(embed) {
       var c = map.getCenter(), e = toLV95(c.lat, c.lng), res = 156543.03 * Math.cos(c.lat * Math.PI / 180) / Math.pow(2, map.getZoom()),
