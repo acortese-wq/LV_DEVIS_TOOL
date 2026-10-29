@@ -1,0 +1,13 @@
+const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+(async()=>{const b=await chromium.launch(); const pg=await mk(b); const reqs=[];
+await pg.route('**/*',r=>{const u=r.request().url(); if(u.includes('avtest.example')){reqs.push(u);return r.fulfill({status:200,contentType:'image/png',headers:{'access-control-allow-origin':'*'},body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==','base64')});} r.fallback();});
+await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]');
+await pg.click('[data-prov=geoadmin]'); await pg.selectOption('#kmBase','av');
+ok(await pg.isVisible('#kmAvUrl'),'Eingabe WMS sichtbar'); ok((await pg.textContent('#kmHelp')).includes('OpenData AV'),'Hinweis ohne URL');
+await pg.fill('#kmAvUrl','http://x'); await pg.click('#kmAvGo'); ok(!(await pg.evaluate(()=>localStorage.getItem('lvd-km-av'))),'http abgelehnt');
+await pg.fill('#kmAvUrl','https://avtest.example/wms'); await pg.fill('#kmAvLy','parzellen'); await pg.click('#kmAvGo'); await pg.waitForTimeout(1200);
+ok(reqs.some(u=>/LAYERS=parzellen/i.test(u)&&/avtest/.test(u)),'WMS-Kacheln angefragt: '+(reqs[0]||'').slice(0,90));
+ok((await pg.evaluate(()=>getComputedStyle(document.getElementById('kmMap')).backgroundColor))==='rgb(255, 255, 255)','weisser Grund');
+ok((await pg.evaluate(()=>JSON.parse(localStorage.getItem('lvd-km-av')).l))==='parzellen','gemerkt');
+ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|'));
+await b.close();})();
