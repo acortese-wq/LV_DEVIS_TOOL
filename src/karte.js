@@ -25,6 +25,27 @@
   function total(lines) { return (lines || []).reduce(function (a, l) { return a + lineLen(l); }, 0); }
   function fmt(v) { return (Math.round(v * 10) / 10).toLocaleString("de-CH", { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
 
+  /* Ein einziges WMS-Bild pro Kartenausschnitt statt Kacheln: keine Nähte/Versätze an Kachelgrenzen, Beschriftung nur einmal (Parzellenplan, OpenData AV) */
+  function viewWms(url, layers, o) {
+    var V = L.Layer.extend({
+      onAdd: function (m) { this._m = m; this._t = 0; this._bad = 0; m.on("moveend", this._upd, this); this._upd(); },
+      onRemove: function (m) { m.off("moveend", this._upd, this); this._t++; if (this._im) { m.removeLayer(this._im); this._im = null; } },
+      _upd: function () {
+        var m = this._m, sz = m.getSize(), b = m.getBounds(), me = this, t = ++this._t, k = Math.min(2, window.devicePixelRatio || 1);
+        var sw = L.CRS.EPSG3857.project(b.getSouthWest()), ne = L.CRS.EPSG3857.project(b.getNorthEast());
+        var u = url + (url.indexOf("?") < 0 ? "?" : "&") + "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=" + encodeURIComponent(layers) + "&STYLES=&SRS=EPSG:3857&BBOX=" + [sw.x, sw.y, ne.x, ne.y].map(function (v) { return v.toFixed(2); }).join(",") + "&WIDTH=" + Math.round(sz.x * k) + "&HEIGHT=" + Math.round(sz.y * k) + "&FORMAT=image/png&TRANSPARENT=TRUE";
+        var img = new Image();
+        img.onload = function () {
+          if (t !== me._t || !me._m) return; me._bad = 0;
+          var ov = L.imageOverlay(u, b, { pane: "tilePane", zIndex: 2, interactive: false, attribution: o && o.attr || "" }).addTo(me._m), old = me._im; me._im = ov; if (old) me._m.removeLayer(old);
+        };
+        img.onerror = function () { if (t === me._t && ++me._bad >= 2 && o && o.fail) { var f = o.fail; o.fail = null; f(); } };
+        img.src = u;
+      }
+    });
+    return new V();
+  }
+
   /* Leaflet bei Bedarf nachladen */
   var loading = null;
   function loadLeaflet() {
@@ -436,8 +457,8 @@
       layer = base === "luft" ? L.layerGroup([T("ch.swisstopo.swissimage", "jpeg", { maxNativeZoom: 19 })])
         : base === "grau" ? L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")])
         : base === "leer" ? L.layerGroup([])   /* leere Basis: nur gewählte Katalog-Ebenen auf weissem Grund */
-        : base === "av" ? L.layerGroup(avCfg().u ? [L.tileLayer.wms(avCfg().u, { layers: avCfg().l, format: "image/png", transparent: false, version: "1.3.0", maxZoom: 20, zIndex: 1, attribution: "© OpenData AV" })] : [])
-        : base === "kataster" ? L.layerGroup([flex("ch.kantone.cadastralwebmap-farbe", 1, "wmts")])   /* nur der Parzellenplan, ohne Landeskarte dahinter */
+        : base === "av" ? L.layerGroup(avCfg().u ? [viewWms(avCfg().u, avCfg().l, { attr: "© OpenData AV" })] : [])
+        : base === "kataster" ? (function () { var g = L.layerGroup(), v = viewWms(WMS, "ch.kantone.cadastralwebmap-farbe", { attr: "© geo.admin.ch", fail: function () { g.removeLayer(v); g.addLayer(flex("ch.kantone.cadastralwebmap-farbe", 1, "wmts")); } }); g.addLayer(v); return g; })()   /* nur der Parzellenplan, ohne Landeskarte dahinter */
         : L.layerGroup([T("ch.swisstopo.pixelkarte-farbe", "jpeg")]);
       map.getContainer().style.background = base === "kataster" || base === "leer" || base === "av" ? "#fff" : "";
       layer.addTo(map);   /* Reihenfolge über zIndex: Basiskarte 1, Deckschichten 5/10 */
@@ -516,7 +537,7 @@
       avRow(); refresh();
     }
     function avRow() {
-      var r = $("#kmAv"); if (!r) return; r.hidden = base !== "av"; var c = avCfg(), u = $("#kmAvUrl"), l = $("#kmAvLy"); if (u && !u.value) u.value = c.u; if (l && !l.value) l.value = c.l;
+      var r = $("#kmAv"); if (!r) return; r.hidden = base !== "av"; var c = avCfg(), u = $("#kmAvUrl"), l = $("#kmAvLy"); if (u && !u.value) u.value = c.u || "https://wms.cadastralwebmap.ch/WMS"; if (l && !l.value) l.value = c.l;
     }
     function calTxt() { return cal.scale && cal.auto ? tt("pl_calAuto").replace("{r}", cal.auto).replace("{s}", (Math.round(cal.scale * 1000) / 1000)) : cal.scale ? tt("pl_calOk").replace("{m}", fmt(cal.m)).replace("{s}", (Math.round(cal.scale * 1000) / 1000)) : tt("pl_calNo"); }
     var undoSt = [], curN = null, curA = null, tmp = [], layers = {}, lastMove = 0, noteCol = "#0d47c8";
@@ -905,9 +926,15 @@
     var avGo = $("#kmAvGo");
     if (avGo) avGo.addEventListener("click", function () {
       var u = ($("#kmAvUrl").value || "").trim(), l = ($("#kmAvLy").value || "").trim();
-      if (!/^https:\/\//i.test(u) || !l) { toast(dlg, tt("km_avBad")); return; }
-      try { localStorage.setItem("lvd-km-av", JSON.stringify({ u: u, l: l })); } catch (e) { }
-      setBase("av");
+      if (!/^https:\/\//i.test(u)) { toast(dlg, tt("km_avBad")); return; }
+      var save = function (ly) { try { localStorage.setItem("lvd-km-av", JSON.stringify({ u: u, l: ly })); } catch (e) { } $("#kmAvLy").value = ly; setBase("av"); };
+      if (l) { save(l); return; }
+      /* Ebenenname leer: GetCapabilities lesen und passende Ebene(n) wählen (Name aus dem Dienst, nicht geraten) */
+      $("#kmHelp").textContent = tt("km_avFind");
+      fetch(u + (u.indexOf("?") < 0 ? "?" : "&") + "SERVICE=WMS&REQUEST=GetCapabilities").then(function (r) { if (!r.ok) throw 0; return r.text(); }).then(function (x) {
+        var d = new DOMParser().parseFromString(x, "text/xml"), nm = [].slice.call(d.getElementsByTagName("Layer")).map(function (e) { var n = [].slice.call(e.children).filter(function (c) { return c.localName === "Name"; })[0]; return n ? n.textContent.trim() : ""; }).filter(Boolean);
+        if (!nm.length) throw 0; var pick = nm.filter(function (n) { return /parzell|liegenschaft|grundst|cadastr|kataster|^av/i.test(n); }); save((pick.length ? pick : nm.slice(0, 1)).slice(0, 4).join(","));
+      }).catch(function () { toast(dlg, tt("km_avNone")); refresh(); });
     });
     if (bs) { fillBase(); avRow(); bs.addEventListener("change", function () { try { if (bs.value !== "viewer") localStorage.setItem("lvd-km-base", bs.value); } catch (e) { } setBase(bs.value); }); }
     var sf = $(".kmsearch");
