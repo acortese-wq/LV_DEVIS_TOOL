@@ -533,6 +533,7 @@
     sit_withPlan: ["· Plan ", "· plan ", "· pianta ", "· plan "],
     km_max: ["Vollbild", "Plein écran", "Schermo intero", "Full screen"],
     km_maxT: ["Fenster maximieren oder verkleinern", "Agrandir ou réduire la fenêtre", "Ingrandire o ridurre la finestra", "Maximise or shrink the window"],
+    ux_validUntil: ["Testversion gültig bis {d} (noch {n} Tage)", "Version d'essai valable jusqu'au {d} (encore {n} jours)", "Versione di prova valida fino al {d} (ancora {n} giorni)", "Trial version valid until {d} ({n} days left)"],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
     km_ptOn: ["Schacht setzen aktiv", "Pose de regard active", "Posa pozzetto attiva", "Placing manholes"],
     km_obj: ["Objekte auf der Karte", "Objets sur la carte", "Oggetti sulla carta", "Objects on the map"],

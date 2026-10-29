@@ -5,6 +5,7 @@
    ===================================================================== */
 (function () {
   "use strict";
+  if (window.__EXPIRED) return;   /* abgelaufene Weitergabe-Version: Tool nicht starten */
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
   var chf = function (v) { return v == null ? "—" : v.toLocaleString("de-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
@@ -1170,7 +1171,8 @@
     $("#h-result").textContent = tt("h_result");
     $("#bPrint").textContent = tt("btnPrint"); $("#bPrintSum").textContent = tt("btnPrintSum"); $("#bXlsx").textContent = tt("btnXlsx"); $("#bSave").textContent = tt("btnSave"); $("#bLoad").textContent = tt("btnLoad"); $("#bNew").textContent = tt("btnNew");
     document.querySelectorAll(".langs button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.lang === S.lang ? "true" : "false"); });
-    $("#versionline").innerHTML = "<b>" + esc(tt("version")) + " 2.0</b><span>Build " + BUILD + "</span><span>LV DE V1.1 (10.07.2026)</span><span>LV FR V1.0 (27.06.2026)</span><span>LV IT V1.0 (27.06.2026)</span>";
+    if (window.__EXPDATE && !document.getElementById("expwarn")) { var ew = document.createElement("p"); ew.id = "expwarn"; ew.className = "expwarn no-print"; ew.setAttribute("role", "status"); ew.hidden = window.__EXPDAYS > 7; ew.textContent = fill(tt("ux_validUntil"), { d: window.__EXPDATE, n: window.__EXPDAYS }); var shEl = document.querySelector(".sheet"); if (shEl) shEl.insertBefore(ew, shEl.firstChild); }
+    $("#versionline").innerHTML = "<b>" + esc(tt("version")) + " 2.0</b><span>Build " + BUILD + "</span>" + (window.__EXPDATE ? "<span class=\"bad\">" + esc(fill(tt("ux_validUntil"), { d: window.__EXPDATE, n: window.__EXPDAYS })) + "</span>" : "") + "<span>LV DE V1.1 (10.07.2026)</span><span>LV FR V1.0 (27.06.2026)</span><span>LV IT V1.0 (27.06.2026)</span>";
     $("#skipRes").textContent = tt("ux_skip"); $("#lbClose").setAttribute("aria-label", tt("ux_close")); kopfSum();
     LVARR = null; renderForm(); renderResult();
   }

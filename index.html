@@ -1062,7 +1062,26 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
   <footer>© 2026 Alessandro Cortese · LV-Devis Tiefbau · App-Konzept, Struktur und fachliche Ausgestaltung. Enthält KV-Assistent Tiefbau und Auswahl Schachtbau und Abdeckungen (A. Cortese). LV V1.1 (10.07.2026).</footer>
 </div>
 <div id="lb" role="dialog" aria-modal="true" aria-label="Zeichnung"><button type="button" class="lbclose" id="lbClose">×</button><img alt=""></div>
-<script>var BUILD = "2026-10-29";</script>
+<div id="expiry" role="alertdialog" aria-modal="true" aria-labelledby="expT" hidden><div class="expbox"><h2 id="expT"></h2><p id="expP"></p><p class="sub" id="expS"></p><p class="meta">LV-Devis Tiefbau · App-Konzept und Urheber: Alessandro Cortese</p></div></div>
+<script>var BUILD = "2026-10-29", EXPIRES = "";
+/* Ablaufdatum (nur gesetzt bei Weitergabe-Version): nach Ablauf öffnet sich das Tool nicht mehr. Die Prüfung merkt sich das späteste gesehene Datum, damit Zurückstellen der Uhr nicht hilft. */
+(function () {
+  if (!EXPIRES) return;
+  var T = { de: ["Diese Version ist abgelaufen", "Diese Testversion war bis {d} gültig und lässt sich nicht mehr öffnen.", "Bitte eine aktuelle Version bei Alessandro Cortese anfordern."], fr: ["Cette version a expiré", "Cette version d'essai était valable jusqu'au {d} et ne peut plus être ouverte.", "Veuillez demander une version actuelle à Alessandro Cortese."], it: ["Questa versione è scaduta", "Questa versione di prova era valida fino al {d} e non può più essere aperta.", "Richiedere una versione aggiornata ad Alessandro Cortese."], en: ["This version has expired", "This trial version was valid until {d} and can no longer be opened.", "Please request a current version from Alessandro Cortese."] };
+  var l = "de"; try { var st = JSON.parse(localStorage.getItem("lv-devis-tiefbau-v2")); if (st && T[st.lang]) l = st.lang; else l = T[String(navigator.language).slice(0, 2)] ? String(navigator.language).slice(0, 2) : "de"; } catch (e) { }
+  var ex = new Date(EXPIRES + "T23:59:59"), d = ("0" + ex.getDate()).slice(-2) + "." + ("0" + (ex.getMonth() + 1)).slice(-2) + "." + ex.getFullYear(), now = Date.now(), seen = 0;
+  try { seen = +localStorage.getItem("lvd-seen") || 0; } catch (e) { }
+  var t = Math.max(now, seen); try { localStorage.setItem("lvd-seen", String(t)); } catch (e) { }
+  window.__EXPDATE = d; window.__EXPDAYS = Math.ceil((ex.getTime() - t) / 864e5);
+  if (t > ex.getTime()) {
+    window.__EXPIRED = true;
+    document.addEventListener("DOMContentLoaded", function () {
+      var e = document.getElementById("expiry"); document.getElementById("expT").textContent = T[l][0]; document.getElementById("expP").textContent = T[l][1].replace("{d}", d); document.getElementById("expS").textContent = T[l][2];
+      var sh = document.querySelector(".sheet"); if (sh) sh.remove(); var lb = document.getElementById("lb"); if (lb) lb.remove(); var mb = document.getElementById("mbar"); if (mb) mb.remove();
+      e.hidden = false; e.className = "on"; document.title = T[l][0];
+    });
+  }
+})();</script>
 <script id="lv">
 /* LV Swisscom Infrastrukturarbeiten bei Baukooperationen
    DE: V1.1 vom 10.07.2026 (Datensatz KV-Assistent), korrigiert gem. tools/build_lv.py
@@ -2941,6 +2960,7 @@ Object.assign(TS.it,{
     sit_withPlan: ["· Plan ", "· plan ", "· pianta ", "· plan "],
     km_max: ["Vollbild", "Plein écran", "Schermo intero", "Full screen"],
     km_maxT: ["Fenster maximieren oder verkleinern", "Agrandir ou réduire la fenêtre", "Ingrandire o ridurre la finestra", "Maximise or shrink the window"],
+    ux_validUntil: ["Testversion gültig bis {d} (noch {n} Tage)", "Version d'essai valable jusqu'au {d} (encore {n} jours)", "Versione di prova valida fino al {d} (ancora {n} giorni)", "Trial version valid until {d} ({n} days left)"],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
     km_ptOn: ["Schacht setzen aktiv", "Pose de regard active", "Posa pozzetto attiva", "Placing manholes"],
     km_obj: ["Objekte auf der Karte", "Objets sur la carte", "Oggetti sulla carta", "Objects on the map"],
@@ -5372,6 +5392,7 @@ var FIG = (function () {
    ===================================================================== */
 (function () {
   "use strict";
+  if (window.__EXPIRED) return;   /* abgelaufene Weitergabe-Version: Tool nicht starten */
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
   var chf = function (v) { return v == null ? "—" : v.toLocaleString("de-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
@@ -6537,7 +6558,8 @@ var FIG = (function () {
     $("#h-result").textContent = tt("h_result");
     $("#bPrint").textContent = tt("btnPrint"); $("#bPrintSum").textContent = tt("btnPrintSum"); $("#bXlsx").textContent = tt("btnXlsx"); $("#bSave").textContent = tt("btnSave"); $("#bLoad").textContent = tt("btnLoad"); $("#bNew").textContent = tt("btnNew");
     document.querySelectorAll(".langs button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.lang === S.lang ? "true" : "false"); });
-    $("#versionline").innerHTML = "<b>" + esc(tt("version")) + " 2.0</b><span>Build " + BUILD + "</span><span>LV DE V1.1 (10.07.2026)</span><span>LV FR V1.0 (27.06.2026)</span><span>LV IT V1.0 (27.06.2026)</span>";
+    if (window.__EXPDATE && !document.getElementById("expwarn")) { var ew = document.createElement("p"); ew.id = "expwarn"; ew.className = "expwarn no-print"; ew.setAttribute("role", "status"); ew.hidden = window.__EXPDAYS > 7; ew.textContent = fill(tt("ux_validUntil"), { d: window.__EXPDATE, n: window.__EXPDAYS }); var shEl = document.querySelector(".sheet"); if (shEl) shEl.insertBefore(ew, shEl.firstChild); }
+    $("#versionline").innerHTML = "<b>" + esc(tt("version")) + " 2.0</b><span>Build " + BUILD + "</span>" + (window.__EXPDATE ? "<span class=\"bad\">" + esc(fill(tt("ux_validUntil"), { d: window.__EXPDATE, n: window.__EXPDAYS })) + "</span>" : "") + "<span>LV DE V1.1 (10.07.2026)</span><span>LV FR V1.0 (27.06.2026)</span><span>LV IT V1.0 (27.06.2026)</span>";
     $("#skipRes").textContent = tt("ux_skip"); $("#lbClose").setAttribute("aria-label", tt("ux_close")); kopfSum();
     LVARR = null; renderForm(); renderResult();
   }

@@ -3,3 +3,4 @@
 t.json
 __pycache__/
 *.zip
+dist/
