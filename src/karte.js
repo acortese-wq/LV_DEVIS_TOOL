@@ -72,14 +72,14 @@
     var cx = (e0 + e1) / 2, cy = (n0 + n1) / 2, w = Math.max((e1 - e0) * 1.3, 60), h = Math.max((n1 - n0) * 1.3, 60 * H / W), sc = Math.max(w / W, h / H);
     w = sc * W; h = sc * H; return { bb: [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2], sc: sc, W: W, H: H };
   }
-  var BGL = { farbe: "ch.swisstopo.pixelkarte-farbe", grau: "ch.swisstopo.pixelkarte-grau", luft: "ch.swisstopo.swissimage" };
+  var BGL = { farbe: "ch.swisstopo.pixelkarte-farbe", grau: "ch.swisstopo.pixelkarte-grau", luft: "ch.swisstopo.swissimage", kataster: "ch.kantone.cadastralwebmap-farbe" };
   function bgUrl(box, base) {
-    return WMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=" + (BGL[base] || BGL.farbe) + "&STYLES=&SRS=EPSG:2056&BBOX=" + box.bb.map(function (v) { return v.toFixed(1); }).join(",") + "&WIDTH=" + box.W + "&HEIGHT=" + box.H + "&FORMAT=image/jpeg";
+    return WMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=" + (BGL[base] || BGL.farbe) + "&STYLES=&SRS=EPSG:2056&BGCOLOR=0xFFFFFF&BBOX=" + box.bb.map(function (v) { return v.toFixed(1); }).join(",") + "&WIDTH=" + box.W + "&HEIGHT=" + box.H + "&FORMAT=image/jpeg";
   }
   function bgKey(g, W, H, base) { var b = geoBox(g, W, H); return b ? b.bb.map(function (v) { return v.toFixed(1); }).join(",") + "|" + (base || "farbe") + "|" + W + "x" + H : ""; }
   /* Hintergrundbild einmal laden und im Projekt ablegen, damit der Ausdruck auch ohne Internet vollständig ist */
   function cacheBg(g, base, W, H, cb) {
-    var box = geoBox(g, W, H); if (!box) return;
+    var box = geoBox(g, W, H); if (!box || base === "leer") return;
     fetch(bgUrl(box, base), { mode: "cors" }).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (bl) {
       var fr = new FileReader(); fr.onload = function () { cb({ key: bgKey(g, W, H, base), src: fr.result }); }; fr.readAsDataURL(bl);
     }).catch(function () { });
@@ -127,7 +127,7 @@
     var W = o.W, H = o.H, box = geoBox(g, W, H); if (!box) return null;
     var bb = box.bb, sc = box.sc, k = W / 360, px = function (p) { return [((p[0] - bb[0]) / sc), ((bb[3] - p[1]) / sc)]; };
     var fig = document.createElement("figure"); fig.className = o.cls || "kmprev";
-    fig.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(tt("km_prevAlt")) + '"><rect width="' + W + '" height="' + H + '" fill="#eef1f3"/><image href="' + esc(o.bg || bgUrl(box, o.base)) + '" width="' + W + '" height="' + H + '"/>' + overlaySvg(o.overlay, px) + geoSvg(g, px, k, { labels: o.labels }) + '</svg><figcaption>' + esc(o.cap || "") + " · © swisstopo</figcaption>";
+    fig.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(tt("km_prevAlt")) + '"><rect width="' + W + '" height="' + H + '" fill="#eef1f3"/><rect width="' + W + '" height="' + H + '" fill="#fff"/>' + (o.base === "leer" ? "" : '<image href="' + esc(o.bg || bgUrl(box, o.base)) + '" width="' + W + '" height="' + H + '"/>') + overlaySvg(o.overlay, px) + geoSvg(g, px, k, { labels: o.labels }) + '</svg><figcaption>' + esc(o.cap || "") + " · © swisstopo</figcaption>";
     var im = fig.querySelector("image"); im.addEventListener("error", function () { im.remove(); });
     return fig;
   }
@@ -283,19 +283,20 @@
   /* opt: { tt, src:{ map:{geo,overlay,base}|null, plan:{geo,P}|null }, meta:{projekt,datum,bearb,title}, lang } */
   function exportDlg(opt) {
     var tt = opt.tt, kinds = ["map", "plan"].filter(function (k) { return opt.src[k]; }); if (!kinds.length) return;
-    var S = { kind: kinds[0], fmt: "A3", orient: "quer", N: 0, base: (opt.src.map && opt.src.map.base) || "farbe", labels: true, legend: true, off: [0, 0], title: (opt.meta && opt.meta.title) || "" }, bgCache = {}, dpi = 150;
+    var S = { kind: kinds[0], fmt: "A3", orient: "quer", N: 0, base: ((opt.src.map && opt.src.map.base) || "farbe") === "leer" ? "none" : ((opt.src.map && opt.src.map.base) || "farbe"), labels: true, legend: true, off: [0, 0], title: (opt.meta && opt.meta.title) || "" }, bgCache = {}, dpi = 150;
     var dlg = document.createElement("dialog"); dlg.className = "kmdlg kmexp"; dlg.setAttribute("aria-labelledby", "exTitle");
     var sel = function (id, lab, arr) { return '<label class="kmbl" for="' + id + '">' + esc(lab) + '</label><select id="' + id + '">' + arr.map(function (o) { return '<option value="' + o[0] + '">' + esc(o[1]) + "</option>"; }).join("") + "</select>"; };
     dlg.innerHTML = '<div class="kmhead"><h2 id="exTitle">' + esc(tt("ex_title")) + '</h2><button type="button" class="btn ghost small" data-x="close">' + esc(tt("km_close")) + "</button></div>" +
       '<div class="kmbar" role="group" aria-label="' + esc(tt("ex_opts")) + '">' + (kinds.length > 1 ? sel("exKind", tt("ex_src"), [["map", tt("ex_srcMap")], ["plan", tt("ex_srcPlan")]]) : "") +
       sel("exFmt", tt("ex_fmt"), [["A3", "A3"], ["A4", "A4"]]) + sel("exOr", tt("ex_orient"), [["quer", tt("ex_quer")], ["hoch", tt("ex_hoch")]]) +
       sel("exN", tt("ex_scale"), [["0", tt("ex_auto")]].concat(NSTD.map(function (n) { return [String(n), "1 : " + n]; }))) +
-      '<span id="exBaseW">' + sel("exBase", tt("ex_base"), [["farbe", tt("km_bFarbe")], ["grau", tt("km_bGrau")], ["luft", tt("km_aerial")], ["none", tt("ex_noBase")]]) + "</span></div>" +
+      '<span id="exBaseW">' + sel("exBase", tt("ex_base"), [["farbe", tt("km_bFarbe")], ["grau", tt("km_bGrau")], ["luft", tt("km_aerial")], ["kataster", tt("km_bKat")], ["none", tt("ex_noBase")]]) + "</span></div>" +
       '<div class="kmbar"><label class="kmbl" for="exT">' + esc(tt("ex_ttl")) + '</label><input type="text" id="exT" class="kmw" value="' + esc(S.title) + '" style="width:260px"><label class="check"><input type="checkbox" id="exLbl" checked> <span>' + esc(tt("ex_lbl")) + '</span></label><label class="check"><input type="checkbox" id="exLeg" checked> <span>' + esc(tt("ex_leg")) + "</span></label>" +
       '<span class="kmnudge" role="group" aria-label="' + esc(tt("ex_pos")) + '">' + [["l", "←", "km_nl"], ["u", "↑", "km_nu"], ["d", "↓", "km_nd"], ["r", "→", "km_nr"], ["0", "◎", "ex_posReset"]].map(function (a) { return '<button type="button" class="btn ghost small" data-x="' + a[0] + '" aria-label="' + esc(tt(a[2])) + '">' + a[1] + "</button>"; }).join("") + "</span></div>" +
       '<p class="hint" id="exInfo" role="status"></p><div class="exprev" id="exPrev" tabindex="0" role="region" aria-label="' + esc(tt("ex_prevLbl")) + '"></div><p class="hint">' + esc(tt("ex_note")) + '</p><div class="kmfoot"><span></span><span class="kmbar"><button type="button" class="btn ghost" data-x="png">' + esc(tt("ex_png")) + '</button><button type="button" class="btn" data-x="print">' + esc(tt("ex_print")) + "</button></span></div>";
     document.body.appendChild(dlg);
     var $ = function (s) { return dlg.querySelector(s); }, cur = null;
+    var eb0 = $("#exBase"); if (eb0) eb0.value = S.base;   /* vorgewählter Hintergrund = der in der Karte gewählte */
     function build() {
       var src = opt.src[S.kind], g = src.geo, pts = S.kind === "map" ? geoPoints(Object.assign({}, g, { extra: src.overlay ? ovCorners(src.overlay) : [] })) : (function () { var a = []; geoPoints(g).forEach(function (p) { a.push(p); }); return a; })();
       var d = PAPER[S.fmt], W = S.orient === "hoch" ? d[1] : d[0], H = S.orient === "hoch" ? d[0] : d[1], tb = S.fmt === "A3" ? 26 : 22, Fw = W - 20, Fh = H - 20 - tb;
@@ -306,7 +307,7 @@
       var c = { tt: tt, kind: S.kind, geo: g, P: src.P, overlay: src.overlay, base: S.base, fmt: S.fmt, orient: S.orient, N: N, center: ctr, off: S.off, labels: S.labels, legend: S.legend, title: S.title, meta: opt.meta };
       if (S.kind === "map" && S.base !== "none") {
         var fw = Fw * N / 1000, fh = Fh * N / 1000, bb = [ctr[0] - fw / 2 + S.off[0], ctr[1] - fh / 2 + S.off[1], ctr[0] + fw / 2 + S.off[0], ctr[1] + fh / 2 + S.off[1]], sc = Math.min(1, 3600 / Math.max(Fw, Fh) / (dpi / 25.4)), Wp = Math.round(Fw / 25.4 * dpi * sc), Hp = Math.round(Fh / 25.4 * dpi * sc);
-        c.bgUrl = WMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=" + (BGL[S.base] || BGL.farbe) + "&STYLES=&SRS=EPSG:2056&BBOX=" + bb.map(function (v) { return v.toFixed(1); }).join(",") + "&WIDTH=" + Wp + "&HEIGHT=" + Hp + "&FORMAT=image/jpeg"; c.bg = bgCache[c.bgUrl] || null;
+        c.bgUrl = WMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=" + (BGL[S.base] || BGL.farbe) + "&STYLES=&SRS=EPSG:2056&BGCOLOR=0xFFFFFF&BBOX=" + bb.map(function (v) { return v.toFixed(1); }).join(",") + "&WIDTH=" + Wp + "&HEIGHT=" + Hp + "&FORMAT=image/jpeg"; c.bg = bgCache[c.bgUrl] || null;
       }
       c.Nauto = Nauto; c.W = W; c.H = H; return c;
     }
@@ -344,6 +345,9 @@
   var INTRO = "lvd-km-intro";
   function open(opt) {
     var tt = opt.tt, cat = opt.cat, plan = opt.kind === "plan", M = JSON.parse(JSON.stringify(opt.model || { lines: [], pts: [], sond: [] })), cur = null, mode = "", sel = null, base = "farbe", map, layer, grp, calPts = [];
+    var PROV = { swisstopo: [["farbe", "km_bFarbe"], ["grau", "km_bGrau"], ["luft", "km_aerial"]], geoadmin: [["kataster", "km_bKat"], ["leer", "km_bLeer"], ["viewer", "km_bViewer"]] };
+    try { var sb = localStorage.getItem("lvd-km-base"); if (sb && ["farbe", "grau", "luft", "kataster", "leer"].indexOf(sb) >= 0) base = sb; } catch (e) { }
+    var provOf = function (b) { return PROV.geoadmin.some(function (o) { return o[0] === b; }) ? "geoadmin" : "swisstopo"; };
     M.sond = M.sond || []; M.notes = M.notes || []; M.areas = M.areas || []; M.wl = M.wl || []; M.geb = M.geb || [];
     var cal = plan ? JSON.parse(JSON.stringify(opt.plan.cal || {})) : null;
     var AD = plan ? { ll: function (p) { return [-p[1], p[0]]; }, pt: function (ll) { return [Math.round(ll.lng * 10) / 10, Math.round(-ll.lat * 10) / 10]; },
@@ -391,7 +395,7 @@
       '<button type="button" class="btn ghost small" data-k="fit">' + esc(tt("km_fit")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="center">' + esc(tt("km_center")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="lbl" aria-pressed="true">' + esc(tt("km_lbl")) + "</button>" +
-      (plan ? "" : '<label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase">' + [["farbe", "km_bFarbe"], ["grau", "km_bGrau"], ["luft", "km_aerial"], ["kataster", "km_bKat"], ["viewer", "km_bViewer"]].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join("") + '</select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + "</button>") + "</div></div>" +
+      (plan ? "" : '<span class="kmseg" role="group" aria-label="' + esc(tt("km_prov")) + '"><button type="button" class="btn small" data-prov="swisstopo" aria-pressed="false">swisstopo</button><button type="button" class="btn small" data-prov="geoadmin" aria-pressed="false">geo.admin.ch</button></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase"></select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + "</button>") + "</div></div>" +
       (plan ? '<form class="kmcalf" id="kmCalF" hidden><label for="kmCalM">' + esc(tt("pl_calAsk")) + '</label><input type="text" inputmode="decimal" id="kmCalM" class="numin"><button type="submit" class="btn small">' + esc(tt("pl_calSet")) + "</button></form>" : "") +
       '<div class="kmmain"><div class="kmleft">' +
       '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div>' +
@@ -429,8 +433,10 @@
       var T = function (id, ext, o) { return L.tileLayer(WMTS + id + "/default/current/3857/{z}/{x}/{y}." + ext, Object.assign({ maxZoom: 20, maxNativeZoom: 18, zIndex: 1, attribution: "© swisstopo / geo.admin.ch" }, o || {})); };
       layer = base === "luft" ? L.layerGroup([T("ch.swisstopo.swissimage", "jpeg", { maxNativeZoom: 19 })])
         : base === "grau" ? L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")])
-        : base === "kataster" ? L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg"), flex("ch.kantone.cadastralwebmap-farbe", 0.8)])
+        : base === "leer" ? L.layerGroup([])   /* leere Basis: nur gewählte Katalog-Ebenen auf weissem Grund */
+        : base === "kataster" ? L.layerGroup([flex("ch.kantone.cadastralwebmap-farbe", 1)])   /* nur der Parzellenplan, ohne Landeskarte dahinter */
         : L.layerGroup([T("ch.swisstopo.pixelkarte-farbe", "jpeg")]);
+      map.getContainer().style.background = base === "kataster" || base === "leer" ? "#fff" : "";
       layer.addTo(map);   /* Reihenfolge über zIndex: Basiskarte 1, Deckschichten 5/10 */
     }
     /* Ausschnitt im Kartenviewer map.geo.admin.ch öffnen (gleicher Hintergrund, aktuelles Zentrum) */
@@ -490,7 +496,7 @@
       var c = map.getCenter(), e = toLV95(c.lat, c.lng), res = 156543.03 * Math.cos(c.lat * Math.PI / 180) / Math.pow(2, map.getZoom()),
         R = [4000, 3750, 3500, 3250, 3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250, 1000, 750, 650, 500, 250, 100, 50, 20, 10, 5, 2.5, 2, 1.5, 1, 0.5], z = 0, d = 1e9;
       R.forEach(function (r, i) { var x = Math.abs(Math.log(r / res)); if (x < d) { d = x; z = i; } });
-      var bg = base === "luft" ? "ch.swisstopo.swissimage" : base === "grau" || base === "kataster" ? "ch.swisstopo.pixelkarte-grau" : "ch.swisstopo.pixelkarte-farbe";
+      var bg = base === "luft" ? "ch.swisstopo.swissimage" : base === "grau" ? "ch.swisstopo.pixelkarte-grau" : base === "kataster" || base === "leer" ? "void" : "ch.swisstopo.pixelkarte-farbe";
       return "https://map.geo.admin.ch/#/" + (embed ? "embed" : "map") + "?lang=" + (opt.lang || "de") + "&center=" + Math.round(e[0]) + "," + Math.round(e[1]) + "&z=" + z + "&bgLayer=" + bg + (base === "kataster" || ov.length ? "&layers=" + (base === "kataster" ? ["ch.kantone.cadastralwebmap-farbe"] : []).concat(ov.map(function (o) { return o.id; })).join(";") : "");
     }
     function openGeo() { window.open(geoUrl(false), "_blank", "noopener"); }
@@ -841,6 +847,8 @@
     var cs = $("#kmCol"); cs.addEventListener("change", function () { noteCol = cs.value; });
 
     dlg.addEventListener("click", function (e) {
+      var pb = e.target.closest("[data-prov]");
+      if (pb) { var nb = PROV[pb.dataset.prov][0][0]; if (provOf(base) !== pb.dataset.prov) { base = nb; fillBase(); try { localStorage.setItem("lvd-km-base", nb); } catch (x) { } setBase(nb); } return; }
       var ob = e.target.closest("[data-ov]");
       if (ob && ovl !== undefined) {
         var k2 = ob.dataset.ov, st = parseFloat(String($("#kmStep").value).replace(",", ".")) || 1;
@@ -883,7 +891,12 @@
       }
       if ((e.key === "Delete" || e.key === "Backspace") && !ed && mode === "edit" && sel) { e.preventDefault(); del(sel.id); }
     });
-    var bs = $("#kmBase"); if (bs) bs.addEventListener("change", function () { setBase(bs.value); });
+    var bs = $("#kmBase");
+    function fillBase() {   /* Umschalter swisstopo / geo.admin.ch: zeigt nur die Optionen des gewählten Anbieters */
+      if (!bs) return; var pv = provOf(base); bs.innerHTML = PROV[pv].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join(""); bs.value = base;
+      dlg.querySelectorAll("[data-prov]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.prov === pv ? "true" : "false"); });
+    }
+    if (bs) { fillBase(); bs.addEventListener("change", function () { try { if (bs.value !== "viewer") localStorage.setItem("lvd-km-base", bs.value); } catch (e) { } setBase(bs.value); }); }
     var sf = $(".kmsearch");
     if (sf) sf.addEventListener("submit", function (e) {
       e.preventDefault(); var q = $("#kmQ").value.trim(), ul = $("#kmHits"); if (!q) return;
