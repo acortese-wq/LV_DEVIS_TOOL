@@ -628,6 +628,27 @@
     sondSync();
   }
   function lineLen(pts) { return KARTE.total([pts]); }
+  function openKarte(cfg, tab, b, m, ex) {
+    ex = ex || {};
+      m.className = "hint kmmsg";
+      if (navigator.onLine === false) { m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); return; }
+      m.textContent = tt("km_loading"); b.disabled = true;
+      KARTE.load().then(function () {
+        b.disabled = false; m.textContent = "";
+        if (cfg && cfg.trasse) {   /* Übernahme der Version 1 (nur Linien) */
+          var u0 = ensureUid(cfg); cfg.trasse.forEach(function (pts, i) { S.karte.lines.push({ id: "m" + i + u0, pts: pts, rid: i === 0 ? u0 : null, rohr: { sys: cfg.rohrSystem, dn: cfg.dn, len: cfg.len, n: cfg.n } }); }); delete cfg.trasse;
+        }
+        var g = tab === "graben" && cfg;
+        KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, model: JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
+          defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" && cfg ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" && cfg ? cfg.cm : "", abd: tab === "geb" && cfg ? cfg.abd : "hauff" }, defBelag: tab === "belag" && cfg ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
+          recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
+          onClose: function () { var o = $(ex.focus || "#kmOpen"); if (o) o.focus(); }, autoPlan: !!ex.autoPlan, planObjs: JSON.parse(JSON.stringify({ lines: S.plan.lines, pts: S.plan.pts, sond: S.plan.sond, wl: S.plan.wl, geb: S.plan.geb, areas: S.plan.areas, notes: S.plan.notes })), planScale: (S.plan.cal && S.plan.cal.scale) || 0,
+          onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st = karteApply(M, cfg, Object.assign({ src: "karte" }, fns) && lenFn, Object.assign({ src: "karte" }, fns)), bs = fns.base === "luft" ? "luft" : fns.base === "grau" || fns.base === "kataster" ? "grau" : "farbe", keep = S.karte.bg;
+            if (fns.planCleared) { ["lines", "pts", "sond", "wl", "geb", "areas", "notes"].forEach(function (k) { S.plan[k] = []; }); }
+            S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; syncDerived(cfg, st); save(); renderForm(); scheduleResult(); undoToast(fill(tt("km_done"), st) + (st.z ? " ⚠ " + fill(tt("km_zero"), st) : "") + (st.x ? " ⚠ " + fill(tt("km_conflict"), st) : ""), sn); cacheSitu(); }
+        });
+      }).catch(function () { b.disabled = false; m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); });
+  }
   function trasseEl(cfg) {
     var w = document.createElement("div"); w.className = "field kmfield"; var tab = S.tab;
     var b = document.createElement("button"); b.type = "button"; b.className = "btn small"; b.id = "kmOpen"; b.textContent = tt("km_btn"); w.appendChild(b);
@@ -640,25 +661,7 @@
     if (tab === "schacht" ? ps.length : tab === "belag" ? as.length : tab === "werkloch" ? wls.length : tab === "geb" ? gbs.length : ls.length) {
       var pv = KARTE.preview(ls.map(function (l) { return l.pts; }), tt, tab === "schacht" ? ps.map(function (p) { return p.pt; }) : [], tab === "belag" ? as.map(function (f) { return f.pts; }) : [], tab === "werkloch" ? wls.map(function (p) { return p.pt; }) : [], tab === "geb" ? gbs.map(function (p) { return p.pt; }) : []); if (pv) w.appendChild(pv);
     }
-    b.addEventListener("click", function () {
-      m.className = "hint kmmsg";
-      if (navigator.onLine === false) { m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); return; }
-      m.textContent = tt("km_loading"); b.disabled = true;
-      KARTE.load().then(function () {
-        b.disabled = false; m.textContent = "";
-        if (cfg.trasse) {   /* Übernahme der Version 1 (nur Linien) */
-          var u0 = ensureUid(cfg); cfg.trasse.forEach(function (pts, i) { S.karte.lines.push({ id: "m" + i + u0, pts: pts, rid: i === 0 ? u0 : null, rohr: { sys: cfg.rohrSystem, dn: cfg.dn, len: cfg.len, n: cfg.n } }); }); delete cfg.trasse;
-        }
-        var g = tab === "graben";
-        KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, model: JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
-          defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" ? cfg.cm : "", abd: tab === "geb" ? cfg.abd : "hauff" }, defBelag: tab === "belag" ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
-          recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
-          onClose: function () { var o = $("#kmOpen"); if (o) o.focus(); },
-          onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st = karteApply(M, cfg, Object.assign({ src: "karte" }, fns) && lenFn, Object.assign({ src: "karte" }, fns)), bs = fns.base === "luft" ? "luft" : fns.base === "grau" || fns.base === "kataster" ? "grau" : "farbe", keep = S.karte.bg;
-            S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; syncDerived(cfg, st); save(); renderForm(); scheduleResult(); undoToast(fill(tt("km_done"), st) + (st.z ? " ⚠ " + fill(tt("km_zero"), st) : "") + (st.x ? " ⚠ " + fill(tt("km_conflict"), st) : ""), sn); cacheSitu(); }
-        });
-      }).catch(function () { b.disabled = false; m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); });
-    });
+    b.addEventListener("click", function () { openKarte(cfg, tab, b, m); });
     return w;
   }
   /* Pflichtangaben je Datensatz */
@@ -725,10 +728,15 @@
       st.textContent = (c ? "✓ " + (P.cal.auto ? fill(tt("pl_calAuto"), { r: P.cal.auto, s: Math.round(P.cal.scale * 1000) / 1000 }) : fill(tt("pl_calOk"), { m: KARTE.fmt(P.cal.m), s: Math.round(P.cal.scale * 1000) / 1000 })) : "⚠ " + tt("pl_calNo")) + " · " + fill(tt("km_total"), { m: KARTE.fmt(P.lines.reduce(function (a, l) { return a + (c ? KARTE.total([l.pts]) * P.cal.scale : 0); }, 0)), n: P.lines.length, s: P.pts.length, o: P.sond.length });
       w.appendChild(st);
       var pv = KARTE.planPreview(P, tt); if (pv) w.appendChild(pv);
+      var hn = document.createElement("p"); hn.className = "hint"; hn.textContent = tt("pl_mapHint"); w.appendChild(hn);
       var bt = document.createElement("div"); bt.className = "toolrow";
-      bt.innerHTML = '<button type="button" class="btn" id="plOpen">' + esc(tt("pl_open")) + '</button><button type="button" class="btn ghost" id="plExp">' + esc(tt("ex_btn")) + '</button><button type="button" class="btn ghost small del" id="plDel">' + esc(tt("pl_remove")) + "</button>";
+      bt.innerHTML = '<button type="button" class="btn" id="plOpen">' + esc(tt("pl_open")) + '</button><button type="button" class="btn" id="plMap">' + esc(tt("pl_toMap")) + '</button><button type="button" class="btn ghost" id="plExp">' + esc(tt("ex_btn")) + '</button><button type="button" class="btn ghost small del" id="plDel">' + esc(tt("pl_remove")) + "</button>";
       w.appendChild(bt);
       bt.querySelector("#plExp").addEventListener("click", exportOpen);
+      bt.querySelector("#plMap").addEventListener("click", function () {
+        var pb = bt.querySelector("#plMap"), mm = document.createElement("p"); mm.className = "hint kmmsg"; mm.setAttribute("role", "status"); bt.insertAdjacentElement("afterend", mm);
+        openKarte(null, "plan", pb, mm, { autoPlan: true, focus: "#plMap" });
+      });
       bt.querySelector("#plDel").addEventListener("click", function () { var sn = snapState(); S.plan = { img: "", w: 0, h: 0, cal: {}, lines: [], pts: [], sond: [] }; sondSync(); save(); renderForm(); undoToast(tt("pl_removed"), sn); });
       bt.querySelector("#plOpen").addEventListener("click", function () {
         msg.className = "hint kmmsg"; msg.textContent = tt("km_loading");

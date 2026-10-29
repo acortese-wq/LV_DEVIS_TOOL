@@ -352,7 +352,7 @@
         dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); } };
     var lineLen = function (pts) { var s = 0; for (var i = 1; i < pts.length; i++) s += AD.dist(pts[i - 1], pts[i]); return s; };
     var COL = [["#0d47c8", "km_cBlau"], ["#b8332a", "km_cRot"], ["#1a1c1e", "km_cSchwarz"], ["#b25e00", "km_cOrange"], ["#1c6b3f", "km_cGruen"]];
-    var showLbl = true, ov0 = null, ovl = plan ? null : (opt.overlay ? JSON.parse(JSON.stringify(opt.overlay)) : null), ovImg = null, gcp = [];
+    var planCleared = false, showLbl = true, ov0 = null, ovl = plan ? null : (opt.overlay ? JSON.parse(JSON.stringify(opt.overlay)) : null), ovImg = null, gcp = [];
     var perim = function (pts) { var s = lineLen(pts); return pts.length > 2 ? s + AD.dist(pts[pts.length - 1], pts[0]) : s; };
     var area = function (pts) { var a = 0; for (var i = 0; i < pts.length; i++) { var p = pts[i], q = pts[(i + 1) % pts.length]; a += p[0] * q[1] - q[0] * p[1]; } a = Math.abs(a) / 2; return plan ? a * Math.pow(cal.scale || 0, 2) : a; };
     var intro = false; try { intro = !localStorage.getItem(INTRO); } catch (e) { }
@@ -391,7 +391,7 @@
       (plan ? "" : '<details class="kmcat" id="kmCat"><summary>' + esc(tt("km_cat")) + '</summary><div class="kmcatb"><label for="kmCatQ">' + esc(tt("km_catSearch")) + '</label><input type="search" id="kmCatQ" autocomplete="off" placeholder="' + esc(tt("km_catPh")) + '"><p class="hint" id="kmCatMsg" role="status"></p><ul class="kmcatl" id="kmCatL" aria-label="' + esc(tt("km_catRes")) + '"></ul><h3 class="kmcath">' + esc(tt("km_catSel")) + '</h3><ul class="kmcatl kmcats" id="kmCatS"></ul></div></details>') +
       (plan ? "" : '<details class="kmcat kmovd" id="kmOvD"><summary>' + esc(tt("ov_title")) + '</summary><div class="kmcatb"><p class="hint">' + esc(tt("ov_hint")) + '</p>' +
         '<label for="kmOvF">' + esc(tt("pl_file")) + '</label><input type="file" id="kmOvF" accept=".pdf,application/pdf,image/*"><p class="hint" id="kmOvMsg" role="status"></p>' +
-        '<div class="kmbar"><button type="button" class="btn small" id="kmOvPlan">' + esc(tt("ov_fromPlan")) + '</button><button type="button" class="btn small" data-k="mgeo" aria-pressed="false">' + esc(tt("ov_geo")) + '</button><button type="button" class="btn ghost small" data-ov="c">' + esc(tt("ov_center")) + '</button><button type="button" class="btn ghost small del" data-ov="x">' + esc(tt("km_catRemove")) + '</button></div>' +
+        '<div class="kmbar"><button type="button" class="btn small" id="kmOvPlan">' + esc(tt("ov_fromPlan")) + '</button><button type="button" class="btn small" data-k="mgeo" aria-pressed="false">' + esc(tt("ov_geo")) + '</button><button type="button" class="btn small" data-ov="tr" id="kmOvTr">' + esc(tt("ov_tr")) + '</button><button type="button" class="btn ghost small" data-ov="c">' + esc(tt("ov_center")) + '</button><button type="button" class="btn ghost small del" data-ov="x">' + esc(tt("km_catRemove")) + '</button></div>' +
         '<div class="kmbar kmovc"><label class="kmbl" for="kmOvO">' + esc(tt("km_opacity")) + '</label><input type="range" id="kmOvO" min="10" max="100" step="10" value="60"><label class="kmbl" for="kmOvR">' + esc(tt("ov_rot")) + '</label><input type="text" inputmode="decimal" id="kmOvR" class="kmn"><label class="kmbl" for="kmOvS">' + esc(tt("ov_mpp")) + '</label><input type="text" inputmode="decimal" id="kmOvS" class="kmn">' +
         '<span class="kmnudge" role="group" aria-label="' + esc(tt("ov_adj")) + '">' + [["l", "←", "km_nl"], ["u", "↑", "km_nu"], ["d", "↓", "km_nd"], ["r", "→", "km_nr"], ["rl", "⟲", "ov_rl"], ["rr", "⟳", "ov_rr"], ["sm", "−", "ov_sm"], ["sp", "+", "ov_sp"]].map(function (a) { return '<button type="button" class="btn ghost small" data-ov="' + a[0] + '" aria-label="' + esc(tt(a[2])) + '">' + a[1] + "</button>"; }).join("") + '</span></div></div></details>') +
       (plan ? "" : '<iframe id="kmView" class="kmframe" hidden title="map.geo.admin.ch" referrerpolicy="no-referrer"></iframe>') +
@@ -558,6 +558,26 @@
       ovImg.style.width = w + "px"; ovImg.style.height = h + "px"; ovImg.style.opacity = ovl.op || 0.6;
       ovImg.style.transform = "matrix(" + [(c[1].x - c[0].x) / w, (c[1].y - c[0].y) / w, (c[3].x - c[0].x) / h, (c[3].y - c[0].y) / h, c[0].x, c[0].y].join(",") + ")";
       var R = $("#kmOvR"), S2 = $("#kmOvS"), O = $("#kmOvO"); if (document.activeElement !== R) R.value = Math.round(ovl.rot * 100) / 100; if (document.activeElement !== S2) S2.value = Math.round(ovl.mpp * 10000) / 10000; O.value = Math.round((ovl.op || 0.6) * 100);
+    }
+    /* Objekte aus dem Plan (Pixel) in die Karte (LV95) übertragen – über die Ausrichtung des Plan-Hintergrunds */
+    function transfer() {
+      var P = opt.planObjs, msg = $("#kmOvMsg"); if (plan || !P) return;
+      var cnt = ["lines", "pts", "sond", "wl", "geb", "areas", "notes"].reduce(function (a, k) { return a + (P[k] || []).length; }, 0);
+      if (!ovl || ovl.ref !== "plan") { msg.textContent = tt("ov_trNeed"); msg.className = "hint reqmsg"; return; }
+      if (!cnt) { msg.textContent = tt("ov_trNone"); msg.className = "hint"; return; }
+      var m0 = JSON.stringify(M), p0 = JSON.stringify(P), cl0 = planCleared, sc = opt.planScale || 0, dev = [];
+      var cv = function (q) { return ovPx(ovl, q[0], q[1]).map(function (v) { return Math.round(v * 100) / 100; }); }, cp = function (o) { return JSON.parse(JSON.stringify(o)); };
+      (P.lines || []).forEach(function (l, i) { var nl = { id: nid("l"), pts: l.pts.map(cv), rid: l.rid || null, rohr: cp(l.rohr) }; M.lines.push(nl);
+        var a = sc ? total([l.pts]) * sc : 0, b = total([nl.pts]); dev.push((opt.recName(l.rid) || tt("km_lineN").replace("{n}", i + 1)) + ": " + (sc ? tt("ov_trPlan") + " " + fmt(a) + " m → " : "") + tt("ov_trMap") + " " + fmt(b) + " m" + (a ? " (" + (b >= a ? "+" : "") + fmt((b / a - 1) * 100) + " %)" : "")); });
+      (P.areas || []).forEach(function (f) { M.areas.push({ id: nid("f"), pts: f.pts.map(cv), rid: f.rid || null, belag: cp(f.belag) }); });
+      (P.pts || []).forEach(function (p) { var o = cp(p); o.id = nid("p"); o.pt = cv(p.pt); M.pts.push(o); });
+      (P.sond || []).forEach(function (p) { var o = cp(p); o.id = nid("s"); o.pt = cv(p.pt); M.sond.push(o); });
+      (P.wl || []).forEach(function (p) { var o = cp(p); o.id = nid("w"); o.pt = cv(p.pt); M.wl.push(o); });
+      (P.geb || []).forEach(function (p) { var o = cp(p); o.id = nid("g"); o.pt = cv(p.pt); M.geb.push(o); });
+      (P.notes || []).forEach(function (n) { var o = cp(n); o.id = nid("n"); if (n.type === "rect") { var a = n.pts[0], b = n.pts[1]; o.type = "sline"; o.pts = [a, [b[0], a[1]], b, [a[0], b[1]], a].map(cv); } else o.pts = n.pts.map(cv); M.notes.push(o); });
+      ["lines", "pts", "sond", "wl", "geb", "areas", "notes"].forEach(function (k) { P[k] = []; }); planCleared = true; sel = null; refresh(); fitAll();
+      msg.className = "hint"; msg.innerHTML = "<b>" + esc(tt("ov_trDone").replace("{n}", cnt)) + "</b>" + (dev.length ? "<br>" + dev.map(esc).join("<br>") : "");
+      toast(dlg, tt("ov_trDone").replace("{n}", cnt), tt("km_undoBtn"), function () { M = JSON.parse(m0); M.notes = M.notes || []; M.areas = M.areas || []; M.wl = M.wl || []; M.geb = M.geb || []; opt.planObjs = JSON.parse(p0); planCleared = cl0; msg.textContent = ""; refresh(); });
     }
     function updTotal() {
       var tot = M.lines.reduce(function (a, l) { return a + lineLen(l.pts); }, 0);
@@ -788,6 +808,7 @@
       var ob = e.target.closest("[data-ov]");
       if (ob && ovl !== undefined) {
         var k2 = ob.dataset.ov, st = parseFloat(String($("#kmStep").value).replace(",", ".")) || 1;
+        if (k2 === "tr") { transfer(); return; }
         if (k2 === "x") { ov0 = JSON.stringify(ovl); ovl = null; ovDraw(); refresh(); return; }
         if (!ovl) return; ov0 = JSON.stringify(ovl);
         if (k2 === "c") { var cc = map.getCenter(), ee = toLV95(cc.lat, cc.lng); ovl.E = ee[0]; ovl.N = ee[1]; }
@@ -811,7 +832,7 @@
       else if (k === "apply") {
         endLine();
         if (plan && !cal.scale && (M.lines.length || M.areas.length)) { toast(dlg, tt("pl_calNeed")); return; }
-        opt.onApply(M, cal, function (m) { return lineLen(m); }, { area: area, perim: perim, base: base, overlay: ovl }); close();
+        opt.onApply(M, cal, function (m) { return lineLen(m); }, { area: area, perim: perim, base: base, overlay: ovl, planCleared: planCleared }); close();
       }
     });
     dlg.addEventListener("cancel", function (e) { e.preventDefault(); close(); });
@@ -854,7 +875,8 @@
       $("#kmOvR").addEventListener("change", function (e) { var v = num2(e.target.value); if (ovl && isFinite(v)) { ov0 = JSON.stringify(ovl); ovl.rot = v; ovDraw(); } });
       $("#kmOvS").addEventListener("change", function (e) { var v = num2(e.target.value); if (ovl && v > 0) { ov0 = JSON.stringify(ovl); ovl.mpp = v; ovl.auto = 0; ovDraw(); } });
     }
-    dlg.showModal(); map.invalidateSize(); fitAll(); ovDraw(); refresh(); (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
+    dlg.showModal(); map.invalidateSize(); fitAll(); ovDraw(); refresh();
+    if (!plan && opt.autoPlan && !ovl && opt.planImg && opt.planImg.img) { $("#kmOvPlan").click(); } (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
   window.KARTE = { planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
