@@ -531,6 +531,8 @@
     sit_hide: ["Situation einklappen", "Masquer la situation", "Nascondere la situazione", "Hide situation"],
     sit_sum: ["{o} Objekt(e) · Trasse {m} m {p}· im Ausdruck immer enthalten", "{o} objet(s) · tracé {m} m {p}· toujours inclus à l'impression", "{o} oggetto/i · tracciato {m} m {p}· sempre incluso nella stampa", "{o} object(s) · route {m} m {p}· always included in the printout"],
     sit_withPlan: ["· Plan ", "· plan ", "· pianta ", "· plan "],
+    km_max: ["Vollbild", "Plein écran", "Schermo intero", "Full screen"],
+    km_maxT: ["Fenster maximieren oder verkleinern", "Agrandir ou réduire la fenêtre", "Ingrandire o ridurre la finestra", "Maximise or shrink the window"],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
     km_ptOn: ["Schacht setzen aktiv", "Pose de regard active", "Posa pozzetto attiva", "Placing manholes"],
     km_obj: ["Objekte auf der Karte", "Objets sur la carte", "Oggetti sulla carta", "Objects on the map"],
