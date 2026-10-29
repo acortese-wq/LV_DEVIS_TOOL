@@ -36,7 +36,7 @@
       var nr = newRec(t, 1); S.recs[t].forEach(function (r) { deepFill(r, nr); });
       if (!(S.idx[t] >= 0 && S.idx[t] < S.recs[t].length)) S.idx[t] = 0;
     });
-    if (!S.karte || !Array.isArray(S.karte.lines)) S.karte = { lines: [], pts: [], sond: [] }; if (!Array.isArray(S.karte.pts)) S.karte.pts = []; if (!Array.isArray(S.karte.sond)) S.karte.sond = []; if (!Array.isArray(S.karte.notes)) S.karte.notes = []; if (!Array.isArray(S.karte.areas)) S.karte.areas = []; if (!Array.isArray(S.karte.wl)) S.karte.wl = []; if (!Array.isArray(S.karte.geb)) S.karte.geb = [];
+    if (!S.karte || !Array.isArray(S.karte.lines)) S.karte = { lines: [], pts: [], sond: [], notes: [], areas: [], wl: [], geb: [] }; if (!Array.isArray(S.karte.pts)) S.karte.pts = []; if (!Array.isArray(S.karte.sond)) S.karte.sond = []; if (!Array.isArray(S.karte.notes)) S.karte.notes = []; if (!Array.isArray(S.karte.areas)) S.karte.areas = []; if (!Array.isArray(S.karte.wl)) S.karte.wl = []; if (!Array.isArray(S.karte.geb)) S.karte.geb = [];
     if (!S.plan || !Array.isArray(S.plan.lines)) S.plan = { img: "", w: 0, h: 0, cal: {}, lines: [], pts: [], sond: [], notes: [], areas: [], wl: [], geb: [] }; if (!Array.isArray(S.plan.pts)) S.plan.pts = []; if (!Array.isArray(S.plan.sond)) S.plan.sond = []; if (!Array.isArray(S.plan.notes)) S.plan.notes = []; if (!Array.isArray(S.plan.areas)) S.plan.areas = []; if (!Array.isArray(S.plan.wl)) S.plan.wl = []; if (!Array.isArray(S.plan.geb)) S.plan.geb = []; if (!S.plan.cal) S.plan.cal = {};
     if (ALLTABS.indexOf(S.tab) < 0) S.tab = "graben";
   }
@@ -711,7 +711,7 @@
     var msg = document.createElement("p"); msg.className = "hint kmmsg"; msg.setAttribute("role", "status"); f.appendChild(msg); w.appendChild(f);
     var pg = document.createElement("div"); pg.className = "field"; pg.hidden = true; w.appendChild(pg);
     function setPlan(r) {
-      var sn = snapState(); S.plan = { img: r.img, w: r.w, h: r.h, cal: r.mpp ? { scale: r.mpp, m: r.w * r.mpp, a: [0, r.h / 2], b: [r.w, r.h / 2], auto: r.ratio } : {}, lines: [], pts: [], sond: [] }; sondSync(); save(); renderForm(); undoToast(r.mpp ? fill(tt("pl_loadedAuto"), { r: r.ratio }) : tt("pl_loaded"), sn);
+      var sn = snapState(); S.plan = { img: r.img, w: r.w, h: r.h, cal: r.mpp ? { scale: r.mpp, m: r.w * r.mpp, a: [0, r.h / 2], b: [r.w, r.h / 2], auto: r.ratio } : {}, lines: [], pts: [], sond: [], notes: [], areas: [], wl: [], geb: [] }; sondSync(); save(); renderForm(); undoToast(r.mpp ? fill(tt("pl_loadedAuto"), { r: r.ratio }) : tt("pl_loaded"), sn);
     }
     f.querySelector("input").addEventListener("change", function (e) {
       var file = e.target.files[0]; if (!file) return; msg.className = "hint kmmsg"; msg.textContent = tt("pl_reading"); planSrc = null;
@@ -737,7 +737,7 @@
         var pb = bt.querySelector("#plMap"), mm = document.createElement("p"); mm.className = "hint kmmsg"; mm.setAttribute("role", "status"); bt.insertAdjacentElement("afterend", mm);
         openKarte(null, "plan", pb, mm, { autoPlan: true, focus: "#plMap" });
       });
-      bt.querySelector("#plDel").addEventListener("click", function () { var sn = snapState(); S.plan = { img: "", w: 0, h: 0, cal: {}, lines: [], pts: [], sond: [] }; sondSync(); save(); renderForm(); undoToast(tt("pl_removed"), sn); });
+      bt.querySelector("#plDel").addEventListener("click", function () { var sn = snapState(); S.plan = { img: "", w: 0, h: 0, cal: {}, lines: [], pts: [], sond: [], notes: [], areas: [], wl: [], geb: [] }; sondSync(); save(); renderForm(); undoToast(tt("pl_removed"), sn); });
       bt.querySelector("#plOpen").addEventListener("click", function () {
         msg.className = "hint kmmsg"; msg.textContent = tt("km_loading");
         KARTE.load().then(function () {
@@ -911,13 +911,21 @@
     var old = $("#result .situ"); if (old) old.remove();
     var K = S.karte, P = S.plan, hasMap = (K.overlay && ovResolve(K.overlay)) || K.lines.length || K.pts.length || K.sond.length || K.notes.length || (K.areas || []).length || (K.wl || []).length || (K.geb || []).length, hasPlan = !!P.img;
     if (!hasMap && !hasPlan) return;
-    var sec = document.createElement("section"); sec.className = "situ no-summary"; sec.innerHTML = "<h3>" + esc(tt("sit_h")) + "</h3>";
+    var sec = document.createElement("section"); sec.className = "situ no-summary"; var body = document.createElement("div"); body.className = "situbody"; body.id = "situBody";
     if (hasMap) {
       var g = situGeo(), base = K.base || "farbe", bg = K.bg && K.bg.key === KARTE.bgKey(g, 760, 420, base) ? K.bg.src : null;
-      g.lab = mkLabels(K, mapFns()); var fig = KARTE.mapFigure(g, tt, { W: 760, H: 420, base: base, bg: bg, labels: true, overlay: ovResolve(K.overlay), cls: "situfig", cap: fill(tt("sit_capMap"), { m: KARTE.fmt(KARTE.total(g.lines)), n: K.pts.length, s: K.sond.length, f: (K.areas || []).length }) }); if (fig) sec.appendChild(fig);
+      g.lab = mkLabels(K, mapFns()); var fig = KARTE.mapFigure(g, tt, { W: 760, H: 420, base: base, bg: bg, labels: true, overlay: ovResolve(K.overlay), cls: "situfig", cap: fill(tt("sit_capMap"), { m: KARTE.fmt(KARTE.total(g.lines)), n: K.pts.length, s: K.sond.length, f: (K.areas || []).length }) }); if (fig) body.appendChild(fig);
     }
-    if (hasPlan) { var pv = KARTE.planPreview(P, tt, mkLabels(P, planFns())); if (pv) { pv.className = "situfig"; var cap = document.createElement("figcaption"); cap.textContent = tt("sit_capPlan") + (P.cal && P.cal.scale ? " · " + (P.cal.auto ? "1:" + P.cal.auto : "1 px = " + Math.round(P.cal.scale * 1000) / 1000 + " m") : ""); pv.appendChild(cap); sec.appendChild(pv); } }
-    var eb = document.createElement("button"); eb.type = "button"; eb.className = "btn ghost small no-print"; eb.textContent = tt("ex_btn"); eb.addEventListener("click", exportOpen); sec.insertBefore(eb, sec.children[1] || null);
+    if (hasPlan) { var pv = KARTE.planPreview(P, tt, mkLabels(P, planFns())); if (pv) { pv.className = "situfig"; var cap = document.createElement("figcaption"); cap.textContent = tt("sit_capPlan") + (P.cal && P.cal.scale ? " · " + (P.cal.auto ? "1:" + P.cal.auto : "1 px = " + Math.round(P.cal.scale * 1000) / 1000 + " m") : ""); pv.appendChild(cap); body.appendChild(pv); } }
+    /* Auf dem Bildschirm eingeklappt (Zeile mit Zusammenfassung), im Ausdruck immer sichtbar */
+    var open = !!S.ui.situOpen, nOb = K.lines.length + K.pts.length + K.sond.length + (K.areas || []).length + (K.wl || []).length + (K.geb || []).length + K.notes.length + (P.lines || []).length + (P.pts || []).length + (P.areas || []).length;
+    var head = document.createElement("div"); head.className = "situhead no-print";
+    head.innerHTML = '<h3>' + esc(tt("sit_h")) + '</h3><button type="button" class="btn ghost small" id="situTog" aria-expanded="' + open + '" aria-controls="situBody">' + esc(tt(open ? "sit_hide" : "sit_show")) + '</button><button type="button" class="btn ghost small" id="situExp">' + esc(tt("ex_btn")) + "</button>";
+    var sum = document.createElement("p"); sum.className = "hint situsum no-print"; sum.textContent = fill(tt("sit_sum"), { o: nOb, m: KARTE.fmt(KARTE.total(K.lines.map(function (l) { return l.pts; }))), p: hasPlan ? tt("sit_withPlan") : "" });
+    var h3p = document.createElement("h3"); h3p.className = "print-only"; h3p.textContent = tt("sit_h");
+    body.hidden = !open; sec.appendChild(head); sec.appendChild(h3p); sec.appendChild(sum); sec.appendChild(body);
+    head.querySelector("#situExp").addEventListener("click", exportOpen);
+    head.querySelector("#situTog").addEventListener("click", function () { S.ui.situOpen = !S.ui.situOpen; save(); situRender(); });
     var st = $("#result .status"); if (st) st.insertAdjacentElement("afterend", sec); else $("#result").insertBefore(sec, $("#result").firstChild);
   }
   function situGeo() { var K = S.karte; return { lines: K.lines.map(function (l) { return l.pts; }), pts: K.pts.map(function (p) { return p.pt; }), areas: (K.areas || []).map(function (a) { return a.pts; }), sond: K.sond.map(function (p) { return p.pt; }), wl: (K.wl || []).map(function (p) { return p.pt; }), geb: (K.geb || []).map(function (p) { return p.pt; }), notes: K.notes, extra: KARTE.ovCorners(ovResolve(K.overlay)) }; }
