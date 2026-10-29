@@ -534,6 +534,7 @@
     km_max: ["Vollbild", "Plein écran", "Schermo intero", "Full screen"],
     km_maxT: ["Fenster maximieren oder verkleinern", "Agrandir ou réduire la fenêtre", "Ingrandire o ridurre la finestra", "Maximise or shrink the window"],
     ux_validUntil: ["Testversion gültig bis {d} (noch {n} Tage)", "Version d'essai valable jusqu'au {d} (encore {n} jours)", "Versione di prova valida fino al {d} (ancora {n} giorni)", "Trial version valid until {d} ({n} days left)"],
+    km_netz: ["Swisscom Netzauskunft (Login, neuer Tab)", "Swisscom Netzauskunft (login, nouvel onglet)", "Swisscom Netzauskunft (login, nuova scheda)", "Swisscom network information (login, new tab)"],
     km_prov: ["Kartenanbieter", "Fournisseur de cartes", "Fornitore cartografico", "Map provider"],
     km_bLeer: ["geo.admin: leere Basis (nur gewählte Ebenen)", "geo.admin: fond vide (couches choisies seulement)", "geo.admin: sfondo vuoto (solo livelli scelti)", "geo.admin: blank base (selected layers only)"],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],

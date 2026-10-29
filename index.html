@@ -2962,6 +2962,7 @@ Object.assign(TS.it,{
     km_max: ["Vollbild", "Plein écran", "Schermo intero", "Full screen"],
     km_maxT: ["Fenster maximieren oder verkleinern", "Agrandir ou réduire la fenêtre", "Ingrandire o ridurre la finestra", "Maximise or shrink the window"],
     ux_validUntil: ["Testversion gültig bis {d} (noch {n} Tage)", "Version d'essai valable jusqu'au {d} (encore {n} jours)", "Versione di prova valida fino al {d} (ancora {n} giorni)", "Trial version valid until {d} ({n} days left)"],
+    km_netz: ["Swisscom Netzauskunft (Login, neuer Tab)", "Swisscom Netzauskunft (login, nouvel onglet)", "Swisscom Netzauskunft (login, nuova scheda)", "Swisscom network information (login, new tab)"],
     km_prov: ["Kartenanbieter", "Fournisseur de cartes", "Fornitore cartografico", "Map provider"],
     km_bLeer: ["geo.admin: leere Basis (nur gewählte Ebenen)", "geo.admin: fond vide (couches choisies seulement)", "geo.admin: sfondo vuoto (solo livelli scelti)", "geo.admin: blank base (selected layers only)"],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
@@ -4852,7 +4853,7 @@ var FIG = (function () {
       '<button type="button" class="btn ghost small" data-k="fit">' + esc(tt("km_fit")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="center">' + esc(tt("km_center")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="lbl" aria-pressed="true">' + esc(tt("km_lbl")) + "</button>" +
-      (plan ? "" : '<span class="kmseg" role="group" aria-label="' + esc(tt("km_prov")) + '"><button type="button" class="btn small" data-prov="swisstopo" aria-pressed="false">swisstopo</button><button type="button" class="btn small" data-prov="geoadmin" aria-pressed="false">geo.admin.ch</button></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase"></select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + "</button>") + "</div></div>" +
+      (plan ? "" : '<span class="kmseg" role="group" aria-label="' + esc(tt("km_prov")) + '"><button type="button" class="btn small" data-prov="swisstopo" aria-pressed="false">swisstopo</button><button type="button" class="btn small" data-prov="geoadmin" aria-pressed="false">geo.admin.ch</button></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase"></select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + '</button><a class="btn ghost small" id="kmNetz" href="https://www.swisscom.ch/rida/online/geoportal/ng/index.html?login" target="_blank" rel="noopener noreferrer">' + esc(tt("km_netz")) + "</a>") + "</div></div>" +
       (plan ? '<form class="kmcalf" id="kmCalF" hidden><label for="kmCalM">' + esc(tt("pl_calAsk")) + '</label><input type="text" inputmode="decimal" id="kmCalM" class="numin"><button type="submit" class="btn small">' + esc(tt("pl_calSet")) + "</button></form>" : "") +
       '<div class="kmmain"><div class="kmleft">' +
       '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div>' +
