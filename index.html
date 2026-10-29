@@ -4887,8 +4887,8 @@ var FIG = (function () {
     function tiles() {
       if (layer) map.removeLayer(layer);
       /* Ebene ohne bekannten Typ: zuerst WMS, bei Fehlern (z. B. nur als WMTS verfügbar) automatisch WMTS – und umgekehrt */
-      var flex = function (id, op) {
-        var grp2 = L.layerGroup(), tries = ["wms", "wmts"], ti = 0, ok = 0, bad = 0, cur;
+      var flex = function (id, op, first) {
+        var grp2 = L.layerGroup(), tries = first === "wmts" ? ["wmts", "wms"] : ["wms", "wmts"], ti = 0, ok = 0, bad = 0, cur;
         function mk(t) { return t === "wms" ? L.tileLayer.wms("https://wms.geo.admin.ch/", { layers: id, format: "image/png", transparent: true, maxZoom: 20, opacity: op, zIndex: 5, attribution: "© geo.admin.ch" }) : T(id, "png", { opacity: op, zIndex: 5 }); }
         function go() {
           if (cur) grp2.removeLayer(cur); ok = 0; bad = 0; cur = mk(tries[ti]);
@@ -4902,7 +4902,7 @@ var FIG = (function () {
         : base === "grau" ? L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")])
         : base === "leer" ? L.layerGroup([])   /* leere Basis: nur gewählte Katalog-Ebenen auf weissem Grund */
         : base === "av" ? L.layerGroup(avCfg().u ? [L.tileLayer.wms(avCfg().u, { layers: avCfg().l, format: "image/png", transparent: false, version: "1.3.0", maxZoom: 20, zIndex: 1, attribution: "© OpenData AV" })] : [])
-        : base === "kataster" ? L.layerGroup([flex("ch.kantone.cadastralwebmap-farbe", 1)])   /* nur der Parzellenplan, ohne Landeskarte dahinter */
+        : base === "kataster" ? L.layerGroup([flex("ch.kantone.cadastralwebmap-farbe", 1, "wmts")])   /* nur der Parzellenplan, ohne Landeskarte dahinter */
         : L.layerGroup([T("ch.swisstopo.pixelkarte-farbe", "jpeg")]);
       map.getContainer().style.background = base === "kataster" || base === "leer" || base === "av" ? "#fff" : "";
       layer.addTo(map);   /* Reihenfolge über zIndex: Basiskarte 1, Deckschichten 5/10 */
