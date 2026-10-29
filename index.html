@@ -943,6 +943,7 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 .kmlbl.c span{transform:translate(-50%,-135%)}.kmlbl.r span{transform:translate(16px,-50%)}
 .kmexp[open]{overflow:auto}.exprev{border:1px solid var(--rule-strong);background:#e9edef;padding:8px;overflow:auto;max-height:62vh}.exprev svg{display:block;max-width:100%;height:auto;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);margin:0 auto}
 .kmexp .check{display:inline-flex;gap:6px;align-items:center}
+.kmtel{margin:4px 0 6px}.kmchips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
 
 </style>
 </head>
@@ -2746,7 +2747,7 @@ Object.assign(TS.it,{
     lv_title: ["LV wie im Ausdruck", "LV comme à l'impression", "LV come nella stampa", "LV as in the printout"],
     lv_hide: ["LV ausblenden", "Masquer le LV", "Nascondere il LV", "Hide LV"],
     lv_show: ["LV rechts zeigen", "Afficher le LV à droite", "Mostrare il LV a destra", "Show LV on the right"],
-    km_cat: ["Geokatalog: weitere Ebenen von geo.admin.ch", "Géocatalogue: autres couches de geo.admin.ch", "Geocatalogo: altri livelli di geo.admin.ch", "Geo catalogue: more layers from geo.admin.ch"],
+    km_cat: ["Geokatalog: weitere Ebenen von geo.admin.ch (z. B. Mobilfunk 4G/5G, Antennen, Breitband)", "Géocatalogue: autres couches de geo.admin.ch (p. ex. mobile 4G/5G, antennes, haut débit)", "Geocatalogo: altri livelli di geo.admin.ch (p. es. mobile 4G/5G, antenne, banda larga)", "Geo catalogue: more layers from geo.admin.ch (e.g. mobile 4G/5G, antennas, broadband)"],
     km_catSearch: ["Ebene suchen (gesamter Geokatalog)", "Chercher une couche (tout le géocatalogue)", "Cercare un livello (intero geocatalogo)", "Search a layer (entire geo catalogue)"],
     km_catPh: ["z. B. Leitungskataster, Parzellen, Naturgefahren, Gewässer", "p. ex. cadastre des conduites, parcelles, dangers naturels", "p. es. catasto delle condotte, particelle, pericoli naturali", "e.g. utility cadastre, parcels, natural hazards, waters"],
     km_catRes: ["Ebenen im Geokatalog", "Couches du géocatalogue", "Livelli del geocatalogo", "Layers in the geo catalogue"],
@@ -2884,6 +2885,9 @@ Object.assign(TS.it,{
     ov_trMap: ["Karte", "Carte", "Carta", "Map"],
     pl_mapHint: ["Empfehlung: eine Messgrundlage. Plan in der Karte ausrichten und dort messen; bereits im Plan gezeichnete Objekte lassen sich übertragen.", "Recommandation: une seule base de mesure. Aligner le plan sur la carte et y mesurer; les objets déjà dessinés dans le plan peuvent être transférés.", "Raccomandazione: una sola base di misura. Allineare la pianta sulla carta e misurare lì; gli oggetti già disegnati nella pianta si possono trasferire.", "Recommendation: one measuring basis. Align the plan on the map and measure there; objects already drawn in the plan can be transferred."],
     pl_toMap: ["Plan in der Karte ausrichten und messen", "Aligner le plan sur la carte et mesurer", "Allineare la pianta sulla carta e misurare", "Align plan on map and measure"],
+    km_catTel: ["Tipp Telekommunikation: Die Netzabdeckung (Mobilfunk 4G/5G), Mobilfunkanlagen (Antennenstandorte), Breitband- und Glasfaser-Verfügbarkeit und weitere Telekom-Ebenen lassen sich hier als Karte einblenden. Stichwort wählen oder suchen.", "Astuce télécommunications: la couverture réseau (mobile 4G/5G), les installations de téléphonie mobile (antennes), la disponibilité haut débit et fibre et d'autres couches télécom peuvent être affichées ici. Choisir un mot-clé ou rechercher.", "Suggerimento telecomunicazioni: la copertura di rete (mobile 4G/5G), gli impianti di telefonia mobile (antenne), la disponibilità di banda larga e fibra e altri livelli TLC si possono visualizzare qui. Scegliere una parola chiave o cercare.", "Telecom tip: network coverage (mobile 4G/5G), mobile antenna sites, broadband and fibre availability and other telecom layers can be shown here. Pick a keyword or search."],
+    km_catChips: ["Schnellsuche Telekommunikation", "Recherche rapide télécommunications", "Ricerca rapida telecomunicazioni", "Telecom quick search"],
+    km_i4: ["Netzabdeckung 4G/5G, Mobilfunkanlagen und weitere Telekom-Ebenen: unten im «Geokatalog» einblenden.", "Couverture 4G/5G, installations de téléphonie mobile et autres couches télécom: à afficher plus bas dans le «Géocatalogue».", "Copertura 4G/5G, impianti di telefonia mobile e altri livelli TLC: da visualizzare sotto nel «Geocatalogo».", "Network coverage 4G/5G, mobile antenna sites and other telecom layers: show them below in the “Geo catalogue”."],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
     km_ptOn: ["Schacht setzen aktiv", "Pose de regard active", "Posa pozzetto attiva", "Placing manholes"],
     km_obj: ["Objekte auf der Karte", "Objets sur la carte", "Oggetti sulla carta", "Objects on the map"],
@@ -4734,7 +4738,7 @@ var FIG = (function () {
     var area = function (pts) { var a = 0; for (var i = 0; i < pts.length; i++) { var p = pts[i], q = pts[(i + 1) % pts.length]; a += p[0] * q[1] - q[0] * p[1]; } a = Math.abs(a) / 2; return plan ? a * Math.pow(cal.scale || 0, 2) : a; };
     var intro = false; try { intro = !localStorage.getItem(INTRO); } catch (e) { }
     var dlg = document.createElement("dialog"); dlg.className = "kmdlg"; dlg.setAttribute("aria-labelledby", "kmTitle");
-    var ip = plan ? ["km_i1p", "km_i2p", "km_i3p"] : ["km_i1", "km_i2", "km_i3"];
+    var ip = plan ? ["km_i1p", "km_i2p", "km_i3p"] : ["km_i1", "km_i2", "km_i3", "km_i4"];
     dlg.innerHTML =
       '<div class="kmhead"><h2 id="kmTitle">' + esc(tt(plan ? "pl_title" : "km_title")) + '</h2><button type="button" class="btn ghost small" data-k="close">' + esc(tt("km_close")) + "</button></div>" +
       '<details class="kmintro"' + (intro ? " open" : "") + "><summary>" + esc(tt("km_intro")) + "</summary><ol>" + ip.map(function (k) { return "<li>" + esc(tt(k)) + "</li>"; }).join("") + "</ol></details>" +
@@ -4765,7 +4769,7 @@ var FIG = (function () {
       (plan ? "" : '<span class="sp"></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase">' + [["farbe", "km_bFarbe"], ["grau", "km_bGrau"], ["luft", "km_aerial"], ["kataster", "km_bKat"], ["viewer", "km_bViewer"]].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join("") + '</select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + "</button>") + "</div>" +
       (plan ? '<form class="kmcalf" id="kmCalF" hidden><label for="kmCalM">' + esc(tt("pl_calAsk")) + '</label><input type="text" inputmode="decimal" id="kmCalM" class="numin"><button type="submit" class="btn small">' + esc(tt("pl_calSet")) + "</button></form>" : "") +
       '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div>' +
-      (plan ? "" : '<details class="kmcat" id="kmCat"><summary>' + esc(tt("km_cat")) + '</summary><div class="kmcatb"><label for="kmCatQ">' + esc(tt("km_catSearch")) + '</label><input type="search" id="kmCatQ" autocomplete="off" placeholder="' + esc(tt("km_catPh")) + '"><p class="hint" id="kmCatMsg" role="status"></p><ul class="kmcatl" id="kmCatL" aria-label="' + esc(tt("km_catRes")) + '"></ul><h3 class="kmcath">' + esc(tt("km_catSel")) + '</h3><ul class="kmcatl kmcats" id="kmCatS"></ul></div></details>') +
+      (plan ? "" : '<details class="kmcat" id="kmCat"><summary>' + esc(tt("km_cat")) + '</summary><div class="kmcatb"><p class="hint kmtel">' + esc(tt("km_catTel")) + '</p><div class="kmchips" role="group" aria-label="' + esc(tt("km_catChips")) + '">' + ["4G", "5G", "Mobilfunk", "Antenne", "Breitband", "Glasfaser", "Telekommunikation"].map(function (w) { return '<button type="button" class="chip" data-q="' + w + '">' + w + "</button>"; }).join("") + '</div><label for="kmCatQ">' + esc(tt("km_catSearch")) + '</label><input type="search" id="kmCatQ" autocomplete="off" placeholder="' + esc(tt("km_catPh")) + '"><p class="hint" id="kmCatMsg" role="status"></p><ul class="kmcatl" id="kmCatL" aria-label="' + esc(tt("km_catRes")) + '"></ul><h3 class="kmcath">' + esc(tt("km_catSel")) + '</h3><ul class="kmcatl kmcats" id="kmCatS"></ul></div></details>') +
       (plan ? "" : '<details class="kmcat kmovd" id="kmOvD"><summary>' + esc(tt("ov_title")) + '</summary><div class="kmcatb"><p class="hint">' + esc(tt("ov_hint")) + '</p>' +
         '<label for="kmOvF">' + esc(tt("pl_file")) + '</label><input type="file" id="kmOvF" accept=".pdf,application/pdf,image/*"><p class="hint" id="kmOvMsg" role="status"></p>' +
         '<div class="kmbar"><button type="button" class="btn small" id="kmOvPlan">' + esc(tt("ov_fromPlan")) + '</button><button type="button" class="btn small" data-k="mgeo" aria-pressed="false">' + esc(tt("ov_geo")) + '</button><button type="button" class="btn small" data-ov="tr" id="kmOvTr">' + esc(tt("ov_tr")) + '</button><button type="button" class="btn ghost small" data-ov="c">' + esc(tt("ov_center")) + '</button><button type="button" class="btn ghost small del" data-ov="x">' + esc(tt("km_catRemove")) + '</button></div>' +
@@ -5173,6 +5177,7 @@ var FIG = (function () {
       ovGrp = L.layerGroup().addTo(map); grp = L.layerGroup().addTo(map); tiles(); drawOv(); selList();
       $("#kmCat").addEventListener("toggle", function (e) { if (e.target.open) openCat(); });
       $("#kmCatQ").addEventListener("input", resList);
+      $("#kmCat .kmchips").addEventListener("click", function (e) { var c = e.target.closest("[data-q]"); if (!c) return; $("#kmCat").open = true; $("#kmCatQ").value = c.dataset.q; openCat(); resList(); $("#kmCatQ").focus(); });
       $("#kmCatS").addEventListener("click", function (e) { var b = e.target.closest("[data-ovdel]"); if (!b) return; ov.splice(+b.dataset.ovdel, 1); saveOv(); drawOv(); selList(); resList(); });
     }
     if (window.ResizeObserver) { ro = new ResizeObserver(function () { try { map.invalidateSize({ animate: false }); ovDraw(); } catch (e) { } }); ro.observe($("#kmMap")); }

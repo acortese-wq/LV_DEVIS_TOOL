@@ -336,3 +336,4 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 .kmlbl.c span{transform:translate(-50%,-135%)}.kmlbl.r span{transform:translate(16px,-50%)}
 .kmexp[open]{overflow:auto}.exprev{border:1px solid var(--rule-strong);background:#e9edef;padding:8px;overflow:auto;max-height:62vh}.exprev svg{display:block;max-width:100%;height:auto;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);margin:0 auto}
 .kmexp .check{display:inline-flex;gap:6px;align-items:center}
+.kmtel{margin:4px 0 6px}.kmchips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
