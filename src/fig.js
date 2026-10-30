@@ -98,6 +98,7 @@ var FIG = (function () {
     acc.forEach(function (a, i) { var yy = 46 + i * 30; o += '<path d="M500 ' + yy + 'h70" stroke="' + a[2] + '" stroke-width="' + (i === 2 ? 1.5 : 4) + '"' + (a[1] > 0 ? "" : ' opacity=".25"') + "/>" + tx(580, yy + 4, lab(a[0]) + ": " + (a[1] > 0 ? fq(a[1]) + " m" : "—"), a[1] > 0 ? "sl" : "sm"); });
     return svg(760, Math.max(y + 86, 170), o, tt("ux_rohr_title"));
   }
+  function pipeComp(pl) { var m = {}; pl.forEach(function (d) { m[d] = (m[d] || 0) + 1; }); return Object.keys(m).sort(function (a, b) { return b - a; }).map(function (d) { return m[d] + " × DN " + d; }).join(" + "); }
   var F = {
     graben: function (r) {
       var T0 = num(r.T, 0.6), GB = KVE.grabenBreite(r), B = GB.b;   /* gleiche Regel wie die Rechnung */
@@ -114,6 +115,7 @@ var FIG = (function () {
       if (block) (r.bloecke || []).forEach(function (bl) { for (var i = 0; i < Math.min(num(bl.n, 1), 8); i++) pipes.push(num(bl.dn, 55)); });
       else if (r.rohrSystem === "laengs") for (var i2 = 0; i2 < Math.min(num(r.n2, 1), 8); i2++) pipes.push(num(r.dn2, 100));
       else for (var i3 = 0; i3 < Math.min(num(r.n, 1), 12); i3++) pipes.push(num(r.dn, 55));
+      if (!block && r.pipes && r.pipes.length) pipes = r.pipes.slice(0, 16);   /* gemischte Rohrtypen einer Linie */
       if (pipes.length) { var od = KVE.rohrOD, rm = Math.max(3, od(Math.max.apply(null, pipes)) / 2 * s), gap = Math.max(3, 0.04 * s), per = Math.max(1, Math.floor((uw - 4) / (2 * rm + gap)));
         if (!block) per = Math.min(per, KVE.PER_LAGE);
         pipes.forEach(function (dn, i) { var row = Math.floor(i / per), n = Math.min(per, pipes.length - row * per), k = i % per, rr = Math.max(3, od(dn) / 2 * s);
@@ -127,8 +129,9 @@ var FIG = (function () {
         + (ZQ && ZQ.auto ? dimV(x0 + tw + 12, uy, gy + th, fq(Math.round(ZQ.hZ * 100) / 100) + " m", "start") : "");
       var L = [[sf.k === "bit" ? "var(--asph)" : sf.k === "wiese" ? "var(--grassL)" : sf.k === "pflaster" ? "var(--conc)" : "url(#pGr)", surfLabel(r.belag)],
         [ufill, block ? tt("o_rohrSystem_block") : tt("s_zone")], [kies ? "url(#pGr)" : "url(#pSo)", tt("f_verf") + ": " + tt("o_verf_" + (r.verf || "aushub"))],
-        ["var(--pipe)", block ? tt("o_rohrSystem_block") : pipes.length + " × DN " + (pipes[0] || "")], ["var(--navy)", tt("f_hand") + ": " + tt("o_hand_" + (r.hand || "normal"))]];
+        ["var(--pipe)", block ? tt("o_rohrSystem_block") : pipeComp(pipes)], ["var(--navy)", tt("f_hand") + ": " + tt("o_hand_" + (r.hand || "normal"))]];
       if (r.gesp) L.push(["var(--copper)", tt("f_gesp")]);
+      if (r.roh) L.push(["var(--navy)", tt("km_s_roh")]);
       return svg(760, Math.max(gy + th + 36, 190), o + leg(500, 40, L) + tx(500, Math.max(gy + th + 30, 180), "L = " + fq(num(r.L)) + " m", "sl sb"), tt("ht_graben")) + (block ? blockDetail(r) : "");
     },
     rohr: function (r) {

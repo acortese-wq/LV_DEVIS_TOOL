@@ -559,6 +559,40 @@
   function undoToast(msg, sn) { KARTE.toast(document.body, msg, tt("km_undoBtn"), function () { restoreState(sn); }); }
   /* Belagsfläche -> Breite B und Länge L, so dass B × L = Fläche und 2 × (B + L) = Umfang (sonst Quadrat); Rechenkern unverändert */
   function solveBL(A, P) { var h = P / 2, d = h * h - 4 * A; if (d >= 0) { var r = Math.sqrt(d); return [(h + r) / 2, (h - r) / 2]; } var q = Math.sqrt(A); return [q, q]; }
+  /* Leitungskonfiguration der Linie (Rohre, Verlegeart, Oberfläche, Tiefe/Breite) in den Graben-Datensatz übertragen; nur gesetzte Angaben */
+  var ROHTYP = { 55: "K55", 100: "K100 PEHD", 120: "K120 PEHD", 150: "K150 PEHD" }, MUFTYP = { 55: "Doppelsteckmuffen K55", 100: "Doppelsteckmuffen K100", 120: "Doppelsteckmuffen K120" };
+  function applyCfg(l, r, L) {
+    var c = KARTE.cfgOf(l), ent = KARTE.pipeList(c); KARTE.lineSync(l);
+    if (c.T && KVE.num(c.T, 0) > 0) r.T = String(c.T);
+    if (c.B && KVE.num(c.B, 0) > 0) { r.bmode = "manuell"; r.bman = String(c.B); }
+    if (ent.length) {
+      if (c.art === "beton") {
+        r.rohrSystem = "block"; r.bloecke = ent.map(function (e) { return { dn: String(e[0]), n: String(e[1]), lagen: e[1] <= (e[0] === 55 ? 3 : 4) ? "1" : "2", len: r.len || "10" }; });
+        var bm = KVE.blockMass(r.bloecke); r.block = { breite: String(Math.ceil((bm.reqW + 0.10) * 100) / 100), hoehe: String(Math.ceil((bm.reqH + 0.10) * 100) / 100) };   /* Rohre + 5 cm Betonüberdeckung */
+      } else if (c.art === "laengs") { r.rohrSystem = "laengs"; r.dn2 = String(ent[0][0]); r.n2 = String(ent[0][1]); }
+      else { r.rohrSystem = "k55"; r.dn = String(ent[0][0]); r.n = String(ent[0][1]); r.umhType = "kies"; }
+    }
+    if (c.fl) {
+      r.roh = c.fl === "roh"; if (!r.belag) r.belag = newRec("graben", 1).belag;
+      r.belag.mode = { belag: "bit", wiese: "humus", pflaster: "pflaster", roh: "none" }[c.fl];
+    }
+  }
+  /* Weitere Rohrtypen derselben Linie (nur Kies/Betonkies): eigene Rohranlage mit Lieferung, Verlegen, Muffen, Einzug, Kalibrieren */
+  function lineExtras(l, r, L) {
+    var c = KARTE.cfgOf(l), ent = c.art === "kies" ? KARTE.pipeList(c).slice(1) : [], x = recByUid("rohr", l.rid2);
+    if (!ent.length) { if (x && x.lineMap) S.recs.rohr.splice(S.recs.rohr.indexOf(x), 1); l.rid2 = null; return 0; }
+    if (!x) { x = newRec("rohr", S.recs.rohr.length + 1); x.lineMap = true; S.recs.rohr.push(x); }
+    ensureUid(x); l.rid2 = x.uid; x.name = r.name + " – " + ent.map(function (e) { return e[1] + "×K" + e[0]; }).join(" + ");
+    x.verl = true; x.rohre = ent.map(function (e) { return { typ: ROHTYP[e[0]], q: round1(L * e[1]) }; });
+    x.muf = ent.filter(function (e) { return MUFTYP[e[0]]; }).map(function (e) { return { typ: MUFTYP[e[0]], q: String(e[1] * Math.ceil(L / 5 - 1e-9)) }; }); if (!x.muf.length) x.muf = [{ typ: "", q: "" }];
+    var m = ent.reduce(function (a, e) { return a + L * e[1]; }, 0); x.schnur = round1(m); x.kal = round1(m); x.kalDN = String(ent[0][0]); x.zubV = { warn: true };   /* Warnband liegt im Graben */
+    return 1;
+  }
+  function xsecHtml(l, Lm) {
+    var r = newRec("graben", 1), c = KARTE.cfgOf(l), ent = KARTE.pipeList(c); r.L = round1(Lm || 1); applyCfg(l, r, Lm);
+    r.pipes = []; ent.slice().sort(function (a, b) { return b[0] - a[0]; }).forEach(function (e) { for (var i = 0; i < e[1]; i++) r.pipes.push(e[0]); });
+    return FIG.html("graben", r, S, tt);
+  }
   function karteApply(M, cfg, lenFn, fns) {
     var st = { g: 0, gn: 0, s: 0, sn: 0, o: 0, f: 0, fn: 0, w: 0, wn: 0, e: 0, en: 0, x: 0, z: 0 }, used = {}, G = S.recs.graben;
     M.lines = M.lines.filter(function (l) { return l.pts.length > 1; });
@@ -573,6 +607,7 @@
       used[ensureUid(r)] = 1; l.rid = r.uid; st.g++;
       r.L = round1(lenFn(l.pts)); r.rohrSystem = l.rohr.sys;
       if (l.rohr.sys !== "block") { r.dn = l.rohr.dn; r.len = l.rohr.len; r.n = String(l.rohr.n || "1"); }
+      if (l.cfg) { applyCfg(l, r, KVE.num(r.L, 0)); st.xn = (st.xn || 0) + lineExtras(l, r, KVE.num(r.L, 0)); }
     });
     M.pts.forEach(function (p) {
       var r = recByUid("schacht", p.sid), L = S.recs.schacht;
@@ -640,7 +675,7 @@
           var u0 = ensureUid(cfg); cfg.trasse.forEach(function (pts, i) { S.karte.lines.push({ id: "m" + i + u0, pts: pts, rid: i === 0 ? u0 : null, rohr: { sys: cfg.rohrSystem, dn: cfg.dn, len: cfg.len, n: cfg.n } }); }); delete cfg.trasse;
         }
         var g = tab === "graben" && cfg;
-        KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, model: JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
+        KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, model: JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" && cfg ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" && cfg ? cfg.cm : "", abd: tab === "geb" && cfg ? cfg.abd : "hauff" }, defBelag: tab === "belag" && cfg ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
           onClose: function () { var o = $(ex.focus || "#kmOpen"); if (o) o.focus(); }, autoPlan: !!ex.autoPlan, planObjs: JSON.parse(JSON.stringify({ lines: S.plan.lines, pts: S.plan.pts, sond: S.plan.sond, wl: S.plan.wl, geb: S.plan.geb, areas: S.plan.areas, notes: S.plan.notes })), planScale: (S.plan.cal && S.plan.cal.scale) || 0,
@@ -743,7 +778,7 @@
         msg.className = "hint kmmsg"; msg.textContent = tt("km_loading");
         KARTE.load().then(function () {
           msg.textContent = "";
-          KARTE.open({ kind: "plan", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, plan: { img: P.img, w: P.w, h: P.h, cal: P.cal }, model: { lines: JSON.parse(JSON.stringify(P.lines)), pts: JSON.parse(JSON.stringify(P.pts)), sond: JSON.parse(JSON.stringify(P.sond)), notes: JSON.parse(JSON.stringify(P.notes || [])), areas: JSON.parse(JSON.stringify(P.areas || [])), wl: JSON.parse(JSON.stringify(P.wl || [])), geb: JSON.parse(JSON.stringify(P.geb || [])) },
+          KARTE.open({ kind: "plan", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, plan: { img: P.img, w: P.w, h: P.h, cal: P.cal }, model: { lines: JSON.parse(JSON.stringify(P.lines)), pts: JSON.parse(JSON.stringify(P.pts)), sond: JSON.parse(JSON.stringify(P.sond)), notes: JSON.parse(JSON.stringify(P.notes || [])), areas: JSON.parse(JSON.stringify(P.areas || [])), wl: JSON.parse(JSON.stringify(P.wl || [])), geb: JSON.parse(JSON.stringify(P.geb || [])) },
             defRohr: { sys: "k55", dn: "55", len: "10", n: "1" }, defTyp: "KES150", defGeb: { cm: "", abd: "hauff" }, defBelag: { bk: "gehweg", d: "0.08", wi: "B" }, recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
             onClose: function () { var o = $("#plOpen"); if (o) o.focus(); },
             onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st2 = karteApply(M, null, lenFn, Object.assign({ src: "plan" }, fns)); S.plan.areas = M.areas || []; S.plan.wl = M.wl || []; S.plan.geb = M.geb || []; S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; syncDerived(null, st2); save(); renderForm(); renderResult(); undoToast(fill(tt("km_done"), st2) + (st2.x ? " ⚠ " + fill(tt("km_conflict"), st2) : ""), sn); }
@@ -935,7 +970,7 @@
     var rn = function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); };
     var SYS = { k55: "K55", laengs: tt("o_rohrSystem_laengs").split(" (")[0], block: tt("o_rohrSystem_block").split(" (")[0] };
     return {
-      lines: (M.lines || []).map(function (l, i) { var s2 = (rn(l.rid) || tt("km_lineN").replace("{n}", i + 1)) + " · " + KARTE.fmt(fns.len(l.pts)) + " m"; if (l.rohr) s2 += " · " + (l.rohr.sys === "block" ? SYS.block : SYS[l.rohr.sys] + " DN" + l.rohr.dn + " ×" + (l.rohr.n || "1")); return s2; }),
+      lines: (M.lines || []).map(function (l, i) { var s2 = (rn(l.rid) || tt("km_lineN").replace("{n}", i + 1)) + " · " + KARTE.fmt(fns.len(l.pts)) + " m"; var lt = l.cfg ? KARTE.lineTxt(l, tt) : ""; if (lt) s2 += " · " + lt; else if (l.rohr) s2 += " · " + (l.rohr.sys === "block" ? SYS.block : SYS[l.rohr.sys] + " DN" + l.rohr.dn + " ×" + (l.rohr.n || "1")); return s2; }),
       pts: (M.pts || []).map(function (p, i) { return (p.name || rn(p.sid) || tt("km_schN").replace("{n}", i + 1)) + " · " + p.typ; }),
       sond: (M.sond || []).map(function (p, i) { return (p.name || "S" + (i + 1)) + " · " + p.l + "×" + p.b + "×" + p.t + " m"; }),
       wl: (M.wl || []).map(function (p, i) { return (p.name || "W" + (i + 1)) + " · " + tt("km_wl" + p.wt); }),

@@ -47,3 +47,11 @@ Bekannte Grenze: Pläne/Overlays werden als Bild im Browser-Speicher gehalten (c
 
 ## Eine Messgrundlage: Plan in der Karte ausrichten (Oktober 2026)
 Empfohlener Ablauf: Plan im Reiter «Plan» einsetzen → «Plan in der Karte ausrichten und messen» → mit 2 Passpunkten ausrichten → «Plan-Objekte in die Karte übertragen». Die Plan-Pixel werden über Lage, Drehung und Massstab des Hintergrunds in LV95 umgerechnet, die Verknüpfungen zu den Datensätzen bleiben (keine Duplikate), die Plan-Objekte werden entfernt. Danach gilt nur noch die Karte (LV95) als Messgrundlage. Die Vorschau zeigt je Linie «Plan x m → Karte y m (± %)»; Rechtecke werden zu geschlossenen Skizzenlinien. Der Plan-Reiter bleibt für Pläne ohne Lagebezug (Kalibrierung).
+
+## Erfassung über die Karte: Rohre, Verlegeart, Oberfläche, Querschnitt (Oktober 2026)
+Pro Linie: Rohrtypen als Zähler (z. B. 2×K100 + 3×K55), Verlegeart (Kies/Betonkies, einbetoniert = Rohrblock, Längsverschluss), Oberfläche (Belag, Wiese, Pflästerung, Rohplanie), Tiefe und Breite (leer = automatisch). Fehlendes wird nach dem Zeichnen einmal abgefragt; weitere Linien erben die letzte Konfiguration. Grabenquerschnitt live (gleiche Rechenregeln wie die Rechnung), Beschriftung mit Rohrbelegung, Verlegeart, Oberfläche, Länge. Werkloch-Typ vor dem Setzen wählbar.
+
+**Kostenwirkung (bitte beachten)**
+- **Rohplanie** (neu im Rechenkern, JS und Python identisch, `roh`): Aushub, Belag, Spriessung, Verfüllung entfallen; Leitungszone/Umhüllung und Rohre bleiben. Beispiel 50 m: 26 → 10 Positionen.
+- **Einbetoniert**: Rohrblock je Rohrtyp; Blockmass automatisch aus den Rohren + 5 cm Überdeckung.
+- **Mehrere Rohrtypen in Kies**: Haupttyp (meiste Rohre) im Graben, weitere Typen in einer eigenen Rohranlage (Lieferung, Verlegen, Muffen, Einzug, Kalibrieren). Leitungszone/Umhüllung rechnet mit dem Haupttyp.

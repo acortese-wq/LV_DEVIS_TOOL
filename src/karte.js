@@ -366,6 +366,41 @@
      opt: { kind:"map"|"plan", tt, lang, model:{lines,pts,sond}, cat, defRohr, defTyp, recName(rid), plan:{img,w,h,cal}, onApply(model,cal), onClose } */
   var seq = 0, nid = function (p) { return p + Date.now().toString(36) + (seq++).toString(36); };
   var INTRO = "lvd-km-intro";
+  /* ---------- Leitungskonfiguration je Linie: Rohre (Typ × Anzahl), Verlegeart, Oberfläche, Tiefe/Breite ---------- */
+  var PIPES = [["55", "K55"], ["100", "K100"], ["120", "K120"], ["150", "K150"]];
+  var ARTS = ["kies", "beton", "laengs"], FLS = ["belag", "wiese", "pflaster", "roh"];
+  function cfgOf(l) {
+    var c = l.cfg;
+    if (!c || typeof c !== "object") {
+      c = l.cfg = { rt: {}, art: "kies", fl: "", T: "", B: "" }; var r = l.rohr || {};
+      if (r.sys === "block") c.art = "beton"; else if (r.sys === "laengs") c.art = "laengs";
+      if (r.dn && r.sys !== "block") c.rt[String(r.dn)] = Math.max(1, parseInt(r.n, 10) || 1);
+    }
+    if (!c.rt || typeof c.rt !== "object") c.rt = {};
+    if (ARTS.indexOf(c.art) < 0) c.art = "kies"; if (c.fl && FLS.indexOf(c.fl) < 0) c.fl = "";
+    c.T = c.T == null ? "" : String(c.T); c.B = c.B == null ? "" : String(c.B); return c;
+  }
+  function pipeList(c) {   /* [[dn, n], …] absteigend nach Anzahl, dann Durchmesser: erster Eintrag = Haupttyp */
+    return Object.keys(c.rt || {}).map(function (k) { return [parseInt(k, 10), Math.max(0, parseInt(c.rt[k], 10) || 0)]; }).filter(function (e) { return e[1] > 0; })
+      .sort(function (a, b) { return b[1] - a[1] || b[0] - a[0]; });
+  }
+  function pipeTxt(c) {
+    return pipeList(c).sort(function (a, b) { return b[0] - a[0]; }).map(function (e) { return e[1] + "×K" + e[0]; }).join(" + ");
+  }
+  function lineSync(l) {   /* l.rohr bleibt als Kurzform für ältere Funktionen (Haupttyp) gültig */
+    var c = cfgOf(l), pl = pipeList(c), r = l.rohr = l.rohr || { sys: "k55", dn: "55", len: "10", n: "1" };
+    r.sys = c.art === "beton" ? "block" : c.art === "laengs" ? "laengs" : "k55";
+    if (pl.length) { r.dn = String(pl[0][0]); r.n = String(pl[0][1]); } if (!r.len) r.len = "10";
+  }
+  function cfgMissing(c) { var m = []; if (!pipeList(c).length) m.push("rt"); if (!c.fl) m.push("fl"); return m; }
+  function lineTxt(l, tt) {   /* z. B. «2×K100 + 3×K55 · einbetoniert · Belag» (nur gesetzte Angaben) */
+    var c = cfgOf(l), a = [];
+    if (pipeList(c).length) a.push(pipeTxt(c));
+    if (pipeList(c).length || c.fl) a.push(tt("km_s_" + c.art));
+    if (c.fl) a.push(tt("km_s_" + c.fl));
+    return a.join(" · ");
+  }
+
   function open(opt) {
     var tt = opt.tt, cat = opt.cat, plan = opt.kind === "plan", M = JSON.parse(JSON.stringify(opt.model || { lines: [], pts: [], sond: [] })), cur = null, mode = "", sel = null, base = "farbe", map, layer, grp, calPts = [];
     var PROV = { swisstopo: [["farbe", "km_bFarbe"], ["grau", "km_bGrau"], ["luft", "km_aerial"]], geoadmin: [["kataster", "km_bKat"], ["av", "km_bAV"], ["leer", "km_bLeer"], ["viewer", "km_bViewer"]] };
@@ -377,6 +412,8 @@
       dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]) * (cal.scale || 0); } }
       : { ll: function (p) { return toWGS(p[0], p[1]); }, pt: function (ll) { return toLV95(ll.lat, ll.lng).map(function (v) { return Math.round(v * 100) / 100; }); },
         dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); } };
+    var lastCfg = { rt: {}, art: "kies", fl: "", T: "", B: "" }, wlT = "sg";
+    if (opt.defCfg) lastCfg = JSON.parse(JSON.stringify(opt.defCfg));
     var lineLen = function (pts) { var s = 0; for (var i = 1; i < pts.length; i++) s += AD.dist(pts[i - 1], pts[i]); return s; };
     var COL = [["#0d47c8", "km_cBlau"], ["#b8332a", "km_cRot"], ["#1a1c1e", "km_cSchwarz"], ["#b25e00", "km_cOrange"], ["#1c6b3f", "km_cGruen"]];
     var rul = [], tip = null, planCleared = false, showLbl = true, ov0 = null, ovl = plan ? null : (opt.overlay ? JSON.parse(JSON.stringify(opt.overlay)) : null), ovImg = null, gcp = [];
@@ -398,7 +435,7 @@
       '<button type="button" class="btn small" data-k="mpt" aria-pressed="false">' + esc(tt("km_pt")) + "</button>" +
       '<button type="button" class="btn small" data-k="msond" aria-pressed="false">' + esc(tt("km_sond")) + "</button>" +
       '<button type="button" class="btn small" data-k="marea" aria-pressed="false">' + esc(tt("km_area")) + "</button>" +
-      '<button type="button" class="btn small" data-k="mwl" aria-pressed="false">' + esc(tt("km_wl")) + "</button>" +
+      '<button type="button" class="btn small" data-k="mwl" aria-pressed="false">' + esc(tt("km_wl")) + '</button><select id="kmWlT" class="kmwlt" aria-label="' + esc(tt("km_wlType")) + '">' + ["ts", "bo", "sg", "zs"].map(function (k) { return '<option value="' + k + '"' + (k === "sg" ? " selected" : "") + ">" + esc(tt("km_wl" + k)) + "</option>"; }).join("") + "</select>" +
       '<button type="button" class="btn small" data-k="mgeb" aria-pressed="false">' + esc(tt("km_geb")) + "</button>" +
       "</div>" +
       '<div class="kmgrp" role="group" aria-label="' + esc(tt("km_g_note")) + '"><span class="kmgl" aria-hidden="true">' + esc(tt("km_g_note")) + "</span>" +
@@ -425,7 +462,7 @@
       (plan ? "" : '<iframe id="kmView" class="kmframe" hidden title="map.geo.admin.ch" referrerpolicy="no-referrer"></iframe>') +
       '<p class="hint kmhelp" id="kmHelp"></p>' +
       '<p class="hint kmunits" id="kmUnits"></p></div>' +
-      '<div class="kmright"><h3 class="kmoh">' + esc(tt("km_obj")) + '</h3><div class="kmobj" id="kmObj" role="group" aria-label="' + esc(tt("km_obj")) + '"></div>' +
+      '<div class="kmright"><div class="kmquick" id="kmQuick" hidden role="group" aria-label="' + esc(tt("km_lt_title")) + '"></div><h3 class="kmoh">' + esc(tt("km_obj")) + '</h3><div class="kmobj" id="kmObj" role="group" aria-label="' + esc(tt("km_obj")) + '"></div>' +
       (plan ? "" : '<details class="kmcat" id="kmCat"><summary>' + esc(tt("km_cat")) + '</summary><div class="kmcatb"><p class="hint kmtel">' + esc(tt("km_catTel")) + '</p><div class="kmchips" id="kmChips" role="group" aria-label="' + esc(tt("km_catChips")) + '" hidden></div><label for="kmCatQ">' + esc(tt("km_catSearch")) + '</label><input type="search" id="kmCatQ" autocomplete="off" placeholder="' + esc(tt("km_catPh")) + '"><p class="hint" id="kmCatMsg" role="status"></p><ul class="kmcatl" id="kmCatL" aria-label="' + esc(tt("km_catRes")) + '"></ul><h3 class="kmcath">' + esc(tt("km_catSel")) + '</h3><ul class="kmcatl kmcats" id="kmCatS"></ul></div></details>') +
       (plan ? "" : '<details class="kmcat kmovd" id="kmOvD"><summary>' + esc(tt("ov_title")) + '</summary><div class="kmcatb"><p class="hint">' + esc(tt("ov_hint")) + '</p>' +
         '<label for="kmOvF">' + esc(tt("pl_file")) + '</label><input type="file" id="kmOvF" accept=".pdf,application/pdf,image/*"><p class="hint" id="kmOvMsg" role="status"></p>' +
@@ -618,7 +655,7 @@
       if (!cnt) { msg.textContent = tt("ov_trNone"); msg.className = "hint"; return; }
       var m0 = JSON.stringify(M), p0 = JSON.stringify(P), cl0 = planCleared, sc = opt.planScale || 0, dev = [];
       var cv = function (q) { return ovPx(ovl, q[0], q[1]).map(function (v) { return Math.round(v * 100) / 100; }); }, cp = function (o) { return JSON.parse(JSON.stringify(o)); };
-      (P.lines || []).forEach(function (l, i) { var nl = { id: nid("l"), pts: l.pts.map(cv), rid: l.rid || null, rohr: cp(l.rohr) }; M.lines.push(nl);
+      (P.lines || []).forEach(function (l, i) { var nl = { id: nid("l"), pts: l.pts.map(cv), rid: l.rid || null, rid2: l.rid2 || null, rohr: cp(l.rohr), cfg: l.cfg ? cp(l.cfg) : undefined }; M.lines.push(nl);
         var a = sc ? total([l.pts]) * sc : 0, b = total([nl.pts]); dev.push((opt.recName(l.rid) || tt("km_lineN").replace("{n}", i + 1)) + ": " + (sc ? tt("ov_trPlan") + " " + fmt(a) + " m → " : "") + tt("ov_trMap") + " " + fmt(b) + " m" + (a ? " (" + (b >= a ? "+" : "") + fmt((b / a - 1) * 100) + " %)" : "")); });
       (P.areas || []).forEach(function (f) { M.areas.push({ id: nid("f"), pts: f.pts.map(cv), rid: f.rid || null, belag: cp(f.belag) }); });
       (P.pts || []).forEach(function (p) { var o = cp(p); o.id = nid("p"); o.pt = cv(p.pt); M.pts.push(o); });
@@ -720,18 +757,53 @@
       snap(); var sh = function (p) { return [Math.round((p[0] + dx) * 100) / 100, Math.round((p[1] + dy) * 100) / 100]; };
       if (f.o.pts) f.o.pts = f.o.pts.map(sh); else f.o.pt = sh(f.o.pt); refresh();
     }
+    function lineEd(l, host, quick) {
+      var c = cfgOf(l), art = ARTS.map(function (a) { return [a, tt("km_lt_art_" + a)]; }), fl = [["", "– " + tt("km_lt_choose") + " –"]].concat(FLS.map(function (a) { return [a, tt("km_lt_fl_" + a)]; }));
+      host.innerHTML = "";
+      var chips = document.createElement("div"); chips.className = "kmpipes"; chips.setAttribute("role", "group"); chips.setAttribute("aria-label", tt("km_lt_pipes"));
+      var sum = document.createElement("p"); sum.className = "kmsum"; sum.setAttribute("role", "status");
+      var xs = document.createElement("div"); xs.className = "kmxs";
+      function paint() {
+        PIPES.forEach(function (p) { var n = c.rt[p[0]] || 0, w = chips.querySelector('[data-t="' + p[0] + '"]'); w.querySelector("b").textContent = n; w.classList.toggle("on", n > 0); });
+        var miss = cfgMissing(c).map(function (k) { return tt(k === "rt" ? "km_lt_pipes" : "km_lt_fl"); }), len = lineLen(l.pts);
+        sum.className = "kmsum" + (miss.length ? " warn" : ""); sum.textContent = (lineTxt(l, tt) || "–") + " · " + fmt(len) + " m" + (miss.length ? " · " + tt("km_lt_miss").replace("{x}", miss.join(", ")) : "");
+        xs.innerHTML = !quick && pipeList(c).length && opt.xsec ? '<p class="kmxst">' + esc(tt("km_lt_xsec")) + "</p>" + opt.xsec(l, len) : "";
+      }
+      function changed() { snap(); lineSync(l); lastCfg = JSON.parse(JSON.stringify(c)); draw(); paint(); if (quick) rows(); var q = $("#kmQuick"); if (q && !q.hidden && q.dataset.lid === l.id) { var ok = $("#kmQuickOk"); if (ok) ok.disabled = cfgMissing(c).length > 0; } }
+      PIPES.forEach(function (p) {
+        var w = document.createElement("span"); w.className = "kmpipe"; w.setAttribute("data-t", p[0]);
+        var m = document.createElement("button"), pl = document.createElement("button"), t = document.createElement("span"), b = document.createElement("b");
+        m.type = pl.type = "button"; m.className = pl.className = "btn ghost small"; m.textContent = "−"; pl.textContent = "+"; t.textContent = p[1];
+        m.setAttribute("aria-label", tt("km_lt_less").replace("{t}", p[1])); pl.setAttribute("aria-label", tt("km_lt_more").replace("{t}", p[1]));
+        m.addEventListener("click", function () { c.rt[p[0]] = Math.max(0, (c.rt[p[0]] || 0) - 1); if (!c.rt[p[0]]) delete c.rt[p[0]]; changed(); });
+        pl.addEventListener("click", function () { c.rt[p[0]] = Math.min(24, (c.rt[p[0]] || 0) + 1); changed(); });
+        w.appendChild(t); w.appendChild(m); w.appendChild(b); w.appendChild(pl); chips.appendChild(w);
+      });
+      host.appendChild(chips);
+      var g = document.createElement("div"); g.className = "kmlg";
+      g.appendChild(cell(tt("km_lt_art"), sel1(tt("km_lt_art"), art, c.art, function (v) { c.art = v; changed(); })));
+      g.appendChild(cell(tt("km_lt_fl"), sel1(tt("km_lt_fl"), fl, c.fl, function (v) { c.fl = v; changed(); })));
+      g.appendChild(cell(tt("km_lt_T"), inp(tt("km_lt_T"), c.T, "kmn", function (v) { c.T = v.replace(",", ".").trim(); changed(); })));
+      g.appendChild(cell(tt("km_lt_B"), inp(tt("km_lt_B"), c.B, "kmn", function (v) { c.B = v.replace(",", ".").trim(); changed(); })));
+      host.appendChild(g); host.appendChild(sum); host.appendChild(xs); paint();
+    }
+    function quickOpen(l) {
+      var q = $("#kmQuick"); if (!q || cfgMissing(cfgOf(l)).length === 0) return;
+      q.hidden = false; q.dataset.lid = l.id; q.innerHTML = '<p class="kmqt"><b>' + esc(tt("km_lt_title")) + "</b> · " + esc(tt("km_lt_askHint")) + "</p>";
+      var ed = document.createElement("div"); ed.className = "kmled"; q.appendChild(ed); lineEd(l, ed, true); q.scrollIntoView({ block: "nearest" });
+      var bar = document.createElement("div"); bar.className = "kmbar";
+      bar.innerHTML = '<button type="button" class="btn small" id="kmQuickOk">' + esc(tt("km_lt_ok")) + '</button><button type="button" class="btn ghost small" id="kmQuickLater">' + esc(tt("km_lt_later")) + "</button>";
+      q.appendChild(bar); var ok = $("#kmQuickOk"); ok.disabled = cfgMissing(cfgOf(l)).length > 0;
+      ok.addEventListener("click", function () { q.hidden = true; q.innerHTML = ""; rows(); });
+      $("#kmQuickLater").addEventListener("click", function () { q.hidden = true; q.innerHTML = ""; });
+    }
     function rows() {
       var h = $("#kmObj"); h.innerHTML = "";
       var rowOf = function (o) { var r = document.createElement("div"); r.className = "kmrow" + (sel && sel.id === o.id ? " on" : ""); r.setAttribute("data-rid", o.id); return r; };
       M.lines.forEach(function (l, i) {
         var r = rowOf(l);
         var t = head(r, tt("km_lineN").replace("{n}", i + 1), l.rid); t.insertAdjacentHTML("beforeend", " · " + fmt(lineLen(l.pts)) + " m");
-        r.appendChild(cell(tt("km_sys"), sel1(tt("km_sys"), cat.sys, l.rohr.sys, function (v) { l.rohr.sys = v; rows(); })));
-        if (l.rohr.sys !== "block") {
-          r.appendChild(cell(tt("km_dn"), sel1(tt("km_dn"), cat.dn, l.rohr.dn, function (v) { l.rohr.dn = v; })));
-          r.appendChild(cell(tt("km_len"), sel1(tt("km_len"), cat.len, l.rohr.len, function (v) { l.rohr.len = v; })));
-          r.appendChild(cell(tt("km_n"), inp(tt("km_n"), l.rohr.n, "kmn", function (v) { l.rohr.n = v; })));
-        } else { var bn = document.createElement("p"); bn.className = "hint"; bn.textContent = tt("km_blockNote"); r.appendChild(bn); }
+        var ed = document.createElement("div"); ed.className = "kmled"; r.appendChild(ed); lineEd(l, ed, false);
         btns(r, l.id); h.appendChild(r);
       });
       M.pts.forEach(function (p, i) {
@@ -797,7 +869,7 @@
       if (mode === "text") { var tn = newNote("text", [c]); refresh(); var ti = $('[data-rid="' + tn.id + '"] input[type=text]'); if (ti) { ti.focus(); ti.select(); } return; }
       if (mode === "arrow" || mode === "rect") { tmp.push(c); if (tmp.length === 2) { newNote(mode, tmp); tmp = []; } refresh(); return; }
       if (mode === "wl" || mode === "geb") {
-        snap(); var q = mode === "wl" ? { id: nid("w"), pt: c, sid: null, wt: "sg", name: "" } : { id: nid("g"), pt: c, sid: null, cm: opt.defGeb.cm, abd: opt.defGeb.abd, name: "" };
+        snap(); var q = mode === "wl" ? { id: nid("w"), pt: c, sid: null, wt: wlT, name: "" } : { id: nid("g"), pt: c, sid: null, cm: opt.defGeb.cm, abd: opt.defGeb.abd, name: "" };
         (mode === "wl" ? M.wl : M.geb).push(q); sel = { id: q.id }; refresh(); return;
       }
       if (mode === "area") {
@@ -815,16 +887,17 @@
       else if (mode === "sond") { var o = { id: nid("s"), pt: c, name: "", l: "1.0", b: "1.0", t: "1.5" }; M.sond.push(o); sel = { id: o.id }; }
       else {
         var l = cur && byId(M.lines, cur);
-        if (!l) { l = { id: nid("l"), pts: [], rid: null, rohr: JSON.parse(JSON.stringify(opt.defRohr)) }; M.lines.push(l); cur = l.id; sel = { id: l.id }; }
+        if (!l) { l = { id: nid("l"), pts: [], rid: null, rohr: JSON.parse(JSON.stringify(opt.defRohr)), cfg: JSON.parse(JSON.stringify(lastCfg)) }; lineSync(l); M.lines.push(l); cur = l.id; sel = { id: l.id }; }
         l.pts.push(c);
       }
       refresh();
     }
     function endLine() {
-      var l = cur && byId(M.lines, cur); if (l && l.pts.length < 2) M.lines.splice(M.lines.indexOf(l), 1);
+      var l = cur && byId(M.lines, cur), askL = l && l.pts.length > 1 ? l : null; if (l && l.pts.length < 2) M.lines.splice(M.lines.indexOf(l), 1);
       var n = curN && byId(M.notes, curN); if (n && n.pts.length < 2) M.notes.splice(M.notes.indexOf(n), 1);
       var fa = curA && byId(M.areas, curA); if (fa && fa.pts.length < 3) M.areas.splice(M.areas.indexOf(fa), 1);
       cur = null; curN = null; curA = null; tmp = []; hideTip(); refresh();
+      if (askL) quickOpen(askL);
     }
     function undo() {
       if (mode === "cal" && calPts.length) { calPts.pop(); $("#kmCalF").hidden = true; return draw(); }
@@ -918,6 +991,7 @@
       }
       if ((e.key === "Delete" || e.key === "Backspace") && !ed && mode === "edit" && sel) { e.preventDefault(); del(sel.id); }
     });
+    var wsel = $("#kmWlT"); if (wsel) wsel.addEventListener("change", function () { wlT = wsel.value; if (sel) { var f = findObj(sel.id); if (f && M.wl.indexOf(f.o) >= 0 && mode === "edit") { snap(); f.o.wt = wlT; refresh(); } } });
     var bs = $("#kmBase");
     function fillBase() {   /* Umschalter swisstopo / geo.admin.ch: zeigt nur die Optionen des gewählten Anbieters */
       if (!bs) return; var pv = provOf(base); bs.innerHTML = PROV[pv].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join(""); bs.value = base;
@@ -979,5 +1053,5 @@
     if (!plan && opt.autoPlan && !ovl && opt.planImg && opt.planImg.img) { $("#kmOvPlan").click(); } (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
-  window.KARTE = { planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
+  window.KARTE = { cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
 })();
