@@ -769,7 +769,7 @@
     var msg = document.createElement("p"); msg.className = "hint kmmsg"; msg.setAttribute("role", "status"); f.appendChild(msg); w.appendChild(f);
     var pg = document.createElement("div"); pg.className = "field"; pg.hidden = true; w.appendChild(pg);
     function setPlan(r) {
-      var sn = snapState(); S.plan = { img: r.img, w: r.w, h: r.h, cal: r.mpp ? { scale: r.mpp, m: r.w * r.mpp, a: [0, r.h / 2], b: [r.w, r.h / 2], auto: r.ratio } : {}, lines: [], pts: [], sond: [], notes: [], areas: [], wl: [], geb: [] }; sondSync(); save(); renderForm(); undoToast(r.mpp ? fill(tt("pl_loadedAuto"), { r: r.ratio }) : tt("pl_loaded"), sn);
+      var sn = snapState(); S.plan = { img: r.img, w: r.w, h: r.h, grid: r.grid || null, words: r.words || [], cal: r.mpp ? { scale: r.mpp, m: r.w * r.mpp, a: [0, r.h / 2], b: [r.w, r.h / 2], auto: r.ratio } : {}, lines: [], pts: [], sond: [], notes: [], areas: [], wl: [], geb: [] }; sondSync(); save(); renderForm(); undoToast(r.mpp ? fill(tt("pl_loadedAuto"), { r: r.ratio }) : tt("pl_loaded"), sn);
     }
     f.querySelector("input").addEventListener("change", function (e) {
       var file = e.target.files[0]; if (!file) return; msg.className = "hint kmmsg"; msg.textContent = tt("pl_reading"); planSrc = null;

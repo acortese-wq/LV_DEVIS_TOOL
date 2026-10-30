@@ -71,3 +71,11 @@ Pro Linie: Rohrtypen als Zähler (z. B. 2×K100 + 3×K55), Verlegeart (Kies/Beto
 
 **Abdeckung (Auswertung `tests/abdeckung.js`, 5 Beispielprojekte 40–200 m)**
 Vergleich: nur Kartenangaben (Standardwerte) gegen «vollständig» mit abweichenden Nicht-Karten-Feldern (Handanteil eng, Betonumhüllung, direkte Verfüllung, Handeinfüllung, 2 Kreuzungen, Bögen, Schneiden, Belag 150 mm, Schacht 0.75 m Arbeitsraum, 2 Anschlüsse). Ergebnis Nettokosten: 82 %, 88 %, 77 %, 80 %, 81 % (Ø 82 %); Positionen deckungsgleich 67–87 %. Aussagekraft: Richtwert, abhängig von den gewählten Abweichungen; Kreuzungen/Bögen sind inzwischen über «Weitere Angaben» in der Karte erfassbar (im Test «Karte» nicht eingesetzt).
+
+## Automatische Ausrichtung des Plans ohne Passpunkte (Oktober 2026)
+Beim Einsetzen eines Plans (PDF/Bild) wird die Lage automatisch vorgeschlagen; sie gilt **erst nach «Bestätigen»** (oder nach Passpunkten). Ohne Bestätigung ist «Plan-Objekte in die Karte übertragen» gesperrt.
+1. **Koordinatenraster im PDF-Text** (LV95, LV03 +2'000'000/+1'000'000): Lage aus der Textposition, Massstab aus dem Wertabstand; Prüfung gegen Massstab im Plan (±8 %), Streuung ≤ 2.5 m, mindestens 3 Werte auf beiden Achsen. Ohne Raster: Schritt 2.
+2. **Ort + Kartenabgleich** (Massstab muss bekannt sein, Plan nordorientiert): zuerst Kartenausschnitt (ab Zoom 14, Radius 300 m), sonst Gemeinde aus dem Plantext über den SearchServer (Radius 900 m). Planlinien (Kanten) werden mit dem Katasterbild korreliert; Vorschlag nur bei Übereinstimmung ≥ 30 % und klarem Abstand zum zweitbesten Treffer.
+3. **Passpunkte** bleiben unverändert möglich («Mit Passpunkten verfeinern»); erfolgreiche Passpunkte gelten als bestätigt.
+
+**Geprüft:** Browsertests mit künstlichen PDF (Raster: Abweichung 0.05 m; Abgleich mit simuliertem Katasterbild: 0.16 m), echter Plan 105B (kein Raster, kein Ort-Treffer → klare Meldung), Verwerfen, Verfeinern, axe-core. **Nicht geprüft:** echte Katasterbilder/SearchServer (Netz gesperrt); die Trefferquote auf echten Plänen ist offen. **Grenzen:** keine Drehung (Plan muss nach Norden zeigen), Koordinatenwerte im Plan müssen als Text (nicht als Pfad/Bild) vorliegen und vollständig ausgeschrieben sein (z. B. 2'760'050), Raster nur bei Plan-PDF mit Textebene.

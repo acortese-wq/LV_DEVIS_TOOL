@@ -983,6 +983,7 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 .kmpipes{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}.kmpipe{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--rule-strong);border-radius:8px;padding:2px 4px;background:#fff}.kmpipe.on{border-color:var(--navy);background:#eef3ff}.kmpipe b{min-width:1.4em;text-align:center}.kmpipe .btn{min-width:28px}.kmlg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px}.kmsum{margin:6px 0;font-size:.9em}.kmsum.warn{color:#8a4b00}.kmxs svg{max-width:100%;height:auto}.kmxst{margin:6px 0 2px;font-weight:600}.kmquick{border:2px solid var(--navy);border-radius:10px;padding:8px 10px;margin:8px 0;background:#fff}.kmqt{margin:0 0 4px}.kmwlt{min-height:32px}
 .kmright .kmobj{flex:1 1 380px;min-height:220px}
 .kmfold{border:0;background:transparent;font-size:1rem;min-width:28px;min-height:28px;cursor:pointer;color:var(--navy)}.kmsm{font-weight:400;color:var(--ink-2,#516470)}.kmrow.kmclosed{padding-top:4px;padding-bottom:4px}.kmbody{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;width:100%}.kmbody[hidden]{display:none}.kmleg{display:flex;flex-wrap:wrap;gap:12px;font-size:.85em;margin:2px 0}.kmlg1{display:inline-flex;align-items:center;gap:4px}.kmcost{margin:0;font-size:.85em;color:var(--ink-2,#516470)}.kmmissl{margin:6px 0 0;padding:0;list-style:none}.kmmissl li{margin:2px 0}.kmmore{width:100%;margin:4px 0}.kmmiss summary{color:#8a4b00}.kmfoot{flex-wrap:wrap;gap:8px}
+.kmovauto{border:2px solid var(--navy);border-radius:8px;padding:6px 8px;margin:6px 0;background:#eef3ff}
 
 </style>
 </head>
@@ -3023,6 +3024,16 @@ Object.assign(TS.it,{
     km_unfoldAll: ["Alle aufklappen", "Tout déplier", "Espandi tutto", "Expand all"],
     km_miss: ["Fehlt noch bei {n} Objekt(en)", "Il manque des données pour {n} objet(s)", "Mancano dati per {n} oggetto/i", "Missing data on {n} object(s)"],
     km_cost: ["Vorschau netto: CHF {v} (inkl. bisheriger Datensätze, ohne Gewähr)", "Aperçu net : CHF {v} (enregistrements existants inclus, sans garantie)", "Anteprima netta: CHF {v} (record esistenti inclusi, senza garanzia)", "Net preview: CHF {v} (incl. existing records, no guarantee)"],
+    ov_autoRun: ["Automatische Ausrichtung läuft …", "Alignement automatique en cours …", "Allineamento automatico in corso …", "Automatic alignment running …"],
+    ov_autoGrid: ["Automatisch ausgerichtet nach Koordinatenraster im Plan ({n} Werte, Abweichung ±{s} m). Bitte prüfen und bestätigen.", "Aligné automatiquement d'après la grille de coordonnées ({n} valeurs, écart ±{s} m). Vérifier et confirmer.", "Allineato automaticamente secondo la griglia di coordinate ({n} valori, scarto ±{s} m). Verificare e confermare.", "Aligned automatically from the coordinate grid in the plan ({n} values, deviation ±{s} m). Please check and confirm."],
+    ov_autoMatch: ["Automatisch ausgerichtet durch Abgleich mit dem Katasterbild (Übereinstimmung {c} %). Bitte prüfen und bestätigen.", "Aligné automatiquement par comparaison avec le cadastre (concordance {c} %). Vérifier et confirmer.", "Allineato automaticamente confrontando con il catasto (concordanza {c} %). Verificare e confermare.", "Aligned automatically by matching with the cadastral image (match {c} %). Please check and confirm."],
+    ov_autoPlace: ["Ort aus dem Plantext: {p}.", "Lieu d'après le texte du plan : {p}.", "Luogo dal testo del piano: {p}.", "Place from plan text: {p}."],
+    ov_autoNone: ["Keine automatische Ausrichtung möglich (kein Koordinatenraster, Ort oder Abgleich nicht eindeutig). Karte auf die Projektstelle zoomen und Plan erneut einsetzen oder Passpunkte setzen.", "Alignement automatique impossible (pas de grille, lieu ou concordance peu claire). Zoomer sur le site et réinsérer le plan, ou poser des points de calage.", "Allineamento automatico non possibile (nessuna griglia, luogo o concordanza non chiari). Ingrandire sul sito e reinserire il piano o impostare punti di appoggio.", "No automatic alignment possible (no coordinate grid, place or match unclear). Zoom to the site and insert the plan again, or set control points."],
+    ov_confirm: ["Bestätigen", "Confirmer", "Confermare", "Confirm"],
+    ov_discard: ["Verwerfen", "Rejeter", "Scartare", "Discard"],
+    ov_refine: ["Mit Passpunkten verfeinern", "Affiner avec des points de calage", "Affinare con punti di appoggio", "Refine with control points"],
+    ov_confirmed: ["Ausrichtung bestätigt.", "Alignement confirmé.", "Allineamento confermato.", "Alignment confirmed."],
+    ov_needConf: ["Erst die automatische Ausrichtung bestätigen oder Passpunkte setzen.", "Confirmer d'abord l'alignement automatique ou poser des points de calage.", "Confermare prima l'allineamento automatico o impostare punti di appoggio.", "Confirm the automatic alignment first or set control points."],
     km_prov: ["Kartenanbieter", "Fournisseur de cartes", "Fornitore cartografico", "Map provider"],
     km_bLeer: ["geo.admin: leere Basis (nur gewählte Ebenen)", "geo.admin: fond vide (couches choisies seulement)", "geo.admin: sfondo vuoto (solo livelli scelti)", "geo.admin: blank base (selected layers only)"],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
@@ -4573,6 +4584,92 @@ var FIG = (function () {
     return new V();
   }
 
+  /* ---------- Automatische Ausrichtung des Plans ohne Passpunkte ----------
+     1) Koordinatenraster: LV95-/LV03-Werte im PDF-Text (Lage aus Textposition, Massstab aus Wertabstand)
+     2) Ort aus dem Plantext (Gemeinde, SearchServer) + Abgleich der Planlinien mit dem Katasterbild (Massstab bekannt, Nordausrichtung)
+     Ergebnis ist immer ein Vorschlag: gilt erst nach Bestätigung (oder Passpunkten). */
+  function gridFromItems(items, vp, sc, ratioMpp) {
+    var E = {}, N = {}, U = window.pdfjsLib && window.pdfjsLib.Util;
+    if (!U) return null;
+    items.forEach(function (it) {
+      var str = String(it.str || ""), re = /\d{1,3}(?:['\u2019`\u2009\u202f\u00a0 ]\d{3}){1,2}|\d{6,7}/g, m;
+      var t = U.transform(vp.transform, it.transform), a = t[0], b = t[1], c = t[2], d = t[3], la = Math.hypot(a, b) || 1, lc = Math.hypot(c, d) || 1, w = (it.width || 0) * sc;
+      var cx = t[4] + a / la * w / 2 + c / lc * lc * 0.35, cy = t[5] + b / la * w / 2 + d / lc * lc * 0.35;
+      while ((m = re.exec(str))) {
+        var v = +m[0].replace(/[^0-9]/g, ""), ax = "", val = 0;
+        if (v >= 2480000 && v <= 2840000) { ax = "E"; val = v; } else if (v >= 1070000 && v <= 1300000) { ax = "N"; val = v; }
+        else if (v >= 480000 && v <= 840000) { ax = "E"; val = v + 2000000; } else if (v >= 70000 && v <= 300000) { ax = "N"; val = v + 1000000; }
+        if (!ax) continue;
+        var o = ax === "E" ? E : N; (o[val] = o[val] || []).push(ax === "E" ? cx : cy);
+      }
+    });
+    function med(a) { a = a.slice().sort(function (x, y) { return x - y; }); return a[Math.floor(a.length / 2)]; }
+    var Ev = Object.keys(E).map(function (k) { return [+k, med(E[k])]; }), Nv = Object.keys(N).map(function (k) { return [+k, med(N[k])]; });
+    function slope(pairs, sgn) {   /* mpp je Achse (Wert gegen Pixel), mindestens 2 verschiedene Werte */
+      if (pairs.length < 2) return null; var n = pairs.length, mx = 0, my = 0; pairs.forEach(function (p) { mx += p[1] * sgn; my += p[0]; }); mx /= n; my /= n;
+      var sxy = 0, sxx = 0; pairs.forEach(function (p) { sxy += (p[1] * sgn - mx) * (p[0] - my); sxx += (p[1] * sgn - mx) * (p[1] * sgn - mx); }); return sxx > 0 ? sxy / sxx : null;
+    }
+    var se = slope(Ev, 1), sn = slope(Nv, -1), ms = [se, sn].filter(function (v) { return v && v > 0.02 && v < 5; });
+    if (!Ev.length || !Nv.length || !ms.length || Ev.length + Nv.length < 3) return null;
+    if (ms.length === 2 && Math.abs(ms[0] - ms[1]) / ((ms[0] + ms[1]) / 2) > 0.03) return null;
+    var mpp = ms.reduce(function (x, y) { return x + y; }, 0) / ms.length;
+    if (ratioMpp && Math.abs(mpp / ratioMpp - 1) > 0.08) return null;   /* widerspricht dem Massstab im Plan */
+    var E0 = Ev.reduce(function (a, p) { return a + p[0] - mpp * p[1]; }, 0) / Ev.length, N0 = Nv.reduce(function (a, p) { return a + p[0] + mpp * p[1]; }, 0) / Nv.length, ss = 0;
+    Ev.forEach(function (p) { ss += Math.pow(p[0] - (E0 + mpp * p[1]), 2); }); Nv.forEach(function (p) { ss += Math.pow(p[0] - (N0 - mpp * p[1]), 2); });
+    var rms = Math.sqrt(ss / (Ev.length + Nv.length)); if (rms > 2.5) return null;
+    return { E0: E0, N0: N0, mpp: mpp, rms: rms, n: Ev.length + Nv.length };
+  }
+  var STOPW = /^(Kanton|Tiefbau|Abteilung|Plan|Situation|Plotdatum|Name|Datum|Index|Projekt|Bauherr|Ausf|Änderungen|Massstab|Gemeinde|Legende|Fläche|Format|Blatt|Version|Tiefbauamt|Ingenieure|Ingenieur|Gezeichnet|Geprüft|Genehmigt|Swisscom|Netz|Leitung|Kabel|Rohr|Schacht|Strasse|Bahnhof|Haus|Wald|Feld|Baum|Mauer|Zaun|Bach|Weg|Ort)$/;
+  function planWords(text) {
+    var c = {}, order = [], re = /[A-ZÄÖÜ][a-zäöüéèàç]{3,}(?:-[A-ZÄÖÜ][a-zäöüéèàç]{2,})?/g, m;
+    while ((m = re.exec(text))) { var w = m[0]; if (STOPW.test(w) || /(strasse|weg|gasse|platz|allee|bach|hof)$/i.test(w)) continue; if (!c[w]) { c[w] = 0; order.push(w); } c[w]++; }
+    return order.sort(function (a, b) { return c[b] - c[a]; }).slice(0, 8);
+  }
+  function gray(ctx, w, h) { var d = ctx.getImageData(0, 0, w, h).data, g = new Float32Array(w * h), i; for (i = 0; i < w * h; i++) g[i] = 0.299 * d[4 * i] + 0.587 * d[4 * i + 1] + 0.114 * d[4 * i + 2]; return g; }
+  function edges(g, w, h) {   /* Sobel-Betrag, leicht geglättet: robust gegen Strichstärke und Farbe */
+    var o = new Float32Array(w * h), o2 = new Float32Array(w * h), x, y;
+    for (y = 1; y < h - 1; y++) for (x = 1; x < w - 1; x++) { var i = y * w + x, gx = g[i - w + 1] + 2 * g[i + 1] + g[i + w + 1] - g[i - w - 1] - 2 * g[i - 1] - g[i + w - 1], gy = g[i + w - 1] + 2 * g[i + w] + g[i + w + 1] - g[i - w - 1] - 2 * g[i - w] - g[i - w + 1]; o[i] = Math.sqrt(gx * gx + gy * gy); }
+    for (y = 1; y < h - 1; y++) for (x = 1; x < w - 1; x++) { var j = y * w + x; o2[j] = (o[j] * 4 + o[j - 1] * 2 + o[j + 1] * 2 + o[j - w] * 2 + o[j + w] * 2 + o[j - w - 1] + o[j - w + 1] + o[j + w - 1] + o[j + w + 1]) / 16; }
+    return o2;
+  }
+  function nccSearch(A, aw, ah, T, tw, th) {   /* normierte Kreuzkorrelation, Rückgabe bester und zweitbester (abseits) Treffer */
+    var n = tw * th, mT = 0, vT = 0, i, x, y; for (i = 0; i < n; i++) mT += T[i]; mT /= n; for (i = 0; i < n; i++) vT += (T[i] - mT) * (T[i] - mT); var sT = Math.sqrt(vT / n) || 1e-6;
+    var Tz = new Float32Array(n); for (i = 0; i < n; i++) Tz[i] = (T[i] - mT) / sT;
+    var I1 = new Float64Array((aw + 1) * (ah + 1)), I2 = new Float64Array((aw + 1) * (ah + 1));
+    for (y = 0; y < ah; y++) { var r1 = 0, r2 = 0; for (x = 0; x < aw; x++) { var v = A[y * aw + x]; r1 += v; r2 += v * v; I1[(y + 1) * (aw + 1) + x + 1] = I1[y * (aw + 1) + x + 1] + r1; I2[(y + 1) * (aw + 1) + x + 1] = I2[y * (aw + 1) + x + 1] + r2; } }
+    var ox = aw - tw + 1, oy = ah - th + 1; if (ox < 1 || oy < 1) return null; var sc = new Float32Array(ox * oy), best = -2, bx = 0, by = 0;
+    for (var dy = 0; dy < oy; dy++) for (var dx = 0; dx < ox; dx++) {
+      var s = 0; for (y = 0; y < th; y++) { var ro = (dy + y) * aw + dx, rt = y * tw; for (x = 0; x < tw; x++) s += Tz[rt + x] * A[ro + x]; }
+      var W = aw + 1, a1 = I1[(dy + th) * W + dx + tw] - I1[dy * W + dx + tw] - I1[(dy + th) * W + dx] + I1[dy * W + dx], a2 = I2[(dy + th) * W + dx + tw] - I2[dy * W + dx + tw] - I2[(dy + th) * W + dx] + I2[dy * W + dx];
+      var sA = Math.sqrt(Math.max(1e-9, a2 / n - (a1 / n) * (a1 / n))), c = sA < 1e-3 ? 0 : s / (n * sA); sc[dy * ox + dx] = c; if (c > best) { best = c; bx = dx; by = dy; }
+    }
+    var ex = Math.max(3, Math.round(tw / 6)), ey = Math.max(3, Math.round(th / 6)), sec = 0;
+    for (var yy = 0; yy < oy; yy++) for (var xx = 0; xx < ox; xx++) if ((Math.abs(xx - bx) > ex || Math.abs(yy - by) > ey) && sc[yy * ox + xx] > sec) sec = sc[yy * ox + xx];
+    return { dx: bx, dy: by, s: best, s2: sec };
+  }
+  function refImage(cE, cN, half, res, layer) {   /* Katasterbild (weisser Grund) um (cE,cN), Seitenlänge 2·half, res m/px */
+    var px = Math.max(8, Math.ceil(2 * half / res)), url = WMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=" + layer + "&STYLES=&SRS=EPSG:2056&BGCOLOR=0xFFFFFF&BBOX=" + [cE - half, cN - half, cE + half, cN + half].map(function (v) { return v.toFixed(1); }).join(",") + "&WIDTH=" + px + "&HEIGHT=" + px + "&FORMAT=image/png";
+    return fetch(url, { mode: "cors" }).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (bl) { return new Promise(function (ok, no) { var im = new Image(), u = URL.createObjectURL(bl); im.onload = function () { URL.revokeObjectURL(u); var c = document.createElement("canvas"); c.width = c.height = px; var x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, px, px); x.drawImage(im, 0, 0, px, px); ok({ g: gray(x, px, px), px: px }); }; im.onerror = no; im.src = u; }); });
+  }
+  function planGray(img, w, h, tw, th) { return new Promise(function (ok, no) { var im = new Image(); im.onload = function () { var c = document.createElement("canvas"); c.width = tw; c.height = th; var x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, tw, th); x.imageSmoothingQuality = "high"; x.drawImage(im, 0, 0, tw, th); ok(gray(x, tw, th)); }; im.onerror = no; im.src = img; }); }
+  var MLAYER = "ch.kantone.cadastralwebmap-farbe";
+  function matchPlan(img, w, h, mpp, cE, cN, R) {
+    var extW = w * mpp, extH = h * mpp; if (!(extW > 20 && extH > 20 && extW < 2500 && extH < 2500)) return Promise.resolve(null);
+    var res = 3, half = R + Math.max(extW, extH) / 2, ox, oy, tw, th;
+    for (var k = 0; k < 12; k++) { tw = Math.max(12, Math.round(extW / res)); th = Math.max(12, Math.round(extH / res)); var ap = Math.ceil(2 * half / res); ox = ap - tw + 1; oy = ap - th + 1; if (ox * oy * tw * th <= 3e8 && tw <= 220 && th <= 220) break; res *= 1.4; }
+    if (!(ox > 1 && oy > 1)) return Promise.resolve(null);
+    return Promise.all([refImage(cE, cN, half, res, MLAYER), planGray(img, w, h, tw, th)]).then(function (a) {
+      var ref = a[0], A = edges(ref.g, ref.px, ref.px), T = edges(a[1], tw, th), m1 = nccSearch(A, ref.px, ref.px, T, tw, th); if (!m1) return null;
+      var aE = cE - half + (m1.dx + tw / 2) * (2 * half / ref.px), aN = cN + half - (m1.dy + th / 2) * (2 * half / ref.px), res2 = 1, h2 = res * 2.5 + Math.max(extW, extH) / 2, tw2 = Math.round(extW / res2), th2 = Math.round(extH / res2);
+      if (res <= res2 * 1.5 || tw2 > 700 || th2 > 700) return { E: aE, N: aN, s: m1.s, ratio: m1.s / Math.max(m1.s2, 0.01) };
+      return Promise.all([refImage(aE, aN, h2, res2, MLAYER), planGray(img, w, h, tw2, th2)]).then(function (b) {
+        var A2 = edges(b[0].g, b[0].px, b[0].px), T2 = edges(b[1], tw2, th2), m2 = nccSearch(A2, b[0].px, b[0].px, T2, tw2, th2), f = 2 * h2 / b[0].px;
+        if (!m2) return { E: aE, N: aN, s: m1.s, ratio: m1.s / Math.max(m1.s2, 0.01) };
+        return { E: aE - h2 + (m2.dx + tw2 / 2) * f - aE + aE, N: aN + h2 - (m2.dy + th2 / 2) * f, s: m2.s, ratio: m1.s / Math.max(m1.s2, 0.01) };
+      }, function () { return { E: aE, N: aN, s: m1.s, ratio: m1.s / Math.max(m1.s2, 0.01) }; });
+    });
+  }
+
   /* Leaflet bei Bedarf nachladen */
   var loading = null;
   function loadLeaflet() {
@@ -4751,8 +4848,9 @@ var FIG = (function () {
             return pg.render({ canvasContext: c.getContext("2d"), viewport: vp, background: "#fff" }).promise.then(function () {
               var r = { img: jpeg(c), w: c.width, h: c.height };
               return pg.getTextContent().then(function (tc) {
-                var N = detectRatio(tc.items.map(function (i) { return i.str; }).join(""), file.name);
+                var txt = tc.items.map(function (i) { return i.str; }).join(""), N = detectRatio(txt, file.name);
                 if (N) { r.ratio = N; r.mpp = 0.0003528 * N / sc; }   /* 1 pt = 0.3528 mm */
+                try { r.grid = gridFromItems(tc.items, vp, sc, r.mpp || 0); r.words = planWords(txt.replace(/ {2,}/g, " ")); } catch (e) { r.grid = null; r.words = []; }
                 return r;
               }, function () { return r; });
             });
@@ -4998,7 +5096,7 @@ var FIG = (function () {
       '<div class="kmright"><div class="kmquick" id="kmQuick" hidden role="group" aria-label="' + esc(tt("km_lt_title")) + '"></div><h3 class="kmoh">' + esc(tt("km_obj")) + '</h3><div class="kmbar"><button type="button" class="btn ghost small" id="kmFoldAll" hidden></button></div><div class="kmobj" id="kmObj" role="group" aria-label="' + esc(tt("km_obj")) + '"></div>' + '<details class="kmmiss" id="kmMiss" hidden><summary></summary><ul class="kmmissl"></ul></details>' +
       (plan ? "" : '<details class="kmcat" id="kmCat"><summary>' + esc(tt("km_cat")) + '</summary><div class="kmcatb"><p class="hint kmtel">' + esc(tt("km_catTel")) + '</p><div class="kmchips" id="kmChips" role="group" aria-label="' + esc(tt("km_catChips")) + '" hidden></div><label for="kmCatQ">' + esc(tt("km_catSearch")) + '</label><input type="search" id="kmCatQ" autocomplete="off" placeholder="' + esc(tt("km_catPh")) + '"><p class="hint" id="kmCatMsg" role="status"></p><ul class="kmcatl" id="kmCatL" aria-label="' + esc(tt("km_catRes")) + '"></ul><h3 class="kmcath">' + esc(tt("km_catSel")) + '</h3><ul class="kmcatl kmcats" id="kmCatS"></ul></div></details>') +
       (plan ? "" : '<details class="kmcat kmovd" id="kmOvD"><summary>' + esc(tt("ov_title")) + '</summary><div class="kmcatb"><p class="hint">' + esc(tt("ov_hint")) + '</p>' +
-        '<label for="kmOvF">' + esc(tt("pl_file")) + '</label><input type="file" id="kmOvF" accept=".pdf,application/pdf,image/*"><p class="hint" id="kmOvMsg" role="status"></p>' +
+        '<label for="kmOvF">' + esc(tt("pl_file")) + '</label><input type="file" id="kmOvF" accept=".pdf,application/pdf,image/*"><p class="hint" id="kmOvMsg" role="status"></p><div class="kmovauto" id="kmOvAuto" hidden><p class="hint" id="kmOvAutoT"></p><div class="kmbar"><button type="button" class="btn small" data-oa="ok">' + esc(tt("ov_confirm")) + '</button><button type="button" class="btn ghost small" data-oa="ref">' + esc(tt("ov_refine")) + '</button><button type="button" class="btn ghost small del" data-oa="no">' + esc(tt("ov_discard")) + '</button></div></div>' +
         '<div class="kmbar"><button type="button" class="btn small" id="kmOvPlan">' + esc(tt("ov_fromPlan")) + '</button><button type="button" class="btn small" data-k="mgeo" aria-pressed="false">' + esc(tt("ov_geo")) + '</button><button type="button" class="btn small" data-ov="tr" id="kmOvTr">' + esc(tt("ov_tr")) + '</button><button type="button" class="btn ghost small" data-ov="c">' + esc(tt("ov_center")) + '</button><button type="button" class="btn ghost small del" data-ov="x">' + esc(tt("km_catRemove")) + '</button></div>' +
         '<div class="kmbar kmovc"><label class="kmbl" for="kmOvO">' + esc(tt("km_opacity")) + '</label><input type="range" id="kmOvO" min="10" max="100" step="10" value="60"><label class="kmbl" for="kmOvR">' + esc(tt("ov_rot")) + '</label><input type="text" inputmode="decimal" id="kmOvR" class="kmn"><label class="kmbl" for="kmOvS">' + esc(tt("ov_mpp")) + '</label><input type="text" inputmode="decimal" id="kmOvS" class="kmn">' +
         '<span class="kmnudge" role="group" aria-label="' + esc(tt("ov_adj")) + '">' + [["l", "←", "km_nl"], ["u", "↑", "km_nu"], ["d", "↓", "km_nd"], ["r", "→", "km_nr"], ["rl", "⟲", "ov_rl"], ["rr", "⟳", "ov_rr"], ["sm", "−", "ov_sm"], ["sp", "+", "ov_sp"]].map(function (a) { return '<button type="button" class="btn ghost small" data-ov="' + a[0] + '" aria-label="' + esc(tt(a[2])) + '">' + a[1] + "</button>"; }).join("") + '</span></div></div></details>') +
@@ -5185,6 +5283,7 @@ var FIG = (function () {
       var P = opt.planObjs, msg = $("#kmOvMsg"); if (plan || !P) return;
       var cnt = ["lines", "pts", "sond", "wl", "geb", "areas", "notes"].reduce(function (a, k) { return a + (P[k] || []).length; }, 0);
       if (!ovl || ovl.ref !== "plan") { msg.textContent = tt("ov_trNeed"); msg.className = "hint reqmsg"; return; }
+      if (ovl.autoSrc && ovl.autoSrc !== "gcp" && !ovl.conf) { msg.textContent = tt("ov_needConf"); msg.className = "hint reqmsg"; return; }
       if (!cnt) { msg.textContent = tt("ov_trNone"); msg.className = "hint"; return; }
       var m0 = JSON.stringify(M), p0 = JSON.stringify(P), cl0 = planCleared, sc = opt.planScale || 0, dev = [];
       var cv = function (q) { return ovPx(ovl, q[0], q[1]).map(function (v) { return Math.round(v * 100) / 100; }); }, cp = function (o) { return JSON.parse(JSON.stringify(o)); };
@@ -5445,7 +5544,7 @@ var FIG = (function () {
       if (mode === "geo") {
         if (!ovl) return; var last = gcp[gcp.length - 1];
         if (!last || last.t) gcp.push({ s: ovInv(ovl, c[0], c[1]), t: null }); else last.t = c;
-        if (gcp.length === 2 && gcp[1].t) { var sol = ovSolve(ovl, gcp[0].s, gcp[0].t, gcp[1].s, gcp[1].t); if (sol) { ovl.mpp = sol.mpp; ovl.rot = sol.rot; ovl.E = sol.E; ovl.N = sol.N; toast(dlg, tt("ov_done"), tt("km_undoBtn"), function () { ovl = JSON.parse(ov0); ovDraw(); }); } gcp = []; mode = ""; }
+        if (gcp.length === 2 && gcp[1].t) { var sol = ovSolve(ovl, gcp[0].s, gcp[0].t, gcp[1].s, gcp[1].t); if (sol) { ovl.mpp = sol.mpp; ovl.rot = sol.rot; ovl.E = sol.E; ovl.N = sol.N; ovl.conf = true; ovl.autoSrc = "gcp"; toast(dlg, tt("ov_done"), tt("km_undoBtn"), function () { ovl = JSON.parse(ov0); ovDraw(); }); } gcp = []; mode = ""; }
         else tmp = gcp.reduce(function (a, g2) { a.push(ovPx(ovl, g2.s[0], g2.s[1])); if (g2.t) a.push(g2.t); return a; }, []);
         ovDraw(); refresh(); return;
       }
@@ -5621,7 +5720,47 @@ var FIG = (function () {
         var c = map.getCenter(), e = toLV95(c.lat, c.lng); ov0 = JSON.stringify(ovl);
         ovl = { img: r.img, w: r.w, h: r.h, E: e[0], N: e[1], rot: 0, mpp: ratioMpp || Math.max(0.05, 200 / r.w), op: 0.6, auto: ratioMpp ? r.ratio : 0 }; $("#kmOvD").open = true; refresh(); requestAnimationFrame(function () { requestAnimationFrame(function () { try { map.invalidateSize({ animate: false }); fitAll(); ovDraw(); } catch (x) { } }); });
         ovMsg(ratioMpp ? "ov_loadedAuto" : "ov_loaded"); if (ratioMpp) $("#kmOvMsg").textContent = tt("ov_loadedAuto").replace("{r}", r.ratio); $("#kmOvD").open = true;
+        ovAuto(r, ratioMpp);
       };
+      /* Automatische Ausrichtung: Koordinatenraster, sonst Ortsname + Kartenabgleich; Ergebnis nur als Vorschlag (Bestätigung nötig) */
+      var autoRun = 0, autoTxt = function (k, o) { var t = tt(k); Object.keys(o || {}).forEach(function (x) { t = t.replace("{" + x + "}", o[x]); }); return t; };
+      function ovAuto(r, mpp) {
+        var run = ++autoRun, m0 = $("#kmOvMsg"), card = $("#kmOvAuto"), at = $("#kmOvAutoT"); card.hidden = true;
+        var fin = function (res) {
+          if (run !== autoRun || !ovl) return;
+          if (!res) { m0.textContent = tt("ov_autoNone"); m0.className = "hint"; return; }
+          ov0 = JSON.stringify(ovl); ovl.E = res.E; ovl.N = res.N; ovl.rot = 0; if (res.mpp) { ovl.mpp = res.mpp; ovl.auto = 0; } ovl.autoSrc = res.src; ovl.conf = false;
+          fitAll(); refresh(); m0.textContent = ""; at.textContent = res.txt; card.hidden = false; $("[data-oa=ok]").focus();
+        };
+        if (r.grid) { var g = r.grid; return fin({ src: "grid", E: g.E0 + g.mpp * r.w / 2, N: g.N0 - g.mpp * r.h / 2, mpp: g.mpp, txt: autoTxt("ov_autoGrid", { n: g.n, s: g.rms < 0.1 ? "0.1" : (Math.round(g.rms * 10) / 10) }) }); }
+        if (!mpp) return fin(null);
+        m0.textContent = tt("ov_autoRun"); m0.className = "hint";
+        var findPlace = function () {
+          var ws = (r.words || []).slice(0, 5), i = 0;
+          return new Promise(function (ok) {
+            (function next() {
+              if (i >= ws.length) return ok(null); var wd = ws[i++];
+              fetch(SEARCH + "?type=locations&origins=gg25&limit=1&sr=2056&lang=" + (opt.lang || "de") + "&searchText=" + encodeURIComponent(wd)).then(function (x) { return x.json(); }).then(function (j) {
+                var h = (j.results || []).filter(function (q) { return q.attrs && isFinite(q.attrs.lat) && isFinite(q.attrs.lon); })[0];
+                if (h) { var e = toLV95(h.attrs.lat, h.attrs.lon); ok({ E: e[0], N: e[1], name: wd }); } else next();
+              }).catch(next);
+            })();
+          });
+        };
+        var cz = map.getZoom(), c0 = map.getCenter(), e0 = toLV95(c0.lat, c0.lng), good = function (m) { return m && m.s >= 0.3 && m.ratio >= 1.2; };
+        var tryView = function () { return cz >= 14 ? matchPlan(r.img, r.w, r.h, mpp, e0[0], e0[1], 300).then(function (m) { return good(m) ? { m: m, name: "" } : null; }) : Promise.resolve(null); };
+        var tryPlace = function () { return findPlace().then(function (pl) { return pl ? matchPlan(r.img, r.w, r.h, mpp, pl.E, pl.N, 900).then(function (m) { return good(m) ? { m: m, name: pl.name } : null; }) : null; }); };
+        tryView().then(function (x) { return x || tryPlace(); }).then(function (x) {
+          if (!x) return fin(null);
+          fin({ src: "match", E: x.m.E, N: x.m.N, txt: autoTxt("ov_autoMatch", { c: Math.round(Math.min(1, x.m.s) * 100) }) + (x.name ? " " + autoTxt("ov_autoPlace", { p: x.name }) : "") });
+        }).catch(function () { fin(null); });
+      }
+      $("#kmOvAuto").addEventListener("click", function (e) {
+        var b = e.target.closest("[data-oa]"); if (!b || !ovl) return; var k = b.dataset.oa;
+        if (k === "ok") { ovl.conf = true; $("#kmOvAuto").hidden = true; $("#kmOvMsg").textContent = tt("ov_confirmed"); $("#kmOvMsg").className = "hint"; }
+        else if (k === "no") { try { var o0 = JSON.parse(ov0); if (o0) ovl = o0; else ovl = null; } catch (x) { } $("#kmOvAuto").hidden = true; ovDraw(); refresh(); }
+        else if (k === "ref") { $("#kmOvAuto").hidden = true; ovl.conf = false; $("[data-k=mgeo]").click(); }
+      });
       $("#kmOvF").addEventListener("change", function (e) {
         var file = e.target.files[0]; if (!file) return; ovMsg("pl_reading");
         planSource(file).then(function (src) {
@@ -5630,7 +5769,7 @@ var FIG = (function () {
         }).catch(function () { ovMsg("pl_err", 1); });
       });
       var pb = $("#kmOvPlan"); pb.disabled = !(opt.planImg && opt.planImg.img);
-      pb.addEventListener("click", function () { var P = opt.planImg; setOvl({ img: P.img, w: P.w, h: P.h }, P.cal && P.cal.scale ? P.cal.scale : 0); ovl.ref = "plan"; });
+      pb.addEventListener("click", function () { var P = opt.planImg; setOvl({ img: P.img, w: P.w, h: P.h, grid: P.grid || null, words: P.words || [] }, P.cal && P.cal.scale ? P.cal.scale : 0); ovl.ref = "plan"; });
       $("#kmOvO").addEventListener("input", function (e) { if (ovl) { ovl.op = e.target.value / 100; ovDraw(); } });
       var num2 = function (v) { return parseFloat(String(v).replace(",", ".")); };
       $("#kmOvR").addEventListener("change", function (e) { var v = num2(e.target.value); if (ovl && isFinite(v)) { ov0 = JSON.stringify(ovl); ovl.rot = v; ovDraw(); } });
@@ -6416,7 +6555,7 @@ var FIG = (function () {
     var msg = document.createElement("p"); msg.className = "hint kmmsg"; msg.setAttribute("role", "status"); f.appendChild(msg); w.appendChild(f);
     var pg = document.createElement("div"); pg.className = "field"; pg.hidden = true; w.appendChild(pg);
     function setPlan(r) {
-      var sn = snapState(); S.plan = { img: r.img, w: r.w, h: r.h, cal: r.mpp ? { scale: r.mpp, m: r.w * r.mpp, a: [0, r.h / 2], b: [r.w, r.h / 2], auto: r.ratio } : {}, lines: [], pts: [], sond: [], notes: [], areas: [], wl: [], geb: [] }; sondSync(); save(); renderForm(); undoToast(r.mpp ? fill(tt("pl_loadedAuto"), { r: r.ratio }) : tt("pl_loaded"), sn);
+      var sn = snapState(); S.plan = { img: r.img, w: r.w, h: r.h, grid: r.grid || null, words: r.words || [], cal: r.mpp ? { scale: r.mpp, m: r.w * r.mpp, a: [0, r.h / 2], b: [r.w, r.h / 2], auto: r.ratio } : {}, lines: [], pts: [], sond: [], notes: [], areas: [], wl: [], geb: [] }; sondSync(); save(); renderForm(); undoToast(r.mpp ? fill(tt("pl_loadedAuto"), { r: r.ratio }) : tt("pl_loaded"), sn);
     }
     f.querySelector("input").addEventListener("change", function (e) {
       var file = e.target.files[0]; if (!file) return; msg.className = "hint kmmsg"; msg.textContent = tt("pl_reading"); planSrc = null;
