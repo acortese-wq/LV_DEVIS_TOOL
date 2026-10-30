@@ -988,6 +988,7 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 .kmleft{position:relative}.kmask{position:absolute;z-index:1200;background:#fff;border:2px solid var(--navy);border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;gap:4px;max-width:270px;box-shadow:0 2px 8px rgba(0,0,0,.3)}.kmask[hidden]{display:none}.kmask-t{margin:0 0 2px;font-weight:700}.kmask .btn{text-align:left;white-space:normal}.kmask .sug{outline:2px solid #0072d6;outline-offset:1px}.kmsch.ex span{background:#fff;color:var(--navy);box-shadow:0 0 0 2px var(--navy)}.kmsch.ex.on span{background:#fff;color:#b8332a;box-shadow:0 0 0 2px #b8332a}
 .kmask{pointer-events:none}.kmask .btn,.kmask-t{pointer-events:auto}
 .kmask-ty{pointer-events:auto;display:flex;align-items:center;gap:6px;font-size:.9em}.kmask-ty select{min-height:30px;max-width:160px}
+.kmctx{pointer-events:auto;max-width:280px}.kmctx .btn{width:100%}.kmctx-s{color:var(--ink-2,#516470)}.kmprops{position:absolute;z-index:1250;width:320px;max-height:60%;overflow:auto;background:#fff;border:2px solid var(--navy);border-radius:8px;padding:6px 8px;box-shadow:0 2px 10px rgba(0,0,0,.35)}.kmprops[hidden]{display:none}.kmprops-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}.kmprops .kmrow{border:0;background:transparent;padding:0}
 
 </style>
 </head>
@@ -3061,6 +3062,20 @@ Object.assign(TS.it,{
     km_as_cover: ["Nur Deckel anpassen", "Adapter seulement le couvercle", "Adattare solo il coperchio", "Adjust cover only"],
     km_as_surfAsk: ["Neue Oberfläche des Folgeabschnitts", "Nouvelle surface du tronçon suivant", "Nuova superficie del tratto successivo", "New surface of the next section"],
     km_as_go: ["Weiter zeichnen", "Continuer à dessiner", "Continua a disegnare", "Continue drawing"],
+    km_cx_title: ["Kartenpunkt", "Point de la carte", "Punto della carta", "Map point"],
+    km_cx_coord: ["LV95 {e} / {n}", "LV95 {e} / {n}", "LV95 {e} / {n}", "LV95 {e} / {n}"],
+    km_cx_sch: ["Schacht setzen", "Placer une chambre", "Posare un pozzetto", "Place manhole"],
+    km_cx_wl: ["Werkloch setzen", "Placer une fouille", "Posare uno scavo", "Place working pit"],
+    km_cx_geb: ["Gebäudeeinführung setzen", "Placer une introduction de bâtiment", "Posare un'introduzione edificio", "Place building entry"],
+    km_cx_sond: ["Sondage setzen", "Placer un sondage", "Posare un sondaggio", "Place test pit"],
+    km_cx_line: ["Linie hier starten", "Démarrer une ligne ici", "Iniziare una linea qui", "Start line here"],
+    km_cx_area: ["Fläche hier beginnen", "Commencer une surface ici", "Iniziare una superficie qui", "Start area here"],
+    km_cx_props: ["Eigenschaften", "Propriétés", "Proprietà", "Properties"],
+    km_cx_split: ["Linie teilen / Oberfläche ab hier ändern", "Diviser la ligne / changer la surface dès ici", "Dividere la linea / cambiare superficie da qui", "Split line / change surface from here"],
+    km_cx_splitAsk: ["Neue Oberfläche ab hier", "Nouvelle surface dès ici", "Nuova superficie da qui", "New surface from here"],
+    km_cx_branch: ["Abzweig ab hier", "Branchement dès ici", "Derivazione da qui", "Branch from here"],
+    km_cx_conn: ["Leitung ab hier (Anschluss)", "Conduite dès ici (raccordement)", "Condotta da qui (allacciamento)", "Line from here (connection)"],
+    km_cx_close: ["Schliessen", "Fermer", "Chiudere", "Close"],
     km_prov: ["Kartenanbieter", "Fournisseur de cartes", "Fornitore cartografico", "Map provider"],
     km_bLeer: ["geo.admin: leere Basis (nur gewählte Ebenen)", "geo.admin: fond vide (couches choisies seulement)", "geo.admin: sfondo vuoto (solo livelli scelti)", "geo.admin: blank base (selected layers only)"],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
@@ -5123,7 +5138,7 @@ var FIG = (function () {
       (plan ? "" : '<span class="kmseg" role="group" aria-label="' + esc(tt("km_prov")) + '"><button type="button" class="btn small" data-prov="swisstopo" aria-pressed="false">swisstopo</button><button type="button" class="btn small" data-prov="geoadmin" aria-pressed="false">geo.admin.ch</button></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase"></select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + '</button><span id="kmAv" hidden><input type="url" id="kmAvUrl" class="kmavin" aria-label="' + esc(tt("km_avUrl")) + '" placeholder="https://…/wms"><input type="text" id="kmAvLy" class="kmavin" aria-label="' + esc(tt("km_avLy")) + '" placeholder="' + esc(tt("km_avLy")) + '"><button type="button" class="btn small" id="kmAvGo">' + esc(tt("km_avGo")) + '</button></span><a class="btn ghost small" id="kmNetz" href="https://www.swisscom.ch/rida/online/geoportal/ng/index.html?login" target="_blank" rel="noopener noreferrer">' + esc(tt("km_netz")) + "</a>") + "</div></div>" +
       (plan ? '<form class="kmcalf" id="kmCalF" hidden><label for="kmCalM">' + esc(tt("pl_calAsk")) + '</label><input type="text" inputmode="decimal" id="kmCalM" class="numin"><button type="submit" class="btn small">' + esc(tt("pl_calSet")) + "</button></form>" : "") +
       '<div class="kmmain"><div class="kmleft">' +
-      '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div><div class="kmask" id="kmAsk" hidden role="group"></div>' +
+      '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div><div class="kmask" id="kmAsk" hidden role="group"></div><div class="kmask kmctx" id="kmCtx" hidden role="group"></div><div class="kmprops" id="kmProps" hidden role="dialog"></div>' +
       (plan ? "" : '<iframe id="kmView" class="kmframe" hidden title="map.geo.admin.ch" referrerpolicy="no-referrer"></iframe>') +
       '<div class="kmleg" id="kmLeg" hidden></div>' +
       '<p class="hint kmhelp" id="kmHelp"></p>' +
@@ -5479,6 +5494,92 @@ var FIG = (function () {
         } };
       }), 0);
     }
+    /* ---------- Kontextmenü (Rechtsklick / langes Drücken / Menütaste): am Kartenpunkt oder Objekt ---------- */
+    var ctxT = 0, propsId = null, clone = function (o) { return JSON.parse(JSON.stringify(o)); };
+    function ctxHide() { var m = $("#kmCtx"); if (m && !m.hidden) { m.hidden = true; m.innerHTML = ""; } }
+    function ctxShow(cp, title, sub, items) {
+      var m = $("#kmCtx"); if (!m) return; m.innerHTML = ""; m.hidden = false; m.setAttribute("aria-label", title);
+      var t = document.createElement("p"); t.className = "kmask-t"; t.textContent = title; m.appendChild(t); if (sub) { var sm = document.createElement("small"); sm.className = "kmctx-s"; sm.textContent = sub; m.appendChild(sm); }
+      items.forEach(function (it) {
+        if (it.typ) { var l = document.createElement("label"); l.className = "kmask-ty"; l.textContent = tt("km_typ") + " "; l.appendChild(sel1(tt("km_typ"), cat.schacht, lastTyp || opt.defTyp, function (v) { lastTyp = v; })); m.appendChild(l); return; }
+        if (it.wlt) { var l2 = document.createElement("label"); l2.className = "kmask-ty"; l2.textContent = tt("km_wlT") + " "; l2.appendChild(sel1(tt("km_wlT"), [["ts", tt("km_wlts")], ["bo", tt("km_wlbo")], ["sg", tt("km_wlsg")], ["zs", tt("km_wlzs")]], wlT, function (v) { wlT = v; var w = $("#kmWlT"); if (w) w.value = v; })); m.appendChild(l2); return; }
+        var b = document.createElement("button"); b.type = "button"; b.className = "btn small" + (it.ghost ? " ghost" : ""); b.textContent = it.t;
+        b.addEventListener("click", function (e) { e.stopPropagation(); ctxHide(); it.fn(); }); m.appendChild(b);
+      });
+      var mp = $("#kmMap"), aw = m.offsetWidth || 260, ah = m.offsetHeight || 40 + items.length * 34;
+      m.style.left = Math.max(4, Math.min(mp.clientWidth - aw - 4, cp.x + 6)) + mp.offsetLeft + "px"; m.style.top = Math.max(4, Math.min(mp.clientHeight - ah - 4, cp.y + 6)) + mp.offsetTop + "px";
+      var f = m.querySelector("button"); if (f) f.focus();
+    }
+    function segHit(cp, pts) {   /* Linie unter dem Zeiger: nächster Abschnitt in Bildschirmpixeln, Fusspunkt als Kartenkoordinate */
+      var best = null;
+      for (var i = 1; i < pts.length; i++) {
+        var a = map.latLngToContainerPoint(AD.ll(pts[i - 1])), b = map.latLngToContainerPoint(AD.ll(pts[i])), dx = b.x - a.x, dy = b.y - a.y, L2 = dx * dx + dy * dy, t = L2 ? Math.max(0, Math.min(1, ((cp.x - a.x) * dx + (cp.y - a.y) * dy) / L2)) : 0;
+        var fx = a.x + t * dx, fy = a.y + t * dy, d = Math.hypot(cp.x - fx, cp.y - fy);
+        if (!best || d < best.d) best = { d: d, seg: i - 1, q: AD.pt(map.containerPointToLatLng(L.point(fx, fy))) };
+      }
+      return best;
+    }
+    function hitAt(cp) {
+      var best = null;
+      [["pts", M.pts], ["wl", M.wl], ["geb", M.geb], ["sond", M.sond]].forEach(function (a) { a[1].forEach(function (p) { var q = map.latLngToContainerPoint(AD.ll(p.pt)), d = Math.hypot(q.x - cp.x, q.y - cp.y); if (d <= 18 && (!best || d < best.d)) best = { o: p, k: a[0], d: d }; }); });
+      if (best) return best;
+      M.lines.forEach(function (l) { if (l.pts.length < 2) return; var h = segHit(cp, l.pts); if (h && h.d <= 10 && (!best || h.d < best.d)) best = { o: l, k: "lines", d: h.d, seg: h.seg, q: h.q }; });
+      return best;
+    }
+    function startLineAt(c, o) {
+      o = o || {}; if (mode !== "line") $("[data-k=mline]").click();
+      snap(); var l = { id: nid("l"), pts: [c.slice()], rid: null, rohr: clone(o.rohr || opt.defRohr), cfg: clone(o.cfg || lastCfg) }; if (o.s) l.s = o.s; lineSync(l); M.lines.push(l); cur = l.id; sel = { id: l.id }; refresh(); return l;
+    }
+    function splitLine(l, h, fl) {
+      var q = h.q, a = l.pts[h.seg], b = l.pts[h.seg + 1]; if (!q || (AD.dist(q, a) < 0.05 && h.seg === 0) || (AD.dist(q, b) < 0.05 && h.seg === l.pts.length - 2)) return;   /* an den Enden nichts zu teilen */
+      snap(); var l2 = { id: nid("l"), pts: [q.slice()].concat(l.pts.slice(h.seg + 1)), rid: null, rohr: clone(l.rohr), cfg: clone(cfgOf(l)), e: l.e || null };
+      l.pts = l.pts.slice(0, h.seg + 1).concat([q.slice()]); l.e = null; l2.cfg.fl = fl; lastCfg = clone(l2.cfg); lineSync(l2); M.lines.splice(M.lines.indexOf(l) + 1, 0, l2); sel = { id: l2.id }; refresh();
+    }
+    function ctxOpenAt(cp) {
+      if (base === "viewer" || mode === "geo" || mode === "cal") return; askHide(); var ll = map.containerPointToLatLng(cp), c = AD.pt(ll), h = hitAt(cp), items = [], title, sub = plan ? "" : tt("km_cx_coord").replace("{e}", fmt0(c[0])).replace("{n}", fmt0(c[1]));
+      if (h) {
+        var o = h.o; title = h.k === "lines" ? tt("km_lineN").replace("{n}", M.lines.indexOf(o) + 1) : h.k === "pts" ? tt("km_schN").replace("{n}", M.pts.indexOf(o) + 1) : h.k === "wl" ? tt("km_wlN").replace("{n}", M.wl.indexOf(o) + 1) : h.k === "geb" ? tt("km_gebN").replace("{n}", M.geb.indexOf(o) + 1) : tt("km_sondN").replace("{n}", M.sond.indexOf(o) + 1);
+        sel = { id: o.id }; refresh();
+        items.push({ t: tt("km_cx_props"), fn: function () { propsOpen(o, cp); } });
+        if (h.k === "lines") {
+          items.push({ t: tt("km_cx_split"), fn: function () { var cur0 = cfgOf(o).fl; ctxShow(cp, tt("km_cx_splitAsk"), "", FLS.filter(function (f) { return f !== cur0; }).map(function (f) { return { t: tt("km_lt_fl_" + f), fn: function () { splitLine(o, h, f); } }; })); } });
+          items.push({ t: tt("km_cx_branch"), fn: function () { startLineAt(h.q, { cfg: clone(cfgOf(o)), rohr: clone(o.rohr) }); } });
+        } else if (h.k === "pts") items.push({ t: tt("km_cx_conn"), fn: function () { var l = startLineAt(o.pt, { s: o.id }); } });
+      } else {
+        title = tt("km_cx_title");
+        items.push({ typ: 1 }, { t: tt("km_cx_sch"), fn: function () { snap(); newShaft(c, "neu"); refresh(); } }, { wlt: 1 },
+          { t: tt("km_cx_wl"), fn: function () { snap(); var q = { id: nid("w"), pt: c.slice(), sid: null, wt: wlT, name: "", fl: lastCfg.fl || "" }; M.wl.push(q); sel = { id: q.id }; refresh(); } },
+          { t: tt("km_cx_geb"), fn: function () { snap(); var q = { id: nid("g"), pt: c.slice(), sid: null, cm: opt.defGeb.cm, abd: opt.defGeb.abd, name: "" }; M.geb.push(q); sel = { id: q.id }; refresh(); } },
+          { t: tt("km_cx_sond"), fn: function () { snap(); var q = { id: nid("s"), pt: c.slice(), name: "", l: "1.0", b: "1.0", t: "1.5" }; M.sond.push(q); sel = { id: q.id }; refresh(); } },
+          { t: tt("km_cx_line"), fn: function () { var l = startLineAt(c); askStart(l, c); } },
+          { t: tt("km_cx_area"), fn: function () { if (mode !== "area") $("[data-k=marea]").click(); ctxT = 0; addPt(ll); } });
+      }
+      ctxShow(cp, title, sub, items);
+    }
+    function propsOpen(o, cp) {
+      var w = $("#kmProps"); if (!w) return; propsId = o.id; w.hidden = false; propsRender();
+      var mp = $("#kmMap"); w.style.left = Math.max(4, Math.min(mp.clientWidth - 330, cp.x + 10)) + mp.offsetLeft + "px"; w.style.top = Math.max(4, Math.min(mp.clientHeight - 240, cp.y + 10)) + mp.offsetTop + "px";
+    }
+    function propsRender() {
+      var w = $("#kmProps"); if (!w || !propsId) return; var f = findObj(propsId), r = f && rowFn ? rowFn(f.o) : null;
+      if (!r) { propsClose(); return; }
+      w.innerHTML = ""; var hd = document.createElement("div"); hd.className = "kmprops-h"; hd.innerHTML = "<b>" + esc(tt("km_cx_props")) + "</b>"; var x = document.createElement("button"); x.type = "button"; x.className = "btn ghost small"; x.textContent = "×"; x.setAttribute("aria-label", tt("km_cx_close")); x.addEventListener("click", propsClose); hd.appendChild(x);
+      w.setAttribute("aria-label", tt("km_cx_props")); w.appendChild(hd); w.appendChild(r);
+    }
+    function propsRefresh() { var w = $("#kmProps"); if (w && !w.hidden && propsId) { var a = document.activeElement; if (!(a && w.contains(a) && /INPUT|TEXTAREA/.test(a.tagName))) propsRender(); } }
+    function propsClose() { var w = $("#kmProps"); propsId = null; if (w) { w.hidden = true; w.innerHTML = ""; } }
+    var fmt0 = function (v) { return Math.round(v).toLocaleString("de-CH"); };
+    (function () {
+      var mp = $("#kmMap"), tm = null, p0 = null;
+      mp.addEventListener("contextmenu", function (e) { e.preventDefault(); if (Date.now() - ctxT < 300) return; ctxT = Date.now(); ctxOpenAt(map.mouseEventToContainerPoint(e)); });
+      mp.addEventListener("pointerdown", function (e) { if (e.pointerType === "mouse") return; p0 = { x: e.clientX, y: e.clientY }; clearTimeout(tm); tm = setTimeout(function () { ctxT = Date.now(); ctxOpenAt(map.mouseEventToContainerPoint(e)); }, 650); });
+      ["pointermove", "pointerup", "pointercancel"].forEach(function (n) { mp.addEventListener(n, function (e) { if (n === "pointermove" && p0 && Math.hypot(e.clientX - p0.x, e.clientY - p0.y) < 10) return; clearTimeout(tm); }); });
+      dlg.addEventListener("pointerdown", function (e) { var m = $("#kmCtx"); if (m && !m.hidden && !m.contains(e.target)) ctxHide(); });
+      dlg.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && !$("#kmCtx").hidden) { e.preventDefault(); e.stopPropagation(); ctxHide(); mp.focus(); return; }
+        if ((e.key === "ContextMenu" || (e.shiftKey && e.key === "F10")) && e.target === mp) { e.preventDefault(); ctxT = Date.now(); var sz = map.getSize(); ctxOpenAt(L.point(sz.x / 2, sz.y / 2)); }
+      });
+    })();
     function flOpts() { return [["", "– " + tt("km_lt_choose") + " –"]].concat(FLS.map(function (a) { return [a, tt("km_lt_fl_" + a)]; })); }
     function lineEd(l, host, quick) {
       var c = cfgOf(l), art = ARTS.map(function (a) { return [a, tt("km_lt_art_" + a)]; }), fl = [["", "– " + tt("km_lt_choose") + " –"]].concat(FLS.map(function (a) { return [a, tt("km_lt_fl_" + a)]; }));
@@ -5528,16 +5629,18 @@ var FIG = (function () {
       ok.addEventListener("click", function () { q.hidden = true; q.innerHTML = ""; rows(); });
       $("#kmQuickLater").addEventListener("click", function () { q.hidden = true; q.innerHTML = ""; });
     }
+    var rowFn = null;
     function rows() {
       var h = $("#kmObj"); h.innerHTML = "";
       var rowOf = function (o) { var r = document.createElement("div"); r.className = "kmrow" + (sel && sel.id === o.id ? " on" : ""); r.setAttribute("data-rid", o.id); return r; };
-      M.lines.forEach(function (l, i) {
+      var row_lines = function (l, i) {
         var r = rowOf(l);
         var t = head(r, tt("km_lineN").replace("{n}", i + 1), l.rid); t.insertAdjacentHTML("beforeend", " · " + fmt(lineLen(l.pts)) + " m");
         var ed = document.createElement("div"); ed.className = "kmled"; r.appendChild(ed); lineEd(l, ed, false);
-        btns(r, l.id); h.appendChild(r);
-      });
-      M.pts.forEach(function (p, i) {
+        btns(r, l.id); return r;
+      };
+      M.lines.forEach(function (l, i) { h.appendChild(row_lines(l, i)); });
+      var row_pts = function (p, i) {
         var r = rowOf(p); head(r, tt("km_schN").replace("{n}", i + 1), p.sid);
         r.appendChild(cell(tt("km_name"), inp(tt("km_name"), p.name || "", "kmw", function (v) { p.name = v; }, 1)));
         r.appendChild(cell(tt("km_typ"), sel1(tt("km_typ"), cat.schacht, p.typ, function (v) { p.typ = v; lastTyp = v; })));
@@ -5547,48 +5650,55 @@ var FIG = (function () {
           r.appendChild(cell(tt("km_pm_dr"), sel1(tt("km_pm_dr"), [["hoeher", tt("km_pm_hoeher")], ["tiefer", tt("km_pm_tiefer")]], p.dr || "hoeher", function (v) { p.dr = v; })));
           r.appendChild(cell(tt("km_pm_rund") + "/" + tt("km_pm_rect"), sel1(tt("km_pm_rund") + "/" + tt("km_pm_rect"), [["rund", tt("km_pm_rund")], ["rechteckig", tt("km_pm_rect")]], p.df || "rund", function (v) { p.df = v; })));
         } else if (p.mode === "anschluss") { var hn = document.createElement("p"); hn.className = "hint"; hn.textContent = tt("km_pm_n").replace("{n}", Math.max(1, M.lines.reduce(function (a, l) { return a + (l.s === p.id ? 1 : 0) + (l.e === p.id ? 1 : 0); }, 0))); r.appendChild(hn); }
-        btns(r, p.id); h.appendChild(r);
-      });
-      M.sond.forEach(function (p, i) {
+        btns(r, p.id); return r;
+      };
+      M.pts.forEach(function (p, i) { h.appendChild(row_pts(p, i)); });
+      var row_sond = function (p, i) {
         var r = rowOf(p); head(r, tt("km_sondN").replace("{n}", i + 1));
         r.appendChild(cell(tt("km_name"), inp(tt("km_name"), p.name || "", "kmw", function (v) { p.name = v; }, 1)));
         [["l", "km_sL"], ["b", "km_sB"], ["t", "km_sT"]].forEach(function (f) { r.appendChild(cell(tt(f[1]), inp(tt(f[1]), p[f[0]], "kmn", function (v) { p[f[0]] = v; }))); });
-        btns(r, p.id); h.appendChild(r);
-      });
-      M.wl.forEach(function (p, i) {
+        btns(r, p.id); return r;
+      };
+      M.sond.forEach(function (p, i) { h.appendChild(row_sond(p, i)); });
+      var row_wl = function (p, i) {
         var r = rowOf(p); head(r, tt("km_wlN").replace("{n}", i + 1), p.sid);
         r.appendChild(cell(tt("km_name"), inp(tt("km_name"), p.name || "", "kmw", function (v) { p.name = v; }, 1)));
         r.appendChild(cell(tt("km_wlT"), sel1(tt("km_wlT"), [["ts", tt("km_wlts")], ["bo", tt("km_wlbo")], ["sg", tt("km_wlsg")], ["zs", tt("km_wlzs")]], p.wt, function (v) { p.wt = v; })));
         r.appendChild(cell(tt("km_lt_fl"), sel1(tt("km_lt_fl"), flOpts(), p.fl || "", function (v) { p.fl = v; })));
-        btns(r, p.id); h.appendChild(r);
-      });
-      M.geb.forEach(function (p, i) {
+        btns(r, p.id); return r;
+      };
+      M.wl.forEach(function (p, i) { h.appendChild(row_wl(p, i)); });
+      var row_geb = function (p, i) {
         var r = rowOf(p); head(r, tt("km_gebN").replace("{n}", i + 1), p.sid);
         r.appendChild(cell(tt("km_name"), inp(tt("km_name"), p.name || "", "kmw", function (v) { p.name = v; }, 1)));
         r.appendChild(cell(tt("km_cm"), inp(tt("km_cm"), p.cm || "", "kmn", function (v) { p.cm = v; })));
         r.appendChild(cell(tt("km_abd"), sel1(tt("km_abd"), [["keine", tt("km_abdK")], ["kissen", tt("km_abdKi")], ["hauff", tt("km_abdH")]], p.abd, function (v) { p.abd = v; })));
         if (!String(p.cm || "").trim()) { var hn = document.createElement("p"); hn.className = "hint"; hn.textContent = tt("km_gebHint"); r.appendChild(hn); }
-        btns(r, p.id); h.appendChild(r);
-      });
-      M.areas.forEach(function (f, i) {
+        btns(r, p.id); return r;
+      };
+      M.geb.forEach(function (p, i) { h.appendChild(row_geb(p, i)); });
+      var row_areas = function (f, i) {
         var r = rowOf(f), t = head(r, tt("km_areaN").replace("{n}", i + 1), f.rid); t.insertAdjacentHTML("beforeend", " · " + fmt(area(f.pts)) + " m² · " + tt("km_perim") + " " + fmt(perim(f.pts)) + " m");
         r.appendChild(cell(tt("km_lt_fl"), sel1(tt("km_lt_fl"), [["", tt("km_lt_fl_belag")], ["pflaster", tt("km_lt_fl_pflaster")], ["wiese", tt("km_lt_fl_wiese")]], f.fl || "", function (v) { f.fl = v; rows(); })));
         if (f.fl === "pflaster") r.appendChild(cell(tt("km_lt_ab"), sel1(tt("km_lt_ab"), [["betonstein", tt("km_ab_betonstein")], ["platten", tt("km_ab_platten")], ["natur", tt("km_ab_natur")], ["", tt("km_ab_none")]], f.ab == null ? "betonstein" : f.ab, function (v) { f.ab = v; })));
         if (!f.fl) r.appendChild(cell(tt("km_bk"), sel1(tt("km_bk"), [["gehweg", tt("km_bkG")], ["strasse", tt("km_bkS")], ["kanton", tt("km_bkK")]], f.belag.bk, function (v) { f.belag.bk = v; if (["strasse", "kanton"].indexOf(v) < 0 && ["A", "A1", "B"].indexOf(f.belag.wi) < 0) f.belag.wi = "B"; rows(); })));
         if (!f.fl) r.appendChild(cell(tt("km_wi"), sel1(tt("km_wi"), (f.belag.bk === "gehweg" ? ["A", "A1", "B"] : ["A", "A1", "B", "C", "C1", "C2"]).map(function (v) { return [v, v]; }), f.belag.wi, function (v) { f.belag.wi = v; })));
         if (!f.fl) r.appendChild(cell(tt("km_dB"), inp(tt("km_dB"), f.belag.d, "kmn", function (v) { f.belag.d = v; })));
-        btns(r, f.id); h.appendChild(r);
-      });
-      M.notes.forEach(function (n, i) {
+        btns(r, f.id); return r;
+      };
+      M.areas.forEach(function (f, i) { h.appendChild(row_areas(f, i)); });
+      var row_notes = function (n, i) {
         var r = rowOf(n); head(r, tt(NT[n.type]) + " " + (i + 1));
         if (n.type === "text") {
           r.appendChild(cell(tt("km_text"), inp(tt("km_text"), n.text || "", "kmw", function (v) { n.text = v; if (layers[n.id]) draw(); }, 1)));
           r.appendChild(cell(tt("km_size"), sel1(tt("km_size"), [["s", tt("km_sS")], ["m", tt("km_sM")], ["l", tt("km_sLg")]], n.size || "m", function (v) { n.size = v; draw(); })));
         }
         r.appendChild(cell(tt("km_col"), sel1(tt("km_col"), COL.map(function (c) { return [c[0], tt(c[1])]; }), n.color || "#0d47c8", function (v) { n.color = v; draw(); })));
-        btns(r, n.id); h.appendChild(r);
-      });
-      foldRows(h); missList();
+        btns(r, n.id); return r;
+      };
+      M.notes.forEach(function (n, i) { h.appendChild(row_notes(n, i)); });
+      rowFn = function (o) { var i; if ((i = M.lines.indexOf(o)) >= 0) return row_lines(o, i); if ((i = M.pts.indexOf(o)) >= 0) return row_pts(o, i); if ((i = M.sond.indexOf(o)) >= 0) return row_sond(o, i); if ((i = M.wl.indexOf(o)) >= 0) return row_wl(o, i); if ((i = M.geb.indexOf(o)) >= 0) return row_geb(o, i); if ((i = M.areas.indexOf(o)) >= 0) return row_areas(o, i); if ((i = M.notes.indexOf(o)) >= 0) return row_notes(o, i); return null; };
+      foldRows(h); missList(); propsRefresh();
     }
     /* Einklappen je Objekt: Kopf mit Schalter, Kurzinfo im eingeklappten Zustand; neu gewähltes Objekt klappt auf */
     function foldRows(h) {
@@ -5632,7 +5742,7 @@ var FIG = (function () {
     }
     function newNote(type, pts) { snap(); var n = { id: nid("n"), type: type, pts: pts, color: noteCol, text: type === "text" ? "Text" : "", size: "m" }; M.notes.push(n); sel = { id: n.id }; return n; }
     function addPt(ll) {
-      var startL = null; askHide();
+      var startL = null; askHide(); ctxHide(); if (Date.now() - ctxT < 500) return;
       if (!mode) return;
       if (mode === "edit") { if (Date.now() - lastMove < 250) return; sel = null; refresh(); return; }
       var c = AD.pt(ll);
