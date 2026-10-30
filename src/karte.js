@@ -855,9 +855,10 @@
     }
     /* ---------- Rückfragen am Klickpunkt: Schacht neu / Anschluss an bestehenden / nur Deckel / Oberfläche wechselt ---------- */
     function askHide() { var a = $("#kmAsk"); if (a) { a.hidden = true; a.innerHTML = ""; } }
-    function askShow(ll, title, items, focusIdx) {
+    function askShow(ll, title, items, focusIdx, withTyp) {
       var a = $("#kmAsk"); if (!a) return; a.innerHTML = ""; a.hidden = false; a.setAttribute("aria-label", title);
       var t = document.createElement("p"); t.className = "kmask-t"; t.textContent = title; a.appendChild(t);
+      if (withTyp && cat && cat.schacht) { var tl = document.createElement("label"); tl.className = "kmask-ty"; tl.textContent = tt("km_typ") + " "; tl.appendChild(sel1(tt("km_typ"), cat.schacht, lastTyp || opt.defTyp, function (v) { lastTyp = v; })); a.appendChild(tl); }
       items.forEach(function (it, i) {
         var b = document.createElement("button"); b.type = "button"; b.className = "btn small" + (it.ghost ? " ghost" : "") + (i === focusIdx ? " sug" : ""); b.textContent = it.t;
         if (it.sub) { var sm = document.createElement("small"); sm.textContent = " (" + it.sub + ")"; b.appendChild(sm); }
@@ -876,7 +877,7 @@
       askShow(AD.ll(c), tt("km_as_start"), [
         { t: tt("km_as_newS"), fn: function () { snap(); l.s = newShaft(c, "neu").id; refresh(); } },
         { t: tt("km_as_conn"), sub: nr ? tt("km_as_near").replace("{d}", fmt(nr.d)) : "", fn: function () { snap(); var p = nr ? nr.p : newShaft(c, "anschluss"); l.pts[0] = p.pt.slice(); l.s = p.id; refresh(); } },
-        { t: tt("km_as_none"), ghost: 1, fn: function () { } }], nr ? 1 : 0);
+        { t: tt("km_as_none"), ghost: 1, fn: function () { } }], nr ? 1 : 0, true);
     }
     function askEnd(l) {
       var c = l.pts[l.pts.length - 1].slice(); if (plan && !cal.scale) return; var nr = nearShaft(c, 15), ne = nearShaft(c, 15, true);
@@ -885,7 +886,7 @@
         { t: tt("km_as_conn"), sub: nr ? tt("km_as_near").replace("{d}", fmt(nr.d)) : "", fn: function () { snap(); var p = nr ? nr.p : newShaft(c, "anschluss"); l.pts[l.pts.length - 1] = p.pt.slice(); l.e = p.id; refresh(); } },
         { t: tt("km_as_surf"), fn: function () { askSurface(l, c); } },
         { t: tt("km_as_cover"), fn: function () { snap(); var p = ne ? ne.p : newShaft(c, "deckel"); p.mode = "deckel"; sel = { id: p.id }; refresh(); } },
-        { t: tt("km_as_none"), ghost: 1, fn: function () { } }], nr ? 1 : 0);
+        { t: tt("km_as_none"), ghost: 1, fn: function () { } }], nr ? 1 : 0, true);
     }
     function askSurface(l, c) {
       var cur0 = cfgOf(l).fl;
