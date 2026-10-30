@@ -988,7 +988,9 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 .kmleft{position:relative}.kmask{position:absolute;z-index:1200;background:#fff;border:2px solid var(--navy);border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;gap:4px;max-width:270px;box-shadow:0 2px 8px rgba(0,0,0,.3)}.kmask[hidden]{display:none}.kmask-t{margin:0 0 2px;font-weight:700}.kmask .btn{text-align:left;white-space:normal}.kmask .sug{outline:2px solid #0072d6;outline-offset:1px}.kmsch.ex span{background:#fff;color:var(--navy);box-shadow:0 0 0 2px var(--navy)}.kmsch.ex.on span{background:#fff;color:#b8332a;box-shadow:0 0 0 2px #b8332a}
 .kmask{pointer-events:none}.kmask .btn,.kmask-t{pointer-events:auto}
 .kmask-ty{pointer-events:auto;display:flex;align-items:center;gap:6px;font-size:.9em}.kmask-ty select{min-height:30px;max-width:160px}
-.kmctx{pointer-events:auto;max-width:280px}.kmctx .btn{width:100%}.kmctx-s{color:var(--ink-2,#516470)}.kmprops{position:absolute;z-index:1250;width:320px;max-height:60%;overflow:auto;background:#fff;border:2px solid var(--navy);border-radius:8px;padding:6px 8px;box-shadow:0 2px 10px rgba(0,0,0,.35)}.kmprops[hidden]{display:none}.kmprops-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}.kmprops .kmrow{border:0;background:transparent;padding:0}
+.kmctx{pointer-events:auto;max-width:300px}.kmctx .btn{width:100%}.kmctx-s{color:var(--ink-2,#516470)}.kmprops{position:absolute;z-index:1250;width:320px;max-height:60%;overflow:auto;background:#fff;border:2px solid var(--navy);border-radius:8px;padding:6px 8px;box-shadow:0 2px 10px rgba(0,0,0,.35)}.kmprops[hidden]{display:none}.kmprops-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}.kmprops .kmrow{border:0;background:transparent;padding:0}
+.kmask:not(.kmctx){flex-direction:row;flex-wrap:wrap;align-items:center;max-width:300px}.kmask:not(.kmctx) .kmask-t{flex:0 0 100%}.kmask:not(.kmctx) .btn{width:auto}
+.kmask-t,.kmask-ty{pointer-events:none}.kmask-ty select{pointer-events:auto}
 
 </style>
 </head>
@@ -4825,12 +4827,14 @@ var FIG = (function () {
     var W = o.W, H = o.H, box = geoBox(g, W, H); if (!box) return null;
     var bb = box.bb, sc = box.sc, k = W / 360, px = function (p) { return [((p[0] - bb[0]) / sc), ((bb[3] - p[1]) / sc)]; };
     var fig = document.createElement("figure"); fig.className = o.cls || "kmprev";
-    fig.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(tt("km_prevAlt")) + '"><rect width="' + W + '" height="' + H + '" fill="#eef1f3"/><rect width="' + W + '" height="' + H + '" fill="#fff"/>' + ((o.base === "leer" || (o.base === "av" && !avCfg().u)) ? "" : '<image href="' + esc(o.bg || bgUrl(box, o.base)) + '" width="' + W + '" height="' + H + '"/>') + overlaySvg(o.overlay, px) + geoSvg(g, px, k, { labels: o.labels }) + '</svg><figcaption>' + esc(o.cap || "") + " · © swisstopo</figcaption>";
+    fig.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(tt("km_prevAlt")) + '"><rect width="' + W + '" height="' + H + '" fill="#eef1f3"/><rect width="' + W + '" height="' + H + '" fill="#fff"/>' + ((o.base === "leer" || (o.base === "av" && !avCfg().u)) ? "" : '<image href="' + esc(o.bg || bgUrl(box, o.base)) + '" width="' + W + '" height="' + H + '"/>') + overlaySvg(o.overlay, px) + geoSvg(g, px, k, { labels: o.labels }) + '</svg><figcaption>' + esc(o.cap || "") + (o.base === "kataster" ? " · © geo.admin.ch / Kantone (Amtliche Vermessung)" : " · © swisstopo") + "</figcaption>";
     var im = fig.querySelector("image"); im.addEventListener("error", function () { im.remove(); });
     return fig;
   }
   /* kleine Vorschau je Datensatz */
-  function preview(lines, tt, pts, areas, wl, geb) { return mapFigure({ lines: lines || [], pts: pts || [], areas: areas || [], wl: wl || [], geb: geb || [] }, tt, { W: 360, H: 220, base: "farbe", cap: tt("km_prevCap").replace("{m}", fmt(total(lines))) }); }
+  /* Übersicht (Situation, Vorschau): statt Landeskarte (farbig/grau) der Parzellenplan; Luftbild, leere Basis und eigener WMS bleiben */
+  function ovBase(b) { return !b || b === "farbe" || b === "grau" ? "kataster" : b; }
+  function preview(lines, tt, pts, areas, wl, geb) { return mapFigure({ lines: lines || [], pts: pts || [], areas: areas || [], wl: wl || [], geb: geb || [] }, tt, { W: 360, H: 220, base: "kataster", cap: tt("km_prevCap").replace("{m}", fmt(total(lines))) }); }
 
   /* Geokatalog: alle WMTS/WMS-Ebenen von geo.admin.ch (Konfiguration wird einmal geladen) */
   var catPromise = null, CATKEY = "lvd-km-ov";
@@ -5461,8 +5465,8 @@ var FIG = (function () {
         b.addEventListener("click", function (e) { e.stopPropagation(); askHide(); it.fn(); }); a.appendChild(b);
       });
       var cp = map.latLngToContainerPoint(ll), mp = $("#kmMap"), ah = a.offsetHeight || 40 + items.length * 34, aw = a.offsetWidth || 250;   /* oberhalb des Punkts (verdeckt die weitere Zeichenrichtung nicht), sonst darunter */
-      var top = cp.y - ah - 12 >= 4 ? cp.y - ah - 12 : cp.y + 14;
-      a.style.left = Math.max(4, Math.min(mp.clientWidth - aw - 4, cp.x - aw / 2)) + mp.offsetLeft + "px"; a.style.top = Math.max(4, Math.min(mp.clientHeight - ah - 4, top)) + mp.offsetTop + "px";
+      if (mp.clientWidth >= 640) { a.style.left = (cp.x < mp.clientWidth / 2 ? mp.clientWidth - aw - 8 : 8) + mp.offsetLeft + "px"; a.style.top = 8 + mp.offsetTop + "px"; }   /* in der von der Klickstelle abgewandten oberen Ecke: verdeckt weder Punkt noch Zeichenrichtung */
+      else { var top = cp.y - ah - 10 >= 4 ? cp.y - ah - 10 : cp.y + 14; a.style.left = Math.max(4, Math.min(mp.clientWidth - aw - 4, cp.x - aw / 2)) + mp.offsetLeft + "px"; a.style.top = Math.max(4, Math.min(mp.clientHeight - ah - 4, top)) + mp.offsetTop + "px"; }   /* schmale Karte: am Punkt */
     }
     function nearShaft(c, maxM, onlyExisting) {
       var best = null; M.pts.forEach(function (p) { if (onlyExisting && (!p.mode || p.mode === "neu")) return; var d = AD.dist(c, p.pt); if (isFinite(d) && d <= maxM && (!best || d < best.d)) best = { p: p, d: d }; }); return best;
@@ -5985,7 +5989,7 @@ var FIG = (function () {
     if (!plan && opt.autoPlan && !ovl && opt.planImg && opt.planImg.img) { $("#kmOvPlan").click(); } (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
-  window.KARTE = { cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
+  window.KARTE = { ovBase: ovBase, cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
 })();
 
 </script>
@@ -6971,7 +6975,7 @@ var FIG = (function () {
     if (!hasMap && !hasPlan) return;
     var sec = document.createElement("section"); sec.className = "situ no-summary"; var body = document.createElement("div"); body.className = "situbody"; body.id = "situBody";
     if (hasMap) {
-      var g = situGeo(), base = K.base || "farbe", bg = K.bg && K.bg.key === KARTE.bgKey(g, 760, 420, base) ? K.bg.src : null;
+      var g = situGeo(), base = KARTE.ovBase(K.base), bg = K.bg && K.bg.key === KARTE.bgKey(g, 760, 420, base) ? K.bg.src : null;
       g.lab = mkLabels(K, mapFns()); var fig = KARTE.mapFigure(g, tt, { W: 760, H: 420, base: base, bg: bg, labels: true, overlay: ovResolve(K.overlay), cls: "situfig", cap: fill(tt("sit_capMap"), { m: KARTE.fmt(KARTE.total(g.lines)), n: K.pts.length, s: K.sond.length, f: (K.areas || []).length }) }); if (fig) body.appendChild(fig);
     }
     if (hasPlan) { var pv = KARTE.planPreview(P, tt, mkLabels(P, planFns())); if (pv) { pv.className = "situfig"; var cap = document.createElement("figcaption"); cap.textContent = tt("sit_capPlan") + (P.cal && P.cal.scale ? " · " + (P.cal.auto ? "1:" + P.cal.auto : "1 px = " + Math.round(P.cal.scale * 1000) / 1000 + " m") : ""); pv.appendChild(cap); body.appendChild(pv); } }
@@ -7013,7 +7017,7 @@ var FIG = (function () {
   }
   /* Overlay-Bild: Verweis auf den Plan-Reiter (keine Doppelspeicherung) oder eingebettet */
   function ovResolve(o) { if (!o) return null; var r = Object.assign({}, o); if (o.ref === "plan") { if (!S.plan.img) return null; r.img = S.plan.img; r.w = S.plan.w; r.h = S.plan.h; } return r.img ? r : null; }
-  function cacheSitu() { var g = situGeo(), base = S.karte.base || "farbe"; KARTE.cacheBg(g, base, 760, 420, function (bg) { S.karte.bg = bg; save(); situRender(); }); }
+  function cacheSitu() { var g = situGeo(), base = KARTE.ovBase(S.karte.base); KARTE.cacheBg(g, base, 760, 420, function (bg) { S.karte.bg = bg; save(); situRender(); }); }
   /* Breite Tabellen: horizontal scrollbar UND per Tastatur erreichbar (WCAG 2.1.1) */
   function wrapTables(root) {
     var k = 0;

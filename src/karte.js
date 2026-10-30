@@ -238,12 +238,14 @@
     var W = o.W, H = o.H, box = geoBox(g, W, H); if (!box) return null;
     var bb = box.bb, sc = box.sc, k = W / 360, px = function (p) { return [((p[0] - bb[0]) / sc), ((bb[3] - p[1]) / sc)]; };
     var fig = document.createElement("figure"); fig.className = o.cls || "kmprev";
-    fig.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(tt("km_prevAlt")) + '"><rect width="' + W + '" height="' + H + '" fill="#eef1f3"/><rect width="' + W + '" height="' + H + '" fill="#fff"/>' + ((o.base === "leer" || (o.base === "av" && !avCfg().u)) ? "" : '<image href="' + esc(o.bg || bgUrl(box, o.base)) + '" width="' + W + '" height="' + H + '"/>') + overlaySvg(o.overlay, px) + geoSvg(g, px, k, { labels: o.labels }) + '</svg><figcaption>' + esc(o.cap || "") + " · © swisstopo</figcaption>";
+    fig.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(tt("km_prevAlt")) + '"><rect width="' + W + '" height="' + H + '" fill="#eef1f3"/><rect width="' + W + '" height="' + H + '" fill="#fff"/>' + ((o.base === "leer" || (o.base === "av" && !avCfg().u)) ? "" : '<image href="' + esc(o.bg || bgUrl(box, o.base)) + '" width="' + W + '" height="' + H + '"/>') + overlaySvg(o.overlay, px) + geoSvg(g, px, k, { labels: o.labels }) + '</svg><figcaption>' + esc(o.cap || "") + (o.base === "kataster" ? " · © geo.admin.ch / Kantone (Amtliche Vermessung)" : " · © swisstopo") + "</figcaption>";
     var im = fig.querySelector("image"); im.addEventListener("error", function () { im.remove(); });
     return fig;
   }
   /* kleine Vorschau je Datensatz */
-  function preview(lines, tt, pts, areas, wl, geb) { return mapFigure({ lines: lines || [], pts: pts || [], areas: areas || [], wl: wl || [], geb: geb || [] }, tt, { W: 360, H: 220, base: "farbe", cap: tt("km_prevCap").replace("{m}", fmt(total(lines))) }); }
+  /* Übersicht (Situation, Vorschau): statt Landeskarte (farbig/grau) der Parzellenplan; Luftbild, leere Basis und eigener WMS bleiben */
+  function ovBase(b) { return !b || b === "farbe" || b === "grau" ? "kataster" : b; }
+  function preview(lines, tt, pts, areas, wl, geb) { return mapFigure({ lines: lines || [], pts: pts || [], areas: areas || [], wl: wl || [], geb: geb || [] }, tt, { W: 360, H: 220, base: "kataster", cap: tt("km_prevCap").replace("{m}", fmt(total(lines))) }); }
 
   /* Geokatalog: alle WMTS/WMS-Ebenen von geo.admin.ch (Konfiguration wird einmal geladen) */
   var catPromise = null, CATKEY = "lvd-km-ov";
@@ -874,8 +876,8 @@
         b.addEventListener("click", function (e) { e.stopPropagation(); askHide(); it.fn(); }); a.appendChild(b);
       });
       var cp = map.latLngToContainerPoint(ll), mp = $("#kmMap"), ah = a.offsetHeight || 40 + items.length * 34, aw = a.offsetWidth || 250;   /* oberhalb des Punkts (verdeckt die weitere Zeichenrichtung nicht), sonst darunter */
-      var top = cp.y - ah - 12 >= 4 ? cp.y - ah - 12 : cp.y + 14;
-      a.style.left = Math.max(4, Math.min(mp.clientWidth - aw - 4, cp.x - aw / 2)) + mp.offsetLeft + "px"; a.style.top = Math.max(4, Math.min(mp.clientHeight - ah - 4, top)) + mp.offsetTop + "px";
+      if (mp.clientWidth >= 640) { a.style.left = (cp.x < mp.clientWidth / 2 ? mp.clientWidth - aw - 8 : 8) + mp.offsetLeft + "px"; a.style.top = 8 + mp.offsetTop + "px"; }   /* in der von der Klickstelle abgewandten oberen Ecke: verdeckt weder Punkt noch Zeichenrichtung */
+      else { var top = cp.y - ah - 10 >= 4 ? cp.y - ah - 10 : cp.y + 14; a.style.left = Math.max(4, Math.min(mp.clientWidth - aw - 4, cp.x - aw / 2)) + mp.offsetLeft + "px"; a.style.top = Math.max(4, Math.min(mp.clientHeight - ah - 4, top)) + mp.offsetTop + "px"; }   /* schmale Karte: am Punkt */
     }
     function nearShaft(c, maxM, onlyExisting) {
       var best = null; M.pts.forEach(function (p) { if (onlyExisting && (!p.mode || p.mode === "neu")) return; var d = AD.dist(c, p.pt); if (isFinite(d) && d <= maxM && (!best || d < best.d)) best = { p: p, d: d }; }); return best;
@@ -1398,5 +1400,5 @@
     if (!plan && opt.autoPlan && !ovl && opt.planImg && opt.planImg.img) { $("#kmOvPlan").click(); } (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
-  window.KARTE = { cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
+  window.KARTE = { ovBase: ovBase, cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
 })();

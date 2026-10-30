@@ -979,7 +979,7 @@
     if (!hasMap && !hasPlan) return;
     var sec = document.createElement("section"); sec.className = "situ no-summary"; var body = document.createElement("div"); body.className = "situbody"; body.id = "situBody";
     if (hasMap) {
-      var g = situGeo(), base = K.base || "farbe", bg = K.bg && K.bg.key === KARTE.bgKey(g, 760, 420, base) ? K.bg.src : null;
+      var g = situGeo(), base = KARTE.ovBase(K.base), bg = K.bg && K.bg.key === KARTE.bgKey(g, 760, 420, base) ? K.bg.src : null;
       g.lab = mkLabels(K, mapFns()); var fig = KARTE.mapFigure(g, tt, { W: 760, H: 420, base: base, bg: bg, labels: true, overlay: ovResolve(K.overlay), cls: "situfig", cap: fill(tt("sit_capMap"), { m: KARTE.fmt(KARTE.total(g.lines)), n: K.pts.length, s: K.sond.length, f: (K.areas || []).length }) }); if (fig) body.appendChild(fig);
     }
     if (hasPlan) { var pv = KARTE.planPreview(P, tt, mkLabels(P, planFns())); if (pv) { pv.className = "situfig"; var cap = document.createElement("figcaption"); cap.textContent = tt("sit_capPlan") + (P.cal && P.cal.scale ? " · " + (P.cal.auto ? "1:" + P.cal.auto : "1 px = " + Math.round(P.cal.scale * 1000) / 1000 + " m") : ""); pv.appendChild(cap); body.appendChild(pv); } }
@@ -1021,7 +1021,7 @@
   }
   /* Overlay-Bild: Verweis auf den Plan-Reiter (keine Doppelspeicherung) oder eingebettet */
   function ovResolve(o) { if (!o) return null; var r = Object.assign({}, o); if (o.ref === "plan") { if (!S.plan.img) return null; r.img = S.plan.img; r.w = S.plan.w; r.h = S.plan.h; } return r.img ? r : null; }
-  function cacheSitu() { var g = situGeo(), base = S.karte.base || "farbe"; KARTE.cacheBg(g, base, 760, 420, function (bg) { S.karte.bg = bg; save(); situRender(); }); }
+  function cacheSitu() { var g = situGeo(), base = KARTE.ovBase(S.karte.base); KARTE.cacheBg(g, base, 760, 420, function (bg) { S.karte.bg = bg; save(); situRender(); }); }
   /* Breite Tabellen: horizontal scrollbar UND per Tastatur erreichbar (WCAG 2.1.1) */
   function wrapTables(root) {
     var k = 0;

@@ -1,0 +1,10 @@
+const {chromium,ok,mk,getS,FULL,dataUrl}=require('/tmp/claude-0/lf/k.js');
+(async()=>{const b=await chromium.launch(); const pg=await mk(b); const urls=[];
+pg.on('request',r=>{if(r.url().includes('GetMap'))urls.push(r.url())});
+await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.evaluate(([f,a])=>{const S=JSON.parse(localStorage.getItem('lv-devis-tiefbau-v2')); (new Function('S','a',f))(S,a); localStorage.setItem('lv-devis-tiefbau-v2',JSON.stringify(S));},[FULL,dataUrl]); await pg.reload(); await pg.waitForTimeout(1500);
+const sec=await pg.locator('.situ').count(); ok(sec>0,'Übersicht (Situation) vorhanden');
+const href=await pg.evaluate(()=>{const i=document.querySelector('.situ image'); return i?i.getAttribute('href'):''});
+ok(/cadastralwebmap/.test(href)||href.startsWith('data:'),'Übersicht zeigt Parzellenplan: '+href.slice(0,110));
+ok(!/pixelkarte/.test(href),'keine Landeskarte in der Übersicht');
+ok((await pg.textContent('.situ')).includes('Amtliche Vermessung'),'Quellenangabe Parzellenplan');
+ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();
