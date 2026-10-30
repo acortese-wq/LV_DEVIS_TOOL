@@ -93,3 +93,26 @@ Die Übersicht (Situation auf dem Bildschirm und im Ausdruck, Vorschau in den Re
 
 ## Google Street View (Oktober 2026)
 **Ohne Schlüssel:** Knopf «Street View» (Kartenmitte) und Kontextmenü «Street View hier öffnen» (auf Kartenpunkt oder Objekt; bei Linien mit Blickrichtung entlang der Linie) öffnen Google Street View über die offizielle Maps-URL in einem neuen Tab. Dabei wird die Koordinate an Google übermittelt (Datenschutzhinweis im Knopf-Tooltip). **Mit Schlüssel (optional):** «Street View-Schlüssel» speichert einen Google-Maps-Embed-API-Schlüssel nur im Browser (nicht im Projekt, nicht in der Sicherung); danach bettet «Street View hier einbetten» die Ansicht als Fenster in die Karte ein. Der Schlüssel muss von Google für diese Seite freigegeben werden (Referrer-Beschränkung empfohlen). **Geprüft:** Link-Erzeugung, Blickrichtung, Menü, Embed-URL, axe-core. **Nicht geprüft:** echte Google-Dienste und Schlüssel (Netz gesperrt); die Nutzungsbedingungen von Google Maps Platform (Schlüssel, ggf. Abrechnung) liegen beim Benutzer. Im Plan-Modus ohne Lagebezug nicht verfügbar.
+
+## Zyklus 4: Positionsprüfung im Kostenvoranschlag (Oktober 2026)
+**Einordnung:** LV-Devis Tiefbau ist ein *Kostenvoranschlag-Rechner* (Eingabe je Element → LV-Positionen → Summen). Er ist kein Offerten-/Rechnungsprüf-Tool; Funktionen wie «Offerte», «Ausmass», «Preisgrundlage», Preisabweichung gegenüber Offerte oder Benutzerverwaltung existieren nicht und wurden **nicht vorgetäuscht**. Die Positionsliste (Aufstellung nach Elementen und Zusammenfassung nach Kapiteln, bis ~190 Positionen) ist das zentrale Arbeitselement.
+
+**Top-10-Befunde (belegt durch Messung/Browser)**
+| # | Stufe | Befund | Massnahme |
+|---|---|---|---|
+| 1 | 🔴 | 320 px: Seite läuft über (341 px) – Knopfzeile «Alle einklappen/Rechenweg» bricht nicht um; Reiter «Annahmen» (Dimensionstabelle) läuft über | umbrechen, Eingaben schmaler |
+| 2 | 🔴 | 881–940 px: Seite läuft über (Vollständigkeitsliste, `white-space:nowrap`) | umbrechen |
+| 3 | 🔴 | Keine Suche über alle Positionen des Ergebnisses (nur «Weitere LV-Positionen» filtert) → eine Position unter 90–190 Zeilen zu finden kostet Scrollen | Positionsfilter (Nummer/Text, Taste «/», Trefferzahl, Blöcke mit Treffern öffnen automatisch) |
+| 4 | 🟠 | Tabellenkopf scrollt weg (kein Sticky Header) → bei langen Elementtabellen geht die Spaltenzuordnung verloren | Sticky Tabellenkopf unterhalb der Kostenleiste (ab 1101 px) |
+| 5 | 🟠 | Kein Weg, Prüfergebnisse je Position festzuhalten (geprüft / zu klären, Bemerkung) | Prüfstatus je Position mit Symbol + Text, Notiz, Zeitstempel; lokal im Projekt gespeichert (JSON-Sicherung, `S.pruef`) |
+| 6 | 🟠 | Kostentreiber nicht auf einen Blick erkennbar | Top-10 grösste Positionen mit Sprung zur Zeile |
+| 7 | 🟠 | Kein Überblick «was ist schon geprüft» | Prüfstand-Zeile (geprüft/zu klären/offen von N) + Statusfilter |
+| 8 | 🟢 | Ergebnis-Kopfzeile: fünf gleich starke Knöpfe | bestehend (Drucken primär, übrige sekundär) – unverändert |
+| 9 | 🟢 | Zoomstufen/Touch: Checkboxen 18 px | axe-core ohne Befund (WCAG 2.5.8 Ausnahme durch Abstand), unverändert |
+| 10 | 🟢 | Positionsdetail nur im Rechenweg-Block | bestehend; kein Side-Panel nötig, da Rechenweg je Zeile eingeblendet werden kann – unverändert |
+
+**Bewusst unverändert:** Rechenkern, Datenstruktur und Schlüssel (`lv-devis-tiefbau-v2`; neu nur das optionale Feld `pruef`, ältere Sicherungen laden unverändert), Berechnung, Excel-/Druck-/JSON-Ausgabe, Navigation (11 Reiter), Karte, Formulare. **Statusfarben:** immer Symbol + Text (○ Offen · ✔ Geprüft · ⚠ Klären), Farbe nur zusätzlich.
+
+**Revisionsnachvollziehbarkeit:** je Position Status, Notiz und Zeitpunkt der letzten Änderung (Browser-Zeit). Keine Benutzerkennung, keine Änderungshistorie (kein Backend) – im Hinweis ausgewiesen. Notiz und Status erscheinen im Ausdruck; **nicht** in der Excel-Ausgabe.
+
+**Nicht geprüft / offen:** Screenreader-Praxistest; Nutzertests; Excel-Export der Prüfnotizen; Sortierung der Positionstabelle nach Betrag (Positionen sind nach NPK-Kapitel gruppiert; Top-10 ersetzt dies); Side-Panel für Positionsdetails.

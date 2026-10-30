@@ -5,7 +5,7 @@
 const { chromium } = require(process.env.PW || '/opt/node22/lib/node_modules/playwright');
 const fs = require('fs'), path = require('path'), os = require('os');
 const URL = 'file://' + path.resolve(__dirname, '../index.html'), AXE = process.env.AXE || '';
-const VPS = [[360, 800], [768, 1024], [1280, 900], [1440, 900], [1800, 1000]], TABS = ['graben', 'rohr', 'schacht', 'werkloch', 'fund', 'geb', 'belag', 'allg', 'hon', 'plan', 'par'];
+const VPS = [[320, 700], [375, 800], [768, 1024], [1024, 800], [1280, 900], [1440, 900], [1800, 1000]], TABS = ['graben', 'rohr', 'schacht', 'werkloch', 'fund', 'geb', 'belag', 'allg', 'hon', 'plan', 'par'];
 const res = []; const T = (name, st, info) => { res.push([name, st, info || '']); console.log(st.padEnd(14), name, info || ''); };
 (async () => {
   const b = await chromium.launch();

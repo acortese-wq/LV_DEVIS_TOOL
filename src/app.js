@@ -31,7 +31,7 @@
   function deepFill(dst, src) { Object.keys(src).forEach(function (k) { if (dst[k] == null) dst[k] = JSON.parse(JSON.stringify(src[k])); else if (typeof src[k] === "object" && !Array.isArray(src[k]) && typeof dst[k] === "object") deepFill(dst[k], src[k]); }); }
   function heal() {
     var d = defaults();
-    deepFill(S, d);
+    deepFill(S, d); if (!S.pruef || typeof S.pruef !== "object" || Array.isArray(S.pruef)) S.pruef = {};
     TABS.forEach(function (t) {
       if (!Array.isArray(S.recs[t]) || !S.recs[t].length) { S.recs[t] = [newRec(t, 1)]; S.idx[t] = 0; }
       var nr = newRec(t, 1); S.recs[t].forEach(function (r) { deepFill(r, nr); });
@@ -899,7 +899,7 @@
     }
     var cls = l.flag === "ausserLV" ? "bad" : l.flag === "epGeaendert" ? "chg" : "", mark = l.flag === "ausserLV" ? " ⚠" : l.flag === "epGeaendert" ? " ✎" : "";
     var txt = /^\d{3}\//.test(l.key) ? lvT(l.key) : l.text, ctx = /^\d{3}\//.test(l.key) ? lvC(l.key) : l.ctx;
-    return '<tr class="' + cls + '"><td class="art">' + esc(l.key) + (l.ks === "Belag" ? '<sup class="ks">B</sup>' : "") + "</td><td>" + (ctx ? '<span class="ctx">' + esc(ctx) + "</span>" : "") + "<div>" + esc(txt) + mark + "</div>" +
+    return '<tr class="' + cls + '"><td class="art" data-k="' + esc(l.key) + '">' + esc(l.key) + (l.ks === "Belag" ? '<sup class="ks">B</sup>' : "") + "</td><td>" + (ctx ? '<span class="ctx">' + esc(ctx) + "</span>" : "") + "<div>" + esc(txt) + mark + "</div>" +
       (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit) + '</td><td class="num">' + chf(l.ep) + '</td><td class="num">' + chf(l.total) + "</td></tr>";
   }
   function head() { return "<thead><tr><th>" + esc(tt("c_pos")) + "</th><th>" + esc(tt("c_text")) + '</th><th class="num">' + esc(tt("c_qty")) + "</th><th>" + esc(tt("c_unit")) + '</th><th class="num">' + esc(tt("c_ep")) + '</th><th class="num">' + esc(tt("c_tot")) + "</th></tr></thead>"; }
@@ -969,6 +969,7 @@
       (nAmb ? '<a href="#warns" class="tag amber">' + esc(fill(tt("ux_warn"), { n: nAmb })) + "</a>" : "");
     $("#kpi").innerHTML = '<div class="kpi-main">' + cell(tt("ux_netto"), s.netto, "main") + cell(tt("ux_brutto"), s.brutto) + (hon.length ? cell(tt("ux_hon"), hn) : "") + "</div>" + (n ? '<div class="kpi-tags">' + tags + "</div>" : "");
     $("#mbar").setAttribute("role", "region"); $("#mbar").setAttribute("aria-label", tt("h_kosten"));
+    document.documentElement.style.setProperty("--kpih", ($("#kpi").offsetHeight || 0) + "px");   /* sticky Tabellenkopf unterhalb der Kostenleiste */
     $("#mbar").innerHTML = '<div><span class="kl">' + esc(tt("ux_netto")) + '</span><b>CHF ' + chf(s.netto) + "</b>" + (nStop ? ' <span class="tag stop">' + nStop + " !</span>" : "") + '</div><a class="btn" href="#kpi">' + esc(tt("ux_toRes")) + " ↓</a>";
   }
   /* LV rechts (ab 1500 px): Zusammenstellung und Kosten wie im Ausdruck, live */
@@ -1038,6 +1039,60 @@
     var h = '<div class="lvhead"><h2>' + esc(tt("lv_title")) + '</h2><button type="button" class="btn ghost small" data-lvtoggle>' + esc(tt("lv_hide")) + "</button></div>";
     el.innerHTML = lvHtml ? h + lvHtml : h + '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>"; wrapTables(el);
   }
+  /* ---------- Positionen: Filter, Prüfstatus (lokal, mit Zeitstempel), Top 10 ---------- */
+  var FQ = { q: "", st: "" }, PST = ["", "ok", "klaeren"], PICON = { "": "○", ok: "✔", klaeren: "⚠" };
+  var stOf = function (k) { return ((S.pruef || {})[k] || {}).st || ""; };
+  var pstLab = function (st) { return tt(st === "ok" ? "c_pst_ok" : st === "klaeren" ? "c_pst_kl" : "c_pst_offen"); };
+  function pruefCount(out) { var ok = 0, kl = 0, tot = 0; (out.summary || []).forEach(function (l) { if (l.flag === "offen") return; tot++; var st = stOf(l.key); if (st === "ok") ok++; else if (st === "klaeren") kl++; }); return { ok: ok, kl: kl, of: tot - ok - kl, tot: tot }; }
+  function fbarHtml(out) {
+    var c = pruefCount(out), top = (out.summary || []).filter(function (l) { return l.flag !== "offen"; }).slice().sort(function (a, b) { return b.total - a.total; }).slice(0, 10);
+    return '<div class="fbar no-print" role="search"><label class="fl" for="fQ">' + esc(tt("fl_label")) + '</label><input type="search" id="fQ" value="' + esc(FQ.q) + '" placeholder="' + esc(tt("fl_ph")) + '" autocomplete="off">' +
+      '<label class="fl" for="fSt">' + esc(tt("fl_status")) + '</label><select id="fSt"><option value="">' + esc(tt("fl_all")) + '</option><option value="offen"' + (FQ.st === "offen" ? " selected" : "") + ">" + esc(tt("c_pst_offen")) + '</option><option value="ok"' + (FQ.st === "ok" ? " selected" : "") + ">" + esc(tt("c_pst_ok")) + '</option><option value="klaeren"' + (FQ.st === "klaeren" ? " selected" : "") + ">" + esc(tt("c_pst_kl")) + "</option></select>" +
+      '<button type="button" class="btn ghost small" id="fClr" hidden>' + esc(tt("fl_clear")) + '</button><span class="fcount" id="fCount" role="status" aria-live="polite"></span>' +
+      '<p class="fsum" id="pSum">' + esc(fill(tt("pst_sum"), c)) + "</p></div>" +
+      (top.length ? '<details class="top10 no-print"><summary>' + esc(tt("top_h")) + '</summary><ol>' + top.map(function (l) { var t = /^\d{3}\//.test(l.key) ? lvT(l.key) : l.text; return '<li><button type="button" class="linkbtn" data-topgo="' + esc(l.key) + '">' + esc(l.key) + "</button> " + esc(String(t || "").slice(0, 70)) + ' <b class="num">CHF ' + chf(l.total) + "</b></li>"; }).join("") + "</ol></details>" : "");
+  }
+  function pruefInit() {   /* Statusknopf und Notiz je Position der Zusammenfassung (Nachvollziehbarkeit: Status, Bemerkung, Zeitpunkt) */
+    var box = document.querySelector("#result .zusblk"); if (!box) return;
+    box.querySelectorAll("td.art[data-k]").forEach(function (td) {
+      var k = td.dataset.k, tr = td.parentNode, e = (S.pruef || {})[k] || {}, st = e.st || "", b = document.createElement("button");
+      b.type = "button"; b.className = "pst"; b.setAttribute("data-pst", k); td.insertBefore(b, td.firstChild);
+      var cell = tr.cells[1], inp = document.createElement("input"), pr = document.createElement("span"), ts = document.createElement("small");
+      inp.type = "text"; inp.className = "pnote no-print"; inp.placeholder = tt("pst_ph"); inp.value = e.note || ""; inp.setAttribute("aria-label", tt("pst_note") + " " + k); inp.setAttribute("data-pnote", k);
+      pr.className = "pnote-p print-only"; ts.className = "pts"; cell.appendChild(inp); cell.appendChild(pr); cell.appendChild(ts); pstPaint(tr, k);
+    });
+  }
+  function pstPaint(tr, k) {
+    var e = (S.pruef || {})[k] || {}, st = e.st || "", b = tr.querySelector(".pst"), inp = tr.querySelector(".pnote"), pr = tr.querySelector(".pnote-p"), ts = tr.querySelector(".pts");
+    tr.classList.toggle("pst-ok", st === "ok"); tr.classList.toggle("pst-kl", st === "klaeren");
+    b.innerHTML = '<span aria-hidden="true">' + PICON[st] + '</span><span class="pst-t">' + esc(pstLab(st)) + "</span>"; b.setAttribute("aria-label", tt("pst_cycle") + ": " + pstLab(st) + " – " + k);
+    inp.hidden = !(st || e.note); pr.textContent = e.note ? tt("pst_note") + ": " + e.note : ""; ts.textContent = e.ts ? fill(tt("pst_changed"), { t: new Date(e.ts).toLocaleString("de-CH", { dateStyle: "short", timeStyle: "short" }) }) : ""; ts.hidden = !e.ts;
+  }
+  function pstSet(k, patch) {
+    S.pruef = S.pruef || {}; var e = Object.assign({}, S.pruef[k] || {}, patch, { ts: new Date().toISOString() });
+    if (!e.st && !e.note) delete S.pruef[k]; else S.pruef[k] = e; save();
+    var tr = document.querySelector('#result .zusblk td.art[data-k="' + (window.CSS && CSS.escape ? CSS.escape(k) : k) + '"]'); tr = tr && tr.parentNode; if (tr) pstPaint(tr, k);
+    var ps = $("#pSum"); if (ps && lastOut) ps.textContent = fill(tt("pst_sum"), pruefCount(lastOut)); applyFilter();
+  }
+  function applyFilter() {
+    var q = FQ.q.trim().toLowerCase(), st = FQ.st, res = $("#result"); if (!res) return; var on = !!(q || st);
+    var rows = res.querySelectorAll(".elres-body tbody tr, .zusblk tbody tr");
+    rows.forEach(function (tr) {
+      if (tr.classList.contains("grp")) return; var td = tr.querySelector("td.art"), k = td && td.dataset.k, txt = tr.textContent.toLowerCase();
+      var okq = !q || txt.indexOf(q) >= 0, oks = !st || (k && (st === "offen" ? !stOf(k) : stOf(k) === st));
+      tr.classList.toggle("fhide", !(okq && oks));
+    });
+    res.querySelectorAll("tbody").forEach(function (tb) {   /* Gruppenzeilen ohne Treffer ausblenden */
+      var grp = null, any = false; [].slice.call(tb.children).forEach(function (tr) { if (tr.classList.contains("grp")) { if (grp) grp.classList.toggle("fhide", !any); grp = tr; any = false; } else if (!tr.classList.contains("fhide")) any = true; }); if (grp) grp.classList.toggle("fhide", !any);
+    });
+    res.querySelectorAll(".elres").forEach(function (bx) {   /* Blöcke: bei aktivem Filter nur mit Treffern, diese geöffnet; sonst gespeicherter Zustand */
+      var has = bx.querySelectorAll("tbody tr:not(.grp):not(.fhide)").length > 0, id = bx.dataset.id;
+      if (on) { bx.classList.toggle("fhide", !has); bx.classList.toggle("closed", !has); } else { bx.classList.remove("fhide"); bx.classList.toggle("closed", S.ui.closed[id] !== false && !bx.classList.contains("cur")); }
+      var h = bx.querySelector(".elhead"); if (h) h.setAttribute("aria-expanded", bx.classList.contains("closed") ? "false" : "true");
+    });
+    var shown = res.querySelectorAll(".zusblk tbody tr:not(.grp):not(.fhide)").length, tot = res.querySelectorAll(".zusblk tbody tr:not(.grp)").length, c = $("#fCount"), cl = $("#fClr");
+    if (c) c.textContent = on ? (shown ? fill(tt("fl_count"), { n: shown, m: tot }) : tt("fl_none")) : ""; if (cl) cl.hidden = !on;
+  }
   function renderResult() {
     var out = KVE.calc(S, LV); lastOut = out;
     var lvHtml = "", html = "", stop = out.warn.some(function (w) { return w.sev === "stop"; }), amber = out.warn.some(function (w) { return w.sev === "amber"; });
@@ -1050,7 +1105,7 @@
     if (top.length) html += "<ul>" + top.map(function (w) { return "<li>" + warnGo(w) + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul>" + (out.warn.length > top.length ? '<p><a href="#warns">' + esc(tt("ux_allWarn")) + " (" + out.warn.length + ")</a></p>" : "");
     html += "</div>";
     if (n) {
-      html += '<div class="no-summary"><h3>' + esc(tt("h_aufst")) + '</h3><div class="collrow no-print"><button type="button" class="btn ghost" data-act="collapse">' + esc(tt("btnCollapse")) + '</button><button type="button" class="btn ghost" data-act="expand">' + esc(tt("btnExpand")) + '</button><button type="button" class="btn ghost" data-act="rules" aria-pressed="' + !!S.ui.rules + '">' + (S.ui.rules ? "✓ " : "") + esc(tt("ux_rules")) + "</button></div>";
+      html += '<div class="no-summary"><h3>' + esc(tt("h_aufst")) + '</h3><div class="collrow no-print"><button type="button" class="btn ghost" data-act="collapse">' + esc(tt("btnCollapse")) + '</button><button type="button" class="btn ghost" data-act="expand">' + esc(tt("btnExpand")) + '</button><button type="button" class="btn ghost" data-act="rules" aria-pressed="' + !!S.ui.rules + '">' + (S.ui.rules ? "✓ " : "") + esc(tt("ux_rules")) + "</button></div>" + fbarHtml(out);
       out.elems.forEach(function (e) {
         var cur = S.tab === e.tab && S.idx[e.tab] === e.idx, extra = e.tab === "schacht" ? schachtExtra(e) : "";
         if (!e.lines.length && !extra) return;
@@ -1100,7 +1155,7 @@
     if (ws.length) html += '<div class="no-summary"><h3 id="warns" tabindex="-1">' + esc(tt("h_warn")) + '</h3><ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + (w.tab ? '<a href="#" data-go="' + w.tab + ":" + w.idx + '" title="' + esc(tt("ux_go")) + '">' + esc(tt("tab_" + w.tab) + " · " + w.el) + "</a>" : esc(w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul></div>";
     html += '<details class="ref no-summary"><summary>' + esc(tt("h_grund")) + "</summary><ul class='doclist' style='padding:6px 14px'>" + (T[S.lang] || T.de).g_list.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "<li>" + esc(tt("g_lvOnlyDE")) + "</li></ul></details>";
     html += '<div class="sigline print-only"><div>' + esc(tt("sigA")) + "</div><div>" + esc(tt("sigB")) + "</div></div>";
-    $("#result").innerHTML = html; wrapTables($("#result")); situRender();
+    $("#result").innerHTML = html; wrapTables($("#result")); pruefInit(); applyFilter(); situRender();
     lvRender(lvHtml, hon, out);
     kpiRender(out, hon, n);
     renderTabs(); refreshFig(); if (S.tab === "hon") refreshHon();
@@ -1280,12 +1335,23 @@
       var g = ev.target.closest("[data-go]"); if (g) { ev.preventDefault(); var p = g.dataset.go.split(":"); S.tab = p[0]; S.idx[p[0]] = +p[1]; save(); renderForm(); renderResult(); window.scrollTo({ top: $("#tabs").offsetTop - 8, behavior: "smooth" }); return; }
       var im = ev.target.closest("img[data-lb]"); if (im) { $("#lb img").src = im.src; $("#lb img").alt = im.alt || ""; $("#lb").classList.add("on"); lbFrom = im; $("#lbClose").focus(); return; }
       var t = ev.target.closest("[data-toggle]"); if (t) { var box = t.closest(".elres"), cl = !box.classList.contains("closed"); box.classList.toggle("closed", cl); t.setAttribute("aria-expanded", cl ? "false" : "true"); S.ui.closed[t.dataset.toggle] = cl; save(); return; }
+      var pb = ev.target.closest("[data-pst]"); if (pb) { var k0 = pb.dataset.pst, nx = PST[(PST.indexOf(stOf(k0)) + 1) % PST.length]; pstSet(k0, { st: nx }); return; }
+      var tg = ev.target.closest("[data-topgo]"); if (tg) { S.ui.closed.zus = false; var zb = document.querySelector('#result .elres[data-id="zus"]'); FQ = { q: "", st: "" }; renderResult(); zb = document.querySelector('#result .elres[data-id="zus"]'); if (zb) { zb.classList.remove("closed"); var tdk = zb.querySelector('td.art[data-k="' + tg.dataset.topgo.replace(/"/g, "") + '"]'); if (tdk) { tdk.parentNode.classList.add("flash"); tdk.parentNode.scrollIntoView({ block: "center", behavior: "smooth" }); setTimeout(function () { tdk.parentNode.classList.remove("flash"); }, 2500); } } return; }
+      if (ev.target.id === "fClr") { FQ = { q: "", st: "" }; $("#fQ").value = ""; $("#fSt").value = ""; applyFilter(); $("#fQ").focus(); return; }
       var a = ev.target.closest("[data-act]"); if (!a) return;
       if (a.dataset.act === "rules") { S.ui.rules = !S.ui.rules; save(); document.body.classList.toggle("rules-on", S.ui.rules); a.setAttribute("aria-pressed", S.ui.rules); a.textContent = (S.ui.rules ? "✓ " : "") + tt("ux_rules");
         document.querySelectorAll("#result details.bal").forEach(function (d) { d.open = S.ui.rules; }); return; }
       var c = a.dataset.act === "collapse";
       document.querySelectorAll("#result .elres").forEach(function (bx) { bx.classList.toggle("closed", c); S.ui.closed[bx.dataset.id] = c; });
     });
+    var rs = $("#result"), pnT = {};
+    rs.addEventListener("input", function (ev) {
+      var t = ev.target; if (t.id === "fQ") { FQ.q = t.value; applyFilter(); return; }
+      if (t.dataset && t.dataset.pnote) { var k = t.dataset.pnote; clearTimeout(pnT[k]); pnT[k] = setTimeout(function () { pstSet(k, { note: t.value.trim() }); }, 400); }
+    });
+    rs.addEventListener("change", function (ev) { if (ev.target.id === "fSt") { FQ.st = ev.target.value; applyFilter(); } });
+    rs.addEventListener("keydown", function (ev) { if (ev.target.id === "fQ" && ev.key === "Escape") { FQ.q = ""; ev.target.value = ""; applyFilter(); ev.stopPropagation(); } });
+    document.addEventListener("keydown", function (ev) { if (ev.key === "/" && !/INPUT|TEXTAREA|SELECT/.test((ev.target.tagName || "")) && !document.querySelector("dialog[open]") && $("#fQ")) { ev.preventDefault(); $("#fQ").focus(); } });
     var lbFrom = null, lbShut = function () { if (!$("#lb").classList.contains("on")) return; $("#lb").classList.remove("on"); if (lbFrom && lbFrom.focus) lbFrom.focus(); };
     $("#lb").addEventListener("click", lbShut);
     document.addEventListener("keydown", function (ev) { if (ev.key === "Escape") lbShut(); });
