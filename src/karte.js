@@ -809,9 +809,10 @@
       };
       pm(M.pts, "kmsch", ""); pm(M.sond, "kmsond", "S"); pm(M.wl, "kmwl", "W"); pm(M.geb, "kmgeb", "G");
       if (showLbl && opt.labels) {   /* Beschriftung: Linie mit Name, Länge und Rohranlage; Schächte, Sondagen, Werklöcher, Einführungen, Flächen mit Name */
-        var lb = opt.labels(M, { len: lineLen, area: area }), put = function (ll, t, cls) { if (t) L.marker(ll, { interactive: false, keyboard: false, zIndexOffset: -500, icon: L.divIcon({ className: "kmlbl " + cls, html: "<span>" + esc(t) + "</span>", iconSize: [0, 0] }) }).addTo(grp); };
+        var lb = opt.labels(M, { len: lineLen, area: area }), put = function (ll, t, cls, ang) { if (t) L.marker(ll, { interactive: false, keyboard: false, zIndexOffset: -500, icon: L.divIcon({ className: "kmlbl " + cls, html: "<span" + (ang != null ? ' style="--a:' + ang + 'deg"' : "") + ">" + esc(t) + "</span>", iconSize: [0, 0] }) }).addTo(grp); };
         M.lines.forEach(function (l, i) { if (l.pts.length < 2) return; var bj = 1, bd = -1; for (var j = 1; j < l.pts.length; j++) { var dd = AD.dist(l.pts[j - 1], l.pts[j]) || Math.hypot(l.pts[j][0] - l.pts[j - 1][0], l.pts[j][1] - l.pts[j - 1][1]); if (dd > bd) { bd = dd; bj = j; } }
-          put(AD.ll([(l.pts[bj - 1][0] + l.pts[bj][0]) / 2, (l.pts[bj - 1][1] + l.pts[bj][1]) / 2]), lb.lines && lb.lines[i], "c"); });
+          var pa = map.latLngToLayerPoint(AD.ll(l.pts[bj - 1])), pb = map.latLngToLayerPoint(AD.ll(l.pts[bj])), an = Math.atan2(pb.y - pa.y, pb.x - pa.x) * 180 / Math.PI; if (an > 90) an -= 180; if (an < -90) an += 180;   /* Beschriftung in Leitungsrichtung, nie auf dem Kopf */
+          put(AD.ll([(l.pts[bj - 1][0] + l.pts[bj][0]) / 2, (l.pts[bj - 1][1] + l.pts[bj][1]) / 2]), lb.lines && lb.lines[i], "c rot", Math.round(an * 10) / 10); });
         [["pts", M.pts], ["sond", M.sond], ["wl", M.wl], ["geb", M.geb]].forEach(function (a) { a[1].forEach(function (p, i) { put(AD.ll(p.pt), lb[a[0]] && lb[a[0]][i], "r"); }); });
         M.areas.forEach(function (f, i) { if (f.pts.length < 3) return; var cx = 0, cy = 0; f.pts.forEach(function (p) { cx += p[0]; cy += p[1]; }); put(AD.ll([cx / f.pts.length, cy / f.pts.length]), lb.areas && lb.areas[i], "c"); });
       }
