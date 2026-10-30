@@ -5427,10 +5427,19 @@ var FIG = (function () {
     }
     /* ---------- Rückfragen am Klickpunkt: Schacht neu / Anschluss an bestehenden / nur Deckel / Oberfläche wechselt ---------- */
     function askHide() { var a = $("#kmAsk"); if (a) { a.hidden = true; a.innerHTML = ""; } }
-    function askShow(ll, title, items, focusIdx, withTyp) {
+    function askShow(ll, title, items, focusIdx, withTyp, bl) {
       var a = $("#kmAsk"); if (!a) return; a.innerHTML = ""; a.hidden = false; a.setAttribute("aria-label", title);
       var t = document.createElement("p"); t.className = "kmask-t"; t.textContent = title; a.appendChild(t);
       if (withTyp && cat && cat.schacht) { var tl = document.createElement("label"); tl.className = "kmask-ty"; tl.textContent = tt("km_typ") + " "; tl.appendChild(sel1(tt("km_typ"), cat.schacht, lastTyp || opt.defTyp, function (v) { lastTyp = v; })); a.appendChild(tl); }
+      if (bl) {   /* Belegung der Leitung direkt wählen: 1×K55, 2×K100 … (Feinabstimmung mit den Zählern in der Leitungskarte) */
+        var c0 = cfgOf(bl), cur = pipeTxt(c0), PR = ["1×K55", "2×K55", "3×K55", "4×K55", "1×K100", "2×K100", "3×K100", "1×K100 + 1×K55", "2×K100 + 3×K55"], opts = [];
+        if (!cur) opts.push(["", "– " + tt("km_lt_choose") + " –"]); else if (PR.indexOf(cur) < 0) opts.push([cur, cur]);
+        PR.forEach(function (v) { opts.push([v, v]); });
+        var bw = document.createElement("label"); bw.className = "kmask-ty"; bw.textContent = tt("km_lt_pipes") + " ";
+        bw.appendChild(sel1(tt("km_lt_pipes"), opts, cur, function (v) {
+          if (!v) return; snap(); var rt = {}; v.split(" + ").forEach(function (q) { var m = /^(\d+)×K(\d+)$/.exec(q); if (m) rt[m[2]] = +m[1]; }); c0.rt = rt; lineSync(bl); lastCfg = JSON.parse(JSON.stringify(c0)); draw(); costSoon(); rows();
+        })); a.appendChild(bw);
+      }
       items.forEach(function (it, i) {
         var b = document.createElement("button"); b.type = "button"; b.className = "btn small" + (it.ghost ? " ghost" : "") + (i === focusIdx ? " sug" : ""); b.textContent = it.t;
         if (it.sub) { var sm = document.createElement("small"); sm.textContent = " (" + it.sub + ")"; b.appendChild(sm); }
@@ -5449,7 +5458,7 @@ var FIG = (function () {
       askShow(AD.ll(c), tt("km_as_start"), [
         { t: tt("km_as_newS"), fn: function () { snap(); l.s = newShaft(c, "neu").id; refresh(); } },
         { t: tt("km_as_conn"), sub: nr ? tt("km_as_near").replace("{d}", fmt(nr.d)) : "", fn: function () { snap(); var p = nr ? nr.p : newShaft(c, "anschluss"); l.pts[0] = p.pt.slice(); l.s = p.id; refresh(); } },
-        { t: tt("km_as_none"), ghost: 1, fn: function () { } }], nr ? 1 : 0, true);
+        { t: tt("km_as_none"), ghost: 1, fn: function () { } }], nr ? 1 : 0, true, l);
     }
     function askEnd(l) {
       var c = l.pts[l.pts.length - 1].slice(); if (plan && !cal.scale) return; var nr = nearShaft(c, 15), ne = nearShaft(c, 15, true);
@@ -5458,7 +5467,7 @@ var FIG = (function () {
         { t: tt("km_as_conn"), sub: nr ? tt("km_as_near").replace("{d}", fmt(nr.d)) : "", fn: function () { snap(); var p = nr ? nr.p : newShaft(c, "anschluss"); l.pts[l.pts.length - 1] = p.pt.slice(); l.e = p.id; refresh(); } },
         { t: tt("km_as_surf"), fn: function () { askSurface(l, c); } },
         { t: tt("km_as_cover"), fn: function () { snap(); var p = ne ? ne.p : newShaft(c, "deckel"); p.mode = "deckel"; sel = { id: p.id }; refresh(); } },
-        { t: tt("km_as_none"), ghost: 1, fn: function () { } }], nr ? 1 : 0, true);
+        { t: tt("km_as_none"), ghost: 1, fn: function () { } }], nr ? 1 : 0, true, l);
     }
     function askSurface(l, c) {
       var cur0 = cfgOf(l).fl;
@@ -5732,7 +5741,7 @@ var FIG = (function () {
         else if (k2 === "rl") ovl.rot += 0.5; else if (k2 === "rr") ovl.rot -= 0.5; else if (k2 === "sm") { ovl.mpp *= 0.99; ovl.auto = 0; } else if (k2 === "sp") { ovl.mpp *= 1.01; ovl.auto = 0; }
         ovDraw(); return;
       }
-      var b = e.target.closest("[data-k],[data-z],[data-d],[data-n]"); if (!b) return;
+      var b = e.target.closest("[data-k],[data-z],[data-d],[data-n]"); if (!b) return; askHide();
       if (b.dataset.n) { var nn = b.dataset.n.split("|"); return nudge(nn[0], nn[1]); }
       if (b.dataset.z) return show(b.dataset.z); if (b.dataset.d) return del(b.dataset.d);
       var k = b.getAttribute("data-k");
