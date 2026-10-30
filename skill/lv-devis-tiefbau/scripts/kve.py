@@ -680,18 +680,22 @@ def graben(c, LV, P=None):
     L = num(c.get("L"), 0); T_ = num(c.get("T"), 0.6); b = breite(cx, c)
     hk = HAND[c.get("hand")] if HAND.get(c.get("hand")) is not None else 0.10
     V = L * b * T_; Vh = V * hk; Vm = V - Vh
-    Lb = min(num(c.get("Lb"), L), L) if _belagOn(c) else 0
+    roh = jt(c.get("roh"))
+    Lb = min(num(c.get("Lb"), L), L) if (not roh and _belagOn(c)) else 0
     A = Lb * b; Schnitt = 2 * (Lb + b) if Lb > 0 else 0
     if not (L > 0) or not (b > 0) or not (T_ > 0):
         return {"lines": [], "warn": cx.warn, "bal": []}
-    bi = belag(cx, c.get("belag"), A, Schnitt, {"cut": "2 × (" + s2(Lb) + " + " + s2(b) + ") = " + s2(Schnitt) + " m", "area": s2(Lb) + " × " + s2(b) + " = " + s2(A) + " m²"}, b)
-    gs = jt(c.get("gesp")); vr = s2(L) + " × " + s2(b) + " × " + s2(T_) + " = " + s2(V) + " m³"
-    if c.get("aushubArt") == "saug":
+    bi = belag(cx, {"mode": "none"} if roh else c.get("belag"), A, Schnitt, {"cut": "2 × (" + s2(Lb) + " + " + s2(b) + ") = " + s2(Schnitt) + " m", "area": s2(Lb) + " × " + s2(b) + " = " + s2(A) + " m²"}, b)
+    gs = (not roh) and jt(c.get("gesp")); vr = s2(L) + " × " + s2(b) + " × " + s2(T_) + " = " + s2(V) + " m³"
+    if roh:
+        pass
+    elif c.get("aushubArt") == "saug":
         saugbagger(cx, c, Vm, Vh)
     else:
         aushubLines(cx, {"m1": "151/221.121" if gs else "151/221.111", "m2": "151/221.122" if gs else "151/221.112", "h": "151/221.221" if gs else "151/221.211"}, T_, Vm, Vh,
                     vr + " × " + s2((1 - hk) * 100) + " % = " + s2(Vm) + " m³", vr + " × " + s2(hk * 100) + " % = " + s2(Vh) + " m³")
-    erschwernis(cx, c.get("ersch"), T_, Vm, Vh, ERSCH_KEYS["graben_gm"] if gs else ERSCH_KEYS["graben_m"], ERSCH_KEYS["graben_h"])
+    if not roh:
+        erschwernis(cx, c.get("ersch"), T_, Vm, Vh, ERSCH_KEYS["graben_gm"] if gs else ERSCH_KEYS["graben_m"], ERSCH_KEYS["graben_h"])
     if gs:
         Fs = 2 * L * T_; fr = "2 Wände × " + s2(L) + " m × " + s2(T_) + " m = " + s2(Fs) + " m²"
         cx.g("g_spries")
@@ -716,15 +720,16 @@ def graben(c, LV, P=None):
     else:
         zone(cx, Vu, c, (s2(L) + " m × (" + s2(b) + " m × " + s2(zq["hZ"]) + " m [" + s2(zq["bett"]) + " Bettung + " + s2(zq["hR"]) + " Rohre + " + s2(zq["umh"]) + " Umhüllung] − " + s2(zq["Ap"]) + " m² Rohre) = " + s2(Vu) + " m³")
              if zq["auto"] else (s2(L) + " m × " + jstr(zq["A"]) + " m²/m = " + s2(Vu) + " m³"))
-    vrs = verfuellung(cx, Ve, Vv, c, jt(c.get("direkt")), vvr)
-    if Vv <= 0 and V > 0:
+    vrs = {"R": 0, "fremd": 0, "Vs": 0} if roh else verfuellung(cx, Ve, Vv, c, jt(c.get("direkt")), vvr)
+    if Vv <= 0 and V > 0 and not roh:
         cx.w("verfNull", "amber", {})
     if blk: rohrblock(cx, c, L)
     elif c.get("rohrSystem") == "laengs": laengsRohr(cx, c, L)
     else: rohr(cx, c, L)
     zubCheck(cx, "graben", c)
-    fremdleitungen(cx, c, L)
-    boeschung(cx, c)
+    if not roh:
+        fremdleitungen(cx, c, L)
+        boeschung(cx, c)
     if Vz != Vu:
         cx.b("b_Vz", "m³", Vz)
     for i, u, v in [("b_V", "m³", V), ("b_Vbelag", "m³", bi["Valt"]), ("b_Ve", "m³", Ve), ("b_Vu", "m³", Vu), ("b_Vneu", "m³", bi["Vneu"]), ("b_Vv", "m³", Vv),

@@ -485,17 +485,19 @@ var KVE = (function () {
     var L = num(c.L, 0), T = num(c.T, 0.6), b = breite(cx, c);
     var hk = HAND[c.hand] != null ? HAND[c.hand] : 0.10;
     var V = L * b * T, Vh = V * hk, Vm = V - Vh;
-    var isBelagFlaeche = !!(c.belag && c.belag.mode && c.belag.mode !== "none");
+    var roh = !!c.roh;   /* Rohplanie: Aushub, Belag, Spriessung, Verfüllung durch anderen Bauherrn; hier nur Leitungszone und Rohre */
+    var isBelagFlaeche = !roh && !!(c.belag && c.belag.mode && c.belag.mode !== "none");
     var Lb = isBelagFlaeche ? Math.min(num(c.Lb, L), L) : 0;
     var A = Lb * b, Schnitt = Lb > 0 ? 2 * (Lb + b) : 0;
     if (!(L > 0) || !(b > 0) || !(T > 0)) return { lines: [], warn: cx.warn, bal: [] };
 
-    var bi = belag(cx, c.belag, A, Schnitt, { cut: "2 × (" + s2(Lb) + " + " + s2(b) + ") = " + s2(Schnitt) + " m", area: s2(Lb) + " × " + s2(b) + " = " + s2(A) + " m²" }, b);
-    var g = !!c.gesp, vr = s2(L) + " × " + s2(b) + " × " + s2(T) + " = " + s2(V) + " m³";
-    if (c.aushubArt === "saug") saugbagger(cx, c, Vm, Vh);
+    var bi = belag(cx, roh ? { mode: "none" } : c.belag, A, Schnitt, { cut: "2 × (" + s2(Lb) + " + " + s2(b) + ") = " + s2(Schnitt) + " m", area: s2(Lb) + " × " + s2(b) + " = " + s2(A) + " m²" }, b);
+    var g = !roh && !!c.gesp, vr = s2(L) + " × " + s2(b) + " × " + s2(T) + " = " + s2(V) + " m³";
+    if (roh) { /* kein Aushub */ }
+    else if (c.aushubArt === "saug") saugbagger(cx, c, Vm, Vh);
     else aushubLines(cx, { m1: g ? "151/221.121" : "151/221.111", m2: g ? "151/221.122" : "151/221.112", h: g ? "151/221.221" : "151/221.211" }, T, Vm, Vh,
       vr + " × " + s2((1 - hk) * 100) + " % = " + s2(Vm) + " m³", vr + " × " + s2(hk * 100) + " % = " + s2(Vh) + " m³");
-    erschwernis(cx, c.ersch, T, Vm, Vh, g ? ERSCH_KEYS.graben_gm : ERSCH_KEYS.graben_m, ERSCH_KEYS.graben_h);
+    if (!roh) erschwernis(cx, c.ersch, T, Vm, Vh, g ? ERSCH_KEYS.graben_gm : ERSCH_KEYS.graben_m, ERSCH_KEYS.graben_h);
     if (g) {
       var Fs = 2 * L * T, fr = "2 Wände × " + s2(L) + " m × " + s2(T) + " m = " + s2(Fs) + " m²";
       cx.g("g_spries");
@@ -517,14 +519,13 @@ var KVE = (function () {
     if (c.rohrSystem === "block") { if (blockA <= 0) cx.w("blockMassFehlt", "amber", {}); }
     else zone(cx, Vu, c, zq.auto ? s2(L) + " m × (" + s2(b) + " m × " + s2(zq.hZ) + " m [" + s2(zq.bett) + " Bettung + " + s2(zq.hR) + " Rohre + " + s2(zq.umh) + " Umhüllung] − " + s2(zq.Ap) + " m² Rohre) = " + s2(Vu) + " m³"
       : s2(L) + " m × " + zq.A + " m²/m = " + s2(Vu) + " m³");
-    var vrs = verfuellung(cx, Ve, Vv, c, !!c.direkt, vvr);
-    if (Vv <= 0 && V > 0) cx.w("verfNull", "amber", {});
+    var vrs = roh ? { R: 0, fremd: 0, Vs: 0 } : verfuellung(cx, Ve, Vv, c, !!c.direkt, vvr);
+    if (Vv <= 0 && V > 0 && !roh) cx.w("verfNull", "amber", {});
     if (c.rohrSystem === "block") rohrblock(cx, c, L);
     else if (c.rohrSystem === "laengs") laengsRohr(cx, c, L);
     else rohr(cx, c, L);
     zubCheck(cx, "graben", c);
-    fremdleitungen(cx, c, L);
-    boeschung(cx, c);
+    if (!roh) { fremdleitungen(cx, c, L); boeschung(cx, c); }
 
     cx.b("b_V", "m³", V); cx.b("b_Vbelag", "m³", bi.Valt); cx.b("b_Ve", "m³", Ve);
     cx.b("b_Vu", "m³", Vu); if (Vz !== Vu) cx.b("b_Vz", "m³", Vz); cx.b("b_Vneu", "m³", bi.Vneu); cx.b("b_Vv", "m³", Vv);
