@@ -3078,6 +3078,12 @@ Object.assign(TS.it,{
     km_cx_branch: ["Abzweig ab hier", "Branchement dès ici", "Derivazione da qui", "Branch from here"],
     km_cx_conn: ["Leitung ab hier (Anschluss)", "Conduite dès ici (raccordement)", "Condotta da qui (allacciamento)", "Line from here (connection)"],
     km_cx_close: ["Schliessen", "Fermer", "Chiudere", "Close"],
+    km_sv: ["Street View", "Street View", "Street View", "Street View"],
+    km_sv_here: ["Street View hier öffnen (Google, neuer Tab)", "Ouvrir Street View ici (Google, nouvel onglet)", "Apri Street View qui (Google, nuova scheda)", "Open Street View here (Google, new tab)"],
+    km_sv_emb: ["Street View hier einbetten", "Intégrer Street View ici", "Incorpora Street View qui", "Embed Street View here"],
+    km_sv_key: ["Street View-Schlüssel", "Clé Street View", "Chiave Street View", "Street View key"],
+    km_sv_keyHint: ["Optional: Google-Maps-Embed-API-Schlüssel für die eingebettete Ansicht (nur in diesem Browser gespeichert). Ohne Schlüssel öffnet Street View in einem neuen Tab; dabei wird die Koordinate an Google übermittelt.", "Facultatif : clé Google Maps Embed API pour l'affichage intégré (enregistrée seulement dans ce navigateur). Sans clé, Street View s'ouvre dans un nouvel onglet ; la coordonnée est transmise à Google.", "Facoltativo: chiave Google Maps Embed API per la vista integrata (salvata solo in questo browser). Senza chiave Street View si apre in una nuova scheda; la coordinata viene trasmessa a Google.", "Optional: Google Maps Embed API key for the embedded view (stored in this browser only). Without a key Street View opens in a new tab; the coordinate is sent to Google."],
+    km_sv_keyAsk: ["Google-Maps-Embed-API-Schlüssel (leer = entfernen):", "Clé Google Maps Embed API (vide = supprimer) :", "Chiave Google Maps Embed API (vuoto = rimuovere):", "Google Maps Embed API key (empty = remove):"],
     km_prov: ["Kartenanbieter", "Fournisseur de cartes", "Fornitore cartografico", "Map provider"],
     km_bLeer: ["geo.admin: leere Basis (nur gewählte Ebenen)", "geo.admin: fond vide (couches choisies seulement)", "geo.admin: sfondo vuoto (solo livelli scelti)", "geo.admin: blank base (selected layers only)"],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
@@ -5139,10 +5145,11 @@ var FIG = (function () {
       '<button type="button" class="btn ghost small" data-k="fit">' + esc(tt("km_fit")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="center">' + esc(tt("km_center")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="lbl" aria-pressed="true">' + esc(tt("km_lbl")) + "</button>" +
+      (plan ? "" : '<button type="button" class="btn ghost small" data-k="sv">' + esc(tt("km_sv")) + '</button><button type="button" class="btn ghost small" data-k="svkey" title="' + esc(tt("km_sv_keyHint")) + '">' + esc(tt("km_sv_key")) + "</button>") +
       (plan ? "" : '<span class="kmseg" role="group" aria-label="' + esc(tt("km_prov")) + '"><button type="button" class="btn small" data-prov="swisstopo" aria-pressed="false">swisstopo</button><button type="button" class="btn small" data-prov="geoadmin" aria-pressed="false">geo.admin.ch</button></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase"></select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + '</button><span id="kmAv" hidden><input type="url" id="kmAvUrl" class="kmavin" aria-label="' + esc(tt("km_avUrl")) + '" placeholder="https://…/wms"><input type="text" id="kmAvLy" class="kmavin" aria-label="' + esc(tt("km_avLy")) + '" placeholder="' + esc(tt("km_avLy")) + '"><button type="button" class="btn small" id="kmAvGo">' + esc(tt("km_avGo")) + '</button></span><a class="btn ghost small" id="kmNetz" href="https://www.swisscom.ch/rida/online/geoportal/ng/index.html?login" target="_blank" rel="noopener noreferrer">' + esc(tt("km_netz")) + "</a>") + "</div></div>" +
       (plan ? '<form class="kmcalf" id="kmCalF" hidden><label for="kmCalM">' + esc(tt("pl_calAsk")) + '</label><input type="text" inputmode="decimal" id="kmCalM" class="numin"><button type="submit" class="btn small">' + esc(tt("pl_calSet")) + "</button></form>" : "") +
       '<div class="kmmain"><div class="kmleft">' +
-      '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div><div class="kmask" id="kmAsk" hidden role="group"></div><div class="kmask kmctx" id="kmCtx" hidden role="group"></div><div class="kmprops" id="kmProps" hidden role="dialog"></div>' +
+      '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div><div class="kmask" id="kmAsk" hidden role="group"></div><div class="kmask kmctx" id="kmCtx" hidden role="group"></div><div class="kmprops" id="kmProps" hidden role="dialog"></div><div class="kmprops kmsv" id="kmSv" hidden role="dialog"></div>' +
       (plan ? "" : '<iframe id="kmView" class="kmframe" hidden title="map.geo.admin.ch" referrerpolicy="no-referrer"></iframe>') +
       '<div class="kmleg" id="kmLeg" hidden></div>' +
       '<p class="hint kmhelp" id="kmHelp"></p>' +
@@ -5549,6 +5556,7 @@ var FIG = (function () {
           items.push({ t: tt("km_cx_split"), fn: function () { var cur0 = cfgOf(o).fl; ctxShow(cp, tt("km_cx_splitAsk"), "", FLS.filter(function (f) { return f !== cur0; }).map(function (f) { return { t: tt("km_lt_fl_" + f), fn: function () { splitLine(o, h, f); } }; })); } });
           items.push({ t: tt("km_cx_branch"), fn: function () { startLineAt(h.q, { cfg: clone(cfgOf(o)), rohr: clone(o.rohr) }); } });
         } else if (h.k === "pts") items.push({ t: tt("km_cx_conn"), fn: function () { var l = startLineAt(o.pt, { s: o.id }); } });
+        if (!plan) { var sp = h.k === "lines" ? h.q : o.pt, sh = h.k === "lines" ? svBearing(o.pts[h.seg], o.pts[h.seg + 1]) : null; items.push({ t: tt("km_sv_here"), ghost: 1, fn: function () { svOpen(sp, sh, false); } }); if (svKey()) items.push({ t: tt("km_sv_emb"), ghost: 1, fn: function () { svOpen(sp, sh, true); } }); }
       } else {
         title = tt("km_cx_title");
         items.push({ typ: 1 }, { t: tt("km_cx_sch"), fn: function () { snap(); newShaft(c, "neu"); refresh(); } }, { wlt: 1 },
@@ -5557,8 +5565,23 @@ var FIG = (function () {
           { t: tt("km_cx_sond"), fn: function () { snap(); var q = { id: nid("s"), pt: c.slice(), name: "", l: "1.0", b: "1.0", t: "1.5" }; M.sond.push(q); sel = { id: q.id }; refresh(); } },
           { t: tt("km_cx_line"), fn: function () { var l = startLineAt(c); askStart(l, c); } },
           { t: tt("km_cx_area"), fn: function () { if (mode !== "area") $("[data-k=marea]").click(); ctxT = 0; addPt(ll); } });
+        if (!plan) { items.push({ t: tt("km_sv_here"), ghost: 1, fn: function () { svOpen(c, null, false); } }); if (svKey()) items.push({ t: tt("km_sv_emb"), ghost: 1, fn: function () { svOpen(c, null, true); } }); }
       }
       ctxShow(cp, title, sub, items);
+    }
+    /* Google Street View: Link (ohne Schlüssel, neuer Tab) oder eingebettet (Maps-Embed-Schlüssel nur im Browser, nicht im Projekt) */
+    function svBearing(a, b) { var ea = toWGS(a[0], a[1]), eb = toWGS(b[0], b[1]), dl = (eb[1] - ea[1]) * Math.PI / 180, f1 = ea[0] * Math.PI / 180, f2 = eb[0] * Math.PI / 180; return Math.round((Math.atan2(Math.sin(dl) * Math.cos(f2), Math.cos(f1) * Math.sin(f2) - Math.sin(f1) * Math.cos(f2) * Math.cos(dl)) * 180 / Math.PI + 360) % 360); }
+    function svKey() { try { return localStorage.getItem("lvd-gsv-key") || ""; } catch (e) { return ""; } }
+    function svUrl(c, hd, embed) {
+      var w = toWGS(c[0], c[1]), ll = w[0].toFixed(6) + "," + w[1].toFixed(6);
+      return embed ? "https://www.google.com/maps/embed/v1/streetview?key=" + encodeURIComponent(svKey()) + "&location=" + ll + (hd != null ? "&heading=" + hd : "")
+        : "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=" + ll + (hd != null ? "&heading=" + hd : "");
+    }
+    function svOpen(c, hd, embed) {
+      if (plan) return; if (!embed || !svKey()) { window.open(svUrl(c, hd, false), "_blank", "noopener"); return; }
+      var w = $("#kmSv"); w.hidden = false; w.innerHTML = ""; var h = document.createElement("div"); h.className = "kmprops-h"; h.innerHTML = "<b>" + esc(tt("km_sv")) + "</b>"; var x = document.createElement("button"); x.type = "button"; x.className = "btn ghost small"; x.textContent = "×"; x.setAttribute("aria-label", tt("km_cx_close")); x.addEventListener("click", function () { w.hidden = true; w.innerHTML = ""; }); h.appendChild(x); w.appendChild(h);
+      var f = document.createElement("iframe"); f.title = tt("km_sv"); f.width = "100%"; f.height = "240"; f.style.border = "0"; f.setAttribute("allowfullscreen", ""); f.setAttribute("referrerpolicy", "strict-origin-when-cross-origin"); f.src = svUrl(c, hd, true); w.appendChild(f);
+      w.setAttribute("aria-label", tt("km_sv")); w.style.right = "8px"; w.style.top = "8px"; w.style.left = "auto";
     }
     function propsOpen(o, cp) {
       var w = $("#kmProps"); if (!w) return; propsId = o.id; w.hidden = false; propsRender();
@@ -5863,6 +5886,8 @@ var FIG = (function () {
       else if (/^m(geo|ruler|line|pt|sond|cal|edit|text|arrow|sline|rect|area|wl|geb)$/.test(k)) { var m = k.slice(1); if (m === "geo") { ov0 = JSON.stringify(ovl); gcp = []; } if (m === "ruler") rul = []; hideTip(); if (mode === "line" || mode === "sline" || mode === "area") endLine(); tmp = []; calPts = []; if (plan) $("#kmCalF").hidden = true; mode = mode === m ? "" : m; refresh(); }
       else if (k === "center") addPt(map.getCenter());
       else if (k === "end") endLine();
+      else if (k === "sv") { var cc = map.getCenter(); svOpen(toLV95(cc.lat, cc.lng), null, true); }
+      else if (k === "svkey") { var kv = window.prompt(tt("km_sv_keyAsk"), svKey()); if (kv !== null) { try { if (kv.trim()) localStorage.setItem("lvd-gsv-key", kv.trim()); else localStorage.removeItem("lvd-gsv-key"); } catch (e) { } } }
       else if (k === "undo") undo();
       else if (k === "clear") { var sn0 = JSON.stringify(M); snap(); M.lines = []; M.pts = []; M.sond = []; M.notes = []; M.areas = []; M.wl = []; M.geb = []; rul = []; cur = null; curN = null; curA = null; sel = null; refresh(); toast(dlg, tt("km_cleared"), tt("km_undoBtn"), function () { M = JSON.parse(sn0); M.notes = M.notes || []; M.areas = M.areas || []; M.wl = M.wl || []; M.geb = M.geb || []; refresh(); }); }
       else if (k === "geo") openGeo();
