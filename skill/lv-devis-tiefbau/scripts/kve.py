@@ -1129,6 +1129,10 @@ def belagTab(c, LV, P):
     B = num(c.get("B"), 0); L = num(c.get("L"), 0); d = num(c.get("d"), 0.08)
     if (0 < B < 0.4) or (0 < L < 0.4):
         cx.w("belagMin", "amber", {})
+    if B > 0 and L > 0 and c.get("fl") in ("pflaster", "wiese") and jt(c.get("belagX")):
+        Af = B * L; Pf = 2 * (B + L)
+        belag(cx, c.get("belagX"), Af, Pf, {"cut": "Umfang = 2 × (" + s2(B) + " + " + s2(L) + ") = " + s2(Pf) + " m", "area": s2(B) + " × " + s2(L) + " = " + s2(Af) + " m²"}, min(B, L))
+        return res(cx, {"A": Af})
     if B > 0 and L > 0:
         gp = P["par"]
         rg = [gp.get("gehMin"), gp.get("gehMax")] if c.get("bk") == "gehweg" else [gp.get("strMin"), gp.get("strMax")] if c.get("bk") == "strasse" else [gp.get("kanMin"), gp.get("kanMax")] if c.get("bk") == "kanton" else None

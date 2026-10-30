@@ -62,7 +62,7 @@ def rec(t, i):
                             "verf": ch(["aushub", "kies045"]), "einfHand": ch([True, False]), "belag": belag(), "ersch": ersch(), "x": xs(), "free": free()}
     if t == "geb": return {"name": "H", "n": ch(["", "1", "3"]), "cm": ch(["", "40"]), "abd": ch(["keine", "kissen", "hauff"]), "x": xs(), "free": free()}
     if t == "belag": return {"name": "B", "indiv": ch([False, "false", "true"]), "bk": ch(["gehweg", "strasse", "kanton"]), "d": ch(["0.06", "0.08", "0.12", "0.25"]), "B": f(0.2, 3), "L": f(0.2, 20),
-                             "wi": ch(["A", "A1", "B", "C", "C1", "C2"]), "x": xs(), "free": free()}
+                             "wi": ch(["A", "A1", "B", "C", "C1", "C2"]), "fl": ch(["", "", "pflaster", "wiese"]), "belagX": belag(), "x": xs(), "free": free()}
     if t == "allg": return {"name": "A", "km": ch(["", "120"]), "ak": ch(["", "800.5"]), "x": xs(), "free": free()}
     if t == "hon": return {"name": "Hon", "src": ch(["lv", "man"]), "B": ch(["", "250000"]), "n": ch(["1.0", "0.9", "1.2"]), "r": ch(["1.0", "1.1"]), "h": ch(["", "140"]), "nk": ch(["", "3"]),
                            "gl": ch([True, False]), "ph": [{"k": p[0], "on": ch([True, False])} for p in kve.PHDEF]}

@@ -3850,6 +3850,11 @@ var KVE = (function () {
     if (String(c.indiv) === "true") return res(cx);
     var B = num(c.B, 0), L = num(c.L, 0), d = num(c.d, 0.08);
     if ((B > 0 && B < 0.4) || (L > 0 && L < 0.4)) cx.w("belagMin", "amber", {});
+    if (B > 0 && L > 0 && (c.fl === "pflaster" || c.fl === "wiese") && c.belagX) {   /* Fläche aus der Karte mit Oberfläche Pflästerung/Wiese statt Belagsklasse */
+      var Af = B * L, Pf = 2 * (B + L);
+      belag(cx, c.belagX, Af, Pf, { cut: "Umfang = 2 × (" + s2(B) + " + " + s2(L) + ") = " + s2(Pf) + " m", area: s2(B) + " × " + s2(L) + " = " + s2(Af) + " m²" }, Math.min(B, L));
+      return res(cx, { A: Af });
+    }
     if (B > 0 && L > 0) {
       var g = P.par, rg = c.bk === "gehweg" ? [g.gehMin, g.gehMax] : c.bk === "strasse" ? [g.strMin, g.strMax] : c.bk === "kanton" ? [g.kanMin, g.kanMax] : null;
       if (rg && (d < num(rg[0]) - 1e-9 || d > num(rg[1]) + 1e-9)) cx.w("belagRange", "amber", { d: d, a: rg[0], b: rg[1] });
