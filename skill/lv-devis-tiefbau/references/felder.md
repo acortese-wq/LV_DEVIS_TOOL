@@ -122,13 +122,13 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 |---|---|---|---|---|
 | **Schacht und Grube** | | | | |
 | `name` | Bezeichnung | text | `"Schacht 1"` |  |
-| `modus` | Modus | `neu` Neuer Schacht<br>`ersatz` Abdeckung ersetzen<br>`deckel` Bestehenden Schacht anpassen (Deckel) | `"neu"` |  |
+| `modus` | Modus | `neu` Neuer Schacht<br>`ersatz` Abdeckung ersetzen<br>`deckel` Bestehenden Schacht anpassen (Deckel)<br>`anschluss` Bestehender Schacht: Anschlüsse | `"neu"` |  |
 | `deckelRichtung` | Richtung | `hoeher` Höhersetzen<br>`tiefer` Tiefersetzen | `"hoeher"` | modus === "deckel" |
 | `deckelFormat` | Format | `rund` Rund (⌀ 400–800 mm)<br>`rechteckig` Rechteckig (bis 2.40 × 1.40 m) | `"rund"` | modus === "deckel" |
 | `deckelN` | Anzahl | Zahl (Text) | `"0"` | modus === "deckel" |
-| `einbauort` | Einbauort / Strassentyp<br><i>Steuert, welcher Schachttyp und welche Rahmen/Deckel hier üblich sind (Auswahlschema Schachtbau und Abdeckungen, 27.03.2026).</i> | `HLS` Hochleistungsstrasse HLS  ·  ≥ 80 km/h<br>`HVS` Hauptverkehrsstrasse HVS  ·  ≥ 60 km/h<br>`VS50` Verbindungsstrasse VS, ≥ 50 km/h  ·  ≥ 50 km/h<br>`VS49` Verbindungsstrasse VS, < 50 km/h  ·  < 50 km/h<br>`SS` Sammelstrasse SS  ·  ≤ 50 km/h<br>`ESS` Erschliessungsstrasse ES  ·  ≤ 50 km/h<br>`GEH` Gehweg / Trottoir / Vorplatz<br>`WIES` Wiesland / Parzelle | `"SS"` | modus !== "deckel" |
+| `einbauort` | Einbauort / Strassentyp<br><i>Steuert, welcher Schachttyp und welche Rahmen/Deckel hier üblich sind (Auswahlschema Schachtbau und Abdeckungen, 27.03.2026).</i> | `HLS` Hochleistungsstrasse HLS  ·  ≥ 80 km/h<br>`HVS` Hauptverkehrsstrasse HVS  ·  ≥ 60 km/h<br>`VS50` Verbindungsstrasse VS, ≥ 50 km/h  ·  ≥ 50 km/h<br>`VS49` Verbindungsstrasse VS, < 50 km/h  ·  < 50 km/h<br>`SS` Sammelstrasse SS  ·  ≤ 50 km/h<br>`ESS` Erschliessungsstrasse ES  ·  ≤ 50 km/h<br>`GEH` Gehweg / Trottoir / Vorplatz<br>`WIES` Wiesland / Parzelle | `"SS"` | modus !== "deckel" && modus !== "anschluss" |
 | `typ` | Schachttyp<br><i>Aussenmasse und Arbeitsraum sind Standardvorschläge (überschreibbar über den Arbeitsraum).</i> | `KS80U` KS Kontrollschacht DN 800, überdeckt (Tiefe bis 0.50 m)<br>`KS80H` KS Kontrollschacht DN 800, hochgezogen (Tiefe bis 1.00 m)<br>`KES100` KES 1.00 × 1.00 × 1.35 m<br>`KES150` KES 1.50 × 1.00 × 1.35 m<br>`KES175` KES 1.50 × 1.00 × 1.75 m<br>`ES300` ES 3.00 × 1.50 × 2.00 m<br>`PLS1` Umbau Plattenschacht 1.00 × 1.00 × 1.00 m<br>`PLS2` Umbau Plattenschacht 1.00 × 1.50 × 1.30 m<br>`PLS3` Umbau Plattenschacht 1.00 × 2.00 × 1.30 m | `"KES150"` | modus !== "deckel" |
-| `n` | Anzahl Schächte | Zahl (Text) | `"0"` | modus !== "deckel" |
+| `n` | Anzahl Schächte | Zahl (Text) | `"0"` | modus !== "deckel" && modus !== "anschluss" |
 | `alt` | Bestehende Abdeckung (Abbruch) | `guss` Guss rund bis NW 800<br>`beton` Beton rund bis NW 800<br>`flaeche` Rechteckig Beton/Guss bis 3 m² | `"guss"` | modus === "ersatz" |
 | `arbeit` | Arbeitsraum je Seite (m) | `0.30` 0.30<br>`0.50` 0.50<br>`0.75` 0.75 | `"0.50"` | modus === "neu" |
 | `hand` | Aushub von Hand (Anteil) | `normal` Normal (10 %)<br>`eng` Eng / Fremdleitungen (30 %)<br>`sehr_eng` Sehr eng (50 %) | `"normal"` | modus === "neu" |
@@ -145,9 +145,9 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 | `deckelSockel` | Betonsockel | `ohne` Ohne Sockel<br>`mit` Mit Sockel | `"ohne"` | notDeckel(c) && curShape(c) === "eckig" && l && l.cover !== "platte" && !(kindOf(c) === "PLS" && isNeu(c)) |
 | `rahmen` | Rahmen / Abdeckung<br><i>Nur bei Wiesland ohne eindeutige Standardzuordnung: Liste zeigt ausschliesslich zur Schachtform und zum Einbauort passende Flächenabdeckungen.</i> | LV-Pos. 151/632.1xx oder "" | `""` | notDeckel(c) && curShape(c) === "eckig" && (!l // l.cover === "platte") && !(kindOf(c) === "PLS" && isNeu(c)) |
 | `deckel` | Zusätzlicher Deckel | LV-Pos. 151/632.1xx oder "" | `""` | notDeckel(c) && curShape(c) === "eckig" && (!l // l.cover === "platte") && !(kindOf(c) === "PLS" && isNeu(c)) |
-| `spare` | Deckelersatz 0.60 × 0.90 [St]<br><i>Nur für bestehende BGS-Rahmen 120 × 90 cm.</i> | Zahl (Text) | `"0"` | modus !== "deckel" |
-| `anschl` | Leitungsanschlüsse (je Schacht) | Zahl (Text) | `"0"` | modus === "neu" |
-| `anDN` | Anschluss bis DN | `80` 80<br>`150` 150 | `"80"` | modus === "neu" |
+| `spare` | Deckelersatz 0.60 × 0.90 [St]<br><i>Nur für bestehende BGS-Rahmen 120 × 90 cm.</i> | Zahl (Text) | `"0"` | modus !== "deckel" && modus !== "anschluss" |
+| `anschl` | Leitungsanschlüsse (je Schacht) | Zahl (Text) | `"0"` | isNeu(c) // isAns(c) |
+| `anDN` | Anschluss bis DN | `80` 80<br>`150` 150 | `"80"` | isNeu(c) // isAns(c) |
 | `beton` | Betonabbruch (m³ je Schacht) | Zahl (Text) | `"0"` | modus === "neu" |
 | `platten` | Abdeckplatten entfernen (St) | Zahl (Text) | `"0"` | modus === "neu" |
 | **Leitungszone und Verfüllung** | | | | |
@@ -183,10 +183,10 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 | `belag.pflaster.randAbbruch` | Bestehenden Randstein abbrechen | true/false | `false` | modus === "neu" && isPfl(c) && belag.pflaster.randNeu |
 | **Zusatzpositionen Schacht** | | | | |
 | **Abweichung / Sonderfreigabe** | | | | |
-| `deviate` | Abweichung vom Standard ist bewusst gewählt | true/false | `false` | modus !== "deckel" |
-| `reason` | Begründung (Betrieb, Platzverhältnisse, Auflagen) | text | `""` | modus !== "deckel" |
-| `approver` | Freigabe durch (Name, Funktion) | text | `""` | modus !== "deckel" |
-| `journal` | Im Baujournal dokumentiert und im Inventar erfasst | true/false | `false` | modus !== "deckel" |
+| `deviate` | Abweichung vom Standard ist bewusst gewählt | true/false | `false` | modus !== "deckel" && modus !== "anschluss" |
+| `reason` | Begründung (Betrieb, Platzverhältnisse, Auflagen) | text | `""` | modus !== "deckel" && modus !== "anschluss" |
+| `approver` | Freigabe durch (Name, Funktion) | text | `""` | modus !== "deckel" && modus !== "anschluss" |
+| `journal` | Im Baujournal dokumentiert und im Inventar erfasst | true/false | `false` | modus !== "deckel" && modus !== "anschluss" |
 
 ## Werkloch (`recs.werkloch`)
 

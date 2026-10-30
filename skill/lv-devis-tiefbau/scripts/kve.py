@@ -868,6 +868,15 @@ def schacht(c, LV, P=None):
         cx.add(dk, n0, {"rule": "Anzahl = " + jstr(n0) + " St"})
         schachtOpts(cx, c)
         return {"lines": cx.lines, "warn": cx.warn, "bal": cx.bal, "geo": {}}
+    if c.get("modus") == "anschluss":
+        ak = max(0, num(c.get("anschl"), 0)); SA = SCHACHT.get(c.get("typ"))
+        if not (ak > 0):
+            return {"lines": [], "warn": cx.warn, "bal": []}
+        cx.g("g_bauwerk")
+        if SA and SA["kind"] == "KS": kk0 = "151/672.202" if c.get("anDN") == "150" else "151/672.201"
+        else: kk0 = "151/672.302" if c.get("anDN") == "150" else "151/672.301"
+        cx.add(kk0, ak, {"rule": "Anschlüsse bestehender Schacht = " + jstr(ak) + " St"})
+        return {"lines": cx.lines, "warn": cx.warn, "bal": cx.bal, "geo": {}}
     S = SCHACHT.get(c.get("typ")); n = max(0, num(c.get("n"), 1))
     if not S or not (n > 0):
         return {"lines": [], "warn": cx.warn, "bal": []}

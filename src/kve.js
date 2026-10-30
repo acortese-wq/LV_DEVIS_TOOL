@@ -632,6 +632,13 @@ var KVE = (function () {
       schachtOpts(cx, c);
       return { lines: cx.lines, warn: cx.warn, bal: cx.bal, geo: {} };
     }
+    if (c.modus === "anschluss") {   /* bestehender Schacht: nur Leitungsanschlüsse (Anzahl gesamt), Schachttyp bestimmt KS/KES-Position */
+      var ak = Math.max(0, num(c.anschl, 0)), SA = SCHACHT[c.typ];
+      if (!(ak > 0)) return { lines: [], warn: cx.warn, bal: [] };
+      cx.g("g_bauwerk");
+      cx.add(SA && SA.kind === "KS" ? (c.anDN === "150" ? "151/672.202" : "151/672.201") : (c.anDN === "150" ? "151/672.302" : "151/672.301"), ak, { rule: "Anschlüsse bestehender Schacht = " + ak + " St" });
+      return { lines: cx.lines, warn: cx.warn, bal: cx.bal, geo: {} };
+    }
     var S = SCHACHT[c.typ], n = Math.max(0, num(c.n, 1));
     if (!S || !(n > 0)) return { lines: [], warn: cx.warn, bal: [] };
     if (c.modus === "ersatz") {

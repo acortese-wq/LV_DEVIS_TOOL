@@ -84,7 +84,7 @@
   var withShow = function (list, fn) { return list.map(function (f) { return Object.assign({}, f, { show: function (c) { return fn(c) && (f.show ? f.show(c) : true); }, _w: [fn, f.show] }); }); };
   function locOf(c) { return LOCS.filter(function (l) { return l.id === c.einbauort; })[0]; }
   function kindOf(c) { var s = KVE.SCHACHT[c.typ]; return s ? s.kind : null; }
-  var notDeckel = function (c) { return c.modus !== "deckel"; }, isNeu = function (c) { return c.modus === "neu"; };
+  var notDeckel = function (c) { return c.modus !== "deckel" && c.modus !== "anschluss"; }, isNeu = function (c) { return c.modus === "neu"; }, isAns = function (c) { return c.modus === "anschluss"; };
   var shapeFree = function (c) { var k = kindOf(c); return notDeckel(c) && k !== "KS" && !(k === "PLS" && isNeu(c)); };
   var curShape = function (c) { return kindOf(c) === "KS" ? "rund" : c.shape; };
   var COVERS = Object.keys(LV).filter(function (k) { return k.indexOf("151/632.1") === 0; }).sort();
@@ -124,12 +124,12 @@
       { id: "zores.zustand", t: "sel", opts: ["abrechen", "betrieb", "nicht"], show: function (c) { return c.mods.fremd && c.zores.on; } },
       { id: "zores.len", t: "num", show: function (c) { return c.mods.fremd && c.zores.on; } },
       { id: "mods.boesch", t: "chip" }, { id: "boeschung.flaeche", t: "num", show: function (c) { return c.mods.boesch; } }, { id: "boeschung.geneigt", t: "chk", show: function (c) { return c.mods.boesch; } }]),
-    schacht: [{ sec: "s_schacht" }, { id: "name", t: "text" }, { t: "trasse" }, { id: "modus", t: "sel", opts: ["neu", "ersatz", "deckel"], struct: 1 },
+    schacht: [{ sec: "s_schacht" }, { id: "name", t: "text" }, { t: "trasse" }, { id: "modus", t: "sel", opts: ["neu", "ersatz", "deckel", "anschluss"], struct: 1 },
       { id: "deckelRichtung", t: "sel", opts: ["hoeher", "tiefer"], show: function (c) { return c.modus === "deckel"; } },
       { id: "deckelFormat", t: "sel", opts: ["rund", "rechteckig"], show: function (c) { return c.modus === "deckel"; } },
       { id: "deckelN", t: "num", show: function (c) { return c.modus === "deckel"; } },
       { id: "einbauort", t: "sel", opts: ["HLS", "HVS", "VS50", "VS49", "SS", "ESS", "GEH", "WIES"], hint: "hint_einbauort", struct: 1, show: notDeckel, locHint: 1 },
-      { id: "typ", t: "sel", opts: ["KS80U", "KS80H", "KES100", "KES150", "KES175", "ES300", "PLS1", "PLS2", "PLS3"], hint: "hint_typ", struct: 1, show: notDeckel },
+      { id: "typ", t: "sel", opts: ["KS80U", "KS80H", "KES100", "KES150", "KES175", "ES300", "PLS1", "PLS2", "PLS3"], hint: "hint_typ", struct: 1, show: function (c) { return c.modus !== "deckel"; } },
       { id: "n", t: "num", show: notDeckel, labKey: "f_sn" }, { id: "alt", t: "sel", opts: ["guss", "beton", "flaeche"], show: function (c) { return c.modus === "ersatz"; } }
     ].concat(withShow(PIT_FIELDS.slice(0, 2).concat([{ id: "direkt", t: "chk", hint: "hint_direkt" }]), isNeu), withShow(ERSCH_FIELDS, isNeu), [
       { sec: "s_abd", show: notDeckel },
@@ -143,7 +143,7 @@
       { id: "rahmen", t: "cover", hint: "hint_rahmen", show: function (c) { var l = locOf(c); return notDeckel(c) && curShape(c) === "eckig" && (!l || l.cover === "platte") && !(kindOf(c) === "PLS" && isNeu(c)); } },
       { id: "deckel", t: "cover", show: function (c) { var l = locOf(c); return notDeckel(c) && curShape(c) === "eckig" && (!l || l.cover === "platte") && !(kindOf(c) === "PLS" && isNeu(c)); } },
       { id: "spare", t: "num", hint: "hint_spare", show: notDeckel },
-      { id: "anschl", t: "num", show: isNeu }, { id: "anDN", t: "sel", opts: ["80", "150"], show: isNeu },
+      { id: "anschl", t: "num", show: function (c) { return isNeu(c) || isAns(c); } }, { id: "anDN", t: "sel", opts: ["80", "150"], show: function (c) { return isNeu(c) || isAns(c); } },
       { id: "beton", t: "num", show: isNeu }, { id: "platten", t: "num", show: isNeu },
       { sec: "s_zone", show: isNeu }].concat(withShow(VERF_FIELDS, isNeu), [{ sec: "s_belag", show: isNeu }], withShow(BELAG_FIELDS, isNeu), [
       { sec: "s_opts" }, { t: "opts" }, { sec: "s_freigabe", show: notDeckel },
@@ -638,6 +638,8 @@
         else { r = newRec("schacht", L.length + 1); L.push(r); st.sn++; }
       }
       used[ensureUid(r)] = 1; p.sid = r.uid; st.s++; r.typ = p.typ; if (p.name) r.name = p.name; if (p.fl) setSurface(r, p.fl);
+      var md = p.mode || "neu"; if (md === "anschluss" || md === "deckel") r.modus = md; else if (r.modus === "anschluss" || r.modus === "deckel") r.modus = "neu";
+      if (md === "deckel") { r.deckelRichtung = p.dr || "hoeher"; r.deckelFormat = p.df || "rund"; }
     });
     (M.areas || []).forEach(function (f) {
       var Bl = S.recs.belag, r = recByUid("belag", f.rid), A = fns.area(f.pts), P = fns.perim(f.pts);
@@ -673,9 +675,15 @@
     if (!all.length) { if (S.sond.fromMap) { S.sond.m3 = ""; S.sond.fromMap = false; } return; }
     S.sond.m3 = String(Math.round(all.reduce(function (a, o) { return a + num(o.l, 0) * num(o.b, 0) * num(o.t, 0); }, 0) * 100) / 100); S.sond.fromMap = true;
   }
+  function conns(p) { var src = (S.karte.pts || []).indexOf(p) >= 0 ? S.karte : S.plan; return (src.lines || []).reduce(function (a, l) { return a + (l.s === p.id ? 1 : 0) + (l.e === p.id ? 1 : 0); }, 0); }
   function syncDerived(cfg, st) {
     var KP = (S.karte.pts || []).concat(S.plan.pts || []);   /* Anzahl Schächte = Anzahl gesetzter Punkte je Datensatz (sonst bliebe n = 0 ohne Kosten) */
-    S.recs.schacht.forEach(function (r) { var k = r.uid ? KP.filter(function (p) { return p.sid === r.uid; }).length : 0; if (k && r.modus !== "deckel") r.n = String(k); });
+    S.recs.schacht.forEach(function (r) {
+      var lp = r.uid ? KP.filter(function (p) { return p.sid === r.uid; }) : [], k = lp.length;
+      if (r.modus === "deckel") { if (k) r.deckelN = String(k); }
+      else if (r.modus === "anschluss") { if (k) r.anschl = String(lp.reduce(function (a, p) { return a + Math.max(1, conns(p)); }, 0)); }   /* Anschlüsse = Leitungsenden an den bestehenden Schächten */
+      else if (k) r.n = String(k);
+    });
     var WL = (S.karte.wl || []).concat(S.plan.wl || []), W = S.recs.werkloch, rw = null;
     WL.forEach(function (p) { rw = rw || recByUid("werkloch", p.sid); });
     if (WL.length) {
@@ -993,7 +1001,7 @@
     var SYS = { k55: "K55", laengs: tt("o_rohrSystem_laengs").split(" (")[0], block: tt("o_rohrSystem_block").split(" (")[0] };
     return {
       lines: (M.lines || []).map(function (l, i) { var s2 = (rn(l.rid) || tt("km_lineN").replace("{n}", i + 1)) + " · " + KARTE.fmt(fns.len(l.pts)) + " m"; var lt = l.cfg ? KARTE.lineTxt(l, tt) : ""; if (lt) s2 += " · " + lt; else if (l.rohr) s2 += " · " + (l.rohr.sys === "block" ? SYS.block : SYS[l.rohr.sys] + " DN" + l.rohr.dn + " ×" + (l.rohr.n || "1")); return s2; }),
-      pts: (M.pts || []).map(function (p, i) { return (p.name || rn(p.sid) || tt("km_schN").replace("{n}", i + 1)) + " · " + p.typ; }),
+      pts: (M.pts || []).map(function (p, i) { return (p.name || rn(p.sid) || tt("km_schN").replace("{n}", i + 1)) + " · " + p.typ + (p.mode === "anschluss" ? " · " + tt("km_pm_anss") : p.mode === "deckel" ? " · " + tt("km_pm_dks") : ""); }),
       sond: (M.sond || []).map(function (p, i) { return (p.name || "S" + (i + 1)) + " · " + p.l + "×" + p.b + "×" + p.t + " m"; }),
       wl: (M.wl || []).map(function (p, i) { return (p.name || "W" + (i + 1)) + " · " + tt("km_wl" + p.wt); }),
       geb: (M.geb || []).map(function (p, i) { return (p.name || rn(p.sid) || "G" + (i + 1)) + (p.cm ? " · " + p.cm + " cm" : ""); }),

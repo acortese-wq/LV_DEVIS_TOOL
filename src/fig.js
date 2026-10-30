@@ -147,7 +147,7 @@ var FIG = (function () {
       return svg(760, 160, o, tt("ht_rohr"));
     },
     schacht: function (r) {
-      if (r.modus === "deckel" || r.modus === "ersatz") return "";
+      if (r.modus === "deckel" || r.modus === "ersatz" || r.modus === "anschluss") return "";
       var Sd = KVE.SCHACHT[r.typ] || KVE.SCHACHT.KES150, ar = num(r.arbeit, 0.5), l = Sd.lo, H = Sd.ho, lp = l + 2 * ar, Hp = H + 0.10;
       var gy = 46, s = Math.min(170 / Hp, 300 / lp), pw = lp * s, ph = Hp * s, x0 = 250 - pw / 2, sx = x0 + ar * s, sw = l * s, sh = H * s, sf = surf(r.belag);
       var o = '<rect x="20" y="' + gy + '" width="460" height="' + (ph + 24) + '" fill="url(#pSo)" opacity=".5"/>', bd = band(20, gy, 460, sf, s); o += bd.o;

@@ -3035,6 +3035,29 @@ Object.assign(TS.it,{
     ov_refine: ["Mit Passpunkten verfeinern", "Affiner avec des points de calage", "Affinare con punti di appoggio", "Refine with control points"],
     ov_confirmed: ["Ausrichtung bestätigt.", "Alignement confirmé.", "Allineamento confermato.", "Alignment confirmed."],
     ov_needConf: ["Erst die automatische Ausrichtung bestätigen oder Passpunkte setzen.", "Confirmer d'abord l'alignement automatique ou poser des points de calage.", "Confermare prima l'allineamento automatico o impostare punti di appoggio.", "Confirm the automatic alignment first or set control points."],
+    o_modus_anschluss: ["Bestehender Schacht: Anschlüsse", "Chambre existante : raccordements", "Pozzetto esistente: allacciamenti", "Existing manhole: connections"],
+    km_pm_neu: ["Neuer Schacht", "Nouvelle chambre", "Nuovo pozzetto", "New manhole"],
+    km_pm_ans: ["Bestehend: Anschluss", "Existante : raccordement", "Esistente: allacciamento", "Existing: connection"],
+    km_pm_dk: ["Bestehend: nur Deckel", "Existante : couvercle seul", "Esistente: solo coperchio", "Existing: cover only"],
+    km_pm_anss: ["Anschluss", "raccord.", "allacc.", "connection"],
+    km_pm_dks: ["nur Deckel", "couvercle", "coperchio", "cover only"],
+    km_pm_lbl: ["Schachtart", "Type de chambre", "Tipo di pozzetto", "Manhole kind"],
+    km_pm_dr: ["Deckel", "Couvercle", "Coperchio", "Cover"],
+    km_pm_hoeher: ["höher setzen", "relever", "rialzare", "raise"],
+    km_pm_tiefer: ["tiefer setzen", "abaisser", "abbassare", "lower"],
+    km_pm_rund: ["rund", "rond", "tondo", "round"],
+    km_pm_rect: ["rechteckig", "rectangulaire", "rettangolare", "rectangular"],
+    km_pm_n: ["Anschlüsse: {n}", "Raccordements : {n}", "Allacciamenti: {n}", "Connections: {n}"],
+    km_as_start: ["Linie beginnt …", "La ligne commence …", "La linea inizia …", "Line starts …"],
+    km_as_end: ["Linie endet …", "La ligne se termine …", "La linea termina …", "Line ends …"],
+    km_as_newS: ["Neuer Schacht hier", "Nouvelle chambre ici", "Nuovo pozzetto qui", "New manhole here"],
+    km_as_conn: ["Anschluss an bestehenden Schacht", "Raccordement à une chambre existante", "Allacciamento a pozzetto esistente", "Connect to existing manhole"],
+    km_as_near: ["{d} m entfernt, vorgeschlagen", "à {d} m, proposé", "a {d} m, proposto", "{d} m away, suggested"],
+    km_as_none: ["Ohne Schacht", "Sans chambre", "Senza pozzetto", "No manhole"],
+    km_as_surf: ["Oberfläche wechselt ab hier", "La surface change à partir d'ici", "La superficie cambia da qui", "Surface changes from here"],
+    km_as_cover: ["Nur Deckel anpassen", "Adapter seulement le couvercle", "Adattare solo il coperchio", "Adjust cover only"],
+    km_as_surfAsk: ["Neue Oberfläche des Folgeabschnitts", "Nouvelle surface du tronçon suivant", "Nuova superficie del tratto successivo", "New surface of the next section"],
+    km_as_go: ["Weiter zeichnen", "Continuer à dessiner", "Continua a disegnare", "Continue drawing"],
     km_prov: ["Kartenanbieter", "Fournisseur de cartes", "Fornitore cartografico", "Map provider"],
     km_bLeer: ["geo.admin: leere Basis (nur gewählte Ebenen)", "geo.admin: fond vide (couches choisies seulement)", "geo.admin: sfondo vuoto (solo livelli scelti)", "geo.admin: blank base (selected layers only)"],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
@@ -3691,6 +3714,13 @@ var KVE = (function () {
       var dk = DECKEL_KEY[c.deckelRichtung === "tiefer" ? "tiefer" : "hoeher"][c.deckelFormat === "rechteckig" ? "rechteckig" : "rund"];
       cx.add(dk, n0, { rule: "Anzahl = " + n0 + " St" });
       schachtOpts(cx, c);
+      return { lines: cx.lines, warn: cx.warn, bal: cx.bal, geo: {} };
+    }
+    if (c.modus === "anschluss") {   /* bestehender Schacht: nur Leitungsanschlüsse (Anzahl gesamt), Schachttyp bestimmt KS/KES-Position */
+      var ak = Math.max(0, num(c.anschl, 0)), SA = SCHACHT[c.typ];
+      if (!(ak > 0)) return { lines: [], warn: cx.warn, bal: [] };
+      cx.g("g_bauwerk");
+      cx.add(SA && SA.kind === "KS" ? (c.anDN === "150" ? "151/672.202" : "151/672.201") : (c.anDN === "150" ? "151/672.302" : "151/672.301"), ak, { rule: "Anschlüsse bestehender Schacht = " + ak + " St" });
       return { lines: cx.lines, warn: cx.warn, bal: cx.bal, geo: {} };
     }
     var S = SCHACHT[c.typ], n = Math.max(0, num(c.n, 1));
@@ -4468,7 +4498,7 @@ var FIG = (function () {
       return svg(760, 160, o, tt("ht_rohr"));
     },
     schacht: function (r) {
-      if (r.modus === "deckel" || r.modus === "ersatz") return "";
+      if (r.modus === "deckel" || r.modus === "ersatz" || r.modus === "anschluss") return "";
       var Sd = KVE.SCHACHT[r.typ] || KVE.SCHACHT.KES150, ar = num(r.arbeit, 0.5), l = Sd.lo, H = Sd.ho, lp = l + 2 * ar, Hp = H + 0.10;
       var gy = 46, s = Math.min(170 / Hp, 300 / lp), pw = lp * s, ph = Hp * s, x0 = 250 - pw / 2, sx = x0 + ar * s, sw = l * s, sh = H * s, sf = surf(r.belag);
       var o = '<rect x="20" y="' + gy + '" width="460" height="' + (ph + 24) + '" fill="url(#pSo)" opacity=".5"/>', bd = band(20, gy, 460, sf, s); o += bd.o;
@@ -5872,7 +5902,7 @@ var FIG = (function () {
   var withShow = function (list, fn) { return list.map(function (f) { return Object.assign({}, f, { show: function (c) { return fn(c) && (f.show ? f.show(c) : true); }, _w: [fn, f.show] }); }); };
   function locOf(c) { return LOCS.filter(function (l) { return l.id === c.einbauort; })[0]; }
   function kindOf(c) { var s = KVE.SCHACHT[c.typ]; return s ? s.kind : null; }
-  var notDeckel = function (c) { return c.modus !== "deckel"; }, isNeu = function (c) { return c.modus === "neu"; };
+  var notDeckel = function (c) { return c.modus !== "deckel" && c.modus !== "anschluss"; }, isNeu = function (c) { return c.modus === "neu"; }, isAns = function (c) { return c.modus === "anschluss"; };
   var shapeFree = function (c) { var k = kindOf(c); return notDeckel(c) && k !== "KS" && !(k === "PLS" && isNeu(c)); };
   var curShape = function (c) { return kindOf(c) === "KS" ? "rund" : c.shape; };
   var COVERS = Object.keys(LV).filter(function (k) { return k.indexOf("151/632.1") === 0; }).sort();
@@ -5912,12 +5942,12 @@ var FIG = (function () {
       { id: "zores.zustand", t: "sel", opts: ["abrechen", "betrieb", "nicht"], show: function (c) { return c.mods.fremd && c.zores.on; } },
       { id: "zores.len", t: "num", show: function (c) { return c.mods.fremd && c.zores.on; } },
       { id: "mods.boesch", t: "chip" }, { id: "boeschung.flaeche", t: "num", show: function (c) { return c.mods.boesch; } }, { id: "boeschung.geneigt", t: "chk", show: function (c) { return c.mods.boesch; } }]),
-    schacht: [{ sec: "s_schacht" }, { id: "name", t: "text" }, { t: "trasse" }, { id: "modus", t: "sel", opts: ["neu", "ersatz", "deckel"], struct: 1 },
+    schacht: [{ sec: "s_schacht" }, { id: "name", t: "text" }, { t: "trasse" }, { id: "modus", t: "sel", opts: ["neu", "ersatz", "deckel", "anschluss"], struct: 1 },
       { id: "deckelRichtung", t: "sel", opts: ["hoeher", "tiefer"], show: function (c) { return c.modus === "deckel"; } },
       { id: "deckelFormat", t: "sel", opts: ["rund", "rechteckig"], show: function (c) { return c.modus === "deckel"; } },
       { id: "deckelN", t: "num", show: function (c) { return c.modus === "deckel"; } },
       { id: "einbauort", t: "sel", opts: ["HLS", "HVS", "VS50", "VS49", "SS", "ESS", "GEH", "WIES"], hint: "hint_einbauort", struct: 1, show: notDeckel, locHint: 1 },
-      { id: "typ", t: "sel", opts: ["KS80U", "KS80H", "KES100", "KES150", "KES175", "ES300", "PLS1", "PLS2", "PLS3"], hint: "hint_typ", struct: 1, show: notDeckel },
+      { id: "typ", t: "sel", opts: ["KS80U", "KS80H", "KES100", "KES150", "KES175", "ES300", "PLS1", "PLS2", "PLS3"], hint: "hint_typ", struct: 1, show: function (c) { return c.modus !== "deckel"; } },
       { id: "n", t: "num", show: notDeckel, labKey: "f_sn" }, { id: "alt", t: "sel", opts: ["guss", "beton", "flaeche"], show: function (c) { return c.modus === "ersatz"; } }
     ].concat(withShow(PIT_FIELDS.slice(0, 2).concat([{ id: "direkt", t: "chk", hint: "hint_direkt" }]), isNeu), withShow(ERSCH_FIELDS, isNeu), [
       { sec: "s_abd", show: notDeckel },
@@ -5931,7 +5961,7 @@ var FIG = (function () {
       { id: "rahmen", t: "cover", hint: "hint_rahmen", show: function (c) { var l = locOf(c); return notDeckel(c) && curShape(c) === "eckig" && (!l || l.cover === "platte") && !(kindOf(c) === "PLS" && isNeu(c)); } },
       { id: "deckel", t: "cover", show: function (c) { var l = locOf(c); return notDeckel(c) && curShape(c) === "eckig" && (!l || l.cover === "platte") && !(kindOf(c) === "PLS" && isNeu(c)); } },
       { id: "spare", t: "num", hint: "hint_spare", show: notDeckel },
-      { id: "anschl", t: "num", show: isNeu }, { id: "anDN", t: "sel", opts: ["80", "150"], show: isNeu },
+      { id: "anschl", t: "num", show: function (c) { return isNeu(c) || isAns(c); } }, { id: "anDN", t: "sel", opts: ["80", "150"], show: function (c) { return isNeu(c) || isAns(c); } },
       { id: "beton", t: "num", show: isNeu }, { id: "platten", t: "num", show: isNeu },
       { sec: "s_zone", show: isNeu }].concat(withShow(VERF_FIELDS, isNeu), [{ sec: "s_belag", show: isNeu }], withShow(BELAG_FIELDS, isNeu), [
       { sec: "s_opts" }, { t: "opts" }, { sec: "s_freigabe", show: notDeckel },
@@ -6426,6 +6456,8 @@ var FIG = (function () {
         else { r = newRec("schacht", L.length + 1); L.push(r); st.sn++; }
       }
       used[ensureUid(r)] = 1; p.sid = r.uid; st.s++; r.typ = p.typ; if (p.name) r.name = p.name; if (p.fl) setSurface(r, p.fl);
+      var md = p.mode || "neu"; if (md === "anschluss" || md === "deckel") r.modus = md; else if (r.modus === "anschluss" || r.modus === "deckel") r.modus = "neu";
+      if (md === "deckel") { r.deckelRichtung = p.dr || "hoeher"; r.deckelFormat = p.df || "rund"; }
     });
     (M.areas || []).forEach(function (f) {
       var Bl = S.recs.belag, r = recByUid("belag", f.rid), A = fns.area(f.pts), P = fns.perim(f.pts);
@@ -6461,9 +6493,15 @@ var FIG = (function () {
     if (!all.length) { if (S.sond.fromMap) { S.sond.m3 = ""; S.sond.fromMap = false; } return; }
     S.sond.m3 = String(Math.round(all.reduce(function (a, o) { return a + num(o.l, 0) * num(o.b, 0) * num(o.t, 0); }, 0) * 100) / 100); S.sond.fromMap = true;
   }
+  function conns(p) { var src = (S.karte.pts || []).indexOf(p) >= 0 ? S.karte : S.plan; return (src.lines || []).reduce(function (a, l) { return a + (l.s === p.id ? 1 : 0) + (l.e === p.id ? 1 : 0); }, 0); }
   function syncDerived(cfg, st) {
     var KP = (S.karte.pts || []).concat(S.plan.pts || []);   /* Anzahl Schächte = Anzahl gesetzter Punkte je Datensatz (sonst bliebe n = 0 ohne Kosten) */
-    S.recs.schacht.forEach(function (r) { var k = r.uid ? KP.filter(function (p) { return p.sid === r.uid; }).length : 0; if (k && r.modus !== "deckel") r.n = String(k); });
+    S.recs.schacht.forEach(function (r) {
+      var lp = r.uid ? KP.filter(function (p) { return p.sid === r.uid; }) : [], k = lp.length;
+      if (r.modus === "deckel") { if (k) r.deckelN = String(k); }
+      else if (r.modus === "anschluss") { if (k) r.anschl = String(lp.reduce(function (a, p) { return a + Math.max(1, conns(p)); }, 0)); }   /* Anschlüsse = Leitungsenden an den bestehenden Schächten */
+      else if (k) r.n = String(k);
+    });
     var WL = (S.karte.wl || []).concat(S.plan.wl || []), W = S.recs.werkloch, rw = null;
     WL.forEach(function (p) { rw = rw || recByUid("werkloch", p.sid); });
     if (WL.length) {
@@ -6781,7 +6819,7 @@ var FIG = (function () {
     var SYS = { k55: "K55", laengs: tt("o_rohrSystem_laengs").split(" (")[0], block: tt("o_rohrSystem_block").split(" (")[0] };
     return {
       lines: (M.lines || []).map(function (l, i) { var s2 = (rn(l.rid) || tt("km_lineN").replace("{n}", i + 1)) + " · " + KARTE.fmt(fns.len(l.pts)) + " m"; var lt = l.cfg ? KARTE.lineTxt(l, tt) : ""; if (lt) s2 += " · " + lt; else if (l.rohr) s2 += " · " + (l.rohr.sys === "block" ? SYS.block : SYS[l.rohr.sys] + " DN" + l.rohr.dn + " ×" + (l.rohr.n || "1")); return s2; }),
-      pts: (M.pts || []).map(function (p, i) { return (p.name || rn(p.sid) || tt("km_schN").replace("{n}", i + 1)) + " · " + p.typ; }),
+      pts: (M.pts || []).map(function (p, i) { return (p.name || rn(p.sid) || tt("km_schN").replace("{n}", i + 1)) + " · " + p.typ + (p.mode === "anschluss" ? " · " + tt("km_pm_anss") : p.mode === "deckel" ? " · " + tt("km_pm_dks") : ""); }),
       sond: (M.sond || []).map(function (p, i) { return (p.name || "S" + (i + 1)) + " · " + p.l + "×" + p.b + "×" + p.t + " m"; }),
       wl: (M.wl || []).map(function (p, i) { return (p.name || "W" + (i + 1)) + " · " + tt("km_wl" + p.wt); }),
       geb: (M.geb || []).map(function (p, i) { return (p.name || rn(p.sid) || "G" + (i + 1)) + (p.cm ? " · " + p.cm + " cm" : ""); }),
