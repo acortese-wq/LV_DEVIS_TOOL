@@ -574,8 +574,17 @@
     }
     if (c.fl) {
       r.roh = c.fl === "roh"; if (!r.belag) r.belag = newRec("graben", 1).belag;
-      r.belag.mode = { belag: "bit", wiese: "humus", pflaster: "pflaster", roh: "none" }[c.fl];
+      setSurface(r, c.fl, c.ab);
     }
+    if (c.fl && c.fl !== "roh") r.gesp = !!c.gesp;   /* ohne Aushub (Rohplanie) keine Spriessung */
+    if (KVE.num(c.kr, 0) > 0) r.kreuz = { on: true, n: String(c.kr), len: (r.kreuz && r.kreuz.len) || "1.00", richtung: (r.kreuz && r.kreuz.richtung) || "quer" }; else if (c.kr === "0") r.kreuz = Object.assign({}, r.kreuz || {}, { on: false });
+    if (c.art !== "beton" && c.art !== "laengs") { if (c.b90 !== "") r.b90 = String(KVE.num(c.b90, 0)); if (c.b45 !== "") r.b45 = String(KVE.num(c.b45, 0)); }
+  }
+  /* Oberfläche in einen Datensatz übertragen; Pflästerung: Abbruch der bestehenden Pflästerung gemäss Auswahl */
+  function setSurface(r, fl, ab) {
+    if (!r.belag) r.belag = newRec("graben", 1).belag;
+    r.belag.mode = { belag: "bit", wiese: "humus", pflaster: "pflaster", roh: "none" }[fl] || r.belag.mode;
+    if (fl === "pflaster") { r.belag.pflaster = r.belag.pflaster || {}; var a = ab == null ? "betonstein" : ab; r.belag.pflaster.abbruchAlt = a !== ""; if (a) r.belag.pflaster.abbruchArt = a; }
   }
   /* Weitere Rohrtypen derselben Linie (nur Kies/Betonkies): eigene Rohranlage mit Lieferung, Verlegen, Muffen, Einzug, Kalibrieren */
   function lineExtras(l, r, L) {
@@ -592,6 +601,18 @@
     var r = newRec("graben", 1), c = KARTE.cfgOf(l), ent = KARTE.pipeList(c); r.L = round1(Lm || 1); applyCfg(l, r, Lm);
     r.pipes = []; ent.slice().sort(function (a, b) { return b[0] - a[0]; }).forEach(function (e) { for (var i = 0; i < e[1]; i++) r.pipes.push(e[0]); });
     return FIG.html("graben", r, S, tt);
+  }
+  /* Kostenvorschau: gleiche Übernahme auf einer Kopie des Projekts, nichts wird gespeichert */
+  function costPreview(cfg, tab) {
+    return function (M, lenFn, fns) {
+      var S0 = S, out = null;
+      try {
+        S = JSON.parse(JSON.stringify(S0)); var cc = (S.recs[tab] || []).filter(function (r) { return cfg.uid && r.uid === cfg.uid; })[0] || JSON.parse(JSON.stringify(cfg)), st = karteApply(M, cc, lenFn, Object.assign({ src: "karte" }, fns));
+        S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: S.karte.base, bg: null, overlay: null }; syncDerived(cc, st);
+        out = KVE.calc(S, LV).sum.netto;
+      } catch (e) { out = null; } finally { S = S0; }
+      return out;
+    };
   }
   function karteApply(M, cfg, lenFn, fns) {
     var st = { g: 0, gn: 0, s: 0, sn: 0, o: 0, f: 0, fn: 0, w: 0, wn: 0, e: 0, en: 0, x: 0, z: 0 }, used = {}, G = S.recs.graben;
@@ -616,7 +637,7 @@
         else if (L.length === 1 && pristine("schacht", L[0]) && !used[ensureUid(L[0])]) r = L[0];
         else { r = newRec("schacht", L.length + 1); L.push(r); st.sn++; }
       }
-      used[ensureUid(r)] = 1; p.sid = r.uid; st.s++; r.typ = p.typ; if (p.name) r.name = p.name;
+      used[ensureUid(r)] = 1; p.sid = r.uid; st.s++; r.typ = p.typ; if (p.name) r.name = p.name; if (p.fl) setSurface(r, p.fl);
     });
     (M.areas || []).forEach(function (f) {
       var Bl = S.recs.belag, r = recByUid("belag", f.rid), A = fns.area(f.pts), P = fns.perim(f.pts);
@@ -627,6 +648,7 @@
         else { r = newRec("belag", Bl.length + 1); Bl.push(r); st.fn++; }
       }
       used[ensureUid(r)] = 1; f.rid = r.uid; st.f++;
+      r.fl = f.fl || ""; if (r.fl) { r.belagX = newRec("graben", 1).belag; setSurface({ belag: r.belagX }, r.fl, f.ab); } else delete r.belagX;
       var bl = solveBL(A, P); r.indiv = "false"; r.bk = f.belag.bk; r.wi = f.belag.wi; r.d = String(f.belag.d || "0.08"); r.B = String(Math.round(bl[0] * 1000) / 1000); r.L = String(Math.round(bl[1] * 1000) / 1000);
     });
     /* Gebäudeeinführungen: je Punkt ein Datensatz (Anzahl 1) */
@@ -659,7 +681,7 @@
     if (WL.length) {
       if (!rw) { if (S.tab === "werkloch" && cfg) rw = cfg; else if (W.length === 1 && pristine("werkloch", W[0])) rw = W[0]; else { rw = newRec("werkloch", W.length + 1); W.push(rw); if (st) st.wn++; } }
       ensureUid(rw); var cnt = { ts: 0, bo: 0, sg: 0, zs: 0 }; WL.forEach(function (p) { p.sid = rw.uid; cnt[p.wt] = (cnt[p.wt] || 0) + 1; });
-      ["ts", "bo", "sg", "zs"].forEach(function (k) { rw[k] = cnt[k] ? String(cnt[k]) : ""; }); rw.wlMap = true; if (st) st.w = WL.length;
+      ["ts", "bo", "sg", "zs"].forEach(function (k) { rw[k] = cnt[k] ? String(cnt[k]) : ""; }); rw.wlMap = true; if (st) st.w = WL.length; var wf = WL.filter(function (p) { return p.fl; })[0]; if (wf) setSurface(rw, wf.fl);
     } else W.forEach(function (r) { if (r.wlMap) { ["ts", "bo", "sg", "zs"].forEach(function (k) { r[k] = ""; }); r.wlMap = false; } });
     sondSync();
   }
@@ -675,7 +697,7 @@
           var u0 = ensureUid(cfg); cfg.trasse.forEach(function (pts, i) { S.karte.lines.push({ id: "m" + i + u0, pts: pts, rid: i === 0 ? u0 : null, rohr: { sys: cfg.rohrSystem, dn: cfg.dn, len: cfg.len, n: cfg.n } }); }); delete cfg.trasse;
         }
         var g = tab === "graben" && cfg;
-        KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, model: JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
+        KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, cost: costPreview(cfg, tab), model: JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" && cfg ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" && cfg ? cfg.cm : "", abd: tab === "geb" && cfg ? cfg.abd : "hauff" }, defBelag: tab === "belag" && cfg ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
           onClose: function () { var o = $(ex.focus || "#kmOpen"); if (o) o.focus(); }, autoPlan: !!ex.autoPlan, planObjs: JSON.parse(JSON.stringify({ lines: S.plan.lines, pts: S.plan.pts, sond: S.plan.sond, wl: S.plan.wl, geb: S.plan.geb, areas: S.plan.areas, notes: S.plan.notes })), planScale: (S.plan.cal && S.plan.cal.scale) || 0,
@@ -964,7 +986,7 @@
     head.querySelector("#situTog").addEventListener("click", function () { S.ui.situOpen = !S.ui.situOpen; save(); situRender(); });
     var st = $("#result .status"); if (st) st.insertAdjacentElement("afterend", sec); else $("#result").insertBefore(sec, $("#result").firstChild);
   }
-  function situGeo() { var K = S.karte; return { lines: K.lines.map(function (l) { return l.pts; }), pts: K.pts.map(function (p) { return p.pt; }), areas: (K.areas || []).map(function (a) { return a.pts; }), sond: K.sond.map(function (p) { return p.pt; }), wl: (K.wl || []).map(function (p) { return p.pt; }), geb: (K.geb || []).map(function (p) { return p.pt; }), notes: K.notes, extra: KARTE.ovCorners(ovResolve(K.overlay)) }; }
+  function situGeo() { var K = S.karte; return { lfl: K.lines.map(function (l) { return (l.cfg || {}).fl || ""; }), lines: K.lines.map(function (l) { return l.pts; }), pts: K.pts.map(function (p) { return p.pt; }), areas: (K.areas || []).map(function (a) { return a.pts; }), sond: K.sond.map(function (p) { return p.pt; }), wl: (K.wl || []).map(function (p) { return p.pt; }), geb: (K.geb || []).map(function (p) { return p.pt; }), notes: K.notes, extra: KARTE.ovCorners(ovResolve(K.overlay)) }; }
   /* Beschriftungen: Linie = Name · Länge · Rohranlage; Schacht = Name · Typ; Sondage, Werkloch, Gebäudeeinführung, Fläche */
   function mkLabels(M, fns) {
     var rn = function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); };

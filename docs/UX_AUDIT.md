@@ -55,3 +55,19 @@ Pro Linie: Rohrtypen als Zähler (z. B. 2×K100 + 3×K55), Verlegeart (Kies/Beto
 - **Rohplanie** (neu im Rechenkern, JS und Python identisch, `roh`): Aushub, Belag, Spriessung, Verfüllung entfallen; Leitungszone/Umhüllung und Rohre bleiben. Beispiel 50 m: 26 → 10 Positionen.
 - **Einbetoniert**: Rohrblock je Rohrtyp; Blockmass automatisch aus den Rohren + 5 cm Überdeckung.
 - **Mehrere Rohrtypen in Kies**: Haupttyp (meiste Rohre) im Graben, weitere Typen in einer eigenen Rohranlage (Lieferung, Verlegen, Muffen, Einzug, Kalibrieren). Leitungszone/Umhüllung rechnet mit dem Haupttyp.
+
+## Zyklus 3: Oberflächen, Abbruch, Einklappen, Abdeckung (Oktober 2026)
+**Abbruch je Oberfläche (geprüft, Kernel unverändert ausser Fläche)**
+| Oberfläche | Abbruch/Abtrag | Entsorgung | Neuaufbau | Befund |
+|---|---|---|---|---|
+| Belag (Asphalt) | Schneiden + Abbruch (117/223) | Deponie (117/721, 731) | ja | vollständig |
+| Pflästerung | Abbruch (117/224, 225) nur bei Schalter «Abbruch alt» | **nicht im Kernel** | ja | **Karte setzte den Schalter nie → behoben** (Auswahl Betonstein/Platten/Naturstein/kein, Vorgabe Betonstein) |
+| Wiese | Humus-Abtrag / Rasenziegel (151/211, 212) | – | Humus, Ansaat | vollständig |
+| Rohplanie | entfällt | – | – | Aushub durch anderen Bauherrn |
+
+**Kostenwirkung:** Linien, Schächte, Werklöcher und Flächen mit Oberfläche «Pflästerung» rechnen jetzt Abbruch mit (Standard Betonstein). Bereits erfasste Karten-Linien mit Pflästerung ändern sich beim erneuten «In Datensätze übernehmen». **Offen:** Entsorgung von Pflästerabbruchmaterial ist im LV-Kernel nicht abgebildet (keine Position hinterlegt).
+
+**Neu:** Flächen mit Oberfläche Pflästerung/Wiese (Kernel `fl`/`belagX`, JS = Python), Oberfläche und Typ-Merker an Schächten/Werklöchern, «Weitere Angaben» je Linie (Spriessung, Kreuzungen, Bögen 90°/45°), Linienart nach Oberfläche (Farbe + Strichart + Legende, auch im Export), Objekte einklappbar (Kopf, «Alle einklappen», Kurzinfo), Sammelblatt «Fehlt noch», Kostenvorschau (netto) in der Karte.
+
+**Abdeckung (Auswertung `tests/abdeckung.js`, 5 Beispielprojekte 40–200 m)**
+Vergleich: nur Kartenangaben (Standardwerte) gegen «vollständig» mit abweichenden Nicht-Karten-Feldern (Handanteil eng, Betonumhüllung, direkte Verfüllung, Handeinfüllung, 2 Kreuzungen, Bögen, Schneiden, Belag 150 mm, Schacht 0.75 m Arbeitsraum, 2 Anschlüsse). Ergebnis Nettokosten: 82 %, 88 %, 77 %, 80 %, 81 % (Ø 82 %); Positionen deckungsgleich 67–87 %. Aussagekraft: Richtwert, abhängig von den gewählten Abweichungen; Kreuzungen/Bögen sind inzwischen über «Weitere Angaben» in der Karte erfassbar (im Test «Karte» nicht eingesetzt).
