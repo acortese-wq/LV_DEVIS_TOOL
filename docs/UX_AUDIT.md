@@ -152,3 +152,6 @@ Quelle: «Handbuch unter- und oberirdischer Netzbau» V1.2 (01.04.2026), Kap. 2.
 - Wissen: Projektstand, LV (Werkzeuge `lv_suche`/`lv_position`, Preise nur daraus), Handbuch-Richtwerte (Auszug), Kurz-Bedienung.
 - **Änderungen nur als Vorschlag** (Werkzeug `vorschlag`): Karte mit Feld, alt → neu, Begründung und **Kostenwirkung netto** (Berechnung mit Rechenkern auf einer Kopie); «Übernehmen» setzt das Feld (Rückgängig-Meldung), «Verwerfen» entfernt die Karte. Gesperrt: `uid`, abgeleitete Zählwerte; nur einzelne Felder.
 - Rechenkern unverändert. Kostenwirkung nur nach Klick auf «Übernehmen».
+
+## Schräglänge in Beschriftungen
+Bei aktivem «Kosten mit Schräglänge rechnen» und passendem Höhenprofil zeigen Kartenbeschriftung, Objektliste, Gesamtlänge, Auswertung (Längen, Rohrmeter, Oberflächen) sowie Übersicht/Druck die Schräglänge mit Zusatz «schräg». Ohne Schalter oder bei veraltetem Profil bleibt es die Lagelänge. Keine zusätzliche Kostenwirkung (Länge wird schon beim Übernehmen verwendet).

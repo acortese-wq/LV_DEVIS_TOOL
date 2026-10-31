@@ -1008,7 +1008,7 @@
     var rn = function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); };
     var SYS = { k55: "K55", laengs: tt("o_rohrSystem_laengs").split(" (")[0], block: tt("o_rohrSystem_block").split(" (")[0] };
     return {
-      lines: (M.lines || []).map(function (l, i) { var s2 = (rn(l.rid) || tt("km_lineN").replace("{n}", i + 1)) + " · " + KARTE.fmt(fns.len(l.pts)) + " m"; var lt = l.cfg ? KARTE.lineTxt(l, tt) : ""; if (lt) s2 += " · " + lt; else if (l.rohr) s2 += " · " + (l.rohr.sys === "block" ? SYS.block : SYS[l.rohr.sys] + " DN" + l.rohr.dn + " ×" + (l.rohr.n || "1")); return s2; }),
+      lines: (M.lines || []).map(function (l, i) { var s2 = (rn(l.rid) || tt("km_lineN").replace("{n}", i + 1)) + " · " + KARTE.fmt(fns.len(l.pts)) + " m" + (fns.slope && fns.slope(l.pts) ? " " + tt("hz_sfx") : ""); var lt = l.cfg ? KARTE.lineTxt(l, tt) : ""; if (lt) s2 += " · " + lt; else if (l.rohr) s2 += " · " + (l.rohr.sys === "block" ? SYS.block : SYS[l.rohr.sys] + " DN" + l.rohr.dn + " ×" + (l.rohr.n || "1")); return s2; }),
       pts: (M.pts || []).map(function (p, i) { return (p.name || rn(p.sid) || tt("km_schN").replace("{n}", i + 1)) + " · " + p.typ + (p.mode === "anschluss" ? " · " + tt("km_pm_anss") : p.mode === "deckel" ? " · " + tt("km_pm_dks") : ""); }),
       sond: (M.sond || []).map(function (p, i) { return (p.name || "S" + (i + 1)) + " · " + p.l + "×" + p.b + "×" + p.t + " m"; }),
       wl: (M.wl || []).map(function (p, i) { return (p.name || "W" + (i + 1)) + " · " + tt("km_wl" + p.wt); }),
@@ -1016,7 +1016,7 @@
       areas: (M.areas || []).map(function (f, i) { return (rn(f.rid) || tt("km_areaN").replace("{n}", i + 1)) + " · " + KARTE.fmt(fns.area(f.pts)) + " m²"; })
     };
   }
-  var mapFns = function () { return { len: function (pts) { return KARTE.total([pts]); }, area: function (pts) { return KARTE.polyArea(pts); } }; };
+  var mapFns = function () { return { len: function (pts) { return KARTE.slopeLen(pts, S.karte.lines); }, slope: function (pts) { return KARTE.slopeOn() && !!KARTE.slopeHz(pts, S.karte.lines); }, area: function (pts) { return KARTE.polyArea(pts); } }; };
   var planFns = function () { var sc = (S.plan.cal && S.plan.cal.scale) || 0; return { len: function (pts) { return KARTE.total([pts]) * sc; }, area: function (pts) { return KARTE.polyArea(pts) * sc * sc; } }; };
   function exportOpen() {
     var K = S.karte, P = S.plan, src = {}, hasMap = (K.overlay && ovResolve(K.overlay)) || K.lines.length || K.pts.length || K.sond.length || K.notes.length || (K.areas || []).length || (K.wl || []).length || (K.geb || []).length;

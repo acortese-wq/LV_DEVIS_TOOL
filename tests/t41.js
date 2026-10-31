@@ -16,7 +16,7 @@ const L0=(await getS(pg)).recs.graben[0].L;
 await pg.click('[data-k=apply]'); await pg.waitForTimeout(600); let S=await getS(pg); const Lh=parseFloat(S.recs.graben[0].L); console.log('Lage-Länge',Lh);
 await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(600); await pg.click('#kmTabE');
 ok((await pg.textContent('#kmHz')).includes('schräg'),'Profil bleibt nach erneutem Öffnen erhalten');
-await pg.check('[data-hz=mode]'); await pg.click('[data-k=apply]'); await pg.waitForTimeout(600); S=await getS(pg); const Ls=parseFloat(S.recs.graben[0].L); console.log('Schräglänge',Ls);
+await pg.check('[data-hz=mode]'); await pg.waitForTimeout(500); const lbl=await pg.locator('.kmlbl').allTextContents(); console.log(lbl.join('|')); ok(lbl.some(x=>/337[.,]7 m schräg/.test(x)),'Linienbeschriftung zeigt Schräglänge'); ok(/337[.,]7 m schräg/.test(await pg.locator('#kmObj').textContent()),'Objektliste zeigt Schräglänge'); await pg.click('[data-k=apply]'); await pg.waitForTimeout(600); S=await getS(pg); const Ls=parseFloat(S.recs.graben[0].L); console.log('Schräglänge',Ls);
 ok(Ls>Lh*1.02&&Ls<Lh*1.04,'Graben-Länge mit Schalter = Schräglänge ('+Ls+' vs '+Lh+')');
 await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.click('#kmTabE'); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,200));
 ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();

@@ -785,6 +785,7 @@
     ch_fromto: ["{f}: {a} → {b}", "{f} : {a} → {b}", "{f}: {a} → {b}", "{f}: {a} → {b}"],
     ch_dd: ["Kostenwirkung netto: {d} CHF", "Effet sur les coûts net : {d} CHF", "Effetto sui costi netto: {d} CHF", "Cost effect net: {d} CHF"],
     ch_done: ["Vorschlag des Assistenten übernommen.", "Proposition de l'assistant appliquée.", "Proposta dell'assistente applicata.", "Assistant suggestion applied."],
+    hz_sfx: ["schräg","oblique","inclinata","slope"],
     km_prov: ["Kartenanbieter", "Fournisseur de cartes", "Fornitore cartografico", "Map provider"],
     km_bLeer: ["geo.admin: leere Basis (nur gewählte Ebenen)", "geo.admin: fond vide (couches choisies seulement)", "geo.admin: sfondo vuoto (solo livelli scelti)", "geo.admin: blank base (selected layers only)"],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
