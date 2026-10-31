@@ -1289,7 +1289,7 @@
     var r = $("#p_rolle"); r.innerHTML = ""; ["anv", "bl", "bhv"].forEach(function (v) { var o = document.createElement("option"); o.value = v; o.textContent = tt("r_" + v); r.appendChild(o); }); r.value = S.kopf.rolle;
     $("#helpTitle").textContent = tt("helpTitle"); $("#helpSteps").innerHTML = (T[S.lang] || T.de).help.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join(""); $("#helpNote").textContent = tt("helpNote");
     $("#h-result").textContent = tt("h_result");
-    $("#bPrint").textContent = tt("btnPrint"); $("#bPrintSum").textContent = tt("btnPrintSum"); $("#bXlsx").textContent = tt("btnXlsx"); $("#bSave").textContent = tt("btnSave"); $("#bLoad").textContent = tt("btnLoad"); $("#bNew").textContent = tt("btnNew");
+    $("#bPrint").textContent = tt("btnPrint"); $("#bPrintFull").textContent = tt("btnPrintFull"); $("#bPrintSum").textContent = tt("btnPrintSum"); $("#bXlsx").textContent = tt("btnXlsx"); $("#bSave").textContent = tt("btnSave"); $("#bLoad").textContent = tt("btnLoad"); $("#bNew").textContent = tt("btnNew");
     document.querySelectorAll(".langs button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.lang === S.lang ? "true" : "false"); });
     if (window.__EXPDATE && !document.getElementById("expwarn")) { var ew = document.createElement("p"); ew.id = "expwarn"; ew.className = "expwarn no-print"; ew.setAttribute("role", "status"); ew.hidden = window.__EXPDAYS > 7; ew.textContent = fill(tt("ux_validUntil"), { d: window.__EXPDATE, n: window.__EXPDAYS }); var shEl = document.querySelector(".sheet"); if (shEl) shEl.insertBefore(ew, shEl.firstChild); }
     $("#versionline").innerHTML = "<b>" + esc(tt("version")) + " 2.0</b><span>Build " + BUILD + "</span>" + (window.__EXPDATE ? "<span class=\"bad\">" + esc(fill(tt("ux_validUntil"), { d: window.__EXPDATE, n: window.__EXPDAYS })) + "</span>" : "") + "<span>LV DE V1.1 (10.07.2026)</span><span>LV FR V1.0 (27.06.2026)</span><span>LV IT V1.0 (27.06.2026)</span>";
@@ -1357,9 +1357,10 @@
     document.addEventListener("keydown", function (ev) { if (ev.key === "Escape") lbShut(); });
     var st = [];
     window.addEventListener("beforeprint", function () { st = []; document.querySelectorAll("#result details, #kopfbox").forEach(function (d) { st.push([d, d.open]); d.open = true; }); });
-    window.addEventListener("afterprint", function () { st.forEach(function (x) { x[0].open = x[1]; }); document.body.classList.remove("summary-print"); });
+    window.addEventListener("afterprint", function () { st.forEach(function (x) { x[0].open = x[1]; }); document.body.classList.remove("summary-print"); document.body.classList.remove("print-detail"); });
     document.querySelectorAll(".langs button").forEach(function (b) { b.onclick = function () { S.lang = b.dataset.lang; save(); applyLang(); }; });
-    $("#bPrint").onclick = function () { window.print(); };
+    $("#bPrint").onclick = function () { document.body.classList.remove("print-detail"); window.print(); };
+    $("#bPrintFull").onclick = function () { document.body.classList.add("print-detail"); window.print(); };
     $("#bPrintSum").onclick = function () { document.body.classList.add("summary-print"); window.print(); };
     $("#bXlsx").onclick = function () { download(fname("xlsx"), xlsxBytes(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); };
     $("#bSave").onclick = saveJson;

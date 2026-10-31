@@ -444,3 +444,22 @@ ul.vollst .vst{white-space:normal}ul.vollst .vname{min-width:0;overflow-wrap:any
 .kmws .kmbottom .kmlen{font-size:13px;margin:0}.kmws .kmtools .btn{min-height:30px;padding-top:4px;padding-bottom:4px}.kmws .kmtg{margin-bottom:8px}
 .kmws .kmstat{min-width:0;gap:10px;font-size:12px}.kmws .kmbottom .kmlen{max-width:46vw}.kmws .kmbottom .kmfoot{flex:1 1 auto;justify-content:flex-end}
 .kmws .kmhead{flex-wrap:wrap}@media (max-width:860px){.kmws .kmhead h2{font-size:14px;white-space:normal;flex:1 1 60%}.kmws .kmsw{flex:1 0 100%;order:5;max-width:none}.kmws .kmheadb{margin-left:auto}}
+
+/* Druck kompakt (Standard «Drucken / PDF»): Kopf, Elementsummen, Zusammenfassung nach Kapiteln, Kostenübersicht, Warnungen; Rechenwege, Bilanzen, Bilder, Grundlagen nur bei «Ausführlich drucken» */
+@media print{
+  body:not(.print-detail):not(.summary-print){font-size:8.5pt}
+  body:not(.print-detail):not(.summary-print) .elres:not([data-id=zus]) .elres-body,
+  body:not(.print-detail):not(.summary-print) .figs,body:not(.print-detail):not(.summary-print) h3[data-t=hFigs],
+  body:not(.print-detail):not(.summary-print) details.ref,body:not(.print-detail):not(.summary-print) ul.vollst,
+  body:not(.print-detail):not(.summary-print) .rw,body:not(.print-detail):not(.summary-print) .rule,
+  body:not(.print-detail):not(.summary-print) details.opts.bal,body:not(.print-detail):not(.summary-print) .schachtdocs,body:not(.print-detail):not(.summary-print) .gorow,body:not(.print-detail):not(.summary-print) .warns .go{display:none!important}
+  body:not(.print-detail):not(.summary-print) .no-summary h3,body:not(.print-detail):not(.summary-print) #result h3{font-size:10pt;margin:6pt 0 3pt}
+  body:not(.print-detail):not(.summary-print) table td,body:not(.print-detail):not(.summary-print) table th{padding:1.5pt 4pt;line-height:1.2}
+  body:not(.print-detail):not(.summary-print) .elres{margin-bottom:0}
+  body:not(.print-detail):not(.summary-print) .elhead{padding:2pt 0;font-size:9pt;border-bottom:.4pt solid #bbb}
+  body:not(.print-detail):not(.summary-print) .zusblk td:nth-child(2) .ctx{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:7.5pt;color:#444}body:not(.print-detail):not(.summary-print) .zusblk td:nth-child(2) div{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+  body:not(.print-detail):not(.summary-print) .zusblk tr{break-inside:avoid}
+  body:not(.print-detail):not(.summary-print) .situfig svg{max-height:75mm;width:auto}
+  body:not(.print-detail):not(.summary-print) .situ{margin:4pt 0}
+  body:not(.print-detail):not(.summary-print) .kopfbox{margin:0 0 4pt}
+}

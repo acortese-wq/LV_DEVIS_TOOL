@@ -1052,6 +1052,25 @@ ul.vollst .vst{white-space:normal}ul.vollst .vname{min-width:0;overflow-wrap:any
 .kmws .kmstat{min-width:0;gap:10px;font-size:12px}.kmws .kmbottom .kmlen{max-width:46vw}.kmws .kmbottom .kmfoot{flex:1 1 auto;justify-content:flex-end}
 .kmws .kmhead{flex-wrap:wrap}@media (max-width:860px){.kmws .kmhead h2{font-size:14px;white-space:normal;flex:1 1 60%}.kmws .kmsw{flex:1 0 100%;order:5;max-width:none}.kmws .kmheadb{margin-left:auto}}
 
+/* Druck kompakt (Standard «Drucken / PDF»): Kopf, Elementsummen, Zusammenfassung nach Kapiteln, Kostenübersicht, Warnungen; Rechenwege, Bilanzen, Bilder, Grundlagen nur bei «Ausführlich drucken» */
+@media print{
+  body:not(.print-detail):not(.summary-print){font-size:8.5pt}
+  body:not(.print-detail):not(.summary-print) .elres:not([data-id=zus]) .elres-body,
+  body:not(.print-detail):not(.summary-print) .figs,body:not(.print-detail):not(.summary-print) h3[data-t=hFigs],
+  body:not(.print-detail):not(.summary-print) details.ref,body:not(.print-detail):not(.summary-print) ul.vollst,
+  body:not(.print-detail):not(.summary-print) .rw,body:not(.print-detail):not(.summary-print) .rule,
+  body:not(.print-detail):not(.summary-print) details.opts.bal,body:not(.print-detail):not(.summary-print) .schachtdocs,body:not(.print-detail):not(.summary-print) .gorow,body:not(.print-detail):not(.summary-print) .warns .go{display:none!important}
+  body:not(.print-detail):not(.summary-print) .no-summary h3,body:not(.print-detail):not(.summary-print) #result h3{font-size:10pt;margin:6pt 0 3pt}
+  body:not(.print-detail):not(.summary-print) table td,body:not(.print-detail):not(.summary-print) table th{padding:1.5pt 4pt;line-height:1.2}
+  body:not(.print-detail):not(.summary-print) .elres{margin-bottom:0}
+  body:not(.print-detail):not(.summary-print) .elhead{padding:2pt 0;font-size:9pt;border-bottom:.4pt solid #bbb}
+  body:not(.print-detail):not(.summary-print) .zusblk td:nth-child(2) .ctx{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:7.5pt;color:#444}body:not(.print-detail):not(.summary-print) .zusblk td:nth-child(2) div{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+  body:not(.print-detail):not(.summary-print) .zusblk tr{break-inside:avoid}
+  body:not(.print-detail):not(.summary-print) .situfig svg{max-height:75mm;width:auto}
+  body:not(.print-detail):not(.summary-print) .situ{margin:4pt 0}
+  body:not(.print-detail):not(.summary-print) .kopfbox{margin:0 0 4pt}
+}
+
 </style>
 </head>
 <body>
@@ -1121,6 +1140,7 @@ ul.vollst .vst{white-space:normal}ul.vollst .vname{min-width:0;overflow-wrap:any
       <div class="kpi no-print" id="kpi" aria-live="polite"></div>
       <div class="resbar no-print">
         <button type="button" class="btn" id="bPrint"></button>
+        <button type="button" class="btn ghost" id="bPrintFull"></button>
         <button type="button" class="btn ghost" id="bPrintSum"></button>
         <button type="button" class="btn ghost" id="bXlsx"></button>
         <button type="button" class="btn ghost" id="bSave"></button>
@@ -3193,6 +3213,7 @@ Object.assign(TS.it,{
     ws_ev_open: ["noch ohne Angabe", "sans indication", "senza indicazione", "unspecified"],
     ws_scalePl: ["Plan kalibriert: {s} m/px", "Plan calibré : {s} m/px", "Piano calibrato: {s} m/px", "Plan calibrated: {s} m/px"],
     ws_emptyObj: ["Noch keine Objekte. Links ein Werkzeug wählen und auf die Karte klicken, oder Rechtsklick für das Kontextmenü.", "Aucun objet. Choisir un outil à gauche et cliquer sur la carte, ou clic droit pour le menu contextuel.", "Nessun oggetto. Scegliere uno strumento a sinistra e cliccare sulla carta, oppure clic destro per il menu contestuale.", "No objects yet. Pick a tool on the left and click the map, or right-click for the context menu."],
+    btnPrintFull: ["Ausführlich drucken (alle Rechenwege)", "Imprimer en détail (tous les calculs)", "Stampa dettagliata (tutti i calcoli)", "Print in detail (all calculations)"],
     km_prov: ["Kartenanbieter", "Fournisseur de cartes", "Fornitore cartografico", "Map provider"],
     km_bLeer: ["geo.admin: leere Basis (nur gewählte Ebenen)", "geo.admin: fond vide (couches choisies seulement)", "geo.admin: sfondo vuoto (solo livelli scelti)", "geo.admin: blank base (selected layers only)"],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
@@ -7511,7 +7532,7 @@ var FIG = (function () {
     var r = $("#p_rolle"); r.innerHTML = ""; ["anv", "bl", "bhv"].forEach(function (v) { var o = document.createElement("option"); o.value = v; o.textContent = tt("r_" + v); r.appendChild(o); }); r.value = S.kopf.rolle;
     $("#helpTitle").textContent = tt("helpTitle"); $("#helpSteps").innerHTML = (T[S.lang] || T.de).help.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join(""); $("#helpNote").textContent = tt("helpNote");
     $("#h-result").textContent = tt("h_result");
-    $("#bPrint").textContent = tt("btnPrint"); $("#bPrintSum").textContent = tt("btnPrintSum"); $("#bXlsx").textContent = tt("btnXlsx"); $("#bSave").textContent = tt("btnSave"); $("#bLoad").textContent = tt("btnLoad"); $("#bNew").textContent = tt("btnNew");
+    $("#bPrint").textContent = tt("btnPrint"); $("#bPrintFull").textContent = tt("btnPrintFull"); $("#bPrintSum").textContent = tt("btnPrintSum"); $("#bXlsx").textContent = tt("btnXlsx"); $("#bSave").textContent = tt("btnSave"); $("#bLoad").textContent = tt("btnLoad"); $("#bNew").textContent = tt("btnNew");
     document.querySelectorAll(".langs button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.lang === S.lang ? "true" : "false"); });
     if (window.__EXPDATE && !document.getElementById("expwarn")) { var ew = document.createElement("p"); ew.id = "expwarn"; ew.className = "expwarn no-print"; ew.setAttribute("role", "status"); ew.hidden = window.__EXPDAYS > 7; ew.textContent = fill(tt("ux_validUntil"), { d: window.__EXPDATE, n: window.__EXPDAYS }); var shEl = document.querySelector(".sheet"); if (shEl) shEl.insertBefore(ew, shEl.firstChild); }
     $("#versionline").innerHTML = "<b>" + esc(tt("version")) + " 2.0</b><span>Build " + BUILD + "</span>" + (window.__EXPDATE ? "<span class=\"bad\">" + esc(fill(tt("ux_validUntil"), { d: window.__EXPDATE, n: window.__EXPDAYS })) + "</span>" : "") + "<span>LV DE V1.1 (10.07.2026)</span><span>LV FR V1.0 (27.06.2026)</span><span>LV IT V1.0 (27.06.2026)</span>";
@@ -7579,9 +7600,10 @@ var FIG = (function () {
     document.addEventListener("keydown", function (ev) { if (ev.key === "Escape") lbShut(); });
     var st = [];
     window.addEventListener("beforeprint", function () { st = []; document.querySelectorAll("#result details, #kopfbox").forEach(function (d) { st.push([d, d.open]); d.open = true; }); });
-    window.addEventListener("afterprint", function () { st.forEach(function (x) { x[0].open = x[1]; }); document.body.classList.remove("summary-print"); });
+    window.addEventListener("afterprint", function () { st.forEach(function (x) { x[0].open = x[1]; }); document.body.classList.remove("summary-print"); document.body.classList.remove("print-detail"); });
     document.querySelectorAll(".langs button").forEach(function (b) { b.onclick = function () { S.lang = b.dataset.lang; save(); applyLang(); }; });
-    $("#bPrint").onclick = function () { window.print(); };
+    $("#bPrint").onclick = function () { document.body.classList.remove("print-detail"); window.print(); };
+    $("#bPrintFull").onclick = function () { document.body.classList.add("print-detail"); window.print(); };
     $("#bPrintSum").onclick = function () { document.body.classList.add("summary-print"); window.print(); };
     $("#bXlsx").onclick = function () { download(fname("xlsx"), xlsxBytes(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); };
     $("#bSave").onclick = saveJson;

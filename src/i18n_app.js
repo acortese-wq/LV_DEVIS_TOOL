@@ -693,6 +693,7 @@
     ws_ev_open: ["noch ohne Angabe", "sans indication", "senza indicazione", "unspecified"],
     ws_scalePl: ["Plan kalibriert: {s} m/px", "Plan calibré : {s} m/px", "Piano calibrato: {s} m/px", "Plan calibrated: {s} m/px"],
     ws_emptyObj: ["Noch keine Objekte. Links ein Werkzeug wählen und auf die Karte klicken, oder Rechtsklick für das Kontextmenü.", "Aucun objet. Choisir un outil à gauche et cliquer sur la carte, ou clic droit pour le menu contextuel.", "Nessun oggetto. Scegliere uno strumento a sinistra e cliccare sulla carta, oppure clic destro per il menu contestuale.", "No objects yet. Pick a tool on the left and click the map, or right-click for the context menu."],
+    btnPrintFull: ["Ausführlich drucken (alle Rechenwege)", "Imprimer en détail (tous les calculs)", "Stampa dettagliata (tutti i calcoli)", "Print in detail (all calculations)"],
     km_prov: ["Kartenanbieter", "Fournisseur de cartes", "Fornitore cartografico", "Map provider"],
     km_bLeer: ["geo.admin: leere Basis (nur gewählte Ebenen)", "geo.admin: fond vide (couches choisies seulement)", "geo.admin: sfondo vuoto (solo livelli scelti)", "geo.admin: blank base (selected layers only)"],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
