@@ -141,3 +141,8 @@ Quelle: «Handbuch unter- und oberirdischer Netzbau» V1.2 (01.04.2026), Kap. 2.
 - **Gebäudetyp** (EFH/MFH/Büro) zeigt die Handbuch-Vorgabe (1×K55 bzw. 1×K55/100 durch Kunde getrieben).
 - **DXF-Export** (nur Karte): Netzkanten Layer 100, Netzknoten 200, Knickpunkte 201, Koordinaten LV95. Der genaue SIA-Geo405-Layeraufbau von Swisscom/PTA ist im Handbuch nicht beschrieben und vor Produktivnutzung zu verifizieren.
 - Nicht umgesetzt (nicht gewählt): Zweitweg-Abstand, Hauptkanalisation/erster Abzweigschacht, Querung bei ⅓, Deckel-Entscheidungsbaum, Bogenschnitt-Bemassung.
+
+## Höhenprofil / Schräglänge (Zeichnen, nur Karte)
+- «Höhenprofil laden» holt je Linie das Profil von swisstopo (swissALTI3D, `profile.json`, ca. alle 10 m) und zeigt Lagelänge, Schräglänge, Ø- und Maximalgefälle (Fenster 20 m). Wird die Linie geändert, ist das Profil veraltet («neu laden»); bei Fehler/offline gilt die Lagelänge mit Hinweis.
+- **Kostenwirkung:** Standard unverändert (Lagelänge). Nur mit dem Schalter «Kosten mit Schräglänge rechnen» übernimmt «Übernehmen» die Schräglänge als Grabenlänge (und die Kostenvorschau). Ob Ausmass nach Lage oder Schräglänge gilt, ist vertraglich zu klären.
+- Prüfhinweis bei Gefälle > 20 % (eigene Annahme, nicht aus dem Handbuch). Rechenkern und Skill unverändert.

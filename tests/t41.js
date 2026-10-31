@@ -1,0 +1,22 @@
+const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+(async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000);
+// swisstopo-Profil nachbilden: 10 % Gefälle auf der ganzen Linie
+await pg.route('**/rest/services/profile.json**',async r=>{const u=new URL(r.request().url()); const g=JSON.parse(u.searchParams.get('geom')); const n=+u.searchParams.get('nb_points'); let L=0; for(let i=1;i<g.coordinates.length;i++) L+=Math.hypot(g.coordinates[i][0]-g.coordinates[i-1][0],g.coordinates[i][1]-g.coordinates[i-1][1]); const arr=[]; for(let i=0;i<n;i++){const d=L*i/(n-1); arr.push({dist:d,alts:{COMB:500+0.25*d},easting:0,northing:0});} await r.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify(arr)});});
+await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
+for(let i=0;i<9;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitForTimeout(100);} await pg.waitForTimeout(400);
+const bx=await pg.locator('#kmMap').boundingBox(); const clk=async(dx,dy)=>{await pg.mouse.click(bx.x+dx,bx.y+dy); await pg.waitForTimeout(350);};
+const none=async()=>{ if(await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).count()) await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).click(); };
+await pg.click('[data-k=mline]'); await clk(100,250); await none(); await clk(500,250); await pg.click('[data-k=end]'); await none();
+await pg.click('#kmTabE'); await pg.waitForTimeout(300);
+await pg.click('[data-hz=load]'); await pg.waitForTimeout(1200);
+const t=await pg.textContent('#kmHz'); console.log(t.slice(0,420));
+ok(/Lage .* m · schräg .* m · Ø 25 %, max\. 25 %/.test(t),'Schräglänge und Gefälle angezeigt'); ok(/\+3[.,]\d %/.test(t),'Mehrlänge ≈ +3.1 % bei 25 % Gefälle');
+ok(/Gefälle bis 25 %/.test(await pg.textContent('#kmChk')),'Warnung bei steilem Gelände');
+const L0=(await getS(pg)).recs.graben[0].L;
+await pg.click('[data-k=apply]'); await pg.waitForTimeout(600); let S=await getS(pg); const Lh=parseFloat(S.recs.graben[0].L); console.log('Lage-Länge',Lh);
+await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(600); await pg.click('#kmTabE');
+ok((await pg.textContent('#kmHz')).includes('schräg'),'Profil bleibt nach erneutem Öffnen erhalten');
+await pg.check('[data-hz=mode]'); await pg.click('[data-k=apply]'); await pg.waitForTimeout(600); S=await getS(pg); const Ls=parseFloat(S.recs.graben[0].L); console.log('Schräglänge',Ls);
+ok(Ls>Lh*1.02&&Ls<Lh*1.04,'Graben-Länge mit Schalter = Schräglänge ('+Ls+' vs '+Lh+')');
+await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.click('#kmTabE'); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,200));
+ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();
