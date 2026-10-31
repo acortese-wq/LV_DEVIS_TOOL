@@ -400,3 +400,47 @@ tr.flash td{background:#fff8c5!important;transition:background 1s}
 .pnote[hidden],.pts[hidden]{display:none}
 ul.vollst .vst{white-space:normal}ul.vollst .vname{min-width:0;overflow-wrap:anywhere}
 @media (max-width:380px){.ptab td{padding:6px 3px;font-size:13px}.ptab td input.mini{width:44px;padding-left:4px;padding-right:4px}.ptab td:first-child{overflow-wrap:anywhere;min-width:0}}
+
+/* ===== Arbeitsfläche Karte/Plan: Werkzeuge | Ebenen+Marker | Karte | Eigenschaften/Auswertung | Fussleiste ===== */
+.kmdlg.kmws{width:100vw;height:100vh;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:var(--paper)}
+.kmdlg.kmws[open]{display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:0;padding:0;overflow:hidden}
+.kmws>*{flex:none}
+.kmws .kmhead{padding:8px 14px;border-bottom:1px solid var(--rule);gap:12px;justify-content:flex-start}
+.kmws .kmhead h2{font-size:16px;white-space:nowrap}.kmws .kmheadb{margin-left:auto}.kmws [data-k=max]{display:none}
+.kmws .kmsw{position:relative;flex:1 1 320px;max-width:560px}.kmws .kmsearch{display:flex;gap:6px;align-items:center;margin:0}.kmws .kmsearch label{position:absolute;left:-9999px}.kmws .kmsearch input{flex:1;min-width:0}
+.kmws .kmhits{position:absolute;left:0;right:0;top:100%;z-index:1300;background:#fff;border:1px solid var(--rule-strong);border-radius:8px;max-height:50vh;overflow:auto;margin:2px 0 0;padding:0;list-style:none}.kmws .kmhits:empty{display:none}
+.kmws .kmgrid{display:grid;grid-template-columns:196px 290px minmax(0,1fr) 350px;min-height:0;position:relative}
+.kmws .kmtools,.kmws .kmmid,.kmws .kmside{overflow:auto;min-height:0;padding:10px}
+.kmws .kmtools{background:#f7f8f9;border-right:1px solid var(--rule)}.kmws .kmmid{border-right:1px solid var(--rule)}.kmws .kmside{border-left:1px solid var(--rule)}
+.kmws .kmtg{display:flex;flex-direction:column;gap:4px;margin:0 0 12px;padding:0;border:0}.kmws .kmtg::before{content:none}
+.kmws .kmgl{position:static;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 2px}
+.kmws .kmtools .btn{width:100%;justify-content:flex-start;text-align:left;min-height:34px}.kmws .kmtools select,.kmws .kmtools input{width:100%;max-width:none}.kmws .kmtools .kmbl{font-size:12px;color:var(--ink-soft)}
+.kmws .kmtools [aria-pressed=true]{background:var(--navy);color:#fff}
+.kmws .kmph{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);margin:6px 0}
+.kmws .kmmid .kmcat{margin:0 0 8px}
+.kmws .kmcanvas{display:flex;flex-direction:column;min-width:0;min-height:0;position:relative;padding:0;gap:0;background:#e9ecef}
+.kmws .kmcanvas .kmmap,.kmws .kmcanvas .kmframe{flex:1 1 auto;height:auto;min-height:240px;border:0;border-radius:0}
+.kmws .kmcanvas .kmhelp,.kmws .kmcanvas .kmunits,.kmws .kmcanvas .kmleg{margin:0;padding:4px 10px;background:var(--paper);border-top:1px solid var(--rule);font-size:12.5px}
+.kmws .kmcanvas .kmslot:empty{display:none}.kmws .kmcalf{padding:6px 10px;background:var(--paper);border-bottom:1px solid var(--rule)}
+.kmws .kmtabs{display:flex;gap:2px;border-bottom:2px solid var(--rule);margin:-10px -10px 10px;padding:0 10px;position:sticky;top:-10px;background:var(--paper);z-index:3}
+.kmws .kmtabs [role=tab]{font:inherit;font-weight:700;font-size:13.5px;padding:10px 14px;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;background:transparent;color:var(--ink-soft);cursor:pointer;min-height:44px}
+.kmws .kmtabs [aria-selected=true]{color:var(--navy);border-bottom-color:var(--navy)}.kmws .kmtabs [role=tab]:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.kmws .kmside .kmobj{height:auto;max-height:none;overflow:visible;flex:none}.kmws .kmpan[hidden]{display:none}
+.kmws .kmeval h4{margin:12px 0 4px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}.kmws .kmeval table{width:100%;border-collapse:collapse;font-size:13px}.kmws .kmeval td{padding:3px 0;border-bottom:1px solid var(--rule)}.kmws .kmeval td.num{text-align:right;font-variant-numeric:tabular-nums}
+.kmws .kmeval .none{color:var(--ink-soft);font-size:13px}.kmws .kmpan .kmcost{margin:12px 0 0;padding:8px 10px;border:1px solid var(--rule);border-radius:8px;background:#f7f8f9;font-size:13px}
+.kmws .kmbottom{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:6px 14px;border-top:1px solid var(--rule);background:var(--paper)}
+.kmws .kmfang{display:flex;gap:4px;align-items:center}.kmws .kmtgl[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.kmws .kmstat{display:flex;gap:14px;font-size:12.5px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.kmws .kmview{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;padding:0;border:0;margin-left:auto}.kmws .kmview::before{content:none}.kmws .kmview select{max-width:200px}
+.kmws .kmbottom .kmfoot{display:flex;align-items:center;gap:12px;position:static;border:0;padding:0;background:none}
+.kmws .kmmidtog{display:none}
+.kmws .kmmk{display:flex;flex-direction:column;gap:2px}.kmws .kmmk h4{margin:8px 0 2px;font-size:12px;color:var(--ink-soft)}.kmws .kmmk .mkrow{display:flex;flex-wrap:wrap;gap:4px}.kmws .kmmk .btn{min-height:30px}.kmws .kmmk [aria-pressed=true]{background:var(--navy);color:#fff}
+.kmws .kmask,.kmws .kmctx,.kmws .kmprops{z-index:1300}
+@media (max-width:1499px){.kmws .kmgrid{grid-template-columns:172px minmax(0,1fr) 330px}.kmws .kmmid{display:none;position:absolute;left:172px;top:0;bottom:0;width:300px;z-index:1250;background:var(--paper);box-shadow:4px 0 14px rgba(0,0,0,.25)}.kmws .kmgrid.kmmid-open .kmmid{display:block}.kmws .kmmidtog{display:inline-flex}}
+@media (max-width:860px){.kmdlg.kmws[open]{overflow:auto;display:block}.kmws .kmgrid{display:flex;flex-direction:column}.kmws .kmtools{border-right:0;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:0 14px}.kmws .kmtg{flex-direction:row;flex-wrap:wrap}.kmws .kmtools .btn{width:auto}.kmws .kmmid{position:static;width:auto;box-shadow:none;border:0;border-top:1px solid var(--rule)}.kmws .kmcanvas{height:62vh;min-height:360px}.kmws .kmside{border-left:0;border-top:1px solid var(--rule)}.kmws .kmbottom{position:sticky;bottom:0;z-index:5}.kmws .kmgrid.kmmid-open .kmmid,.kmws .kmmid{display:block}.kmws .kmmidtog{display:none}}
+.kmws .kmtools .btn:not([aria-pressed=true]){background:#fff;color:var(--navy);border:1px solid var(--rule-strong)}.kmws .kmtools .btn.del:not([aria-pressed=true]){color:#b8332a}
+.kmws .kmbottom select,.kmws .kmbottom input{width:auto;max-width:230px}.kmws .kmbottom .kmseg .btn{border-radius:0}
+.kmws .kmbottom{align-items:center}.kmws .kmfang{order:1}.kmws .kmstat{order:2;min-width:150px}.kmws .kmbottom .kmfoot{order:3;margin-left:auto;gap:10px}.kmws .kmview{order:4;flex:1 0 100%;margin-left:0;padding-top:4px;border-top:1px solid var(--rule)}
+.kmws .kmbottom .kmlen{font-size:13px;margin:0}.kmws .kmtools .btn{min-height:30px;padding-top:4px;padding-bottom:4px}.kmws .kmtg{margin-bottom:8px}
+.kmws .kmstat{min-width:0;gap:10px;font-size:12px}.kmws .kmbottom .kmlen{max-width:46vw}.kmws .kmbottom .kmfoot{flex:1 1 auto;justify-content:flex-end}
+.kmws .kmhead{flex-wrap:wrap}@media (max-width:860px){.kmws .kmhead h2{font-size:14px;white-space:normal;flex:1 1 60%}.kmws .kmsw{flex:1 0 100%;order:5;max-width:none}.kmws .kmheadb{margin-left:auto}}

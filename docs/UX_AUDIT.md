@@ -116,3 +116,11 @@ Die Übersicht (Situation auf dem Bildschirm und im Ausdruck, Vorschau in den Re
 **Revisionsnachvollziehbarkeit:** je Position Status, Notiz und Zeitpunkt der letzten Änderung (Browser-Zeit). Keine Benutzerkennung, keine Änderungshistorie (kein Backend) – im Hinweis ausgewiesen. Notiz und Status erscheinen im Ausdruck; **nicht** in der Excel-Ausgabe.
 
 **Nicht geprüft / offen:** Screenreader-Praxistest; Nutzertests; Excel-Export der Prüfnotizen; Sortierung der Positionstabelle nach Betrag (Positionen sind nach NPK-Kapitel gruppiert; Top-10 ersetzt dies); Side-Panel für Positionsdetails.
+
+## Arbeitsfläche Karte/Plan im Layout einer Mess-Software (Oktober 2026)
+Der Karten-/Plan-Dialog ist jetzt eine **Vollbild-Arbeitsfläche** (Vorlage: Planausmass-Layout): links die **Werkzeugleiste** (Auswahl · Zeichnen · Beschriften · Messen und Korrigieren), daneben **Ebenen** (Geokatalog, Plan-Hintergrund) und der **Marker-Katalog**, in der Mitte die Karte, rechts die Reiter **Eigenschaften | Auswertung**, unten die **Fussleiste**.
+- **Marker-Katalog (Vorbelegung):** Rohrbelegung (1×K55 … 2×K100 + 3×K55), Verlegeart, Oberfläche, Schachttyp, Werkloch-Typ; Anklicken gilt für neue Linien/Schächte/Werklöcher (markiert mit `aria-pressed`); das gewählte Objekt wird rechts bearbeitet.
+- **Eigenschaften:** Leitungskarte «nur was fehlt», Objektliste mit Einklappen, Querschnitt, «Fehlt noch». **Auswertung:** Länge und Rohrlänge je Rohrtyp, Länge je Oberfläche, Anzahl Schächte (neu / Anschlüsse / nur Deckel), Werklöcher, Einführungen, Sondagen, Flächen, Kostenvorschau netto.
+- **Fussleiste:** Punktfang (14 px auf Objekte und Linienpunkte), Linienfang (Fusspunkt), Winkelraster 45° (zum letzten Punkt); Einstellung wird gemerkt. Cursor-Koordinate LV95 und Massstab 1:N (Plan: Kalibrierstatus); Kartenquelle/Ansicht; Gesamtlänge und «In Datensätze übernehmen».
+- **Responsiv:** ab 1500 px vier Spalten; bis 861 px «Ebenen»-Schalter in der Kopfzeile (Ebenen/Marker als Überlagerung); unter 861 px einspaltig mit festem Karten-Bereich und angehefteter Fussleiste.
+**Unverändert:** Alle Funktionen, Ids, Datenstrukturen und der Rechenkern (reine Oberflächenänderung, keine Kostenwirkung ausser Fang: Punkte können auf vorhandene Punkte einrasten). Die bisherige Schaltfläche «Vollbild» entfällt (immer Vollbild).
