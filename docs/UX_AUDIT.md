@@ -146,3 +146,9 @@ Quelle: «Handbuch unter- und oberirdischer Netzbau» V1.2 (01.04.2026), Kap. 2.
 - «Höhenprofil laden» holt je Linie das Profil von swisstopo (swissALTI3D, `profile.json`, ca. alle 10 m) und zeigt Lagelänge, Schräglänge, Ø- und Maximalgefälle (Fenster 20 m). Wird die Linie geändert, ist das Profil veraltet («neu laden»); bei Fehler/offline gilt die Lagelänge mit Hinweis.
 - **Kostenwirkung:** Standard unverändert (Lagelänge). Nur mit dem Schalter «Kosten mit Schräglänge rechnen» übernimmt «Übernehmen» die Schräglänge als Grabenlänge (und die Kostenvorschau). Ob Ausmass nach Lage oder Schräglänge gilt, ist vertraglich zu klären.
 - Prüfhinweis bei Gefälle > 20 % (eigene Annahme, nicht aus dem Handbuch). Rechenkern und Skill unverändert.
+
+## Assistent (Chatbot)
+- Schwebender Knopf «Assistent» unten rechts → Chatfenster (`src/chat.js`, Dialog ohne Modal, Esc schliesst, Fokus zurück). Läuft über die Claude-Funktion des veröffentlichten Artefakts (capability `sample`, kein API-Schlüssel); in der lokal gespeicherten Datei erscheint ein Hinweis. Projektdaten (Datensätze, Ergebnis, Warnungen) gehen bei jeder Frage an Claude; der Hinweis steht im Fenster.
+- Wissen: Projektstand, LV (Werkzeuge `lv_suche`/`lv_position`, Preise nur daraus), Handbuch-Richtwerte (Auszug), Kurz-Bedienung.
+- **Änderungen nur als Vorschlag** (Werkzeug `vorschlag`): Karte mit Feld, alt → neu, Begründung und **Kostenwirkung netto** (Berechnung mit Rechenkern auf einer Kopie); «Übernehmen» setzt das Feld (Rückgängig-Meldung), «Verwerfen» entfernt die Karte. Gesperrt: `uid`, abgeleitete Zählwerte; nur einzelne Felder.
+- Rechenkern unverändert. Kostenwirkung nur nach Klick auf «Übernehmen».

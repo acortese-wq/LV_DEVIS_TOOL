@@ -475,3 +475,17 @@ ul.vollst .vst{white-space:normal}ul.vollst .vname{min-width:0;overflow-wrap:any
 .kmws .kmstat{flex:0 0 330px;white-space:nowrap;overflow:hidden}.kmws .kmstat span{white-space:nowrap}
 
 .kmws .kmrc{white-space:normal;text-align:left;height:auto;line-height:1.35;border-left:4px solid #b25b00;width:100%}.kmws .kmrc.r{border-left-color:#b00020}.kmws .kmsugf label{display:block;margin:6px 0;font-size:13px}.kmws .kmsugf select,.kmws .kmsugf input{max-width:100%}
+
+/* Assistent */
+.chfab{position:fixed;right:16px;bottom:16px;z-index:900;box-shadow:var(--shadow)}
+.chpan{position:fixed;right:16px;bottom:64px;z-index:901;width:min(400px,calc(100vw - 32px));height:min(560px,calc(100vh - 100px));display:flex;flex-direction:column;background:var(--paper);color:var(--ink);border:1px solid var(--rule-strong);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.25)}
+.chpan[hidden]{display:none}
+.chhd{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid var(--rule)}.chhd strong{flex:1;color:var(--navy)}
+.chnote{margin:6px 10px 0;font-size:12px}
+.chmsgs{flex:1;overflow:auto;padding:8px 10px;display:flex;flex-direction:column;gap:8px}
+.chm{padding:7px 10px;border-radius:10px;font-size:13.5px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere;max-width:92%}
+.chm.user{align-self:flex-end;background:var(--navy);color:#fff}.chm.bot{align-self:flex-start;background:var(--panel);color:var(--ink)}.chm.err{border-left:4px solid var(--signal)}
+.chq{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.chcard{border:1px solid var(--rule-strong);border-left:4px solid var(--navy);border-radius:8px;padding:8px 10px;font-size:13px;display:flex;flex-direction:column;gap:4px}.chcard .chd{font-weight:600}.chcard .chwhy{color:var(--ink-soft)}.chcard .chb{display:flex;gap:6px}
+.chf{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--rule);align-items:flex-end}.chf textarea{flex:1;resize:none;font:inherit;font-size:13.5px;padding:6px 8px;border:1px solid var(--rule-strong);border-radius:6px;background:var(--paper);color:var(--ink)}
+@media print{.chfab,.chpan{display:none!important}}

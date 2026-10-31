@@ -1375,7 +1375,7 @@
     $("#bNew").onclick = function () { if (confirm(tt("confirmNew"))) { var l = S.lang; S = defaults(); S.lang = l; heal(); save(); applyKopf(); applyLang(); } };
     $("#fileIn").addEventListener("change", function () { if (this.files[0]) load(this.files[0]); this.value = ""; });
     applyKopf(); applyLang();
-    window.__LVD = { S: function () { return S; }, xlsxBytes: xlsxBytes, renderResult: renderResult, F: F, optLabel: optLabel, tt: tt };
+    window.__LVD = { S: function () { return S; }, xlsxBytes: xlsxBytes, renderResult: renderResult, F: F, optLabel: optLabel, tt: tt, snap: snapState, commit: function (sn, msg) { save(); renderForm(); renderResult(); undoToast(msg, sn); } };
   }
   document.addEventListener("DOMContentLoaded", init);
 })();
