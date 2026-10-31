@@ -37,6 +37,9 @@
       a: "Alle Gebäude mit Kabeleinführungen sind gas- und wassergefährdet. Dichtungselemente halten konstant 0.5 bar Innen-/Aussenüberdruck (gas- und wasserdicht). Stahlrohre werden ins Mauerwerk einbetoniert, Kunststoffrohre eingeführt und mit Schrumpfschlauch abgedichtet; vom Gebäudeinnern gas- und wasserdicht absichern. Bei möglichem Druckwasser enden die Kunststoffrohre in einem Kontrollschacht KS 60 mit Entwässerung vor der Hauseinführung." },
     { k: [/norm|sia ?(205|118|405)|vss|vse/], t: "Normen und Gesetze", s: HB + ", 2.1.4",
       a: "• SIA 205: Verlegung unterirdischer Leitungen – räumliche Koordination und technische Grundsätze\n• SIA 118: Werkvertrag, Vergütung, Bestellungsänderung, Bauausführung, Ausmass, Abnahme und Mängelhaftung\n• SIA 405: Geodaten zu Ver- und Entsorgungsleitungen (Leitungskataster)\n• VSS-Normen: Strassenverkehrsanlagen, Böden, Baustoffe, Bitumen\n• VSE: Leitfaden Verlegung von Kabelschutzrohren aus Kunststoff" },
+    { k: [/gemeinsame tragwerk|evu|sicherheitsabst/], t: "Gemeinsame Tragwerke und Sicherheitsabstände", s: HB + ", 4.6", a: "Bei der Projektierung von Freileitungen möglichst die Mitbenutzung der Trassen bestehender Freileitungen von EVU (VSE) anstreben, wenn getrennte Tragwerke technische Schwierigkeiten oder hohe Kosten verursachen oder zu viele Tragwerke auf den Grundstücken entstehen würden. Sicherheitsabstände richten sich nach Leitungsverordnung (LeV), Starkstromverordnung (StV) und Schwachstromverordnung (SsV); wo diese nichts regeln, gelten anerkannte Regeln der Technik, Normen und Weisungen des Eidg. Starkstrominspektorats. Das Einhalten ist zwingend." },
+    { k: [/schutzgebiet|natur.*heimat|genehmigungspflicht/], t: "Schutzgebiete", s: HB + ", 4.9", a: "Seit der Schwachstromverordnungsänderung vom 28. März 2000 besteht für Anlagen in Schutzgebieten nach eidgenössischem und kantonalem Recht eine Genehmigungspflicht (Art. 8a Abs. 1–f VSA), gestützt auf das Natur- und Heimatschutzgesetz und das Bundesinventar der Landschaften und Naturdenkmäler." },
+    { k: [/freileitung.*(trass|kriterien|grundsätz)|trassierung.*freileitung|wald/], t: "Freileitungen: Trassierung", s: HB + ", 4.1–4.2", a: "Wirtschaftlichste Lösung anstreben; sichere Trasse wählen (nicht in erdrutsch- oder lawinengefährdetem Gebiet); genügend Abstand zu Waldgebieten, damit beim Holzfall die Freileitungstrasse nicht beschädigt wird (besonders wichtig bei Glasfaserkabeln, die bei Schaden komplett zu ersetzen sind). Mastlängen mit der winterlichen Schneemenge (Berge) und der Höhe moderner Landmaschinen planen; faule Masten Lines melden; vorgängige Belegungsprüfung beim Engineering zwingend (bei sehr tiefer oder 0 Belegung mit dem Anschlussnetzverantwortlichen Designer von SCS klären). Dimensionierung so, dass bei späterem Ausbau möglichst wenig ersetzt werden muss. Regelleitung: Stützpunkte höchstens 60 m." },
     /* Bedienung */
     { k: [/fang|rechtwinkl|parallel|abzweig|schacht.*linie|linie.*teilen/], t: "Fang, Abzweig, Schacht auf Linie", s: "Bedienung",
       a: "Beim Zeichnen fängt das Tool Punkte, Linien (Fusspunkt) sowie rechtwinklig/parallel zur Bezugslinie (Umschalt kehrt vorübergehend um; Schalter in der Fussleiste). Start auf einer Linie erzeugt einen Abzweig mit Knoten am Fusspunkt. Wird ein Schacht auf eine Linie gesetzt, wird die Linie geteilt (Gesamtlänge bleibt); Linienende = Rohre hinein, Linienstart = hinaus; daraus werden die Anschlüsse DN 80 (K55) und DN 150 (K100 und grösser) automatisch gezählt." },
@@ -110,8 +113,9 @@
     if (out && /(zusammenfass|summe|total|netto|brutto|mwst|rabatt|gesamtkosten|kosten.*projekt|projekt.*kosten)/.test(ql)) return { t: summary(out), s: "Projektstand" };
     var best = null, sc = 0; KB.forEach(function (it) { var n = it.k.reduce(function (a, r) { return a + (r.test(ql) ? 1 : 0); }, 0); if (n > sc) { sc = n; best = it; } });
     var lvh = lvSearch(q, 8), lvWanted = /\b(position|lv|einheitspreis|ep|npk)\b|was kostet|preis/.test(ql);
-    if (best && !(lvWanted && lvh.length)) return { t: best.t + "\n" + best.a, s: best.s, fl: best.fl };
+    if (best && !(lvWanted && lvh.length)) { var kf0 = Object.keys(FLOWS).filter(function (k) { return FLOWS[k].kw && FLOWS[k].kw.test(ql); })[0]; return { t: best.t + "\n" + best.a, s: best.s, fl: kf0 || best.fl }; }
     if (lvh.length) return { t: "LV-Positionen (" + lvh.length + (lvh.length === 8 ? "+" : "") + " Treffer):\n" + lvh.map(function (k) { return "• " + lvLine(k); }).join("\n"), s: "LV Swisscom V1.1" };
+    var kf = Object.keys(FLOWS).filter(function (k) { return FLOWS[k].kw && FLOWS[k].kw.test(ql); })[0]; if (kf) return { t: "Dazu kann ich dich Schritt für Schritt beraten.", fl: kf };
     if (out && /(projekt|stand)/.test(ql)) return { t: summary(out), s: "Projektstand" };
     return { t: "Dazu habe ich nichts Hinterlegtes gefunden.\n\n" + HELP };
   }
@@ -135,7 +139,7 @@
       addCard({ tab: tab, idx: idx, feld: feld, wert: wert, name: r.name || tab + " " + idx, before: before, after: after, d: Math.round((netto(Q) - netto(S)) * 100) / 100 }); return "Vorschlag unten – wird erst nach «Übernehmen» geändert."; } catch (e) { return String(e.message || e); }
   }
   var FLOWS = {
-    abstand: { title: "Schachtabstand und Rohrbelegung", intro: "Ich führe dich in zwei Fragen zum Richtabstand (Handbuch 2.2.2/2.2.3).",
+    abstand: { grp: "u", title: "Schachtabstand und Rohrbelegung", intro: "Ich führe dich in zwei Fragen zum Richtabstand (Handbuch 2.2.2/2.2.3).",
       steps: [
         { id: "ers", q: "Welche Erschliessung?", opts: [["basisCu", "Basis: Teilnehmerkabel Cu"], ["basisGfk", "Basis: Teilnehmerkabel GFK"], ["fkrk", "FK/RK-Trasse"], ["detail", "Detail (Schacht–UP)"]] },
         { id: "zone", q: "Wo liegt die Trasse?", opts: [["in", "In der Bauzone"], ["aus", "Ausserhalb der Bauzone"]] }
@@ -148,7 +152,7 @@
         if (ls.length && window.KARTE) { var len = ls.map(function (l) { return KARTE.total([l.pts]); }), over = len.filter(function (x) { return x > R; }).length; t += "\n\nDein Projekt: " + ls.length + " Linie(n), längste " + chf(Math.max.apply(null, len)) + " m; " + (over ? over + " Linie(n) über dem Richtwert von " + R + " m (Schächte setzen oder begründen)." : "alle innerhalb des Richtwerts von " + R + " m."); }
         return { t: t, s: HB + ", 2.2.2–2.2.3", actions: [{ l: "Richtabstand in der Karte einstellen", fn: function () { return setRc(a.ers, a.zone); } }] };
       } },
-    typ: { title: "Schachttyp und Abdeckung wählen", intro: "Ich helfe dir bei Schachttyp und Abdeckung (Handbuch 2.3.3 und 2.3.5).",
+    typ: { grp: "u", title: "Schachttyp und Abdeckung wählen", intro: "Ich helfe dir bei Schachttyp und Abdeckung (Handbuch 2.3.3 und 2.3.5).",
       steps: [
         { id: "mu", q: "Wie viele Muffen sind im Schacht vorgesehen?", opts: [["1", "0–1 Muffe"], ["3", "2–3 Muffen"], ["4", "4 Muffen"], ["5", "mehr als 4"]] },
         { id: "ks", when: function (a) { return a.mu === "1"; }, q: "Ist es nur ein Durchgang/Übergangspunkt in der Kunststoffrohranlage mit K55 (Rohre geradlinig, kein Kabelnachzug im Schacht)?", opts: [["ja", "Ja"], ["nein", "Nein / unsicher"]] },
@@ -165,7 +169,7 @@
         var t = "Empfehlung: " + dim + ".\n" + (note ? note + "\n" : "") + ab + "\nBei Nicht-Standardgrösse gemäss Schema Sonderfreigabe klären; Deckel nach Herstellervorgaben (Einfetten!) öffnen/schliessen.";
         return { t: t, s: HB + ", 2.3.3 und 2.3.5", actions: schachtActions(typ) };
       } },
-    geb: { title: "Gebäudeanschluss", intro: "Zwei Fragen zum Anschluss eines Gebäudes (Handbuch 2.2.4).",
+    geb: { grp: "u", title: "Gebäudeanschluss", intro: "Zwei Fragen zum Anschluss eines Gebäudes (Handbuch 2.2.4).",
       steps: [
         { id: "gt", q: "Welcher Gebäudetyp?", opts: [["efh", "Ein-/Zweifamilienhaus"], ["mfh", "Mehrfamilienhaus"], ["bue", "Büro/Verwaltung/Industrie"]] },
         { id: "len", q: "Wie lang ist die Rohrstrecke ab dem letzten Schacht ungefähr?", opts: [["ok", "bis 250 m"], ["lang", "über 250 m"], ["unk", "weiss ich nicht"]] },
@@ -178,7 +182,7 @@
         t += "\nZusammenhängende Bauten möglichst zentral oder mit einer Kabelkanalisation anschliessen (Erschliessungs- und Durchleitungsvertrag). Im Tool: Gebäudeeinführung setzen und Gebäudetyp wählen (zeigt diese Vorgabe).";
         return { t: t, s: HB + ", 2.2.4" };
       } },
-    kosten: { title: "Kostenteiler Strasse/Werke", intro: "Ich kläre, wer was zahlt (Handbuch 2.5).",
+    kosten: { grp: "u", title: "Kostenteiler Strasse/Werke", intro: "Ich kläre, wer was zahlt (Handbuch 2.5).",
       steps: [
         { id: "an", q: "Was ist der Anlass?", opts: [["neu", "Strassenneubau"], ["san", "Strassen-/Belagssanierung (Randabschlüsse bleiben)"], ["wl", "Werkleitungssanierung ohne Strassenarbeiten"], ["fund", "Erneuerung Fundationsschicht/Deckschicht durch den Bauherrn"]] },
         { id: "rand", when: function (a) { return a.an === "neu"; }, q: "Liegt die Leitung unter einem neu versetzten Randabschluss oder einer Baumrabatte?", opts: [["ja", "Ja"], ["nein", "Nein"]] }
@@ -191,7 +195,7 @@
         else t = "Erneuerung durch den Bauherrn:\n• Fundationsschicht: keine Kostenbeteiligung von Swisscom an Koffer und Belag; nur Mehrkosten, die durch Arbeiten von Swisscom verursacht werden. Bestehende Kabel-/Betonkanäle bei Bedarf durch Kunststoffrohre ersetzen oder ergänzen, damit künftig keine Aufbrüche nötig sind.\n• Deckschicht: Ergänzung der Kanalisation nur, wenn die Kapazität für die nächsten 5 Jahre nicht genügt (Alter/Reserven prüfen); keine Kostenbeteiligung an der Deckschicht.\nAusnahmen mit dem Verantwortlichen «Recht im Netzbau» vereinbaren.";
         return { t: t + "\nKostenbeteiligung vorgängig mit allen Beteiligten festlegen, bevor gebaut wird.", s: HB + ", 2.5 und 2.2.4" };
       } },
-    ersch: { title: "Erschliessung und Strassenquerung", intro: "Zwei Fragen zur Erschliessung eines Baugebiets (Handbuch 2.4).",
+    ersch: { grp: "u", title: "Erschliessung und Strassenquerung", intro: "Zwei Fragen zur Erschliessung eines Baugebiets (Handbuch 2.4).",
       steps: [
         { id: "par", q: "Ist das Baugebiet parzelliert?", opts: [["nein", "Nein (noch nicht)"], ["ja", "Ja"]] },
         { id: "sb", q: "Was geschieht an der Strasse?", opts: [["ohne", "Kein Strassenbau"], ["san", "Sanierung ohne Fundationsschicht-Erneuerung"], ["neu", "Strassenneubau mit Fundationsschicht-Erneuerung"]] }
@@ -206,6 +210,8 @@
         return { t: "Empfehlung (" + c + "): " + t, s: HB + ", " + c };
       } }
   };
+  Object.assign(FLOWS, window.LVW_FLOWS ? window.LVW_FLOWS({ HB: HB, chf: chf, D: function () { return D; }, RICHTW: RICHTW, setRc: setRc }) : {});
+  window.__LVC = { FLOWS: FLOWS, answer: function (q) { return answer(q); } };
   var FL = null;
   function ask(i) {
     FL.cur = i; var st = FL.f.steps[i]; addMsg("bot", st.q); var box = E("div", "chopts"), opts = typeof st.opts === "function" ? st.opts(FL.ans) : st.opts;
@@ -242,11 +248,18 @@
     no.onclick = function () { c.remove(); ta.focus(); };
     var b = E("div", "chb"); b.appendChild(ok); b.appendChild(no); c.appendChild(b); msgs.appendChild(c); msgs.scrollTop = msgs.scrollHeight;
   }
-  function chooser() { var bx = E("div", "chopts"); addMsg("bot", tt("ch_choose")); Object.keys(FLOWS).forEach(function (k) { var b = E("button", "btn small", FLOWS[k].title); b.type = "button"; b.onclick = function () { bx.remove(); startFlow(k); }; bx.appendChild(b); }); msgs.appendChild(bx); msgs.scrollTop = msgs.scrollHeight; }
+  function flowList(host, after) {
+    [["u", "ch_g_u"], ["o", "ch_g_o"], ["p", "ch_g_p"]].forEach(function (g) {
+      var ks = Object.keys(FLOWS).filter(function (k) { return FLOWS[k].grp === g[0]; }); if (!ks.length) return;
+      var d = E("details", "chgrp"), sm = E("summary", "", tt(g[1]) + " (" + ks.length + ")"), bx = E("div", "chopts"); d.appendChild(sm);
+      ks.forEach(function (k) { var b = E("button", "btn small", FLOWS[k].title); b.type = "button"; b.onclick = function () { if (after) after(); startFlow(k); }; bx.appendChild(b); }); d.appendChild(bx); host.appendChild(d);
+    });
+  }
+  function chooser() { var bx = E("div", "chfl"); addMsg("bot", tt("ch_choose")); flowList(bx, function () { bx.remove(); }); msgs.appendChild(bx); msgs.scrollTop = msgs.scrollHeight; }
   function send(q) {
     q = String(q || "").trim(); if (!q) return; var intro = $(".chq", pan); if (intro) intro.hidden = true;
     if (FL && flowText(q)) { ta.value = ""; return; } if (FL) cancel();
-    addMsg("user", q); ta.value = ""; var tr = FLTRIG.filter(function (x) { return x[1].test(q.toLowerCase()); })[0]; if (tr) { startFlow(tr[0]); return; } if (/(beratung|geführt|führe mich|hilf mir|wizard)/i.test(q)) { chooser(); return; } var a; try { a = answer(q); } catch (e) { a = { t: "Das konnte ich nicht auswerten (" + (e.message || e) + ")." }; }
+    addMsg("user", q); ta.value = ""; var tr = FLTRIG.filter(function (x) { return x[1].test(q.toLowerCase()); })[0]; if (tr) { startFlow(tr[0]); return; } var kd = Object.keys(FLOWS).filter(function (k) { return (FLOWS[k].direct || /(beratung|geführt|gefuehrt|führe mich|hilf mir)/i.test(q)) && FLOWS[k].kw && FLOWS[k].kw.test(q.toLowerCase()); })[0]; if (kd) { startFlow(kd); return; } if (/(beratung|geführt|führe mich|hilf mir|wizard)/i.test(q)) { chooser(); return; } var a; try { a = answer(q); } catch (e) { a = { t: "Das konnte ich nicht auswerten (" + (e.message || e) + ")." }; }
     addMsg("bot", a.t, a.s); turns++;
     if (a.fl) { var bx = E("div", "chopts"), bb = E("button", "btn small", tt("ch_guided") + ": " + FLOWS[a.fl].title); bb.type = "button"; bb.onclick = function () { bx.remove(); startFlow(a.fl); }; bx.appendChild(bb); msgs.appendChild(bx); msgs.scrollTop = msgs.scrollHeight; }
   }
@@ -258,7 +271,7 @@
     hd.appendChild(ti); hd.appendChild(nw); hd.appendChild(cl);
     note = E("p", "hint chnote", tt("ch_info")); msgs = E("div", "chmsgs"); msgs.setAttribute("role", "log"); msgs.setAttribute("aria-live", "polite"); msgs.tabIndex = 0; msgs.setAttribute("aria-label", tt("ch_title"));
     var qs = E("div", "chq"); ["ch_q1", "ch_q2", "ch_q3"].forEach(function (k) { var b = E("button", "btn ghost small", tt(k)); b.type = "button"; b.onclick = function () { send(tt(k)); }; qs.appendChild(b); });
-    qs.appendChild(E("strong", "chqh", tt("ch_guided"))); Object.keys(FLOWS).forEach(function (k) { var b = E("button", "btn small", FLOWS[k].title); b.type = "button"; b.onclick = function () { startFlow(k); }; qs.appendChild(b); }); msgs.appendChild(qs);
+    qs.appendChild(E("strong", "chqh", tt("ch_guided"))); flowList(qs); msgs.appendChild(qs);
     var f = E("form", "chf"); ta = E("textarea"); ta.rows = 2; ta.setAttribute("aria-label", tt("ch_ph")); ta.placeholder = tt("ch_ph");
     var sb = E("button", "btn small", tt("ch_send")); sb.type = "submit"; f.appendChild(ta); f.appendChild(sb);
     f.addEventListener("submit", function (e) { e.preventDefault(); send(ta.value); }); ta.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(ta.value); } });

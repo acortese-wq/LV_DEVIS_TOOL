@@ -3,7 +3,7 @@ const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
 const btn=async t=>{await pg.locator('#chPan button',{hasText:t}).last().click(); await pg.waitForTimeout(200);}; const last=()=>pg.locator('.chm.bot').last().textContent();
 await pg.fill('#f_graben_L','100'); await pg.waitForTimeout(500); await pg.click('#chFab');
 ok(await pg.locator('#chPan .chq button',{hasText:'Schachtabstand und Rohrbelegung'}).count()===1,'Startchips der Beratung');
-await pg.locator('#chPan .chq button',{hasText:'Schachtabstand und Rohrbelegung'}).click(); await pg.waitForTimeout(200);
+await pg.locator('#chPan .chgrp summary').first().click(); await pg.locator('#chPan .chq button',{hasText:'Schachtabstand und Rohrbelegung'}).click(); await pg.waitForTimeout(200);
 ok(/Welche Erschliessung/.test(await last()),'Frage 1'); await btn('Basis: Teilnehmerkabel Cu'); ok(/Wo liegt die Trasse/.test(await last()),'Frage 2 folgt'); ok(await pg.locator('.chopts button',{hasText:'Zurück'}).count()>=1,'Zurück-Knopf ab Frage 2');
 await btn('In der Bauzone'); let t=await last(); console.log(t.slice(0,200)); ok(/ca\. 200–250 m/.test(t)&&/K100 ≥ 3 m/.test(t),'Empfehlung Richtabstand');
 await btn('Richtabstand in der Karte einstellen'); const rc=await pg.evaluate(()=>JSON.parse(localStorage.getItem('lvd-km-rc'))); ok(rc.ersch==='basisCu'&&rc.zone==='in','Richtabstand gespeichert '+JSON.stringify(rc));

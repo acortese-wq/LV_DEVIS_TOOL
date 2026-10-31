@@ -167,3 +167,11 @@ Fünf Entscheidungsdialoge aus dem Handbuch V1.2, per Startchip, Freitext («wel
 - Antwort per Knopf oder Freitext; «Zurück», «Abbrechen», «Nochmals durchgehen». Fragen werden je nach Antwort übersprungen.
 - **Aktionen am Ende:** Richtabstand in der Karte einstellen (wirkt sofort in einer offenen Karte, sonst beim nächsten Öffnen); Schachttyp bei einem Schacht-Datensatz setzen als Vorschlagskarte mit Kostenwirkung und Bestätigung. Beim Schachtabstand wird zusätzlich das Projekt gegen den Richtwert geprüft.
 - Läuft regelbasiert ohne KI; Wissenstexte deutsch. Rechenkern unverändert. Bei der Schachttyp-Wahl gilt ohne Muffenzahl keine Aussage; KS80U/KS80H unterscheiden sich im Tool nur in der Bauwerkshöhe.
+
+## Assistent: alle Beratungen aus dem Handbuch (25)
+Das gesamte Handbuch V1.2 (82 Seiten, unter- und oberirdisch) wurde ausgewertet. Geführte Beratungen, gruppiert (aufklappbar) und per Freitext auslösbar:
+- **Unterirdisch (14):** Schachtabstand und Rohrbelegung, Schachttyp und Abdeckung, Gebäudeanschluss, Kostenteiler, Erschliessung/Strassenquerung, Zweitweg, Hauptkanalisation ab CO, Bauweise/Rohrmaterial, Trassenwahl-Kriterien, Anschluss KVA, Kabeleinführung ins Gebäude (gas-/wasserdicht), Betonsockel/ME-Messung, Schachtdeckel sichern, Einmass/Datentransfer.
+- **Freileitungen (10):** Regel-/Weitspannleitung, Meldepflicht BAZL, Hausanschluss ab Freileitung, Umbau/Unterhalt (PrUh/KoUh), Kabelüberführungsmast UST, Holzmast/Verankerung, Luftkabel wählen/befestigen, **Durchhang und Zugkraft** (Montagewerte aller 9 Tabellen: 180 Kombinationen), Siphon/Powering/Starkstrom, Mastabbruch/Entsorgung.
+- **Mein Projekt (1):** Projekt-Check gegen die Richtwerte (Schachtabstand, Rohrbelegung, Schachttyp, Gebäude) aus der gezeichneten Karte.
+- Zusätzliche Wissensantworten: gemeinsame Tragwerke/Sicherheitsabstände, Schutzgebiete, Freileitung-Trassierung.
+- Test t44 durchläuft alle 368 Entscheidungspfade (gültige Ergebnisse mit Quelle). Texte sind Zusammenfassungen; verbindlich bleibt das Handbuch. Montagewerte wurden aus den Tabellen abgeschrieben (Richtwerte) – vor Verwendung für Zugkraftberechnungen gegenprüfen.

@@ -496,3 +496,4 @@ dialog .chfab{top:10px;bottom:auto;right:112px}dialog .chpan{top:58px;bottom:aut
 @media (max-width:900px){dialog .chfab{top:auto;bottom:12px;right:12px}dialog .chpan{top:auto;bottom:60px;height:min(480px,calc(100vh - 90px))}}
 dialog .chfab{z-index:2000}dialog .chpan{z-index:2001}
 .chopts{display:flex;flex-wrap:wrap;gap:6px;align-self:stretch}.chopts .chmin{margin-left:auto}.chqh{margin-top:6px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft)}
+.chgrp{align-self:stretch;border:1px solid var(--rule);border-radius:8px;padding:4px 8px}.chgrp summary{cursor:pointer;font-weight:600;font-size:13px;padding:4px 0}.chgrp .chopts{padding:4px 0 6px}.chfl{align-self:stretch;display:flex;flex-direction:column;gap:6px}
