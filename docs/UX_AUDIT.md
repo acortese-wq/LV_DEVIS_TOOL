@@ -133,3 +133,11 @@ Der Karten-/Plan-Dialog ist jetzt eine **Vollbild-Arbeitsfläche** (Vorlage: Pla
 - Anschlüsse aus den Linien: Linienende = hinein, Linienstart = hinaus; K55 ⇒ DN 80, K100 und grösser ⇒ DN 150, je Rohr 1 Anschluss. Anzeige in der Schachtzeile; Kernel-Felder `an80`/`an150` (JS und Python identisch).
 - **Kostenwirkung:** Hängen Linien am Schacht, ersetzen die automatischen Anschlüsse die manuelle Anschlusszahl (`anMap`); Teilung erzeugt keine zusätzlichen Kosten ausser den Anschlüssen.
 - Noch offen: Vorschläge (Schacht alle X m/Knicke, Werklöcher an Abzweigen), Belagsfläche, Plausibilitätswarnungen.
+
+## Prüfung und Vorschläge nach Handbuch V1.2 (Zeichnen)
+Quelle: «Handbuch unter- und oberirdischer Netzbau» V1.2 (01.04.2026), Kap. 2.2.2, 2.2.4, 2.3.3, 3. Reine Hinweise, **keine Kostenwirkung** (Ausnahme: übernommene Vorschläge setzen Schächte/Werklöcher und teilen Linien).
+- **Prüfpanel (Auswertung):** Linienenden ohne Schacht (Topologie), Linien/Schächte < 0.5 m auseinander, Schachtabstand über Richtwert, Biegeradius an Knicken (K100 ≥ 3 m, K55 ≥ 1 m; Tangente ≤ halbe Nachbarstrecke), Schachttyp zu klein für Muffen (neues Feld «Muffen»: KES100 ≤ 1, KES150 ≤ 3, KES175 4, ES300 ab 5), KS Ø 80 mit K100 oder nicht geradlinig, Gebäude ohne Schacht bzw. > 250 m (Luftlinie). Je Hinweis Sprungknopf; Symbol + Text (nicht nur Farbe).
+- **Vorschläge:** Erschliessungsart (Basis Cu/GFK, FK/RK, Detail) × Lage (in/ausserhalb Bauzone) ⇒ Richtabstand (250/500, 1'000/6'000, 1'000/6'000, 200 m), übersteuerbar; Schächte im Richtabstand (gleichmässig verteilt) und an Knicken ≥ 30°, Werkloch an Abzweigen; gestrichelte Vorschau, «Alle übernehmen» (rückgängig) oder «Verwerfen».
+- **Gebäudetyp** (EFH/MFH/Büro) zeigt die Handbuch-Vorgabe (1×K55 bzw. 1×K55/100 durch Kunde getrieben).
+- **DXF-Export** (nur Karte): Netzkanten Layer 100, Netzknoten 200, Knickpunkte 201, Koordinaten LV95. Der genaue SIA-Geo405-Layeraufbau von Swisscom/PTA ist im Handbuch nicht beschrieben und vor Produktivnutzung zu verifizieren.
+- Nicht umgesetzt (nicht gewählt): Zweitweg-Abstand, Hauptkanalisation/erster Abzweigschacht, Querung bei ⅓, Deckel-Entscheidungsbaum, Bogenschnitt-Bemassung.

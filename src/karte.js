@@ -610,7 +610,7 @@
       tabs.innerHTML = '<button type="button" role="tab" id="kmTabP" aria-selected="true" aria-controls="kmPanP">' + esc(tt("ws_props")) + '</button><button type="button" role="tab" id="kmTabE" aria-selected="false" aria-controls="kmPanE" tabindex="-1">' + esc(tt("ws_eval")) + "</button>";
       var panP = E("div", "kmpan"), panE = E("div", "kmpan"); panP.id = "kmPanP"; panE.id = "kmPanE"; panP.setAttribute("role", "tabpanel"); panE.setAttribute("role", "tabpanel"); panP.setAttribute("aria-labelledby", "kmTabP"); panE.setAttribute("aria-labelledby", "kmTabE"); panE.hidden = true;
       ["#kmQuick", ".kmoh", "#kmFoldAll", "#kmObj", "#kmMiss"].forEach(function (q) { var n = pick(q); if (n) { if (q === "#kmFoldAll") n = n.parentNode; panP.appendChild(n); } });
-      panE.appendChild(E("div", "kmeval", "")).id = "kmEval"; var cost = pick("#kmCost"); if (cost) panE.appendChild(cost);
+      panE.appendChild(E("div", "kmeval", "")).id = "kmEval"; panE.appendChild(E("div", "kmeval kmchk", "")).id = "kmChk"; panE.appendChild(E("div", "kmeval kmsug", "")).id = "kmSug"; if (!plan) { var dx = E("div", "kmeval", '<button type="button" class="btn ghost small" id="kmDxf">' + esc(tt("ws_dxf")) + "</button>"); panE.appendChild(dx); } var cost = pick("#kmCost"); if (cost) panE.appendChild(cost);
       side.appendChild(tabs); side.appendChild(panP); side.appendChild(panE);
       tabs.addEventListener("click", function (e) { var b = e.target.closest("[role=tab]"); if (!b) return; var p = b.id === "kmTabP"; tabs.querySelectorAll("[role=tab]").forEach(function (t) { var on = t === b; t.setAttribute("aria-selected", on ? "true" : "false"); t.tabIndex = on ? 0 : -1; }); panP.hidden = !p; panE.hidden = p; });
       tabs.addEventListener("keydown", function (e) { if (e.key === "ArrowRight" || e.key === "ArrowLeft") { var o = tabs.querySelector("[aria-selected=false]"); o.click(); o.focus(); e.preventDefault(); } });
@@ -1148,7 +1148,8 @@
       var row_pts = function (p, i) {
         var r = rowOf(p); head(r, tt("km_schN").replace("{n}", i + 1), p.sid);
         r.appendChild(cell(tt("km_name"), inp(tt("km_name"), p.name || "", "kmw", function (v) { p.name = v; }, 1)));
-        r.appendChild(cell(tt("km_typ"), sel1(tt("km_typ"), cat.schacht, p.typ, function (v) { p.typ = v; lastTyp = v; })));
+        r.appendChild(cell(tt("km_typ"), sel1(tt("km_typ"), cat.schacht, p.typ, function (v) { p.typ = v; lastTyp = v; rcRender(); })));
+        if (p.mode !== "deckel") { r.appendChild(cell(tt("km_mu"), inp(tt("km_mu"), p.mu || "", "kmn", function (v) { p.mu = v; rcRender(); }))); var mn = parseInt(p.mu, 10); if (mn > 0) { var mh = document.createElement("p"); mh.className = "hint"; mh.textContent = tt("km_mu_hint").replace("{t}", typFor(mn)); r.appendChild(mh); } }
         r.appendChild(cell(tt("km_lt_fl"), sel1(tt("km_lt_fl"), flOpts(), p.fl || "", function (v) { p.fl = v; })));
         r.appendChild(cell(tt("km_pm_lbl"), sel1(tt("km_pm_lbl"), [["neu", tt("km_pm_neu")], ["anschluss", tt("km_pm_ans")], ["deckel", tt("km_pm_dk")]], p.mode || "neu", function (v) { p.mode = v; draw(); rows(); })));
         if (p.mode === "deckel") {
@@ -1179,6 +1180,8 @@
         r.appendChild(cell(tt("km_name"), inp(tt("km_name"), p.name || "", "kmw", function (v) { p.name = v; }, 1)));
         r.appendChild(cell(tt("km_cm"), inp(tt("km_cm"), p.cm || "", "kmn", function (v) { p.cm = v; })));
         r.appendChild(cell(tt("km_abd"), sel1(tt("km_abd"), [["keine", tt("km_abdK")], ["kissen", tt("km_abdKi")], ["hauff", tt("km_abdH")]], p.abd, function (v) { p.abd = v; })));
+        r.appendChild(cell(tt("km_gt"), sel1(tt("km_gt"), [["", "–"], ["efh", tt("gt_efh")], ["mfh", tt("gt_mfh")], ["bue", tt("gt_bue")]], p.gt || "", function (v) { p.gt = v; rows(); })));
+        if (p.gt) { var gh = document.createElement("p"); gh.className = "hint"; gh.textContent = tt("gt_hint_" + p.gt); r.appendChild(gh); }
         if (!String(p.cm || "").trim()) { var hn = document.createElement("p"); hn.className = "hint"; hn.textContent = tt("km_gebHint"); r.appendChild(hn); }
         btns(r, p.id); return r;
       };
@@ -1234,6 +1237,100 @@
       d.hidden = !items.length; d.querySelector("summary").textContent = tt("km_miss").replace("{n}", items.length);
       var ul = d.querySelector("ul"); ul.innerHTML = ""; items.forEach(function (it) { var li = document.createElement("li"), b = document.createElement("button"); b.type = "button"; b.className = "btn ghost small"; b.setAttribute("data-z", it[0]); b.textContent = it[1]; li.appendChild(b); ul.appendChild(li); });
     }
+
+    /* ---------- Prüfung und Vorschläge nach «Handbuch unter- und oberirdischer Netzbau» V1.2 (2.2.2 Schachtabstände, 2.2.4 Gebäudeanschlüsse, 2.3.3 Schachttypen, 3 Einmass) ---------- */
+    var RICHT = { basisCu: [250, 500], basisGfk: [1000, 6000], fkrk: [1000, 6000], detail: [200, 200] };   /* obere Richtwerte in Bauzone / ausserhalb (m) */
+    var CAPA = { KS80U: 1, KS80H: 1, KES100: 1, KES150: 3, KES175: 4, ES300: 99 };                          /* max. Muffen je Schachttyp */
+    var RC = { ersch: "basisCu", zone: "in", x: "" }; try { var rc0 = JSON.parse(localStorage.getItem("lvd-km-rc") || "null"); if (rc0 && typeof rc0 === "object") RC = Object.assign(RC, rc0); } catch (e) { }
+    var sugs = [], sugLayer = null, sugInit = 0;
+    function typFor(mu) { return mu <= 1 ? "KES100" : mu <= 3 ? "KES150" : mu === 4 ? "KES175" : "ES300"; }
+    function richt() { var r = RICHT[RC.ersch] || RICHT.basisCu; return RC.zone === "aus" ? r[1] : r[0]; }
+    function xAbst() { var v = parseFloat(String(RC.x).replace(",", ".")); return v > 0 ? v : richt(); }
+    function bendOf(l, i) {   /* Ablenkwinkel (°) und erreichbarer Radius (m) am Knoten i: Tangentenlänge höchstens halbe Nachbarstrecke */
+      var P = l.pts, a = AD.dist(P[i - 1], P[i]), b = AD.dist(P[i], P[i + 1]), u = unitV(P[i - 1], P[i]), v = unitV(P[i], P[i + 1]); if (!u || !v || !a || !b) return null;
+      var th = Math.acos(Math.max(-1, Math.min(1, u[0] * v[0] + u[1] * v[1]))); if (th < 0.0175) return null;
+      return { deg: th * 180 / Math.PI, r: (Math.min(a, b) / 2) / Math.tan(th / 2) };
+    }
+    function atDist(P, d) {   /* Punkt in Abstand d (m) vom Linienanfang */
+      var acc = 0; for (var i = 1; i < P.length; i++) { var sl = AD.dist(P[i - 1], P[i]); if (acc + sl >= d - 1e-9 && sl > 0) { var t = (d - acc) / sl; return [P[i - 1][0] + t * (P[i][0] - P[i - 1][0]), P[i - 1][1] + t * (P[i][1] - P[i - 1][1])]; } acc += sl; }
+      return P[P.length - 1].slice();
+    }
+    function rcCheck() {
+      var it = [], f1 = function (v) { return (Math.round(v * 10) / 10).toLocaleString("de-CH"); }, R = richt();
+      M.lines.forEach(function (l, i) {
+        if (l.pts.length < 2) return; var n = i + 1, c = cfgOf(l), pl = pipeList(c), L0 = lineLen(l.pts); if (!pl.length && l.rohr && parseInt(l.rohr.dn, 10)) pl = [[parseInt(l.rohr.dn, 10), 1]];
+        if (!l.s && !l.from) it.push([l.id, "y", tt("rc_t_s").replace("{n}", n)]);
+        if (!l.e && !l.to) it.push([l.id, "y", tt("rc_t_e").replace("{n}", n)]);
+        if (L0 > R) it.push([l.id, "y", tt("rc_dist").replace("{n}", n).replace("{l}", f1(L0)).replace("{r}", R)]);
+        if (pl.length) { var rmin = pl.some(function (e) { return e[0] >= 100; }) ? 3 : 1, dn = rmin === 3 ? "100" : "55"; for (var k = 1; k < l.pts.length - 1; k++) { var b = bendOf(l, k); if (b && b.r < rmin) it.push([l.id, "r", tt("rc_bend").replace("{n}", n).replace("{k}", k).replace("{r}", f1(b.r)).replace("{m}", rmin).replace("{dn}", dn)]); } }
+      });
+      var ends = []; M.lines.forEach(function (l) { if (l.pts.length > 1) { ends.push([l, l.pts[0], l.s]); ends.push([l, l.pts[l.pts.length - 1], l.e]); } });
+      for (var a = 0; a < ends.length; a++) for (var b2 = a + 1; b2 < ends.length; b2++) { var A = ends[a], B = ends[b2]; if (A[0] === B[0]) continue; var d = AD.dist(A[1], B[1]); if (d > 0.001 && d <= 0.5 && !(A[2] && A[2] === B[2])) it.push([A[0].id, "y", tt("rc_t_gap").replace("{a}", M.lines.indexOf(A[0]) + 1).replace("{b}", M.lines.indexOf(B[0]) + 1).replace("{d}", f1(d * 100) + " cm")]); }
+      M.pts.forEach(function (p, i) {
+        for (var j = i + 1; j < M.pts.length; j++) { var d2 = AD.dist(p.pt, M.pts[j].pt); if (d2 <= 0.5) it.push([p.id, "y", tt("rc_t_dbl").replace("{a}", i + 1).replace("{b}", j + 1).replace("{d}", f1(d2 * 100) + " cm")]); }
+        if (p.mode === "deckel") return; var cn = connOf(M, p), mu = parseInt(p.mu, 10), t = p.typ || "", n = i + 1;
+        if (mu > 0 && CAPA[t] != null && CAPA[t] < mu) it.push([p.id, "r", tt("rc_typ").replace("{n}", n).replace("{t}", t).replace("{m}", mu).replace("{v}", typFor(mu))]);
+        if (!(mu > 0) && cn.n > 2 && /^KS/.test(t)) it.push([p.id, "y", tt("rc_nomu").replace("{n}", n)]);
+        if (/^KS/.test(t)) {
+          if (Object.keys(cn.inn).concat(Object.keys(cn.out)).some(function (k) { return +k >= 100; })) it.push([p.id, "r", tt("rc_ks100").replace("{n}", n)]);
+          var ins = [], outs = []; M.lines.forEach(function (l) { var m = l.pts.length; if (m < 2) return; if (l.e === p.id) ins.push(unitV(l.pts[m - 2], l.pts[m - 1])); if (l.s === p.id) outs.push(unitV(l.pts[0], l.pts[1])); });
+          var worst = 0; ins.forEach(function (u) { outs.forEach(function (v) { if (u && v) worst = Math.max(worst, Math.acos(Math.max(-1, Math.min(1, u[0] * v[0] + u[1] * v[1]))) * 180 / Math.PI); }); });
+          if (worst > 15) it.push([p.id, "y", tt("rc_ksgerade").replace("{n}", n).replace("{a}", Math.round(worst))]);
+        }
+      });
+      M.geb.forEach(function (g, i) {
+        var dm = Infinity; M.pts.forEach(function (p) { dm = Math.min(dm, AD.dist(p.pt, g.pt)); });
+        if (!M.pts.length) it.push([g.id, "y", tt("rc_geb_none").replace("{n}", i + 1)]); else if (dm > 250) it.push([g.id, "y", tt("rc_geb_far").replace("{n}", i + 1).replace("{d}", f1(dm))]);
+      });
+      return it;
+    }
+    function rcRender() {
+      var h = $("#kmChk"); if (!h) return; var it = rcCheck(), ic = { r: "⛔ ", y: "⚠ " };
+      h.innerHTML = "<h4>" + esc(tt("rc_h").replace("{n}", it.length)) + "</h4>" + (it.length ? "<ul class=\"kmmissl\">" + it.map(function (x) { return "<li><button type=\"button\" class=\"btn ghost small kmrc " + x[1] + "\" data-z=\"" + x[0] + "\">" + ic[x[1]] + esc(x[2]) + "</button></li>"; }).join("") + "</ul>" : '<p class="none">' + esc(tt("rc_ok")) + "</p>") + '<p class="hint">' + esc(tt("rc_src")) + "</p>";
+    }
+    /* Vorschläge: Schächte an Knicken und im Richtabstand, Werklöcher an Abzweigen */
+    function sugCompute() {
+      var X = xAbst(), out = [], near = function (arr, pt, rad) { return arr.some(function (p) { return AD.dist(p.pt || p.c, pt) <= rad; }); };
+      M.lines.forEach(function (l) {
+        if (l.pts.length < 2) return; var L0 = lineLen(l.pts), cuts = [0], acc = 0, kn = [];
+        for (var i = 1; i < l.pts.length - 1; i++) { acc += AD.dist(l.pts[i - 1], l.pts[i]); var b = bendOf(l, i); if (b && b.deg >= 30 && !near(M.pts, l.pts[i], 3)) { kn.push({ k: "sch", c: l.pts[i].slice(), why: "sg_w_knick" }); cuts.push(acc); } }
+        cuts.push(L0); out = out.concat(kn);
+        for (var q = 1; q < cuts.length; q++) { var g = cuts[q] - cuts[q - 1], m = Math.ceil(g / X - 1e-9) - 1; for (var j = 1; j <= m; j++) { var c = atDist(l.pts, cuts[q - 1] + g * j / (m + 1)); if (!near(M.pts, c, 5)) out.push({ k: "sch", c: c, why: "sg_w_dist" }); } }
+        if (l.from && !near(M.wl, l.pts[0], 3)) out.push({ k: "wl", c: l.pts[0].slice(), why: "sg_w_abz" });
+      });
+      return out;
+    }
+    function sugDraw() {
+      if (!sugLayer) sugLayer = L.layerGroup().addTo(map); sugLayer.clearLayers();
+      sugs.forEach(function (g) { L.circleMarker(AD.ll(g.c), { radius: g.k === "wl" ? 6 : 8, color: g.k === "wl" ? "#b25b00" : "#001155", weight: 2, dashArray: "3 3", fillColor: "#ffffff", fillOpacity: .6, interactive: false }).addTo(sugLayer); });
+    }
+    function sugRender() {
+      var h = $("#kmSug"); if (!h) return; var ns = sugs.filter(function (g) { return g.k === "sch"; }).length, nw = sugs.length - ns;
+      var opts = function (arr, v) { return arr.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === v ? " selected" : "") + ">" + esc(o[1]) + "</option>"; }).join(""); };
+      h.innerHTML = "<h4>" + esc(tt("sg_h")) + "</h4>" +
+        '<div class="kmsugf"><label>' + esc(tt("sg_ersch")) + ' <select data-rc="ersch">' + opts([["basisCu", tt("sg_basisCu")], ["basisGfk", tt("sg_basisGfk")], ["fkrk", tt("sg_fkrk")], ["detail", tt("sg_detail")]], RC.ersch) + "</select></label>" +
+        '<label>' + esc(tt("sg_zone")) + ' <select data-rc="zone">' + opts([["in", tt("sg_zin")], ["aus", tt("sg_zaus")]], RC.zone) + "</select></label>" +
+        '<label>' + esc(tt("sg_x")) + ' <input type="text" inputmode="decimal" data-rc="x" value="' + esc(RC.x) + '" placeholder="' + richt() + '" size="6"></label></div>' +
+        '<p class="hint">' + esc(tt("sg_hint").replace("{r}", richt())) + '</p><div class="kmbar"><button type="button" class="btn small" data-sg="calc">' + esc(tt("sg_calc")) + "</button>" +
+        (sugs.length ? ' <button type="button" class="btn small" data-sg="apply">' + esc(tt("sg_apply")) + '</button> <button type="button" class="btn ghost small" data-sg="clear">' + esc(tt("sg_clear")) + "</button>" : "") + "</div>" +
+        (sugs.length ? '<p class="hint" role="status">' + esc(tt("sg_n").replace("{s}", ns).replace("{w}", nw)) + "</p>" : "");
+    }
+    function sugApply() {
+      if (!sugs.length) return; snap(); var ns = 0, nw = 0;
+      sugs.forEach(function (g) { if (g.k === "sch") { placeShaft(g.c, true); ns++; } else { M.wl.push({ id: nid("w"), pt: g.c.slice(), sid: null, wt: "ts", name: "", fl: lastCfg.fl || "" }); nw++; } });
+      sugs = []; sugDraw(); sugRender(); refresh(); toast(dlg, tt("sg_done").replace("{s}", ns).replace("{w}", nw), tt("km_undoBtn"), function () { if (undoSt.length) { var b = $("[data-k=undo]"); if (b) b.click(); } });
+    }
+    /* DXF-Export (Netzkanten 100, Netzknoten 200, Knickpunkte 201) – Koordinaten wie gezeichnet (LV95) */
+    function dxfExport() {
+      var o = ["0", "SECTION", "2", "TABLES", "0", "TABLE", "2", "LAYER", "70", "3"], lay = function (n, c) { o.push("0", "LAYER", "2", n, "70", "0", "62", String(c), "6", "CONTINUOUS"); };
+      lay("100", 3); lay("200", 1); lay("201", 5); o.push("0", "ENDTAB", "0", "ENDSEC", "0", "SECTION", "2", "ENTITIES");
+      var v = function (a) { return [a[0].toFixed(3), a[1].toFixed(3)]; };
+      M.lines.forEach(function (l) { if (l.pts.length < 2) return; o.push("0", "POLYLINE", "8", "100", "66", "1", "70", "0"); l.pts.forEach(function (q) { var c = v(q); o.push("0", "VERTEX", "8", "100", "10", c[0], "20", c[1], "30", "0"); }); o.push("0", "SEQEND", "8", "100");
+        for (var i = 1; i < l.pts.length - 1; i++) { var c = v(l.pts[i]); o.push("0", "POINT", "8", "201", "10", c[0], "20", c[1], "30", "0"); } });
+      M.pts.forEach(function (p) { var c = v(p.pt); o.push("0", "POINT", "8", "200", "10", c[0], "20", c[1], "30", "0", "0", "CIRCLE", "8", "200", "10", c[0], "20", c[1], "30", "0", "40", "0.4"); });
+      o.push("0", "ENDSEC", "0", "EOF"); var rows2 = []; for (var i = 0; i < o.length; i += 2) rows2.push(o[i] + "\n" + o[i + 1]);
+      var a = document.createElement("a"), u = URL.createObjectURL(new Blob([rows2.join("\n") + "\n"], { type: "application/dxf" })); a.href = u; a.download = "Netz_LV-Devis.dxf"; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(u); a.remove(); }, 500);
+    }
     /* Legende der Linienarten (Bildschirm) */
     function legend() {
       var e = $("#kmLeg"); if (!e) return; var sf = {}; M.lines.forEach(function (l) { if (l.pts.length > 1) sf[cfgOf(l).fl || ""] = 1; });
@@ -1243,7 +1340,7 @@
     function refresh() { draw(); rows(); costSoon(); }
     var costT = 0;
     function costSoon() {
-      legend(); markerSync(); evalRender(); if (!opt.cost) return; clearTimeout(costT);
+      legend(); markerSync(); evalRender(); rcRender(); if (!sugInit) { sugInit = 1; sugRender(); } if (!opt.cost) return; clearTimeout(costT);
       costT = setTimeout(function () { var el = $("#kmCost"); if (!el) return; var v = null; try { v = opt.cost(JSON.parse(JSON.stringify(M)), function (m) { return lineLen(m); }, { area: area, perim: perim, base: base }); } catch (e) { v = null; }
         el.textContent = v == null ? "" : tt("km_cost").replace("{v}", Math.round(v).toLocaleString("de-CH")); }, 500);
     }
@@ -1435,6 +1532,7 @@
     map.on("zoomend", function () { if (mode === "edit" || M.notes.some(function (n) { return n.type === "arrow"; })) draw(); });
     var cs = $("#kmCol"); cs.addEventListener("change", function () { noteCol = cs.value; });
 
+    dlg.addEventListener("change", function (e) { var t = e.target.closest("[data-rc]"); if (!t) return; RC[t.dataset.rc] = t.value; try { localStorage.setItem("lvd-km-rc", JSON.stringify(RC)); } catch (x) { } sugs = []; sugDraw(); sugRender(); rcRender(); });
     dlg.addEventListener("click", function (e) {
       var pb = e.target.closest("[data-prov]");
       if (pb) { var nb = PROV[pb.dataset.prov][0][0]; if (provOf(base) !== pb.dataset.prov) { base = nb; fillBase(); try { localStorage.setItem("lvd-km-base", nb); } catch (x) { } setBase(nb); } return; }
@@ -1449,6 +1547,7 @@
         else if (k2 === "rl") ovl.rot += 0.5; else if (k2 === "rr") ovl.rot -= 0.5; else if (k2 === "sm") { ovl.mpp *= 0.99; ovl.auto = 0; } else if (k2 === "sp") { ovl.mpp *= 1.01; ovl.auto = 0; }
         ovDraw(); return;
       }
+      var sgb = e.target.closest("[data-sg],#kmDxf"); if (sgb) { if (sgb.id === "kmDxf") dxfExport(); else if (sgb.dataset.sg === "calc") { sugs = sugCompute(); sugDraw(); sugRender(); if (!sugs.length) { var sh = $("#kmSug"); if (sh) { var pn = document.createElement("p"); pn.className = "hint"; pn.setAttribute("role", "status"); pn.textContent = tt("sg_none"); sh.appendChild(pn); } } } else if (sgb.dataset.sg === "apply") sugApply(); else { sugs = []; sugDraw(); sugRender(); } return; }
       var b = e.target.closest("[data-k],[data-z],[data-d],[data-n]"); if (!b) return; askHide();
       if (b.dataset.n) { var nn = b.dataset.n.split("|"); return nudge(nn[0], nn[1]); }
       if (b.dataset.z) return show(b.dataset.z); if (b.dataset.d) return del(b.dataset.d);

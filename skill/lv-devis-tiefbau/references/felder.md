@@ -147,6 +147,8 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 | `deckel` | Zusätzlicher Deckel | LV-Pos. 151/632.1xx oder "" | `""` | notDeckel(c) && curShape(c) === "eckig" && (!l // l.cover === "platte") && !(kindOf(c) === "PLS" && isNeu(c)) |
 | `spare` | Deckelersatz 0.60 × 0.90 [St]<br><i>Nur für bestehende BGS-Rahmen 120 × 90 cm.</i> | Zahl (Text) | `"0"` | modus !== "deckel" && modus !== "anschluss" |
 | `anschl` | Leitungsanschlüsse (je Schacht) | Zahl (Text) | `"0"` | isNeu(c) // isAns(c) |
+| `an80` | Leitungsanschlüsse DN 80 (je Schacht; aus der Karte) | Zahl (Text) | `""` | isNeu(c) // isAns(c) |
+| `an150` | Leitungsanschlüsse DN 150 (je Schacht; aus der Karte) | Zahl (Text) | `""` | isNeu(c) // isAns(c) |
 | `anDN` | Anschluss bis DN | `80` 80<br>`150` 150 | `"80"` | isNeu(c) // isAns(c) |
 | `beton` | Betonabbruch (m³ je Schacht) | Zahl (Text) | `"0"` | modus === "neu" |
 | `platten` | Abdeckplatten entfernen (St) | Zahl (Text) | `"0"` | modus === "neu" |
