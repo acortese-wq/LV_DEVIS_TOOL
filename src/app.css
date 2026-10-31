@@ -463,3 +463,13 @@ ul.vollst .vst{white-space:normal}ul.vollst .vname{min-width:0;overflow-wrap:any
   body:not(.print-detail):not(.summary-print) .situ{margin:4pt 0}
   body:not(.print-detail):not(.summary-print) .kopfbox{margin:0 0 4pt}
 }
+
+.kmsnap span{position:absolute;transform:translate(-50%,-50%);min-width:18px;padding:0 3px;text-align:center;font:700 12px/18px "Segoe UI",sans-serif;background:#fff;border:2px solid #0072d6;border-radius:4px;color:#0d47c8;pointer-events:none}
+.kmsnap.pt span{border-radius:50%}.kmsnap.ln span{transform:translate(-50%,-50%) rotate(0);border-radius:2px;background:#0072d6;color:#fff}.kmsnap.rect span{background:#0d47c8;color:#fff;border-color:#fff}
+.kmsnap i{position:absolute;left:14px;top:-26px;white-space:nowrap;font:600 11px "Segoe UI",sans-serif;font-style:normal;background:#fff;color:#0d47c8;padding:0 4px;border-radius:3px;box-shadow:0 0 0 1px #0072d6;pointer-events:none}
+.kmws .kmfang{flex-wrap:wrap}.kmws .kmstat{flex-wrap:wrap}
+.kmws .kmbottom .kmlen{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:min(52vw,640px)}.kmws .kmbottom .kmcost{display:none}
+.kmws .kmcanvas .kmhelp{min-height:3.4em;max-height:3.4em;overflow:hidden}.kmws .kmcanvas .kmunits{min-height:1.8em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kmws .kmcanvas .kmslot{position:absolute;left:0;right:0;bottom:calc(5.4em + 6px);z-index:1200;pointer-events:none}.kmws .kmcanvas .kmslot>*{pointer-events:auto}
+.kmws .kmcanvas .kmleg{position:absolute;left:8px;bottom:calc(5.4em + 8px);z-index:1100;border:1px solid var(--rule);border-radius:6px;padding:3px 8px}
+.kmws .kmstat{flex:0 0 330px;white-space:nowrap;overflow:hidden}.kmws .kmstat span{white-space:nowrap}
