@@ -127,3 +127,9 @@ Der Karten-/Plan-Dialog ist jetzt eine **Vollbild-Arbeitsfläche** (Vorlage: Pla
 
 ## Kompakter Druck (Oktober 2026)
 «Drucken / PDF» ist jetzt **kompakt**: Kopf, Hinweise, Situation, Elementsummen (eine Zeile je Element), Zusammenfassung nach Kapiteln (alle Positionen einmal, Text auf 3 Zeilen begrenzt), Kostenübersicht, Warnungen, Unterschriften; kleinere Schrift (8.5 pt). Weggelassen (nur auf dem Bildschirm bzw. im neuen Knopf **«Ausführlich drucken (alle Rechenwege)»**): Positionstabellen je Element (doppelt zur Zusammenfassung), Massenbilanzen, Rechenwege, Grafiken, Vollständigkeitsliste, Grundlagen. Messung mit Beispielprojekt (Graben, Schacht, Werkloch, Einführung, Belag): **14 → 5 Seiten**. «Kurzausdruck (1 Seite)» und Excel unverändert. Hinweis: Wer die Rechenwege je Element ins Dossier braucht, wählt «Ausführlich drucken».
+
+## Leitungsanschlüsse am Schacht (Zeichnen)
+- Schacht auf einer Linie ⇒ Linie wird am Schacht geteilt (zwei Hälften, Gesamtlänge gleich); Popup für die Belegung der Folgelinie (Belegungswechsel).
+- Anschlüsse aus den Linien: Linienende = hinein, Linienstart = hinaus; K55 ⇒ DN 80, K100 und grösser ⇒ DN 150, je Rohr 1 Anschluss. Anzeige in der Schachtzeile; Kernel-Felder `an80`/`an150` (JS und Python identisch).
+- **Kostenwirkung:** Hängen Linien am Schacht, ersetzen die automatischen Anschlüsse die manuelle Anschlusszahl (`anMap`); Teilung erzeugt keine zusätzlichen Kosten ausser den Anschlüssen.
+- Noch offen: Vorschläge (Schacht alle X m/Knicke, Werklöcher an Abzweigen), Belagsfläche, Plausibilitätswarnungen.

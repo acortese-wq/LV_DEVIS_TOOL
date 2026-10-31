@@ -143,7 +143,7 @@
       { id: "rahmen", t: "cover", hint: "hint_rahmen", show: function (c) { var l = locOf(c); return notDeckel(c) && curShape(c) === "eckig" && (!l || l.cover === "platte") && !(kindOf(c) === "PLS" && isNeu(c)); } },
       { id: "deckel", t: "cover", show: function (c) { var l = locOf(c); return notDeckel(c) && curShape(c) === "eckig" && (!l || l.cover === "platte") && !(kindOf(c) === "PLS" && isNeu(c)); } },
       { id: "spare", t: "num", hint: "hint_spare", show: notDeckel },
-      { id: "anschl", t: "num", show: function (c) { return isNeu(c) || isAns(c); } }, { id: "anDN", t: "sel", opts: ["80", "150"], show: function (c) { return isNeu(c) || isAns(c); } },
+      { id: "anschl", t: "num", show: function (c) { return isNeu(c) || isAns(c); } }, { id: "an80", t: "num", show: function (c) { return isNeu(c) || isAns(c); } }, { id: "an150", t: "num", show: function (c) { return isNeu(c) || isAns(c); } }, { id: "anDN", t: "sel", opts: ["80", "150"], show: function (c) { return isNeu(c) || isAns(c); } },
       { id: "beton", t: "num", show: isNeu }, { id: "platten", t: "num", show: isNeu },
       { sec: "s_zone", show: isNeu }].concat(withShow(VERF_FIELDS, isNeu), [{ sec: "s_belag", show: isNeu }], withShow(BELAG_FIELDS, isNeu), [
       { sec: "s_opts" }, { t: "opts" }, { sec: "s_freigabe", show: notDeckel },
@@ -681,7 +681,14 @@
     S.recs.schacht.forEach(function (r) {
       var lp = r.uid ? KP.filter(function (p) { return p.sid === r.uid; }) : [], k = lp.length;
       if (r.modus === "deckel") { if (k) r.deckelN = String(k); }
-      else if (r.modus === "anschluss") { if (k) r.anschl = String(lp.reduce(function (a, p) { return a + Math.max(1, conns(p)); }, 0)); }   /* Anschlüsse = Leitungsenden an den bestehenden Schächten */
+      if (r.modus !== "deckel") {   /* Leitungsanschlüsse aus den Linien am Schacht: je Rohr 1 Anschluss (K55 → DN 80, K100 und grösser → DN 150) */
+        var cs = lp.reduce(function (a, p) { var src = (S.karte.pts || []).indexOf(p) >= 0 ? S.karte : S.plan, cn = KARTE.connOf(src, p); a.a80 += cn.a80; a.a150 += cn.a150; a.n += cn.n; return a; }, { a80: 0, a150: 0, n: 0 });
+        if (cs.a80 || cs.a150) { r.an80 = cs.a80 ? String(cs.a80) : ""; r.an150 = cs.a150 ? String(cs.a150) : ""; r.anschl = ""; r.anMap = true; }
+        else if (r.modus === "anschluss" && k) { r.anschl = String(lp.reduce(function (a, p) { return a + Math.max(1, conns(p)); }, 0)); r.an80 = ""; r.an150 = ""; r.anMap = false; }
+        else if (r.anMap) { r.an80 = ""; r.an150 = ""; r.anMap = false; }
+      }
+      if (r.modus === "deckel") { /* nur Deckel */ }
+      else if (r.modus === "anschluss") { /* Anschlüsse siehe oben */ }
       else if (k) r.n = String(k);
     });
     var WL = (S.karte.wl || []).concat(S.plan.wl || []), W = S.recs.werkloch, rw = null;

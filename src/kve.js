@@ -621,6 +621,7 @@ var KVE = (function () {
   /* ---------- Element: Schacht ---------- */
   var DECKEL_KEY = { hoeher: { rund: "151/633.001", rechteckig: "151/633.002" }, tiefer: { rund: "151/634.001", rechteckig: "151/634.002" } };
   var ALT_KEY = { guss: "117/228.301", beton: "117/228.302", flaeche: "117/228.303" };
+  function anKey(kind, dn) { return kind === "KS" ? (String(dn) === "150" ? "151/672.202" : "151/672.201") : (String(dn) === "150" ? "151/672.302" : "151/672.301"); }
   function schacht(c, LV) {
     var cx = new Ctx(LV);
     if (c.modus === "deckel") {
@@ -633,10 +634,11 @@ var KVE = (function () {
       return { lines: cx.lines, warn: cx.warn, bal: cx.bal, geo: {} };
     }
     if (c.modus === "anschluss") {   /* bestehender Schacht: nur Leitungsanschlüsse (Anzahl gesamt), Schachttyp bestimmt KS/KES-Position */
-      var ak = Math.max(0, num(c.anschl, 0)), SA = SCHACHT[c.typ];
-      if (!(ak > 0)) return { lines: [], warn: cx.warn, bal: [] };
+      var ak = Math.max(0, num(c.anschl, 0)), SA = SCHACHT[c.typ], b80 = num(c.an80, 0), b150 = num(c.an150, 0), kd = SA && SA.kind;
+      if (!(ak > 0) && !(b80 > 0) && !(b150 > 0)) return { lines: [], warn: cx.warn, bal: [] };
       cx.g("g_bauwerk");
-      cx.add(SA && SA.kind === "KS" ? (c.anDN === "150" ? "151/672.202" : "151/672.201") : (c.anDN === "150" ? "151/672.302" : "151/672.301"), ak, { rule: "Anschlüsse bestehender Schacht = " + ak + " St" });
+      if (b80 > 0 || b150 > 0) [[b80, "80"], [b150, "150"]].forEach(function (a) { if (a[0] > 0) cx.add(anKey(kd, a[1]), a[0], { rule: "Anschlüsse bestehender Schacht DN " + a[1] + " = " + a[0] + " St" }); });
+      else cx.add(anKey(kd, c.anDN), ak, { rule: "Anschlüsse bestehender Schacht = " + ak + " St" });
       return { lines: cx.lines, warn: cx.warn, bal: cx.bal, geo: {} };
     }
     var S = SCHACHT[c.typ], n = Math.max(0, num(c.n, 1));
@@ -658,10 +660,11 @@ var KVE = (function () {
 
     cx.g("g_bauwerk");
     cx.add(S.key, n, { rule: "Anzahl = " + n + " St" });
-    var an = num(c.anschl, 0);
-    if (an > 0) {
-      var kk = S.kind === "KS" ? (c.anDN === "150" ? "151/672.202" : "151/672.201") : (c.anDN === "150" ? "151/672.302" : "151/672.301");
-      cx.add(kk, an * n, { rule: an + " × " + n + " = " + (an * n) + " St" });
+    var a80 = num(c.an80, 0), a150 = num(c.an150, 0), an = num(c.anschl, 0);
+    if (a80 > 0 || a150 > 0) {   /* Anschlüsse nach DN getrennt (aus der Karte: K55 → DN 80, K100 und grösser → DN 150) */
+      [[a80, "80"], [a150, "150"]].forEach(function (a) { if (a[0] > 0) cx.add(anKey(S.kind, a[1]), a[0] * n, { rule: "DN " + a[1] + ": " + a[0] + " × " + n + " = " + (a[0] * n) + " St" }); });
+    } else if (an > 0) {
+      cx.add(anKey(S.kind, c.anDN), an * n, { rule: an + " × " + n + " = " + (an * n) + " St" });
     }
     var bi = belag(cx, c.belag, A, Schnitt, { cut: "2 × (" + s2(Gl) + " + " + s2(Gb) + ")" + (n > 1 ? " × " + n : "") + " = " + s2(Schnitt) + " m", area: s2(Gl) + " × " + s2(Gb) + (n > 1 ? " × " + n : "") + " = " + s2(A) + " m²" }, Gl);
     var pl = num(c.platten, 0);

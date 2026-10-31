@@ -857,6 +857,11 @@ DECKEL_KEY = {"hoeher": {"rund": "151/633.001", "rechteckig": "151/633.002"}, "t
 ALT_KEY = {"guss": "117/228.301", "beton": "117/228.302", "flaeche": "117/228.303"}
 
 
+def anKey(kind, dn):
+    if kind == "KS": return "151/672.202" if jstr(dn) == "150" else "151/672.201"
+    return "151/672.302" if jstr(dn) == "150" else "151/672.301"
+
+
 def schacht(c, LV, P=None):
     cx = Ctx(LV)
     if c.get("modus") == "deckel":
@@ -869,13 +874,15 @@ def schacht(c, LV, P=None):
         schachtOpts(cx, c)
         return {"lines": cx.lines, "warn": cx.warn, "bal": cx.bal, "geo": {}}
     if c.get("modus") == "anschluss":
-        ak = max(0, num(c.get("anschl"), 0)); SA = SCHACHT.get(c.get("typ"))
-        if not (ak > 0):
+        ak = max(0, num(c.get("anschl"), 0)); SA = SCHACHT.get(c.get("typ")); b80 = num(c.get("an80"), 0); b150 = num(c.get("an150"), 0); kd = SA["kind"] if SA else None
+        if not (ak > 0) and not (b80 > 0) and not (b150 > 0):
             return {"lines": [], "warn": cx.warn, "bal": []}
         cx.g("g_bauwerk")
-        if SA and SA["kind"] == "KS": kk0 = "151/672.202" if c.get("anDN") == "150" else "151/672.201"
-        else: kk0 = "151/672.302" if c.get("anDN") == "150" else "151/672.301"
-        cx.add(kk0, ak, {"rule": "Anschlüsse bestehender Schacht = " + jstr(ak) + " St"})
+        if b80 > 0 or b150 > 0:
+            for a, dn in ((b80, "80"), (b150, "150")):
+                if a > 0: cx.add(anKey(kd, dn), a, {"rule": "Anschlüsse bestehender Schacht DN " + dn + " = " + jstr(a) + " St"})
+        else:
+            cx.add(anKey(kd, c.get("anDN")), ak, {"rule": "Anschlüsse bestehender Schacht = " + jstr(ak) + " St"})
         return {"lines": cx.lines, "warn": cx.warn, "bal": cx.bal, "geo": {}}
     S = SCHACHT.get(c.get("typ")); n = max(0, num(c.get("n"), 1))
     if not S or not (n > 0):
@@ -896,11 +903,12 @@ def schacht(c, LV, P=None):
     gr = s2(Gl) + " × " + s2(Gb) + " × " + s2(Gt) + nx + " = " + s2(Vg) + " m³"
     cx.g("g_bauwerk")
     cx.add(S["key"], n, {"rule": "Anzahl = " + jstr(n) + " St"})
-    an = num(c.get("anschl"), 0)
-    if an > 0:
-        if S["kind"] == "KS": kk = "151/672.202" if c.get("anDN") == "150" else "151/672.201"
-        else: kk = "151/672.302" if c.get("anDN") == "150" else "151/672.301"
-        cx.add(kk, an * n, {"rule": jstr(an) + " × " + jstr(n) + " = " + jstr(an * n) + " St"})
+    a80 = num(c.get("an80"), 0); a150 = num(c.get("an150"), 0); an = num(c.get("anschl"), 0)
+    if a80 > 0 or a150 > 0:
+        for a, dn in ((a80, "80"), (a150, "150")):
+            if a > 0: cx.add(anKey(S["kind"], dn), a * n, {"rule": "DN " + dn + ": " + jstr(a) + " × " + jstr(n) + " = " + jstr(a * n) + " St"})
+    elif an > 0:
+        cx.add(anKey(S["kind"], c.get("anDN")), an * n, {"rule": jstr(an) + " × " + jstr(n) + " = " + jstr(an * n) + " St"})
     bi = belag(cx, c.get("belag"), A, Schnitt, {"cut": "2 × (" + s2(Gl) + " + " + s2(Gb) + ")" + nx + " = " + s2(Schnitt) + " m", "area": s2(Gl) + " × " + s2(Gb) + nx + " = " + s2(A) + " m²"}, Gl)
     pl = num(c.get("platten"), 0)
     if pl > 0:

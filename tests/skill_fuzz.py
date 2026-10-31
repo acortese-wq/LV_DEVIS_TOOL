@@ -43,7 +43,7 @@ def graben(i):
             "zubV": {k: ch([True, False]) for k in ("warn", "schnur", "kal")}, "uF": ch(["", "1"]), "uP": ch(["", "2"]), "uL": "", "aB": ch(["", f(0, 10)]), "aW": "", "aS": ch(["", "3"]), "aR": "", "x": xs(), "free": free()}
 COV = sorted(k for k in kve.LV if k.startswith("151/632.1"))
 def schacht(i):
-    return {"name": "S%d" % i, "modus": ch(["neu", "neu", "ersatz", "deckel", "anschluss"]), "einbauort": ch([l["id"] for l in kve.LOCS]), "typ": ch(list(kve.SCHACHT)), "n": ch(["0", "1", "2"]),
+    return {"name": "S%d" % i, "modus": ch(["neu", "neu", "ersatz", "deckel", "anschluss"]), "an80": ch(["", "", "1", "2"]), "an150": ch(["", "", "1", "3"]), "einbauort": ch([l["id"] for l in kve.LOCS]), "typ": ch(list(kve.SCHACHT)), "n": ch(["0", "1", "2"]),
             "arbeit": ch(["0.30", "0.50", "0.75"]), "hand": ch(list(kve.HAND)), "direkt": ch([True, False]), "beton": ch(["0", "0.4"]), "platten": ch(["0", "2"]), "anschl": ch(["0", "2"]),
             "anDN": ch(["80", "150"]), "rahmen": ch(["", ch(COV)]), "deckel": ch(["", ch(COV)]), "verf": ch(["aushub", "kies045"]), "einfHand": ch([True, False]), "belag": belag(),
             "ersch": ersch(), "deckelRichtung": ch(["hoeher", "tiefer"]), "deckelFormat": ch(["rund", "rechteckig"]), "deckelN": ch(["0", "1", "3"]), "shape": ch(["eckig", "rund"]),
