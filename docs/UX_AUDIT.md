@@ -161,3 +161,9 @@ Bei aktivem «Kosten mit Schräglänge rechnen» und passendem Höhenprofil zeig
 - Änderungen weiterhin nur als Vorschlag mit Kostenwirkung und Bestätigung: «setze graben 1 T auf 1.2».
 - **Im Zeichnen-Dialog** wandert der Knopf (oben neben «Schliessen») und das Fenster in den offenen Dialog; «Warnungen» liefert dort die Prüfung der aktuellen, noch nicht übernommenen Zeichnung. Esc schliesst nur den Assistenten.
 - Mobil (≤ 900 px) sitzt der Knopf über der unteren Ergebnisleiste (Zielgrösse/Überlappung behoben).
+
+## Assistent: Geführte Beratung (interaktiv)
+Fünf Entscheidungsdialoge aus dem Handbuch V1.2, per Startchip, Freitext («welcher Schacht», «wer zahlt», «Schachtabstand Beratung») oder Angebot unter einer Wissensantwort: **Schachtabstand und Rohrbelegung** (2.2.2/2.2.3), **Schachttyp und Abdeckung** (2.3.3/2.3.5), **Gebäudeanschluss** (2.2.4), **Kostenteiler Strasse/Werke** (2.5), **Erschliessung und Strassenquerung** (2.4).
+- Antwort per Knopf oder Freitext; «Zurück», «Abbrechen», «Nochmals durchgehen». Fragen werden je nach Antwort übersprungen.
+- **Aktionen am Ende:** Richtabstand in der Karte einstellen (wirkt sofort in einer offenen Karte, sonst beim nächsten Öffnen); Schachttyp bei einem Schacht-Datensatz setzen als Vorschlagskarte mit Kostenwirkung und Bestätigung. Beim Schachtabstand wird zusätzlich das Projekt gegen den Richtwert geprüft.
+- Läuft regelbasiert ohne KI; Wissenstexte deutsch. Rechenkern unverändert. Bei der Schachttyp-Wahl gilt ohne Muffenzahl keine Aussage; KS80U/KS80H unterscheiden sich im Tool nur in der Bauwerkshöhe.
