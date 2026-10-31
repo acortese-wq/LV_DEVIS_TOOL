@@ -1281,6 +1281,7 @@
     var CAPA = { KS80U: 1, KS80H: 1, KES100: 1, KES150: 3, KES175: 4, ES300: 99 };                          /* max. Muffen je Schachttyp */
     var RC = { ersch: "basisCu", zone: "in", x: "" }; try { var rc0 = JSON.parse(localStorage.getItem("lvd-km-rc") || "null"); if (rc0 && typeof rc0 === "object") RC = Object.assign(RC, rc0); } catch (e) { }
     var sugs = [], sugLayer = null, sugInit = 0;
+    window.KARTE.live = { check: function () { return rcCheck().map(function (z) { return z[2]; }); } };
     function typFor(mu) { return mu <= 1 ? "KES100" : mu <= 3 ? "KES150" : mu === 4 ? "KES175" : "ES300"; }
     function richt() { var r = RICHT[RC.ersch] || RICHT.basisCu; return RC.zone === "aus" ? r[1] : r[0]; }
     function xAbst() { var v = parseFloat(String(RC.x).replace(",", ".")); return v > 0 ? v : richt(); }
@@ -1542,7 +1543,7 @@
       refresh();
     }
     var ro = null;
-    function close() { try { if (ro) ro.disconnect(); map.remove(); } catch (e) { } dlg.close(); dlg.remove(); if (opt.onClose) opt.onClose(); }
+    function close() { window.KARTE.live = null; try { if (ro) ro.disconnect(); map.remove(); } catch (e) { } dlg.close(); dlg.remove(); if (opt.onClose) opt.onClose(); }
 
     if (plan) {
       var P = opt.plan; map = L.map($("#kmMap"), { crs: L.CRS.Simple, minZoom: -4, maxZoom: 4, zoomSnap: 0.25, doubleClickZoom: false, attributionControl: false });

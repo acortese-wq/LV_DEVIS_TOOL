@@ -155,3 +155,9 @@ Quelle: «Handbuch unter- und oberirdischer Netzbau» V1.2 (01.04.2026), Kap. 2.
 
 ## Schräglänge in Beschriftungen
 Bei aktivem «Kosten mit Schräglänge rechnen» und passendem Höhenprofil zeigen Kartenbeschriftung, Objektliste, Gesamtlänge, Auswertung (Längen, Rohrmeter, Oberflächen) sowie Übersicht/Druck die Schräglänge mit Zusatz «schräg». Ohne Schalter oder bei veraltetem Profil bleibt es die Lagelänge. Keine zusätzliche Kostenwirkung (Länge wird schon beim Übernehmen verwendet).
+
+## Assistent: regelbasiert (ohne KI), auch beim Zeichnen
+**Änderung:** Der Assistent verwendet keine Claude-Funktion mehr (capability `sample` entfernt) – keine Tokens, keine Datenübertragung. Er antwortet aus dem hinterlegten Wissen: Projektstand (Kostentreiber, Zusammenfassung, Warnungen/Vollständigkeit), LV (Position per Nummer oder Stichworte), Handbuch-Auszug V1.2 (Schachtabstände, -typen, Gebäudeanschlüsse, Biegeradius, Zweitweg, Hauptkanalisation, Querungen, Kostenteiler, Einmass/DXF, Abdeckungen, Gebäudeeinführung, Normen) und Bedienung. Quelle wird unter jeder Antwort genannt. Wissenstexte sind deutsch (Oberfläche DE/FR/IT/EN).
+- Änderungen weiterhin nur als Vorschlag mit Kostenwirkung und Bestätigung: «setze graben 1 T auf 1.2».
+- **Im Zeichnen-Dialog** wandert der Knopf (oben neben «Schliessen») und das Fenster in den offenen Dialog; «Warnungen» liefert dort die Prüfung der aktuellen, noch nicht übernommenen Zeichnung. Esc schliesst nur den Assistenten.
+- Mobil (≤ 900 px) sitzt der Knopf über der unteren Ergebnisleiste (Zielgrösse/Überlappung behoben).

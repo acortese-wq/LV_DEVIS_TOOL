@@ -489,3 +489,9 @@ ul.vollst .vst{white-space:normal}ul.vollst .vname{min-width:0;overflow-wrap:any
 .chcard{border:1px solid var(--rule-strong);border-left:4px solid var(--navy);border-radius:8px;padding:8px 10px;font-size:13px;display:flex;flex-direction:column;gap:4px}.chcard .chd{font-weight:600}.chcard .chwhy{color:var(--ink-soft)}.chcard .chb{display:flex;gap:6px}
 .chf{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--rule);align-items:flex-end}.chf textarea{flex:1;resize:none;font:inherit;font-size:13.5px;padding:6px 8px;border:1px solid var(--rule-strong);border-radius:6px;background:var(--paper);color:var(--ink)}
 @media print{.chfab,.chpan{display:none!important}}
+.chm .chsrc{margin-top:4px;font-size:11.5px;color:var(--ink-soft)}.chm.user{color:#fff}
+@media (max-width:900px){.chfab{bottom:72px}.chpan{bottom:124px;height:min(520px,calc(100vh - 150px))}}
+.chmsgs>*{flex:0 0 auto}
+dialog .chfab{top:10px;bottom:auto;right:112px}dialog .chpan{top:58px;bottom:auto;height:min(560px,calc(100vh - 80px))}
+@media (max-width:900px){dialog .chfab{top:auto;bottom:12px;right:12px}dialog .chpan{top:auto;bottom:60px;height:min(480px,calc(100vh - 90px))}}
+dialog .chfab{z-index:2000}dialog .chpan{z-index:2001}
