@@ -190,3 +190,10 @@ Das gesamte Handbuch V1.2 (82 Seiten, unter- und oberirdisch) wurde ausgewertet.
 - **Überdeckung bis Rohrscheitel = Grabentiefe T − Bettung (5 cm) − DN** (T leer = 0.60 m); je Linie übersteuerbar. Das sind Annahmen; das Handbuch nennt keine Überdeckungswerte.
 - **Prüfung:** Min./Max. Überdeckung (Felder im Profil, leer = keine Prüfung, gespeichert im Browser); bei Bohrung die kleinste Überdeckung unter dem Gelände.
 - **Keine Kostenwirkung:** reine Darstellung und Prüfung; Grabentiefe im Datensatz bleibt wie eingegeben.
+
+## Anleitung im Tool
+- **Hilfe-Fenster** mit 13 Kapiteln (Schnellstart, Oberfläche, Datensätze, Karte, Fang, Schächte/Anschlüsse, Auswertung/Prüfung/Vorschläge, Höhen-/Längenprofil, Ergebnis/Druck/Sicherung, Assistent, Tasten und Maus, Wo sich Kosten ändern, Datenschutz/Über) in **DE/FR/IT/EN** (`src/help_data.js`, UI `src/help.js`); folgt der gewählten Sprache. Läuft lokal ohne Internet.
+- **Aufruf:** Knopf «Anleitung» im Kopf; «?» neben den Reitern und im Zeichnen-Dialog (kontextbezogen: Reiter → Abschnitt, Karte → Kapitel Karte bzw. Profil); **F1**; Assistent bietet «Anleitung öffnen» bei Bedienungsfragen.
+- **Suche** (Volltext mit Markierung), **Kapitel/alles drucken** (eigener Druckbereich), **Beispielprojekt laden** (ersetzt das Projekt erst nach Rückfrage, rückgängig möglich), Zurück/Weiter.
+- Esc schliesst nur die Anleitung (auch über dem Zeichnen-Dialog). Test t46 (Suche, Sprachen, F1/Kontext, Druck, Beispielprojekt, axe, Handy).
+- **Kostenwirkung:** Nur «Beispielprojekt laden» ändert Daten (nach Bestätigung); sonst keine.

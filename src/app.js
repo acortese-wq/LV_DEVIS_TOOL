@@ -1378,7 +1378,19 @@
     $("#bNew").onclick = function () { if (confirm(tt("confirmNew"))) { var l = S.lang; S = defaults(); S.lang = l; heal(); save(); applyKopf(); applyLang(); } };
     $("#fileIn").addEventListener("change", function () { if (this.files[0]) load(this.files[0]); this.value = ""; });
     applyKopf(); applyLang();
-    window.__LVD = { S: function () { return S; }, xlsxBytes: xlsxBytes, renderResult: renderResult, F: F, optLabel: optLabel, tt: tt, fill: fill, snap: snapState, commit: function (sn, msg) { save(); renderForm(); renderResult(); undoToast(msg, sn); } };
+    function loadDemo() {
+    if (!confirm(tt("hp_demo_conf"))) return false;
+    var sn = snapState(), l = S.lang; S = defaults(); S.lang = l;
+    S.kopf.projekt = "Beispielprojekt (Demo)"; S.kopf.ort = "Musterdorf"; S.kopf.bearb = "A. Cortese"; heal();
+    var g = S.recs.graben[0]; g.uid = "g1"; g.name = "Leitungsgraben Dorfstrasse"; g.L = "85"; g.T = "0.80";
+    var s1 = S.recs.schacht[0]; s1.uid = "s1"; s1.name = "Spleissschacht Dorfplatz"; s1.n = "1"; s1.typ = "KES150";
+    var w = S.recs.werkloch[0]; w.uid = "w1"; w.name = "Spleissgrube"; w.sg = "1";
+    var e = S.recs.geb[0]; e.uid = "e1"; e.name = "Hauseinführung Dorfstrasse 4"; e.n = "1"; e.cm = "36";
+    var bl = S.recs.belag[0]; bl.uid = "b1"; bl.name = "Gehweg Asphalt"; bl.B = "1.5"; bl.L = "85";
+    S.karte = { lines: [{ id: "l1", pts: [[2759000, 1191000], [2759085, 1191000]], rid: "g1", rohr: { sys: "k55", dn: "55", len: "10", n: "2" } }], pts: [{ id: "p1", pt: [2759000, 1191000], sid: "s1", typ: "KES150", name: "" }], sond: [], notes: [], areas: [], wl: [{ id: "w1", pt: [2759085, 1191000], sid: "w1", wt: "sg", name: "" }], geb: [{ id: "g1", pt: [2759060, 1191012], sid: "e1", cm: "36", abd: "hauff", name: "" }], base: "farbe", bg: null, overlay: null };
+    heal(); save(); applyKopf(); applyLang(); renderForm(); renderResult(); undoToast(tt("hp_demo_done"), sn); return true;
+  }
+  window.__LVD = { loadDemo: loadDemo, S: function () { return S; }, xlsxBytes: xlsxBytes, renderResult: renderResult, F: F, optLabel: optLabel, tt: tt, fill: fill, snap: snapState, commit: function (sn, msg) { save(); renderForm(); renderResult(); undoToast(msg, sn); } };
   }
   document.addEventListener("DOMContentLoaded", init);
 })();
