@@ -619,6 +619,9 @@
     M.lines = M.lines.filter(function (l) { return l.pts.length > 1; });
     M.areas = (M.areas || []).filter(function (f) { return f.pts.length > 2; });
     M.lines.forEach(function (l) {
+      if (l.hzArt === "luft" || l.hzArt === "bohr") {   /* Luft/Bohrung: nicht als Graben kalkulieren */
+        st.air = (st.air || 0) + lenFn(l.pts); var ra = recByUid("graben", l.rid); if (ra) ra.L = "0"; return;
+      }
       var r = recByUid("graben", l.rid);
       if (!r) {
         if (S.tab === "graben" && !used[ensureUid(cfg)] && !M.lines.some(function (x) { return x !== l && x.rid === cfg.uid; })) r = cfg;
@@ -718,7 +721,7 @@
           onClose: function () { var o = $(ex.focus || "#kmOpen"); if (o) o.focus(); }, autoPlan: !!ex.autoPlan, planObjs: JSON.parse(JSON.stringify({ lines: S.plan.lines, pts: S.plan.pts, sond: S.plan.sond, wl: S.plan.wl, geb: S.plan.geb, areas: S.plan.areas, notes: S.plan.notes })), planScale: (S.plan.cal && S.plan.cal.scale) || 0,
           onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st = karteApply(M, cfg, Object.assign({ src: "karte" }, fns) && lenFn, Object.assign({ src: "karte" }, fns)), bs = ["luft", "grau", "kataster", "leer", "av"].indexOf(fns.base) >= 0 ? fns.base : "farbe", keep = S.karte.bg;
             if (fns.planCleared) { ["lines", "pts", "sond", "wl", "geb", "areas", "notes"].forEach(function (k) { S.plan[k] = []; }); }
-            S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; syncDerived(cfg, st); save(); renderForm(); scheduleResult(); undoToast(fill(tt("km_done"), st) + (st.z ? " ⚠ " + fill(tt("km_zero"), st) : "") + (st.x ? " ⚠ " + fill(tt("km_conflict"), st) : ""), sn); cacheSitu(); }
+            S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; syncDerived(cfg, st); save(); renderForm(); scheduleResult(); undoToast(fill(tt("km_done"), st) + (st.z ? " ⚠ " + fill(tt("km_zero"), st) : "") + (st.x ? " ⚠ " + fill(tt("km_conflict"), st) : "") + (st.air ? " ⚠ " + fill(tt("km_air"), { m: KARTE.fmt(st.air) }) : ""), sn); cacheSitu(); }
         });
       }).catch(function (err) { if (window.console && err && err.message !== "leaflet") console.error(err); b.disabled = false; m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); });
   }

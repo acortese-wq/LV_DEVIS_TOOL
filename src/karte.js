@@ -25,7 +25,13 @@
   /* Schräglänge einer Linie (aus dem Höhenprofil), wenn «mit Schräglänge rechnen» gilt und das Profil zur Geometrie passt */
   function slopeOn() { try { return localStorage.getItem("lvd-km-slope") === "1"; } catch (e) { return false; } }
   function slopeHz(pts, lines) { var sg = JSON.stringify(pts), h = null; (lines || []).forEach(function (l) { if (!h && l.hz && l.hz.sig === sg) h = l.hz; }); return h; }
-  function slopeLen(pts, lines) { var h = slopeOn() ? slopeHz(pts, lines) : null; return h ? h.S : lineLen(pts); }
+  function lineSlopeS(l) {   /* Länge nach Abschnittsart: Gelände = Profil; Luft = Sehne (+ Durchhang); Bohrung = Sehne */
+    var h = l && l.hz; if (!h) return null; if (l.hzArt === "luft" || l.hzArt === "bohr") {
+      var a0 = parseFloat(String(l.hzH0).replace(",", ".")), a1 = parseFloat(String(l.hzH1).replace(",", ".")), ch = Math.hypot(h.L, (isFinite(a1) ? a1 : h.h1) - (isFinite(a0) ? a0 : h.h0));
+      if (l.hzArt === "luft" && ch > 0) { var f = (parseFloat(String(l.hzF).replace(",", ".")) || 3.5) / 100 * ch; ch += 8 * f * f / (3 * ch); } return ch; }
+    return h.S;
+  }
+  function slopeLen(pts, lines) { var sg = JSON.stringify(pts), l = null; if (slopeOn()) (lines || []).forEach(function (x) { if (!l && x.hz && x.hz.sig === sg) l = x; }); return l ? lineSlopeS(l) : lineLen(pts); }
   function total(lines) { return (lines || []).reduce(function (a, l) { return a + lineLen(l); }, 0); }
   function fmt(v) { return (Math.round(v * 10) / 10).toLocaleString("de-CH", { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
 
@@ -573,6 +579,7 @@
       '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div><div class="kmask" id="kmAsk" hidden role="group"></div><div class="kmask kmctx" id="kmCtx" hidden role="group"></div><div class="kmprops" id="kmProps" hidden role="dialog"></div><div class="kmprops kmsv" id="kmSv" hidden role="dialog"></div>' +
       (plan ? "" : '<iframe id="kmView" class="kmframe" hidden title="map.geo.admin.ch" referrerpolicy="no-referrer"></iframe>') +
       '<div class="kmleg" id="kmLeg" hidden></div>' +
+      (plan ? "" : '<section class="kmprof" id="kmProf" hidden aria-label="' + esc(tt("pf_title")) + '"></section>') +
       '<p class="hint kmhelp" id="kmHelp"></p>' +
       '<p class="hint kmunits" id="kmUnits"></p></div>' +
       '<div class="kmright"><div class="kmquick" id="kmQuick" hidden role="group" aria-label="' + esc(tt("km_lt_title")) + '"></div><h3 class="kmoh">' + esc(tt("km_obj")) + '</h3><div class="kmbar"><button type="button" class="btn ghost small" id="kmFoldAll" hidden></button></div><div class="kmobj" id="kmObj" role="group" aria-label="' + esc(tt("km_obj")) + '"></div>' + '<details class="kmmiss" id="kmMiss" hidden><summary></summary><ul class="kmmissl"></ul></details>' +
@@ -624,6 +631,7 @@
       var stat = E("div", "kmstat", '<span id="kmCoord" aria-hidden="true"></span><span id="kmScale"></span>'); stat.setAttribute("role", "status");
       var view = dlg.querySelectorAll(".kmtool .kmgrp"); view = view[view.length - 1]; if (view) { var vl = view.querySelector(".kmgl"); if (vl) vl.remove(); view.classList.add("kmview"); }
       bottom.appendChild(fang); bottom.appendChild(stat); if (view) bottom.appendChild(view); if (foot) bottom.appendChild(foot);
+      if (!plan) { var hb = head.querySelector(".kmheadb"); if (hb) { var pb = E("button", "btn ghost small", esc(tt("pf_btn"))); pb.type = "button"; pb.setAttribute("data-pfb", ""); pb.setAttribute("aria-pressed", "false"); hb.insertBefore(pb, hb.firstChild); } }
       var tog = E("button", "btn ghost small kmmidtog", esc(tt("ws_layers"))); tog.type = "button"; tog.setAttribute("aria-expanded", "false"); tog.addEventListener("click", function () { var o = grid.classList.toggle("kmmid-open"); tog.setAttribute("aria-expanded", o ? "true" : "false"); }); head.insertBefore(tog, head.children[1]);
       grid.appendChild(tools); grid.appendChild(mid); grid.appendChild(canvas); grid.appendChild(side); canvas.classList.add("kmcanvas");
       [tool, main, right].forEach(function (n) { if (n && n.parentNode) n.parentNode.removeChild(n); });
@@ -847,7 +855,7 @@
       M.lines.forEach(function (l) {
         var ll = l.pts.map(AD.ll), on = sel && sel.id === l.id, sty = LSTY[cfgOf(l).fl || ""], col = on ? "#0d47c8" : sty[0];
         if (ll.length > 1) {
-          var halo = L.polyline(ll, { color: "#fff", weight: 8, interactive: false }).addTo(grp), main = L.polyline(ll, { color: col, weight: on ? 5 : 3.5, dashArray: sty[1] || null, lineCap: sty[1] === "1 7" ? "round" : "butt", interactive: edit, bubblingMouseEvents: false }).addTo(grp);
+          var halo = L.polyline(ll, { color: "#fff", weight: 8, interactive: false }).addTo(grp), main = L.polyline(ll, { color: col, weight: on ? 5 : 3.5, dashArray: l.hzArt === "luft" ? "2 8" : l.hzArt === "bohr" ? "10 5 2 5" : (sty[1] || null), lineCap: sty[1] === "1 7" ? "round" : "butt", interactive: edit, bubblingMouseEvents: false }).addTo(grp);
           layers[l.id] = { upd: function () { var q = l.pts.map(AD.ll); halo.setLatLngs(q); main.setLatLngs(q); } };
           if (edit) bindObj(main, l.id);
         }
@@ -954,9 +962,11 @@
         if (Math.hypot(z.x - cp.x, z.y - cp.y) <= 12) { if (!l.e) { l.e = p.id; p.pt = l.pts[n - 1].slice(); } return; }
         var q = h.q, vi = -1; l.pts.forEach(function (v, i) { if (i && i < n - 1) { var vp = map.latLngToContainerPoint(AD.ll(v)); if (Math.hypot(vp.x - cp.x, vp.y - cp.y) <= 12) vi = i; } });
         var idx = vi >= 0 ? vi : h.seg + 1, pos = vi >= 0 ? l.pts[vi].slice() : q.slice(); p.pt = pos;
-        var l2 = { id: nid("l"), pts: [pos.slice()].concat(l.pts.slice(idx + (vi >= 0 ? 1 : 0))), rid: null, rohr: clone(l.rohr), cfg: clone(cfgOf(l)), e: l.e || null, to: l.to || null };
+        var hz0 = hzOf(l), hzP0 = hz0 && hz0.P, hzL0 = lineLen(l.pts), hzD0 = hzP0 ? (vi >= 0 ? lineLen(l.pts.slice(0, vi + 1)) : lineLen(l.pts.slice(0, idx)) + AD.dist(l.pts[idx - 1], pos)) : 0;
+        var l2 = { id: nid("l"), pts: [pos.slice()].concat(l.pts.slice(idx + (vi >= 0 ? 1 : 0))), rid: null, rohr: clone(l.rohr), cfg: clone(cfgOf(l)), e: l.e || null, to: l.to || null, hzArt: l.hzArt, hzF: l.hzF };
         l.pts = l.pts.slice(0, idx).concat([pos.slice()]);
         l.e = p.id; l.to = null; l2.s = p.id; M.lines.splice(M.lines.indexOf(l) + 1, 0, l2); did = l2;
+        if (hzP0) { l.hz = hzStats(l, sliceP(hzP0, 0, hzD0)); l2.hz = hzStats(l2, sliceP(hzP0, hzD0, hzL0)); }
       });
       if (did && did !== "x" && !silent) askShow(AD.ll(c), tt("km_sp_title"), [{ t: tt("km_sp_ok"), fn: function () { } }], 0, false, did);
       return p;
@@ -1244,18 +1254,22 @@
 
 
     /* ---------- Gelände: Höhenprofil (swisstopo swissALTI3D) ⇒ Schräglänge und Gefälle; Kosten nur auf Wunsch mit Schräglänge ---------- */
-    var SLOPE = false, GR = 20, hzBusy = false, hzErr = ""; try { SLOPE = localStorage.getItem("lvd-km-slope") === "1"; } catch (e) { }
+    var SLOPE = false, GR = 20, PFD = 8, hzBusy = false, hzErr = ""; try { SLOPE = localStorage.getItem("lvd-km-slope") === "1"; } catch (e) { }
     var sigOf = function (pts) { return JSON.stringify(pts); };
     function hzOf(l) { return l.hz && l.hz.sig === sigOf(l.pts) ? l.hz : null; }
-    function effLen(pts) { var b0 = lineLen(pts); if (!SLOPE) return b0; var sg = sigOf(pts), h = null; M.lines.forEach(function (l) { if (!h && l.hz && l.hz.sig === sg) h = l.hz; }); return h ? h.S : b0; }
+    function effLen(pts) { var b0 = lineLen(pts); if (!SLOPE) return b0; var sg = sigOf(pts), l = null; M.lines.forEach(function (x) { if (!l && x.hz && x.hz.sig === sg) l = x; }); return l ? lineSlopeS(l) : b0; }
     function hzCalc(l, arr) {
       var P = arr.filter(function (q) { var a = q.alts || {}; return q.dist != null && (a.COMB != null || a.DTM2 != null || a.DTM25 != null); }).map(function (q) { var a = q.alts; return { d: q.dist, h: a.COMB != null ? a.COMB : a.DTM2 != null ? a.DTM2 : a.DTM25 }; });
-      if (P.length < 2) return null; var L0 = lineLen(l.pts), S = 0, up = 0, mx = 0, i0 = 0;
+      return hzStats(l, P);
+    }
+    function hzStats(l, P) {   /* P: [{d, h}] ab Linienanfang */
+      if (!P || P.length < 2) return null; var L0 = lineLen(l.pts), S = 0, up = 0, mx = 0, i0 = 0;
       for (var i = 1; i < P.length; i++) { var dd = P[i].d - P[i - 1].d, dh = P[i].h - P[i - 1].h; S += Math.hypot(dd, dh); up += Math.abs(dh); }
       var dl = P[P.length - 1].d - P[0].d; if (dl > 0) { S = S * L0 / dl; up = up * L0 / dl; }
       for (var j = 1; j < P.length; j++) { if (P[j].d - P[i0].d >= 20) { mx = Math.max(mx, Math.abs(P[j].h - P[i0].h) / (P[j].d - P[i0].d)); i0 = j; } }
       if (!mx && dl > 0) mx = Math.abs(P[P.length - 1].h - P[0].h) / dl;
-      return { sig: sigOf(l.pts), L: L0, S: S, avg: L0 > 0 ? up / L0 * 100 : 0, max: mx * 100, h0: P[0].h, h1: P[P.length - 1].h };
+      var st = Math.max(1, Math.ceil(P.length / 220)), Q = P.filter(function (q, k) { return k % st === 0 || k === P.length - 1; }).map(function (q) { return [Math.round(q.d * 10) / 10, Math.round(q.h * 100) / 100]; });
+      return { sig: sigOf(l.pts), L: L0, S: S, avg: L0 > 0 ? up / L0 * 100 : 0, max: mx * 100, h0: P[0].h, h1: P[P.length - 1].h, P: Q };
     }
     function hzLoad() {
       if (plan || hzBusy) return; var todo = M.lines.filter(function (l) { return l.pts.length > 1 && !hzOf(l); }); hzErr = ""; if (!todo.length) { hzRender(); return; } hzBusy = true; hzRender();
@@ -1275,6 +1289,139 @@
           '<p class="hint" role="status">' + esc(tt("hz_tot").replace("{l}", f(tl)).replace("{s}", f(ts)).replace("{p}", f(tl ? (ts / tl - 1) * 100 : 0))) + "</p>" +
           '<label class="kmhzm"><input type="checkbox" data-hz="mode"' + (SLOPE ? " checked" : "") + "> " + esc(tt("hz_mode")) + "</label>" : "");
       if (fo) { var again = h.querySelector('[data-hz="' + fo + '"]'); if (again) again.focus(); }
+    }
+    /* ---------- Längenprofil unter der Karte: Gelände, Leitung, Abschnittsarten; Schächte setzen/verschieben/löschen ---------- */
+    var PF = { on: false, line: null, pick: false }, pfInit = 0, pfDrag = null; try { PF.on = localStorage.getItem("lvd-km-pf") === "1"; } catch (e) { }
+    function hAtP(P, d) { if (!P || !P.length) return null; if (d <= P[0][0]) return P[0][1]; for (var i = 1; i < P.length; i++) if (P[i][0] >= d) { var t = (d - P[i - 1][0]) / ((P[i][0] - P[i - 1][0]) || 1); return P[i - 1][1] + t * (P[i][1] - P[i - 1][1]); } return P[P.length - 1][1]; }
+    function sliceP(P, d0, d1) {   /* Teilprofil [d0,d1], Stationen ab d0, Randpunkte interpoliert */
+      var o = [{ d: 0, h: hAtP(P, d0) }]; P.forEach(function (q) { if (q[0] > d0 + 1e-6 && q[0] < d1 - 1e-6) o.push({ d: q[0] - d0, h: q[1] }); }); o.push({ d: d1 - d0, h: hAtP(P, d1) }); return o;
+    }
+    function posAt(pts, d) {   /* Punkt und Abschnittsindex in Abstand d vom Anfang */
+      var acc = 0; for (var i = 1; i < pts.length; i++) { var sl = AD.dist(pts[i - 1], pts[i]); if (sl > 0 && acc + sl >= d - 1e-9) { var t = Math.max(0, Math.min(1, (d - acc) / sl)); return { c: [pts[i - 1][0] + t * (pts[i][0] - pts[i - 1][0]), pts[i - 1][1] + t * (pts[i][1] - pts[i - 1][1])], seg: i - 1 }; } acc += sl; }
+      return { c: pts[pts.length - 1].slice(), seg: pts.length - 2 };
+    }
+    function dedupe(pts) { return pts.filter(function (p, i) { return !i || AD.dist(p, pts[i - 1]) > 0.005; }); }
+    function chainOf(l0) {   /* durchgehender Strang über Schächte mit genau einer ankommenden und einer abgehenden Linie */
+      var ch = [l0], seen = {}; seen[l0.id] = 1;
+      var link = function (p) { var ins = M.lines.filter(function (x) { return x.e === p; }), outs = M.lines.filter(function (x) { return x.s === p; }); return ins.length === 1 && outs.length === 1 && ins[0] !== outs[0] ? [ins[0], outs[0]] : null; };
+      for (var a = l0; a.s;) { var k = link(a.s); if (!k || k[1] !== a || seen[k[0].id]) break; ch.unshift(k[0]); seen[k[0].id] = 1; a = k[0]; }
+      for (var z = l0; z.e;) { var k2 = link(z.e); if (!k2 || k2[0] !== z || seen[k2[1].id]) break; ch.push(k2[1]); seen[k2[1].id] = 1; z = k2[1]; }
+      return ch;
+    }
+    function splitAtDist(l, d) {
+      var L0 = lineLen(l.pts); if (!(d > 0.5 && d < L0 - 0.5)) return null; var h = hzOf(l), P = h && h.P, pa = posAt(l.pts, d), c = [Math.round(pa.c[0] * 100) / 100, Math.round(pa.c[1] * 100) / 100];
+      var p = newShaft(c, "neu"), l2 = { id: nid("l"), pts: dedupe([c.slice()].concat(l.pts.slice(pa.seg + 1))), rid: null, rohr: clone(l.rohr), cfg: clone(cfgOf(l)), e: l.e || null, to: l.to || null, hzArt: l.hzArt, hzF: l.hzF };
+      l.pts = dedupe(l.pts.slice(0, pa.seg + 1).concat([c.slice()])); l.e = p.id; l.to = null; l2.s = p.id; delete l.hzH0; delete l.hzH1; M.lines.splice(M.lines.indexOf(l) + 1, 0, l2);
+      if (P) { l.hz = hzStats(l, sliceP(P, 0, d)); l2.hz = hzStats(l2, sliceP(P, d, L0)); } return p;
+    }
+    function nodeLines(p) { var ins = M.lines.filter(function (x) { return x.e === p.id; }), outs = M.lines.filter(function (x) { return x.s === p.id; }); return ins.length === 1 && outs.length === 1 && ins[0] !== outs[0] ? { a: ins[0], b: outs[0] } : null; }
+    function moveShaft(p, dGlobalFromA) {   /* Abstand ab Anfang der ankommenden Linie */
+      var n = nodeLines(p); if (!n) return false; var a = n.a, b = n.b, La = lineLen(a.pts), Lb = lineLen(b.pts), tot = La + Lb; if (!(dGlobalFromA > 0.5 && dGlobalFromA < tot - 0.5)) return false;
+      var ha = hzOf(a), hb = hzOf(b), Pc = ha && hb && ha.P && hb.P ? ha.P.concat(hb.P.map(function (q) { return [q[0] + La, q[1]]; })) : null, comb = dedupe(a.pts.concat(b.pts.slice(1))), pa = posAt(comb, dGlobalFromA), c = [Math.round(pa.c[0] * 100) / 100, Math.round(pa.c[1] * 100) / 100];
+      a.pts = dedupe(comb.slice(0, pa.seg + 1).concat([c.slice()])); b.pts = dedupe([c.slice()].concat(comb.slice(pa.seg + 1))); p.pt = c; delete a.hzH1; delete b.hzH0;
+      if (Pc) { a.hz = hzStats(a, sliceP(Pc, 0, dGlobalFromA)); b.hz = hzStats(b, sliceP(Pc, dGlobalFromA, tot)); } return true;
+    }
+    function deleteShaft(p) {
+      var n = nodeLines(p); if (!n) return false; var a = n.a, b = n.b; if (pipeTxt(cfgOf(a)) !== pipeTxt(cfgOf(b)) && !window.confirm(tt("pf_delconf"))) return null;
+      var La = lineLen(a.pts), ha = hzOf(a), hb = hzOf(b), Pc = ha && hb && ha.P && hb.P ? ha.P.concat(hb.P.map(function (q) { return [q[0] + La, q[1]]; })) : null;
+      a.pts = dedupe(a.pts.concat(b.pts.slice(1))); a.e = b.e || null; a.to = b.to || null; M.lines.splice(M.lines.indexOf(b), 1); M.pts.splice(M.pts.indexOf(p), 1); if (sel && (sel.id === p.id || sel.id === b.id)) sel = { id: a.id };
+      if (Pc) a.hz = hzStats(a, Pc.map(function (q) { return { d: q[0], h: q[1] }; })); else delete a.hz; return true;
+    }
+    function pfData() {
+      var ls = M.lines.filter(function (l) { return l.pts.length > 1; }); if (!ls.length) return null;
+      var l0 = (PF.line && byId(ls, PF.line)) || (sel && byId(ls, sel.id)) || ls[0]; PF.line = l0.id; var off = 0, pcs = [];
+      chainOf(l0).forEach(function (l) { var L0 = lineLen(l.pts), h = hzOf(l); pcs.push({ l: l, off: off, L: L0, h: h && h.P ? h : null }); off += L0; });
+      return { pcs: pcs, total: off, l0: l0 };
+    }
+    function niceStep(span, n) { var raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw || 1))), f = raw / mag; return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * mag; }
+    var pfGeo = null;
+    function pfRender() {
+      var host = $("#kmProf"); if (!host) return; host.hidden = !PF.on; var tb = $("[data-pfb]"); if (tb) tb.setAttribute("aria-pressed", PF.on ? "true" : "false"); if (!PF.on) return;
+      var fo = document.activeElement && host.contains(document.activeElement) ? (document.activeElement.getAttribute("data-p") ? "m:" + document.activeElement.getAttribute("data-p") : document.activeElement.getAttribute("data-pf") ? "c:" + document.activeElement.getAttribute("data-pf") + ":" + (document.activeElement.getAttribute("data-lid") || "") : null) : null;
+      var D0 = pfData(), f1 = function (v) { return (Math.round(v * 10) / 10).toLocaleString("de-CH"); };
+      var ctl = '<div class="kmpfctl"><label>' + esc(tt("pf_line")) + ' <select data-pf="line">' + M.lines.filter(function (l) { return l.pts.length > 1; }).map(function (l) { return '<option value="' + l.id + '"' + (D0 && D0.l0 === l ? " selected" : "") + ">" + esc(tt("km_lineN").replace("{n}", M.lines.indexOf(l) + 1) + " · " + fmt(lineLen(l.pts)) + " m") + "</option>"; }).join("") + "</select></label>" +
+        '<div class="kmbar"><button type="button" class="btn small" data-pf="load"' + (hzBusy ? " disabled" : "") + ">" + esc(tt(hzBusy ? "hz_loading" : "hz_load")) + '</button> <button type="button" class="btn ghost small" data-pf="pick" aria-pressed="' + (PF.pick ? "true" : "false") + '">' + esc(tt("pf_pick")) + "</button></div>" + '<p class="hint">' + esc(tt("pf_pickh")) + "</p>";
+      if (!D0) { host.innerHTML = '<div class="kmpfin">' + ctl + "</div></div>"; return; }
+      var rows = D0.pcs.map(function (pc) {
+        var l = pc.l, n = M.lines.indexOf(l) + 1, h = pc.h, art = l.hzArt || "g", id = ' data-lid="' + l.id + '"';
+        var r = "<tr><td>" + esc(tt("km_lineN").replace("{n}", n)) + "</td><td>" + (h ? esc(tt("pf_row").replace("{l}", f1(pc.L)).replace("{s}", f1(lineSlopeS(l) || pc.L))) : esc(tt("pf_stale"))) + "</td><td><select data-pf=\"art\"" + id + " aria-label=\"" + esc(tt("pf_art") + " " + n) + "\">" + [["g", "pf_art_g"], ["luft", "pf_art_l"], ["bohr", "pf_art_b"]].map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === art ? " selected" : "") + ">" + esc(tt(o[1])) + "</option>"; }).join("") + "</select>";
+        if (art !== "g" && h) r += '<div class="kmpfh"><label>' + esc(tt("pf_h0")) + ' <input type="text" inputmode="decimal" size="6" data-pf="h0"' + id + ' value="' + esc(l.hzH0 != null ? l.hzH0 : "") + '" placeholder="' + f1(h.h0) + '"></label> <label>' + esc(tt("pf_h1")) + ' <input type="text" inputmode="decimal" size="6" data-pf="h1"' + id + ' value="' + esc(l.hzH1 != null ? l.hzH1 : "") + '" placeholder="' + f1(h.h1) + '"></label>' + (art === "luft" ? ' <label>' + esc(tt("pf_f")) + ' <input type="text" inputmode="decimal" size="4" data-pf="f"' + id + ' value="' + esc(l.hzF != null ? l.hzF : "") + '" placeholder="3.5"></label>' : "") + "</div>";
+        return r + "</td></tr>";
+      }).join("");
+      var ok = D0.pcs.filter(function (pc) { return pc.h; }); var svg;
+      if (!ok.length) svg = '<p class="none kmpfnone">' + esc(tt("pf_none")) + "</p>";
+      else {
+        var W = Math.max(320, Math.round(($("#kmPfSvg") ? $("#kmPfSvg").getBoundingClientRect().width : 0) || (host.clientWidth ? host.clientWidth - 330 : 640))), H = 190, ml = 46, mr = 12, mt = 10, mb = 24, hs = [];
+        D0.pcs.forEach(function (pc) { if (pc.h) { pc.h.P.forEach(function (q) { hs.push(q[1]); }); var l = pc.l; if (l.hzArt && l.hzArt !== "g") { var a0 = parseFloat(l.hzH0), a1 = parseFloat(l.hzH1); if (isFinite(a0)) hs.push(a0); if (isFinite(a1)) hs.push(a1); } } });
+        var hmin = Math.min.apply(null, hs), hmax = Math.max.apply(null, hs), pad = Math.max(1, (hmax - hmin) * .12); hmin -= pad; hmax += pad;
+        var sx = (W - ml - mr) / (D0.total || 1), sy = (H - mt - mb) / (hmax - hmin), X = function (s) { return ml + s * sx; }, Y = function (h) { return mt + (hmax - h) * sy; };
+        pfGeo = { ml: ml, sx: sx, W: W, D0: D0, Y: Y, hmax: hmax, hmin: hmin, sy: sy };
+        var o = '<svg id="kmPfSvg" class="kmpfsvg" viewBox="0 0 ' + W + " " + H + '" width="100%" height="' + H + '" role="group" aria-label="' + esc(tt("pf_title")) + '" preserveAspectRatio="none">';
+        var xs = niceStep(D0.total, 7), ys = niceStep(hmax - hmin, 4);
+        for (var xv = 0; xv <= D0.total + 1e-6; xv += xs) o += '<line class="pfg" x1="' + X(xv) + '" y1="' + mt + '" x2="' + X(xv) + '" y2="' + (H - mb) + '"/><text class="pfx" x="' + X(xv) + '" y="' + (H - 8) + '" text-anchor="middle">' + Math.round(xv) + "</text>";
+        for (var yv = Math.ceil(hmin / ys) * ys; yv <= hmax; yv += ys) o += '<line class="pfg" x1="' + ml + '" y1="' + Y(yv) + '" x2="' + (W - mr) + '" y2="' + Y(yv) + '"/><text class="pfx" x="' + (ml - 4) + '" y="' + (Y(yv) + 4) + '" text-anchor="end">' + Math.round(yv) + "</text>";
+        o += '<text class="pfx" x="' + (W - mr) + '" y="' + (H - 1) + '" text-anchor="end">m</text><text class="pfx" x="2" y="' + (mt + 4) + '">m ü. M.</text>';
+        D0.pcs.forEach(function (pc) {
+          if (!pc.h) { var ym = (H - mb + mt) / 2; o += '<line class="pfn" x1="' + X(pc.off) + '" y1="' + ym + '" x2="' + X(pc.off + pc.L) + '" y2="' + ym + '"/>'; return; }
+          var P = pc.h.P, pts = P.map(function (q) { return X(pc.off + q[0]).toFixed(1) + "," + Y(q[1]).toFixed(1); }).join(" "), l = pc.l, art = l.hzArt || "g";
+          o += '<polygon class="pft" points="' + X(pc.off).toFixed(1) + "," + (H - mb) + " " + pts + " " + X(pc.off + pc.L).toFixed(1) + "," + (H - mb) + '"/>';
+          if (art === "g") o += '<polyline class="pfl" points="' + pts + '"/>';
+          else {
+            o += '<polyline class="pfr" points="' + pts + '"/>';
+            var a0 = parseFloat(l.hzH0), a1 = parseFloat(l.hzH1), y0 = Y(isFinite(a0) ? a0 : pc.h.h0), y1 = Y(isFinite(a1) ? a1 : pc.h.h1), xa = X(pc.off), xb = X(pc.off + pc.L), f = (parseFloat(String(l.hzF).replace(",", ".")) || 3.5) / 100 * pc.L * sy;
+            o += art === "luft" ? '<path class="pfa" d="M' + xa + " " + y0 + " Q" + (xa + xb) / 2 + " " + ((y0 + y1) / 2 + 2 * f) + " " + xb + " " + y1 + '"/>' : '<line class="pfa pfb" x1="' + xa + '" y1="' + y0 + '" x2="' + xb + '" y2="' + y1 + '"/>';
+          }
+        });
+        D0.pcs.forEach(function (pc, i) {
+          var nodes = []; if (i < D0.pcs.length - 1) { var p = M.pts.filter(function (q) { return q.id === pc.l.e; })[0]; if (p) nodes.push([p, pc.off + pc.L, true]); } if (i === 0 && pc.l.s) { var p0 = M.pts.filter(function (q) { return q.id === pc.l.s; })[0]; if (p0) nodes.push([p0, pc.off, false]); } if (i === D0.pcs.length - 1 && pc.l.e) { var p1 = M.pts.filter(function (q) { return q.id === pc.l.e; })[0]; if (p1) nodes.push([p1, pc.off + pc.L, false]); }
+          nodes.forEach(function (nd) { var p = nd[0], s = nd[1], hh = hAtP((pc.h || {}).P, s - pc.off) , nx = D0.pcs[i + 1]; if (hh == null && nx && nx.h) hh = hAtP(nx.h.P, 0); var y = hh != null ? Y(hh) : (H - mb + mt) / 2, nr = M.pts.indexOf(p) + 1;
+            o += '<g class="pfm' + (nd[2] ? "" : " pffix") + '" data-p="' + p.id + '" transform="translate(' + X(s).toFixed(1) + ' 0)"' + (nd[2] ? ' tabindex="0" role="button" aria-label="' + esc(tt("pf_sch").replace("{n}", nr).replace("{s}", f1(s)) + (nd[2] ? " – " + tt("pf_key") : "")) + '"' : "") + '><line class="pfv" x1="0" y1="' + mt + '" x2="0" y2="' + (H - mb) + '"/><rect x="-8" y="' + (y - 8).toFixed(1) + '" width="16" height="16" rx="3"/><text x="0" y="' + (y + 4).toFixed(1) + '" text-anchor="middle">' + nr + "</text></g>"; });
+        });
+        o += '<line class="pfcur" id="kmPfCur" x1="0" y1="' + mt + '" x2="0" y2="' + (H - mb) + '" hidden/></svg><div class="pftip" id="kmPfTip" aria-hidden="true">&nbsp;</div>';
+        svg = o;
+      }
+      host.innerHTML = '<div class="kmpfmain">' + svg + '</div><div class="kmpfin">' + ctl + '<table class="kmpft"><tbody>' + rows + "</tbody></table></div></div>";
+      if (fo) { var again = fo.indexOf("m:") === 0 ? host.querySelector('[data-p="' + fo.slice(2) + '"]') : host.querySelector('[data-pf="' + fo.split(":")[1] + '"]' + (fo.split(":")[2] ? '[data-lid="' + fo.split(":")[2] + '"]' : "")); if (again) again.focus(); }
+    }
+    function pfStation(e) { var sv = $("#kmPfSvg"); if (!sv || !pfGeo) return null; var r = sv.getBoundingClientRect(), x = (e.clientX - r.left) * (pfGeo.W / (r.width || 1)); return Math.max(0, Math.min(pfGeo.D0.total, (x - pfGeo.ml) / pfGeo.sx)); }
+    function pfTip(s) {
+      var D0 = pfGeo && pfGeo.D0; if (!D0) return ""; var pc = D0.pcs.filter(function (q) { return s >= q.off - 1e-6 && s <= q.off + q.L + 1e-6; })[0]; if (!pc || !pc.h) return ""; var d = s - pc.off, h = hAtP(pc.h.P, d), h2 = hAtP(pc.h.P, Math.min(pc.L, d + 10)), h1 = hAtP(pc.h.P, Math.max(0, d - 10)), g = (h2 - h1) / ((Math.min(pc.L, d + 10) - Math.max(0, d - 10)) || 1) * 100;
+      return tt("pf_tip").replace("{s}", (Math.round(s * 10) / 10).toLocaleString("de-CH")).replace("{h}", (Math.round(h * 10) / 10).toLocaleString("de-CH")).replace("{g}", (Math.round(g * 10) / 10).toLocaleString("de-CH"));
+    }
+    function pfCommit(fn) { snap(); var ok = fn(); if (ok === false || ok === null) { undoSt.pop(); } else { refresh(); } pfRender(); return ok; }
+    function pfStationOf(p) { var D0 = pfGeo && pfGeo.D0; if (!D0) return null; for (var i = 0; i < D0.pcs.length - 1; i++) if (D0.pcs[i].l.e === p.id) return { s: D0.pcs[i + 1].off, i: i }; return null; }
+    function pfWire() {
+      var host = $("#kmProf"), tb = $("[data-pfb]"); if (!host) return;
+      if (tb) tb.addEventListener("click", function () { PF.on = !PF.on; try { localStorage.setItem("lvd-km-pf", PF.on ? "1" : "0"); } catch (e) { } pfRender(); setTimeout(function () { try { map.invalidateSize(); } catch (e) { } }, 0); });
+      host.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-pf]"); if (!b) return; var k = b.getAttribute("data-pf");
+        if (k === "load") hzLoad(); else if (k === "pick") { PF.pick = !PF.pick; pfRender(); }
+      });
+      host.addEventListener("change", function (e) {
+        var b = e.target.closest("[data-pf]"); if (!b) return; var k = b.getAttribute("data-pf"), l = byId(M.lines, b.getAttribute("data-lid"));
+        if (k === "line") { PF.line = b.value; pfRender(); return; }
+        if (!l) return; snap();
+        if (k === "art") { if (b.value === "g") { delete l.hzArt; delete l.hzH0; delete l.hzH1; delete l.hzF; } else l.hzArt = b.value; }
+        else { var v = String(b.value).replace(",", ".").trim(); if (v === "" || !isFinite(parseFloat(v))) delete l[{ h0: "hzH0", h1: "hzH1", f: "hzF" }[k]]; else l[{ h0: "hzH0", h1: "hzH1", f: "hzF" }[k]] = v; }
+        refresh(); pfRender();
+      });
+      host.addEventListener("pointermove", function (e) {
+        var sv = $("#kmPfSvg"); if (!sv || !e.target.closest("#kmPfSvg")) return; var s = pfStation(e); if (s == null) return;
+        if (pfDrag) { var D0 = pfGeo.D0, a = D0.pcs[pfDrag.i], b = D0.pcs[pfDrag.i + 1]; s = Math.max(a.off + 1, Math.min(b.off + b.L - 1, s)); pfDrag.s = s; var g = sv.querySelector('[data-p="' + pfDrag.id + '"]'); if (g) g.setAttribute("transform", "translate(" + (pfGeo.ml + s * pfGeo.sx).toFixed(1) + " 0)"); var R = richt(), da = s - a.off, db = b.off + b.L - s; $("#kmPfTip").innerHTML = esc(tt("pf_dist").replace("{a}", (Math.round(da * 10) / 10).toLocaleString("de-CH")).replace("{b}", (Math.round(db * 10) / 10).toLocaleString("de-CH"))) + (da > R || db > R ? " ⚠ " + esc(tt("pf_over").replace("{r}", R)) : ""); return; }
+        var cu = $("#kmPfCur"); if (cu) { cu.setAttribute("x1", pfGeo.ml + s * pfGeo.sx); cu.setAttribute("x2", pfGeo.ml + s * pfGeo.sx); cu.removeAttribute("hidden"); } var tp = $("#kmPfTip"); if (tp) tp.textContent = pfTip(s) || " ";
+      });
+      host.addEventListener("pointerdown", function (e) {
+        var sv = e.target.closest("#kmPfSvg"); if (!sv || !pfGeo) return; var m = e.target.closest(".pfm"); if (m && !m.classList.contains("pffix")) { var id = m.getAttribute("data-p"), p = byId(M.pts, id), st = p && pfStationOf(p); if (st) { pfDrag = { id: id, i: st.i, s: st.s }; try { sv.setPointerCapture(e.pointerId); } catch (x) { } e.preventDefault(); } return; }
+        if (PF.pick) { var s = pfStation(e); var pc = pfGeo.D0.pcs.filter(function (q) { return s >= q.off && s <= q.off + q.L; })[0]; if (pc) pfCommit(function () { return splitAtDist(pc.l, s - pc.off) ? true : false; }); }
+      });
+      host.addEventListener("pointerup", function (e) { if (!pfDrag) return; var dr = pfDrag; pfDrag = null; var p = byId(M.pts, dr.id), a = pfGeo && pfGeo.D0.pcs[dr.i]; if (p && a) { var s0 = pfStationOf(p); if (!s0 || Math.abs(s0.s - dr.s) > 0.05) pfCommit(function () { return moveShaft(p, dr.s - a.off); }); else pfRender(); } });
+      host.addEventListener("keydown", function (e) {
+        var m = e.target.closest && e.target.closest(".pfm"); if (!m || m.classList.contains("pffix")) return; var p = byId(M.pts, m.getAttribute("data-p")), st = p && pfStationOf(p); if (!st) return;
+        var stp = e.shiftKey ? 10 : 1, a = pfGeo.D0.pcs[st.i];
+        if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); var ns = st.s + (e.key === "ArrowRight" ? stp : -stp); pfCommit(function () { return moveShaft(p, ns - a.off); }); }
+        else if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); pfCommit(function () { return deleteShaft(p); }); }
+      });
+      if (window.ResizeObserver) new ResizeObserver(function () { if (PF.on && !pfDrag) { clearTimeout(pfWire.t); pfWire.t = setTimeout(pfRender, 120); } }).observe(host);
     }
     /* ---------- Prüfung und Vorschläge nach «Handbuch unter- und oberirdischer Netzbau» V1.2 (2.2.2 Schachtabstände, 2.2.4 Gebäudeanschlüsse, 2.3.3 Schachttypen, 3 Einmass) ---------- */
     var RICHT = { basisCu: [250, 500], basisGfk: [1000, 6000], fkrk: [1000, 6000], detail: [200, 200] };   /* obere Richtwerte in Bauzone / ausserhalb (m) */
@@ -1300,7 +1447,9 @@
         if (l.pts.length < 2) return; var n = i + 1, c = cfgOf(l), pl = pipeList(c), L0 = lineLen(l.pts); if (!pl.length && l.rohr && parseInt(l.rohr.dn, 10)) pl = [[parseInt(l.rohr.dn, 10), 1]];
         if (!l.s && !l.from) it.push([l.id, "y", tt("rc_t_s").replace("{n}", n)]);
         if (!l.e && !l.to) it.push([l.id, "y", tt("rc_t_e").replace("{n}", n)]);
-        var hz = hzOf(l); if (hz && hz.max > GR) it.push([l.id, "y", tt("rc_steil").replace("{n}", n).replace("{m}", Math.round(hz.max)).replace("{g}", GR)]);
+        var hz = hzOf(l); if (l.hzArt === "luft" || l.hzArt === "bohr") it.push([l.id, "y", tt("pf_airwarn").replace("{n}", n)]);
+        if (hz && hz.P && !l.hzArt) { var dv = 0, dw = 0; hz.P.forEach(function (q) { var ch = hz.h0 + (hz.h1 - hz.h0) * (hz.L ? q[0] / hz.L : 0), df = q[1] - ch; if (df < dv) dv = df; if (df > dw) dw = df; }); if (-dv > PFD) it.push([l.id, "y", tt("pf_valley").replace("{n}", n).replace("{m}", Math.round(-dv))]); else if (dw > PFD) it.push([l.id, "y", tt("pf_hill").replace("{n}", n).replace("{m}", Math.round(dw))]); }
+        if (hz && hz.max > GR) it.push([l.id, "y", tt("rc_steil").replace("{n}", n).replace("{m}", Math.round(hz.max)).replace("{g}", GR)]);
         if (L0 > R) it.push([l.id, "y", tt("rc_dist").replace("{n}", n).replace("{l}", f1(L0)).replace("{r}", R)]);
         if (pl.length) { var rmin = pl.some(function (e) { return e[0] >= 100; }) ? 3 : 1, dn = rmin === 3 ? "100" : "55"; for (var k = 1; k < l.pts.length - 1; k++) { var b = bendOf(l, k); if (b && b.r < rmin) it.push([l.id, "r", tt("rc_bend").replace("{n}", n).replace("{k}", k).replace("{r}", f1(b.r)).replace("{m}", rmin).replace("{dn}", dn)]); } }
       });
@@ -1380,7 +1529,7 @@
     function refresh() { draw(); rows(); costSoon(); }
     var costT = 0;
     function costSoon() {
-      legend(); markerSync(); evalRender(); rcRender(); hzRender(); if (!sugInit) { sugInit = 1; sugRender(); } if (!opt.cost) return; clearTimeout(costT);
+      legend(); markerSync(); evalRender(); rcRender(); hzRender(); if (!pfInit) { pfInit = 1; pfWire(); } pfRender(); if (!sugInit) { sugInit = 1; sugRender(); } if (!opt.cost) return; clearTimeout(costT);
       costT = setTimeout(function () { var el = $("#kmCost"); if (!el) return; var v = null; try { v = opt.cost(JSON.parse(JSON.stringify(M)), function (m) { return effLen(m); }, { area: area, perim: perim, base: base }); } catch (e) { v = null; }
         el.textContent = v == null ? "" : tt("km_cost").replace("{v}", Math.round(v).toLocaleString("de-CH")); }, 500);
     }
@@ -1405,7 +1554,8 @@
       var h = $("#kmEval"); if (!h) return; var rows = function (arr) { return '<table><tbody>' + arr.map(function (r) { return "<tr><td>" + esc(r[0]) + '</td><td class="num">' + esc(r[1]) + "</td></tr>"; }).join("") + "</tbody></table>"; };
       var out = "", ls = M.lines.filter(function (l) { return l.pts.length > 1; }), pipeM = {}, surf = {}, tot = 0;
       ls.forEach(function (l) { var L0 = effLen(l.pts), c = cfgOf(l); tot += L0; pipeList(c).forEach(function (e) { pipeM[e[0]] = (pipeM[e[0]] || 0) + L0 * e[1]; }); var k = c.fl || ""; surf[k] = (surf[k] || 0) + L0; });
-      out += "<h4>" + esc(tt("ws_ev_lines")) + "</h4>" + (ls.length ? rows([[ls.length + " ×", fmt(tot) + " m"]]) : '<p class="none">' + esc(tt("ws_ev_none")) + "</p>");
+      var airM = ls.filter(function (l) { return l.hzArt === "luft" || l.hzArt === "bohr"; }).reduce(function (a, l) { return a + effLen(l.pts); }, 0);
+      out += "<h4>" + esc(tt("ws_ev_lines")) + "</h4>" + (ls.length ? rows([[ls.length + " ×", fmt(tot) + " m"]].concat(airM ? [[tt("pf_air"), fmt(airM) + " m"]] : [])) : '<p class="none">' + esc(tt("ws_ev_none")) + "</p>");
       var pk = Object.keys(pipeM).sort(function (a, b) { return b - a; }); if (pk.length) out += "<h4>" + esc(tt("ws_ev_pipes")) + "</h4>" + rows(pk.map(function (k) { return ["K" + k, fmt(pipeM[k]) + " m"]; }));
       var sk = Object.keys(surf); if (sk.length) out += "<h4>" + esc(tt("ws_ev_surf")) + "</h4>" + rows(sk.map(function (k) { return [k ? tt("km_s_" + k) : tt("ws_ev_open"), fmt(surf[k]) + " m"]; }));
       var nNeu = M.pts.filter(function (p) { return !p.mode || p.mode === "neu"; }).length, nAn = M.lines.reduce(function (a, l) { return a + (M.pts.some(function (p) { return p.id === l.s && p.mode === "anschluss"; }) ? 1 : 0) + (M.pts.some(function (p) { return p.id === l.e && p.mode === "anschluss"; }) ? 1 : 0); }, 0), nDk = M.pts.filter(function (p) { return p.mode === "deckel"; }).length;
@@ -1725,5 +1875,5 @@
     if (!plan && opt.autoPlan && !ovl && opt.planImg && opt.planImg.img) { $("#kmOvPlan").click(); } (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
-  window.KARTE = { slopeLen: slopeLen, slopeOn: slopeOn, slopeHz: slopeHz, connOf: connOf, connTxt: connTxt, ovBase: ovBase, cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
+  window.KARTE = { lineSlopeS: lineSlopeS, slopeLen: slopeLen, slopeOn: slopeOn, slopeHz: slopeHz, connOf: connOf, connTxt: connTxt, ovBase: ovBase, cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
 })();

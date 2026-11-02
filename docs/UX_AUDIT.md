@@ -175,3 +175,12 @@ Das gesamte Handbuch V1.2 (82 Seiten, unter- und oberirdisch) wurde ausgewertet.
 - **Mein Projekt (1):** Projekt-Check gegen die Richtwerte (Schachtabstand, Rohrbelegung, Schachttyp, Gebäude) aus der gezeichneten Karte.
 - Zusätzliche Wissensantworten: gemeinsame Tragwerke/Sicherheitsabstände, Schutzgebiete, Freileitung-Trassierung.
 - Test t44 durchläuft alle 368 Entscheidungspfade (gültige Ergebnisse mit Quelle). Texte sind Zusammenfassungen; verbindlich bleibt das Handbuch. Montagewerte wurden aus den Tabellen abgeschrieben (Richtwerte) – vor Verwendung für Zugkraftberechnungen gegenprüfen.
+
+## Längenprofil unter der Karte (Schacht setzen/verschieben, Abschnittsarten)
+- **Anzeige:** Kopfleiste der Karte → «Längenprofil» blendet unter der Karte Gelände (swissALTI3D), Leitung, Schächte, Station/Höhe/Gefälle (Maus) ein; rechts Linienwahl, Abschnittsart und Längen. Strang = Linien, die über Schächte mit je einer ankommenden/abgehenden Linie verbunden sind.
+- **Schacht setzen:** «Schacht setzen» + Klick ins Profil teilt die Linie; Teilprofile werden aus den vorhandenen Stichproben gebildet (kein erneutes Laden). Gilt auch beim Setzen auf der Karte.
+- **Schacht verschieben:** Ziehen oder Pfeiltasten (Umschalt = 10 m) entlang der Leitung; live Abstände zu den Nachbarknoten und Warnung über dem Richtwert; Entf löscht und führt die Linien zusammen (Rückfrage bei verschiedener Belegung). Alles mit Rückgängig. Nur Schächte mit genau einer ankommenden und einer abgehenden Linie (nicht an Abzweigen/Enden).
+- **Abschnittsarten je Linie:** Gelände folgen (Graben) · Luft (Brücke/Weitspann: Sehne zwischen den Endhöhen + Durchhang, Standard 3.5 % der Spannweite, Endhöhen übersteuerbar) · Bohrung/Horizontal (Sehne). Darstellung gestrichelt in Karte und Profil.
+- **Kostenwirkung:** Luft- und Bohrabschnitte werden beim Übernehmen **nicht als Graben** übernommen (Grabenlänge 0, Meldung «… m Luft/Bohrung nicht als Graben übernommen – separat kalkulieren»), in der Auswertung «davon nicht im Graben». Schräglänge in den Kosten weiterhin nur mit dem Schalter.
+- **Prüfhinweise:** Luft/Bohrung (separat bepreisen); Gelände > 8 m unter/über der Verbindungslinie (Brücke/Tal bzw. Tunnel/Einschnitt vermutet). swissALTI3D enthält keine Bauwerke – Erkennung nur als Hinweis.
+- Test t45; Kopfleiste statt Fussleiste gewählt, damit die Fussleiste nicht umbricht. Assistent-Knopf im Dialog nach links verschoben.
