@@ -609,7 +609,7 @@
       try {
         S = JSON.parse(JSON.stringify(S0)); var cc = (S.recs[tab] || []).filter(function (r) { return cfg.uid && r.uid === cfg.uid; })[0] || JSON.parse(JSON.stringify(cfg)), st = karteApply(M, cc, lenFn, Object.assign({ src: "karte" }, fns));
         S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: S.karte.base, bg: null, overlay: null }; syncDerived(cc, st);
-        out = KVE.calc(S, LV).sum.netto;
+        var sm = KVE.calc(S, LV).sum; out = { n: sm.netto, b: sm.brutto };
       } catch (e) { out = null; } finally { S = S0; }
       return out;
     };

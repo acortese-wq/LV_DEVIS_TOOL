@@ -197,3 +197,8 @@ Das gesamte Handbuch V1.2 (82 Seiten, unter- und oberirdisch) wurde ausgewertet.
 - **Suche** (Volltext mit Markierung), **Kapitel/alles drucken** (eigener Druckbereich), **Beispielprojekt laden** (ersetzt das Projekt erst nach Rückfrage, rückgängig möglich), Zurück/Weiter.
 - Esc schliesst nur die Anleitung (auch über dem Zeichnen-Dialog). Test t46 (Suche, Sprachen, F1/Kontext, Druck, Beispielprojekt, axe, Handy).
 - **Kostenwirkung:** Nur «Beispielprojekt laden» ändert Daten (nach Bestätigung); sonst keine.
+
+## Kosten und Zusammenfassung immer sichtbar (Zeichnen-Dialog)
+- **Fussleiste:** «Kosten netto CHF … · brutto CHF …» steht jetzt **vor** der Gesamtlänge (Kostenvorschau mit Rechenkern, wie bisher inkl. bisheriger Datensätze; Tooltip mit dem Hinweis «ohne Gewähr»). Die Vorschau in der Auswertung bleibt.
+- **Zusammenfassung** oben im Reiter «Eigenschaften», **vor** der Objektliste: Kosten netto/brutto, Gesamtlänge mit Linienzahl, Schächte/Werklöcher/Gebäude, Anzahl Hinweise mit Sprung in die Auswertung. Aktualisiert sich mit jeder Änderung.
+- Kostenvorschau liefert jetzt netto und brutto (`costPreview`). Keine Kostenwirkung (nur Anzeige). Test t47.

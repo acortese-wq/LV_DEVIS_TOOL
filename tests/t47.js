@@ -1,0 +1,20 @@
+const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+(async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000);
+await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
+for(let i=0;i<9;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitForTimeout(80);}
+const bx=await pg.locator('#kmMap').boundingBox(); const clk=async(dx,dy)=>{await pg.mouse.click(bx.x+dx,bx.y+dy); await pg.waitForTimeout(350);};
+const none=async()=>{ if(await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).count()) await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).click(); };
+const h0=(await pg.locator('#kmMap').boundingBox()).height;
+ok(await pg.evaluate(()=>{const c=document.querySelector('#kmCostF'),l=document.querySelector('#kmLen');return !!(c&&l&&(c.compareDocumentPosition(l)&Node.DOCUMENT_POSITION_FOLLOWING));}),'Fussleiste: Kosten stehen vor der Gesamtlänge');
+ok(await pg.evaluate(()=>{const s=document.querySelector('#kmSum'),o=document.querySelector('#kmObj');return !!(s&&o&&(s.compareDocumentPosition(o)&Node.DOCUMENT_POSITION_FOLLOWING)&&s.closest('#kmPanP'));}),'Zusammenfassung steht in «Eigenschaften» vor der Objektliste');
+await pg.click('[data-k=mline]'); await clk(100,250); await none(); await clk(500,250); await pg.click('[data-k=end]'); await none(); await pg.waitForTimeout(900);
+const cf=await pg.textContent('#kmCostF'); console.log(cf); ok(/Kosten netto CHF [\d'.,]+ · brutto CHF [\d'.,]+/.test(cf),'Fussleiste zeigt Kosten netto/brutto');
+ok((await pg.locator('#kmMap').boundingBox()).height===h0,'Karte springt nicht (Höhe unverändert)');
+const sm=await pg.textContent('#kmSum'); console.log(sm); ok(/Zusammenfassung/.test(sm)&&/Kosten netto/.test(sm)&&/CHF/.test(sm)&&/Gesamtlänge/.test(sm)&&/327[.,]6 m/.test(sm),'Zusammenfassung: Kosten, Gesamtlänge, Objekte, Hinweise');
+ok(await pg.locator('#kmSum').isVisible(),'Zusammenfassung sichtbar bei aktivem Reiter «Eigenschaften»'); await pg.click('#kmTabE'); await pg.waitForTimeout(200); ok(/Vorschau netto/.test(await pg.textContent('#kmCost')),'Auswertung zeigt die Vorschau weiterhin');
+await pg.click('#kmTabP'); await pg.click('[data-sumgo]'); await pg.waitForTimeout(200); ok(await pg.getAttribute('#kmTabE','aria-selected')==='true','«Auswertung»-Knopf wechselt den Reiter');
+const bd=await pg.getByText('Kosten netto CHF',{exact:false}).first().boundingBox(); ok(!!bd,'Kosten sichtbar in der Fussleiste');
+await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,200));
+ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|'));
+const p2=await mk(b,390,800); await p2.fill('#f_graben_L','10'); await p2.click('#kmOpen'); await p2.waitForSelector('dialog[open]'); await p2.waitForTimeout(900); ok(await p2.evaluate(()=>document.documentElement.scrollWidth<=innerWidth&&document.querySelector('dialog[open]').scrollWidth<=document.querySelector('dialog[open]').clientWidth+1),'Handy 390 px ohne Seitenüberlauf'); ok(p2.errs.length===0,'keine JS-Fehler (Handy)');
+await b.close();})();

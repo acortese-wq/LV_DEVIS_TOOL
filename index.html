@@ -1131,6 +1131,11 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border:1px solid var(--rule-stro
 @media (max-width:760px){.hpmain{flex-direction:column}#hpNav{flex:0 0 auto;max-height:28vh;border-right:0;border-bottom:1px solid var(--rule)}.hphead{flex-wrap:wrap}}
 @media print{body.print-help>*:not(.hpall){display:none!important}body.print-help .hpall{display:block!important;font-size:11.5pt;line-height:1.45;color:#000}.hpall h1{font-size:20pt}.hpall h2{font-size:15pt;page-break-after:avoid;margin-top:18pt}.hpall h3{margin:10pt 0 2pt;font-size:12pt}.hpall .hptab{width:100%}}
 
+/* Kosten vor Gesamtlänge (Fussleiste), Zusammenfassung oben in «Eigenschaften» */
+.kmws .kmbottom .kmcostf{margin:0;font-size:13px;font-weight:700;color:var(--navy);white-space:nowrap;min-width:290px;text-align:right}.kmws .kmbottom .kmcostf:empty:before{content:"\00a0"}
+.kmsum{margin:0 0 10px;padding:8px 10px;border:1px solid var(--rule-strong);border-radius:8px;background:var(--panel-2,#f7f9fa)}.kmsum h3{margin:0 0 4px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}.kmsum dl{margin:0;display:grid;gap:3px}.kmsum dl>div{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:13px}.kmsum dt{color:var(--ink-soft)}.kmsum dd{margin:0;text-align:right}
+@media (max-width:860px){.kmws .kmbottom .kmcostf{min-width:0;white-space:normal;text-align:left;flex:1 0 100%}}
+
 </style>
 </head>
 <body>
@@ -3422,6 +3427,16 @@ Object.assign(TS.it,{
     hp_none: ["Keine Treffer.", "Aucun résultat.", "Nessun risultato.", "No results."],
     hp_by: ["App-Konzept: Alessandro Cortese", "Concept de l'application : Alessandro Cortese", "Concetto dell'app: Alessandro Cortese", "App concept: Alessandro Cortese"],
     hp_open: ["Anleitung öffnen", "Ouvrir l'aide", "Apri la guida", "Open help"],
+    km_costf: ["Kosten netto CHF {n} · brutto CHF {b}", "Coûts net CHF {n} · brut CHF {b}", "Costi netti CHF {n} · lordi CHF {b}", "Cost net CHF {n} · gross CHF {b}"],
+    km_sum_h: ["Zusammenfassung", "Récapitulatif", "Riepilogo", "Summary"],
+    km_sum_cost: ["Kosten netto", "Coûts net", "Costi netti", "Cost net"],
+    km_sum_brutto: ["brutto", "brut", "lordi", "gross"],
+    km_sum_len: ["Gesamtlänge", "Longueur totale", "Lunghezza totale", "Total length"],
+    km_sum_lines: ["Linie(n)", "ligne(s)", "linea/e", "line(s)"],
+    km_sum_obj: ["Objekte", "Objets", "Oggetti", "Objects"],
+    km_sum_objv: ["{s} Schächte · {w} Werklöcher · {g} Gebäude", "{s} chambres · {w} fouilles pont. · {g} bâtiments", "{s} pozzetti · {w} buche · {g} edifici", "{s} manholes · {w} pits · {g} buildings"],
+    km_sum_warn: ["Hinweise", "Remarques", "Avvisi", "Hints"],
+    km_sum_go: ["Auswertung", "Évaluation", "Valutazione", "Evaluation"],
     km_prov: ["Kartenanbieter", "Fournisseur de cartes", "Fornitore cartografico", "Map provider"],
     km_bLeer: ["geo.admin: leere Basis (nur gewählte Ebenen)", "geo.admin: fond vide (couches choisies seulement)", "geo.admin: sfondo vuoto (solo livelli scelti)", "geo.admin: blank base (selected layers only)"],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],
@@ -5527,7 +5542,7 @@ var FIG = (function () {
         '<span class="kmnudge" role="group" aria-label="' + esc(tt("ov_adj")) + '">' + [["l", "←", "km_nl"], ["u", "↑", "km_nu"], ["d", "↓", "km_nd"], ["r", "→", "km_nr"], ["rl", "⟲", "ov_rl"], ["rr", "⟳", "ov_rr"], ["sm", "−", "ov_sm"], ["sp", "+", "ov_sp"]].map(function (a) { return '<button type="button" class="btn ghost small" data-ov="' + a[0] + '" aria-label="' + esc(tt(a[2])) + '">' + a[1] + "</button>"; }).join("") + '</span></div></div></details>') +
       '</div></div>' +
       '<div class="kmslot" id="kmSlot"></div>' +
-      '<div class="kmfoot"><p class="kmlen" id="kmLen" role="status" aria-live="polite"></p><p class="kmcost" id="kmCost" role="status"></p><button type="button" class="btn" data-k="apply">' + esc(tt("km_apply")) + "</button></div>";
+      '<div class="kmfoot"><p class="kmcostf" id="kmCostF" role="status" aria-live="polite"></p><p class="kmlen" id="kmLen" role="status" aria-live="polite"></p><p class="kmcost" id="kmCost" role="status"></p><button type="button" class="btn" data-k="apply">' + esc(tt("km_apply")) + "</button></div>";
     document.body.appendChild(dlg);
     var $ = function (s) { return dlg.querySelector(s); };
     /* ---------- Arbeitsfläche: Werkzeuge | Ebenen + Marker | Karte | Eigenschaften / Auswertung, Fussleiste ---------- */
@@ -5557,6 +5572,7 @@ var FIG = (function () {
       tabs.innerHTML = '<button type="button" role="tab" id="kmTabP" aria-selected="true" aria-controls="kmPanP">' + esc(tt("ws_props")) + '</button><button type="button" role="tab" id="kmTabE" aria-selected="false" aria-controls="kmPanE" tabindex="-1">' + esc(tt("ws_eval")) + "</button>";
       var panP = E("div", "kmpan"), panE = E("div", "kmpan"); panP.id = "kmPanP"; panE.id = "kmPanE"; panP.setAttribute("role", "tabpanel"); panE.setAttribute("role", "tabpanel"); panP.setAttribute("aria-labelledby", "kmTabP"); panE.setAttribute("aria-labelledby", "kmTabE"); panE.hidden = true;
       ["#kmQuick", ".kmoh", "#kmFoldAll", "#kmObj", "#kmMiss"].forEach(function (q) { var n = pick(q); if (n) { if (q === "#kmFoldAll") n = n.parentNode; panP.appendChild(n); } });
+      panP.insertBefore(E("section", "kmsum", ""), panP.firstChild); panP.firstChild.id = "kmSum"; panP.firstChild.setAttribute("aria-label", tt("km_sum_h"));
       panE.appendChild(E("div", "kmeval", "")).id = "kmEval"; panE.appendChild(E("div", "kmeval kmchk", "")).id = "kmChk"; if (!plan) panE.appendChild(E("div", "kmeval kmhz", "")).id = "kmHz"; panE.appendChild(E("div", "kmeval kmsug", "")).id = "kmSug"; if (!plan) { var dx = E("div", "kmeval", '<button type="button" class="btn ghost small" id="kmDxf">' + esc(tt("ws_dxf")) + "</button>"); panE.appendChild(dx); } var cost = pick("#kmCost"); if (cost) panE.appendChild(cost);
       side.appendChild(tabs); side.appendChild(panP); side.appendChild(panE);
       tabs.addEventListener("click", function (e) { var b = e.target.closest("[role=tab]"); if (!b) return; var p = b.id === "kmTabP"; tabs.querySelectorAll("[role=tab]").forEach(function (t) { var on = t === b; t.setAttribute("aria-selected", on ? "true" : "false"); t.tabIndex = on ? 0 : -1; }); panP.hidden = !p; panE.hidden = p; });
@@ -6474,12 +6490,25 @@ var FIG = (function () {
       var ks = Object.keys(sf).filter(function (k) { return k; }); e.hidden = !ks.length;
       e.innerHTML = ks.map(function (k) { var st = LSTY[k]; return '<span class="kmlg1"><svg width="34" height="8" aria-hidden="true"><line x1="2" y1="4" x2="32" y2="4" stroke="' + st[0] + '" stroke-width="3"' + (st[1] ? ' stroke-dasharray="' + st[1] + '"' : "") + (st[1] === "1 7" ? ' stroke-linecap="round"' : "") + "/></svg> " + esc(tt("km_s_" + k)) + "</span>"; }).join("");
     }
+    function sumRender() {
+      var h = $("#kmSum"); if (!h) return; var ls = M.lines.filter(function (l) { return l.pts.length > 1; }), tot = ls.reduce(function (a, l) { return a + effLen(l.pts); }, 0), f0 = function (x) { return Math.round(x).toLocaleString("de-CH"); }, nm = (($("#kmMiss ul") || {}).children || []).length, nw = 0;
+      try { nw = rcCheck().length; } catch (e) { }
+      var c = costLast, row = function (k, v) { return "<div><dt>" + esc(k) + "</dt><dd>" + v + "</dd></div>"; };
+      h.innerHTML = "<h3>" + esc(tt("km_sum_h")) + "</h3><dl>" +
+        (opt.cost ? row(tt("km_sum_cost"), c ? "<b>CHF " + f0(c.n) + "</b>" + (c.b != null ? " · " + esc(tt("km_sum_brutto")) + " CHF " + f0(c.b) : "") : "–") : "") +
+        row(tt("km_sum_len"), "<b>" + esc(fmt(tot)) + " m</b> · " + ls.length + " " + esc(tt("km_sum_lines"))) +
+        row(tt("km_sum_obj"), esc(tt("km_sum_objv").replace("{s}", M.pts.length).replace("{w}", M.wl.length).replace("{g}", M.geb.length))) +
+        row(tt("km_sum_warn"), (nm + nw ? "<b>" + (nm + nw) + "</b> " : "0 ") + '<button type="button" class="btn ghost small" data-sumgo>' + esc(tt("km_sum_go")) + "</button>") + "</dl>";
+    }
     function refresh() { draw(); rows(); costSoon(); }
-    var costT = 0;
+    var costT = 0, costLast = null;
     function costSoon() {
-      legend(); markerSync(); evalRender(); rcRender(); hzRender(); if (!pfInit) { pfInit = 1; pfWire(); } pfRender(); if (!sugInit) { sugInit = 1; sugRender(); } if (!opt.cost) return; clearTimeout(costT);
-      costT = setTimeout(function () { var el = $("#kmCost"); if (!el) return; var v = null; try { v = opt.cost(JSON.parse(JSON.stringify(M)), function (m) { return effLen(m); }, { area: area, perim: perim, base: base }); } catch (e) { v = null; }
-        el.textContent = v == null ? "" : tt("km_cost").replace("{v}", Math.round(v).toLocaleString("de-CH")); }, 500);
+      legend(); markerSync(); evalRender(); rcRender(); sumRender(); hzRender(); if (!pfInit) { pfInit = 1; pfWire(); } pfRender(); if (!sugInit) { sugInit = 1; sugRender(); } if (!opt.cost) return; clearTimeout(costT);
+      costT = setTimeout(function () { var el = $("#kmCost"), ef = $("#kmCostF"); if (!el) return; var v = null; try { v = opt.cost(JSON.parse(JSON.stringify(M)), function (m) { return effLen(m); }, { area: area, perim: perim, base: base }); } catch (e) { v = null; }
+        var nn = v == null ? null : (typeof v === "object" ? v.n : v), bb = v != null && typeof v === "object" ? v.b : null, f0 = function (x) { return Math.round(x).toLocaleString("de-CH"); };
+        costLast = nn == null ? null : { n: nn, b: bb };
+        el.textContent = nn == null ? "" : tt("km_cost").replace("{v}", f0(nn)); if (ef) { ef.textContent = nn == null ? "" : tt("km_costf").replace("{n}", f0(nn)).replace("{b}", bb == null ? "–" : f0(bb)); ef.title = nn == null ? "" : tt("km_cost").replace("{v}", f0(nn)); }
+        sumRender(); }, 500);
     }
     function newNote(type, pts) { snap(); var n = { id: nid("n"), type: type, pts: pts, color: noteCol, text: type === "text" ? "Text" : "", size: "m" }; M.notes.push(n); sel = { id: n.id }; return n; }
     /* ---------- Marker-Katalog (Vorbelegung), Auswertung, Fang- und Zeichenhilfen, Koordinate/Massstab ---------- */
@@ -6685,6 +6714,7 @@ var FIG = (function () {
         else if (k2 === "rl") ovl.rot += 0.5; else if (k2 === "rr") ovl.rot -= 0.5; else if (k2 === "sm") { ovl.mpp *= 0.99; ovl.auto = 0; } else if (k2 === "sp") { ovl.mpp *= 1.01; ovl.auto = 0; }
         ovDraw(); return;
       }
+      if (e.target.closest("[data-sumgo]")) { var te = $("#kmTabE"); if (te) te.click(); return; }
       var hzb = e.target.closest("[data-hz]"); if (hzb) { if (hzb.dataset.hz === "load") hzLoad(); return; }
       var sgb = e.target.closest("[data-sg],#kmDxf"); if (sgb) { if (sgb.id === "kmDxf") dxfExport(); else if (sgb.dataset.sg === "calc") { sugs = sugCompute(); sugDraw(); sugRender(); if (!sugs.length) { var sh = $("#kmSug"); if (sh) { var pn = document.createElement("p"); pn.className = "hint"; pn.setAttribute("role", "status"); pn.textContent = tt("sg_none"); sh.appendChild(pn); } } } else if (sgb.dataset.sg === "apply") sugApply(); else { sugs = []; sugDraw(); sugRender(); } return; }
       var b = e.target.closest("[data-k],[data-z],[data-d],[data-n]"); if (!b) return; askHide();
@@ -7439,7 +7469,7 @@ var FIG = (function () {
       try {
         S = JSON.parse(JSON.stringify(S0)); var cc = (S.recs[tab] || []).filter(function (r) { return cfg.uid && r.uid === cfg.uid; })[0] || JSON.parse(JSON.stringify(cfg)), st = karteApply(M, cc, lenFn, Object.assign({ src: "karte" }, fns));
         S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: S.karte.base, bg: null, overlay: null }; syncDerived(cc, st);
-        out = KVE.calc(S, LV).sum.netto;
+        var sm = KVE.calc(S, LV).sum; out = { n: sm.netto, b: sm.brutto };
       } catch (e) { out = null; } finally { S = S0; }
       return out;
     };
