@@ -26,6 +26,12 @@ await pg.keyboard.press('Shift+ArrowLeft'); await pg.waitForTimeout(300); const 
 // Abschnittsart Luft
 await pg.locator('select[data-pf=art]').nth(1).selectOption('luft'); await pg.waitForTimeout(400);
 ok(/nicht im Graben/.test(await pg.textContent('#kmEval')),'Auswertung: davon nicht im Graben'); ok(/Luft\/Bohrung – nicht als Graben kalkuliert/.test(await pg.textContent('#kmChk')),'Prüfhinweis Luft/Bohrung');
+ok(await pg.locator('#kmProf .pfgl').count()>=1&&await pg.locator('#kmProf polyline.pfl').count()>=1,'Gelände und Rohrachse als getrennte Linien');
+await pg.fill('[data-pf=covmin]','0.8'); await pg.dispatchEvent('[data-pf=covmin]','change'); await pg.waitForTimeout(300); ok(/Überdeckung 0[.,]5 m unter dem Mindestwert 0.8 m/.test(await pg.textContent('#kmChk')),'Warnung: Überdeckung unter Mindestwert');
+await pg.locator('input[data-pf=cov]').first().fill('1.2'); await pg.locator('input[data-pf=cov]').first().dispatchEvent('change'); await pg.waitForTimeout(300); ok(!/Überdeckung .* unter dem Mindestwert/.test(await pg.textContent('#kmChk')),'Überdeckung je Linie übersteuert → Warnung weg');
+await pg.fill('[data-pf=covmax]','1.0'); await pg.dispatchEvent('[data-pf=covmax]','change'); await pg.waitForTimeout(300); ok(/über dem Höchstwert 1 m/.test(await pg.textContent('#kmChk')),'Warnung: über Höchstwert');
+const r2=await pg.locator('#kmPfSvg').boundingBox(); await pg.mouse.move(r2.x+r2.width*0.2,r2.y+60); await pg.waitForTimeout(150); ok(/Überdeckung 1[.,]2 m/.test(await pg.textContent('#kmPfTip')),'Tooltip zeigt Überdeckung');
+await pg.fill('[data-pf=covmin]',''); await pg.dispatchEvent('[data-pf=covmin]','change'); await pg.fill('[data-pf=covmax]',''); await pg.dispatchEvent('[data-pf=covmax]','change'); await pg.waitForTimeout(200);
 await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,250));
 await pg.click('[data-k=apply]'); await pg.waitForTimeout(700); let S=await getS(pg);
 ok(S.karte.lines.length===2&&S.karte.lines[1].hzArt==='luft','Abschnittsart gespeichert'); ok(S.recs.graben.length===1,'Luftabschnitt nicht als Graben übernommen (Graben-Datensätze: '+S.recs.graben.length+')');

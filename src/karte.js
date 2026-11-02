@@ -1292,6 +1292,11 @@
     }
     /* ---------- Längenprofil unter der Karte: Gelände, Leitung, Abschnittsarten; Schächte setzen/verschieben/löschen ---------- */
     var PF = { on: false, line: null, pick: false }, pfInit = 0, pfDrag = null; try { PF.on = localStorage.getItem("lvd-km-pf") === "1"; } catch (e) { }
+    var PFC = { min: "", max: "", ex: true }; try { var pfc0 = JSON.parse(localStorage.getItem("lvd-km-pfc") || "null"); if (pfc0 && typeof pfc0 === "object") PFC = Object.assign(PFC, pfc0); } catch (e) { }
+    function pfNum(v) { var n = parseFloat(String(v).replace(",", ".")); return isFinite(n) ? n : null; }
+    function lineDN(l) { var pl = pipeList(cfgOf(l)), dn = pl.length ? Math.max.apply(null, pl.map(function (e) { return e[0]; })) : parseInt(l.rohr && l.rohr.dn, 10); return dn > 0 ? dn : 55; }
+    function coverDefault(l) { var T = pfNum(cfgOf(l).T); if (T == null) T = 0.6; return Math.max(0, T - 0.05 - lineDN(l) / 1000); }   /* Überdeckung bis Rohrscheitel = T − Bettung 5 cm − DN */
+    function coverOf(l) { var o = pfNum(l.pfC); return o != null ? o : coverDefault(l); }
     function hAtP(P, d) { if (!P || !P.length) return null; if (d <= P[0][0]) return P[0][1]; for (var i = 1; i < P.length; i++) if (P[i][0] >= d) { var t = (d - P[i - 1][0]) / ((P[i][0] - P[i - 1][0]) || 1); return P[i - 1][1] + t * (P[i][1] - P[i - 1][1]); } return P[P.length - 1][1]; }
     function sliceP(P, d0, d1) {   /* Teilprofil [d0,d1], Stationen ab d0, Randpunkte interpoliert */
       var o = [{ d: 0, h: hAtP(P, d0) }]; P.forEach(function (q) { if (q[0] > d0 + 1e-6 && q[0] < d1 - 1e-6) o.push({ d: q[0] - d0, h: q[1] }); }); o.push({ d: d1 - d0, h: hAtP(P, d1) }); return o;
@@ -1340,11 +1345,12 @@
       var fo = document.activeElement && host.contains(document.activeElement) ? (document.activeElement.getAttribute("data-p") ? "m:" + document.activeElement.getAttribute("data-p") : document.activeElement.getAttribute("data-pf") ? "c:" + document.activeElement.getAttribute("data-pf") + ":" + (document.activeElement.getAttribute("data-lid") || "") : null) : null;
       var D0 = pfData(), f1 = function (v) { return (Math.round(v * 10) / 10).toLocaleString("de-CH"); };
       var ctl = '<div class="kmpfctl"><label>' + esc(tt("pf_line")) + ' <select data-pf="line">' + M.lines.filter(function (l) { return l.pts.length > 1; }).map(function (l) { return '<option value="' + l.id + '"' + (D0 && D0.l0 === l ? " selected" : "") + ">" + esc(tt("km_lineN").replace("{n}", M.lines.indexOf(l) + 1) + " · " + fmt(lineLen(l.pts)) + " m") + "</option>"; }).join("") + "</select></label>" +
-        '<div class="kmbar"><button type="button" class="btn small" data-pf="load"' + (hzBusy ? " disabled" : "") + ">" + esc(tt(hzBusy ? "hz_loading" : "hz_load")) + '</button> <button type="button" class="btn ghost small" data-pf="pick" aria-pressed="' + (PF.pick ? "true" : "false") + '">' + esc(tt("pf_pick")) + "</button></div>" + '<p class="hint">' + esc(tt("pf_pickh")) + "</p>";
+        '<div class="kmbar"><button type="button" class="btn small" data-pf="load"' + (hzBusy ? " disabled" : "") + ">" + esc(tt(hzBusy ? "hz_loading" : "hz_load")) + '</button> <button type="button" class="btn ghost small" data-pf="pick" aria-pressed="' + (PF.pick ? "true" : "false") + '">' + esc(tt("pf_pick")) + "</button></div>" + '<p class="hint">' + esc(tt("pf_pickh")) + "</p>" + '<div class="kmpfh"><label>' + esc(tt("pf_covmin")) + ' <input type="text" inputmode="decimal" size="4" data-pf="covmin" value="' + esc(PFC.min) + '" placeholder="–"></label> <label>' + esc(tt("pf_covmax")) + ' <input type="text" inputmode="decimal" size="4" data-pf="covmax" value="' + esc(PFC.max) + '" placeholder="–"></label> <label class="kmpfck"><input type="checkbox" data-pf="ex"' + (PFC.ex ? " checked" : "") + "> " + esc(tt("pf_ex")) + '</label></div><p class="hint">' + esc(tt("pf_covh")) + "</p>";
       if (!D0) { host.innerHTML = '<div class="kmpfin">' + ctl + "</div></div>"; return; }
       var rows = D0.pcs.map(function (pc) {
         var l = pc.l, n = M.lines.indexOf(l) + 1, h = pc.h, art = l.hzArt || "g", id = ' data-lid="' + l.id + '"';
         var r = "<tr><td>" + esc(tt("km_lineN").replace("{n}", n)) + "</td><td>" + (h ? esc(tt("pf_row").replace("{l}", f1(pc.L)).replace("{s}", f1(lineSlopeS(l) || pc.L))) : esc(tt("pf_stale"))) + "</td><td><select data-pf=\"art\"" + id + " aria-label=\"" + esc(tt("pf_art") + " " + n) + "\">" + [["g", "pf_art_g"], ["luft", "pf_art_l"], ["bohr", "pf_art_b"]].map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === art ? " selected" : "") + ">" + esc(tt(o[1])) + "</option>"; }).join("") + "</select>";
+        if (art === "g") r += '<div class="kmpfh"><label>' + esc(tt("pf_cov")) + ' <input type="text" inputmode="decimal" size="5" data-pf="cov"' + id + ' value="' + esc(l.pfC != null ? l.pfC : "") + '" placeholder="' + f1(coverDefault(l)) + '"></label></div>';
         if (art !== "g" && h) r += '<div class="kmpfh"><label>' + esc(tt("pf_h0")) + ' <input type="text" inputmode="decimal" size="6" data-pf="h0"' + id + ' value="' + esc(l.hzH0 != null ? l.hzH0 : "") + '" placeholder="' + f1(h.h0) + '"></label> <label>' + esc(tt("pf_h1")) + ' <input type="text" inputmode="decimal" size="6" data-pf="h1"' + id + ' value="' + esc(l.hzH1 != null ? l.hzH1 : "") + '" placeholder="' + f1(h.h1) + '"></label>' + (art === "luft" ? ' <label>' + esc(tt("pf_f")) + ' <input type="text" inputmode="decimal" size="4" data-pf="f"' + id + ' value="' + esc(l.hzF != null ? l.hzF : "") + '" placeholder="3.5"></label>' : "") + "</div>";
         return r + "</td></tr>";
       }).join("");
@@ -1352,7 +1358,7 @@
       if (!ok.length) svg = '<p class="none kmpfnone">' + esc(tt("pf_none")) + "</p>";
       else {
         var W = Math.max(320, Math.round(($("#kmPfSvg") ? $("#kmPfSvg").getBoundingClientRect().width : 0) || (host.clientWidth ? host.clientWidth - 330 : 640))), H = 190, ml = 46, mr = 12, mt = 10, mb = 24, hs = [];
-        D0.pcs.forEach(function (pc) { if (pc.h) { pc.h.P.forEach(function (q) { hs.push(q[1]); }); var l = pc.l; if (l.hzArt && l.hzArt !== "g") { var a0 = parseFloat(l.hzH0), a1 = parseFloat(l.hzH1); if (isFinite(a0)) hs.push(a0); if (isFinite(a1)) hs.push(a1); } } });
+        D0.pcs.forEach(function (pc) { if (pc.h) { pc.h.P.forEach(function (q) { hs.push(q[1]); if (!pc.l.hzArt) hs.push(q[1] - (coverOf(pc.l) + lineDN(pc.l) / 2000) * (PFC.ex ? 10 : 1)); }); var l = pc.l; if (l.hzArt && l.hzArt !== "g") { var a0 = parseFloat(l.hzH0), a1 = parseFloat(l.hzH1); if (isFinite(a0)) hs.push(a0); if (isFinite(a1)) hs.push(a1); } } });
         var hmin = Math.min.apply(null, hs), hmax = Math.max.apply(null, hs), pad = Math.max(1, (hmax - hmin) * .12); hmin -= pad; hmax += pad;
         var sx = (W - ml - mr) / (D0.total || 1), sy = (H - mt - mb) / (hmax - hmin), X = function (s) { return ml + s * sx; }, Y = function (h) { return mt + (hmax - h) * sy; };
         pfGeo = { ml: ml, sx: sx, W: W, D0: D0, Y: Y, hmax: hmax, hmin: hmin, sy: sy };
@@ -1365,7 +1371,7 @@
           if (!pc.h) { var ym = (H - mb + mt) / 2; o += '<line class="pfn" x1="' + X(pc.off) + '" y1="' + ym + '" x2="' + X(pc.off + pc.L) + '" y2="' + ym + '"/>'; return; }
           var P = pc.h.P, pts = P.map(function (q) { return X(pc.off + q[0]).toFixed(1) + "," + Y(q[1]).toFixed(1); }).join(" "), l = pc.l, art = l.hzArt || "g";
           o += '<polygon class="pft" points="' + X(pc.off).toFixed(1) + "," + (H - mb) + " " + pts + " " + X(pc.off + pc.L).toFixed(1) + "," + (H - mb) + '"/>';
-          if (art === "g") o += '<polyline class="pfl" points="' + pts + '"/>';
+          if (art === "g") { var cvr = coverOf(l), dep = (cvr + lineDN(l) / 2000) * (PFC.ex ? 10 : 1); o += '<polyline class="pfgl" points="' + pts + '"/><polyline class="pfl" points="' + P.map(function (q) { return X(pc.off + q[0]).toFixed(1) + "," + Y(q[1] - dep).toFixed(1); }).join(" ") + '"/>'; }
           else {
             o += '<polyline class="pfr" points="' + pts + '"/>';
             var a0 = parseFloat(l.hzH0), a1 = parseFloat(l.hzH1), y0 = Y(isFinite(a0) ? a0 : pc.h.h0), y1 = Y(isFinite(a1) ? a1 : pc.h.h1), xa = X(pc.off), xb = X(pc.off + pc.L), f = (parseFloat(String(l.hzF).replace(",", ".")) || 3.5) / 100 * pc.L * sy;
@@ -1377,7 +1383,7 @@
           nodes.forEach(function (nd) { var p = nd[0], s = nd[1], hh = hAtP((pc.h || {}).P, s - pc.off) , nx = D0.pcs[i + 1]; if (hh == null && nx && nx.h) hh = hAtP(nx.h.P, 0); var y = hh != null ? Y(hh) : (H - mb + mt) / 2, nr = M.pts.indexOf(p) + 1;
             o += '<g class="pfm' + (nd[2] ? "" : " pffix") + '" data-p="' + p.id + '" transform="translate(' + X(s).toFixed(1) + ' 0)"' + (nd[2] ? ' tabindex="0" role="button" aria-label="' + esc(tt("pf_sch").replace("{n}", nr).replace("{s}", f1(s)) + (nd[2] ? " – " + tt("pf_key") : "")) + '"' : "") + '><line class="pfv" x1="0" y1="' + mt + '" x2="0" y2="' + (H - mb) + '"/><rect x="-8" y="' + (y - 8).toFixed(1) + '" width="16" height="16" rx="3"/><text x="0" y="' + (y + 4).toFixed(1) + '" text-anchor="middle">' + nr + "</text></g>"; });
         });
-        o += '<line class="pfcur" id="kmPfCur" x1="0" y1="' + mt + '" x2="0" y2="' + (H - mb) + '" hidden/></svg><div class="pftip" id="kmPfTip" aria-hidden="true">&nbsp;</div>';
+        o += '<line class="pfcur" id="kmPfCur" x1="0" y1="' + mt + '" x2="0" y2="' + (H - mb) + '" hidden/></svg><div class="pftip" id="kmPfTip" aria-hidden="true">&nbsp;</div><div class="pflg"><span class="pflg1 g">' + esc(tt("pf_lg_t")) + '</span> <span class="pflg1 r">' + esc(tt("pf_lg_r")) + (PFC.ex ? " (" + esc(tt("pf_ex")) + ")" : "") + '</span> <span class="pflg1 a">' + esc(tt("pf_lg_a")) + '</span></div>';
         svg = o;
       }
       host.innerHTML = '<div class="kmpfmain">' + svg + '</div><div class="kmpfin">' + ctl + '<table class="kmpft"><tbody>' + rows + "</tbody></table></div></div>";
@@ -1386,7 +1392,7 @@
     function pfStation(e) { var sv = $("#kmPfSvg"); if (!sv || !pfGeo) return null; var r = sv.getBoundingClientRect(), x = (e.clientX - r.left) * (pfGeo.W / (r.width || 1)); return Math.max(0, Math.min(pfGeo.D0.total, (x - pfGeo.ml) / pfGeo.sx)); }
     function pfTip(s) {
       var D0 = pfGeo && pfGeo.D0; if (!D0) return ""; var pc = D0.pcs.filter(function (q) { return s >= q.off - 1e-6 && s <= q.off + q.L + 1e-6; })[0]; if (!pc || !pc.h) return ""; var d = s - pc.off, h = hAtP(pc.h.P, d), h2 = hAtP(pc.h.P, Math.min(pc.L, d + 10)), h1 = hAtP(pc.h.P, Math.max(0, d - 10)), g = (h2 - h1) / ((Math.min(pc.L, d + 10) - Math.max(0, d - 10)) || 1) * 100;
-      return tt("pf_tip").replace("{s}", (Math.round(s * 10) / 10).toLocaleString("de-CH")).replace("{h}", (Math.round(h * 10) / 10).toLocaleString("de-CH")).replace("{g}", (Math.round(g * 10) / 10).toLocaleString("de-CH"));
+      var cvt = !pc.l.hzArt ? " · " + tt("pf_covtip").replace("{c}", (Math.round(coverOf(pc.l) * 100) / 100).toLocaleString("de-CH")) : ""; return tt("pf_tip").replace("{s}", (Math.round(s * 10) / 10).toLocaleString("de-CH")).replace("{h}", (Math.round(h * 10) / 10).toLocaleString("de-CH")).replace("{g}", (Math.round(g * 10) / 10).toLocaleString("de-CH")) + cvt;
     }
     function pfCommit(fn) { snap(); var ok = fn(); if (ok === false || ok === null) { undoSt.pop(); } else { refresh(); } pfRender(); return ok; }
     function pfStationOf(p) { var D0 = pfGeo && pfGeo.D0; if (!D0) return null; for (var i = 0; i < D0.pcs.length - 1; i++) if (D0.pcs[i].l.e === p.id) return { s: D0.pcs[i + 1].off, i: i }; return null; }
@@ -1400,9 +1406,10 @@
       host.addEventListener("change", function (e) {
         var b = e.target.closest("[data-pf]"); if (!b) return; var k = b.getAttribute("data-pf"), l = byId(M.lines, b.getAttribute("data-lid"));
         if (k === "line") { PF.line = b.value; pfRender(); return; }
+        if (k === "covmin" || k === "covmax" || k === "ex") { if (k === "ex") PFC.ex = b.checked; else PFC[k === "covmin" ? "min" : "max"] = String(b.value).trim(); try { localStorage.setItem("lvd-km-pfc", JSON.stringify(PFC)); } catch (x) { } rcRender(); pfRender(); return; }
         if (!l) return; snap();
         if (k === "art") { if (b.value === "g") { delete l.hzArt; delete l.hzH0; delete l.hzH1; delete l.hzF; } else l.hzArt = b.value; }
-        else { var v = String(b.value).replace(",", ".").trim(); if (v === "" || !isFinite(parseFloat(v))) delete l[{ h0: "hzH0", h1: "hzH1", f: "hzF" }[k]]; else l[{ h0: "hzH0", h1: "hzH1", f: "hzF" }[k]] = v; }
+        else { var v = String(b.value).replace(",", ".").trim(); if (v === "" || !isFinite(parseFloat(v))) delete l[{ h0: "hzH0", h1: "hzH1", f: "hzF", cov: "pfC" }[k]]; else l[{ h0: "hzH0", h1: "hzH1", f: "hzF", cov: "pfC" }[k]] = v; }
         refresh(); pfRender();
       });
       host.addEventListener("pointermove", function (e) {
@@ -1449,6 +1456,10 @@
         if (!l.e && !l.to) it.push([l.id, "y", tt("rc_t_e").replace("{n}", n)]);
         var hz = hzOf(l); if (l.hzArt === "luft" || l.hzArt === "bohr") it.push([l.id, "y", tt("pf_airwarn").replace("{n}", n)]);
         if (hz && hz.P && !l.hzArt) { var dv = 0, dw = 0; hz.P.forEach(function (q) { var ch = hz.h0 + (hz.h1 - hz.h0) * (hz.L ? q[0] / hz.L : 0), df = q[1] - ch; if (df < dv) dv = df; if (df > dw) dw = df; }); if (-dv > PFD) it.push([l.id, "y", tt("pf_valley").replace("{n}", n).replace("{m}", Math.round(-dv))]); else if (dw > PFD) it.push([l.id, "y", tt("pf_hill").replace("{n}", n).replace("{m}", Math.round(dw))]); }
+        var cmin = pfNum(PFC.min), cmax = pfNum(PFC.max), cv = null;
+        if (!l.hzArt) cv = coverOf(l); else if (l.hzArt === "bohr" && hz && hz.P) { var a0 = pfNum(l.hzH0), a1 = pfNum(l.hzH1), g0 = a0 != null ? a0 : hz.h0, g1 = a1 != null ? a1 : hz.h1; cv = Math.min.apply(null, hz.P.map(function (q) { return q[1] - (g0 + (g1 - g0) * (hz.L ? q[0] / hz.L : 0)); })) - lineDN(l) / 2000; }
+        if (cv != null && cmin != null && cv < cmin - 1e-9) it.push([l.id, "r", tt("rc_cov_min").replace("{n}", n).replace("{c}", f1(cv)).replace("{m}", cmin)]);
+        if (cv != null && cmax != null && cv > cmax + 1e-9 && !l.hzArt) it.push([l.id, "y", tt("rc_cov_max").replace("{n}", n).replace("{c}", f1(cv)).replace("{m}", cmax)]);
         if (hz && hz.max > GR) it.push([l.id, "y", tt("rc_steil").replace("{n}", n).replace("{m}", Math.round(hz.max)).replace("{g}", GR)]);
         if (L0 > R) it.push([l.id, "y", tt("rc_dist").replace("{n}", n).replace("{l}", f1(L0)).replace("{r}", R)]);
         if (pl.length) { var rmin = pl.some(function (e) { return e[0] >= 100; }) ? 3 : 1, dn = rmin === 3 ? "100" : "55"; for (var k = 1; k < l.pts.length - 1; k++) { var b = bendOf(l, k); if (b && b.r < rmin) it.push([l.id, "r", tt("rc_bend").replace("{n}", n).replace("{k}", k).replace("{r}", f1(b.r)).replace("{m}", rmin).replace("{dn}", dn)]); } }

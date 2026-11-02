@@ -184,3 +184,9 @@ Das gesamte Handbuch V1.2 (82 Seiten, unter- und oberirdisch) wurde ausgewertet.
 - **Kostenwirkung:** Luft- und Bohrabschnitte werden beim Übernehmen **nicht als Graben** übernommen (Grabenlänge 0, Meldung «… m Luft/Bohrung nicht als Graben übernommen – separat kalkulieren»), in der Auswertung «davon nicht im Graben». Schräglänge in den Kosten weiterhin nur mit dem Schalter.
 - **Prüfhinweise:** Luft/Bohrung (separat bepreisen); Gelände > 8 m unter/über der Verbindungslinie (Brücke/Tal bzw. Tunnel/Einschnitt vermutet). swissALTI3D enthält keine Bauwerke – Erkennung nur als Hinweis.
 - Test t45; Kopfleiste statt Fussleiste gewählt, damit die Fussleiste nicht umbricht. Assistent-Knopf im Dialog nach links verschoben.
+
+## Leitung im Längenprofil (Rohrachse, Überdeckung)
+- Im Profil erscheinen **Gelände** (braun) und **Rohrachse** (blau) getrennt; Tiefe standardmässig 10-fach überhöht (abschaltbar, in der Legende vermerkt). Tooltip zeigt die Überdeckung an der Maus.
+- **Überdeckung bis Rohrscheitel = Grabentiefe T − Bettung (5 cm) − DN** (T leer = 0.60 m); je Linie übersteuerbar. Das sind Annahmen; das Handbuch nennt keine Überdeckungswerte.
+- **Prüfung:** Min./Max. Überdeckung (Felder im Profil, leer = keine Prüfung, gespeichert im Browser); bei Bohrung die kleinste Überdeckung unter dem Gelände.
+- **Keine Kostenwirkung:** reine Darstellung und Prüfung; Grabentiefe im Datensatz bleibt wie eingegeben.
