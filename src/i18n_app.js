@@ -852,6 +852,7 @@
     km_sum_objv: ["{s} Schächte · {w} Werklöcher · {g} Gebäude", "{s} chambres · {w} fouilles pont. · {g} bâtiments", "{s} pozzetti · {w} buche · {g} edifici", "{s} manholes · {w} pits · {g} buildings"],
     km_sum_warn: ["Hinweise", "Remarques", "Avvisi", "Hints"],
     km_sum_go: ["Auswertung", "Évaluation", "Valutazione", "Evaluation"],
+    wm_txt: ["Lizenziert für {n} · © Alessandro Cortese · nicht weitergeben", "Licence pour {n} · © Alessandro Cortese · ne pas transmettre", "Licenza per {n} · © Alessandro Cortese · non trasmettere", "Licensed to {n} · © Alessandro Cortese · do not pass on"],
     km_prov: ["Kartenanbieter", "Fournisseur de cartes", "Fornitore cartografico", "Map provider"],
     km_bLeer: ["geo.admin: leere Basis (nur gewählte Ebenen)", "geo.admin: fond vide (couches choisies seulement)", "geo.admin: sfondo vuoto (solo livelli scelti)", "geo.admin: blank base (selected layers only)"],
     km_pt: ["Schacht setzen", "Placer un regard", "Posare un pozzetto", "Place manhole"],

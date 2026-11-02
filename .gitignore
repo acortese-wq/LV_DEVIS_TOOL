@@ -4,3 +4,4 @@ t.json
 __pycache__/
 *.zip
 dist/
+tools/node_modules/

@@ -528,3 +528,4 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border:1px solid var(--rule-stro
 .kmws .kmbottom .kmcostf{margin:0;font-size:13px;font-weight:700;color:var(--navy);white-space:nowrap;min-width:290px;text-align:right}.kmws .kmbottom .kmcostf:empty:before{content:"\00a0"}
 .kmsum{margin:0 0 10px;padding:8px 10px;border:1px solid var(--rule-strong);border-radius:8px;background:var(--panel-2,#f7f9fa)}.kmsum h3{margin:0 0 4px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}.kmsum dl{margin:0;display:grid;gap:3px}.kmsum dl>div{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:13px}.kmsum dt{color:var(--ink-soft)}.kmsum dd{margin:0;text-align:right}
 @media (max-width:860px){.kmws .kmbottom .kmcostf{min-width:0;white-space:normal;text-align:left;flex:1 0 100%}}
+.wmark{display:none}@media print{.wmark{display:block;position:fixed;bottom:4mm;left:10mm;font-size:8pt;color:#444}}

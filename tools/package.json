@@ -1,0 +1,1 @@
+{ "name": "lv-devis-tools", "private": true, "description": "Werkzeuge für die Weitergabe-Version (build.py --release)", "devDependencies": { "terser": "5.31.0" } }
