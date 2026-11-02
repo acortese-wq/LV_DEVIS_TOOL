@@ -1379,16 +1379,29 @@
     $("#bNew").onclick = function () { if (confirm(tt("confirmNew"))) { var l = S.lang; S = defaults(); S.lang = l; heal(); save(); applyKopf(); applyLang(); } };
     $("#fileIn").addEventListener("change", function () { if (this.files[0]) load(this.files[0]); this.value = ""; });
     applyKopf(); applyLang();
-    function loadDemo() {
+    function loadDemo() {   /* Held-Fall «Dorfstrasse mit Bachbrücke»: Rohranlage, Brücke (Luft), Hausanschluss, Gebäude; Höhenprofile gespeichert (läuft offline) */
     if (!confirm(tt("hp_demo_conf"))) return false;
-    var sn = snapState(), l = S.lang; S = defaults(); S.lang = l;
-    S.kopf.projekt = "Beispielprojekt (Demo)"; S.kopf.ort = "Musterdorf"; S.kopf.bearb = "A. Cortese"; heal();
-    var g = S.recs.graben[0]; g.uid = "g1"; g.name = "Leitungsgraben Dorfstrasse"; g.L = "85"; g.T = "0.80";
-    var s1 = S.recs.schacht[0]; s1.uid = "s1"; s1.name = "Spleissschacht Dorfplatz"; s1.n = "1"; s1.typ = "KES150";
-    var w = S.recs.werkloch[0]; w.uid = "w1"; w.name = "Spleissgrube"; w.sg = "1";
-    var e = S.recs.geb[0]; e.uid = "e1"; e.name = "Hauseinführung Dorfstrasse 4"; e.n = "1"; e.cm = "36";
-    var bl = S.recs.belag[0]; bl.uid = "b1"; bl.name = "Gehweg Asphalt"; bl.B = "1.5"; bl.L = "85";
-    S.karte = { lines: [{ id: "l1", pts: [[2759000, 1191000], [2759085, 1191000]], rid: "g1", rohr: { sys: "k55", dn: "55", len: "10", n: "2" } }], pts: [{ id: "p1", pt: [2759000, 1191000], sid: "s1", typ: "KES150", name: "" }], sond: [], notes: [], areas: [], wl: [{ id: "w1", pt: [2759085, 1191000], sid: "w1", wt: "sg", name: "" }], geb: [{ id: "g1", pt: [2759060, 1191012], sid: "e1", cm: "36", abd: "hauff", name: "" }], base: "farbe", bg: null, overlay: null };
+    var sn = snapState(), lg = S.lang; S = defaults(); S.lang = lg;
+    S.kopf.projekt = "Beispielprojekt Dorfstrasse mit Bachbrücke (Demo)"; S.kopf.ort = "Musterdorf"; S.kopf.bearb = "A. Cortese"; heal();
+    var X = 2759000, Y = 1191000, seg = function (a, b) { return Math.hypot(b[0] - a[0], b[1] - a[1]); }, len = function (pts) { var t = 0; for (var i = 1; i < pts.length; i++) t += seg(pts[i - 1], pts[i]); return t; };
+    var terr = function (x) { var h = 520 - 0.03 * (x - X); if (x > X + 100 && x < X + 260) h -= 8 * Math.pow(Math.sin(Math.PI * (x - X - 100) / 160), 2); return h; };
+    var mk = function (id, pts, rt, dn, n, fl, art, T, sNode, eNode) {
+      var L0 = len(pts), P = [], d, up = 0, S2 = 0, mx = 0, pos = function (dd) { var acc = 0; for (var i = 1; i < pts.length; i++) { var sl = seg(pts[i - 1], pts[i]); if (acc + sl >= dd - 1e-9) { var t = (dd - acc) / (sl || 1); return pts[i - 1][0] + t * (pts[i][0] - pts[i - 1][0]); } acc += sl; } return pts[pts.length - 1][0]; };
+      for (d = 0; d < L0; d += 10) P.push([Math.round(d * 10) / 10, Math.round(terr(pos(d)) * 100) / 100]); P.push([Math.round(L0 * 10) / 10, Math.round(terr(pos(L0)) * 100) / 100]);
+      for (var i = 1; i < P.length; i++) { var dd = P[i][0] - P[i - 1][0], dh = P[i][1] - P[i - 1][1]; S2 += Math.hypot(dd, dh); up += Math.abs(dh); mx = Math.max(mx, Math.abs(dh) / (dd || 1)); }
+      var o = { id: id, pts: pts, rid: null, rohr: { sys: "k55", dn: String(dn), len: "10", n: String(n) }, cfg: { rt: rt, art: art || "kies", fl: fl || "", T: T || "", B: "" }, s: sNode, e: eNode };
+      o.hz = { sig: JSON.stringify(pts), L: L0, S: S2, avg: up / L0 * 100, max: mx * 100, h0: P[0][1], h1: P[P.length - 1][1], P: P }; return o;
+    };
+    var lA = mk("l1", [[X, Y], [X + 75, Y + 3], [X + 150, Y]], { "100": 2, "55": 3 }, 100, 2, "belag", "kies", "0.80", "p1", "p2"),
+      lB = mk("l2", [[X + 150, Y], [X + 200, Y]], { "100": 2, "55": 3 }, 100, 2, "", "kies", "", "p2", "p3"),
+      lC = mk("l3", [[X + 200, Y], [X + 280, Y - 6], [X + 320, Y]], { "55": 3 }, 55, 3, "wiese", "kies", "", "p3", "p4"),
+      lD = mk("l4", [[X + 200, Y], [X + 200, Y + 45]], { "55": 1 }, 55, 1, "wiese", "kies", "", "p3", "p5");
+    lB.hzArt = "luft";
+    var pts = [{ id: "p1", pt: [X, Y], sid: null, typ: "KES150", name: "Spleissschacht Dorfplatz", mu: "3" }, { id: "p2", pt: [X + 150, Y], sid: null, typ: "KES175", name: "Schacht Brückenkopf West", mu: "4" }, { id: "p3", pt: [X + 200, Y], sid: null, typ: "KES150", name: "Schacht Brückenkopf Ost", mu: "3" }, { id: "p4", pt: [X + 320, Y], sid: null, typ: "KS80H", name: "Übergabepunkt Ost", mu: "1" }, { id: "p5", pt: [X + 200, Y + 45], sid: null, typ: "KS80U", name: "Übergabe Hausanschluss", mu: "1" }].map(function (p) { p.fl = ""; p.mode = "neu"; return p; });
+    var M = { lines: [lA, lB, lC, lD], pts: pts, sond: [], notes: [], areas: [], wl: [{ id: "w1", pt: [X + 148, Y + 4], sid: null, wt: "sg", name: "Spleissgrube Brückenkopf", fl: "" }], geb: [{ id: "g1", pt: [X + 203, Y + 50], sid: null, cm: "36", abd: "hauff", name: "EFH Dorfstrasse 4", gt: "efh" }, { id: "g2", pt: [X + 262, Y + 8], sid: null, cm: "36", abd: "hauff", name: "MFH Dorfstrasse 9", gt: "mfh" }] };
+    var st = karteApply(M, S.recs.graben[0], function (p) { return KARTE.total([p]); }, { src: "karte", area: KARTE.polyArea, perim: function () { return 0; } });
+    S.karte = { lines: M.lines, pts: M.pts, sond: [], notes: [], areas: [], wl: M.wl, geb: M.geb, base: "farbe", bg: null, overlay: null }; syncDerived(S.recs.graben[0], st);
+    [["l1", "Dorfstrasse West"], ["l3", "Dorfstrasse Ost"], ["l4", "Hausanschluss EFH"]].forEach(function (n) { var ln = M.lines.filter(function (x) { return x.id === n[0]; })[0], r = ln && recByUid("graben", ln.rid); if (r) r.name = n[1]; });
     heal(); save(); applyKopf(); applyLang(); renderForm(); renderResult(); undoToast(tt("hp_demo_done"), sn); return true;
   }
   window.__LVD = { loadDemo: loadDemo, S: function () { return S; }, xlsxBytes: xlsxBytes, renderResult: renderResult, F: F, optLabel: optLabel, tt: tt, fill: fill, snap: snapState, commit: function (sn, msg) { save(); renderForm(); renderResult(); undoToast(msg, sn); } };

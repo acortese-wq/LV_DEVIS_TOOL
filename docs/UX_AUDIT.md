@@ -202,3 +202,6 @@ Das gesamte Handbuch V1.2 (82 Seiten, unter- und oberirdisch) wurde ausgewertet.
 - **Fussleiste:** «Kosten netto CHF … · brutto CHF …» steht jetzt **vor** der Gesamtlänge (Kostenvorschau mit Rechenkern, wie bisher inkl. bisheriger Datensätze; Tooltip mit dem Hinweis «ohne Gewähr»). Die Vorschau in der Auswertung bleibt.
 - **Zusammenfassung** oben im Reiter «Eigenschaften», **vor** der Objektliste: Kosten netto/brutto, Gesamtlänge mit Linienzahl, Schächte/Werklöcher/Gebäude, Anzahl Hinweise mit Sprung in die Auswertung. Aktualisiert sich mit jeder Änderung.
 - Kostenvorschau liefert jetzt netto und brutto (`costPreview`). Keine Kostenwirkung (nur Anzeige). Test t47.
+
+## Beispielprojekt als Held-Fall für Präsentationen
+«Beispielprojekt laden» (Anleitung) erzeugt jetzt den Fall **«Dorfstrasse mit Bachbrücke»**: 4 Linien (Rohranlage 2×K100 + 3×K55, Brücke als **Luft**, Strecke Ost, Hausanschluss), 5 Schächte mit Muffen, Spleissgrube, 2 Gebäude (EFH/MFH). Die Höhenprofile sind gespeichert (Längenprofil läuft offline); Datensätze entstehen über denselben Weg wie «Übernehmen». Drehbuch: `docs/DEMO_DREHBUCH.md`. Rechenkern unverändert.

@@ -1,0 +1,12 @@
+const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+(async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000);
+await pg.click('#bHelp'); await pg.waitForSelector('#helpDlg[open]'); await pg.click('#hpDemo'); await pg.waitForTimeout(900); const S=await getS(pg);
+console.log('Graben',S.recs.graben.map(r=>r.name+' L='+r.L).join(' | ')); console.log('Schächte',S.recs.schacht.length,'Gebäude',S.recs.geb.length,'Werkloch',S.recs.werkloch.length);
+ok(S.recs.graben.length===3,'3 Graben-Datensätze (Brücke wird nicht als Graben übernommen)'); ok(S.karte.lines.length===4&&S.karte.lines[1].hzArt==='luft','Brücke als Luftabschnitt'); ok(S.karte.pts.length===5&&S.karte.geb.length===2,'5 Schächte, 2 Gebäude');
+const res=await pg.textContent('#result'); ok(/CHF/.test(res)&&!/Keine Positionen/.test(res),'Ergebnis mit Kosten vorhanden'); const net=await pg.evaluate(()=>{const o=window.__LVD; try{return JSON.stringify(o.S().recs.schacht.map(r=>r.anschl||r.an80||r.an150))}catch(e){return ''}}); console.log('Anschlüsse',net);
+const m=res.match(/Netto[^\d]*([\d'.,]+)/); console.log('Netto', m&&m[1]);
+await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open] #kmMap'); await pg.waitForTimeout(900);
+ok(/Kosten netto CHF [\d']+/.test(await pg.textContent('#kmCostF')),'Karte: Kosten in der Fussleiste ('+(await pg.textContent('#kmCostF'))+')');
+await pg.click('[data-pfb]'); await pg.waitForTimeout(500); ok(await pg.locator('#kmPfSvg').count()===1,'Längenprofil funktioniert ohne Internet (gespeicherte Profile)'); ok(await pg.locator('#kmProf .pfm').count()>=3,'Schächte im Profil sichtbar');
+await pg.click('#kmTabE'); await pg.waitForTimeout(300); const chk=await pg.textContent('#kmChk'); console.log(chk.slice(0,400)); ok(/nicht im Graben/.test(await pg.textContent('#kmEval')),'Auswertung: davon nicht im Graben (Brücke)');
+ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();
