@@ -404,6 +404,8 @@
     km_renum: ["{n} Name(n) neu nummeriert", "{n} nom(s) renuméroté(s)", "{n} nome/i rinumerato/i", "{n} name(s) renumbered"],
     jn_ask: ["Die Linienenden treffen sich – zu einer Linie verbinden?", "Les extrémités se rejoignent – relier en une ligne ?", "Le estremità si incontrano – collegare in una linea?", "The line ends meet – join into one line?"],
     jn_do: ["Verbinden", "Relier", "Collega", "Join"],
+    km_cred: ["App-Konzept und Urheber: Alessandro Cortese", "Concept de l’application et auteur : Alessandro Cortese", "Concetto dell’app e autore: Alessandro Cortese", "App concept and author: Alessandro Cortese"],
+    km_cred2: ["Fachliche Struktur und Ausgestaltung", "Structure technique et conception", "Struttura tecnica e configurazione", "Technical structure and design"],
     km_save: ["Speichern", "Enregistrer", "Salva", "Save"],
     km_save_t: ["Zeichnung sichern und weiterarbeiten (Strg+S) – Datensätze werden erst mit «In Datensätze übernehmen» angelegt", "Enregistrer le dessin et continuer (Ctrl+S) – les fiches ne sont créées qu'avec « Reprendre dans les fiches »", "Salvare il disegno e continuare (Ctrl+S) – le schede vengono create solo con «Riprendere nelle schede»", "Save the drawing and keep working (Ctrl+S) – records are only created with «Apply to records»"],
     km_saved: ["Zeichnung gespeichert – Datensätze noch nicht angelegt (dafür «In Datensätze übernehmen»)", "Dessin enregistré – fiches pas encore créées (« Reprendre dans les fiches »)", "Disegno salvato – schede non ancora create («Riprendere nelle schede»)", "Drawing saved – records not created yet («Apply to records»)"],

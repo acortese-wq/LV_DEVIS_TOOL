@@ -589,3 +589,11 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 .hint.reqmsg{background:#fde3e1;color:#7f1d1d;padding:5px 8px;border-radius:6px;border-left:4px solid #b8332a}
 .kmtoast.warn{background:#b8332a;color:#fff}
 .kmws .kmrc{border-left-width:6px}
+
+/* Urheberhinweis in der Kartenerfassung (immer sichtbar) */
+.kmcred{margin:0;padding:3px 14px;font-size:11.5px;color:var(--ink-soft);background:var(--paper);border-top:1px solid var(--rule);text-align:center}
+.kmdlg.kmws[open]{grid-template-rows:auto minmax(0,1fr) auto auto}
+@media (max-width:860px){.kmcred{padding:6px 12px}}
+@media print{.kmcred{display:none}}
+.kmcred-h{display:none}
+@media (max-width:860px){.kmdlg.kmws .kmcred:not(.kmcred-h){display:none}.kmcred-h{display:block;flex:1 0 100%;order:9;border:0;padding:2px 0 0;font-size:11px;text-align:left}}

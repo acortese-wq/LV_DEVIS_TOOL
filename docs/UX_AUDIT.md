@@ -260,3 +260,6 @@ Hinweis V82: Routenlinien entstehen immer ohne Verbindung (kein from/to/Schacht)
 
 ## Warnungen rot hinterlegt (V83)
 Alle Warnungen werden rot hinterlegt: Warnung = hellrot (#fde3e1) mit dunkelrotem Text (#7f1d1d), Stopp/Fehler = vollrot (#b8332a) mit weissem Text; Info bleibt neutral. Gilt für Prüfmeldungen in der Karte, Warnliste und Statusbox der Hauptseite, Kennzeichen (Tags), Fehlermeldungen (`reqmsg`) und Hinweise mit ⚠/⛔ (rot hinterlegte Toasts, z. B. Höhenprofil nicht ladbar). Kontrast ≥ 4.5:1, axe ohne Verstösse. Nur Darstellung, keine Kostenwirkung.
+
+## Urheberhinweis in der Kartenerfassung (V84)
+Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur und Ausgestaltung» (4 Sprachen) ist in der Kartenerfassung immer sichtbar: Desktop als feste Zeile am unteren Rand des Fensters, Handy (≤ 860 px) unter dem Titel in der Kopfzeile. Nicht im Ausdruck. Nur Darstellung.
