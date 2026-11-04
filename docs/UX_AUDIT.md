@@ -213,3 +213,8 @@ Das gesamte Handbuch V1.2 (82 Seiten, unter- und oberirdisch) wurde ausgewertet.
 
 ## Tasten 1–4 für die Oberfläche (V70)
 Beim Linienzeichnen wechselt 1 Belag, 2 Wiese, 3 Pflästerung, 4 Rohplanie (gleiche Logik wie die Palette: Teilung am letzten Punkt). Inaktiv in Eingabefeldern und mit Strg/Alt/Cmd. Tastenhinweis `<kbd>` auf den Palettenknöpfen. Keine Kostenwirkung ausser den ohnehin je Abschnitt erzeugten Positionen.
+
+## Verbundenes Verschieben (V72)
+- Hauseinführung ziehen: Fang wie beim Setzen (Leitung ◆, Gebäudeecke/-kante ▭, eigene Anschlussleitung ausgenommen) mit Fangmarke; das Ende der angeschlossenen Leitung folgt. Löst sich die Hauseinführung von der Hauptleitung, wird deren T-Verknüpfung (`to`/`from`) aufgehoben.
+- Abzweig ohne Schacht (`from`/`to`): Anfangs-/Endpunkt gleitet beim Ziehen entlang der Hauptleitung (der Knoten in der Hauptleitung wandert mit; war er nur ein T-Knoten, entsteht kein zusätzlicher Eckpunkt). Zieht man den Knoten der Hauptleitung, folgt der Abzweig. Gleiches gilt für Teilstrecken (Oberflächenwechsel, `pv`/`nx`).
+- Eigenschaften: «Angeschlossen an Linie n» / «Abzweig von Linie n» mit Knopf «Verbindung lösen» (4 Sprachen). Keine Kostenwirkung, ausser dass sich Längen mit der Geometrie ändern.
