@@ -529,3 +529,7 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border:1px solid var(--rule-stro
 .kmsum{margin:0 0 10px;padding:8px 10px;border:1px solid var(--rule-strong);border-radius:8px;background:var(--panel-2,#f7f9fa)}.kmsum h3{margin:0 0 4px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}.kmsum dl{margin:0;display:grid;gap:3px}.kmsum dl>div{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:13px}.kmsum dt{color:var(--ink-soft)}.kmsum dd{margin:0;text-align:right}
 @media (max-width:860px){.kmws .kmbottom .kmcostf{min-width:0;white-space:normal;text-align:left;flex:1 0 100%}}
 .wmark{display:none}@media print{.wmark{display:block;position:fixed;bottom:4mm;left:10mm;font-size:8pt;color:#444}}
+
+/* Oberflächen-Palette beim Zeichnen, Fang Hauseinführung */
+.kmpal{position:absolute;top:8px;left:52px;right:52px;z-index:650;display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:4px 6px;background:var(--paper);border:1px solid var(--rule-strong);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.2);width:fit-content;max-width:calc(100% - 104px)}.kmpal[hidden]{display:none}.kmpalt{font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-right:2px}.kmpalb{display:inline-flex;align-items:center;gap:4px}
+.kmsnap.geb span{background:#b25b00;color:#fff;border-color:#fff;border-radius:4px}.kmsnap.kante span{border-radius:2px;background:#fff;border-color:#b25b00;color:#7a3f00}
