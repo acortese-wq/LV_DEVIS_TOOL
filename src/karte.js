@@ -1630,7 +1630,7 @@
     function palRender() {
       var h = $("#kmPal"); if (!h) return; var on = mode === "line"; h.hidden = !on; if (!on) return;
       var l = cur && byId(M.lines, cur), fl = l ? cfgOf(l).fl : lastCfg.fl, fo = document.activeElement && h.contains(document.activeElement) ? document.activeElement.getAttribute("data-f") : null;
-      h.innerHTML = '<span class="kmpalt">' + esc(tt("pal_t")) + "</span>" + FLS.map(function (f) { var st = LSTY[f]; return '<button type="button" class="btn ghost small kmtgl kmpalb" data-f="' + f + '" aria-pressed="' + (fl === f ? "true" : "false") + '"><svg width="22" height="8" aria-hidden="true"><line x1="1" y1="4" x2="21" y2="4" stroke="' + st[0] + '" stroke-width="3"' + (st[1] ? ' stroke-dasharray="' + st[1].split(" ").map(function (v) { return v * 0.5; }).join(" ") + '"' : "") + "/></svg> " + esc(tt("km_pal_" + f)) + "</button>"; }).join("");
+      h.innerHTML = '<span class="kmpalt">' + esc(tt("pal_t")) + "</span>" + FLS.map(function (f) { var st = LSTY[f]; return '<button type="button" class="btn ghost small kmtgl kmpalb" data-f="' + f + '" aria-pressed="' + (fl === f ? "true" : "false") + '"><svg width="22" height="8" aria-hidden="true"><line x1="1" y1="4" x2="21" y2="4" stroke="' + st[0] + '" stroke-width="3"' + (st[1] ? ' stroke-dasharray="' + st[1].split(" ").map(function (v) { return v * 0.5; }).join(" ") + '"' : "") + "/></svg> " + esc(tt("km_pal_" + f)) + ' <kbd>' + (FLS.indexOf(f) + 1) + "</kbd></button>"; }).join("");
       if (fo) { var b = h.querySelector('[data-f="' + fo + '"]'); if (b) b.focus(); }
     }
     function snapInfo(c, forPreview) {
@@ -1839,6 +1839,7 @@
         if (e.key === "Enter" && e.shiftKey) { e.preventDefault(); endLine(); return; }
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); addPt(map.getCenter()); return; }
       }
+      if (mode === "line" && !ed && !e.ctrlKey && !e.metaKey && !e.altKey && /^[1-4]$/.test(e.key)) { e.preventDefault(); switchSurface(FLS[+e.key - 1]); return; }
       if ((e.key === "Delete" || e.key === "Backspace") && !ed && mode === "edit" && sel) { e.preventDefault(); del(sel.id); }
     });
     var fa0 = $("#kmFoldAll"); if (fa0) fa0.addEventListener("click", function () { var all = fa0.dataset.all === "1"; [].slice.call($("#kmObj").querySelectorAll(".kmrow")).forEach(function (r) { folded[r.getAttribute("data-rid")] = !all; }); rows(); });
