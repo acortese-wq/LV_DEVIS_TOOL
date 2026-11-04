@@ -1,4 +1,4 @@
-const {chromium,ok,mk}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch();
 for(const [w,h] of [[390,800],[768,1000],[1024,768],[1366,768],[1600,1000]]){
  const pg=await mk(b,w,h); await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(400); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);

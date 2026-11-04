@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000);
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
 for(let i=0;i<9;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitForTimeout(100);} await pg.waitForTimeout(400);
@@ -7,7 +7,7 @@ const none=async()=>{ if(await pg.locator('#kmAsk button',{hasText:'Ohne Schacht
 await pg.click('[data-k=mline]'); await clk(100,250); await none(); await clk(500,250); await pg.click('[data-k=end]'); await none();
 await pg.click('[data-k=mpt]').catch(()=>{}); await clk(300,250);
 const ask=await pg.locator('#kmAsk').count()?await pg.locator('#kmAsk').textContent():''; console.log('Popup:',ask.slice(0,120));
-await pg.screenshot({path:'/tmp/claude-0/lf/t39.png'});
+await pg.screenshot({path:require('./lib/k.js').tmp('t39.png')});
 await pg.click('[data-k=apply]'); await pg.waitForTimeout(600); const S=await getS(pg);
 console.log(S.karte.lines.length, JSON.stringify(S.karte.lines.map(l=>[l.s,l.e,l.pts.length,l.rohr])), JSON.stringify(S.karte.pts.map(p=>p.id)));
 ok(S.karte.lines.length===2,'Linie am Schacht geteilt'); ok(S.karte.lines[0].e===S.karte.pts[0].id&&S.karte.lines[1].s===S.karte.pts[0].id,'beide Hälften am Schacht');

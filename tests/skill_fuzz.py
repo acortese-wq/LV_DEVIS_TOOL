@@ -73,8 +73,20 @@ for i in range(N):
     p = os.path.join(out, "in_%03d.json" % i)
     json.dump(inp, open(p, "w"), ensure_ascii=False)
     subprocess.run([sys.executable, os.path.join(H, "skill/lv-devis-tiefbau/scripts/rechne.py"), p, "--json-only", "--out", out], check=True, stdout=subprocess.DEVNULL)
-    st = json.load(open(os.path.join(out, "LV-Devis_F%03d.json" % i)))["data"]
+    fj = os.path.join(out, "LV-Devis_F%03d.json" % i); wrap = json.load(open(fj)); st = wrap["data"]
     kve.LANG["v"] = st["lang"]
+    if i % 2 == 0:   # offene Positionen mit eigenem Preis (rec.oep) abdecken: gültige, leere, ungültige Preise und fremde Schlüssel
+        o0 = kve.calc(st)
+        for e in o0["elems"]:
+            ol = [l for l in e["lines"] if l.get("open")]
+            if not ol or e["tab"] not in st["recs"]:
+                continue
+            rec_ = st["recs"][e["tab"]][e["idx"]]; oep = rec_.setdefault("oep", {})
+            for l in R.sample(ol, min(len(ol), R.randint(1, 3))):
+                oep[str(l.get("tk")) + "|" + str(l.get("unit"))] = {"ep": ch(["12.5", "180", "33,40", "0", "", "abc", "1'200", "0.05"]), "text": ch(["", "Offerte Muster AG"]), "why": ch(["", "Richtpreis"])}
+            if R.random() < 0.3:
+                oep["nichtVorhanden|m"] = {"ep": "99"}
+        json.dump(wrap, open(fj, "w"), ensure_ascii=False)
     o = kve.calc(st)
     hon = [kve.honCalc(r, o["sum"]["netto"]) for r in st["recs"]["hon"]]
     json.dump({"sum": o["sum"], "summary": [[l["key"], l["qty"], l["ep"], l["total"], l["unit"]] for l in o["summary"]], "warn": sorted(w["id"] for w in o["warn"]),

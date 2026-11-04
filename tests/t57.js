@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000);
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
 for(let i=0;i<9;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitForTimeout(80);}
@@ -13,7 +13,7 @@ ok(await pg.locator('#kmRtGo').isDisabled(),'«Route erstellen» zunächst gespe
 await pg.fill('#kmRtA','Bahnhofstrasse 1'); await pg.waitForSelector('#kmRtAh .kmhit'); await pg.click('#kmRtAh .kmhit');
 await pg.fill('#kmRtB','Poststrasse 5'); await pg.waitForSelector('#kmRtBh .kmhit'); await pg.click('#kmRtBh .kmhit');
 ok(await pg.locator('#kmRtGo').isEnabled(),'nach Auswahl beider Adressen freigegeben');
-await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes.map(n=>n.target.join(' ')).join(';')))); ok(ax.length===0,'axe: '+JSON.stringify(ax));
+await pg.addScriptTag({path:require('./lib/k.js').AXE}); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes.map(n=>n.target.join(' ')).join(';')))); ok(ax.length===0,'axe: '+JSON.stringify(ax));
 await pg.click('#kmRtGo'); await pg.waitForTimeout(800);
 const m=await pg.evaluate(()=>JSON.parse(JSON.stringify(window.__KM.M())));
 if(fail){ ok(m.lines.length===0&&/nicht erreichbar/.test(await pg.textContent('#kmRtMsg')),'Fehlerfall: verständliche Meldung, keine Linie'); }

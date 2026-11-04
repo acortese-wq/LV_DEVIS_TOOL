@@ -1,10 +1,9 @@
 /* UI-Qualitätssicherung im Browser (Playwright). Aufruf: node tests/ui_qa.js
-   Optional: AXE=/pfad/axe.min.js (sonst werden die axe-Prüfungen als NICHT AUSGEFÜHRT gemeldet),
-             PW=/pfad/zu/playwright (Standard: /opt/node22/lib/node_modules/playwright).
+   Vorbereitung: npm ci --omit=optional --prefix tests (axe-core). Optional: AXE=/pfad/axe.min.js, PW=/pfad/zu/playwright.
    Prüft: Konsolenfehler, Überlauf, Tastatur-Fokus, Datenerhalt, ungültige Eingaben, JSON-/Excel-Export, Zurücksetzen; axe WCAG 2.2 AA je Reiter und Bildschirmbreite. */
-const { chromium } = require(process.env.PW || '/opt/node22/lib/node_modules/playwright');
+const { chromium } = require('./lib/k.js');   /* Playwright-Suche wie in den übrigen Tests */
 const fs = require('fs'), path = require('path'), os = require('os');
-const URL = 'file://' + path.resolve(__dirname, '../index.html'), AXE = process.env.AXE || '';
+const URL = 'file://' + path.resolve(__dirname, '../index.html'), AXE = process.env.AXE || require('./lib/k.js').AXE;   /* axe-core aus tests/node_modules (npm ci --prefix tests) */
 const VPS = [[320, 700], [375, 800], [768, 1024], [1024, 800], [1280, 900], [1440, 900], [1800, 1000]], TABS = ['graben', 'rohr', 'schacht', 'werkloch', 'fund', 'geb', 'belag', 'allg', 'hon', 'plan', 'par'];
 const res = []; const T = (name, st, info) => { res.push([name, st, info || '']); console.log(st.padEnd(14), name, info || ''); };
 (async () => {

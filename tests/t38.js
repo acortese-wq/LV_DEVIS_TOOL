@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000);
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
 for(let i=0;i<9;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitForTimeout(100);} await pg.waitForTimeout(400);
@@ -19,5 +19,5 @@ await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.wa
 const bx2=await pg.locator('#kmMap').boundingBox(); if((await pg.getAttribute('[data-k=mline]','aria-pressed'))!=='true') await pg.click('[data-k=mline]'); await pg.mouse.click(bx2.x+200,bx2.y+450); await pg.waitForTimeout(300); await none(); await pg.mouse.click(bx2.x+300,bx2.y+450); await pg.waitForTimeout(300); await pg.mouse.move(bx2.x+400,bx2.y+456,{steps:2}); await pg.waitForTimeout(200); ok(await pg.locator('.kmsnap.rect').count()===0,'ohne Schalter keine Rechtwinkel-Fangmarke');
 // Umschalt kehrt um
 await pg.keyboard.down('Shift'); await pg.mouse.move(bx2.x+405,bx2.y+457,{steps:2}); await pg.waitForTimeout(200); ok(await pg.locator('.kmsnap.rect').count()===1,'Umschalt aktiviert Rechtwinklig/parallel vorübergehend'); await pg.keyboard.up('Shift');
-await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); const ax=await pg.evaluate(()=>axe.run(document).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,160));
+await pg.addScriptTag({path:require('./lib/k.js').AXE}); const ax=await pg.evaluate(()=>axe.run(document).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,160));
 ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();

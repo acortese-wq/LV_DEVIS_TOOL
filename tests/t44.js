@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); let pg=await mk(b,1600,1000);
 await pg.fill('#f_graben_L','100'); await pg.waitForTimeout(500);
 // alle Pfade aller Beratungen durchlaufen
@@ -18,5 +18,5 @@ await ask('Eingrabtiefe Holzmast'); await btn('Eingrabtiefe'); await btn('10 m')
 await ask('Meldepflicht Luftfahrt'); await btn('Ja'); await btn('Nein'); t=await last(); ok(/30 Tage/.test(t)&&/Meldepflichtig/.test(t),'BAZL Meldepflicht');
 await ask('Zweitweg Beratung'); await btn('Zwei parallele'); await btn('Ja'); await btn('3 bis 5 m'); t=await last(); ok(/gelten als getrennte Wege/.test(t)&&/3 m/.test(t),'Zweitweg im Strassenrand: 3 m reichen');
 await ask('Projekt-Check'); await btn('Basis: Teilnehmerkabel Cu'); await btn('In der Bauzone'); t=await last(); ok(/Projekt|Zeichnung/.test(t),'Projekt-Check läuft: '+t.slice(0,60));
-await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); const ax=await pg.evaluate(()=>axe.run(document.body).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,200));
+await pg.addScriptTag({path:require('./lib/k.js').AXE}); const ax=await pg.evaluate(()=>axe.run(document.body).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,200));
 ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();

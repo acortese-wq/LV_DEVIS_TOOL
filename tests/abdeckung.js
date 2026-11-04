@@ -1,4 +1,4 @@
-const {chromium,mk}=require('/tmp/claude-0/lf/k.js');
+const {chromium,mk}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b);
 const res=await pg.evaluate(()=>{
  const T=KVE.TABS, nr=(t,n)=>LVM.newRec(t,n,false);

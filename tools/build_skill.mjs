@@ -52,5 +52,5 @@ const md = await pg.evaluate(() => {
 await br.close();
 fs.writeFileSync(path.join(SK, 'references/felder.md'), '# Feldreferenz Erfassungsmaske (automatisch erzeugt)\n\n' +
   'Alle Werte werden als **Text** gespeichert (Zahlen z. B. `"12.5"`), Ja/Nein als `true`/`false`. Felder, die nicht angegeben werden, erhalten die Vorgabe.\n' +
-  'Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Menge"}`) und `free` (freie Positionen, siehe SKILL.md).\n' + md + '\n');
+  'Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Menge"}`), `free` (freie Positionen, siehe SKILL.md) und `oep` (eigene Preise für OFFEN-Positionen, siehe SKILL.md).\n' + md + '\n');
 console.log('skill gebaut:', SK);

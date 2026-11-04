@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000);
 await pg.click('#bHelp'); await pg.waitForSelector('#helpDlg[open]'); await pg.click('#hpDemo'); await pg.waitForTimeout(900); const S=await getS(pg);
 console.log('Graben',S.recs.graben.map(r=>r.name+' L='+r.L).join(' | ')); console.log('Schächte',S.recs.schacht.length,'Gebäude',S.recs.geb.length,'Werkloch',S.recs.werkloch.length);

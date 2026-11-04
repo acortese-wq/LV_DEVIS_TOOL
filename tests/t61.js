@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000);
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
 for(let i=0;i<9;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitForTimeout(80);}
@@ -41,5 +41,5 @@ await pg.click('[data-k=undo]'); await pg.waitForTimeout(300);
 await pg.click('[data-eop=seg]'); await pg.click('[data-eop=pt]'); a=await V(0); c=await V(1); await pg.click('[data-eop=seg]'); m=await KM(); P=m.lines[0].pts.map(q=>q.slice());
 await dragAbs((a[0]*0.7+c[0]*0.3),(a[1]*0.7+c[1]*0.3),0,-30); m=await KM(); const d0=d(m.lines[0].pts[0],P[0]), d1=d(m.lines[0].pts[1],P[1]), d2=d(m.lines[0].pts[2],P[2]);
 ok(d0>2&&Math.abs(d0-d1)<0.05&&d2<0.01,'Segment-Art: beide Eckpunkte des Abschnitts wandern, der Rest bleibt ('+d0.toFixed(1)+'/'+d1.toFixed(1)+'/'+d2.toFixed(1)+')');
-await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes.map(n=>n.target.join(' ')).join(';')))); ok(ax.length===0,'axe: '+JSON.stringify(ax));
+await pg.addScriptTag({path:require('./lib/k.js').AXE}); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes.map(n=>n.target.join(' ')).join(';')))); ok(ax.length===0,'axe: '+JSON.stringify(ax));
 ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();

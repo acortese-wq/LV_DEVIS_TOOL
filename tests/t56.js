@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000);
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
 for(let i=0;i<9;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitForTimeout(80);}
@@ -28,7 +28,7 @@ await pg.click('[data-k=close]'); await pg.waitForTimeout(300); await pg.click('
 const r3=await pg.locator('.kmside').boundingBox(); ok(Math.abs(r3.x-r2.x)<3&&Math.abs(r3.y-r2.y)<3,'Position wird gemerkt');
 // axe mit offenem Katalog
 await pg.click('.kmmidtog'); await pg.waitForTimeout(300);
-await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes.map(n=>n.target.join(' ')).join(';'))));
+await pg.addScriptTag({path:require('./lib/k.js').AXE}); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes.map(n=>n.target.join(' ')).join(';'))));
 ok(ax.length===0,'axe: '+JSON.stringify(ax));
 // zurücksetzen
 await pg.click('.kmmidtog'); await pg.waitForTimeout(100); await pg.locator('button',{hasText:'Fenster zurücksetzen'}).click(); await pg.waitForTimeout(400);

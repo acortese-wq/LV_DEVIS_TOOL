@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000); let calls=0;
 await pg.route('**/rest/services/profile.json**',async r=>{calls++; const u=new URL(r.request().url()); const g=JSON.parse(u.searchParams.get('geom')); const n=+u.searchParams.get('nb_points'); let L=0; for(let i=1;i<g.coordinates.length;i++) L+=Math.hypot(g.coordinates[i][0]-g.coordinates[i-1][0],g.coordinates[i][1]-g.coordinates[i-1][1]); const arr=[]; for(let i=0;i<n;i++){const d=L*i/(n-1); arr.push({dist:d,alts:{COMB:500-30*Math.sin(Math.PI*d/L)},easting:0,northing:0});} await r.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify(arr)});});
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
@@ -32,7 +32,7 @@ await pg.locator('input[data-pf=cov]').first().fill('1.2'); await pg.locator('in
 await pg.fill('[data-pf=covmax]','1.0'); await pg.dispatchEvent('[data-pf=covmax]','change'); await pg.waitForTimeout(300); ok(/über dem Höchstwert 1 m/.test(await pg.textContent('#kmChk')),'Warnung: über Höchstwert');
 const r2=await pg.locator('#kmPfSvg').boundingBox(); await pg.mouse.move(r2.x+r2.width*0.2,r2.y+60); await pg.waitForTimeout(150); ok(/Überdeckung 1[.,]2 m/.test(await pg.textContent('#kmPfTip')),'Tooltip zeigt Überdeckung');
 await pg.fill('[data-pf=covmin]',''); await pg.dispatchEvent('[data-pf=covmin]','change'); await pg.fill('[data-pf=covmax]',''); await pg.dispatchEvent('[data-pf=covmax]','change'); await pg.waitForTimeout(200);
-await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,250));
+await pg.addScriptTag({path:require('./lib/k.js').AXE}); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,250));
 await pg.click('[data-k=apply]'); await pg.waitForTimeout(700); let S=await getS(pg);
 ok(S.karte.lines.length===2&&S.karte.lines[1].hzArt==='luft','Abschnittsart gespeichert'); ok(S.recs.graben.length===1,'Luftabschnitt nicht als Graben übernommen (Graben-Datensätze: '+S.recs.graben.length+')');
 const L0=parseFloat(S.recs.graben[0].L); console.log('Graben-L',L0); ok(L0>50&&L0<250,'Grabenlänge = nur Geländeabschnitt');

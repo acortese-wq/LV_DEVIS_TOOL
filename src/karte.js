@@ -1833,7 +1833,7 @@
       costT = setTimeout(function () { var el = $("#kmCost"), ef = $("#kmCostF"); if (!el) return; var v = null; try { v = opt.cost(JSON.parse(JSON.stringify(M)), function (m) { return effLen(m); }, { area: area, perim: perim, base: base }); } catch (e) { v = null; }
         var nn = v == null ? null : (typeof v === "object" ? v.n : v), bb = v != null && typeof v === "object" ? v.b : null, f0 = function (x) { return Math.round(x).toLocaleString("de-CH"); };
         costLast = nn == null ? null : { n: nn, b: bb };
-        el.textContent = nn == null ? "" : tt("km_cost").replace("{v}", f0(nn)); if (ef) { ef.textContent = nn == null ? "" : tt("km_costf").replace("{n}", f0(nn)).replace("{b}", bb == null ? "–" : f0(bb)); ef.title = nn == null ? "" : tt("km_cost").replace("{v}", f0(nn)); }
+        el.textContent = nn == null ? "" : tt("km_cost").replace("{v}", f0(nn)); if (ef) { ef.textContent = nn == null ? "" : tt("km_costf").replace("{n}", f0(nn)).replace("{b}", bb == null ? "–" : f0(bb)) + (v && typeof v === "object" && v.o ? " · ⚠ " + tt("km_costOff").replace("{n}", v.o) : ""); ef.title = nn == null ? "" : tt("km_cost").replace("{v}", f0(nn)); }
         sumRender(); }, 500);
     }
     function newNote(type, pts) { snap(); var n = { id: nid("n"), type: type, pts: pts, color: noteCol, text: type === "text" ? "Text" : "", size: "m" }; M.notes.push(n); sel = { id: n.id }; return n; }

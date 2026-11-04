@@ -17,7 +17,7 @@ App-Konzept und Urheber: **Alessandro Cortese**. Dieser Skill verwendet denselbe
 ## Grundregeln (immer einhalten)
 
 1. **Nie selbst rechnen oder Preise schätzen.** Mengen, Einheitspreise, Rabatt, Installationspauschale, MWST und Honorar kommen ausschliesslich aus `scripts/rechne.py`. Keine Preise aus dem Gedächtnis nennen – nachschlagen mit `scripts/lv_suche.py`. **Immer das Skript ausführen** – auch für eine schnelle Schätzung.
-2. **OFFEN-Positionen** (kein LV-Preis) sind nicht im Total. Immer ausweisen und empfehlen, den Preis beim Unternehmer anzufragen. Nie einen Preis dafür erfinden.
+2. **OFFEN-Positionen** (kein LV-Preis) sind nicht im Total. Immer ausweisen und empfehlen, den Preis beim Unternehmer anzufragen. Nie einen Preis dafür erfinden. Nennt der Anwender einen Preis (z. B. aus einer Offerte), wird er im Datensatz unter `oep` erfasst: `"oep": {"<tk>|<Einheit>": {"ep": "45.00", "text": "…", "why": "Offerte …"}}` – `tk` und Einheit stammen aus der OFFEN-Zeile. Die Position zählt dann ins Total, ist als «erfasst» (ausserhalb LV) markiert und erzeugt die Warnung «offenErfasst».
 3. **Warnungen der Stufe `stop`** (z. B. Schachtgrösse am Einbauort nicht zulässig) dem Benutzer vor der Summe nennen und eine Korrektur vorschlagen.
 4. Fehlende Pflichtangaben **nachfragen**, statt Annahmen still zu treffen. Getroffene Annahmen (Vorgabewerte) am Schluss auflisten.
 5. Sprache des Benutzers verwenden (DE/FR/IT; EN möglich). Positionstexte über `"lang"` steuern.
@@ -78,7 +78,7 @@ Vollständige Felder, Optionen, Vorgaben und Bedingungen: **`references/felder.m
 - **Zubehör neuer Rohre** (Graben mit Rohren, Reiter Rohr mit «verlegen»): Fehlen Warnband, Schnur/Draht einziehen oder Kalibrieren, meldet das Skript eine `stop`-Warnung. Den Benutzer **ausdrücklich fragen**. Nur wenn er bestätigt, dass es bewusst nicht ausgeführt wird, im Datensatz `"zubV": { "warn": true, "schnur": true, "kal": true }` (nur die bestätigten Punkte) setzen – nie von sich aus.
 - **Leitungszone** wird aus Bettung (`bett`, cm, Vorgabe 5) + Rohrlagen + Umhüllung (`umh`, cm, min. 5) über die Grabenbreite berechnet; `umhMode: "manuell"` mit `umhArea` (m²/m) nur auf Wunsch.
 - **Grabenbreite** «begangen/nicht begangen»: ohne `aussen` wird das Aussenmass aus den Rohren abgeleitet (max. 4 je Lage, 4 cm Abstand).
-- Positionen ohne LV-Preis bleiben OFFEN; Abweichungen vom LV-Preis werden als «EP geändert» markiert.
+- Positionen ohne LV-Preis bleiben OFFEN, ausser der Anwender erfasst einen eigenen Einheitspreis (`oep`); Abweichungen vom LV-Preis werden als «EP geändert» markiert.
 
 ## Skripte
 

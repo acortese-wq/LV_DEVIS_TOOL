@@ -1,10 +1,10 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); let pg=await mk(b,1600,1000);
 await pg.fill('#f_graben_L','100'); await pg.waitForTimeout(500);
 ok(await pg.locator('#bHelp').isVisible(),'Knopf «Anleitung» im Kopf'); await pg.click('#bHelp'); await pg.waitForSelector('#helpDlg[open]');
 ok(await pg.locator('#hpNav button').count()===13,'13 Kapitel im Inhaltsverzeichnis'); ok(/1\. Schnellstart/.test(await pg.textContent('#hpBody h2')),'Kapitel 1 Schnellstart');
 await pg.fill('#hpQ','Überdeckung'); await pg.waitForTimeout(200); ok(await pg.locator('.hpres button').count()>=1,'Suche liefert Treffer'); await pg.locator('.hpres button').first().click(); await pg.waitForTimeout(200); ok(await pg.locator('#hpBody mark').count()>=1,'Treffer im Kapitel markiert');
-await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); let ax=await pg.evaluate(()=>axe.run(document.querySelector('#helpDlg')).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe Anleitung: '+JSON.stringify(ax).slice(0,200));
+await pg.addScriptTag({path:require('./lib/k.js').AXE}); let ax=await pg.evaluate(()=>axe.run(document.querySelector('#helpDlg')).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe Anleitung: '+JSON.stringify(ax).slice(0,200));
 // alle Kapitel in 4 Sprachen
 const ok4=await pg.evaluate(()=>window.LVHELP.every(c=>c.t.every(x=>x&&x.length>2)&&c.b.every(x=>x&&x.length>150))); ok(ok4,'alle Kapitel in DE/FR/IT/EN vorhanden');
 await pg.keyboard.press('Escape'); await pg.waitForTimeout(200); ok(!(await pg.locator('#helpDlg').evaluate(d=>d.open)),'Esc schliesst die Anleitung');

@@ -1,4 +1,4 @@
-const {chromium,ok,mk}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b);
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
 for(let i=0;i<8;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitForTimeout(100);} 
@@ -14,5 +14,5 @@ await pg.mouse.click(bx.x+250,bx.y+250,{button:'right'}); await pg.waitForTimeou
 await pg.evaluate(()=>{window.prompt=()=>'TESTKEY123'}); await pg.click('[data-k=svkey]'); await pg.waitForTimeout(200);
 await pg.mouse.click(bx.x+250,bx.y+100,{button:'right'}); await pg.waitForTimeout(250); ok((await pg.textContent('#kmCtx')).includes('einbetten'),'mit Schlüssel: Einbetten angeboten'); await pg.locator('#kmCtx button',{hasText:'einbetten'}).click(); await pg.waitForTimeout(200);
 const src=await pg.getAttribute('#kmSv iframe','src'); console.log(src); ok(/embed\/v1\/streetview\?key=TESTKEY123&location=/.test(src||''),'Eingebettetes Street View (Embed-URL)');
-await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); const ax=await pg.evaluate(()=>axe.run(document,{rules:{'frame-tested':{enabled:false}}}).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax));
+await pg.addScriptTag({path:require('./lib/k.js').AXE}); const ax=await pg.evaluate(()=>axe.run(document,{rules:{'frame-tested':{enabled:false}}}).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax));
 ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();

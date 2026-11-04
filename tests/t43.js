@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); let pg=await mk(b,1600,1000);
 const btn=async t=>{await pg.locator('#chPan button',{hasText:t}).last().click(); await pg.waitForTimeout(200);}; const last=()=>pg.locator('.chm.bot').last().textContent();
 await pg.fill('#f_graben_L','100'); await pg.waitForTimeout(500); await pg.click('#chFab');
@@ -21,7 +21,7 @@ await pg.fill('#chPan textarea','Erschliessung wie'); await pg.keyboard.press('E
 // KB → geführte Beratung
 await pg.fill('#chPan textarea','Gebäudeanschlüsse'); await pg.keyboard.press('Enter'); await pg.waitForTimeout(200); ok(await pg.locator('.chopts button',{hasText:'Geführte Beratung: Gebäudeanschluss'}).count()===1,'KB-Antwort bietet Beratung an');
 await btn('Geführte Beratung: Gebäudeanschluss'); await btn('Büro/Verwaltung/Industrie'); await btn('über 250 m'); await btn('Ja'); t=await last(); ok(/Zweitweganschluss/.test(t)&&/250 m/.test(t),'Gebäudeanschluss Büro, lang, Zweitweg');
-await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); let ax=await pg.evaluate(()=>axe.run(document.body).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,200));
+await pg.addScriptTag({path:require('./lib/k.js').AXE}); let ax=await pg.evaluate(()=>axe.run(document.body).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,200));
 // im Zeichnen-Dialog: Richtabstand direkt setzen
 await pg.keyboard.press('Escape'); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800); await pg.click('dialog[open] #chFab');
 await pg.fill('#chPan textarea','Schachtabstand Beratung'); await pg.keyboard.press('Enter'); await pg.waitForTimeout(200); await btn('FK/RK-Trasse'); await btn('Ausserhalb der Bauzone'); await btn('Richtabstand in der Karte einstellen'); await pg.keyboard.press('Escape'); await pg.click('#kmTabE');

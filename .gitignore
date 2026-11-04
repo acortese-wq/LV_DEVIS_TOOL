@@ -5,3 +5,4 @@ __pycache__/
 *.zip
 dist/
 tools/node_modules/
+tests/node_modules/

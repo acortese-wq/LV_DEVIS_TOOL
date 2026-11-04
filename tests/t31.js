@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b);
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
 for(let i=0;i<10;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitForTimeout(120);} await pg.waitForTimeout(500); const bx=await pg.locator('#kmMap').boundingBox(); await pg.click('[data-k=mline]');
@@ -17,7 +17,7 @@ await ask('Oberfläche wechselt'); await pg.locator('#kmAsk button',{hasText:'Wi
 await clk(400,380); await pg.click('[data-k=end]'); await pg.waitForTimeout(300);
 await ask('Nur Deckel');
 let S1=await pg.evaluate(()=>0);
-await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); const ax=await pg.evaluate(()=>axe.run(document).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax));
+await pg.addScriptTag({path:require('./lib/k.js').AXE}); const ax=await pg.evaluate(()=>axe.run(document).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax));
 // Typen setzen, übernehmen
 await pg.evaluate(()=>{}); 
 for(const sel of await pg.locator('#kmQuick select').all()){}
@@ -25,6 +25,6 @@ const nl=await pg.locator('.kmrow').count(); console.log('Zeilen',nl);
 await pg.click('[data-k=apply]'); await pg.waitForTimeout(700);
 const S=await getS(pg); const sc=S.recs.schacht; console.log(JSON.stringify(sc.map(r=>[r.modus,r.typ,r.anschl,r.deckelN])));
 const K=S.karte; console.log('Linien',K.lines.length,'Punkte',JSON.stringify(K.pts.map(p=>[p.mode,p.id])),'s/e',JSON.stringify(K.lines.map(l=>[l.s,l.e])));
-ok(sc.some(r=>r.modus==='neu'&&r.typ==='KES175'),'Schacht neu mit gewähltem Typ KES175 übernommen'); ok(sc.some(r=>r.modus==='anschluss'&&r.anschl==='2'),'Bestehender Schacht: 2 Anschlüsse (Linie 1 Ende + Linie 2 Start)'); ok(sc.some(r=>r.modus==='deckel'&&r.deckelN==='1'),'Nur Deckel: 1 Stück');
+ok(sc.some(r=>r.modus==='neu'&&r.typ==='KES175'),'Schacht neu mit gewähltem Typ KES175 übernommen'); ok(sc.some(r=>r.modus==='anschluss'&&r.an150==='4'),'Bestehender Schacht: Anschlüsse je Rohr – Linie 1 Ende + Linie 2 Start mit je 2×K100 = 4 × DN 150'); ok(sc.some(r=>r.modus==='deckel'&&r.deckelN==='1'),'Nur Deckel: 1 Stück');
 ok(K.lines[0].cfg&&K.lines[0].cfg.rt['100']===2,'Belegung 2×K100 in Linie 1 gesetzt'); ok(K.lines[1].cfg.rt['100']===2,'Folgelinie erbt Belegung'); ok(K.lines.length===3&&K.lines.some(l=>l.cfg&&l.cfg.fl==='wiese'),'Folgeabschnitt mit anderer Oberfläche (Wiese)');
 ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();

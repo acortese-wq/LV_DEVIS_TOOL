@@ -14,7 +14,12 @@ App-Konzept und Urheber: **Alessandro Cortese** (immer nennen). Sprache mit dem 
 Rechenlogik gilt zweimal: `src/kve.js` **und** `skill/lv-devis-tiefbau/scripts/kve.py` (identisch halten). Danach:
 1. `python3 build.py && node tools/build_skill.mjs`
 2. `sh tests/skill_test.sh` – muss «0 Abweichungen» zeigen (300 Zufallsprojekte, Skill gegen HTML-Tool).
-Reine Oberflächenänderungen: Build + `AXE=… node tests/ui_qa.js` (Playwright: `/opt/node22/lib/node_modules/playwright`).
+Reine Oberflächenänderungen: Build + betroffene Tests, z. B. `node tests/run.js t64 --no-skill`.
+
+## Tests (siehe tests/README.md)
+- Einmalig: `npm ci --omit=optional --prefix tests` (Leaflet, axe-core, pdf.js in festen Versionen). Alles Weitere liegt im Repo (`tests/lib/k.js`, `tests/fixtures/`).
+- Alle Tests: `node tests/run.js` (Browser-Tests, ui_qa mit axe, Skill-Vergleich); Teilmengen: `node tests/run.js t50 t64`, `--from=60`, `--no-ui`, `--no-skill`.
+- Neue Tests als `tests/tNN.js` mit `require('./lib/k.js')`; keine Pfade ausserhalb des Repos verwenden.
 
 ## Qualitätsregeln
 - Barrierefreiheit: axe-core ohne Verstösse, Kontrast ≥ 4.5:1, Tastatur bedienbar, Handy (390 px) ohne Seitenüberlauf.

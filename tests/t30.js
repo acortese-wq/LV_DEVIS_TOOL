@@ -1,4 +1,4 @@
-const {chromium,ok,mk}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b);
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
 const bx=await pg.locator('#kmMap').boundingBox(); await pg.click('[data-k=mline]');

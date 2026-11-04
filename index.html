@@ -1205,6 +1205,18 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 .kmcred-h{display:none}
 @media (max-width:860px){.kmdlg.kmws .kmcred:not(.kmcred-h){display:none}.kmcred-h{display:block;flex:1 0 100%;order:9;border:0;padding:2px 0 0;font-size:11px;text-align:left}}
 
+/* Offene Positionen: Hinweis in der Kostentabelle, Knöpfe, Erfassungsdialog */
+.cost tr.koffen td{background:#fde3e1;color:#7f1d1d;font-weight:650;border-top:2px solid #b8332a}
+.cost tr.kerf td{color:#7a4d00}
+.ofrow{margin:3px 0 0}.badge.erf{background:#fdf0d5;color:#6b4300;border:1px solid #d9a520}
+.tagbtn{font:inherit;cursor:pointer}
+.ofdlg{max-width:min(1100px,calc(100vw - 24px))}
+.oftab{overflow-x:auto;margin:6px 0 8px;max-height:min(60vh,520px);overflow-y:auto}
+.oftab table{border-collapse:collapse;width:100%;font-size:13px}.oftab th,.oftab td{padding:5px 6px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}.oftab th.num,.oftab td.num{text-align:right;white-space:nowrap}
+.oftab .ofel{display:block;font-size:11.5px;font-weight:700;color:var(--ink-soft)}.oftab input{width:100%;min-width:90px;padding:5px 6px;font-size:13px}.oftab .ofep{width:96px;min-width:80px}.oftab .ofu{display:block;font-size:11px;color:var(--ink-soft)}
+.oftab input[aria-invalid=true]{border-color:#b8332a;background:#fde3e1}.oftab tr.erf td{background:#fffaf0}
+@media print{.ofrow{display:none!important}}
+
 </style>
 </head>
 <body>
@@ -3061,6 +3073,31 @@ Object.assign(TS.it,{
     jn_do: ["Verbinden", "Relier", "Collega", "Join"],
     km_cred: ["App-Konzept und Urheber: Alessandro Cortese", "Concept de l’application et auteur : Alessandro Cortese", "Concetto dell’app e autore: Alessandro Cortese", "App concept and author: Alessandro Cortese"],
     km_cred2: ["Fachliche Struktur und Ausgestaltung", "Structure technique et conception", "Struttura tecnica e configurazione", "Technical structure and design"],
+    w_offenErfasst: ["{n} offene Position(en) mit eigenem Einheitspreis bewertet (ausserhalb LV) – Preis belegen (Offerte, Richtpreis).", "{n} position(s) ouverte(s) évaluée(s) avec un prix propre (hors LV) – justifier le prix (offre, prix indicatif).", "{n} posizione/i aperta/e valutata/e con prezzo proprio (fuori LV) – documentare il prezzo (offerta, prezzo indicativo).", "{n} open item(s) valued with your own unit price (outside the LV) – document the price (quote, guide price)."],
+    c_erfTag: ["Eigener Preis (ausserhalb LV)", "Prix propre (hors LV)", "Prezzo proprio (fuori LV)", "Own price (outside LV)"],
+    c_erfBadge: ["eigener Preis", "prix propre", "prezzo proprio", "own price"],
+    of_rowBtn: ["Preis erfassen", "Saisir un prix", "Inserire prezzo", "Enter price"],
+    of_rowEdit: ["Preis ändern", "Modifier le prix", "Modifica prezzo", "Change price"],
+    of_btn: ["Offene Positionen erfassen ({n})", "Saisir les positions ouvertes ({n})", "Inserire posizioni aperte ({n})", "Enter open items ({n})"],
+    of_note_erf: ["{n} Position(en) mit eigenem Preis (CHF {s}, ausserhalb LV).", "{n} position(s) avec prix propre (CHF {s}, hors LV).", "{n} posizione/i con prezzo proprio (CHF {s}, fuori LV).", "{n} item(s) with own price (CHF {s}, outside LV)."],
+    of_t: ["Offene Positionen erfassen", "Saisir les positions ouvertes", "Inserire le posizioni aperte", "Enter open items"],
+    of_hint: ["Für Positionen ohne LV-Preis einen eigenen Einheitspreis eintragen (z. B. aus einer Offerte). Die Menge rechnet das Tool weiter selbst. Die Position zählt dann ins Total und ist als «eigener Preis (ausserhalb LV)» markiert. Feld leeren = wieder offen.", "Pour les positions sans prix LV, saisir un prix unitaire propre (p. ex. d’une offre). L’outil continue de calculer la quantité. La position compte alors dans le total et est marquée « prix propre (hors LV) ». Vider le champ = de nouveau ouverte.", "Per le posizioni senza prezzo LV inserire un prezzo unitario proprio (p. es. da un’offerta). La quantità la calcola sempre lo strumento. La posizione entra nel totale ed è marcata «prezzo proprio (fuori LV)». Svuotare il campo = di nuovo aperta.", "For items without an LV price enter your own unit price (e.g. from a quote). The tool keeps calculating the quantity. The item then counts in the total and is marked «own price (outside LV)». Clear the field = open again."],
+    of_c_pos: ["Offene Position", "Position ouverte", "Posizione aperta", "Open item"],
+    of_c_ep: ["Einheitspreis", "Prix unitaire", "Prezzo unitario", "Unit price"],
+    of_c_text: ["Bezeichnung (optional)", "Désignation (facultatif)", "Descrizione (facoltativa)", "Description (optional)"],
+    of_why: ["Quelle / Begründung", "Source / justification", "Fonte / motivazione", "Source / reason"],
+    of_none: ["Keine offenen Positionen – alle Positionen haben einen LV-Preis.", "Aucune position ouverte – toutes ont un prix LV.", "Nessuna posizione aperta – tutte hanno un prezzo LV.", "No open items – all items have an LV price."],
+    of_rest: ["{n} weitere offene Position(en) in Vorarbeiten/Baustelleneinrichtung lassen sich hier nicht bewerten.", "{n} autre(s) position(s) ouverte(s) dans travaux préparatoires/installation de chantier ne peuvent pas être évaluées ici.", "{n} altra/e posizione/i aperta/e in lavori preparatori/impianto di cantiere non si possono valutare qui.", "{n} further open item(s) in preparatory work/site setup cannot be valued here."],
+    of_save: ["Übernehmen", "Appliquer", "Applica", "Apply"],
+    of_bad: ["Bitte einen gültigen Einheitspreis eingeben (z. B. 45.50) oder das Feld leeren.", "Saisir un prix unitaire valable (p. ex. 45.50) ou vider le champ.", "Inserire un prezzo unitario valido (p. es. 45.50) o svuotare il campo.", "Enter a valid unit price (e.g. 45.50) or clear the field."],
+    of_saved: ["{n} eigene(r) Preis(e) erfasst, {m} entfernt.", "{n} prix propre(s) saisi(s), {m} supprimé(s).", "{n} prezzo/i proprio/i inserito/i, {m} rimosso/i.", "{n} own price(s) entered, {m} removed."],
+    k_erf: ["darin eigene Preise ausserhalb LV ({n} Pos.)", "dont prix propres hors LV ({n} pos.)", "di cui prezzi propri fuori LV ({n} pos.)", "incl. own prices outside LV ({n} items)"],
+    k_offen: ["Nicht im Total: {n} offene Position(en) ohne Preis", "Pas dans le total : {n} position(s) ouverte(s) sans prix", "Non nel totale: {n} posizione/i aperta/e senza prezzo", "Not in total: {n} open item(s) without price"],
+    k_offenV: ["nicht bewertet", "non évalué", "non valutato", "not valued"],
+    km_costOff: ["{n} offen (nicht im Total)", "{n} ouvert(s) (pas dans le total)", "{n} aperta/e (non nel totale)", "{n} open (not in total)"],
+    rp_t_erf: ["Eigene Preise (ausserhalb LV)", "Prix propres (hors LV)", "Prezzi propri (fuori LV)", "Own prices (outside LV)"],
+    rp_t_off: ["Offene Positionen (nicht im Total)", "Positions ouvertes (pas dans le total)", "Posizioni aperte (non nel totale)", "Open items (not in total)"],
+    rp_u_pos: ["Pos.", "pos.", "pos.", "items"],
     km_save: ["Speichern", "Enregistrer", "Salva", "Save"],
     km_save_t: ["Zeichnung sichern und weiterarbeiten (Strg+S) – Datensätze werden erst mit «In Datensätze übernehmen» angelegt", "Enregistrer le dessin et continuer (Ctrl+S) – les fiches ne sont créées qu'avec « Reprendre dans les fiches »", "Salvare il disegno e continuare (Ctrl+S) – le schede vengono create solo con «Riprendere nelle schede»", "Save the drawing and keep working (Ctrl+S) – records are only created with «Apply to records»"],
     km_saved: ["Zeichnung gespeichert – Datensätze noch nicht angelegt (dafür «In Datensätze übernehmen»)", "Dessin enregistré – fiches pas encore créées (« Reprendre dans les fiches »)", "Disegno salvato – schede non ancora create («Riprendere nelle schede»)", "Drawing saved – records not created yet («Apply to records»)"],
@@ -4575,7 +4612,7 @@ var KVE = (function () {
   ];
   function completeness(P, lines) {
     var hasOk = function (pre) { return lines.some(function (l) { return l.key !== "OFFEN" && pre.some(function (p) { return l.key.indexOf(p) === 0; }); }); };
-    var hasOpen = function (tk) { return tk && lines.some(function (l) { return l.flag === "offen" && tk.indexOf(l.tk) >= 0; }); };
+    var hasOpen = function (tk) { return tk && lines.some(function (l) { return (l.flag === "offen" || l.flag === "erfasst") && tk.indexOf(l.tk) >= 0; }); };
     var R = P.recs || {}, el = [].concat(R.graben || [], R.schacht || [], R.werkloch || [], R.fund || []);
     var anyG = (R.graben || []).length > 0 || (R.rohr || []).length > 0, anyS = (R.schacht || []).length > 0;
     var belags = el.filter(function (e) { return e.belag && e.belag.mode === "bit"; });
@@ -4620,6 +4657,22 @@ var KVE = (function () {
     return { lines: cx.lines, warn: cx.warn, bal: [] };
   }
 
+  /* Offene Positionen mit eigenem Einheitspreis (vom Benutzer erfasst, ausserhalb LV): e.oep = { "<tk>|<Einheit>": { ep, text, why } }.
+     Die Menge bleibt die gerechnete; die Zeile zählt ins Total, ist als «erfasst» markiert und erzeugt eine Warnung. Freie Positionen ohne Preis bleiben aussen vor. */
+  function offenErfasst(r, oep) {
+    var n = 0, cap = {};
+    r.lines = r.lines.map(function (l) {
+      if (!l.open || l.tk === "freiKeinEP") return l;
+      var v = oep[l.tk + "|" + l.unit], ep = v ? num(v.ep, 0) : 0;
+      if (!(ep > 0)) return l;
+      n++; cap[l.tk] = 1;
+      return { key: "—", unit: l.unit, ep: ep, qty: l.qty, total: r2(l.qty * ep), grp: l.grp, text: String(v.text || ""), ctx: "", rule: l.rule, flag: "erfasst", tk: l.tk, args: l.args, why: String(v.why || "") };
+    });
+    if (!n) return;
+    r.warn = r.warn.filter(function (w) { return !(cap[w.id] && !r.lines.some(function (l) { return l.open && l.tk === w.id; })); });
+    r.warn.push({ id: "offenErfasst", sev: "amber", args: { n: n } });
+  }
+
   var TABS = ["graben", "rohr", "schacht", "werkloch", "fund", "geb", "belag", "allg"];
   var FN = { graben: graben, rohr: rohrTab, schacht: schacht, werkloch: werkloch, fund: fund, geb: geb, belag: belagTab, allg: allg };
   function calcRec(tab, e, LV, P) {
@@ -4630,6 +4683,7 @@ var KVE = (function () {
     if (tab === "graben") zusaetze(cx, e);
     weitere(cx, e.x);
     if (e.free && e.free.length) { var f = freie(e.free, LV); r.lines = r.lines.concat(f.lines); r.warn = r.warn.concat(f.warn); }
+    if (e.oep && typeof e.oep === "object") offenErfasst(r, e.oep);
     if (tab === "belag") r.lines.forEach(function (l) { l.ks = "Belag"; });
     r.sum = r2(r.lines.reduce(function (s, l) { return s + l.total; }, 0));
     return r;
@@ -7006,7 +7060,7 @@ var FIG = (function () {
       costT = setTimeout(function () { var el = $("#kmCost"), ef = $("#kmCostF"); if (!el) return; var v = null; try { v = opt.cost(JSON.parse(JSON.stringify(M)), function (m) { return effLen(m); }, { area: area, perim: perim, base: base }); } catch (e) { v = null; }
         var nn = v == null ? null : (typeof v === "object" ? v.n : v), bb = v != null && typeof v === "object" ? v.b : null, f0 = function (x) { return Math.round(x).toLocaleString("de-CH"); };
         costLast = nn == null ? null : { n: nn, b: bb };
-        el.textContent = nn == null ? "" : tt("km_cost").replace("{v}", f0(nn)); if (ef) { ef.textContent = nn == null ? "" : tt("km_costf").replace("{n}", f0(nn)).replace("{b}", bb == null ? "–" : f0(bb)); ef.title = nn == null ? "" : tt("km_cost").replace("{v}", f0(nn)); }
+        el.textContent = nn == null ? "" : tt("km_cost").replace("{v}", f0(nn)); if (ef) { ef.textContent = nn == null ? "" : tt("km_costf").replace("{n}", f0(nn)).replace("{b}", bb == null ? "–" : f0(bb)) + (v && typeof v === "object" && v.o ? " · ⚠ " + tt("km_costOff").replace("{n}", v.o) : ""); ef.title = nn == null ? "" : tt("km_cost").replace("{v}", f0(nn)); }
         sumRender(); }, 500);
     }
     function newNote(type, pts) { snap(); var n = { id: nid("n"), type: type, pts: pts, color: noteCol, text: type === "text" ? "Text" : "", size: "m" }; M.notes.push(n); sel = { id: n.id }; return n; }
@@ -7926,7 +7980,7 @@ var FIG = (function () {
       "<tr><td>q</td><td class=\"num\">" + qf(h.q) + " %</td></tr><tr><td>" + esc(tt("hTm")) + '</td><td class="num">' + qf(h.Tm) + " h</td></tr>" +
       "<tr><td>" + esc(tt("hHon")) + " (" + qf(h.Tp) + " h × " + chf(num(r.h)) + ')</td><td class="num">CHF ' + chf(h.H) + "</td></tr>" +
       (h.NK ? "<tr><td>" + esc(tt("hNk")) + '</td><td class="num">CHF ' + chf(h.NK) + "</td></tr>" : "") +
-      '<tr class="sub"><td>' + esc(tt("hTot")) + '</td><td class="num">CHF ' + chf(h.net) + "</td></tr><tr><td>" + esc(tt("k_mwst")) + '</td><td class="num">CHF ' + chf(mw) + "</td></tr>" +
+      '<tr class="sub"><td>' + esc(tt("hTot")) + '</td><td class="num">CHF ' + chf(h.net) + "</td></tr><tr><td>" + esc(mwLab(num(S.mwst, 8.1))) + '</td><td class="num">CHF ' + chf(mw) + "</td></tr>" +
       '<tr class="sum"><td>' + esc(tt("hTotI")) + '</td><td class="num">CHF ' + chf(r2(h.net + mw)) + "</td></tr></tbody></table>";
   }
   function refreshHon() { var hf = $("#honfak"); if (hf) hf.innerHTML = honFakHtml(); var e = $("#honres"); if (e) e.innerHTML = honResHtml(rec()); var r = rec(), q0 = phaseList(r).reduce(function (s, x) { return s + (x.on ? x.q : 0); }, 0), qe = $("#qsum");
@@ -8123,7 +8177,7 @@ var FIG = (function () {
       try {
         S = JSON.parse(JSON.stringify(S0)); var cc = (S.recs[tab] || []).filter(function (r) { return cfg.uid && r.uid === cfg.uid; })[0] || JSON.parse(JSON.stringify(cfg)), st = karteApply(M, cc, lenFn, Object.assign({ src: "karte" }, fns));
         S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: S.karte.base, bg: null, overlay: null }; syncDerived(cc, st);
-        var sm = KVE.calc(S, LV).sum; out = { n: sm.netto, b: sm.brutto };
+        var oc = KVE.calc(S, LV), sm = oc.sum; out = { n: sm.netto, b: sm.brutto, o: oc.nOffen };
       } catch (e) { out = null; } finally { S = S0; }
       return out;
     };
@@ -8430,13 +8484,17 @@ var FIG = (function () {
   /* ---------- Ergebnis ---------- */
   var ORDER = ["g_bauwerk", "g_belag", "g_deponieBelag", "g_abbruch", "g_aushub", "g_ersch", "g_spries", "g_zone", "g_rohr", "g_verf", "g_deponie", "g_belagNeu", "g_abdeckung", "g_fremd", "g_boesch", "g_zus", "g_weitere", "g_pausch", "g_vorarbeiten", "g_be", "g_frei"];
   function openText(l) { return fill(tt("w_" + l.tk), l.args); }
+  function mwLab(pct) { return String(tt("k_mwst")).replace(/\s*[\d.,]+\s*%\s*$/, "") + " " + qf(r2(pct)) + " %"; }   /* MWST-Bezeichnung mit dem tatsächlichen Satz (statt fix 8.1 %) */
+  function ofBtn(l, lab) { return l.tk && l.tk !== "freiKeinEP" ? '<p class="ofrow no-print"><button type="button" class="btn ghost small" data-act="offen" data-ofk="' + esc(l.tk + "|" + l.unit) + '">' + esc(tt(lab)) + "</button></p>" : ""; }
   function rowHtml(l) {
     if (l.flag === "offen") {
       return '<tr class="open"><td class="art"><span class="badge">' + esc(tt("c_offenTag")) + "</span></td><td>" + esc(l.text || openText(l)) + (l.text ? '<div class="rw">' + esc(openText(l)) + "</div>" : "") +
-        (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit) + '</td><td class="num">—</td><td class="num">—</td></tr>';
+        (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + ofBtn(l, "of_rowBtn") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit) + '</td><td class="num">—</td><td class="num">—</td></tr>';
     }
-    var cls = l.flag === "ausserLV" ? "bad" : l.flag === "epGeaendert" ? "chg" : "", mark = l.flag === "ausserLV" ? " ⚠" : l.flag === "epGeaendert" ? " ✎" : "";
-    var txt = /^\d{3}\//.test(l.key) ? lvT(l.key) : l.text, ctx = /^\d{3}\//.test(l.key) ? lvC(l.key) : l.ctx;
+    var erf = l.flag === "erfasst", cls = l.flag === "ausserLV" ? "bad" : l.flag === "epGeaendert" || erf ? "chg" : "", mark = l.flag === "ausserLV" ? " ⚠" : l.flag === "epGeaendert" || erf ? " ✎" : "";
+    var txt = /^\d{3}\//.test(l.key) ? lvT(l.key) : erf ? (l.text || openText(l)) : l.text, ctx = /^\d{3}\//.test(l.key) ? lvC(l.key) : erf ? tt("c_erfTag") : l.ctx;
+    if (erf) return '<tr class="chg erf"><td class="art"><span class="badge erf">' + esc(tt("c_erfBadge")) + "</span></td><td>" + '<span class="ctx">' + esc(ctx) + "</span><div>" + esc(txt) + mark + "</div>" + (l.text ? '<div class="rw">' + esc(openText(l)) + "</div>" : "") +
+      (l.why ? '<div class="rw">' + esc(tt("of_why")) + ": " + esc(l.why) + "</div>" : "") + (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + ofBtn(l, "of_rowEdit") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit) + '</td><td class="num">' + chf(l.ep) + '</td><td class="num">' + chf(l.total) + "</td></tr>";
     return '<tr class="' + cls + '"><td class="art" data-k="' + esc(l.key) + '">' + esc(l.key) + (l.ks === "Belag" ? '<sup class="ks">B</sup>' : "") + "</td><td>" + (ctx ? '<span class="ctx">' + esc(ctx) + "</span>" : "") + "<div>" + esc(txt) + mark + "</div>" +
       (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit) + '</td><td class="num">' + chf(l.ep) + '</td><td class="num">' + chf(l.total) + "</td></tr>";
   }
@@ -8502,7 +8560,7 @@ var FIG = (function () {
     var s = out.sum, nStop = out.warn.filter(function (w) { return w.sev === "stop"; }).length, nAmb = out.warn.filter(function (w) { return w.sev === "amber"; }).length;
     var hn = r2(hon.reduce(function (a, x) { return a + x[1].net; }, 0)), cell = function (lab, v, cls) { return '<div class="kc' + (cls ? " " + cls : "") + '"><span class="kl">' + esc(lab) + '</span><b class="kv">CHF ' + chf(v) + "</b></div>"; };
     var tags = '<span class="tag">' + esc(fill(tt("ux_stufe"), { s: s.stufe, p: s.pct })) + "</span>" +
-      (out.nOffen ? '<span class="tag amber">' + esc(fill(tt("ux_offen"), { n: out.nOffen })) + "</span>" : "") +
+      (out.nOffen ? '<button type="button" class="tag amber tagbtn" data-act="offen" title="' + esc(fill(tt("of_btn"), { n: out.nOffen })) + '">' + esc(fill(tt("ux_offen"), { n: out.nOffen })) + "</button>" : "") +
       (nStop ? '<a href="#warns" class="tag stop">' + esc(fill(tt("ux_stop"), { n: nStop })) + "</a>" : "") +
       (nAmb ? '<a href="#warns" class="tag amber">' + esc(fill(tt("ux_warn"), { n: nAmb })) + "</a>" : "");
     $("#kpi").innerHTML = '<div class="kpi-main">' + cell(tt("ux_netto"), s.netto, "main") + cell(tt("ux_brutto"), s.brutto) + (hon.length ? cell(tt("ux_hon"), hn) : "") + "</div>" + (n ? '<div class="kpi-tags">' + tags + "</div>" : "");
@@ -8638,7 +8696,8 @@ var FIG = (function () {
     var st = n === 0 ? "empty" : stop ? "stop" : amber ? "amber" : "ok";
     html += '<div class="status no-summary ' + (st === "stop" ? "stop" : st === "amber" ? "amber" : "ok") + '"><p class="stitle">' + esc(tt("st_" + st)) + "</p>";
     if (st === "empty") html += '<p class="action">' + esc(tt("ux_emptyHint")) + "</p>";
-    if (out.nOffen) html += '<p class="offennote">' + esc(fill(tt("x_nOffen"), { n: out.nOffen })) + "</p>";
+    var erfL = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst") erfL.push(l); }); }); var sErf = r2(erfL.reduce(function (a, l) { return a + l.total; }, 0));
+    if (out.nOffen || erfL.length) html += '<p class="offennote">' + (out.nOffen ? esc(fill(tt("x_nOffen"), { n: out.nOffen })) + " " : "") + (erfL.length ? esc(fill(tt("of_note_erf"), { n: erfL.length, s: chf(sErf) })) + " " : "") + '<button type="button" class="btn small no-print" data-act="offen">' + esc(fill(tt("of_btn"), { n: out.nOffen + erfL.length })) + "</button></p>";
     var top = out.warn.filter(function (w) { return w.sev !== "info"; }).slice(0, 4);
     if (top.length) html += "<ul>" + top.map(function (w) { return "<li>" + warnGo(w) + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul>" + (out.warn.length > top.length ? '<p><a href="#warns">' + esc(tt("ux_allWarn")) + " (" + out.warn.length + ")</a></p>" : "");
     html += "</div>";
@@ -8676,17 +8735,19 @@ var FIG = (function () {
       html += "</div>";
       var s = out.sum;
       var kost = "<h3>" + esc(tt("h_kosten")) + '</h3><table class="cost"><tbody><tr><td>' + esc(tt("k_zw")) + '</td><td class="num">' + chf(s.zwischen) + "</td></tr>" +
+        (erfL.length ? '<tr class="sub kerf"><td>' + esc(fill(tt("k_erf"), { n: erfL.length })) + '</td><td class="num">' + chf(sErf) + "</td></tr>" : "") +
         (s.belag ? '<tr class="sub"><td>' + esc(tt("k_belagKS")) + '</td><td class="num">' + chf(s.belag) + "</td></tr>" : "") +
         "<tr><td>" + esc(fill(tt("k_rabatt"), { s: s.stufe, p: s.pct })) + '</td><td class="num">− ' + chf(s.rabatt) + "</td></tr><tr><td>" + esc(tt("k_nach")) + '</td><td class="num">' + chf(s.nachRabatt) + "</td></tr>" +
         "<tr><td>" + esc(tt("k_inst")) + '</td><td class="num">+ ' + chf(s.inst) + '</td></tr><tr class="sub"><td>' + esc(tt("k_netto")) + '</td><td class="num">' + chf(s.netto) + "</td></tr>" +
-        "<tr><td>" + esc(tt("k_mwst")) + " " + qf(s.mwSatz * 100) + ' %</td><td class="num">' + chf(s.mwst) + '</td></tr><tr class="sum"><td>' + esc(tt("k_brutto")) + '</td><td class="num">' + chf(s.brutto) + "</td></tr></tbody></table>";
+        "<tr><td>" + esc(mwLab(s.mwSatz * 100)) + '</td><td class="num">' + chf(s.mwst) + '</td></tr><tr class="sum"><td>' + esc(tt("k_brutto")) + '</td><td class="num">' + chf(s.brutto) + "</td></tr>" +
+        (out.nOffen ? '<tr class="koffen"><td>⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + '</td><td class="num">' + esc(tt("k_offenV")) + "</td></tr>" : "") + "</tbody></table>";
       html += '<div class="kostblk">' + kost + "</div>"; lvHtml += kost;
     }
     var hon = S.recs.hon.map(function (r) { return [r, honCalc(r, out.sum.netto)]; }).filter(function (x) { return x[1].ok; });
     if (hon.length) {
       var hn = r2(hon.reduce(function (a, x) { return a + x[1].net; }, 0)), hm = r2(hn * num(S.mwst, 8.1) / 100);
       html += "<h3>" + esc(tt("hSum")) + '</h3><table class="cost"><tbody>' + hon.map(function (x) { return "<tr><td>" + esc(x[0].name) + '<div class="rw">' + qf(x[1].Tp) + " h (Tp) × CHF " + chf(num(x[0].h)) + (x[1].NK ? " + " + esc(tt("hNk")) + " " + chf(x[1].NK) : "") + " · B = " + chf(x[1].B) + '</div></td><td class="num">' + chf(x[1].net) + "</td></tr>"; }).join("") +
-        '<tr class="sub"><td>' + esc(tt("hTot")) + '</td><td class="num">' + chf(hn) + "</td></tr><tr><td>" + esc(tt("k_mwst")) + '</td><td class="num">' + chf(hm) + '</td></tr><tr><td>' + esc(tt("hTotI")) + '</td><td class="num">' + chf(r2(hn + hm)) + "</td></tr>" +
+        '<tr class="sub"><td>' + esc(tt("hTot")) + '</td><td class="num">' + chf(hn) + "</td></tr><tr><td>" + esc(mwLab(num(S.mwst, 8.1))) + '</td><td class="num">' + chf(hm) + '</td></tr><tr><td>' + esc(tt("hTotI")) + '</td><td class="num">' + chf(r2(hn + hm)) + "</td></tr>" +
         '<tr class="sum"><td>' + esc(tt("gTot")) + '</td><td class="num">' + chf(r2(out.sum.brutto + hn + hm)) + "</td></tr></tbody></table>";
     }
     var ws = out.warn.slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
@@ -8701,6 +8762,48 @@ var FIG = (function () {
     window.__OUT = out;
   }
 
+  /* ---------- Offene Positionen erfassen: eigener Einheitspreis je OFFEN-Zeile (ausserhalb LV); gespeichert im Datensatz unter oep (Rechenkern JS und Skill) ---------- */
+  function epParse(v) { var t = String(v == null ? "" : v).replace(/['’\s]/g, "").replace(",", "."); if (!t) return { empty: true }; return /^\d+(\.\d+)?$/.test(t) && +t > 0 ? { v: t } : { bad: true }; }
+  function offenRows() {
+    var out = KVE.calc(S, LV), by = {}, rows = [], rest = 0;
+    out.elems.forEach(function (e) {
+      e.lines.forEach(function (l) {
+        if (!(l.open || l.flag === "erfasst") || l.tk === "freiKeinEP") return;
+        var key = l.tk + "|" + l.unit, id = e.tab + ":" + e.idx + ":" + key, rec = S.recs[e.tab][e.idx], v = (rec.oep || {})[key] || {};
+        if (!by[id]) { by[id] = { tab: e.tab, idx: e.idx, key: key, el: tt("tab_" + e.tab) + " · " + (e.name || ""), txt: openText(l), unit: l.unit, qty: 0, ep: v.ep || "", text: v.text || "", why: v.why || "", erf: l.flag === "erfasst" }; rows.push(by[id]); }
+        by[id].qty = r2(by[id].qty + l.qty);
+      });
+    });
+    out.vor.lines.concat(out.be.lines).forEach(function (l) { if (l.open) rest++; });
+    return { rows: rows, rest: rest };
+  }
+  function offenOpen(focusKey) {
+    var d = document.getElementById("ofDlg"); if (d) d.remove(); var R = offenRows();
+    d = document.createElement("dialog"); d.id = "ofDlg"; d.className = "rpdlg ofdlg"; d.setAttribute("aria-labelledby", "ofT");
+    var inp = function (i, k, v, lab, cls) { return '<input type="text" class="' + cls + '" data-of="' + i + '" data-f="' + k + '" value="' + esc(v) + '" aria-label="' + esc(lab) + '"' + (k === "ep" ? ' inputmode="decimal"' : "") + ">"; };
+    var body = R.rows.length ? '<div class="oftab"><table><thead><tr><th>' + esc(tt("of_c_pos")) + '</th><th class="num">' + esc(tt("c_qty")) + "</th><th>" + esc(tt("of_c_ep")) + "</th><th>" + esc(tt("of_c_text")) + "</th><th>" + esc(tt("of_why")) + '</th><th class="num">' + esc(tt("c_tot")) + "</th></tr></thead><tbody>" +
+      R.rows.map(function (r, i) { var lab = r.el + " – " + r.txt; return '<tr data-ofrow="' + i + '"' + (r.erf ? ' class="erf"' : "") + '><td><span class="ofel">' + esc(r.el) + "</span>" + esc(r.txt) + '</td><td class="num">' + qf(r.qty) + " " + esc(r.unit) + "</td><td>" + inp(i, "ep", r.ep, tt("of_c_ep") + " (CHF/" + r.unit + "): " + lab, "ofep") + '<span class="ofu">CHF/' + esc(r.unit) + "</span></td><td>" + inp(i, "text", r.text, tt("of_c_text") + ": " + lab, "oftx") + "</td><td>" + inp(i, "why", r.why, tt("of_why") + ": " + lab, "oftx") + '</td><td class="num ofsum" data-ofs="' + i + '">' + (epParse(r.ep).v ? chf(r2(r.qty * +epParse(r.ep).v)) : "–") + "</td></tr>"; }).join("") + "</tbody></table></div>"
+      : '<p class="hint">' + esc(tt("of_none")) + "</p>";
+    d.innerHTML = '<form method="dialog"><h2 id="ofT">' + esc(tt("of_t")) + '</h2><p class="hint">' + esc(tt("of_hint")) + "</p>" + body + (R.rest ? '<p class="hint">' + esc(fill(tt("of_rest"), { n: R.rest })) + "</p>" : "") +
+      '<p class="hint reqmsg" id="ofErr" role="alert" hidden></p><div class="kmbar">' + (R.rows.length ? '<button type="submit" class="btn" value="save">' + esc(tt("of_save")) + "</button> " : "") + '<button type="submit" class="btn ghost" value="x" formnovalidate>' + esc(tt("rp_close")) + "</button></div></form>";
+    document.body.appendChild(d); d.addEventListener("close", function () { d.remove(); });
+    d.addEventListener("input", function (e) { var t = e.target; if (t.dataset.f !== "ep") return; var i = +t.dataset.of, p = epParse(t.value), c = d.querySelector('[data-ofs="' + i + '"]'); t.setAttribute("aria-invalid", p.bad ? "true" : "false"); if (c) c.textContent = p.v ? chf(r2(R.rows[i].qty * +p.v)) : "–"; });
+    d.querySelector("form").addEventListener("submit", function (e) {
+      if (!e.submitter || e.submitter.value !== "save") return;
+      var bad = null; [].slice.call(d.querySelectorAll('[data-f="ep"]')).forEach(function (t) { if (!bad && epParse(t.value).bad) bad = t; });
+      if (bad) { e.preventDefault(); var er = d.querySelector("#ofErr"); er.hidden = false; er.textContent = tt("of_bad"); bad.focus(); return; }
+      var sn = snapState(), n = 0, m = 0;
+      R.rows.forEach(function (r, i) {
+        var g = function (k) { var t = d.querySelector('[data-of="' + i + '"][data-f="' + k + '"]'); return t ? String(t.value).trim() : ""; }, p = epParse(g("ep")), rec = S.recs[r.tab][r.idx];
+        if (p.v) { rec.oep = rec.oep || {}; rec.oep[r.key] = { ep: p.v, text: g("text"), why: g("why") }; n++; }
+        else if (rec.oep && rec.oep[r.key]) { delete rec.oep[r.key]; if (!Object.keys(rec.oep).length) delete rec.oep; m++; }
+      });
+      save(); renderForm(); renderResult(); undoToast(fill(tt("of_saved"), { n: n, m: m }), sn);
+    });
+    d.showModal();
+    var f = focusKey ? [].slice.call(d.querySelectorAll('tr[data-ofrow]')).filter(function (tr) { return R.rows[+tr.dataset.ofrow].key === focusKey; })[0] : null;
+    var fi = (f || d).querySelector('[data-f="ep"]'); if (fi) fi.focus();
+  }
   /* ---------- Projektbericht (Druck/PDF): nach Abschnitten oder zusammengefasst mit Totalen ---------- */
   function reportTotals(out) {
     var lines = out.summary || [], cnt = function (tab) { return out.elems.filter(function (e) { return e.tab === tab && (e.lines.length || tab !== "graben"); }).length; };
@@ -8710,6 +8813,9 @@ var FIG = (function () {
     var gl = 0; out.elems.forEach(function (e) { if (e.tab === "graben" && S.recs.graben[e.idx]) gl += num(S.recs.graben[e.idx].L, 0); }); add(tt("rp_t_gr"), r2(gl), "m", cnt("graben"));
     var a = sumBy("m3", /aushub für|ausheben/, /transport|deponi|gebühr|aufladen|verwert|abtransport|entsorg|einbau|auffüll|verfüll/); add(tt("rp_t_aus"), a[0], "m³", a[1], tt("rp_n_aus"));
     var r = sumBy("m", /kabelschutzrohre.*liefern|rohre.*liefern/, /einziehen|kalibr|verlegen/); add(tt("rp_t_rohr"), r[0], "m", r[1], tt("rp_n_rohr"));
+    var erfR = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst") erfR.push(l); }); });
+    if (erfR.length) rows.push({ k: tt("rp_t_erf"), v: erfR.length, u: tt("rp_u_pos"), n: erfR.length, note: "CHF " + chf(r2(erfR.reduce(function (a, l) { return a + l.total; }, 0))) + " · " + tt("c_erfTag") });
+    if (out.nOffen) rows.push({ k: "⚠ " + tt("rp_t_off"), v: out.nOffen, u: tt("rp_u_pos"), n: out.nOffen, note: tt("k_offenV") });
     return rows;
   }
   function reportBuild(o) {
@@ -8768,12 +8874,12 @@ var FIG = (function () {
     var used = [], nm = { k: sheetName(tt("h_kosten"), used), a: sheetName(tt("h_aufst"), used), z: sheetName(tt("h_zus"), used), b: sheetName(tt("h_bal"), used), w: sheetName(tt("h_warn"), used), g: sheetName(tt("h_grund"), used) };
     var fillRow = function (n, st, first) { var r = [{ v: first, s: st }]; for (var i = 1; i < n; i++) r.push({ v: " ", s: st }); return r; };
     var hdr = function (arr) { return arr.map(function (t) { return { v: t, s: XL.hdr }; }); };
-    var txt = function (l) { var t = /^\d{3}\//.test(l.key) ? lvT(l.key) : l.text, c = /^\d{3}\//.test(l.key) ? lvC(l.key) : l.ctx; return (c ? c + " › " : "") + t; };
+    var txt = function (l) { if (l.flag === "erfasst") return tt("c_erfTag") + " › " + (l.text || openText(l)) + (l.why ? " (" + l.why + ")" : ""); var t = /^\d{3}\//.test(l.key) ? lvT(l.key) : l.text, c = /^\d{3}\//.test(l.key) ? lvC(l.key) : l.ctx; return (c ? c + " › " : "") + t; };
     var A = [hdr([tt("c_pos"), tt("c_text"), tt("c_qty"), tt("c_unit"), tt("c_ep"), tt("c_tot")])], sumRefs = [];
     function lineText(l) { return l.flag === "offen" ? (l.text ? l.text + " – " : "") + openText(l) + (l.rule ? "  ·  " + l.rule : "") : txt(l) + (l.rule ? "  ·  " + l.rule : ""); }
     function lineRow(l) {
       if (l.flag === "offen") return [{ v: tt("c_offenTag"), s: XL.stop }, { v: lineText(l), s: XL.warnA }, { v: l.qty, s: XL.num }, { v: l.unit }, { v: "—", s: XL.grey }, { v: "—", s: XL.grey }];
-      var r = A.length + 1, bad = l.flag === "ausserLV", chg = l.flag === "epGeaendert";
+      var r = A.length + 1, bad = l.flag === "ausserLV", chg = (l.flag === "epGeaendert" || l.flag === "erfasst");
       return [{ v: l.key + (l.ks === "Belag" ? " B" : ""), s: XL.code }, { v: lineText(l) + (bad ? " ⚠" : chg ? " ✎" : ""), s: bad ? XL.red : chg ? XL.amber : XL.wrap },
         { v: l.qty, s: bad ? XL.numRed : chg ? XL.numAmber : XL.num }, { v: l.unit }, { v: l.ep, s: bad ? XL.numRed : chg ? XL.numAmber : XL.num },
         { v: l.total, s: bad ? XL.numRed : chg ? XL.numAmber : XL.num, f: "ROUND(C" + r + "*E" + r + ",2)" }];
@@ -8793,7 +8899,8 @@ var FIG = (function () {
     kv(tt("projekt"), k.projekt); kv(tt("sap"), k.sap); kv(tt("bem"), k.bem); kv(tt("ort"), k.ort); kv(tt("bearb"), k.bearb); kv(tt("datum"), k.datum); kv(tt("rolle"), tt("r_" + k.rolle));
     kv(tt("dv_nr"), k.devisNr); kv(tt("dv_lieferant"), k.lieferant); kv(tt("dv_vertrag"), k.vertrag); kv(tt("dv_termin"), k.termin); kv(tt("dv_belagLief"), k.belagLief ? tt("dv_ja") : tt("dv_nein")); kv(tt("x_lvver"), "V1.1 · 10.07.2026");
     K.push([]); K.push(hdr([tt("h_kosten"), "CHF"]));
-    var c0 = K.length + 1, s1 = c0 + 13, s5 = s1 + 4, sm = out.sum;
+    var erfX = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst") erfX.push(l); }); }); var extra = (erfX.length ? 1 : 0) + (out.nOffen ? 1 : 0);
+    var c0 = K.length + 1, s1 = c0 + 13 + extra, s5 = s1 + 4, sm = out.sum;
     var row = function (lab, v, f, st, ls) { K.push([{ v: lab, s: ls || XL.def }, { v: v, s: st || XL.num, f: f }]); };
     row(tt("k_zw"), sm.zwischen, sumRefs.length ? sumRefs.join("+") : "0");
     row(tt("x_stufe"), sm.stufe, "1+(B" + c0 + ">A" + s1 + ")+(B" + c0 + ">A" + (s1 + 1) + ")+(B" + c0 + ">A" + (s1 + 2) + ")+(B" + c0 + ">A" + (s1 + 3) + ")", XL.int);
@@ -8803,8 +8910,10 @@ var FIG = (function () {
     row(tt("k_inst"), sm.inst, "IF(B" + c0 + ">0,INDEX(C" + s1 + ":C" + s5 + ",B" + (c0 + 1) + "),0)");
     row(tt("k_netto"), sm.netto, "B" + (c0 + 4) + "+B" + (c0 + 5), XL.sum, XL.sumLbl);
     K.push([{ v: tt("x_mwstsatz") }, { v: r2(sm.mwSatz * 100), s: XL.pct }]);
-    row(tt("k_mwst"), sm.mwst, "ROUND(B" + (c0 + 6) + "*B" + (c0 + 7) + "/100,2)");
+    row(mwLab(sm.mwSatz * 100), sm.mwst, "ROUND(B" + (c0 + 6) + "*B" + (c0 + 7) + "/100,2)");
     row(tt("k_brutto"), sm.brutto, "B" + (c0 + 6) + "+B" + (c0 + 8), XL.sumFill, XL.sumLbl);
+    if (erfX.length) K.push([{ v: fill(tt("k_erf"), { n: erfX.length }), s: XL.warnA }, { v: r2(erfX.reduce(function (a, l) { return a + l.total; }, 0)), s: XL.numAmber }]);
+    if (out.nOffen) K.push([{ v: "⚠ " + fill(tt("k_offen"), { n: out.nOffen }), s: XL.stop }, { v: tt("k_offenV"), s: XL.stop }]);   /* Zeilen nach dem Total: Staffel-Verweise oben sind um «extra» verschoben */
     K.push([]); K.push([{ v: tt("x_staffel"), s: XL.bold }]); K.push(hdr([tt("x_bis"), tt("x_pct"), tt("x_inst")]));
     KVE.STAFFEL.forEach(function (t, i) { K.push([i < 4 ? { v: t.bis, s: XL.num } : { v: "> " + KVE.STAFFEL[3].bis, s: XL.def }, { v: t.pct, s: XL.pct }, { v: t.inst, s: XL.num }]); });
     var Z = [hdr([tt("c_pos"), tt("c_text"), tt("c_qty"), tt("c_unit"), tt("c_ep"), tt("c_tot")])], subs = [], curCh = null, first = 0, subTot = 0;
@@ -8813,7 +8922,7 @@ var FIG = (function () {
       var ch = l.key === "—" ? "—" : l.key === "OFFEN" ? "OFFEN" : l.key === "Pauschal" ? "P" : l.key.split("/")[0];
       if (ch !== curCh) { closeCh(); curCh = ch; subTot = 0; Z.push(fillRow(6, XL.grp, ch === "—" ? tt("g_frei") : ch === "OFFEN" ? tt("c_offenTag") : ch === "P" ? tt("g_pausch") : "NPK " + ch + " · " + (CHAPTERS[ch] || ""))); first = Z.length + 1; }
       if (l.flag === "offen") { Z.push([{ v: tt("c_offenTag"), s: XL.stop }, { v: lineText(l), s: XL.warnA }, { v: l.qty, s: XL.num }, { v: l.unit }, { v: "—", s: XL.grey }, { v: "—", s: XL.grey }]); return; }
-      var bad = l.flag === "ausserLV", chg = l.flag === "epGeaendert", st = bad ? XL.numRed : chg ? XL.numAmber : XL.num;
+      var bad = l.flag === "ausserLV", chg = (l.flag === "epGeaendert" || l.flag === "erfasst"), st = bad ? XL.numRed : chg ? XL.numAmber : XL.num;
       Z.push([{ v: l.key, s: XL.code }, { v: lineText(l), s: bad ? XL.red : chg ? XL.amber : XL.wrap }, { v: l.qty, s: st }, { v: l.unit }, { v: l.ep, s: st }, { v: l.total, s: st }]);
       subTot = r2(subTot + l.total);
     });
@@ -8916,6 +9025,7 @@ var FIG = (function () {
       var i = ALLTABS.indexOf(S.tab), j = k === "first" ? 0 : k === "last" ? ALLTABS.length - 1 : (i + k + ALLTABS.length) % ALLTABS.length;
       S.tab = ALLTABS[j]; save(); renderForm(); renderResult(); var b = $("#tabCur"); if (b) b.focus();
     });
+    document.addEventListener("click", function (ev) { var o = ev.target.closest('[data-act="offen"]'); if (o) { ev.preventDefault(); offenOpen(o.getAttribute("data-ofk")); } });
     document.addEventListener("click", function (ev) { var t = ev.target.closest("[data-lvtoggle]"); if (!t) return; S.ui.lvCol = S.ui.lvCol === false; save(); renderTabs(); renderResult(); });
     $("#tabs").addEventListener("click", function (ev) { var b = ev.target.closest("[data-tab]"); if (!b) return; S.tab = b.dataset.tab; save(); renderForm(); renderResult(); });
     $("#form").addEventListener("click", function (ev) {
@@ -8936,7 +9046,7 @@ var FIG = (function () {
       var pb = ev.target.closest("[data-pst]"); if (pb) { var k0 = pb.dataset.pst, nx = PST[(PST.indexOf(stOf(k0)) + 1) % PST.length]; pstSet(k0, { st: nx }); return; }
       var tg = ev.target.closest("[data-topgo]"); if (tg) { S.ui.closed.zus = false; var zb = document.querySelector('#result .elres[data-id="zus"]'); FQ = { q: "", st: "" }; renderResult(); zb = document.querySelector('#result .elres[data-id="zus"]'); if (zb) { zb.classList.remove("closed"); var tdk = zb.querySelector('td.art[data-k="' + tg.dataset.topgo.replace(/"/g, "") + '"]'); if (tdk) { tdk.parentNode.classList.add("flash"); tdk.parentNode.scrollIntoView({ block: "center", behavior: "smooth" }); setTimeout(function () { tdk.parentNode.classList.remove("flash"); }, 2500); } } return; }
       if (ev.target.id === "fClr") { FQ = { q: "", st: "" }; $("#fQ").value = ""; $("#fSt").value = ""; applyFilter(); $("#fQ").focus(); return; }
-      var a = ev.target.closest("[data-act]"); if (!a) return;
+      var a = ev.target.closest("[data-act]"); if (!a) return; if (a.dataset.act === "offen") return;   /* öffnet den Dialog «Offene Positionen erfassen» (Dokument-Klick) */
       if (a.dataset.act === "rules") { S.ui.rules = !S.ui.rules; save(); document.body.classList.toggle("rules-on", S.ui.rules); a.setAttribute("aria-pressed", S.ui.rules); a.textContent = (S.ui.rules ? "✓ " : "") + tt("ux_rules");
         document.querySelectorAll("#result details.bal").forEach(function (d) { d.open = S.ui.rules; }); return; }
       var c = a.dataset.act === "collapse";
@@ -9636,10 +9746,10 @@ window.LVHELP = [
 "<table class=\"hptab\"><tbody><tr><td><kbd>F1</kbd></td><td>Help for the current area</td></tr><tr><td><kbd>Esc</kbd></td><td>Close assistant/window</td></tr><tr><td><kbd>1</kbd>–<kbd>4</kbd></td><td>While drawing, switch surface: 1 paving, 2 grass, 3 cobbles, 4 rough grading (line is split at the last point)</td></tr><tr><td>Double-click</td><td>Finish line</td></tr><tr><td>Right-click</td><td>Context menu on the map</td></tr><tr><td><kbd>Shift</kbd></td><td>Temporarily invert perpendicular/parallel; in the profile 10 m instead of 1 m</td></tr><tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Pan the map (focused); move a manhole in the profile</td></tr><tr><td><kbd>Del</kbd></td><td>Delete a manhole in the profile</td></tr><tr><td><kbd>Enter</kbd></td><td>Assistant: send (<kbd>Shift</kbd>+<kbd>Enter</kbd> = new line)</td></tr><tr><td>Drag</td><td>Move vertex/object, manhole in the profile</td></tr></tbody></table>"] },
 
 { id: "cost", t: ["Wo sich Kosten ändern", "Où les coûts changent", "Dove cambiano i costi", "Where costs change"], b: [
-"<p>Diese Aktionen verändern Datensätze und damit das Ergebnis – das Tool meldet es jeweils:</p><ul><li><b>«In Datensätze übernehmen»:</b> Längen, Anzahlen, Typen und Flächen aus der Zeichnung.</li><li><b>Linien an Schächten:</b> automatische Anschlüsse DN 80/DN 150 ersetzen die manuelle Anschlusszahl.</li><li><b>Linien teilen</b> (Schacht auf Linie, Vorschläge «Alle übernehmen», Schacht im Profil setzen) erzeugt zusätzliche Graben-Datensätze.</li><li><b>«Kosten mit Schräglänge rechnen»</b> (aus bei Standard).</li><li><b>Abschnittsart Luft/Bohrung:</b> nicht als Graben übernommen, separat bepreisen.</li><li><b>Assistent-Vorschläge:</b> erst nach «Übernehmen».</li></ul><p>Ohne Kostenwirkung: Prüfhinweise, Vorschau der Vorschläge, Längenprofil-Darstellung, Überdeckung, DXF-Export, Anleitung.</p>",
-"<p>Ces actions modifient les enregistrements donc le résultat – l'outil le signale :</p><ul><li><b>« In Datensätze übernehmen » :</b> longueurs, nombres, types et surfaces du dessin.</li><li><b>Lignes aux chambres :</b> les raccords DN 80/DN 150 automatiques remplacent le nombre saisi.</li><li><b>Couper des lignes</b> (chambre sur ligne, « Alle übernehmen », chambre dans le profil) crée des enregistrements de fouille supplémentaires.</li><li><b>« Kosten mit Schräglänge rechnen »</b> (désactivé par défaut).</li><li><b>Type de tronçon aérien/forage :</b> pas repris comme fouille, à chiffrer séparément.</li><li><b>Propositions de l'assistant :</b> seulement après « Appliquer ».</li></ul><p>Sans effet sur les coûts : contrôles, aperçu des propositions, profil en long, recouvrement, export DXF, aide.</p>",
-"<p>Queste azioni modificano i record e quindi il risultato – lo strumento lo segnala:</p><ul><li><b>«In Datensätze übernehmen»:</b> lunghezze, quantità, tipi e superfici dal disegno.</li><li><b>Linee ai pozzetti:</b> gli allacciamenti DN 80/DN 150 automatici sostituiscono il numero inserito.</li><li><b>Dividere le linee</b> (pozzetto su linea, «Alle übernehmen», pozzetto nel profilo) crea record di scavo aggiuntivi.</li><li><b>«Kosten mit Schräglänge rechnen»</b> (disattivato di norma).</li><li><b>Tratto aereo/perforazione:</b> non ripreso come scavo, da prezzare a parte.</li><li><b>Proposte dell'assistente:</b> solo dopo «Applica».</li></ul><p>Senza effetto sui costi: verifiche, anteprima delle proposte, profilo longitudinale, copertura, esportazione DXF, guida.</p>",
-"<p>These actions change records and thus the result – the tool tells you:</p><ul><li><b>“In Datensätze übernehmen”:</b> lengths, counts, types and areas from the drawing.</li><li><b>Lines at manholes:</b> automatic DN 80/DN 150 connections replace the manually entered count.</li><li><b>Splitting lines</b> (manhole on line, “Alle übernehmen”, manhole in the profile) creates additional trench records.</li><li><b>“Kosten mit Schräglänge rechnen”</b> (off by default).</li><li><b>Aerial/bore section type:</b> not taken as trench, price separately.</li><li><b>Assistant suggestions:</b> only after “Apply”.</li></ul><p>No cost effect: check hints, preview of suggestions, long profile, cover, DXF export, help.</p>"] },
+"<p>Diese Aktionen verändern Datensätze und damit das Ergebnis – das Tool meldet es jeweils:</p><ul><li><b>«In Datensätze übernehmen»:</b> Längen, Anzahlen, Typen und Flächen aus der Zeichnung.</li><li><b>Linien an Schächten:</b> automatische Anschlüsse DN 80/DN 150 ersetzen die manuelle Anschlusszahl.</li><li><b>Linien teilen</b> (Schacht auf Linie, Vorschläge «Alle übernehmen», Schacht im Profil setzen) erzeugt zusätzliche Graben-Datensätze.</li><li><b>«Kosten mit Schräglänge rechnen»</b> (aus bei Standard).</li><li><b>Abschnittsart Luft/Bohrung:</b> nicht als Graben übernommen, separat bepreisen.</li><li><b>Assistent-Vorschläge:</b> erst nach «Übernehmen».</li></ul><p>Ohne Kostenwirkung: Prüfhinweise, Vorschau der Vorschläge, Längenprofil-Darstellung, Überdeckung, DXF-Export, Anleitung.</p><p><b>Offene Positionen (OFFEN):</b> Findet das Tool keinen eindeutigen LV-Preis, erscheint die Position als OFFEN und ist <b>nicht im Total</b>. Das steht jetzt überall direkt unter dem Total: auf der Hauptseite, im Kurzausdruck, im Projektbericht und im Excel; in der Karte nennt die Fussleiste die Zahl. Mit «Offene Positionen erfassen» (Knopf im Statusfeld, Kennzeichen oben oder «Preis erfassen» in der Zeile) trägst du einen eigenen Einheitspreis ein, z. B. aus einer Offerte, mit Quelle. Die Menge rechnet das Tool weiter selbst; die Position zählt dann ins Total, ist als «eigener Preis (ausserhalb LV)» markiert und in der Kostentabelle separat ausgewiesen. Feld leeren macht sie wieder offen; «Rückgängig» in der Meldung stellt den vorherigen Stand her.</p>",
+"<p>Ces actions modifient les enregistrements donc le résultat – l'outil le signale :</p><ul><li><b>« In Datensätze übernehmen » :</b> longueurs, nombres, types et surfaces du dessin.</li><li><b>Lignes aux chambres :</b> les raccords DN 80/DN 150 automatiques remplacent le nombre saisi.</li><li><b>Couper des lignes</b> (chambre sur ligne, « Alle übernehmen », chambre dans le profil) crée des enregistrements de fouille supplémentaires.</li><li><b>« Kosten mit Schräglänge rechnen »</b> (désactivé par défaut).</li><li><b>Type de tronçon aérien/forage :</b> pas repris comme fouille, à chiffrer séparément.</li><li><b>Propositions de l'assistant :</b> seulement après « Appliquer ».</li></ul><p>Sans effet sur les coûts : contrôles, aperçu des propositions, profil en long, recouvrement, export DXF, aide.</p><p><b>Positions ouvertes (OUVERT) :</b> si l'outil ne trouve pas de prix LV univoque, la position apparaît comme OUVERTE et n'est <b>pas dans le total</b>. Cela figure maintenant partout directement sous le total : page principale, impression courte, rapport de projet et Excel ; sur la carte, la barre inférieure indique leur nombre. Avec « Saisir les positions ouvertes » (bouton dans la zone d'état, repère en haut ou « Saisir un prix » dans la ligne), vous saisissez un prix unitaire propre, p. ex. d'une offre, avec la source. L'outil continue de calculer la quantité ; la position compte alors dans le total, est marquée « prix propre (hors LV) » et figure à part dans le tableau des coûts. Vider le champ la rend de nouveau ouverte ; « Annuler » dans le message rétablit l'état précédent.</p>",
+"<p>Queste azioni modificano i record e quindi il risultato – lo strumento lo segnala:</p><ul><li><b>«In Datensätze übernehmen»:</b> lunghezze, quantità, tipi e superfici dal disegno.</li><li><b>Linee ai pozzetti:</b> gli allacciamenti DN 80/DN 150 automatici sostituiscono il numero inserito.</li><li><b>Dividere le linee</b> (pozzetto su linea, «Alle übernehmen», pozzetto nel profilo) crea record di scavo aggiuntivi.</li><li><b>«Kosten mit Schräglänge rechnen»</b> (disattivato di norma).</li><li><b>Tratto aereo/perforazione:</b> non ripreso come scavo, da prezzare a parte.</li><li><b>Proposte dell'assistente:</b> solo dopo «Applica».</li></ul><p>Senza effetto sui costi: verifiche, anteprima delle proposte, profilo longitudinale, copertura, esportazione DXF, guida.</p><p><b>Posizioni aperte (APERTO):</b> se lo strumento non trova un prezzo LV univoco, la posizione appare come APERTA e <b>non è nel totale</b>. Ora lo si vede ovunque direttamente sotto il totale: pagina principale, stampa breve, rapporto di progetto ed Excel; sulla mappa la barra inferiore ne indica il numero. Con «Inserire posizioni aperte» (pulsante nel riquadro di stato, contrassegno in alto o «Inserire prezzo» nella riga) inserisci un prezzo unitario proprio, p. es. da un'offerta, con la fonte. La quantità la calcola sempre lo strumento; la posizione entra nel totale, è marcata «prezzo proprio (fuori LV)» e indicata a parte nella tabella dei costi. Svuotare il campo la rende di nuovo aperta; «Annulla» nel messaggio ripristina lo stato precedente.</p>",
+"<p>These actions change records and thus the result – the tool tells you:</p><ul><li><b>“In Datensätze übernehmen”:</b> lengths, counts, types and areas from the drawing.</li><li><b>Lines at manholes:</b> automatic DN 80/DN 150 connections replace the manually entered count.</li><li><b>Splitting lines</b> (manhole on line, “Alle übernehmen”, manhole in the profile) creates additional trench records.</li><li><b>“Kosten mit Schräglänge rechnen”</b> (off by default).</li><li><b>Aerial/bore section type:</b> not taken as trench, price separately.</li><li><b>Assistant suggestions:</b> only after “Apply”.</li></ul><p>No cost effect: check hints, preview of suggestions, long profile, cover, DXF export, help.</p><p><b>Open items (OPEN):</b> if the tool finds no unambiguous LV price, the item appears as OPEN and is <b>not in the total</b>. This is now shown everywhere directly below the total: main page, short printout, project report and Excel; on the map the footer shows the count. With «Enter open items» (button in the status box, tag at the top or «Enter price» in the row) you enter your own unit price, e.g. from a quote, with its source. The tool keeps calculating the quantity; the item then counts in the total, is marked «own price (outside LV)» and is shown separately in the cost table. Clearing the field makes it open again; «Undo» in the message restores the previous state.</p>"] },
 
 { id: "about", t: ["Datenschutz und Über das Tool", "Confidentialité et à propos", "Privacy e informazioni", "Privacy and about"], b: [
 "<ul><li><b>Daten:</b> Das Projekt liegt im Browser (localStorage) und in deinen JSON-Sicherungen – nicht auf einem Server. Internetzugriffe nur für Kartendienste (swisstopo, geo.admin.ch), das Höhenprofil und Street View.</li><li><b>Assistent und Anleitung</b> arbeiten lokal ohne KI.</li><li><b>Grundlagen:</b> LV «Swisscom Infrastrukturarbeiten bei Baukooperationen V1.1 (10.07.2026)», Handbuch unter- und oberirdischer Netzbau V1.2 (01.04.2026).</li><li><b>Urheber:</b> App-Konzept von <b>Alessandro Cortese</b>.</li></ul><p>Die Richtwerte aus dem Handbuch sind Hinweise, keine Vorschrift; Abweichungen von den Normplänen sind als Sonderfreigabe zu beantragen.</p><p><b>Urheberrecht und Nutzung:</b> © Alessandro Cortese, alle Rechte vorbehalten. App-Konzept, Quelltext, Rechenkern und Gestaltung sind geschützt; Kopieren, Verändern, Weitergeben und Dekompilieren nur mit schriftlicher Zustimmung. Weitergabe-Versionen sind auf den Empfänger personalisiert (Name in Fusszeile und Druck) und befristet.</p>",

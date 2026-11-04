@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); let pg=await mk(b,1600,1000);
 const ask=async q=>{await pg.fill('#chPan textarea',q); await pg.keyboard.press('Enter'); await pg.waitForTimeout(250); return pg.locator('.chm.bot').last().textContent();};
 await pg.fill('#f_graben_L','100'); await pg.waitForTimeout(600);
@@ -15,7 +15,7 @@ a=await ask('blablubb'); ok(/nichts Hinterlegtes/.test(a),'Unbekannt → Hilfe')
 a=await ask('setze graben 1 T auf 1.2'); await pg.waitForSelector('.chcard'); const card=await pg.textContent('.chcard'); ok(/Kostenwirkung netto/.test(card)&&/1\.2/.test(card),'Vorschlagskarte: '+card.slice(0,80));
 let S=await getS(pg); ok(S.recs.graben[0].T!=='1.2','noch nicht übernommen'); await pg.click('.chcard button:has-text("Übernehmen")'); await pg.waitForTimeout(500); S=await getS(pg); ok(S.recs.graben[0].T==='1.2','nach Bestätigung übernommen');
 a=await ask('setze graben 1 gibtsnicht auf 5'); ok(/kennt dieser Datensatz nicht/.test(a),'Unbekanntes Feld abgelehnt');
-await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); let ax=await pg.evaluate(()=>axe.run(document.body).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe Seite: '+JSON.stringify(ax).slice(0,200));
+await pg.addScriptTag({path:require('./lib/k.js').AXE}); let ax=await pg.evaluate(()=>axe.run(document.body).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe Seite: '+JSON.stringify(ax).slice(0,200));
 await pg.keyboard.press('Escape'); ok(!(await pg.locator('#chPan').isVisible()),'Escape schliesst Assistent');
 // im Zeichnen-Dialog
 await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);

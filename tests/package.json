@@ -1,0 +1,11 @@
+{
+  "name": "lv-devis-tests",
+  "private": true,
+  "description": "Testhilfen für LV-Devis Tiefbau (Browser-Tests mit Playwright). Einmalig: npm ci --prefix tests",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "axe-core": "4.10.2",
+    "leaflet": "1.9.4",
+    "pdfjs-dist": "3.11.174"
+  }
+}

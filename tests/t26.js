@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b);
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
 const bx=await pg.locator('#kmMap').boundingBox();
@@ -21,7 +21,7 @@ ok(await pg.locator('.kmrow >> nth=0 >> .kmsm').isVisible(),'Kurzinfo im Kopf: '
 await pg.locator('.kmrow >> nth=0 >> .kmfold').click(); ok(!(await pg.locator('.kmrow >> nth=0').getAttribute('class')).includes('kmclosed'),'Einzelnes Objekt aufklappen');
 // Kostenvorschau
 await pg.waitForTimeout(900); const ct=await pg.textContent('#kmCost'); console.log('Kosten:',ct); ok(/CHF/.test(ct),'Kostenvorschau');
-await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); const ax=await pg.evaluate(()=>axe.run(document).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe Karte mit Einklappen/Legende/Kosten: '+JSON.stringify(ax));
+await pg.addScriptTag({path:require('./lib/k.js').AXE}); const ax=await pg.evaluate(()=>axe.run(document).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe Karte mit Einklappen/Legende/Kosten: '+JSON.stringify(ax));
 // Übernahme
 await pg.click('[data-k=apply]'); await pg.waitForTimeout(700);
 const S=await getS(pg); const g=S.recs.graben; console.log(JSON.stringify(g.map(x=>[x.belag.mode,x.belag.pflaster&&x.belag.pflaster.abbruchAlt,x.belag.pflaster&&x.belag.pflaster.abbruchArt])));

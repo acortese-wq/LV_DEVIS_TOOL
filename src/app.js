@@ -412,7 +412,7 @@
       "<tr><td>q</td><td class=\"num\">" + qf(h.q) + " %</td></tr><tr><td>" + esc(tt("hTm")) + '</td><td class="num">' + qf(h.Tm) + " h</td></tr>" +
       "<tr><td>" + esc(tt("hHon")) + " (" + qf(h.Tp) + " h × " + chf(num(r.h)) + ')</td><td class="num">CHF ' + chf(h.H) + "</td></tr>" +
       (h.NK ? "<tr><td>" + esc(tt("hNk")) + '</td><td class="num">CHF ' + chf(h.NK) + "</td></tr>" : "") +
-      '<tr class="sub"><td>' + esc(tt("hTot")) + '</td><td class="num">CHF ' + chf(h.net) + "</td></tr><tr><td>" + esc(tt("k_mwst")) + '</td><td class="num">CHF ' + chf(mw) + "</td></tr>" +
+      '<tr class="sub"><td>' + esc(tt("hTot")) + '</td><td class="num">CHF ' + chf(h.net) + "</td></tr><tr><td>" + esc(mwLab(num(S.mwst, 8.1))) + '</td><td class="num">CHF ' + chf(mw) + "</td></tr>" +
       '<tr class="sum"><td>' + esc(tt("hTotI")) + '</td><td class="num">CHF ' + chf(r2(h.net + mw)) + "</td></tr></tbody></table>";
   }
   function refreshHon() { var hf = $("#honfak"); if (hf) hf.innerHTML = honFakHtml(); var e = $("#honres"); if (e) e.innerHTML = honResHtml(rec()); var r = rec(), q0 = phaseList(r).reduce(function (s, x) { return s + (x.on ? x.q : 0); }, 0), qe = $("#qsum");
@@ -609,7 +609,7 @@
       try {
         S = JSON.parse(JSON.stringify(S0)); var cc = (S.recs[tab] || []).filter(function (r) { return cfg.uid && r.uid === cfg.uid; })[0] || JSON.parse(JSON.stringify(cfg)), st = karteApply(M, cc, lenFn, Object.assign({ src: "karte" }, fns));
         S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: S.karte.base, bg: null, overlay: null }; syncDerived(cc, st);
-        var sm = KVE.calc(S, LV).sum; out = { n: sm.netto, b: sm.brutto };
+        var oc = KVE.calc(S, LV), sm = oc.sum; out = { n: sm.netto, b: sm.brutto, o: oc.nOffen };
       } catch (e) { out = null; } finally { S = S0; }
       return out;
     };
@@ -916,13 +916,17 @@
   /* ---------- Ergebnis ---------- */
   var ORDER = ["g_bauwerk", "g_belag", "g_deponieBelag", "g_abbruch", "g_aushub", "g_ersch", "g_spries", "g_zone", "g_rohr", "g_verf", "g_deponie", "g_belagNeu", "g_abdeckung", "g_fremd", "g_boesch", "g_zus", "g_weitere", "g_pausch", "g_vorarbeiten", "g_be", "g_frei"];
   function openText(l) { return fill(tt("w_" + l.tk), l.args); }
+  function mwLab(pct) { return String(tt("k_mwst")).replace(/\s*[\d.,]+\s*%\s*$/, "") + " " + qf(r2(pct)) + " %"; }   /* MWST-Bezeichnung mit dem tatsächlichen Satz (statt fix 8.1 %) */
+  function ofBtn(l, lab) { return l.tk && l.tk !== "freiKeinEP" ? '<p class="ofrow no-print"><button type="button" class="btn ghost small" data-act="offen" data-ofk="' + esc(l.tk + "|" + l.unit) + '">' + esc(tt(lab)) + "</button></p>" : ""; }
   function rowHtml(l) {
     if (l.flag === "offen") {
       return '<tr class="open"><td class="art"><span class="badge">' + esc(tt("c_offenTag")) + "</span></td><td>" + esc(l.text || openText(l)) + (l.text ? '<div class="rw">' + esc(openText(l)) + "</div>" : "") +
-        (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit) + '</td><td class="num">—</td><td class="num">—</td></tr>';
+        (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + ofBtn(l, "of_rowBtn") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit) + '</td><td class="num">—</td><td class="num">—</td></tr>';
     }
-    var cls = l.flag === "ausserLV" ? "bad" : l.flag === "epGeaendert" ? "chg" : "", mark = l.flag === "ausserLV" ? " ⚠" : l.flag === "epGeaendert" ? " ✎" : "";
-    var txt = /^\d{3}\//.test(l.key) ? lvT(l.key) : l.text, ctx = /^\d{3}\//.test(l.key) ? lvC(l.key) : l.ctx;
+    var erf = l.flag === "erfasst", cls = l.flag === "ausserLV" ? "bad" : l.flag === "epGeaendert" || erf ? "chg" : "", mark = l.flag === "ausserLV" ? " ⚠" : l.flag === "epGeaendert" || erf ? " ✎" : "";
+    var txt = /^\d{3}\//.test(l.key) ? lvT(l.key) : erf ? (l.text || openText(l)) : l.text, ctx = /^\d{3}\//.test(l.key) ? lvC(l.key) : erf ? tt("c_erfTag") : l.ctx;
+    if (erf) return '<tr class="chg erf"><td class="art"><span class="badge erf">' + esc(tt("c_erfBadge")) + "</span></td><td>" + '<span class="ctx">' + esc(ctx) + "</span><div>" + esc(txt) + mark + "</div>" + (l.text ? '<div class="rw">' + esc(openText(l)) + "</div>" : "") +
+      (l.why ? '<div class="rw">' + esc(tt("of_why")) + ": " + esc(l.why) + "</div>" : "") + (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + ofBtn(l, "of_rowEdit") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit) + '</td><td class="num">' + chf(l.ep) + '</td><td class="num">' + chf(l.total) + "</td></tr>";
     return '<tr class="' + cls + '"><td class="art" data-k="' + esc(l.key) + '">' + esc(l.key) + (l.ks === "Belag" ? '<sup class="ks">B</sup>' : "") + "</td><td>" + (ctx ? '<span class="ctx">' + esc(ctx) + "</span>" : "") + "<div>" + esc(txt) + mark + "</div>" +
       (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit) + '</td><td class="num">' + chf(l.ep) + '</td><td class="num">' + chf(l.total) + "</td></tr>";
   }
@@ -988,7 +992,7 @@
     var s = out.sum, nStop = out.warn.filter(function (w) { return w.sev === "stop"; }).length, nAmb = out.warn.filter(function (w) { return w.sev === "amber"; }).length;
     var hn = r2(hon.reduce(function (a, x) { return a + x[1].net; }, 0)), cell = function (lab, v, cls) { return '<div class="kc' + (cls ? " " + cls : "") + '"><span class="kl">' + esc(lab) + '</span><b class="kv">CHF ' + chf(v) + "</b></div>"; };
     var tags = '<span class="tag">' + esc(fill(tt("ux_stufe"), { s: s.stufe, p: s.pct })) + "</span>" +
-      (out.nOffen ? '<span class="tag amber">' + esc(fill(tt("ux_offen"), { n: out.nOffen })) + "</span>" : "") +
+      (out.nOffen ? '<button type="button" class="tag amber tagbtn" data-act="offen" title="' + esc(fill(tt("of_btn"), { n: out.nOffen })) + '">' + esc(fill(tt("ux_offen"), { n: out.nOffen })) + "</button>" : "") +
       (nStop ? '<a href="#warns" class="tag stop">' + esc(fill(tt("ux_stop"), { n: nStop })) + "</a>" : "") +
       (nAmb ? '<a href="#warns" class="tag amber">' + esc(fill(tt("ux_warn"), { n: nAmb })) + "</a>" : "");
     $("#kpi").innerHTML = '<div class="kpi-main">' + cell(tt("ux_netto"), s.netto, "main") + cell(tt("ux_brutto"), s.brutto) + (hon.length ? cell(tt("ux_hon"), hn) : "") + "</div>" + (n ? '<div class="kpi-tags">' + tags + "</div>" : "");
@@ -1124,7 +1128,8 @@
     var st = n === 0 ? "empty" : stop ? "stop" : amber ? "amber" : "ok";
     html += '<div class="status no-summary ' + (st === "stop" ? "stop" : st === "amber" ? "amber" : "ok") + '"><p class="stitle">' + esc(tt("st_" + st)) + "</p>";
     if (st === "empty") html += '<p class="action">' + esc(tt("ux_emptyHint")) + "</p>";
-    if (out.nOffen) html += '<p class="offennote">' + esc(fill(tt("x_nOffen"), { n: out.nOffen })) + "</p>";
+    var erfL = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst") erfL.push(l); }); }); var sErf = r2(erfL.reduce(function (a, l) { return a + l.total; }, 0));
+    if (out.nOffen || erfL.length) html += '<p class="offennote">' + (out.nOffen ? esc(fill(tt("x_nOffen"), { n: out.nOffen })) + " " : "") + (erfL.length ? esc(fill(tt("of_note_erf"), { n: erfL.length, s: chf(sErf) })) + " " : "") + '<button type="button" class="btn small no-print" data-act="offen">' + esc(fill(tt("of_btn"), { n: out.nOffen + erfL.length })) + "</button></p>";
     var top = out.warn.filter(function (w) { return w.sev !== "info"; }).slice(0, 4);
     if (top.length) html += "<ul>" + top.map(function (w) { return "<li>" + warnGo(w) + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul>" + (out.warn.length > top.length ? '<p><a href="#warns">' + esc(tt("ux_allWarn")) + " (" + out.warn.length + ")</a></p>" : "");
     html += "</div>";
@@ -1162,17 +1167,19 @@
       html += "</div>";
       var s = out.sum;
       var kost = "<h3>" + esc(tt("h_kosten")) + '</h3><table class="cost"><tbody><tr><td>' + esc(tt("k_zw")) + '</td><td class="num">' + chf(s.zwischen) + "</td></tr>" +
+        (erfL.length ? '<tr class="sub kerf"><td>' + esc(fill(tt("k_erf"), { n: erfL.length })) + '</td><td class="num">' + chf(sErf) + "</td></tr>" : "") +
         (s.belag ? '<tr class="sub"><td>' + esc(tt("k_belagKS")) + '</td><td class="num">' + chf(s.belag) + "</td></tr>" : "") +
         "<tr><td>" + esc(fill(tt("k_rabatt"), { s: s.stufe, p: s.pct })) + '</td><td class="num">− ' + chf(s.rabatt) + "</td></tr><tr><td>" + esc(tt("k_nach")) + '</td><td class="num">' + chf(s.nachRabatt) + "</td></tr>" +
         "<tr><td>" + esc(tt("k_inst")) + '</td><td class="num">+ ' + chf(s.inst) + '</td></tr><tr class="sub"><td>' + esc(tt("k_netto")) + '</td><td class="num">' + chf(s.netto) + "</td></tr>" +
-        "<tr><td>" + esc(tt("k_mwst")) + " " + qf(s.mwSatz * 100) + ' %</td><td class="num">' + chf(s.mwst) + '</td></tr><tr class="sum"><td>' + esc(tt("k_brutto")) + '</td><td class="num">' + chf(s.brutto) + "</td></tr></tbody></table>";
+        "<tr><td>" + esc(mwLab(s.mwSatz * 100)) + '</td><td class="num">' + chf(s.mwst) + '</td></tr><tr class="sum"><td>' + esc(tt("k_brutto")) + '</td><td class="num">' + chf(s.brutto) + "</td></tr>" +
+        (out.nOffen ? '<tr class="koffen"><td>⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + '</td><td class="num">' + esc(tt("k_offenV")) + "</td></tr>" : "") + "</tbody></table>";
       html += '<div class="kostblk">' + kost + "</div>"; lvHtml += kost;
     }
     var hon = S.recs.hon.map(function (r) { return [r, honCalc(r, out.sum.netto)]; }).filter(function (x) { return x[1].ok; });
     if (hon.length) {
       var hn = r2(hon.reduce(function (a, x) { return a + x[1].net; }, 0)), hm = r2(hn * num(S.mwst, 8.1) / 100);
       html += "<h3>" + esc(tt("hSum")) + '</h3><table class="cost"><tbody>' + hon.map(function (x) { return "<tr><td>" + esc(x[0].name) + '<div class="rw">' + qf(x[1].Tp) + " h (Tp) × CHF " + chf(num(x[0].h)) + (x[1].NK ? " + " + esc(tt("hNk")) + " " + chf(x[1].NK) : "") + " · B = " + chf(x[1].B) + '</div></td><td class="num">' + chf(x[1].net) + "</td></tr>"; }).join("") +
-        '<tr class="sub"><td>' + esc(tt("hTot")) + '</td><td class="num">' + chf(hn) + "</td></tr><tr><td>" + esc(tt("k_mwst")) + '</td><td class="num">' + chf(hm) + '</td></tr><tr><td>' + esc(tt("hTotI")) + '</td><td class="num">' + chf(r2(hn + hm)) + "</td></tr>" +
+        '<tr class="sub"><td>' + esc(tt("hTot")) + '</td><td class="num">' + chf(hn) + "</td></tr><tr><td>" + esc(mwLab(num(S.mwst, 8.1))) + '</td><td class="num">' + chf(hm) + '</td></tr><tr><td>' + esc(tt("hTotI")) + '</td><td class="num">' + chf(r2(hn + hm)) + "</td></tr>" +
         '<tr class="sum"><td>' + esc(tt("gTot")) + '</td><td class="num">' + chf(r2(out.sum.brutto + hn + hm)) + "</td></tr></tbody></table>";
     }
     var ws = out.warn.slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
@@ -1187,6 +1194,48 @@
     window.__OUT = out;
   }
 
+  /* ---------- Offene Positionen erfassen: eigener Einheitspreis je OFFEN-Zeile (ausserhalb LV); gespeichert im Datensatz unter oep (Rechenkern JS und Skill) ---------- */
+  function epParse(v) { var t = String(v == null ? "" : v).replace(/['’\s]/g, "").replace(",", "."); if (!t) return { empty: true }; return /^\d+(\.\d+)?$/.test(t) && +t > 0 ? { v: t } : { bad: true }; }
+  function offenRows() {
+    var out = KVE.calc(S, LV), by = {}, rows = [], rest = 0;
+    out.elems.forEach(function (e) {
+      e.lines.forEach(function (l) {
+        if (!(l.open || l.flag === "erfasst") || l.tk === "freiKeinEP") return;
+        var key = l.tk + "|" + l.unit, id = e.tab + ":" + e.idx + ":" + key, rec = S.recs[e.tab][e.idx], v = (rec.oep || {})[key] || {};
+        if (!by[id]) { by[id] = { tab: e.tab, idx: e.idx, key: key, el: tt("tab_" + e.tab) + " · " + (e.name || ""), txt: openText(l), unit: l.unit, qty: 0, ep: v.ep || "", text: v.text || "", why: v.why || "", erf: l.flag === "erfasst" }; rows.push(by[id]); }
+        by[id].qty = r2(by[id].qty + l.qty);
+      });
+    });
+    out.vor.lines.concat(out.be.lines).forEach(function (l) { if (l.open) rest++; });
+    return { rows: rows, rest: rest };
+  }
+  function offenOpen(focusKey) {
+    var d = document.getElementById("ofDlg"); if (d) d.remove(); var R = offenRows();
+    d = document.createElement("dialog"); d.id = "ofDlg"; d.className = "rpdlg ofdlg"; d.setAttribute("aria-labelledby", "ofT");
+    var inp = function (i, k, v, lab, cls) { return '<input type="text" class="' + cls + '" data-of="' + i + '" data-f="' + k + '" value="' + esc(v) + '" aria-label="' + esc(lab) + '"' + (k === "ep" ? ' inputmode="decimal"' : "") + ">"; };
+    var body = R.rows.length ? '<div class="oftab"><table><thead><tr><th>' + esc(tt("of_c_pos")) + '</th><th class="num">' + esc(tt("c_qty")) + "</th><th>" + esc(tt("of_c_ep")) + "</th><th>" + esc(tt("of_c_text")) + "</th><th>" + esc(tt("of_why")) + '</th><th class="num">' + esc(tt("c_tot")) + "</th></tr></thead><tbody>" +
+      R.rows.map(function (r, i) { var lab = r.el + " – " + r.txt; return '<tr data-ofrow="' + i + '"' + (r.erf ? ' class="erf"' : "") + '><td><span class="ofel">' + esc(r.el) + "</span>" + esc(r.txt) + '</td><td class="num">' + qf(r.qty) + " " + esc(r.unit) + "</td><td>" + inp(i, "ep", r.ep, tt("of_c_ep") + " (CHF/" + r.unit + "): " + lab, "ofep") + '<span class="ofu">CHF/' + esc(r.unit) + "</span></td><td>" + inp(i, "text", r.text, tt("of_c_text") + ": " + lab, "oftx") + "</td><td>" + inp(i, "why", r.why, tt("of_why") + ": " + lab, "oftx") + '</td><td class="num ofsum" data-ofs="' + i + '">' + (epParse(r.ep).v ? chf(r2(r.qty * +epParse(r.ep).v)) : "–") + "</td></tr>"; }).join("") + "</tbody></table></div>"
+      : '<p class="hint">' + esc(tt("of_none")) + "</p>";
+    d.innerHTML = '<form method="dialog"><h2 id="ofT">' + esc(tt("of_t")) + '</h2><p class="hint">' + esc(tt("of_hint")) + "</p>" + body + (R.rest ? '<p class="hint">' + esc(fill(tt("of_rest"), { n: R.rest })) + "</p>" : "") +
+      '<p class="hint reqmsg" id="ofErr" role="alert" hidden></p><div class="kmbar">' + (R.rows.length ? '<button type="submit" class="btn" value="save">' + esc(tt("of_save")) + "</button> " : "") + '<button type="submit" class="btn ghost" value="x" formnovalidate>' + esc(tt("rp_close")) + "</button></div></form>";
+    document.body.appendChild(d); d.addEventListener("close", function () { d.remove(); });
+    d.addEventListener("input", function (e) { var t = e.target; if (t.dataset.f !== "ep") return; var i = +t.dataset.of, p = epParse(t.value), c = d.querySelector('[data-ofs="' + i + '"]'); t.setAttribute("aria-invalid", p.bad ? "true" : "false"); if (c) c.textContent = p.v ? chf(r2(R.rows[i].qty * +p.v)) : "–"; });
+    d.querySelector("form").addEventListener("submit", function (e) {
+      if (!e.submitter || e.submitter.value !== "save") return;
+      var bad = null; [].slice.call(d.querySelectorAll('[data-f="ep"]')).forEach(function (t) { if (!bad && epParse(t.value).bad) bad = t; });
+      if (bad) { e.preventDefault(); var er = d.querySelector("#ofErr"); er.hidden = false; er.textContent = tt("of_bad"); bad.focus(); return; }
+      var sn = snapState(), n = 0, m = 0;
+      R.rows.forEach(function (r, i) {
+        var g = function (k) { var t = d.querySelector('[data-of="' + i + '"][data-f="' + k + '"]'); return t ? String(t.value).trim() : ""; }, p = epParse(g("ep")), rec = S.recs[r.tab][r.idx];
+        if (p.v) { rec.oep = rec.oep || {}; rec.oep[r.key] = { ep: p.v, text: g("text"), why: g("why") }; n++; }
+        else if (rec.oep && rec.oep[r.key]) { delete rec.oep[r.key]; if (!Object.keys(rec.oep).length) delete rec.oep; m++; }
+      });
+      save(); renderForm(); renderResult(); undoToast(fill(tt("of_saved"), { n: n, m: m }), sn);
+    });
+    d.showModal();
+    var f = focusKey ? [].slice.call(d.querySelectorAll('tr[data-ofrow]')).filter(function (tr) { return R.rows[+tr.dataset.ofrow].key === focusKey; })[0] : null;
+    var fi = (f || d).querySelector('[data-f="ep"]'); if (fi) fi.focus();
+  }
   /* ---------- Projektbericht (Druck/PDF): nach Abschnitten oder zusammengefasst mit Totalen ---------- */
   function reportTotals(out) {
     var lines = out.summary || [], cnt = function (tab) { return out.elems.filter(function (e) { return e.tab === tab && (e.lines.length || tab !== "graben"); }).length; };
@@ -1196,6 +1245,9 @@
     var gl = 0; out.elems.forEach(function (e) { if (e.tab === "graben" && S.recs.graben[e.idx]) gl += num(S.recs.graben[e.idx].L, 0); }); add(tt("rp_t_gr"), r2(gl), "m", cnt("graben"));
     var a = sumBy("m3", /aushub für|ausheben/, /transport|deponi|gebühr|aufladen|verwert|abtransport|entsorg|einbau|auffüll|verfüll/); add(tt("rp_t_aus"), a[0], "m³", a[1], tt("rp_n_aus"));
     var r = sumBy("m", /kabelschutzrohre.*liefern|rohre.*liefern/, /einziehen|kalibr|verlegen/); add(tt("rp_t_rohr"), r[0], "m", r[1], tt("rp_n_rohr"));
+    var erfR = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst") erfR.push(l); }); });
+    if (erfR.length) rows.push({ k: tt("rp_t_erf"), v: erfR.length, u: tt("rp_u_pos"), n: erfR.length, note: "CHF " + chf(r2(erfR.reduce(function (a, l) { return a + l.total; }, 0))) + " · " + tt("c_erfTag") });
+    if (out.nOffen) rows.push({ k: "⚠ " + tt("rp_t_off"), v: out.nOffen, u: tt("rp_u_pos"), n: out.nOffen, note: tt("k_offenV") });
     return rows;
   }
   function reportBuild(o) {
@@ -1254,12 +1306,12 @@
     var used = [], nm = { k: sheetName(tt("h_kosten"), used), a: sheetName(tt("h_aufst"), used), z: sheetName(tt("h_zus"), used), b: sheetName(tt("h_bal"), used), w: sheetName(tt("h_warn"), used), g: sheetName(tt("h_grund"), used) };
     var fillRow = function (n, st, first) { var r = [{ v: first, s: st }]; for (var i = 1; i < n; i++) r.push({ v: " ", s: st }); return r; };
     var hdr = function (arr) { return arr.map(function (t) { return { v: t, s: XL.hdr }; }); };
-    var txt = function (l) { var t = /^\d{3}\//.test(l.key) ? lvT(l.key) : l.text, c = /^\d{3}\//.test(l.key) ? lvC(l.key) : l.ctx; return (c ? c + " › " : "") + t; };
+    var txt = function (l) { if (l.flag === "erfasst") return tt("c_erfTag") + " › " + (l.text || openText(l)) + (l.why ? " (" + l.why + ")" : ""); var t = /^\d{3}\//.test(l.key) ? lvT(l.key) : l.text, c = /^\d{3}\//.test(l.key) ? lvC(l.key) : l.ctx; return (c ? c + " › " : "") + t; };
     var A = [hdr([tt("c_pos"), tt("c_text"), tt("c_qty"), tt("c_unit"), tt("c_ep"), tt("c_tot")])], sumRefs = [];
     function lineText(l) { return l.flag === "offen" ? (l.text ? l.text + " – " : "") + openText(l) + (l.rule ? "  ·  " + l.rule : "") : txt(l) + (l.rule ? "  ·  " + l.rule : ""); }
     function lineRow(l) {
       if (l.flag === "offen") return [{ v: tt("c_offenTag"), s: XL.stop }, { v: lineText(l), s: XL.warnA }, { v: l.qty, s: XL.num }, { v: l.unit }, { v: "—", s: XL.grey }, { v: "—", s: XL.grey }];
-      var r = A.length + 1, bad = l.flag === "ausserLV", chg = l.flag === "epGeaendert";
+      var r = A.length + 1, bad = l.flag === "ausserLV", chg = (l.flag === "epGeaendert" || l.flag === "erfasst");
       return [{ v: l.key + (l.ks === "Belag" ? " B" : ""), s: XL.code }, { v: lineText(l) + (bad ? " ⚠" : chg ? " ✎" : ""), s: bad ? XL.red : chg ? XL.amber : XL.wrap },
         { v: l.qty, s: bad ? XL.numRed : chg ? XL.numAmber : XL.num }, { v: l.unit }, { v: l.ep, s: bad ? XL.numRed : chg ? XL.numAmber : XL.num },
         { v: l.total, s: bad ? XL.numRed : chg ? XL.numAmber : XL.num, f: "ROUND(C" + r + "*E" + r + ",2)" }];
@@ -1279,7 +1331,8 @@
     kv(tt("projekt"), k.projekt); kv(tt("sap"), k.sap); kv(tt("bem"), k.bem); kv(tt("ort"), k.ort); kv(tt("bearb"), k.bearb); kv(tt("datum"), k.datum); kv(tt("rolle"), tt("r_" + k.rolle));
     kv(tt("dv_nr"), k.devisNr); kv(tt("dv_lieferant"), k.lieferant); kv(tt("dv_vertrag"), k.vertrag); kv(tt("dv_termin"), k.termin); kv(tt("dv_belagLief"), k.belagLief ? tt("dv_ja") : tt("dv_nein")); kv(tt("x_lvver"), "V1.1 · 10.07.2026");
     K.push([]); K.push(hdr([tt("h_kosten"), "CHF"]));
-    var c0 = K.length + 1, s1 = c0 + 13, s5 = s1 + 4, sm = out.sum;
+    var erfX = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst") erfX.push(l); }); }); var extra = (erfX.length ? 1 : 0) + (out.nOffen ? 1 : 0);
+    var c0 = K.length + 1, s1 = c0 + 13 + extra, s5 = s1 + 4, sm = out.sum;
     var row = function (lab, v, f, st, ls) { K.push([{ v: lab, s: ls || XL.def }, { v: v, s: st || XL.num, f: f }]); };
     row(tt("k_zw"), sm.zwischen, sumRefs.length ? sumRefs.join("+") : "0");
     row(tt("x_stufe"), sm.stufe, "1+(B" + c0 + ">A" + s1 + ")+(B" + c0 + ">A" + (s1 + 1) + ")+(B" + c0 + ">A" + (s1 + 2) + ")+(B" + c0 + ">A" + (s1 + 3) + ")", XL.int);
@@ -1289,8 +1342,10 @@
     row(tt("k_inst"), sm.inst, "IF(B" + c0 + ">0,INDEX(C" + s1 + ":C" + s5 + ",B" + (c0 + 1) + "),0)");
     row(tt("k_netto"), sm.netto, "B" + (c0 + 4) + "+B" + (c0 + 5), XL.sum, XL.sumLbl);
     K.push([{ v: tt("x_mwstsatz") }, { v: r2(sm.mwSatz * 100), s: XL.pct }]);
-    row(tt("k_mwst"), sm.mwst, "ROUND(B" + (c0 + 6) + "*B" + (c0 + 7) + "/100,2)");
+    row(mwLab(sm.mwSatz * 100), sm.mwst, "ROUND(B" + (c0 + 6) + "*B" + (c0 + 7) + "/100,2)");
     row(tt("k_brutto"), sm.brutto, "B" + (c0 + 6) + "+B" + (c0 + 8), XL.sumFill, XL.sumLbl);
+    if (erfX.length) K.push([{ v: fill(tt("k_erf"), { n: erfX.length }), s: XL.warnA }, { v: r2(erfX.reduce(function (a, l) { return a + l.total; }, 0)), s: XL.numAmber }]);
+    if (out.nOffen) K.push([{ v: "⚠ " + fill(tt("k_offen"), { n: out.nOffen }), s: XL.stop }, { v: tt("k_offenV"), s: XL.stop }]);   /* Zeilen nach dem Total: Staffel-Verweise oben sind um «extra» verschoben */
     K.push([]); K.push([{ v: tt("x_staffel"), s: XL.bold }]); K.push(hdr([tt("x_bis"), tt("x_pct"), tt("x_inst")]));
     KVE.STAFFEL.forEach(function (t, i) { K.push([i < 4 ? { v: t.bis, s: XL.num } : { v: "> " + KVE.STAFFEL[3].bis, s: XL.def }, { v: t.pct, s: XL.pct }, { v: t.inst, s: XL.num }]); });
     var Z = [hdr([tt("c_pos"), tt("c_text"), tt("c_qty"), tt("c_unit"), tt("c_ep"), tt("c_tot")])], subs = [], curCh = null, first = 0, subTot = 0;
@@ -1299,7 +1354,7 @@
       var ch = l.key === "—" ? "—" : l.key === "OFFEN" ? "OFFEN" : l.key === "Pauschal" ? "P" : l.key.split("/")[0];
       if (ch !== curCh) { closeCh(); curCh = ch; subTot = 0; Z.push(fillRow(6, XL.grp, ch === "—" ? tt("g_frei") : ch === "OFFEN" ? tt("c_offenTag") : ch === "P" ? tt("g_pausch") : "NPK " + ch + " · " + (CHAPTERS[ch] || ""))); first = Z.length + 1; }
       if (l.flag === "offen") { Z.push([{ v: tt("c_offenTag"), s: XL.stop }, { v: lineText(l), s: XL.warnA }, { v: l.qty, s: XL.num }, { v: l.unit }, { v: "—", s: XL.grey }, { v: "—", s: XL.grey }]); return; }
-      var bad = l.flag === "ausserLV", chg = l.flag === "epGeaendert", st = bad ? XL.numRed : chg ? XL.numAmber : XL.num;
+      var bad = l.flag === "ausserLV", chg = (l.flag === "epGeaendert" || l.flag === "erfasst"), st = bad ? XL.numRed : chg ? XL.numAmber : XL.num;
       Z.push([{ v: l.key, s: XL.code }, { v: lineText(l), s: bad ? XL.red : chg ? XL.amber : XL.wrap }, { v: l.qty, s: st }, { v: l.unit }, { v: l.ep, s: st }, { v: l.total, s: st }]);
       subTot = r2(subTot + l.total);
     });
@@ -1402,6 +1457,7 @@
       var i = ALLTABS.indexOf(S.tab), j = k === "first" ? 0 : k === "last" ? ALLTABS.length - 1 : (i + k + ALLTABS.length) % ALLTABS.length;
       S.tab = ALLTABS[j]; save(); renderForm(); renderResult(); var b = $("#tabCur"); if (b) b.focus();
     });
+    document.addEventListener("click", function (ev) { var o = ev.target.closest('[data-act="offen"]'); if (o) { ev.preventDefault(); offenOpen(o.getAttribute("data-ofk")); } });
     document.addEventListener("click", function (ev) { var t = ev.target.closest("[data-lvtoggle]"); if (!t) return; S.ui.lvCol = S.ui.lvCol === false; save(); renderTabs(); renderResult(); });
     $("#tabs").addEventListener("click", function (ev) { var b = ev.target.closest("[data-tab]"); if (!b) return; S.tab = b.dataset.tab; save(); renderForm(); renderResult(); });
     $("#form").addEventListener("click", function (ev) {
@@ -1422,7 +1478,7 @@
       var pb = ev.target.closest("[data-pst]"); if (pb) { var k0 = pb.dataset.pst, nx = PST[(PST.indexOf(stOf(k0)) + 1) % PST.length]; pstSet(k0, { st: nx }); return; }
       var tg = ev.target.closest("[data-topgo]"); if (tg) { S.ui.closed.zus = false; var zb = document.querySelector('#result .elres[data-id="zus"]'); FQ = { q: "", st: "" }; renderResult(); zb = document.querySelector('#result .elres[data-id="zus"]'); if (zb) { zb.classList.remove("closed"); var tdk = zb.querySelector('td.art[data-k="' + tg.dataset.topgo.replace(/"/g, "") + '"]'); if (tdk) { tdk.parentNode.classList.add("flash"); tdk.parentNode.scrollIntoView({ block: "center", behavior: "smooth" }); setTimeout(function () { tdk.parentNode.classList.remove("flash"); }, 2500); } } return; }
       if (ev.target.id === "fClr") { FQ = { q: "", st: "" }; $("#fQ").value = ""; $("#fSt").value = ""; applyFilter(); $("#fQ").focus(); return; }
-      var a = ev.target.closest("[data-act]"); if (!a) return;
+      var a = ev.target.closest("[data-act]"); if (!a) return; if (a.dataset.act === "offen") return;   /* öffnet den Dialog «Offene Positionen erfassen» (Dokument-Klick) */
       if (a.dataset.act === "rules") { S.ui.rules = !S.ui.rules; save(); document.body.classList.toggle("rules-on", S.ui.rules); a.setAttribute("aria-pressed", S.ui.rules); a.textContent = (S.ui.rules ? "✓ " : "") + tt("ux_rules");
         document.querySelectorAll("#result details.bal").forEach(function (d) { d.open = S.ui.rules; }); return; }
       var c = a.dataset.act === "collapse";

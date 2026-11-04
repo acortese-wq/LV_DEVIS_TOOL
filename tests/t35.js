@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b,1440,900);
 await pg.fill('#f_graben_L','40'); await pg.waitForTimeout(900);
 ok(await pg.isVisible('#fQ'),'Filterleiste vorhanden'); const n0=await pg.locator('.zusblk tbody tr:not(.grp)').count();
@@ -18,5 +18,5 @@ await pg.reload(); await pg.waitForTimeout(900); ok((await pg.locator('.zusblk t
 await pg.locator('.top10 summary').click(); const top=await pg.locator('.top10 li').count(); ok(top>0&&top<=10,'Top-10: '+top); await pg.locator('.top10 [data-topgo]').first().click(); await pg.waitForTimeout(500); ok(await pg.locator('.zusblk tr.flash').count()===1,'Sprung zur Position');
 // Sticky
 await pg.evaluate(()=>window.scrollTo(0,1400)); await pg.waitForTimeout(300); const pos=await pg.evaluate(()=>{const th=document.querySelector('.zusblk thead th, .elres:not(.closed) thead th'); const r=th.getBoundingClientRect(); return [getComputedStyle(th).position, Math.round(r.top)]}); console.log('thead',pos); ok(pos[0]==='sticky'&&pos[1]<400&&pos[1]>=0,'Tabellenkopf bleibt sichtbar (sticky)');
-await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); const ax=await pg.evaluate(()=>axe.run(document).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,200));
+await pg.addScriptTag({path:require('./lib/k.js').AXE}); const ax=await pg.evaluate(()=>axe.run(document).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,200));
 ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();

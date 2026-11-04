@@ -1,7 +1,7 @@
 # Feldreferenz Erfassungsmaske (automatisch erzeugt)
 
 Alle Werte werden als **Text** gespeichert (Zahlen z. B. `"12.5"`), Ja/Nein als `true`/`false`. Felder, die nicht angegeben werden, erhalten die Vorgabe.
-Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Menge"}`) und `free` (freie Positionen, siehe SKILL.md).
+Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Menge"}`), `free` (freie Positionen, siehe SKILL.md) und `oep` (eigene Preise für OFFEN-Positionen, siehe SKILL.md).
 
 ## Graben (`recs.graben`)
 

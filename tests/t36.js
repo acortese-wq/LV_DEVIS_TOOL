@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000);
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
 for(let i=0;i<9;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitForTimeout(100);} await pg.waitForTimeout(400);
@@ -23,5 +23,5 @@ ok(S.recs.graben.every(g=>g.belag.mode==='pflaster'&&g.belag.pflaster.abbruchAlt
 await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(600); await pg.click('[data-sn=ortho]'); await pg.click('[data-sn=pt]');
 const bx2=await pg.locator('#kmMap').boundingBox(); await pg.click('[data-k=mline]'); await pg.mouse.click(bx2.x+200,bx2.y+100); await pg.waitForTimeout(300); await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).click().catch(()=>{}); await pg.mouse.click(bx2.x+400,bx2.y+160); await pg.waitForTimeout(300); await pg.click('[data-k=end]'); await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).click().catch(()=>{});
 await pg.click('[data-k=apply]'); await pg.waitForTimeout(500); S=await getS(pg); const l3=S.karte.lines[S.karte.lines.length-1]; const ang=Math.abs(Math.atan2(l3.pts[1][1]-l3.pts[0][1],l3.pts[1][0]-l3.pts[0][0])*180/Math.PI)%45; ok(ang<0.5||ang>44.5,'Winkelraster: Segment auf 45°-Vielfaches ('+ang.toFixed(2)+')');
-await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); const ax=await pg.evaluate(()=>axe.run(document).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe Arbeitsfläche: '+JSON.stringify(ax).slice(0,200));
+await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.addScriptTag({path:require('./lib/k.js').AXE}); const ax=await pg.evaluate(()=>axe.run(document).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe Arbeitsfläche: '+JSON.stringify(ax).slice(0,200));
 ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();

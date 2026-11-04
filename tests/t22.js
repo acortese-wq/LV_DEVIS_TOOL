@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b); const reqs=[];
 await pg.route('**/*',r=>{const u=r.request().url(); if(u.includes('avtest.example')&&/GetCapabilities/i.test(u)){return r.fulfill({status:200,contentType:'text/xml',headers:{'access-control-allow-origin':'*'},body:'<WMS_Capabilities><Capability><Layer><Title>x</Title><Layer><Name>parzellen</Name></Layer></Layer></Capability></WMS_Capabilities>'});} if(u.includes('avtest.example')){reqs.push(u);return r.fulfill({status:200,contentType:'image/png',headers:{'access-control-allow-origin':'*'},body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==','base64')});} r.fallback();});
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]');

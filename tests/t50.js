@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000);
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
 for(let i=0;i<9;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitForTimeout(80);}
@@ -19,6 +19,6 @@ await pg.click('[data-k=mline]'); await clk(150,320); await none(); await mv(158
 ok(/Angeschlossen an Linie 4/.test(await pg.textContent('#kmObj')),'Hauseinführung ist mit der Anschlusslinie verknüpft');
 // Gebäudekante
 await pg.click('[data-k=mrect]'); await clk(600,300); await clk(720,390); await pg.waitForTimeout(200); await pg.click('[data-k=mgeb]'); await mv(660,305); ok(await pg.locator('.kmsnap.kante').count()===1&&/Gebäudekante/.test(await pg.textContent('.kmsnap.kante i')),'Hauseinführung rastet an der Gebäudekante (Rechteck) ein'); await mv(603,303); ok(/Gebäudeecke/.test(await pg.textContent('.kmsnap.kante i')),'… und an der Gebäudeecke');
-await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); await pg.click('[data-k=mline]'); await pg.waitForTimeout(300); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,200));
+await pg.addScriptTag({path:require('./lib/k.js').AXE}); await pg.click('[data-k=mline]'); await pg.waitForTimeout(300); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,200));
 await pg.click('[data-k=apply]'); await pg.waitForTimeout(800); const S=await getS(pg); const fl=S.karte.lines.slice(0,3).map(l=>l.cfg&&l.cfg.fl).join(','); ok(fl==='belag,wiese,pflaster','Oberflächen gespeichert ('+fl+')'); ok(S.recs.graben.length>=4,'je Teilstrecke ein Graben-Datensatz ('+S.recs.graben.length+')'); ok(S.karte.geb.length===1&&!!S.karte.geb[0].lid,'Verknüpfung Linie–Hauseinführung gespeichert');
 ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();

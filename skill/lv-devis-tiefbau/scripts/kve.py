@@ -1220,7 +1220,7 @@ def completeness(P, lines):
         return any(l["key"] != "OFFEN" and any(l["key"].startswith(p) for p in pre) for l in lines)
 
     def hasOpen(tk):
-        return bool(tk) and any(l["flag"] == "offen" and l.get("tk") in tk for l in lines)
+        return bool(tk) and any(l["flag"] in ("offen", "erfasst") and l.get("tk") in tk for l in lines)
     R = P.get("recs") or {}
     el = (R.get("graben") or []) + (R.get("schacht") or []) + (R.get("werkloch") or []) + (R.get("fund") or [])
     anyG = len(R.get("graben") or []) > 0 or len(R.get("rohr") or []) > 0; anyS = len(R.get("schacht") or []) > 0
@@ -1264,6 +1264,32 @@ def baustelle(P, LV, baseSum):
     return {"lines": cx.lines, "warn": cx.warn, "bal": []}
 
 
+def offenErfasst(r, oep):
+    """Offene Positionen mit eigenem Einheitspreis (vom Benutzer erfasst, ausserhalb LV): e["oep"] = {"<tk>|<Einheit>": {ep, text, why}}.
+    Die Menge bleibt die gerechnete; die Zeile zählt ins Total, ist als «erfasst» markiert und erzeugt eine Warnung (wie im HTML-Tool)."""
+    n = 0
+    cap = {}
+    out = []
+    for l in r["lines"]:
+        if not l.get("open") or l.get("tk") == "freiKeinEP":
+            out.append(l)
+            continue
+        v = oep.get(str(l.get("tk")) + "|" + str(l.get("unit")))
+        ep = num(v.get("ep"), 0) if isinstance(v, dict) else 0
+        if not (ep > 0):
+            out.append(l)
+            continue
+        n += 1
+        cap[l.get("tk")] = 1
+        out.append({"key": "—", "unit": l["unit"], "ep": ep, "qty": l["qty"], "total": r2(l["qty"] * ep), "grp": l.get("grp"), "text": str(v.get("text") or ""),
+                    "ctx": "", "rule": l.get("rule") or "", "flag": "erfasst", "tk": l.get("tk"), "args": l.get("args"), "why": str(v.get("why") or "")})
+    r["lines"] = out
+    if not n:
+        return
+    r["warn"] = [w for w in r["warn"] if not (w.get("id") in cap and not any(l.get("open") and l.get("tk") == w.get("id") for l in out))]
+    r["warn"].append({"id": "offenErfasst", "sev": "amber", "args": {"n": n}})
+
+
 TABS = ["graben", "rohr", "schacht", "werkloch", "fund", "geb", "belag", "allg"]
 FN = {"graben": graben, "rohr": rohrTab, "schacht": schacht, "werkloch": werkloch, "fund": fund, "geb": geb, "belag": belagTab, "allg": allg}
 
@@ -1280,6 +1306,8 @@ def calcRec(tab, e, LV_, P):
     weitere(cx, e.get("x"))
     if jt(e.get("free")) and len(e["free"]):
         f = freie(e["free"], LV_); r["lines"] = r["lines"] + f["lines"]; r["warn"] = r["warn"] + f["warn"]
+    if isinstance(e.get("oep"), dict):
+        offenErfasst(r, e["oep"])
     if tab == "belag":
         for l in r["lines"]:
             l["ks"] = "Belag"

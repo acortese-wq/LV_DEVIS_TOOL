@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000);
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
 for(let i=0;i<9;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitForTimeout(100);} await pg.waitForTimeout(400);
@@ -13,7 +13,7 @@ await pg.selectOption('[data-rc=zone]','in'); await pg.fill('[data-rc=x]','50');
 await pg.click('[data-sg=calc]'); await pg.waitForTimeout(300);
 const st=await pg.textContent('#kmSug'); console.log(st.slice(-120));
 const nGhost=await pg.locator('.leaflet-overlay-pane path[stroke-dasharray="3 3"]').count(); ok(nGhost>=3,'Vorschläge als gestrichelte Marker ('+nGhost+')');
-await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,200));
+await pg.addScriptTag({path:require('./lib/k.js').AXE}); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe: '+JSON.stringify(ax).slice(0,200));
 await pg.click('[data-sg=apply]'); await pg.waitForTimeout(500);
 await pg.click('[data-k=apply]'); await pg.waitForTimeout(600); const S=await getS(pg);
 console.log('Schächte',S.karte.pts.length,'Linien',S.karte.lines.length);

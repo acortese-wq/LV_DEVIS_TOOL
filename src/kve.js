@@ -901,7 +901,7 @@ var KVE = (function () {
   ];
   function completeness(P, lines) {
     var hasOk = function (pre) { return lines.some(function (l) { return l.key !== "OFFEN" && pre.some(function (p) { return l.key.indexOf(p) === 0; }); }); };
-    var hasOpen = function (tk) { return tk && lines.some(function (l) { return l.flag === "offen" && tk.indexOf(l.tk) >= 0; }); };
+    var hasOpen = function (tk) { return tk && lines.some(function (l) { return (l.flag === "offen" || l.flag === "erfasst") && tk.indexOf(l.tk) >= 0; }); };
     var R = P.recs || {}, el = [].concat(R.graben || [], R.schacht || [], R.werkloch || [], R.fund || []);
     var anyG = (R.graben || []).length > 0 || (R.rohr || []).length > 0, anyS = (R.schacht || []).length > 0;
     var belags = el.filter(function (e) { return e.belag && e.belag.mode === "bit"; });
@@ -946,6 +946,22 @@ var KVE = (function () {
     return { lines: cx.lines, warn: cx.warn, bal: [] };
   }
 
+  /* Offene Positionen mit eigenem Einheitspreis (vom Benutzer erfasst, ausserhalb LV): e.oep = { "<tk>|<Einheit>": { ep, text, why } }.
+     Die Menge bleibt die gerechnete; die Zeile zählt ins Total, ist als «erfasst» markiert und erzeugt eine Warnung. Freie Positionen ohne Preis bleiben aussen vor. */
+  function offenErfasst(r, oep) {
+    var n = 0, cap = {};
+    r.lines = r.lines.map(function (l) {
+      if (!l.open || l.tk === "freiKeinEP") return l;
+      var v = oep[l.tk + "|" + l.unit], ep = v ? num(v.ep, 0) : 0;
+      if (!(ep > 0)) return l;
+      n++; cap[l.tk] = 1;
+      return { key: "—", unit: l.unit, ep: ep, qty: l.qty, total: r2(l.qty * ep), grp: l.grp, text: String(v.text || ""), ctx: "", rule: l.rule, flag: "erfasst", tk: l.tk, args: l.args, why: String(v.why || "") };
+    });
+    if (!n) return;
+    r.warn = r.warn.filter(function (w) { return !(cap[w.id] && !r.lines.some(function (l) { return l.open && l.tk === w.id; })); });
+    r.warn.push({ id: "offenErfasst", sev: "amber", args: { n: n } });
+  }
+
   var TABS = ["graben", "rohr", "schacht", "werkloch", "fund", "geb", "belag", "allg"];
   var FN = { graben: graben, rohr: rohrTab, schacht: schacht, werkloch: werkloch, fund: fund, geb: geb, belag: belagTab, allg: allg };
   function calcRec(tab, e, LV, P) {
@@ -956,6 +972,7 @@ var KVE = (function () {
     if (tab === "graben") zusaetze(cx, e);
     weitere(cx, e.x);
     if (e.free && e.free.length) { var f = freie(e.free, LV); r.lines = r.lines.concat(f.lines); r.warn = r.warn.concat(f.warn); }
+    if (e.oep && typeof e.oep === "object") offenErfasst(r, e.oep);
     if (tab === "belag") r.lines.forEach(function (l) { l.ks = "Belag"; });
     r.sum = r2(r.lines.reduce(function (s, l) { return s + l.total; }, 0));
     return r;

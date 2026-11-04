@@ -1,4 +1,4 @@
-const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000);
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
 for(let i=0;i<9;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitForTimeout(80);}
@@ -40,5 +40,5 @@ await pg.mouse.click(bx.x+600,bx.y+500); await pg.waitForTimeout(200); await pg.
 await pg.fill('#kmMsX','3'); await pg.click('[data-ms=par]'); await pg.waitForTimeout(400); m2=await KM(); const L0=m2.lines[0].pts, P=m2.lines[2].pts;
 const ux=(L0[1][0]-L0[0][0])/d(L0[0],L0[1]), uy=(L0[1][1]-L0[0][1])/d(L0[0],L0[1]), off=(P[0][0]-L0[0][0])*uy-(P[0][1]-L0[0][1])*ux;
 ok(m2.lines.length===3&&Math.abs(Math.abs(off)-3)<0.05&&Math.abs(d(P[0],P[1])-d(L0[0],L0[1]))<0.05,'Parallel im Abstand 3 m ('+off.toFixed(2)+' m, Länge gleich)');
-await pg.addScriptTag({path:'/tmp/claude-0/lf/axe/package/axe.min.js'}); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes.map(n=>n.target.join(' ')).join(';')))); ok(ax.length===0,'axe: '+JSON.stringify(ax));
+await pg.addScriptTag({path:require('./lib/k.js').AXE}); const ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes.map(n=>n.target.join(' ')).join(';')))); ok(ax.length===0,'axe: '+JSON.stringify(ax));
 ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();
