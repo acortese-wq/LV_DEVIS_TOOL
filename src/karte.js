@@ -1743,8 +1743,8 @@
       if (mode === "geb") { var gs = gebSnap(cp); if (gs) return Object.assign(res, gs); }
       if (mode === "line") { var gb = gebNear(cp, 20); if (gb) { res.c = gb.pt.slice(); res.kind = "geb"; res.label = tt("sn_geb"); res.geb = gb; return res; } }
       if (mode === "line") {   /* Schacht und Leitungsende fängt eine weitere Linie immer (unabhängig vom Punktfang) */
-        var kb = null; M.pts.forEach(function (p) { var q = map.latLngToContainerPoint(AD.ll(p.pt)), d = Math.hypot(q.x - cp.x, q.y - cp.y); if (d <= 18 && (!kb || d < kb.d)) kb = { d: d, p: p.pt, k: "sn_sch" }; });
-        M.lines.forEach(function (l) { if (l === curL || l.pts.length < 2) return; [l.pts[0], l.pts[l.pts.length - 1]].forEach(function (p) { var q = map.latLngToContainerPoint(AD.ll(p)), d = Math.hypot(q.x - cp.x, q.y - cp.y); if (d <= 18 && (!kb || d < kb.d - 3)) kb = { d: d, p: p, k: "sn_end" }; }); });
+        var kb = null; M.pts.forEach(function (p) { var q = map.latLngToContainerPoint(AD.ll(p.pt)), d = Math.hypot(q.x - cp.x, q.y - cp.y); if (d <= 28 && (!kb || d < kb.d)) kb = { d: d, p: p.pt, k: "sn_sch" }; });
+        M.lines.forEach(function (l) { if (l === curL || l.pts.length < 2) return; [l.pts[0], l.pts[l.pts.length - 1]].forEach(function (p) { var q = map.latLngToContainerPoint(AD.ll(p)), d = Math.hypot(q.x - cp.x, q.y - cp.y); if (d <= 28 && (!kb || d < kb.d + 6)) kb = { d: d, p: p, k: "sn_end" }; }); });
         if (kb) { res.c = kb.p.slice(); res.kind = "pt"; res.label = tt(kb.k); return res; }
       }
       if (snapSt.pt) { M.pts.concat(M.wl, M.geb, M.sond).forEach(function (p) { cands.push(p.pt); }); M.lines.forEach(function (l) { l.pts.forEach(function (p) { cands.push(p); }); }); M.areas.forEach(function (f) { f.pts.forEach(function (p) { cands.push(p); }); }); }
