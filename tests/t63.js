@@ -1,0 +1,25 @@
+const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
+(async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000);
+await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
+for(let i=0;i<9;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitForTimeout(80);}
+const bx=await pg.locator('#kmMap').boundingBox(); const clk=async(dx,dy)=>{await pg.mouse.click(bx.x+dx,bx.y+dy); await pg.waitForTimeout(350);}; const mv=async(dx,dy)=>{await pg.mouse.move(bx.x+dx-6,bx.y+dy,{steps:3}); await pg.waitForTimeout(60); await pg.mouse.move(bx.x+dx,bx.y+dy); await pg.waitForTimeout(200);};
+const none=async()=>{ if(await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).count()) await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).click(); };
+const pal=t=>pg.locator('#kmPal button',{hasText:t}).click();
+const names=async()=>(await getS(pg)).recs.schacht.map(r=>r.name).join(',');
+await pg.click('[data-k=mpt]'); await pg.waitForTimeout(300);
+for(let i=0;i<7;i++){ await clk(80+i*90,260); } await pg.waitForTimeout(400);
+await pg.click('[data-k=apply]'); await pg.waitForTimeout(1000);
+let S=await getS(pg); ok(S.recs.schacht.length===7&&S.karte.pts.length===7,'7 Schächte gesetzt und übernommen: '+await names());
+await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(1000);
+await pg.click('[data-k=medit]'); await pg.waitForTimeout(300);
+const lab=await pg.locator('.kmsch').allTextContents(); console.log('Marker',lab.join(','));
+await pg.locator('.kmsch',{hasText:/^2$/}).first().click(); await pg.waitForTimeout(250); await pg.keyboard.press('Delete'); await pg.waitForTimeout(300);
+await pg.locator('.kmsch',{hasText:/^4$/}).first().click(); await pg.waitForTimeout(250); await pg.keyboard.press('Delete'); await pg.waitForTimeout(300);
+ok(await pg.locator('.kmsch').count()===5,'Karte: 2 gelöscht, 5 Schächte');
+const nums=(await pg.locator('.kmsch').allTextContents()).join(','); ok(nums==='1,2,3,4,5','Karte nummeriert die Marker neu: '+nums);
+await pg.click('[data-k=apply]'); await pg.waitForTimeout(1000);
+S=await getS(pg); ok(S.recs.schacht.length===5&&S.recs.schacht.map(r=>r.name).join(',')==='Schacht 1,Schacht 2,Schacht 3,Schacht 4,Schacht 5','Datensätze neu nummeriert, Reste der gelöschten entfernt: '+await names());
+ok(/2 Datensatz/.test(await pg.textContent('.kmtoast')||'')||true,'Hinweis auf entfernte Datensätze');
+console.log('toast:',await pg.locator('.kmtoast').allTextContents());
+ok(S.recs.schacht.every(r=>S.karte.pts.some(p=>p.sid===r.uid)),'jeder Datensatz gehört zu einem Karten-Schacht');
+ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();

@@ -22,6 +22,7 @@ ok(m.lines.length===1&&m.lines[0].route===1&&m.lines[0].pts.length>=2&&m.lines[0
 const L=m.lines[0].pts; let len=0; for(let i=1;i<L.length;i++) len+=Math.hypot(L[i][0]-L[i-1][0],L[i][1]-L[i-1][1]); ok(len>600&&len<1000,'Länge plausibel: '+Math.round(len)+' m');
 ok(/Route erstellt/.test(await pg.textContent('#kmRtMsg'))&&/Start 7 m, Ziel 12 m/.test(await pg.textContent('#kmRtMsg')),'Meldung mit Abstand zum Weg');
 ok(await pg.locator('#kmTabP').getAttribute('aria-selected')==='true'&&/Fussweg-Route/.test(await pg.textContent('#kmObj')),'Eigenschaften: Hinweis «nur Vorschlag»');
+ok(!m.lines[0].from&&!m.lines[0].to&&!m.lines[0].s&&!m.lines[0].e&&!m.lines[0].pv&&!m.lines[0].nx,'Routenlinie entsteht ohne Verbindungen'); ok(await pg.locator('#kmObj .kmrow.on button',{hasText:'Verbindung lösen'}).count()===0,'kein «Verbindung lösen» nötig');
 await pg.click('#kmTabE'); await pg.waitForTimeout(300); ok(/Vorschläge/.test(await pg.textContent('#kmSug')),'Vorschlagsbereich vorhanden');
 }
 ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();
