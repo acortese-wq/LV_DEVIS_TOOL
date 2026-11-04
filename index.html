@@ -2903,6 +2903,10 @@ Object.assign(TS.it,{
     km_helpOff: ["«Linie zeichnen» oder «Schacht setzen» wählen, dann auf die Karte klicken. Rohranlage und Schachttyp unten je Objekt einstellen.", "Choisir «Dessiner une ligne» ou «Placer un regard», puis cliquer sur la carte. Régler installation de tubes et type de regard par objet ci-dessous.", "Scegliere «Disegnare una linea» o «Posare un pozzetto», poi cliccare sulla carta. Impostare impianto e tipo di pozzetto per oggetto qui sotto.", "Choose “Draw line” or “Place manhole”, then click the map. Set duct system and manhole type per object below."],
     km_helpOn: ["Punkte anklicken (Tastatur: Karte mit Pfeiltasten verschieben, «Punkt in Kartenmitte»). Doppelklick oder «Linie beenden» schliesst die Linie ab.", "Cliquer les points (clavier: déplacer la carte avec les flèches, «Point au centre»). Double-clic ou «Terminer la ligne» ferme la ligne.", "Cliccare i punti (tastiera: spostare la carta con le frecce, «Punto al centro»). Doppio clic o «Terminare la linea» chiude la linea.", "Click points (keyboard: pan with arrow keys, “Point at map centre”). Double-click or “Finish line” ends the line."],
     km_total: ["Gesamtlänge: {m} m · {n} Linie(n) · {s} Schacht/Schächte · {o} Sondage(n)", "Longueur totale: {m} m · {n} ligne(s) · {s} regard(s) · {o} sondage(s)", "Lunghezza totale: {m} m · {n} linea/e · {s} pozzetto/i · {o} sondaggio/i", "Total length: {m} m · {n} line(s) · {s} manhole(s) · {o} trial pit(s)"],
+    km_save: ["Speichern", "Enregistrer", "Salva", "Save"],
+    km_save_t: ["Zeichnung sichern und weiterarbeiten (Strg+S) – Datensätze werden erst mit «In Datensätze übernehmen» angelegt", "Enregistrer le dessin et continuer (Ctrl+S) – les fiches ne sont créées qu'avec « Reprendre dans les fiches »", "Salvare il disegno e continuare (Ctrl+S) – le schede vengono create solo con «Riprendere nelle schede»", "Save the drawing and keep working (Ctrl+S) – records are only created with «Apply to records»"],
+    km_saved: ["Zeichnung gespeichert – Datensätze noch nicht angelegt (dafür «In Datensätze übernehmen»)", "Dessin enregistré – fiches pas encore créées (« Reprendre dans les fiches »)", "Disegno salvato – schede non ancora create («Riprendere nelle schede»)", "Drawing saved – records not created yet («Apply to records»)"],
+    km_save_err: ["Speichern nicht möglich", "Enregistrement impossible", "Salvataggio non possibile", "Could not save"],
     km_apply: ["In Datensätze übernehmen", "Reprendre dans les fiches", "Riprendere nelle schede", "Apply to records"],
     km_prevAlt: ["Kartenausschnitt der gemessenen Trasse", "Extrait de carte du tracé mesuré", "Estratto di carta del tracciato misurato", "Map extract of the measured route"],
         km_undoBtn: ["Rückgängig", "Annuler", "Annulla", "Undo"],
@@ -5581,7 +5585,7 @@ var FIG = (function () {
         '<span class="kmnudge" role="group" aria-label="' + esc(tt("ov_adj")) + '">' + [["l", "←", "km_nl"], ["u", "↑", "km_nu"], ["d", "↓", "km_nd"], ["r", "→", "km_nr"], ["rl", "⟲", "ov_rl"], ["rr", "⟳", "ov_rr"], ["sm", "−", "ov_sm"], ["sp", "+", "ov_sp"]].map(function (a) { return '<button type="button" class="btn ghost small" data-ov="' + a[0] + '" aria-label="' + esc(tt(a[2])) + '">' + a[1] + "</button>"; }).join("") + '</span></div></div></details>') +
       '</div></div>' +
       '<div class="kmslot" id="kmSlot"></div>' +
-      '<div class="kmfoot"><p class="kmcostf" id="kmCostF" role="status" aria-live="polite"></p><p class="kmlen" id="kmLen" role="status" aria-live="polite"></p><p class="kmcost" id="kmCost" role="status"></p><button type="button" class="btn" data-k="apply">' + esc(tt("km_apply")) + "</button></div>";
+      '<div class="kmfoot"><p class="kmcostf" id="kmCostF" role="status" aria-live="polite"></p><p class="kmlen" id="kmLen" role="status" aria-live="polite"></p><p class="kmcost" id="kmCost" role="status"></p><button type="button" class="btn ghost" data-k="save" title="' + esc(tt("km_save_t")) + '">' + esc(tt("km_save")) + "</button>" + '<button type="button" class="btn" data-k="apply">' + esc(tt("km_apply")) + "</button></div>";
     document.body.appendChild(dlg);
     var $ = function (s) { return dlg.querySelector(s); };
     /* ---------- Arbeitsfläche: Werkzeuge | Ebenen + Marker | Karte | Eigenschaften / Auswertung, Fussleiste ---------- */
@@ -6922,17 +6926,23 @@ var FIG = (function () {
       else if (k === "fit") fitAll();
       else if (k === "max") { var on = !dlg.classList.contains("kmmax"); dlg.classList.toggle("kmmax", on); b.setAttribute("aria-pressed", on ? "true" : "false"); try { localStorage.setItem("lvd-km-max", on ? "1" : "0"); } catch (x) { } setTimeout(function () { map.invalidateSize({ animate: false }); ovDraw(); }, 50); }
       else if (k === "lbl") { showLbl = !showLbl; b.setAttribute("aria-pressed", showLbl ? "true" : "false"); draw(); }
+      else if (k === "save") { doSave(); }
       else if (k === "apply") {
         endLine();
         if (plan && !cal.scale && (M.lines.length || M.areas.length)) { toast(dlg, tt("pl_calNeed")); return; }
         opt.onApply(M, cal, function (m) { return effLen(m); }, { area: area, perim: perim, base: base, overlay: ovl, planCleared: planCleared }); close();
       }
     });
+    function doSave() {   /* Zeichnung sichern (bleibt im Fenster); Datensätze erst mit «In Datensätze übernehmen» */
+      if (!opt.onSave) return; if (cur || curN || curA || tmp.length) endLine();
+      try { opt.onSave(JSON.parse(JSON.stringify(M)), cal, { base: base, overlay: ovl, planCleared: planCleared }); toast(dlg, tt("km_saved")); } catch (e) { toast(dlg, tt("km_save_err")); }
+    }
     dlg.addEventListener("cancel", function (e) { e.preventDefault(); if (cur || curN || curA || tmp.length || (mode === "ruler" && rul.length) || gcp.length) { gcp = []; if (mode === "ruler") rul = []; endLine(); toast(dlg, tt("km_escDone")); return; } close(); });
     /* Tastatur: Enter/Leertaste = Punkt in Kartenmitte, Umschalt+Enter = beenden, Entf = Objekt löschen, Strg+Z = Rückgängig */
     dlg.addEventListener("keydown", function (e) {
       var t = e.target, ed = t.matches && t.matches("input,select,textarea");
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z" && !ed) { e.preventDefault(); undo(); return; }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); doSave(); return; }
       if (t.id === "kmMap" && mode && mode !== "edit") {
         if (e.key === "Enter" && e.shiftKey) { e.preventDefault(); endLine(); return; }
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); addPt(map.getCenter()); return; }
@@ -7769,6 +7779,7 @@ var FIG = (function () {
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" && cfg ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" && cfg ? cfg.cm : "", abd: tab === "geb" && cfg ? cfg.abd : "hauff" }, defBelag: tab === "belag" && cfg ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
           onClose: function () { var o = $(ex.focus || "#kmOpen"); if (o) o.focus(); }, autoPlan: !!ex.autoPlan, planObjs: JSON.parse(JSON.stringify({ lines: S.plan.lines, pts: S.plan.pts, sond: S.plan.sond, wl: S.plan.wl, geb: S.plan.geb, areas: S.plan.areas, notes: S.plan.notes })), planScale: (S.plan.cal && S.plan.cal.scale) || 0,
+          onSave: function (M, cal, fns) { var bs = ["luft", "grau", "kataster", "leer", "av"].indexOf(fns.base) >= 0 ? fns.base : "farbe", keep = S.karte.bg; S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; save(); },
           onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st = karteApply(M, cfg, Object.assign({ src: "karte" }, fns) && lenFn, Object.assign({ src: "karte" }, fns)), bs = ["luft", "grau", "kataster", "leer", "av"].indexOf(fns.base) >= 0 ? fns.base : "farbe", keep = S.karte.bg;
             if (fns.planCleared) { ["lines", "pts", "sond", "wl", "geb", "areas", "notes"].forEach(function (k) { S.plan[k] = []; }); }
             S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; syncDerived(cfg, st); save(); renderForm(); scheduleResult(); undoToast(fill(tt("km_done"), st) + (st.z ? " ⚠ " + fill(tt("km_zero"), st) : "") + (st.x ? " ⚠ " + fill(tt("km_conflict"), st) : "") + (st.air ? " ⚠ " + fill(tt("km_air"), { m: KARTE.fmt(st.air) }) : ""), sn); cacheSitu(); }
@@ -7871,6 +7882,7 @@ var FIG = (function () {
           KARTE.open({ kind: "plan", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, plan: { img: P.img, w: P.w, h: P.h, cal: P.cal }, model: { lines: JSON.parse(JSON.stringify(P.lines)), pts: JSON.parse(JSON.stringify(P.pts)), sond: JSON.parse(JSON.stringify(P.sond)), notes: JSON.parse(JSON.stringify(P.notes || [])), areas: JSON.parse(JSON.stringify(P.areas || [])), wl: JSON.parse(JSON.stringify(P.wl || [])), geb: JSON.parse(JSON.stringify(P.geb || [])) },
             defRohr: { sys: "k55", dn: "55", len: "10", n: "1" }, defTyp: "KES150", defGeb: { cm: "", abd: "hauff" }, defBelag: { bk: "gehweg", d: "0.08", wi: "B" }, recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
             onClose: function () { var o = $("#plOpen"); if (o) o.focus(); },
+            onSave: function (M, cal) { S.plan.areas = M.areas || []; S.plan.wl = M.wl || []; S.plan.geb = M.geb || []; S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; save(); },
             onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st2 = karteApply(M, null, lenFn, Object.assign({ src: "plan" }, fns)); S.plan.areas = M.areas || []; S.plan.wl = M.wl || []; S.plan.geb = M.geb || []; S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; syncDerived(null, st2); save(); renderForm(); renderResult(); undoToast(fill(tt("km_done"), st2) + (st2.x ? " ⚠ " + fill(tt("km_conflict"), st2) : ""), sn); }
           });
         }).catch(function () { msg.className = "hint kmmsg reqmsg"; msg.textContent = tt("km_offline"); });

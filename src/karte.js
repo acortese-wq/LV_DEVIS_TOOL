@@ -592,7 +592,7 @@
         '<span class="kmnudge" role="group" aria-label="' + esc(tt("ov_adj")) + '">' + [["l", "←", "km_nl"], ["u", "↑", "km_nu"], ["d", "↓", "km_nd"], ["r", "→", "km_nr"], ["rl", "⟲", "ov_rl"], ["rr", "⟳", "ov_rr"], ["sm", "−", "ov_sm"], ["sp", "+", "ov_sp"]].map(function (a) { return '<button type="button" class="btn ghost small" data-ov="' + a[0] + '" aria-label="' + esc(tt(a[2])) + '">' + a[1] + "</button>"; }).join("") + '</span></div></div></details>') +
       '</div></div>' +
       '<div class="kmslot" id="kmSlot"></div>' +
-      '<div class="kmfoot"><p class="kmcostf" id="kmCostF" role="status" aria-live="polite"></p><p class="kmlen" id="kmLen" role="status" aria-live="polite"></p><p class="kmcost" id="kmCost" role="status"></p><button type="button" class="btn" data-k="apply">' + esc(tt("km_apply")) + "</button></div>";
+      '<div class="kmfoot"><p class="kmcostf" id="kmCostF" role="status" aria-live="polite"></p><p class="kmlen" id="kmLen" role="status" aria-live="polite"></p><p class="kmcost" id="kmCost" role="status"></p><button type="button" class="btn ghost" data-k="save" title="' + esc(tt("km_save_t")) + '">' + esc(tt("km_save")) + "</button>" + '<button type="button" class="btn" data-k="apply">' + esc(tt("km_apply")) + "</button></div>";
     document.body.appendChild(dlg);
     var $ = function (s) { return dlg.querySelector(s); };
     /* ---------- Arbeitsfläche: Werkzeuge | Ebenen + Marker | Karte | Eigenschaften / Auswertung, Fussleiste ---------- */
@@ -1933,17 +1933,23 @@
       else if (k === "fit") fitAll();
       else if (k === "max") { var on = !dlg.classList.contains("kmmax"); dlg.classList.toggle("kmmax", on); b.setAttribute("aria-pressed", on ? "true" : "false"); try { localStorage.setItem("lvd-km-max", on ? "1" : "0"); } catch (x) { } setTimeout(function () { map.invalidateSize({ animate: false }); ovDraw(); }, 50); }
       else if (k === "lbl") { showLbl = !showLbl; b.setAttribute("aria-pressed", showLbl ? "true" : "false"); draw(); }
+      else if (k === "save") { doSave(); }
       else if (k === "apply") {
         endLine();
         if (plan && !cal.scale && (M.lines.length || M.areas.length)) { toast(dlg, tt("pl_calNeed")); return; }
         opt.onApply(M, cal, function (m) { return effLen(m); }, { area: area, perim: perim, base: base, overlay: ovl, planCleared: planCleared }); close();
       }
     });
+    function doSave() {   /* Zeichnung sichern (bleibt im Fenster); Datensätze erst mit «In Datensätze übernehmen» */
+      if (!opt.onSave) return; if (cur || curN || curA || tmp.length) endLine();
+      try { opt.onSave(JSON.parse(JSON.stringify(M)), cal, { base: base, overlay: ovl, planCleared: planCleared }); toast(dlg, tt("km_saved")); } catch (e) { toast(dlg, tt("km_save_err")); }
+    }
     dlg.addEventListener("cancel", function (e) { e.preventDefault(); if (cur || curN || curA || tmp.length || (mode === "ruler" && rul.length) || gcp.length) { gcp = []; if (mode === "ruler") rul = []; endLine(); toast(dlg, tt("km_escDone")); return; } close(); });
     /* Tastatur: Enter/Leertaste = Punkt in Kartenmitte, Umschalt+Enter = beenden, Entf = Objekt löschen, Strg+Z = Rückgängig */
     dlg.addEventListener("keydown", function (e) {
       var t = e.target, ed = t.matches && t.matches("input,select,textarea");
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z" && !ed) { e.preventDefault(); undo(); return; }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); doSave(); return; }
       if (t.id === "kmMap" && mode && mode !== "edit") {
         if (e.key === "Enter" && e.shiftKey) { e.preventDefault(); endLine(); return; }
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); addPt(map.getCenter()); return; }
