@@ -572,3 +572,8 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 .rp-foot{margin-top:14pt;font-size:8pt;color:#444}.rp-warn{margin:0;padding-left:14pt}
 .rp .grp td{font-weight:700;background:#eee}
 }
+
+/* Mehrfachauswahl */
+.kmmsb{position:absolute;top:8px;left:52px;right:52px;z-index:660;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:5px 8px;background:var(--paper);border:1px solid var(--rule-strong);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.2);width:fit-content;max-width:calc(100% - 104px);font-size:12.5px}.kmmsb[hidden]{display:none}
+.kmmsb label{display:inline-flex;align-items:center;gap:3px;font-weight:600}.kmmsb input{width:52px;padding:3px 5px;font-size:13px}.kmmsb #kmMsN{font-weight:700;color:var(--navy)}.kmmsb .del{color:#b8332a}
+.kmrubber{position:absolute;z-index:700;border:2px dashed #0d47c8;background:rgba(13,71,200,.1);pointer-events:none}
