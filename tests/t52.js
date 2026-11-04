@@ -15,7 +15,7 @@ let m=await M(); ok(m.lines.length===2&&m.geb.length===1&&m.geb[0].lid===m.lines
 // Abzweig vom Hauptstrang
 await mv(200,200); await clk(200,200); await none(); await clk(200,330); await pg.click('[data-k=end]'); await none(); await pg.waitForTimeout(300);
 m=await M(); ok(m.lines.length===3&&m.lines[2].from===m.lines[0].id,'Abzweig von Linie 1 (from)');
-await pg.click('[data-k=medit]'); await pg.waitForTimeout(300);
+await pg.click('[data-k=medit]'); await pg.waitForTimeout(300); await pg.click('[data-eop=line]');
 // Hauseinführung schieben: Leitungsende folgt
 await pg.locator('.kmgeb').first().click(); await pg.waitForTimeout(200);
 const sn=await drag('.kmgeb',60,-20); m=await M(); const g=m.geb[0], l2=m.lines[1], e=l2.pts[l2.pts.length-1];

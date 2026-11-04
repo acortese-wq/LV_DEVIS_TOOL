@@ -564,6 +564,7 @@
       '<label class="kmbl" for="kmCol">' + esc(tt("km_col")) + '</label><select id="kmCol">' + COL.map(function (c) { return '<option value="' + c[0] + '">' + esc(tt(c[1])) + "</option>"; }).join("") + "</select>" + "</div>" +
       '<div class="kmgrp" role="group" aria-label="' + esc(tt("km_g_edit")) + '"><span class="kmgl" aria-hidden="true">' + esc(tt("km_g_edit")) + "</span>" +
       '<button type="button" class="btn small" data-k="medit" aria-pressed="false">' + esc(tt("km_edit")) + "</button>" +
+      '<div class="kmeop" id="kmEop" role="group" aria-label="' + esc(tt("eo_t")) + '" hidden>' + ["pt", "line", "ins", "del", "seg", "split"].map(function (k) { return '<button type="button" class="btn ghost small kmtgl" data-eop="' + k + '" aria-pressed="false" title="' + esc(tt("eo_" + k + "_t")) + '">' + esc(tt("eo_" + k)) + "</button>"; }).join("") + "</div>" +
       '<button type="button" class="btn small" data-k="mruler" aria-pressed="false">' + esc(tt("km_ruler")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="undo">' + esc(tt("km_undo")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="redo" title="Strg+Y">' + esc(tt("km_redo")) + "</button>" +
@@ -613,7 +614,7 @@
       tools.setAttribute("aria-label", tt("ws_tools")); mid.setAttribute("aria-label", tt("ws_layers")); side.setAttribute("aria-label", tt("ws_props"));
       var pick = function (sel) { return dlg.querySelector(sel); };
       var grp = function (title, sels) { var g = E("div", "kmtg"); g.setAttribute("role", "group"); g.setAttribute("aria-label", title); g.appendChild(E("span", "kmgl", esc(title))); sels.forEach(function (q) { var n = pick(/^[#.\[]|^label/.test(q) ? q : '[data-k="' + q + '"]'); if (n) g.appendChild(n); }); return g; };
-      tools.appendChild(grp(tt("ws_sel"), ["medit"]));
+      tools.appendChild(grp(tt("ws_sel"), ["medit", "#kmEop"]));
       tools.appendChild(grp(tt("ws_draw"), ["mcal", "mline", "mpt", "mwl", "#kmWlT", "mgeb", "route", "msond", "marea"]));
       tools.appendChild(grp(tt("ws_note"), ["mtext", "marrow", "msline", "mrect", "label[for=kmCol]", "#kmCol"]));
       tools.appendChild(grp(tt("ws_measure"), ["mruler", "undo", "redo", "end", "clear", "label[for=kmStep]", "#kmStep"]));
@@ -827,15 +828,30 @@
       var tp = $("#kmTabP"); if (tp && tp.getAttribute("aria-selected") !== "true") tp.click();
       var r = $("#kmObj") && $("#kmObj").querySelector('.kmrow[data-rid="' + id + '"]'); if (r) { if (folded[id]) { folded[id] = false; rows(); r = $("#kmObj").querySelector('.kmrow[data-rid="' + id + '"]'); } if (r) r.scrollIntoView({ block: "nearest" }); }
     }
+    /* Bearbeitungsart im Modus «Bearbeiten/verschieben»: Punkt (Standard), ganze Linie, Punkt einfügen, Punkt löschen, Segment, Linie teilen */
+    var EOPS = ["pt", "line", "ins", "del", "seg", "split"], editOp = "pt"; try { var eo0 = localStorage.getItem("lvd-km-eop"); if (EOPS.indexOf(eo0) >= 0) editOp = eo0; } catch (e) { }
+    function hAll() { return mode === "edit" && (editOp === "pt" || editOp === "ins" || editOp === "del" || editOp === "split"); }
+    function eopRender() { var b = $("#kmEop"); if (!b) return; b.hidden = mode !== "edit"; [].slice.call(b.querySelectorAll("[data-eop]")).forEach(function (x) { x.setAttribute("aria-pressed", x.getAttribute("data-eop") === editOp ? "true" : "false"); }); }
+    function isPolyObj(f) { return !!f && (f.arr === M.lines || f.arr === M.areas) && f.o.pts && f.o.pts.length > 1; }
+    function insertAtClick(o, ll, closed, noSnap) {
+      var c = AD.pt(ll), pts = closed ? o.pts.concat([o.pts[0]]) : o.pts, pj = projPoly(pts, c); if (!pj) return -1;
+      var q = [Math.round(pj.q[0] * 100) / 100, Math.round(pj.q[1] * 100) / 100]; for (var k = 0; k < o.pts.length; k++) if (AD.dist(o.pts[k], q) <= 0.05) return k;
+      if (!noSnap) snap(); o.pts.splice(pj.seg + 1, 0, q); return pj.seg + 1;
+    }
     function bindObj(lay, id, noMove) {
-      lay.on("click", function (e) { L.DomEvent.stop(e); if (Date.now() - lastMove < 250) return; if (e.originalEvent && (e.originalEvent.shiftKey || e.originalEvent.ctrlKey || e.originalEvent.metaKey) && mode === "edit") { var ids = selIds(); if (sel) { msel[sel.id] = 1; sel = null; } if (msel[id]) delete msel[id]; else msel[id] = 1; ids = Object.keys(msel); refresh(); return; } select(id); });
+      lay.on("click", function (e) { L.DomEvent.stop(e); if (Date.now() - lastMove < 250) return; if (e.originalEvent && (e.originalEvent.shiftKey || e.originalEvent.ctrlKey || e.originalEvent.metaKey) && mode === "edit") { var ids = selIds(); if (sel) { msel[sel.id] = 1; sel = null; } if (msel[id]) delete msel[id]; else msel[id] = 1; ids = Object.keys(msel); refresh(); return; } var fo = mode === "edit" && e.latlng ? findObj(id) : null;
+        if (fo && isPolyObj(fo) && editOp === "ins") { var closed = fo.arr === M.areas, k = insertAtClick(fo.o, e.latlng, closed); sel = { id: id }; msel = {}; refresh(); showProps(id); return; }
+        if (fo && fo.arr === M.lines && editOp === "split" && fo.o.pts.length > 1) { snap(); var k2 = insertAtClick(fo.o, e.latlng, false, true), sp = k2 > 0 ? splitAtIdx(fo.o, k2) : false; if (!sp) { undoSt.pop(); toast(dlg, tt("eo_splitNo")); refresh(); return; } sel = { id: id }; msel = {}; refresh(); showProps(id); toast(dlg, tt("eo_split_done")); return; }
+        select(id); });
       if (!noMove) lay.on("mousedown", function (e) { startMove(e, id); });
     }
     /* ganzes Objekt am Strich verschieben */
     function startMove(e, id) {
       var f = findObj(id); if (!f || !f.o.pts || !f.o.pts.length || mode !== "edit") return;
       if (e.originalEvent && (e.originalEvent.shiftKey || e.originalEvent.ctrlKey || e.originalEvent.metaKey)) return;   /* Umschalt/Strg = Auswahl, nicht verschieben */
-      L.DomEvent.stop(e); var ids = selIds(), grpMv = ids.length > 1 && ids.indexOf(id) >= 0; if (!grpMv) { sel = { id: id }; msel = {}; } snap();
+      var ids = selIds(), grpMv = ids.length > 1 && ids.indexOf(id) >= 0;
+      if (!grpMv && isPolyObj(f)) { if (editOp === "seg") return startSegMove(e, f, id); if (editOp !== "line" && !(e.originalEvent && e.originalEvent.altKey)) return; }   /* Punkt-/Einfüge-/Lösch-/Teilen-Art: Strich verschiebt nicht die ganze Linie (Alt = trotzdem ganz) */
+      L.DomEvent.stop(e); if (!grpMv) { sel = { id: id }; msel = {}; } snap();
       var objs = (grpMv ? ids : [id]).map(findObj).filter(Boolean).map(function (x) { return { o: x.o, pts: x.o.pts ? x.o.pts.map(function (p) { return p.slice(); }) : null, pt: x.o.pt ? x.o.pt.slice() : null }; }), hasPt = objs.some(function (b) { return !!b.pt; }), raf = 0;
       var start = AD.pt(e.latlng), moved = false;
       map.dragging.disable();
@@ -845,6 +861,15 @@
         if (hasPt && !raf) raf = requestAnimationFrame(function () { raf = 0; draw(); }); updTotal();
       }
       function up() { map.off("mousemove", mm); document.removeEventListener("mouseup", up); map.dragging.enable(); if (moved) { lastMove = Date.now(); refresh(); if (!grpMv) showProps(id); } else undoSt.pop(); }
+      map.on("mousemove", mm); document.addEventListener("mouseup", up);
+    }
+    function startSegMove(e, f, id) {   /* nur den angefassten Abschnitt verschieben: seine beiden Eckpunkte wandern mit */
+      var o = f.o, closed = f.arr === M.areas, n = o.pts.length, c0 = AD.pt(e.latlng), pj = projPoly(closed ? o.pts.concat([o.pts[0]]) : o.pts, c0); if (!pj) return;
+      var j = pj.seg, k = (j + 1) % n, isL = f.arr === M.lines; L.DomEvent.stop(e); sel = { id: id }; msel = {}; snap(); map.dragging.disable();
+      var b1 = o.pts[j].slice(), b2 = o.pts[k].slice(), s1 = isL ? linkStart(o, j, true) : null, s2 = isL ? linkStart(o, k, true) : null, moved = false;
+      function mm(ev) { var c = AD.pt(ev.latlng), dx = c[0] - c0[0], dy = c[1] - c0[1]; if (dx || dy) moved = true; var p1 = [b1[0] + dx, b1[1] + dy], p2 = [b2[0] + dx, b2[1] + dy];
+        if (s1 && s1.any) linkMove(s1, o, j, p1); else o.pts[j] = p1; if (s2 && s2.any) linkMove(s2, o, k, p2); else o.pts[k] = p2; updL(o); updTotal(); }
+      function up() { map.off("mousemove", mm); document.removeEventListener("mouseup", up); map.dragging.enable(); if (moved) { lastMove = Date.now(); refresh(); showProps(id); } else undoSt.pop(); }
       map.on("mousemove", mm); document.addEventListener("mouseup", up);
     }
     function vmark(q, cls, size) { var hit = 24; return L.marker(q, { draggable: cls === "kmv", keyboard: false, zIndexOffset: 1000, icon: L.divIcon({ className: cls, html: "<span style=\"width:" + size + "px;height:" + size + "px;margin:" + (hit - size) / 2 + "px\"></span>", iconSize: [hit, hit], iconAnchor: [hit / 2, hit / 2] }) }).addTo(grp); }
@@ -873,14 +898,22 @@
       o.pts[j] = c.slice(); st.pr.forEach(function (x) { x.l.pts[x.k] = c.slice(); updL(x.l); }); st.gs.forEach(function (g) { g.pt = c.slice(); }); return c;
     }
     function handles(o, poly, minPts, closed) {
+      var oSel = isOn(o.id), pobj = oSel ? [] : M.pts.concat(M.wl, M.geb, M.sond);   /* nicht gewählte Objekte: kein Griff über einem Schacht/Werkloch/Hauseinführung, damit diese anklick- und ziehbar bleiben */
       o.pts.forEach(function (q, j) {
+        if (pobj.some(function (p) { return AD.dist(p.pt, q) <= 0.3; })) return;
         var m = vmark(AD.ll(q), "kmv", 14), st = null, isL = M.lines.indexOf(o) >= 0;
         m.on("dragstart", function () { snap(); if (isL) st = linkStart(o, j); });
         m.on("drag", function (e) { var c = AD.pt(e.target.getLatLng()); if (st && st.any) { c = linkMove(st, o, j, c); e.target.setLatLng(AD.ll(c)); } else o.pts[j] = c; updL(o); updTotal(); });
         m.on("dragend", function () { lastMove = Date.now(); sel = { id: o.id }; refresh(); showProps(o.id); });
         m.on("dblclick contextmenu", function (e) { L.DomEvent.stop(e); if (poly && o.pts.length > minPts) { snap(); o.pts.splice(j, 1); refresh(); } });
+        m.on("click", function (e) {
+          if (mode !== "edit" || Date.now() - lastMove < 250) return; L.DomEvent.stop(e);
+          if (editOp === "del") { if (poly && o.pts.length > minPts) { snap(); o.pts.splice(j, 1); sel = { id: o.id }; msel = {}; refresh(); showProps(o.id); } else toast(dlg, tt("eo_delMin").replace("{n}", minPts)); }
+          else if (editOp === "split" && isL) { snap(); if (splitAtIdx(o, j)) { sel = { id: o.id }; msel = {}; refresh(); showProps(o.id); toast(dlg, tt("eo_split_done")); } else { undoSt.pop(); toast(dlg, tt("eo_splitNo")); } }
+          else { sel = { id: o.id }; msel = {}; refresh(); showProps(o.id); }
+        });
       });
-      if (!poly) return;
+      if (!poly || !(isOn(o.id) || editOp === "ins")) return;
       for (var j = 0; j < o.pts.length - (closed ? 0 : 1); j++) (function (j) {
         var a = o.pts[j], b = o.pts[(j + 1) % o.pts.length], m = L.marker(AD.ll([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]), { keyboard: false, icon: L.divIcon({ className: "kmm", html: "<span></span>", iconSize: [24, 24], iconAnchor: [12, 12] }) }).addTo(grp);
         m.on("click", function (e) { L.DomEvent.stop(e); snap(); o.pts.splice(j + 1, 0, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]); refresh(); });
@@ -989,14 +1022,14 @@
           layers[l.id] = { upd: function () { var q = l.pts.map(AD.ll); halo.setLatLngs(q); main.setLatLngs(q); } };
           if (edit) bindObj(main, l.id);
         }
-        if (!(edit && on)) ll.forEach(function (q, j) { L.circleMarker(q, { radius: l.id === cur && j === ll.length - 1 ? 6 : 4, color: col, weight: 2, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
+        if (!(edit && (on || hAll()))) ll.forEach(function (q, j) { L.circleMarker(q, { radius: l.id === cur && j === ll.length - 1 ? 6 : 4, color: col, weight: 2, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
         else handles(l, true, 2);
       });
       M.areas.forEach(function (f) {
         var on = isOn(f.id), col = on ? "#0d47c8" : "#8a5b00", ll = f.pts.map(AD.ll);
         if (ll.length > 2) { var pg = L.polygon(ll, { color: col, weight: on ? 4 : 2.5, fillColor: "#f28c00", fillOpacity: 0.3, interactive: edit, bubblingMouseEvents: false }).addTo(grp); layers[f.id] = { upd: function () { pg.setLatLngs(f.pts.map(AD.ll)); } }; if (edit) bindObj(pg, f.id); }
         else if (ll.length > 1) L.polyline(ll, { color: col, weight: 3, dashArray: "5 4", interactive: false }).addTo(grp);
-        if (!(edit && on)) ll.forEach(function (q) { L.circleMarker(q, { radius: 4, color: col, weight: 2, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
+        if (!(edit && (on || hAll()))) ll.forEach(function (q) { L.circleMarker(q, { radius: 4, color: col, weight: 2, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
         else handles(f, true, 3, true);
       });
       M.notes.forEach(function (n) {
@@ -1104,15 +1137,19 @@
     /* Abzweig ohne Schacht auf bestehender Leitung: Rohr(e) entnehmen (Hauptleitung geht mit weniger Rohren weiter) oder T-Stück montieren */
     function tapOptions(base) { var o = []; pipeList(cfgOf(base)).forEach(function (e) { for (var x = 1; x <= Math.min(e[1] - 1, 3); x++) o.push({ dn: e[0], x: x, rest: e[1] - x }); }); return o; }
     function splitTap(base, c, dn, x) {
-      var idx = -1; base.pts.forEach(function (q, k) { if (idx < 0 && AD.dist(q, c) <= 0.06) idx = k; }); if (idx <= 0 || idx >= base.pts.length - 1) return;
+      var idx = -1; base.pts.forEach(function (q, k) { if (idx < 0 && AD.dist(q, c) <= 0.06) idx = k; }); splitAtIdx(base, idx, dn, x);
+    }
+    function splitAtIdx(base, idx, dn, x) {   /* Linie am Punkt idx teilen (Knoten ohne Schacht, Kette pv/nx); mit dn/x geht die Hauptleitung danach mit weniger Rohren weiter */
+      if (idx <= 0 || idx >= base.pts.length - 1) return false;
       var oldNx = base.nx, l2 = { id: nid("l"), pts: base.pts.slice(idx).map(function (q) { return q.slice(); }), rid: null, rohr: JSON.parse(JSON.stringify(base.rohr)), cfg: JSON.parse(JSON.stringify(cfgOf(base))), pv: base.id, sK: 1, e: base.e || null, to: base.to || null, hzArt: base.hzArt, hzF: base.hzF };
-      l2.cfg.rt = l2.cfg.rt || {}; var r = (parseInt(l2.cfg.rt[dn], 10) || 0) - x; if (r > 0) l2.cfg.rt[dn] = r; else delete l2.cfg.rt[dn]; lineSync(l2);
+      if (dn) { l2.cfg.rt = l2.cfg.rt || {}; var r = (parseInt(l2.cfg.rt[dn], 10) || 0) - x; if (r > 0) l2.cfg.rt[dn] = r; else delete l2.cfg.rt[dn]; } lineSync(l2);
       base.pts = base.pts.slice(0, idx + 1); base.e = null; base.to = null; base.nx = l2.id; base.eK = 1;
       if (oldNx) { l2.nx = oldNx; l2.eK = 1; var nl = byId(M.lines, oldNx); if (nl) nl.pv = l2.id; }
       if (base.hzH1 != null) { l2.hzH1 = base.hzH1; delete base.hzH1; } delete base.hz;
       if (base.gid) { l2.gid = base.gid; var g = byId(M.geb, base.gid); if (g) g.lid = l2.id; delete base.gid; }
       M.lines.splice(M.lines.indexOf(base) + 1, 0, l2);
       M.lines.forEach(function (o) { if (o === l2 || o === base) return; ["from", "to"].forEach(function (w) { if (o[w] !== base.id) return; var kp = w === "from" ? o.pts[0] : o.pts[o.pts.length - 1], pb = projPoly(base.pts, kp), pl2 = projPoly(l2.pts, kp); if (pl2 && pl2.d <= 0.05 && (!pb || pb.d > 0.05)) o[w] = l2.id; }); });
+      return l2;
     }
     function doTap(l, which, base, c, ch) {
       snap(); var dn = ch.dn || (pipeList(cfgOf(base))[0] || [55])[0], n = ch.mode === "entn" ? ch.x : 1;
@@ -1756,7 +1793,7 @@
     function refresh() { draw(); rows(); costSoon(); }
     var costT = 0, costLast = null;
     function costSoon() {
-      legend(); markerSync(); msbRender(); hzAuto(); evalRender(); rcRender(); sumRender(); hzRender(); palRender(); if (!pfInit) { pfInit = 1; pfWire(); } pfRender(); if (!sugInit) { sugInit = 1; sugRender(); } if (!opt.cost) return; clearTimeout(costT);
+      legend(); markerSync(); msbRender(); eopRender(); hzAuto(); evalRender(); rcRender(); sumRender(); hzRender(); palRender(); if (!pfInit) { pfInit = 1; pfWire(); } pfRender(); if (!sugInit) { sugInit = 1; sugRender(); } if (!opt.cost) return; clearTimeout(costT);
       costT = setTimeout(function () { var el = $("#kmCost"), ef = $("#kmCostF"); if (!el) return; var v = null; try { v = opt.cost(JSON.parse(JSON.stringify(M)), function (m) { return effLen(m); }, { area: area, perim: perim, base: base }); } catch (e) { v = null; }
         var nn = v == null ? null : (typeof v === "object" ? v.n : v), bb = v != null && typeof v === "object" ? v.b : null, f0 = function (x) { return Math.round(x).toLocaleString("de-CH"); };
         costLast = nn == null ? null : { n: nn, b: bb };
@@ -2060,6 +2097,7 @@
         else if (k2 === "rl") ovl.rot += 0.5; else if (k2 === "rr") ovl.rot -= 0.5; else if (k2 === "sm") { ovl.mpp *= 0.99; ovl.auto = 0; } else if (k2 === "sp") { ovl.mpp *= 1.01; ovl.auto = 0; }
         ovDraw(); return;
       }
+      var ebt = e.target.closest("[data-eop]"); if (ebt) { editOp = ebt.getAttribute("data-eop"); try { localStorage.setItem("lvd-km-eop", editOp); } catch (x) { } eopRender(); draw(); return; }
       var mbt = e.target.closest("[data-ms]"); if (mbt) { var mk2 = mbt.getAttribute("data-ms"); if (mk2 === "copy" || mk2 === "par") copySel(mk2); else if (mk2 === "del") delSel(); else if (mk2 === "clr") { sel = null; msel = {}; refresh(); } return; }
       var pb = e.target.closest(".kmpalb"); if (pb) { switchSurface(pb.getAttribute("data-f")); return; }
       if (e.target.closest("[data-sumgo]")) { var te = $("#kmTabE"); if (te) te.click(); return; }

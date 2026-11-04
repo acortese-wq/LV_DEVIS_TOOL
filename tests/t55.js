@@ -5,6 +5,7 @@ for(let i=0;i<9;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitFo
 const bx=await pg.locator('#kmMap').boundingBox(); const clk=async(dx,dy)=>{await pg.mouse.click(bx.x+dx,bx.y+dy); await pg.waitForTimeout(350);}; const mv=async(dx,dy)=>{await pg.mouse.move(bx.x+dx-6,bx.y+dy,{steps:3}); await pg.waitForTimeout(60); await pg.mouse.move(bx.x+dx,bx.y+dy); await pg.waitForTimeout(200);};
 const none=async()=>{ if(await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).count()) await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).click(); };
 const pal=t=>pg.locator('#kmPal button',{hasText:t}).click();
+await pg.route('**/profile.json**',async r=>{const g=JSON.parse(new URL(r.request().url()).searchParams.get('geom')).coordinates; const L=Math.hypot(g[g.length-1][0]-g[0][0],g[g.length-1][1]-g[0][1]); await r.fulfill({json:[{dist:0,alts:{COMB:500}},{dist:L,alts:{COMB:505}}]});});
 await pg.click('[data-k=mline]'); await pg.waitForTimeout(300); await pg.keyboard.press('1');
 await clk(100,200); await none(); await clk(400,200); await pg.waitForTimeout(200);
 ok(await pg.locator('[data-k=save]').isVisible()&&await pg.locator('[data-k=apply]').isVisible(),'Speichern neben «In Datensätze übernehmen»');

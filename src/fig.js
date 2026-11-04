@@ -108,15 +108,26 @@ var FIG = (function () {
       var kies = r.verf && r.verf !== "aushub";
       o += '<rect x="' + x0 + '" y="' + gy + '" width="' + tw + '" height="' + th + '" fill="' + (kies ? "url(#pGr)" : "url(#pSo)") + '" stroke="var(--ink)" stroke-width="1.2"/>';
       var block = r.rohrSystem === "block", ZQ = block ? null : KVE.zoneQ(r, B, T0);   /* Leitungszone wie in der Rechnung */
-      var uh = block ? Math.min(th * 0.85, num((r.block || {}).hoehe, 0.3) * s) : Math.min(th, Math.max(4, ZQ.hZ * s)), uy = gy + th - uh;
-      var ufill = block || r.umhType === "beton" ? "url(#pCo)" : "url(#pBk)", uw = block ? Math.min(tw, num((r.block || {}).breite, 0.5) * s) : tw;
-      o += '<rect x="' + (x0 + (tw - uw) / 2) + '" y="' + uy + '" width="' + uw + '" height="' + uh + '" fill="' + ufill + '" stroke="var(--ink)" stroke-width=".8" stroke-dasharray="3 2"/>';
+      /* Rohrblock: Beton nur im Block (Aussenmass erfasst, sonst Platzbedarf der Rohre), Rohre liegen vollständig darin; ausserhalb Bettung/Verfüllung */
+      var BMb = block ? KVE.blockMass(r.bloecke) : null, bkI = block ? { w: num((r.block || {}).breite, 0), h: num((r.block || {}).hoehe, 0) } : null, bkHas = block && bkI.w > 0 && bkI.h > 0, bkW = block ? (bkHas ? bkI.w : (BMb.reqW || 0.5)) : 0, bkH = block ? (bkHas ? bkI.h : (BMb.reqH || 0.3)) : 0, bkBett = block ? Math.max(0, num(r.bett, 5) / 100) : 0;
+      var uh = block ? Math.max(4, Math.min(bkH * s, th - bkBett * s - 2)) : Math.min(th, Math.max(4, ZQ.hZ * s)), uy = gy + th - (block ? bkBett * s : 0) - uh;
+      var ufill = block || r.umhType === "beton" ? "url(#pCo)" : "url(#pBk)", uw = block ? Math.max(4, Math.min(tw - 2, bkW * s)) : tw;
+      if (block && bkBett > 0) o += '<rect x="' + x0 + '" y="' + (gy + th - bkBett * s) + '" width="' + tw + '" height="' + bkBett * s + '" fill="url(#pBk)" stroke="var(--ink)" stroke-width=".5"/>';
+      o += '<rect x="' + (x0 + (tw - uw) / 2) + '" y="' + uy + '" width="' + uw + '" height="' + uh + '" fill="' + ufill + '" stroke="var(--ink)" stroke-width="' + (block ? 1.4 : 0.8) + '"' + (block && !bkHas ? ' stroke-dasharray="6 4"' : block ? "" : ' stroke-dasharray="3 2"') + "/>";
+      if (block && bkHas && BMb.parts.length && (BMb.reqW > bkW + 0.005 || BMb.reqH > bkH + 0.005)) o += '<rect x="' + (x0 + (tw - uw) / 2) + '" y="' + (gy + th - bkBett * s - Math.min(BMb.reqH * s, th - bkBett * s - 2)) + '" width="' + Math.min(BMb.reqW * s, tw - 2) + '" height="' + Math.min(BMb.reqH * s, th - bkBett * s - 2) + '" fill="none" stroke="var(--signal)" stroke-width="1.2" stroke-dasharray="4 3"/>';
       var pipes = [];
       if (block) (r.bloecke || []).forEach(function (bl) { for (var i = 0; i < Math.min(num(bl.n, 1), 8); i++) pipes.push(num(bl.dn, 55)); });
       else if (r.rohrSystem === "laengs") for (var i2 = 0; i2 < Math.min(num(r.n2, 1), 8); i2++) pipes.push(num(r.dn2, 100));
       else for (var i3 = 0; i3 < Math.min(num(r.n, 1), 12); i3++) pipes.push(num(r.dn, 55));
       if (!block && r.pipes && r.pipes.length) pipes = r.pipes.slice(0, 16);   /* gemischte Rohrtypen einer Linie */
-      if (pipes.length) { var od = KVE.rohrOD, rm = Math.max(3, od(Math.max.apply(null, pipes)) / 2 * s), gap = Math.max(3, 0.04 * s), per = Math.max(1, Math.floor((uw - 4) / (2 * rm + gap)));
+      if (block && BMb.parts.length) {   /* Rohre in den Teilblöcken, von oben nach unten je Lage, innerhalb des Blocks */
+        var cGap = 0.04, eEdge = 0.05, gx = x0 + (tw - uw) / 2 + (bkHas ? Math.max(0, (bkW - BMb.reqW) / 2) : 0) * s + eEdge * s, topY = uy + eEdge * s;
+        BMb.parts.forEach(function (pt) { for (var bi = 0; bi < pt.n; bi++) { var brow = Math.floor(bi / pt.cols), bcol = bi % pt.cols, rr2 = pt.d / 2 * s, cx2 = gx + (bcol * (pt.d + cGap) + pt.d / 2) * s, cy2 = topY + (brow * (pt.d + cGap) + pt.d / 2) * s;
+          o += '<circle cx="' + cx2 + '" cy="' + cy2 + '" r="' + rr2 + '" fill="' + (pt.dn >= 100 ? "var(--pipe2)" : "var(--pipe)") + '" stroke="var(--ink)" stroke-width=".8"/><circle cx="' + cx2 + '" cy="' + cy2 + '" r="' + rr2 * 0.62 + '" fill="var(--figbg)"/>'; }
+          gx += (pt.w + cGap) * s; });
+        var bkSmall = bkHas && (BMb.reqW > bkW + 0.005 || BMb.reqH > bkH + 0.005);
+        o += tx(x0 + tw / 2, uy - 4, "Rohrblock " + fq(Math.round(bkW * 100) / 100) + " × " + fq(Math.round(bkH * 100) / 100) + " m" + (bkSmall ? " – " + tt("ux_blk_klein") : ""), bkSmall ? "sm warnTx" : "sm", "middle");
+      } else if (pipes.length) { var od = KVE.rohrOD, rm = Math.max(3, od(Math.max.apply(null, pipes)) / 2 * s), gap = Math.max(3, 0.04 * s), per = Math.max(1, Math.floor((uw - 4) / (2 * rm + gap)));
         if (!block) per = Math.min(per, KVE.PER_LAGE);
         pipes.forEach(function (dn, i) { var row = Math.floor(i / per), n = Math.min(per, pipes.length - row * per), k = i % per, rr = Math.max(3, od(dn) / 2 * s);
           var cx = x0 + tw / 2 + (k - (n - 1) / 2) * (2 * rm + gap), cy = gy + th - rm - (ZQ && ZQ.auto ? ZQ.bett * s : 4) - row * (2 * rm + gap);

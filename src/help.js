@@ -32,7 +32,7 @@
   function build() {
     dlg = E("dialog", "hpdlg"); dlg.id = "helpDlg"; dlg.setAttribute("aria-labelledby", "hpTitle");
     dlg.innerHTML = '<div class="hphead"><h2 id="hpTitle"></h2><div class="hpsearch"><label for="hpQ" class="hpql"></label><input type="search" id="hpQ" autocomplete="off"></div><button type="button" class="btn ghost small" id="hpClose"></button></div>' +
-      '<div class="hpmain"><nav id="hpNav" aria-label=""><ul></ul></nav><article id="hpBody" tabindex="-1" aria-labelledby="hpH"></article></div>' +
+      '<div class="hpmain"><nav id="hpNav" aria-label=""><ul></ul></nav><article id="hpBody" tabindex="0" aria-labelledby="hpH"></article></div>' +
       '<div class="hpfoot"><button type="button" class="btn ghost small" id="hpPrev"></button> <button type="button" class="btn ghost small" id="hpNext"></button><span class="hpsp"></span><button type="button" class="btn ghost small" id="hpDemo"></button> <button type="button" class="btn ghost small" id="hpPrintCh"></button> <button type="button" class="btn ghost small" id="hpPrintAll"></button></div>';
     document.body.appendChild(dlg);
     dlg.addEventListener("click", function (e) {
