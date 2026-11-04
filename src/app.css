@@ -551,3 +551,8 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border:1px solid var(--rule-stro
 .kmws .kmside .kmtabs{top:34px}
 }
 @media (max-width:860px){.kmws .kmwh{display:none}}
+
+.kmroute{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:1220;width:min(440px,calc(100% - 24px));max-height:calc(100% - 16px);overflow:auto;background:var(--paper);border:1px solid var(--rule-strong);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.3);padding:10px 12px}.kmroute[hidden]{display:none}
+.kmrt-t{margin:0 0 6px}.kmrt-f{position:relative;margin:0 0 6px}.kmrt-f label{display:block;font-size:12px;font-weight:700;color:var(--ink-soft);margin:0 0 2px}.kmrt-f input{width:100%}
+.kmrt-h{list-style:none;margin:2px 0 0;padding:0}.kmrt-h:empty{display:none}.kmrt-h .kmhit{display:block;width:100%;text-align:left;font:inherit;font-size:13px;padding:6px 8px;background:#fff;border:1px solid var(--rule);border-radius:6px;margin:0 0 2px;cursor:pointer;color:var(--ink)}.kmrt-h .kmhit:hover,.kmrt-h .kmhit:focus-visible{background:#eef2fb}.kmrt-h .kmnote{font-size:12.5px;color:var(--ink-soft);padding:4px 2px}
+.kmroute .hint{font-size:12px;margin:6px 0 0}
