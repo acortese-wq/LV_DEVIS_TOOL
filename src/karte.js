@@ -1437,12 +1437,25 @@
       var st = Math.max(1, Math.ceil(P.length / 220)), Q = P.filter(function (q, k) { return k % st === 0 || k === P.length - 1; }).map(function (q) { return [Math.round(q.d * 10) / 10, Math.round(q.h * 100) / 100]; });
       return { sig: sigOf(l.pts), L: L0, S: S, avg: L0 > 0 ? up / L0 * 100 : 0, max: mx * 100, h0: P[0].h, h1: P[P.length - 1].h, P: Q };
     }
-    function hzLoad() {
-      if (plan || hzBusy) return; var todo = M.lines.filter(function (l) { return l.pts.length > 1 && !hzOf(l); }); hzErr = ""; if (!todo.length) { hzRender(); return; } hzBusy = true; hzRender();
+    /* Automatisch laden: Linien, deren Verlauf sich seit dem Öffnen geändert hat oder die neu sind (nicht während des Zeichnens/Ziehens); scheitert es, kein Dauer-Wiederholen */
+    var HZAUTO = true; try { HZAUTO = localStorage.getItem("lvd-km-hzauto") !== "0"; } catch (e) { }
+    var hzSeen = {}, hzSkip = {}, hzAutoT = 0;
+    function hzSeed() { M.lines.forEach(function (l) { hzSeen[l.id] = sigOf(l.pts); }); }
+    function hzAuto() {
+      if (plan || !HZAUTO || hzBusy || !dlg.open) return; clearTimeout(hzAutoT);
+      hzAutoT = setTimeout(function () {
+        if (hzBusy) return; var todo = M.lines.filter(function (l) {
+          if (l.pts.length < 2 || l.id === cur || hzOf(l) || l.hzArt === "luft" || l.hzArt === "bohr") return false; var sg = sigOf(l.pts); if (hzSeen[l.id] === sg || hzSkip[l.id + sg]) return false; return true; });
+        if (todo.length) hzLoad(todo, true);
+      }, 120);
+    }
+    function hzLoad(only, auto) {
+      if (plan || hzBusy) return; var todo = only || M.lines.filter(function (l) { return l.pts.length > 1 && !hzOf(l); }); if (!only) hzSkip = {}; hzErr = ""; if (!todo.length) { hzRender(); return; } hzBusy = true; hzRender();
       var next = function (i) {
         if (i >= todo.length) { hzBusy = false; hzRender(); rcRender(); refresh(); return; } var l = todo[i], nb = Math.max(2, Math.min(500, Math.ceil(lineLen(l.pts) / 10) + 1));
         fetch("https://api3.geo.admin.ch/rest/services/profile.json?sr=2056&distinct_points=true&nb_points=" + nb + "&geom=" + encodeURIComponent(JSON.stringify({ type: "LineString", coordinates: l.pts })), { mode: "cors" })
-          .then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) { var h = hzCalc(l, j); if (!h) throw 0; l.hz = h; next(i + 1); }).catch(function () { hzErr = tt("hz_err"); hzBusy = false; hzRender(); });
+          .then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) { var h = hzCalc(l, j); if (!h) throw 0; l.hz = h; next(i + 1); }).catch(function () {
+            hzErr = tt("hz_err"); hzBusy = false; if (auto) { todo.slice(i).forEach(function (x) { hzSkip[x.id + sigOf(x.pts)] = 1; }); toast(dlg, tt("hz_autoErr"), tt("hz_again"), function () { hzLoad(); }); } hzRender(); });
       }; next(0);
     }
     function hzRender() {
@@ -1453,7 +1466,8 @@
         (hzErr ? '<p class="hint reqmsg" role="alert">' + esc(hzErr) + "</p>" : "") + (stale ? '<p class="hint">' + esc(tt("hz_stale")) + "</p>" : "") +
         (ok.length ? '<table><tbody>' + ok.map(function (l) { var x = l.hz; return "<tr><td>" + esc(tt("km_lineN").replace("{n}", M.lines.indexOf(l) + 1)) + '</td><td class="num">' + esc(tt("hz_row").replace("{l}", f(x.L)).replace("{s}", f(x.S)).replace("{a}", Math.round(x.avg)).replace("{m}", Math.round(x.max))) + "</td></tr>"; }).join("") + "</tbody></table>" +
           '<p class="hint" role="status">' + esc(tt("hz_tot").replace("{l}", f(tl)).replace("{s}", f(ts)).replace("{p}", f(tl ? (ts / tl - 1) * 100 : 0))) + "</p>" +
-          '<label class="kmhzm"><input type="checkbox" data-hz="mode"' + (SLOPE ? " checked" : "") + "> " + esc(tt("hz_mode")) + "</label>" : "");
+          '<label class="kmhzm"><input type="checkbox" data-hz="mode"' + (SLOPE ? " checked" : "") + "> " + esc(tt("hz_mode")) + "</label>" : "") +
+        '<label class="kmhzm"><input type="checkbox" data-hz="auto"' + (HZAUTO ? " checked" : "") + "> " + esc(tt("hz_auto")) + "</label>";
       if (fo) { var again = h.querySelector('[data-hz="' + fo + '"]'); if (again) again.focus(); }
     }
     /* ---------- Längenprofil unter der Karte: Gelände, Leitung, Abschnittsarten; Schächte setzen/verschieben/löschen ---------- */
@@ -1742,7 +1756,7 @@
     function refresh() { draw(); rows(); costSoon(); }
     var costT = 0, costLast = null;
     function costSoon() {
-      legend(); markerSync(); msbRender(); evalRender(); rcRender(); sumRender(); hzRender(); palRender(); if (!pfInit) { pfInit = 1; pfWire(); } pfRender(); if (!sugInit) { sugInit = 1; sugRender(); } if (!opt.cost) return; clearTimeout(costT);
+      legend(); markerSync(); msbRender(); hzAuto(); evalRender(); rcRender(); sumRender(); hzRender(); palRender(); if (!pfInit) { pfInit = 1; pfWire(); } pfRender(); if (!sugInit) { sugInit = 1; sugRender(); } if (!opt.cost) return; clearTimeout(costT);
       costT = setTimeout(function () { var el = $("#kmCost"), ef = $("#kmCostF"); if (!el) return; var v = null; try { v = opt.cost(JSON.parse(JSON.stringify(M)), function (m) { return effLen(m); }, { area: area, perim: perim, base: base }); } catch (e) { v = null; }
         var nn = v == null ? null : (typeof v === "object" ? v.n : v), bb = v != null && typeof v === "object" ? v.b : null, f0 = function (x) { return Math.round(x).toLocaleString("de-CH"); };
         costLast = nn == null ? null : { n: nn, b: bb };
@@ -2031,7 +2045,7 @@
     map.on("zoomend", function () { if (mode === "edit" || M.notes.some(function (n) { return n.type === "arrow"; })) draw(); });
     var cs = $("#kmCol"); cs.addEventListener("change", function () { noteCol = cs.value; });
 
-    dlg.addEventListener("change", function (e) { var hm = e.target.closest("[data-hz=mode]"); if (hm) { SLOPE = hm.checked; try { localStorage.setItem("lvd-km-slope", SLOPE ? "1" : "0"); } catch (x) { } refresh(); return; } var t = e.target.closest("[data-rc]"); if (!t) return; RC[t.dataset.rc] = t.value; try { localStorage.setItem("lvd-km-rc", JSON.stringify(RC)); } catch (x) { } sugs = []; sugDraw(); sugRender(); rcRender(); });
+    dlg.addEventListener("change", function (e) { var ha = e.target.closest("[data-hz=auto]"); if (ha) { HZAUTO = ha.checked; try { localStorage.setItem("lvd-km-hzauto", HZAUTO ? "1" : "0"); } catch (x) { } if (HZAUTO) { hzSkip = {}; hzSeed(); } return; } var hm = e.target.closest("[data-hz=mode]"); if (hm) { SLOPE = hm.checked; try { localStorage.setItem("lvd-km-slope", SLOPE ? "1" : "0"); } catch (x) { } refresh(); return; } var t = e.target.closest("[data-rc]"); if (!t) return; RC[t.dataset.rc] = t.value; try { localStorage.setItem("lvd-km-rc", JSON.stringify(RC)); } catch (x) { } sugs = []; sugDraw(); sugRender(); rcRender(); });
     dlg.addEventListener("click", function (e) {
       var pb = e.target.closest("[data-prov]");
       if (pb) { var nb = PROV[pb.dataset.prov][0][0]; if (provOf(base) !== pb.dataset.prov) { base = nb; fillBase(); try { localStorage.setItem("lvd-km-base", nb); } catch (x) { } setBase(nb); } return; }
@@ -2242,7 +2256,7 @@
       $("#kmOvR").addEventListener("change", function (e) { var v = num2(e.target.value); if (ovl && isFinite(v)) { ov0 = JSON.stringify(ovl); ovl.rot = v; ovDraw(); } });
       $("#kmOvS").addEventListener("change", function (e) { var v = num2(e.target.value); if (ovl && v > 0) { ov0 = JSON.stringify(ovl); ovl.mpp = v; ovl.auto = 0; ovDraw(); } });
     }
-    wsLate(); dlg.showModal(); map.invalidateSize(); fitAll(); ovDraw(); refresh();
+    hzSeed(); wsLate(); dlg.showModal(); map.invalidateSize(); fitAll(); ovDraw(); refresh();
     if (!plan && opt.autoPlan && !ovl && opt.planImg && opt.planImg.img) { $("#kmOvPlan").click(); } (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
