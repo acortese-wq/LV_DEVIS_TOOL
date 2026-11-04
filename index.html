@@ -1188,6 +1188,15 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 /* Bearbeitungsart */
 .kmeop{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:4px 0 0}.kmeop[hidden]{display:none}.kmws .kmtools .kmeop .btn{min-height:30px;padding:3px 6px;font-size:12.5px}
 
+/* Warnungen: rot hinterlegt (Warnung = hellrot mit dunkelrotem Text, Stopp/Fehler = vollrot mit weissem Text; Kontrast ≥ 4.5:1) */
+.warns li.amber,.status.amber,.kmws .kmrc.y,.kmws .kmrc:not(.r){background:#fde3e1!important;border-color:#b8332a!important;color:#7f1d1d!important}
+.warns li.stop,.status.stop,.kmws .kmrc.r{background:#b8332a!important;border-color:#8c211a!important;color:#fff!important}
+.warns li.stop a,.status.stop a{color:#fff}
+.tag.amber{background:#fde3e1;color:#7f1d1d;border:1px solid #b8332a}.tag.stop{background:#b8332a;color:#fff;border:1px solid #8c211a}
+.hint.reqmsg{background:#fde3e1;color:#7f1d1d;padding:5px 8px;border-radius:6px;border-left:4px solid #b8332a}
+.kmtoast.warn{background:#b8332a;color:#fff}
+.kmws .kmrc{border-left-width:6px}
+
 </style>
 </head>
 <body>
@@ -5428,7 +5437,7 @@ var FIG = (function () {
   function toast(host, msg, undoLabel, undo) {
     var old = host.querySelector(".kmtoast"); if (old) old.remove(); clearTimeout(toastT);
     var slot = host.classList && host.classList.contains("kmdlg") ? host.querySelector(".kmslot") : null; if (slot) host = slot;   /* im Dialog: eigener Platz, verdeckt die Karte nicht */
-    var t = document.createElement("div"); t.className = "kmtoast" + (slot ? " in" : ""); t.setAttribute("role", "status");
+    var t = document.createElement("div"); t.className = "kmtoast" + (slot ? " in" : "") + (/^[⚠⛔]/.test(msg) ? " warn" : ""); t.setAttribute("role", "status");
     var sp = document.createElement("span"); sp.textContent = msg; t.appendChild(sp);
     if (undo) { var b = document.createElement("button"); b.type = "button"; b.className = "btn small"; b.textContent = undoLabel; b.addEventListener("click", function () { t.remove(); undo(); }); t.appendChild(b); }
     host.appendChild(t); toastT = setTimeout(function () { t.remove(); }, 9000);
@@ -6681,7 +6690,7 @@ var FIG = (function () {
         if (i >= todo.length) { hzBusy = false; hzRender(); rcRender(); refresh(); return; } var l = todo[i], nb = Math.max(2, Math.min(500, Math.ceil(lineLen(l.pts) / 10) + 1));
         fetch("https://api3.geo.admin.ch/rest/services/profile.json?sr=2056&distinct_points=true&nb_points=" + nb + "&geom=" + encodeURIComponent(JSON.stringify({ type: "LineString", coordinates: l.pts })), { mode: "cors" })
           .then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) { var h = hzCalc(l, j); if (!h) throw 0; l.hz = h; next(i + 1); }).catch(function () {
-            hzErr = tt("hz_err"); hzBusy = false; if (auto) { todo.slice(i).forEach(function (x) { hzSkip[x.id + sigOf(x.pts)] = 1; }); if (!dlg.querySelector(".kmtoast button")) toast(dlg, tt("hz_autoErr"), tt("hz_again"), function () { hzLoad(); }); } hzRender(); });
+            hzErr = tt("hz_err"); hzBusy = false; if (auto) { todo.slice(i).forEach(function (x) { hzSkip[x.id + sigOf(x.pts)] = 1; }); if (!dlg.querySelector(".kmtoast button")) toast(dlg, "⚠ " + tt("hz_autoErr"), tt("hz_again"), function () { hzLoad(); }); } hzRender(); });
       }; next(0);
     }
     function hzRender() {

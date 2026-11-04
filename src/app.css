@@ -580,3 +580,12 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 
 /* Bearbeitungsart */
 .kmeop{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:4px 0 0}.kmeop[hidden]{display:none}.kmws .kmtools .kmeop .btn{min-height:30px;padding:3px 6px;font-size:12.5px}
+
+/* Warnungen: rot hinterlegt (Warnung = hellrot mit dunkelrotem Text, Stopp/Fehler = vollrot mit weissem Text; Kontrast ≥ 4.5:1) */
+.warns li.amber,.status.amber,.kmws .kmrc.y,.kmws .kmrc:not(.r){background:#fde3e1!important;border-color:#b8332a!important;color:#7f1d1d!important}
+.warns li.stop,.status.stop,.kmws .kmrc.r{background:#b8332a!important;border-color:#8c211a!important;color:#fff!important}
+.warns li.stop a,.status.stop a{color:#fff}
+.tag.amber{background:#fde3e1;color:#7f1d1d;border:1px solid #b8332a}.tag.stop{background:#b8332a;color:#fff;border:1px solid #8c211a}
+.hint.reqmsg{background:#fde3e1;color:#7f1d1d;padding:5px 8px;border-radius:6px;border-left:4px solid #b8332a}
+.kmtoast.warn{background:#b8332a;color:#fff}
+.kmws .kmrc{border-left-width:6px}

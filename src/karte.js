@@ -274,7 +274,7 @@
   function toast(host, msg, undoLabel, undo) {
     var old = host.querySelector(".kmtoast"); if (old) old.remove(); clearTimeout(toastT);
     var slot = host.classList && host.classList.contains("kmdlg") ? host.querySelector(".kmslot") : null; if (slot) host = slot;   /* im Dialog: eigener Platz, verdeckt die Karte nicht */
-    var t = document.createElement("div"); t.className = "kmtoast" + (slot ? " in" : ""); t.setAttribute("role", "status");
+    var t = document.createElement("div"); t.className = "kmtoast" + (slot ? " in" : "") + (/^[⚠⛔]/.test(msg) ? " warn" : ""); t.setAttribute("role", "status");
     var sp = document.createElement("span"); sp.textContent = msg; t.appendChild(sp);
     if (undo) { var b = document.createElement("button"); b.type = "button"; b.className = "btn small"; b.textContent = undoLabel; b.addEventListener("click", function () { t.remove(); undo(); }); t.appendChild(b); }
     host.appendChild(t); toastT = setTimeout(function () { t.remove(); }, 9000);
@@ -1527,7 +1527,7 @@
         if (i >= todo.length) { hzBusy = false; hzRender(); rcRender(); refresh(); return; } var l = todo[i], nb = Math.max(2, Math.min(500, Math.ceil(lineLen(l.pts) / 10) + 1));
         fetch("https://api3.geo.admin.ch/rest/services/profile.json?sr=2056&distinct_points=true&nb_points=" + nb + "&geom=" + encodeURIComponent(JSON.stringify({ type: "LineString", coordinates: l.pts })), { mode: "cors" })
           .then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) { var h = hzCalc(l, j); if (!h) throw 0; l.hz = h; next(i + 1); }).catch(function () {
-            hzErr = tt("hz_err"); hzBusy = false; if (auto) { todo.slice(i).forEach(function (x) { hzSkip[x.id + sigOf(x.pts)] = 1; }); if (!dlg.querySelector(".kmtoast button")) toast(dlg, tt("hz_autoErr"), tt("hz_again"), function () { hzLoad(); }); } hzRender(); });
+            hzErr = tt("hz_err"); hzBusy = false; if (auto) { todo.slice(i).forEach(function (x) { hzSkip[x.id + sigOf(x.pts)] = 1; }); if (!dlg.querySelector(".kmtoast button")) toast(dlg, "⚠ " + tt("hz_autoErr"), tt("hz_again"), function () { hzLoad(); }); } hzRender(); });
       }; next(0);
     }
     function hzRender() {

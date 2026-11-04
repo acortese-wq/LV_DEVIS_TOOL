@@ -257,3 +257,6 @@ Nach Zeichnen, Verschieben oder Ändern lädt das Tool das Höhenprofil (swissto
 - **Löschen und Nummerierung:** Marker/Namen in der Karte sind index-basiert und nummerieren sich sofort neu. Neu beim Übernehmen (Karte und Plan): Datensätze, deren Karten-Objekt gelöscht wurde (Graben, Schacht, Belag, Gebäudeeinführung), werden entfernt – zuvor blieben sie mit Kosten stehen (**Kostenwirkung:** weniger Positionen, die Meldung nennt die Namen, «Rückgängig» holt sie zurück; mindestens ein Datensatz je Reiter bleibt). Vorgegebene Namen («Schacht n», «Leitungsgraben n», «Graben n», «Gebäudeeinführung n», «Belagsarbeiten n») werden in Datensatz-Reihenfolge neu durchnummeriert, eigene Namen bleiben.
 
 Hinweis V82: Routenlinien entstehen immer ohne Verbindung (kein from/to/Schacht); der Hinweis «nur Vorschlag» bleibt in den Eigenschaften ohne Knopf «Verbindung lösen».
+
+## Warnungen rot hinterlegt (V83)
+Alle Warnungen werden rot hinterlegt: Warnung = hellrot (#fde3e1) mit dunkelrotem Text (#7f1d1d), Stopp/Fehler = vollrot (#b8332a) mit weissem Text; Info bleibt neutral. Gilt für Prüfmeldungen in der Karte, Warnliste und Statusbox der Hauptseite, Kennzeichen (Tags), Fehlermeldungen (`reqmsg`) und Hinweise mit ⚠/⛔ (rot hinterlegte Toasts, z. B. Höhenprofil nicht ladbar). Kontrast ≥ 4.5:1, axe ohne Verstösse. Nur Darstellung, keine Kostenwirkung.
