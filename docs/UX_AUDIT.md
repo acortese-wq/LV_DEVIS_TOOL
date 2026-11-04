@@ -228,3 +228,8 @@ Beim Linienzeichnen wechselt 1 Belag, 2 Wiese, 3 Pflästerung, 4 Rohplanie (glei
 
 ## Speichern-Knopf (V75)
 Neben «In Datensätze übernehmen»: «Speichern» (auch Strg+S) sichert die Zeichnung im Zustand (localStorage) und lässt das Fenster offen. Es werden keine Datensätze angelegt (keine Kostenwirkung); das geschieht weiter mit «In Datensätze übernehmen». Gilt für Karte und Plan.
+
+## Fenster verschiebbar, Ebenen/Katalog nur bei Bedarf (V76)
+- Desktop (> 860 px): Werkzeuge und Eigenschaften/Auswertung bleiben standardmässig als Spalten angedockt (Karte in der Mitte). Titelleiste (blau) ziehen löst das Fenster und lässt es über der Karte schweben (Karte wird breiter). Tastatur: Pfeiltasten auf dem Titel (Umschalt = 64 px), Enter = andocken/lösen. «–» minimiert auf die Titelleiste, ⇱/⇲ dockt/löst, Ecke unten rechts ändert die Grösse. Anordnung wird gemerkt (`lvd-km-win`), «Fenster zurücksetzen» in der Kopfzeile.
+- Ebenen/Katalog (Geokatalog, Plan-Hintergrund, Marker): standardmässig ausgeblendet, erscheint per Knopf «Ebenen» (Fokus auf den Titel), schliesst bei Klick in die Karte oder ✕, ausser mit 📌 angeheftet.
+- Handy (≤ 860 px): unverändert gestapelt, keine Titelleisten. Überschriften der Auswertung h4→h3 (axe heading-order).

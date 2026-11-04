@@ -426,7 +426,7 @@ ul.vollst .vst{white-space:normal}ul.vollst .vname{min-width:0;overflow-wrap:any
 .kmws .kmtabs [role=tab]{font:inherit;font-weight:700;font-size:13.5px;padding:10px 14px;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;background:transparent;color:var(--ink-soft);cursor:pointer;min-height:44px}
 .kmws .kmtabs [aria-selected=true]{color:var(--navy);border-bottom-color:var(--navy)}.kmws .kmtabs [role=tab]:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
 .kmws .kmside .kmobj{height:auto;max-height:none;overflow:visible;flex:none}.kmws .kmpan[hidden]{display:none}
-.kmws .kmeval h4{margin:12px 0 4px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}.kmws .kmeval table{width:100%;border-collapse:collapse;font-size:13px}.kmws .kmeval td{padding:3px 0;border-bottom:1px solid var(--rule)}.kmws .kmeval td.num{text-align:right;font-variant-numeric:tabular-nums}
+.kmws .kmeval h3{margin:12px 0 4px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}.kmws .kmeval table{width:100%;border-collapse:collapse;font-size:13px}.kmws .kmeval td{padding:3px 0;border-bottom:1px solid var(--rule)}.kmws .kmeval td.num{text-align:right;font-variant-numeric:tabular-nums}
 .kmws .kmeval .none{color:var(--ink-soft);font-size:13px}.kmws .kmpan .kmcost{margin:12px 0 0;padding:8px 10px;border:1px solid var(--rule);border-radius:8px;background:#f7f8f9;font-size:13px}
 .kmws .kmbottom{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:6px 14px;border-top:1px solid var(--rule);background:var(--paper)}
 .kmws .kmfang{display:flex;gap:4px;align-items:center}.kmws .kmtgl[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
@@ -533,3 +533,21 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border:1px solid var(--rule-stro
 /* Oberflächen-Palette beim Zeichnen, Fang Hauseinführung */
 .kmpal{position:absolute;top:8px;left:52px;right:52px;z-index:650;display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:4px 6px;background:var(--paper);border:1px solid var(--rule-strong);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.2);width:fit-content;max-width:calc(100% - 104px)}.kmpal[hidden]{display:none}.kmpalt{font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-right:2px}.kmpalb{display:inline-flex;align-items:center;gap:4px}
 .kmsnap.geb span{background:#b25b00;color:#fff;border-color:#fff;border-radius:4px}.kmsnap.kante span{border-radius:2px;background:#fff;border-color:#b25b00;color:#7a3f00}
+
+/* Fenster (Desktop): Werkzeuge, Ebenen/Katalog, Eigenschaften verschiebbar; Ebenen/Katalog nur bei Bedarf */
+@media (min-width:861px){
+.kmws .kmmidtog{display:inline-flex}
+.kmws .kmgrid.kmfloat .kmmid{display:none}.kmws .kmgrid.kmfloat.kmmid-open .kmmid{display:block}
+.kmws .kmgrid.kmfloat .kmwf{position:absolute;z-index:1210;border:1px solid var(--rule-strong);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.3);background:var(--paper);resize:both;overflow:auto;min-width:200px;min-height:48px;max-width:calc(100% - 8px);max-height:calc(100% - 8px)}
+.kmws .kmgrid.kmfloat .kmwf.kmtools{background:#f7f8f9}
+.kmws .kmwh{display:flex;align-items:center;gap:4px;position:sticky;top:0;z-index:7;margin:-10px -10px 8px;padding:3px 4px;background:var(--navy);color:#fff;user-select:none;touch-action:none;cursor:grab}
+.kmws .kmwh:active{cursor:grabbing}
+.kmws .kmgrab{flex:1;min-width:0;display:flex;align-items:center;gap:6px;text-align:left;background:none;border:0;color:#fff;font:inherit;font-weight:700;font-size:12.5px;padding:4px 6px;min-height:28px;cursor:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kmws .kmwb{display:flex;gap:3px}
+.kmws .kmwbtn{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.55);border-radius:6px;min-width:28px;min-height:28px;padding:0 6px;font:inherit;cursor:pointer;line-height:1}
+.kmws .kmwbtn:hover,.kmws .kmwbtn[aria-pressed=true]{background:rgba(255,255,255,.3)}
+.kmws .kmwbtn:focus-visible,.kmws .kmgrab:focus-visible{outline:2px solid #fff;outline-offset:1px}
+.kmws .kmwf.kmwmin>*:not(.kmwh){display:none!important}.kmws .kmwf.kmwmin{height:auto!important;resize:none;min-height:0;overflow:hidden}
+.kmws .kmside .kmtabs{top:34px}
+}
+@media (max-width:860px){.kmws .kmwh{display:none}}

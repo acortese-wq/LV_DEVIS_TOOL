@@ -2,7 +2,7 @@ const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000);
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
 for(let i=0;i<9;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitForTimeout(100);} await pg.waitForTimeout(400);
-const bx=await pg.locator('#kmMap').boundingBox(); const clk=async(dx,dy)=>{await pg.mouse.click(bx.x+dx,bx.y+dy); await pg.waitForTimeout(300);}; const mv=async(dx,dy)=>{await pg.mouse.move(bx.x+dx,bx.y+dy,{steps:2}); await pg.waitForTimeout(150);};
+const bx=await pg.locator('#kmMap').boundingBox(); const clk=async(dx,dy)=>{await pg.mouse.click(bx.x+dx,bx.y+dy); await pg.waitForTimeout(300);}; const mv=async(dx,dy)=>{await pg.mouse.move(bx.x+dx-8,bx.y+dy,{steps:2}); await pg.waitForTimeout(80); await pg.mouse.move(bx.x+dx,bx.y+dy,{steps:3}); await pg.waitForTimeout(200);};
 const none=async()=>{ if(await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).count()) await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).click(); };
 ok(await pg.locator('[data-sn=rect]').count()===1,'Schalter «Rechtwinklig/parallel» vorhanden'); ok((await pg.getAttribute('[data-sn=ln]','aria-pressed'))==='true','Linienfang standardmässig an');
 await pg.click('[data-k=mline]'); await clk(100,250); await none(); await clk(500,250); await pg.click('[data-k=end]'); await none();

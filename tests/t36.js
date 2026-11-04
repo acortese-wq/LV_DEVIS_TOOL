@@ -3,11 +3,11 @@ const {chromium,ok,mk,getS}=require('/tmp/claude-0/lf/k.js');
 await pg.fill('#f_graben_L','1'); await pg.waitForTimeout(500); await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(800);
 for(let i=0;i<9;i++){await pg.click('.leaflet-control-zoom-in'); await pg.waitForTimeout(100);} await pg.waitForTimeout(400);
 const bx=await pg.locator('#kmMap').boundingBox(); const clk=async(dx,dy)=>{await pg.mouse.click(bx.x+dx,bx.y+dy); await pg.waitForTimeout(300);};
-ok(await pg.isVisible('#kmMk'),'Marker-Katalog sichtbar');
+ok(!(await pg.isVisible('#kmMk')),'Ebenen/Marker standardmässig ausgeblendet'); await pg.click('.kmmidtog'); await pg.waitForTimeout(200); ok(await pg.isVisible('#kmMk'),'Marker-Katalog sichtbar (nach «Ebenen»)');
 // Vorbelegung: 2×K100 + Pflästerung + KES175
 await pg.locator('#kmMk button',{hasText:'2×K100'}).first().click(); await pg.locator('#kmMk button',{hasText:'Pflästerung'}).click(); await pg.locator('#kmMk button',{hasText:'KES175'}).click();
 ok((await pg.locator('#kmMk button',{hasText:'2×K100'}).first().getAttribute('aria-pressed'))==='true','Preset markiert (aria-pressed)');
-await pg.click('[data-k=mline]'); await clk(150,250); await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).click(); await clk(450,250); await pg.click('[data-k=end]'); await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).click();
+await pg.click('.kmmid [data-w=x]'); await pg.waitForTimeout(150); await pg.click('[data-k=mline]'); await clk(150,250); await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).click(); await clk(450,250); await pg.click('[data-k=end]'); await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).click();
 ok(!(await pg.isVisible('#kmQuick')),'Linie übernimmt Vorbelegung: keine Rückfrage nötig'); 
 // Auswertung
 await pg.click('#kmTabE'); const ev=await pg.textContent('#kmEval'); console.log(ev.replace(/\s+/g,' ').slice(0,220)); ok(/K100/.test(ev)&&/Pflästerung/.test(ev)&&/m/.test(ev),'Auswertung: Rohrlänge je Typ und Oberfläche'); ok((await pg.textContent('#kmCost')).includes('CHF'),'Kostenvorschau in der Auswertung'); await pg.click('#kmTabP');
