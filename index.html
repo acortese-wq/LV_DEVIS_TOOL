@@ -1164,6 +1164,22 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border:1px solid var(--rule-stro
 .kmrt-h{list-style:none;margin:2px 0 0;padding:0}.kmrt-h:empty{display:none}.kmrt-h .kmhit{display:block;width:100%;text-align:left;font:inherit;font-size:13px;padding:6px 8px;background:#fff;border:1px solid var(--rule);border-radius:6px;margin:0 0 2px;cursor:pointer;color:var(--ink)}.kmrt-h .kmhit:hover,.kmrt-h .kmhit:focus-visible{background:#eef2fb}.kmrt-h .kmnote{font-size:12.5px;color:var(--ink-soft);padding:4px 2px}
 .kmroute .hint{font-size:12px;margin:6px 0 0}
 
+/* Projektbericht */
+#reportDoc{display:none}
+.rpdlg{max-width:560px;width:calc(100% - 24px);border:1px solid var(--rule-strong);border-radius:12px;padding:16px 18px}.rpdlg::backdrop{background:rgba(0,0,0,.45)}
+.rpdlg h2{margin:0 0 10px;font-size:18px}.rp-fs{border:1px solid var(--rule);border-radius:8px;margin:0 0 10px;padding:6px 10px 8px}.rp-fs legend{font-size:12px;font-weight:700;color:var(--ink-soft);padding:0 4px}
+.rp-cb{display:block;margin:4px 0}.rp-cb .rp-sub{display:block;font-size:12.5px;color:var(--ink-soft);margin:0 0 0 24px}
+@media print{
+body.report-print>*:not(#reportDoc):not(script){display:none!important}
+body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;color:#000}
+.rp h1{font-size:16pt;margin:0 0 6pt}.rp h2{font-size:12pt;margin:12pt 0 4pt;border-bottom:.6pt solid #888}.rp h3{font-size:10pt;margin:8pt 0 2pt}
+.rp table{width:100%;border-collapse:collapse}.rp td,.rp th{padding:1.5pt 4pt;text-align:left;vertical-align:top;border-bottom:.3pt solid #bbb}.rp td.num,.rp th.num{text-align:right}
+.rp-meta{width:auto!important;margin:0 0 6pt}.rp-meta th{font-weight:700;padding-right:10pt;border:0}.rp-meta td{border:0}
+.rp tr{break-inside:avoid}.rp .rp-sec{break-inside:auto}.rp .situ,.rp .situfig{break-inside:avoid}
+.rp-foot{margin-top:14pt;font-size:8pt;color:#444}.rp-warn{margin:0;padding-left:14pt}
+.rp .grp td{font-weight:700;background:#eee}
+}
+
 </style>
 </head>
 <body>
@@ -1235,6 +1251,7 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border:1px solid var(--rule-stro
         <button type="button" class="btn" id="bPrint"></button>
         <button type="button" class="btn ghost" id="bPrintFull"></button>
         <button type="button" class="btn ghost" id="bPrintSum"></button>
+        <button type="button" class="btn" id="bReport"></button>
         <button type="button" class="btn ghost" id="bXlsx"></button>
         <button type="button" class="btn ghost" id="bSave"></button>
         <button type="button" class="btn ghost" id="bLoad"></button>
@@ -2939,6 +2956,39 @@ Object.assign(TS.it,{
     km_rt_err: ["Routing-Dienst nicht erreichbar (kein Netz, gesperrt oder ausgefallen). Bitte die Linie von Hand zeichnen.", "Service d'itinéraire inaccessible (pas de réseau, bloqué ou en panne). Dessinez la ligne à la main.", "Servizio di percorso non raggiungibile (nessuna rete, bloccato o fuori servizio). Disegna la linea a mano.", "Routing service unreachable (no network, blocked or down). Please draw the line by hand."],
     km_rt_none: ["Keine Fussweg-Route zwischen diesen Adressen gefunden.", "Aucun itinéraire piéton trouvé entre ces adresses.", "Nessun percorso pedonale trovato tra questi indirizzi.", "No footpath route found between these addresses."],
     km_rt_lk: ["Aus Fussweg-Route erstellt (OpenStreetMap) – nur Vorschlag, Verlauf bitte prüfen (Querungen, Privatareal, Gehwegseite)", "Créée à partir d'un itinéraire piéton (OpenStreetMap) – proposition, vérifier le tracé (traversées, terrain privé, côté du trottoir)", "Creata da un percorso pedonale (OpenStreetMap) – proposta, verificare il tracciato (attraversamenti, area privata, lato marciapiede)", "Created from a footpath route (OpenStreetMap) – suggestion, check the course (crossings, private land, sidewalk side)"],
+    btnReport: ["Projektbericht (Druck/PDF) …", "Rapport de projet (impression/PDF) …", "Rapporto di progetto (stampa/PDF) …", "Project report (print/PDF) …"],
+    rp_title: ["Projektbericht", "Rapport de projet", "Rapporto di progetto", "Project report"],
+    rp_gl: ["Gliederung der Mengen", "Structure des quantités", "Struttura delle quantità", "Structure of quantities"],
+    rp_m_abs: ["Nach Abschnitten", "Par sections", "Per sezioni", "By sections"],
+    rp_m_abs_s: ["Jedes Element (Graben, Schacht, …) mit seinen Positionen und Summe.", "Chaque élément (fouille, chambre, …) avec ses positions et sa somme.", "Ogni elemento (scavo, pozzetto, …) con le sue posizioni e somma.", "Each element (trench, shaft, …) with its items and sum."],
+    rp_m_tot: ["Zusammengefasst (Totale)", "Récapitulatif (totaux)", "Riepilogo (totali)", "Summarised (totals)"],
+    rp_m_tot_s: ["Nur Totale über alle Abschnitte, z. B. Anzahl Schächte, Aushub total.", "Seulement les totaux de toutes les sections, p. ex. nombre de chambres, excavation totale.", "Solo i totali di tutte le sezioni, p. es. numero di pozzetti, scavo totale.", "Only totals across all sections, e.g. number of shafts, total excavation."],
+    rp_inh: ["Inhalt", "Contenu", "Contenuto", "Contents"],
+    rp_i_kopf: ["Projektangaben", "Données du projet", "Dati del progetto", "Project details"],
+    rp_i_situ: ["Lageplan (Karte/Plan)", "Plan de situation (carte/plan)", "Planimetria (mappa/piano)", "Site plan (map/plan)"],
+    rp_i_mengen: ["Mengen", "Quantités", "Quantità", "Quantities"],
+    rp_i_pos: ["Bei «Zusammengefasst»: auch alle Positionen summiert (Zusammenfassung nach Kapitel)", "En mode « Récapitulatif » : aussi toutes les positions additionnées", "In «Riepilogo»: anche tutte le posizioni sommate", "In «Summarised»: also all items added up"],
+    rp_i_kosten: ["Kosten (Rabatt, Installation, MWST)", "Coûts (rabais, installation, TVA)", "Costi (sconto, installazione, IVA)", "Costs (discount, installation, VAT)"],
+    rp_i_ann: ["Annahmen mit Kostenauswirkung", "Hypothèses ayant une incidence sur les coûts", "Ipotesi con effetto sui costi", "Assumptions with cost impact"],
+    rp_i_warn: ["Prüfmeldungen und Hinweise", "Contrôles et remarques", "Controlli e avvisi", "Checks and notes"],
+    rp_hint: ["«Drucken» öffnet den Druckdialog des Browsers; dort «Als PDF speichern» wählen. Die Totale werden aus den LV-Positionen berechnet (Zuordnung nach Positionstext, bitte stichprobenweise prüfen).", "« Imprimer » ouvre la boîte d’impression du navigateur ; choisir « Enregistrer en PDF ». Les totaux sont calculés à partir des positions du CDC.", "«Stampa» apre la finestra di stampa del browser; scegliere «Salva come PDF». I totali sono calcolati dalle posizioni del CF.", "«Print» opens the browser print dialog; choose «Save as PDF». Totals are calculated from the bill-of-quantities items."],
+    rp_go: ["Drucken / PDF", "Imprimer / PDF", "Stampa / PDF", "Print / PDF"],
+    rp_close: ["Schliessen", "Fermer", "Chiudi", "Close"],
+    rp_h_tot: ["Mengen gesamt", "Quantités totales", "Quantità totali", "Total quantities"],
+    rp_c_kat: ["Kategorie", "Catégorie", "Categoria", "Category"],
+    rp_c_pos: ["Positionen", "Positions", "Posizioni", "Items"],
+    rp_none: ["Keine Mengen vorhanden.", "Aucune quantité.", "Nessuna quantità.", "No quantities."],
+    rp_t_sch: ["Schächte", "Chambres", "Pozzetti", "Shafts"],
+    rp_t_wl: ["Werklöcher", "Trous de travail", "Buche di lavoro", "Work pits"],
+    rp_t_geb: ["Hauseinführungen", "Introductions de bâtiment", "Introduzioni nell’edificio", "Building entries"],
+    rp_t_gr: ["Leitungsgraben (Länge)", "Fouille (longueur)", "Scavo (lunghezza)", "Trench (length)"],
+    rp_t_aus: ["Aushub total", "Excavation totale", "Scavo totale", "Total excavation"],
+    rp_t_rohr: ["Rohre / Kabelschutz (Länge)", "Tubes / protection de câble (longueur)", "Tubi / protezione cavi (lunghezza)", "Pipes / cable protection (length)"],
+    rp_t_belag: ["Belags-/Oberflächenflächen", "Surfaces de revêtement", "Superfici di pavimentazione", "Surfacing areas"],
+    rp_u_stk: ["Stk.", "pce", "pz.", "pcs"],
+    rp_n_aus: ["Summe der Aushub-Positionen (ohne Transport/Deponie/Einbau)", "Somme des positions d’excavation (sans transport/décharge/remblai)", "Somma delle posizioni di scavo (senza trasporto/discarica/riempimento)", "Sum of excavation items (excluding transport/disposal/backfill)"],
+    rp_n_rohr: ["Summe der Positionen «Rohre liefern» (je Rohr einmal gezählt)", "Somme des positions « fournir les tubes » (chaque tube une fois)", "Somma delle posizioni «fornire i tubi» (ogni tubo una volta)", "Sum of «supply pipes» items (each pipe counted once)"],
+    rp_foot: ["Erstellt mit LV-Devis Tiefbau · Konzept: Alessandro Cortese", "Créé avec LV-Devis Tiefbau · Concept : Alessandro Cortese", "Creato con LV-Devis Tiefbau · Concetto: Alessandro Cortese", "Created with LV-Devis Tiefbau · Concept: Alessandro Cortese"],
     km_save: ["Speichern", "Enregistrer", "Salva", "Save"],
     km_save_t: ["Zeichnung sichern und weiterarbeiten (Strg+S) – Datensätze werden erst mit «In Datensätze übernehmen» angelegt", "Enregistrer le dessin et continuer (Ctrl+S) – les fiches ne sont créées qu'avec « Reprendre dans les fiches »", "Salvare il disegno e continuare (Ctrl+S) – le schede vengono create solo con «Riprendere nelle schede»", "Save the drawing and keep working (Ctrl+S) – records are only created with «Apply to records»"],
     km_saved: ["Zeichnung gespeichert – Datensätze noch nicht angelegt (dafür «In Datensätze übernehmen»)", "Dessin enregistré – fiches pas encore créées (« Reprendre dans les fiches »)", "Disegno salvato – schede non ancora create («Riprendere nelle schede»)", "Drawing saved – records not created yet («Apply to records»)"],
@@ -8396,6 +8446,65 @@ var FIG = (function () {
     window.__OUT = out;
   }
 
+  /* ---------- Projektbericht (Druck/PDF): nach Abschnitten oder zusammengefasst mit Totalen ---------- */
+  function reportTotals(out) {
+    var lines = out.summary || [], cnt = function (tab) { return out.elems.filter(function (e) { return e.tab === tab && (e.lines.length || tab !== "graben"); }).length; };
+    var txt = function (l) { return String(/^\d{3}\//.test(l.key) ? (lvC(l.key) || "") + " " + (lvT(l.key) || "") : l.text || "").toLowerCase(); }, sumBy = function (unit, re, ex) { var q = 0, n = 0; lines.forEach(function (l) { if (l.flag === "offen") return; if (String(l.unit || "").toLowerCase().replace("³", "3").replace("²", "2") === unit && re.test(txt(l)) && !(ex && ex.test(txt(l)))) { q += +l.qty || 0; n++; } }); return [r2(q), n]; };
+    var rows = [], add = function (k, v, u, n, note) { if (v > 0) rows.push({ k: k, v: v, u: u, n: n, note: note || "" }); };
+    var ns = cnt("schacht"), nw = cnt("werkloch"), ng = cnt("geb"); add(tt("rp_t_sch"), ns, tt("rp_u_stk"), ns); add(tt("rp_t_wl"), nw, tt("rp_u_stk"), nw); add(tt("rp_t_geb"), ng, tt("rp_u_stk"), ng);
+    var gl = 0; out.elems.forEach(function (e) { if (e.tab === "graben" && S.recs.graben[e.idx]) gl += num(S.recs.graben[e.idx].L, 0); }); add(tt("rp_t_gr"), r2(gl), "m", cnt("graben"));
+    var a = sumBy("m3", /aushub für|ausheben/, /transport|deponi|gebühr|aufladen|verwert|abtransport|entsorg|einbau|auffüll|verfüll/); add(tt("rp_t_aus"), a[0], "m³", a[1], tt("rp_n_aus"));
+    var r = sumBy("m", /kabelschutzrohre.*liefern|rohre.*liefern/, /einziehen|kalibr|verlegen/); add(tt("rp_t_rohr"), r[0], "m", r[1], tt("rp_n_rohr"));
+    return rows;
+  }
+  function reportBuild(o) {
+    var out = KVE.calc(S, LV), k = S.kopf, h = "";
+    h += "<h1>" + esc(tt("rp_title")) + "</h1>";
+    if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb], ["datum", k.datum || today()]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
+    if (o.situ) { var sit = $("#result .situ"); if (sit) { var c = sit.cloneNode(true); c.classList.remove("no-summary"); [].slice.call(c.querySelectorAll(".situhead,.situsum,button")).forEach(function (x) { x.remove(); }); [].slice.call(c.querySelectorAll("[hidden]")).forEach(function (x) { x.hidden = false; }); h += '<section class="rp-sec">' + c.outerHTML + "</section>"; } }
+    if (o.mengen) {
+      if (o.mode === "total") {
+        var rows = reportTotals(out);
+        h += '<section class="rp-sec"><h2>' + esc(tt("rp_h_tot")) + '</h2><table class="rp-tab"><thead><tr><th>' + esc(tt("rp_c_kat")) + '</th><th class="num">' + esc(tt("c_qty")) + "</th><th>" + esc(tt("c_unit")) + '</th><th class="num">' + esc(tt("rp_c_pos")) + "</th></tr></thead><tbody>" +
+          (rows.length ? rows.map(function (x) { return "<tr><td>" + esc(x.k) + (x.note ? '<div class="rw">' + esc(x.note) + "</div>" : "") + '</td><td class="num">' + qf(x.v) + "</td><td>" + esc(x.u) + '</td><td class="num">' + x.n + "</td></tr>"; }).join("") : '<tr><td colspan="4">' + esc(tt("rp_none")) + "</td></tr>") + "</tbody></table></section>";
+        if (o.pos) {
+          var z = "<table>" + head() + "<tbody>", curCh = ""; out.summary.forEach(function (l) { var ch = l.key === "—" ? "—" : l.key === "OFFEN" ? "OFFEN" : l.key === "Pauschal" ? "P" : l.key.split("/")[0]; if (ch !== curCh) { curCh = ch; z += '<tr class="grp"><td colspan="6">' + (ch === "—" ? esc(tt("g_frei")) : ch === "OFFEN" ? esc(tt("c_offenTag")) : ch === "P" ? esc(tt("g_pausch")) : "NPK " + ch + " · " + esc(CHAPTERS[ch] || "")) + "</td></tr>"; } z += rowHtml(l); });
+          h += '<section class="rp-sec"><h2>' + esc(tt("h_zus")) + "</h2>" + z + "</tbody></table></section>";
+        }
+      } else {
+        h += '<section class="rp-sec"><h2>' + esc(tt("h_aufst")) + "</h2>";
+        out.elems.forEach(function (e) { if (!e.lines.length) return; h += "<h3>" + esc(tt("tab_" + e.tab) + " · " + e.name) + "</h3><table>" + head() + "<tbody>" + groupedRows(e.lines) + "</tbody>" + foot(e.sum) + "</table>"; });
+        if (out.vor.lines.length) h += "<h3>" + esc(tt("h_vorarbeiten")) + "</h3><table>" + head() + "<tbody>" + out.vor.lines.map(rowHtml).join("") + "</tbody>" + foot(out.vor.sum) + "</table>";
+        if (out.be.lines.length) h += "<h3>" + esc(tt("h_be")) + "</h3><table>" + head() + "<tbody>" + out.be.lines.map(rowHtml).join("") + "</tbody>" + foot(out.be.sum) + "</table>";
+        h += "</section>";
+      }
+    }
+    if (o.kosten) { var kb = $("#result .kostblk"); if (kb) h += '<section class="rp-sec">' + kb.innerHTML + "</section>"; }
+    if (o.annahmen) { var sn = $("#result table.sens"); if (sn) h += '<section class="rp-sec"><h2>' + esc(tt("h_annahmen")) + "</h2>" + sn.outerHTML + "</section>"; }
+    if (o.warn) { var ws = out.warn.filter(function (w) { return w.sev !== "info"; }); if (ws.length) h += '<section class="rp-sec"><h2>' + esc(tt("h_warn")) + '</h2><ul class="rp-warn">' + ws.map(function (w) { return "<li><b>" + esc(w.el ? w.el + ": " : "") + "</b>" + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul></section>"; }
+    h += '<p class="rp-foot">' + esc(tt("rp_foot")) + " · " + esc(today()) + "</p>";
+    return h;
+  }
+  function reportOpen() {
+    var d = document.getElementById("reportDlg"); if (d) d.remove();
+    var R = S.ui.report = Object.assign({ mode: "abschnitte", kopf: true, situ: true, mengen: true, pos: true, kosten: true, annahmen: true, warn: true }, S.ui.report || {});
+    d = document.createElement("dialog"); d.id = "reportDlg"; d.className = "rpdlg"; d.setAttribute("aria-labelledby", "rpT");
+    var cb = function (k, lab) { return '<label class="rp-cb"><input type="checkbox" data-rp="' + k + '"' + (R[k] ? " checked" : "") + "> " + esc(tt(lab)) + "</label>"; };
+    d.innerHTML = '<form method="dialog"><h2 id="rpT">' + esc(tt("rp_title")) + '</h2><fieldset class="rp-fs"><legend>' + esc(tt("rp_gl")) + "</legend>" +
+      '<label class="rp-cb"><input type="radio" name="rpm" value="abschnitte"' + (R.mode !== "total" ? " checked" : "") + "> <b>" + esc(tt("rp_m_abs")) + "</b><span class=\"rp-sub\">" + esc(tt("rp_m_abs_s")) + "</span></label>" +
+      '<label class="rp-cb"><input type="radio" name="rpm" value="total"' + (R.mode === "total" ? " checked" : "") + "> <b>" + esc(tt("rp_m_tot")) + "</b><span class=\"rp-sub\">" + esc(tt("rp_m_tot_s")) + "</span></label></fieldset>" +
+      '<fieldset class="rp-fs"><legend>' + esc(tt("rp_inh")) + "</legend>" + cb("kopf", "rp_i_kopf") + cb("situ", "rp_i_situ") + cb("mengen", "rp_i_mengen") + cb("pos", "rp_i_pos") + cb("kosten", "rp_i_kosten") + cb("annahmen", "rp_i_ann") + cb("warn", "rp_i_warn") + "</fieldset>" +
+      '<p class="hint">' + esc(tt("rp_hint")) + '</p><div class="kmbar"><button type="submit" class="btn" value="print" id="rpGo">' + esc(tt("rp_go")) + '</button> <button type="submit" class="btn ghost" value="x">' + esc(tt("rp_close")) + "</button></div></form>";
+    document.body.appendChild(d);
+    d.addEventListener("close", function () { d.remove(); });
+    d.querySelector("form").addEventListener("submit", function (e) {
+      var sub = e.submitter && e.submitter.value; if (sub !== "print") return;
+      R.mode = d.querySelector("input[name=rpm]:checked").value; [].slice.call(d.querySelectorAll("[data-rp]")).forEach(function (i) { R[i.dataset.rp] = i.checked; }); save();
+      var doc = document.getElementById("reportDoc"); if (doc) doc.remove(); doc = document.createElement("div"); doc.id = "reportDoc"; doc.className = "rp"; doc.innerHTML = reportBuild(R); document.body.appendChild(doc); wrapTables(doc);
+      document.body.classList.add("report-print"); setTimeout(function () { window.print(); }, 50);
+    });
+    d.showModal();
+  }
   /* ---------- Excel ---------- */
   var XL = XLSXW.ST;
   function sheetName(s, used) { var n = String(s).replace(/[\[\]:*?\/\\]/g, " ").slice(0, 31).trim(), b = n, i = 2; while (used.indexOf(n) >= 0) n = b.slice(0, 28) + " " + (i++); used.push(n); return n; }
@@ -8522,7 +8631,7 @@ var FIG = (function () {
     var r = $("#p_rolle"); r.innerHTML = ""; ["anv", "bl", "bhv"].forEach(function (v) { var o = document.createElement("option"); o.value = v; o.textContent = tt("r_" + v); r.appendChild(o); }); r.value = S.kopf.rolle;
     $("#helpTitle").textContent = tt("helpTitle"); $("#helpSteps").innerHTML = (T[S.lang] || T.de).help.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join(""); $("#helpNote").textContent = tt("helpNote");
     $("#h-result").textContent = tt("h_result");
-    $("#bPrint").textContent = tt("btnPrint"); $("#bPrintFull").textContent = tt("btnPrintFull"); $("#bPrintSum").textContent = tt("btnPrintSum"); $("#bXlsx").textContent = tt("btnXlsx"); $("#bSave").textContent = tt("btnSave"); $("#bLoad").textContent = tt("btnLoad"); $("#bNew").textContent = tt("btnNew");
+    $("#bPrint").textContent = tt("btnPrint"); $("#bPrintFull").textContent = tt("btnPrintFull"); $("#bPrintSum").textContent = tt("btnPrintSum"); $("#bReport").textContent = tt("btnReport"); $("#bXlsx").textContent = tt("btnXlsx"); $("#bSave").textContent = tt("btnSave"); $("#bLoad").textContent = tt("btnLoad"); $("#bNew").textContent = tt("btnNew");
     document.querySelectorAll(".langs button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.lang === S.lang ? "true" : "false"); });
     if (window.__EXPDATE && !document.getElementById("expwarn")) { var ew = document.createElement("p"); ew.id = "expwarn"; ew.className = "expwarn no-print"; ew.setAttribute("role", "status"); ew.hidden = window.__EXPDAYS > 7; ew.textContent = fill(tt("ux_validUntil"), { d: window.__EXPDATE, n: window.__EXPDAYS }); var shEl = document.querySelector(".sheet"); if (shEl) shEl.insertBefore(ew, shEl.firstChild); }
     $("#versionline").innerHTML = "<b>" + esc(tt("version")) + " 2.0</b><span>Build " + BUILD + "</span>" + (window.__EXPDATE ? "<span class=\"bad\">" + esc(fill(tt("ux_validUntil"), { d: window.__EXPDATE, n: window.__EXPDAYS })) + "</span>" : "") + "<span>LV DE V1.1 (10.07.2026)</span><span>LV FR V1.0 (27.06.2026)</span><span>LV IT V1.0 (27.06.2026)</span>" + (RECIPIENT ? "<span>" + esc(fill(tt("wm_txt"), { n: RECIPIENT })) + "</span>" : "");
@@ -8591,11 +8700,12 @@ var FIG = (function () {
     document.addEventListener("keydown", function (ev) { if (ev.key === "Escape") lbShut(); });
     var st = [];
     window.addEventListener("beforeprint", function () { st = []; document.querySelectorAll("#result details, #kopfbox").forEach(function (d) { st.push([d, d.open]); d.open = true; }); });
-    window.addEventListener("afterprint", function () { st.forEach(function (x) { x[0].open = x[1]; }); document.body.classList.remove("summary-print"); document.body.classList.remove("print-detail"); });
+    window.addEventListener("afterprint", function () { st.forEach(function (x) { x[0].open = x[1]; }); document.body.classList.remove("summary-print"); document.body.classList.remove("print-detail"); document.body.classList.remove("report-print"); var rd = document.getElementById("reportDoc"); if (rd) rd.remove(); });
     document.querySelectorAll(".langs button").forEach(function (b) { b.onclick = function () { S.lang = b.dataset.lang; save(); applyLang(); }; });
     $("#bPrint").onclick = function () { document.body.classList.remove("print-detail"); window.print(); };
     $("#bPrintFull").onclick = function () { document.body.classList.add("print-detail"); window.print(); };
     $("#bPrintSum").onclick = function () { document.body.classList.add("summary-print"); window.print(); };
+    $("#bReport").onclick = reportOpen;
     $("#bXlsx").onclick = function () { download(fname("xlsx"), xlsxBytes(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); };
     $("#bSave").onclick = saveJson;
     $("#bLoad").onclick = function () { $("#fileIn").click(); };

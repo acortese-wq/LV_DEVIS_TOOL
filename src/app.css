@@ -556,3 +556,19 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border:1px solid var(--rule-stro
 .kmrt-t{margin:0 0 6px}.kmrt-f{position:relative;margin:0 0 6px}.kmrt-f label{display:block;font-size:12px;font-weight:700;color:var(--ink-soft);margin:0 0 2px}.kmrt-f input{width:100%}
 .kmrt-h{list-style:none;margin:2px 0 0;padding:0}.kmrt-h:empty{display:none}.kmrt-h .kmhit{display:block;width:100%;text-align:left;font:inherit;font-size:13px;padding:6px 8px;background:#fff;border:1px solid var(--rule);border-radius:6px;margin:0 0 2px;cursor:pointer;color:var(--ink)}.kmrt-h .kmhit:hover,.kmrt-h .kmhit:focus-visible{background:#eef2fb}.kmrt-h .kmnote{font-size:12.5px;color:var(--ink-soft);padding:4px 2px}
 .kmroute .hint{font-size:12px;margin:6px 0 0}
+
+/* Projektbericht */
+#reportDoc{display:none}
+.rpdlg{max-width:560px;width:calc(100% - 24px);border:1px solid var(--rule-strong);border-radius:12px;padding:16px 18px}.rpdlg::backdrop{background:rgba(0,0,0,.45)}
+.rpdlg h2{margin:0 0 10px;font-size:18px}.rp-fs{border:1px solid var(--rule);border-radius:8px;margin:0 0 10px;padding:6px 10px 8px}.rp-fs legend{font-size:12px;font-weight:700;color:var(--ink-soft);padding:0 4px}
+.rp-cb{display:block;margin:4px 0}.rp-cb .rp-sub{display:block;font-size:12.5px;color:var(--ink-soft);margin:0 0 0 24px}
+@media print{
+body.report-print>*:not(#reportDoc):not(script){display:none!important}
+body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;color:#000}
+.rp h1{font-size:16pt;margin:0 0 6pt}.rp h2{font-size:12pt;margin:12pt 0 4pt;border-bottom:.6pt solid #888}.rp h3{font-size:10pt;margin:8pt 0 2pt}
+.rp table{width:100%;border-collapse:collapse}.rp td,.rp th{padding:1.5pt 4pt;text-align:left;vertical-align:top;border-bottom:.3pt solid #bbb}.rp td.num,.rp th.num{text-align:right}
+.rp-meta{width:auto!important;margin:0 0 6pt}.rp-meta th{font-weight:700;padding-right:10pt;border:0}.rp-meta td{border:0}
+.rp tr{break-inside:avoid}.rp .rp-sec{break-inside:auto}.rp .situ,.rp .situfig{break-inside:avoid}
+.rp-foot{margin-top:14pt;font-size:8pt;color:#444}.rp-warn{margin:0;padding-left:14pt}
+.rp .grp td{font-weight:700;background:#eee}
+}

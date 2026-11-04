@@ -1175,6 +1175,65 @@
     window.__OUT = out;
   }
 
+  /* ---------- Projektbericht (Druck/PDF): nach Abschnitten oder zusammengefasst mit Totalen ---------- */
+  function reportTotals(out) {
+    var lines = out.summary || [], cnt = function (tab) { return out.elems.filter(function (e) { return e.tab === tab && (e.lines.length || tab !== "graben"); }).length; };
+    var txt = function (l) { return String(/^\d{3}\//.test(l.key) ? (lvC(l.key) || "") + " " + (lvT(l.key) || "") : l.text || "").toLowerCase(); }, sumBy = function (unit, re, ex) { var q = 0, n = 0; lines.forEach(function (l) { if (l.flag === "offen") return; if (String(l.unit || "").toLowerCase().replace("³", "3").replace("²", "2") === unit && re.test(txt(l)) && !(ex && ex.test(txt(l)))) { q += +l.qty || 0; n++; } }); return [r2(q), n]; };
+    var rows = [], add = function (k, v, u, n, note) { if (v > 0) rows.push({ k: k, v: v, u: u, n: n, note: note || "" }); };
+    var ns = cnt("schacht"), nw = cnt("werkloch"), ng = cnt("geb"); add(tt("rp_t_sch"), ns, tt("rp_u_stk"), ns); add(tt("rp_t_wl"), nw, tt("rp_u_stk"), nw); add(tt("rp_t_geb"), ng, tt("rp_u_stk"), ng);
+    var gl = 0; out.elems.forEach(function (e) { if (e.tab === "graben" && S.recs.graben[e.idx]) gl += num(S.recs.graben[e.idx].L, 0); }); add(tt("rp_t_gr"), r2(gl), "m", cnt("graben"));
+    var a = sumBy("m3", /aushub für|ausheben/, /transport|deponi|gebühr|aufladen|verwert|abtransport|entsorg|einbau|auffüll|verfüll/); add(tt("rp_t_aus"), a[0], "m³", a[1], tt("rp_n_aus"));
+    var r = sumBy("m", /kabelschutzrohre.*liefern|rohre.*liefern/, /einziehen|kalibr|verlegen/); add(tt("rp_t_rohr"), r[0], "m", r[1], tt("rp_n_rohr"));
+    return rows;
+  }
+  function reportBuild(o) {
+    var out = KVE.calc(S, LV), k = S.kopf, h = "";
+    h += "<h1>" + esc(tt("rp_title")) + "</h1>";
+    if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb], ["datum", k.datum || today()]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
+    if (o.situ) { var sit = $("#result .situ"); if (sit) { var c = sit.cloneNode(true); c.classList.remove("no-summary"); [].slice.call(c.querySelectorAll(".situhead,.situsum,button")).forEach(function (x) { x.remove(); }); [].slice.call(c.querySelectorAll("[hidden]")).forEach(function (x) { x.hidden = false; }); h += '<section class="rp-sec">' + c.outerHTML + "</section>"; } }
+    if (o.mengen) {
+      if (o.mode === "total") {
+        var rows = reportTotals(out);
+        h += '<section class="rp-sec"><h2>' + esc(tt("rp_h_tot")) + '</h2><table class="rp-tab"><thead><tr><th>' + esc(tt("rp_c_kat")) + '</th><th class="num">' + esc(tt("c_qty")) + "</th><th>" + esc(tt("c_unit")) + '</th><th class="num">' + esc(tt("rp_c_pos")) + "</th></tr></thead><tbody>" +
+          (rows.length ? rows.map(function (x) { return "<tr><td>" + esc(x.k) + (x.note ? '<div class="rw">' + esc(x.note) + "</div>" : "") + '</td><td class="num">' + qf(x.v) + "</td><td>" + esc(x.u) + '</td><td class="num">' + x.n + "</td></tr>"; }).join("") : '<tr><td colspan="4">' + esc(tt("rp_none")) + "</td></tr>") + "</tbody></table></section>";
+        if (o.pos) {
+          var z = "<table>" + head() + "<tbody>", curCh = ""; out.summary.forEach(function (l) { var ch = l.key === "—" ? "—" : l.key === "OFFEN" ? "OFFEN" : l.key === "Pauschal" ? "P" : l.key.split("/")[0]; if (ch !== curCh) { curCh = ch; z += '<tr class="grp"><td colspan="6">' + (ch === "—" ? esc(tt("g_frei")) : ch === "OFFEN" ? esc(tt("c_offenTag")) : ch === "P" ? esc(tt("g_pausch")) : "NPK " + ch + " · " + esc(CHAPTERS[ch] || "")) + "</td></tr>"; } z += rowHtml(l); });
+          h += '<section class="rp-sec"><h2>' + esc(tt("h_zus")) + "</h2>" + z + "</tbody></table></section>";
+        }
+      } else {
+        h += '<section class="rp-sec"><h2>' + esc(tt("h_aufst")) + "</h2>";
+        out.elems.forEach(function (e) { if (!e.lines.length) return; h += "<h3>" + esc(tt("tab_" + e.tab) + " · " + e.name) + "</h3><table>" + head() + "<tbody>" + groupedRows(e.lines) + "</tbody>" + foot(e.sum) + "</table>"; });
+        if (out.vor.lines.length) h += "<h3>" + esc(tt("h_vorarbeiten")) + "</h3><table>" + head() + "<tbody>" + out.vor.lines.map(rowHtml).join("") + "</tbody>" + foot(out.vor.sum) + "</table>";
+        if (out.be.lines.length) h += "<h3>" + esc(tt("h_be")) + "</h3><table>" + head() + "<tbody>" + out.be.lines.map(rowHtml).join("") + "</tbody>" + foot(out.be.sum) + "</table>";
+        h += "</section>";
+      }
+    }
+    if (o.kosten) { var kb = $("#result .kostblk"); if (kb) h += '<section class="rp-sec">' + kb.innerHTML + "</section>"; }
+    if (o.annahmen) { var sn = $("#result table.sens"); if (sn) h += '<section class="rp-sec"><h2>' + esc(tt("h_annahmen")) + "</h2>" + sn.outerHTML + "</section>"; }
+    if (o.warn) { var ws = out.warn.filter(function (w) { return w.sev !== "info"; }); if (ws.length) h += '<section class="rp-sec"><h2>' + esc(tt("h_warn")) + '</h2><ul class="rp-warn">' + ws.map(function (w) { return "<li><b>" + esc(w.el ? w.el + ": " : "") + "</b>" + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul></section>"; }
+    h += '<p class="rp-foot">' + esc(tt("rp_foot")) + " · " + esc(today()) + "</p>";
+    return h;
+  }
+  function reportOpen() {
+    var d = document.getElementById("reportDlg"); if (d) d.remove();
+    var R = S.ui.report = Object.assign({ mode: "abschnitte", kopf: true, situ: true, mengen: true, pos: true, kosten: true, annahmen: true, warn: true }, S.ui.report || {});
+    d = document.createElement("dialog"); d.id = "reportDlg"; d.className = "rpdlg"; d.setAttribute("aria-labelledby", "rpT");
+    var cb = function (k, lab) { return '<label class="rp-cb"><input type="checkbox" data-rp="' + k + '"' + (R[k] ? " checked" : "") + "> " + esc(tt(lab)) + "</label>"; };
+    d.innerHTML = '<form method="dialog"><h2 id="rpT">' + esc(tt("rp_title")) + '</h2><fieldset class="rp-fs"><legend>' + esc(tt("rp_gl")) + "</legend>" +
+      '<label class="rp-cb"><input type="radio" name="rpm" value="abschnitte"' + (R.mode !== "total" ? " checked" : "") + "> <b>" + esc(tt("rp_m_abs")) + "</b><span class=\"rp-sub\">" + esc(tt("rp_m_abs_s")) + "</span></label>" +
+      '<label class="rp-cb"><input type="radio" name="rpm" value="total"' + (R.mode === "total" ? " checked" : "") + "> <b>" + esc(tt("rp_m_tot")) + "</b><span class=\"rp-sub\">" + esc(tt("rp_m_tot_s")) + "</span></label></fieldset>" +
+      '<fieldset class="rp-fs"><legend>' + esc(tt("rp_inh")) + "</legend>" + cb("kopf", "rp_i_kopf") + cb("situ", "rp_i_situ") + cb("mengen", "rp_i_mengen") + cb("pos", "rp_i_pos") + cb("kosten", "rp_i_kosten") + cb("annahmen", "rp_i_ann") + cb("warn", "rp_i_warn") + "</fieldset>" +
+      '<p class="hint">' + esc(tt("rp_hint")) + '</p><div class="kmbar"><button type="submit" class="btn" value="print" id="rpGo">' + esc(tt("rp_go")) + '</button> <button type="submit" class="btn ghost" value="x">' + esc(tt("rp_close")) + "</button></div></form>";
+    document.body.appendChild(d);
+    d.addEventListener("close", function () { d.remove(); });
+    d.querySelector("form").addEventListener("submit", function (e) {
+      var sub = e.submitter && e.submitter.value; if (sub !== "print") return;
+      R.mode = d.querySelector("input[name=rpm]:checked").value; [].slice.call(d.querySelectorAll("[data-rp]")).forEach(function (i) { R[i.dataset.rp] = i.checked; }); save();
+      var doc = document.getElementById("reportDoc"); if (doc) doc.remove(); doc = document.createElement("div"); doc.id = "reportDoc"; doc.className = "rp"; doc.innerHTML = reportBuild(R); document.body.appendChild(doc); wrapTables(doc);
+      document.body.classList.add("report-print"); setTimeout(function () { window.print(); }, 50);
+    });
+    d.showModal();
+  }
   /* ---------- Excel ---------- */
   var XL = XLSXW.ST;
   function sheetName(s, used) { var n = String(s).replace(/[\[\]:*?\/\\]/g, " ").slice(0, 31).trim(), b = n, i = 2; while (used.indexOf(n) >= 0) n = b.slice(0, 28) + " " + (i++); used.push(n); return n; }
@@ -1301,7 +1360,7 @@
     var r = $("#p_rolle"); r.innerHTML = ""; ["anv", "bl", "bhv"].forEach(function (v) { var o = document.createElement("option"); o.value = v; o.textContent = tt("r_" + v); r.appendChild(o); }); r.value = S.kopf.rolle;
     $("#helpTitle").textContent = tt("helpTitle"); $("#helpSteps").innerHTML = (T[S.lang] || T.de).help.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join(""); $("#helpNote").textContent = tt("helpNote");
     $("#h-result").textContent = tt("h_result");
-    $("#bPrint").textContent = tt("btnPrint"); $("#bPrintFull").textContent = tt("btnPrintFull"); $("#bPrintSum").textContent = tt("btnPrintSum"); $("#bXlsx").textContent = tt("btnXlsx"); $("#bSave").textContent = tt("btnSave"); $("#bLoad").textContent = tt("btnLoad"); $("#bNew").textContent = tt("btnNew");
+    $("#bPrint").textContent = tt("btnPrint"); $("#bPrintFull").textContent = tt("btnPrintFull"); $("#bPrintSum").textContent = tt("btnPrintSum"); $("#bReport").textContent = tt("btnReport"); $("#bXlsx").textContent = tt("btnXlsx"); $("#bSave").textContent = tt("btnSave"); $("#bLoad").textContent = tt("btnLoad"); $("#bNew").textContent = tt("btnNew");
     document.querySelectorAll(".langs button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.lang === S.lang ? "true" : "false"); });
     if (window.__EXPDATE && !document.getElementById("expwarn")) { var ew = document.createElement("p"); ew.id = "expwarn"; ew.className = "expwarn no-print"; ew.setAttribute("role", "status"); ew.hidden = window.__EXPDAYS > 7; ew.textContent = fill(tt("ux_validUntil"), { d: window.__EXPDATE, n: window.__EXPDAYS }); var shEl = document.querySelector(".sheet"); if (shEl) shEl.insertBefore(ew, shEl.firstChild); }
     $("#versionline").innerHTML = "<b>" + esc(tt("version")) + " 2.0</b><span>Build " + BUILD + "</span>" + (window.__EXPDATE ? "<span class=\"bad\">" + esc(fill(tt("ux_validUntil"), { d: window.__EXPDATE, n: window.__EXPDAYS })) + "</span>" : "") + "<span>LV DE V1.1 (10.07.2026)</span><span>LV FR V1.0 (27.06.2026)</span><span>LV IT V1.0 (27.06.2026)</span>" + (RECIPIENT ? "<span>" + esc(fill(tt("wm_txt"), { n: RECIPIENT })) + "</span>" : "");
@@ -1370,11 +1429,12 @@
     document.addEventListener("keydown", function (ev) { if (ev.key === "Escape") lbShut(); });
     var st = [];
     window.addEventListener("beforeprint", function () { st = []; document.querySelectorAll("#result details, #kopfbox").forEach(function (d) { st.push([d, d.open]); d.open = true; }); });
-    window.addEventListener("afterprint", function () { st.forEach(function (x) { x[0].open = x[1]; }); document.body.classList.remove("summary-print"); document.body.classList.remove("print-detail"); });
+    window.addEventListener("afterprint", function () { st.forEach(function (x) { x[0].open = x[1]; }); document.body.classList.remove("summary-print"); document.body.classList.remove("print-detail"); document.body.classList.remove("report-print"); var rd = document.getElementById("reportDoc"); if (rd) rd.remove(); });
     document.querySelectorAll(".langs button").forEach(function (b) { b.onclick = function () { S.lang = b.dataset.lang; save(); applyLang(); }; });
     $("#bPrint").onclick = function () { document.body.classList.remove("print-detail"); window.print(); };
     $("#bPrintFull").onclick = function () { document.body.classList.add("print-detail"); window.print(); };
     $("#bPrintSum").onclick = function () { document.body.classList.add("summary-print"); window.print(); };
+    $("#bReport").onclick = reportOpen;
     $("#bXlsx").onclick = function () { download(fname("xlsx"), xlsxBytes(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); };
     $("#bSave").onclick = saveJson;
     $("#bLoad").onclick = function () { $("#fileIn").click(); };
