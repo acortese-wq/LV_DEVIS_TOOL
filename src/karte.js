@@ -227,8 +227,8 @@
       var c = n.color || "#0d47c8", q = n.pts.map(px);
       if (n.type === "text") o2 += '<text x="' + f1(q[0][0]) + '" y="' + f1(q[0][1]) + '" font-size="' + ({ s: 10, m: 13, l: 19 }[n.size || "m"] * k) + '" font-weight="700" fill="' + c + '" stroke="#fff" stroke-width="' + 0.8 * k + '" paint-order="stroke">' + esc(n.text || "") + "</text>";
       else if (n.type === "rect") o2 += '<rect x="' + f1(Math.min(q[0][0], q[1][0])) + '" y="' + f1(Math.min(q[0][1], q[1][1])) + '" width="' + f1(Math.abs(q[0][0] - q[1][0])) + '" height="' + f1(Math.abs(q[0][1] - q[1][1])) + '" fill="' + c + '" fill-opacity=".08" stroke="' + c + '" stroke-width="' + 2 * k + '"/>';
-      else { o2 += '<polyline points="' + q.map(function (p) { return f1(p[0]) + "," + f1(p[1]); }).join(" ") + '" fill="none" stroke="' + c + '" stroke-width="' + 2.5 * k + '"/>';
-        if (n.type === "arrow" && q.length > 1) { var a = q[0], b = q[q.length - 1], ang = Math.atan2(b[1] - a[1], b[0] - a[0]), s2 = 13 * k; o2 += '<polygon points="' + f1(b[0]) + "," + f1(b[1]) + " " + f1(b[0] - s2 * Math.cos(ang - 0.4)) + "," + f1(b[1] - s2 * Math.sin(ang - 0.4)) + " " + f1(b[0] - s2 * Math.cos(ang + 0.4)) + "," + f1(b[1] - s2 * Math.sin(ang + 0.4)) + '" fill="' + c + '"/>'; } }
+      else { o2 += '<polyline points="' + q.map(function (p) { return f1(p[0]) + "," + f1(p[1]); }).join(" ") + '" fill="none" stroke="' + c + '" stroke-width="' + 2.5 * k * (n.type === "arrow" ? ({ s: 0.65, m: 1, l: 1.7 }[n.size || "m"] || 1) : 1) + '"/>';
+        if (n.type === "arrow" && q.length > 1) { var a = q[0], b = q[q.length - 1], ang = Math.atan2(b[1] - a[1], b[0] - a[0]), s2 = 13 * k * ({ s: 0.65, m: 1, l: 1.7 }[n.size || "m"] || 1); o2 += '<polygon points="' + f1(b[0]) + "," + f1(b[1]) + " " + f1(b[0] - s2 * Math.cos(ang - 0.4)) + "," + f1(b[1] - s2 * Math.sin(ang - 0.4)) + " " + f1(b[0] - s2 * Math.cos(ang + 0.4)) + "," + f1(b[1] - s2 * Math.sin(ang + 0.4)) + '" fill="' + c + '"/>'; } }
     });
     var sym = function (arr, fn, key, nm, r0) {
       (arr || []).forEach(function (p, i) { var q = px(p), r = r0 * k; o2 += fn(q, r, i) + txt(q[0] + r + 2.5 * k, q[1] + 3 * k, lab[key] && lab[key][i]); });
@@ -747,7 +747,12 @@
     var NT = { text: "km_nText", arrow: "km_nArrow", sline: "km_nLine", rect: "km_nRect" };
     var snap = function () { undoSt.push(JSON.stringify(M)); if (undoSt.length > 100) undoSt.shift(); };
     var findObj = function (id) { var a = [M.lines, M.pts, M.sond, M.notes, M.areas, M.wl, M.geb]; for (var i = 0; i < a.length; i++) { var o = byId(a[i], id); if (o) return { arr: a[i], o: o }; } return null; };
-    function select(id) { sel = { id: id }; refresh(); }
+    function select(id) { sel = { id: id }; refresh(); showProps(id); }
+    /* Eigenschaften zum gewählten Objekt öffnen: Reiter «Eigenschaften», Zeile aufklappen und ins Sichtfeld holen */
+    function showProps(id) {
+      var tp = $("#kmTabP"); if (tp && tp.getAttribute("aria-selected") !== "true") tp.click();
+      var r = $("#kmObj") && $("#kmObj").querySelector('.kmrow[data-rid="' + id + '"]'); if (r) { if (folded[id]) { folded[id] = false; rows(); r = $("#kmObj").querySelector('.kmrow[data-rid="' + id + '"]'); } if (r) r.scrollIntoView({ block: "nearest" }); }
+    }
     function bindObj(lay, id, noMove) {
       lay.on("click", function (e) { L.DomEvent.stop(e); if (Date.now() - lastMove < 250) return; select(id); });
       if (!noMove) lay.on("mousedown", function (e) { startMove(e, id); });
@@ -759,7 +764,7 @@
       var start = AD.pt(e.latlng), base = f.o.pts.map(function (p) { return p.slice(); }), moved = false;
       map.dragging.disable();
       function mm(ev) { var c = AD.pt(ev.latlng), dx = c[0] - start[0], dy = c[1] - start[1]; if (dx || dy) moved = true; f.o.pts = base.map(function (p) { return [p[0] + dx, p[1] + dy]; }); if (layers[id] && layers[id].upd) layers[id].upd(); updTotal(); }
-      function up() { map.off("mousemove", mm); document.removeEventListener("mouseup", up); map.dragging.enable(); if (moved) { lastMove = Date.now(); refresh(); } else undoSt.pop(); }
+      function up() { map.off("mousemove", mm); document.removeEventListener("mouseup", up); map.dragging.enable(); if (moved) { lastMove = Date.now(); refresh(); showProps(id); } else undoSt.pop(); }
       map.on("mousemove", mm); document.addEventListener("mouseup", up);
     }
     function vmark(q, cls, size) { var hit = 24; return L.marker(q, { draggable: cls === "kmv", keyboard: false, zIndexOffset: 1000, icon: L.divIcon({ className: cls, html: "<span style=\"width:" + size + "px;height:" + size + "px;margin:" + (hit - size) / 2 + "px\"></span>", iconSize: [hit, hit], iconAnchor: [hit / 2, hit / 2] }) }).addTo(grp); }
@@ -768,7 +773,10 @@
     var LKTOL = 0.06;
     function updL(l) { if (layers[l.id] && layers[l.id].upd) layers[l.id].upd(); }
     function projPoly(pts, c) { var best = null; for (var i = 0; i < pts.length - 1; i++) { var a = pts[i], b = pts[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], d2 = dx * dx + dy * dy, t = d2 ? Math.max(0, Math.min(1, ((c[0] - a[0]) * dx + (c[1] - a[1]) * dy) / d2)) : 0, q = [a[0] + dx * t, a[1] + dy * t], d = Math.hypot(q[0] - c[0], q[1] - c[1]); if (!best || d < best.d) best = { d: d, q: q, seg: i }; } return best; }
-    function linkedLines(o) { return M.lines.filter(function (l2) { return l2 !== o && (o.from === l2.id || l2.from === o.id || o.to === l2.id || l2.to === o.id || o.pv === l2.id || o.nx === l2.id || l2.pv === o.id || l2.nx === o.id); }); }
+    function linkedLines(o) {
+      var r = M.lines.filter(function (l2) { return l2 !== o && (o.from === l2.id || l2.from === o.id || o.to === l2.id || l2.to === o.id || o.pv === l2.id || o.nx === l2.id || l2.pv === o.id || l2.nx === o.id); });
+      r.slice().forEach(function (l2) { [l2.pv, l2.nx].forEach(function (k) { var x = k && byId(M.lines, k); if (x && x !== o && r.indexOf(x) < 0) r.push(x); }); }); return r;
+    }
     function linkStart(o, j, noSlide) {
       var P0 = o.pts[j].slice(), pr = [], gs = [], slide = null;
       linkedLines(o).forEach(function (l2) { l2.pts.forEach(function (q, k) { if (AD.dist(q, P0) <= LKTOL) pr.push({ l: l2, k: k }); }); });
@@ -789,7 +797,7 @@
         var m = vmark(AD.ll(q), "kmv", 14), st = null, isL = M.lines.indexOf(o) >= 0;
         m.on("dragstart", function () { snap(); if (isL) st = linkStart(o, j); });
         m.on("drag", function (e) { var c = AD.pt(e.target.getLatLng()); if (st && st.any) { c = linkMove(st, o, j, c); e.target.setLatLng(AD.ll(c)); } else o.pts[j] = c; updL(o); updTotal(); });
-        m.on("dragend", function () { lastMove = Date.now(); refresh(); });
+        m.on("dragend", function () { lastMove = Date.now(); sel = { id: o.id }; refresh(); showProps(o.id); });
         m.on("dblclick contextmenu", function (e) { L.DomEvent.stop(e); if (poly && o.pts.length > minPts) { snap(); o.pts.splice(j, 1); refresh(); } });
       });
       if (!poly) return;
@@ -815,7 +823,7 @@
           if (gl) { [["to", gl.pts.length - 1], ["from", 0]].forEach(function (a) { var bl = gl[a[0]] && byId(M.lines, gl[a[0]]), pj = bl && projPoly(bl.pts, gl.pts[a[1]]); if (bl && (!pj || pj.d > 0.05)) { delete gl[a[0]]; if (a[0] === "from") delete gl.baseDir; } }); } });
       }
       m.on("dragstart", function () { snap(); }); if (!isG) m.on("drag", function (e) { o[key] = AD.pt(e.target.getLatLng()); if (key === "pt" && M.pts.indexOf(o) >= 0) M.lines.forEach(function (l) { if (l.s === o.id) l.pts[0] = o.pt.slice(); if (l.e === o.id) l.pts[l.pts.length - 1] = o.pt.slice(); }); });
-      m.on("dragend", function () { lastMove = Date.now(); refresh(); });
+      m.on("dragend", function () { lastMove = Date.now(); sel = { id: o.id }; refresh(); showProps(o.id); });
     }
     function noteLayers(n, edit, on) {
       var col = n.color || "#0d47c8", L0 = [], upd;
@@ -829,9 +837,9 @@
         if (edit) bindObj(r, n.id);
         return { upd: function () { r.setBounds([AD.ll(n.pts[0]), AD.ll(n.pts[1])]); } };
       }
-      var ln = L.polyline(n.pts.map(AD.ll), { color: col, weight: on ? 5 : 3, interactive: edit, bubblingMouseEvents: false }).addTo(grp), hd = null;
+      var asz = { s: 0.65, m: 1, l: 1.7 }[n.size || "m"] || 1, ln = L.polyline(n.pts.map(AD.ll), { color: col, weight: (on ? 5 : 3) * (n.type === "arrow" ? asz : 1), interactive: edit, bubblingMouseEvents: false }).addTo(grp), hd = null;
       function head() {
-        var a = map.latLngToLayerPoint(AD.ll(n.pts[0])), b = map.latLngToLayerPoint(AD.ll(n.pts[n.pts.length - 1])), ang = Math.atan2(b.y - a.y, b.x - a.x), s = 16;
+        var a = map.latLngToLayerPoint(AD.ll(n.pts[0])), b = map.latLngToLayerPoint(AD.ll(n.pts[n.pts.length - 1])), ang = Math.atan2(b.y - a.y, b.x - a.x), s = 16 * asz;
         return [b, L.point(b.x - s * Math.cos(ang - 0.4), b.y - s * Math.sin(ang - 0.4)), L.point(b.x - s * Math.cos(ang + 0.4), b.y - s * Math.sin(ang + 0.4))].map(function (p) { return map.layerPointToLatLng(p); });
       }
       if (n.type === "arrow" && n.pts.length > 1) hd = L.polygon(head(), { color: col, fillColor: col, fillOpacity: 1, weight: 1, interactive: false }).addTo(grp);
@@ -887,7 +895,7 @@
       if (!tip) tip = L.tooltip({ permanent: true, direction: "right", offset: [14, 0], className: "kmtip", opacity: 0.95 });
       tip.setLatLng(ll).setContent(esc(t)); if (!map.hasLayer(tip)) tip.addTo(map);
     }
-    window.__KM = { M: function () { return M; } };   /* nur für Tests */
+    window.__KM = { M: function () { return M; }, refresh: function () { refresh(); } };   /* nur für Tests */
     var MODES = { ruler: "mruler", geo: "mgeo", line: "mline", pt: "mpt", sond: "msond", cal: "mcal", edit: "medit", area: "marea", wl: "mwl", geb: "mgeb", text: "mtext", arrow: "marrow", sline: "msline", rect: "mrect" };
     function draw() {
       grp.clearLayers(); layers = {}; var edit = mode === "edit";
@@ -1009,6 +1017,33 @@
       });
       if (did && did !== "x" && !silent) askShow(AD.ll(c), tt("km_sp_title"), [{ t: tt("km_sp_ok"), fn: function () { } }], 0, false, did);
       return p;
+    }
+    /* Abzweig ohne Schacht auf bestehender Leitung: Rohr(e) entnehmen (Hauptleitung geht mit weniger Rohren weiter) oder T-Stück montieren */
+    function tapOptions(base) { var o = []; pipeList(cfgOf(base)).forEach(function (e) { for (var x = 1; x <= Math.min(e[1] - 1, 3); x++) o.push({ dn: e[0], x: x, rest: e[1] - x }); }); return o; }
+    function splitTap(base, c, dn, x) {
+      var idx = -1; base.pts.forEach(function (q, k) { if (idx < 0 && AD.dist(q, c) <= 0.06) idx = k; }); if (idx <= 0 || idx >= base.pts.length - 1) return;
+      var oldNx = base.nx, l2 = { id: nid("l"), pts: base.pts.slice(idx).map(function (q) { return q.slice(); }), rid: null, rohr: JSON.parse(JSON.stringify(base.rohr)), cfg: JSON.parse(JSON.stringify(cfgOf(base))), pv: base.id, sK: 1, e: base.e || null, to: base.to || null, hzArt: base.hzArt, hzF: base.hzF };
+      l2.cfg.rt = l2.cfg.rt || {}; var r = (parseInt(l2.cfg.rt[dn], 10) || 0) - x; if (r > 0) l2.cfg.rt[dn] = r; else delete l2.cfg.rt[dn]; lineSync(l2);
+      base.pts = base.pts.slice(0, idx + 1); base.e = null; base.to = null; base.nx = l2.id; base.eK = 1;
+      if (oldNx) { l2.nx = oldNx; l2.eK = 1; var nl = byId(M.lines, oldNx); if (nl) nl.pv = l2.id; }
+      if (base.hzH1 != null) { l2.hzH1 = base.hzH1; delete base.hzH1; } delete base.hz;
+      if (base.gid) { l2.gid = base.gid; var g = byId(M.geb, base.gid); if (g) g.lid = l2.id; delete base.gid; }
+      M.lines.splice(M.lines.indexOf(base) + 1, 0, l2);
+      M.lines.forEach(function (o) { if (o === l2 || o === base) return; ["from", "to"].forEach(function (w) { if (o[w] !== base.id) return; var kp = w === "from" ? o.pts[0] : o.pts[o.pts.length - 1], pb = projPoly(base.pts, kp), pl2 = projPoly(l2.pts, kp); if (pl2 && pl2.d <= 0.05 && (!pb || pb.d > 0.05)) o[w] = l2.id; }); });
+    }
+    function doTap(l, which, base, c, ch) {
+      snap(); var dn = ch.dn || (pipeList(cfgOf(base))[0] || [55])[0], n = ch.mode === "entn" ? ch.x : 1;
+      l.cfg = JSON.parse(JSON.stringify(cfgOf(base))); l.cfg.rt = {}; l.cfg.rt[dn] = n; lineSync(l); l.abz = { mode: ch.mode, dn: dn, x: n };
+      if (ch.mode === "entn") splitTap(base, c, dn, n); refresh();
+    }
+    function askTap(l, which) {
+      var base = byId(M.lines, l[which]); if (!base || (plan && !cal.scale)) return false; var c = which === "from" ? l.pts[0].slice() : l.pts[l.pts.length - 1].slice(), bn = M.lines.indexOf(base) + 1, items = [];
+      var ki = -1; base.pts.forEach(function (q, k) { if (ki < 0 && AD.dist(q, c) <= 0.06) ki = k; }); if (ki <= 0 || ki >= base.pts.length - 1) return false;
+      tapOptions(base).forEach(function (o) { items.push({ t: tt("tp_take").replace("{x}", o.x).replace("{dn}", o.dn).replace("{r}", o.rest), fn: function () { doTap(l, which, base, c, { mode: "entn", dn: o.dn, x: o.x }); } }); });
+      items.push({ t: tt("tp_tst"), fn: function () { doTap(l, which, base, c, { mode: "tst", dn: (pipeList(cfgOf(base))[0] || [55])[0] }); } });
+      if (which === "to") items.push({ t: tt("tp_shaft"), fn: function () { askEnd(l); } });
+      items.push({ t: tt("tp_later"), ghost: 1, fn: function () { } });
+      askShow(AD.ll(c), tt("tp_title").replace("{n}", bn).replace("{p}", pipeTxt(cfgOf(base)) || "–"), items, 0, false); return true;
     }
     function askStart(l, c) {
       if (plan && !cal.scale) return; var nr = nearShaft(c, 15);
@@ -1191,15 +1226,17 @@
     function rows() {
       var h = $("#kmObj"); h.innerHTML = "";
       var rowOf = function (o) { var r = document.createElement("div"); r.className = "kmrow" + (sel && sel.id === o.id ? " on" : ""); r.setAttribute("data-rid", o.id); return r; };
-      var linkHint = function (r, txt, cut) {
+      var linkHint = function (r, txt, cut, which) {
         var gh = document.createElement("p"); gh.className = "hint"; gh.textContent = txt + " "; r.appendChild(gh);
+        if (which && cut) { var lb = r.getAttribute("data-rid"), lo = byId(M.lines, lb); if (lo) { var bt = document.createElement("button"); bt.type = "button"; bt.className = "btn ghost small"; bt.textContent = tt("tp_choose"); bt.addEventListener("click", function () { askTap(lo, which); }); gh.appendChild(bt); gh.appendChild(document.createTextNode(" ")); } }
         if (cut) { var b = document.createElement("button"); b.type = "button"; b.className = "btn ghost small"; b.textContent = tt("km_lk_cut"); b.addEventListener("click", function () { snap(); cut(); refresh(); }); gh.appendChild(b); }
       };
       var row_lines = function (l, i) {
         var r = rowOf(l);
         var t = head(r, tt("km_lineN").replace("{n}", i + 1), l.rid); t.insertAdjacentHTML("beforeend", " · " + fmt(effLen(l.pts)) + " m" + (SLOPE && hzOf(l) ? " " + esc(tt("hz_sfx")) : ""));
         var ed = document.createElement("div"); ed.className = "kmled"; r.appendChild(ed); lineEd(l, ed, false);
-        [["from", "km_lk_from"], ["to", "km_lk_to"]].forEach(function (a) { var bl = byId(M.lines, l[a[0]]); if (bl) linkHint(r, tt(a[1]).replace("{n}", M.lines.indexOf(bl) + 1), function () { delete l[a[0]]; if (a[0] === "from") delete l.baseDir; }); });
+        [["from", "km_lk_from"], ["to", "km_lk_to"]].forEach(function (a) { var bl = byId(M.lines, l[a[0]]); if (bl) linkHint(r, tt(a[1]).replace("{n}", M.lines.indexOf(bl) + 1), function () { delete l[a[0]]; delete l.abz; if (a[0] === "from") delete l.baseDir; }, a[0]); });
+        if (l.abz) { var ab = l.abz, bb = byId(M.lines, l.from || l.to); linkHint(r, ab.mode === "entn" ? tt("tp_hint_entn").replace("{x}", ab.x).replace("{dn}", ab.dn).replace("{n}", bb ? M.lines.indexOf(bb) + 1 : "?") : tt("tp_hint_tst").replace("{n}", bb ? M.lines.indexOf(bb) + 1 : "?"), null); }
         btns(r, l.id); return r;
       };
       M.lines.forEach(function (l, i) { h.appendChild(row_lines(l, i)); });
@@ -1257,8 +1294,8 @@
       M.areas.forEach(function (f, i) { h.appendChild(row_areas(f, i)); });
       var row_notes = function (n, i) {
         var r = rowOf(n); head(r, tt(NT[n.type]) + " " + (i + 1));
-        if (n.type === "text") {
-          r.appendChild(cell(tt("km_text"), inp(tt("km_text"), n.text || "", "kmw", function (v) { n.text = v; if (layers[n.id]) draw(); }, 1)));
+        if (n.type === "text") r.appendChild(cell(tt("km_text"), inp(tt("km_text"), n.text || "", "kmw", function (v) { n.text = v; if (layers[n.id]) draw(); }, 1)));
+        if (n.type === "text" || n.type === "arrow") {
           r.appendChild(cell(tt("km_size"), sel1(tt("km_size"), [["s", tt("km_sS")], ["m", tt("km_sM")], ["l", tt("km_sLg")]], n.size || "m", function (v) { n.size = v; draw(); })));
         }
         r.appendChild(cell(tt("km_col"), sel1(tt("km_col"), COL.map(function (c) { return [c[0], tt(c[1])]; }), n.color || "#0d47c8", function (v) { n.color = v; draw(); })));
@@ -1509,15 +1546,35 @@
         if (L0 > R) it.push([l.id, "y", tt("rc_dist").replace("{n}", n).replace("{l}", f1(L0)).replace("{r}", R)]);
         if (pl.length) { var rmin = pl.some(function (e) { return e[0] >= 100; }) ? 3 : 1, dn = rmin === 3 ? "100" : "55"; for (var k = 1; k < l.pts.length - 1; k++) { var b = bendOf(l, k); if (b && b.r < rmin) it.push([l.id, "r", tt("rc_bend").replace("{n}", n).replace("{k}", k).replace("{r}", f1(b.r)).replace("{m}", rmin).replace("{dn}", dn)]); } }
       });
+      /* Abzweige ohne Schacht: Rohrentnahme/T-Stück geklärt? Rohrbilanz am Knoten, Rohrzahl-Wechsel ohne Grund */
+      var pcount = function (l) { var o = {}; pipeList(cfgOf(l)).forEach(function (e) { o[e[0]] = (o[e[0]] || 0) + e[1]; }); return o; }, ptxt = function (l) { return pipeTxt(cfgOf(l)) || "–"; }, knotWith = function (pt, ex) { return M.lines.some(function (o) { return o !== ex && o.abz && o.abz.mode === "entn" && [o.pts[0], o.pts[o.pts.length - 1]].some(function (q) { return AD.dist(q, pt) <= 0.06; }); }); };
+      M.lines.forEach(function (l, i) {
+        if (l.pts.length < 2) return;
+        ["from", "to"].forEach(function (w) {
+          var b = l[w] && byId(M.lines, l[w]); if (!b) return; var n = i + 1, m = M.lines.indexOf(b) + 1, kp = w === "from" ? l.pts[0] : l.pts[l.pts.length - 1];
+          if (!l.abz) { it.push([l.id, "y", tt("rc_tp_none").replace("{n}", n).replace("{m}", m).replace("{p}", ptxt(b)), 1]); return; }
+          if (l.abz.mode !== "entn") return;
+          var up = null, dn2 = null; chainOf(b).forEach(function (x) { if (AD.dist(x.pts[x.pts.length - 1], kp) <= 0.06) up = x; if (AD.dist(x.pts[0], kp) <= 0.06) dn2 = x; });
+          if (up && dn2 && up !== dn2) {
+            var a = pcount(up), d = pcount(dn2), t = pcount(l), bad = false; Object.keys(a).concat(Object.keys(d), Object.keys(t)).forEach(function (k) { if ((a[k] || 0) !== (d[k] || 0) + (t[k] || 0)) bad = true; });
+            if (bad) it.push([l.id, "y", tt("rc_tp_bil").replace("{n}", n).replace("{a}", ptxt(up)).replace("{b}", ptxt(dn2)).replace("{c}", ptxt(l)), 1]);
+            else it.push([dn2.id, "i", tt("rc_tp_info").replace("{a}", M.lines.indexOf(up) + 1).replace("{c}", n).replace("{b}", M.lines.indexOf(dn2) + 1).replace("{p}", ptxt(dn2))]);
+          }
+        });
+        if (l.nx) { var nx = byId(M.lines, l.nx); if (nx && l.eK && ptxt(l) !== ptxt(nx) && !knotWith(l.pts[l.pts.length - 1])) it.push([nx.id, "y", tt("rc_tp_chg").replace("{a}", i + 1).replace("{b}", M.lines.indexOf(nx) + 1).replace("{p}", ptxt(l)).replace("{q}", ptxt(nx)), 1]); }
+      });
       var ends = []; M.lines.forEach(function (l) { if (l.pts.length > 1) { ends.push([l, l.pts[0], l.s]); ends.push([l, l.pts[l.pts.length - 1], l.e]); } });
       for (var a = 0; a < ends.length; a++) for (var b2 = a + 1; b2 < ends.length; b2++) { var A = ends[a], B = ends[b2]; if (A[0] === B[0]) continue; var d = AD.dist(A[1], B[1]); if (d > 0.001 && d <= 0.5 && !(A[2] && A[2] === B[2])) it.push([A[0].id, "y", tt("rc_t_gap").replace("{a}", M.lines.indexOf(A[0]) + 1).replace("{b}", M.lines.indexOf(B[0]) + 1).replace("{d}", f1(d * 100) + " cm")]); }
       M.pts.forEach(function (p, i) {
         for (var j = i + 1; j < M.pts.length; j++) { var d2 = AD.dist(p.pt, M.pts[j].pt); if (d2 <= 0.5) it.push([p.id, "y", tt("rc_t_dbl").replace("{a}", i + 1).replace("{b}", j + 1).replace("{d}", f1(d2 * 100) + " cm")]); }
         if (p.mode === "deckel") return; var cn = connOf(M, p), mu = parseInt(p.mu, 10), t = p.typ || "", n = i + 1;
         if (mu > 0 && CAPA[t] != null && CAPA[t] < mu) it.push([p.id, "r", tt("rc_typ").replace("{n}", n).replace("{t}", t).replace("{m}", mu).replace("{v}", typFor(mu))]);
+        var tin = 0, tout = 0; Object.keys(cn.inn).forEach(function (k) { tin += cn.inn[k]; }); Object.keys(cn.out).forEach(function (k) { tout += cn.out[k]; });
+        if (tin > 0 && tout > 0 && tin !== tout) it.push([p.id, "y", tt(tout < tin ? "rc_bil_less" : "rc_bil_more").replace("{n}", n).replace("{i}", connTxt(cn.inn)).replace("{o}", connTxt(cn.out)).replace("{d}", Math.abs(tin - tout)), 1]);
         if (!(mu > 0) && cn.n > 2 && /^KS/.test(t)) it.push([p.id, "y", tt("rc_nomu").replace("{n}", n)]);
         if (/^KS/.test(t)) {
           if (Object.keys(cn.inn).concat(Object.keys(cn.out)).some(function (k) { return +k >= 100; })) it.push([p.id, "r", tt("rc_ks100").replace("{n}", n)]);
+          var k55 = Math.max(cn.inn[55] || 0, cn.out[55] || 0); if (k55 >= 4) it.push([p.id, "r", tt("rc_ks4").replace("{n}", n).replace("{k}", k55)]);
           var ins = [], outs = []; M.lines.forEach(function (l) { var m = l.pts.length; if (m < 2) return; if (l.e === p.id) ins.push(unitV(l.pts[m - 2], l.pts[m - 1])); if (l.s === p.id) outs.push(unitV(l.pts[0], l.pts[1])); });
           var worst = 0; ins.forEach(function (u) { outs.forEach(function (v) { if (u && v) worst = Math.max(worst, Math.acos(Math.max(-1, Math.min(1, u[0] * v[0] + u[1] * v[1]))) * 180 / Math.PI); }); });
           if (worst > 15) it.push([p.id, "y", tt("rc_ksgerade").replace("{n}", n).replace("{a}", Math.round(worst))]);
@@ -1529,8 +1586,14 @@
       });
       return it;
     }
+    var rcSeen = null;
+    function rcLive(it) {   /* neue Prüfmeldungen beim Zeichnen sofort einblenden (rot und Rohrbilanz) */
+      var cur0 = {}; it.forEach(function (x) { cur0[x[2]] = x; }); var old = rcSeen; rcSeen = cur0; if (!old || !dlg.open) return;
+      var nw = it.filter(function (x) { return !old[x[2]] && (x[1] === "r" || x[3]); });
+      nw.sort(function (a, b) { return (a[1] === "r" ? 0 : 1) - (b[1] === "r" ? 0 : 1); }); if (nw.length) toast(dlg, (nw[0][1] === "r" ? "⛔ " : "⚠ ") + nw[0][2]);
+    }
     function rcRender() {
-      var h = $("#kmChk"); if (!h) return; var it = rcCheck(), ic = { r: "⛔ ", y: "⚠ " };
+      var h = $("#kmChk"); if (!h) return; var it = rcCheck(), ic = { r: "⛔ ", y: "⚠ ", i: "ℹ " }; rcLive(it);
       h.innerHTML = "<h4>" + esc(tt("rc_h").replace("{n}", it.length)) + "</h4>" + (it.length ? "<ul class=\"kmmissl\">" + it.map(function (x) { return "<li><button type=\"button\" class=\"btn ghost small kmrc " + x[1] + "\" data-z=\"" + x[0] + "\">" + ic[x[1]] + esc(x[2]) + "</button></li>"; }).join("") + "</ul>" : '<p class="none">' + esc(tt("rc_ok")) + "</p>") + '<p class="hint">' + esc(tt("rc_src")) + "</p>";
     }
     /* Vorschläge: Schächte an Knicken und im Richtabstand, Werklöcher an Abzweigen */
@@ -1679,6 +1742,11 @@
       var curL = cur && byId(M.lines, cur), best = null, tol = 14, cands = [];
       if (mode === "geb") { var gs = gebSnap(cp); if (gs) return Object.assign(res, gs); }
       if (mode === "line") { var gb = gebNear(cp, 20); if (gb) { res.c = gb.pt.slice(); res.kind = "geb"; res.label = tt("sn_geb"); res.geb = gb; return res; } }
+      if (mode === "line") {   /* Schacht und Leitungsende fängt eine weitere Linie immer (unabhängig vom Punktfang) */
+        var kb = null; M.pts.forEach(function (p) { var q = map.latLngToContainerPoint(AD.ll(p.pt)), d = Math.hypot(q.x - cp.x, q.y - cp.y); if (d <= 18 && (!kb || d < kb.d)) kb = { d: d, p: p.pt, k: "sn_sch" }; });
+        M.lines.forEach(function (l) { if (l === curL || l.pts.length < 2) return; [l.pts[0], l.pts[l.pts.length - 1]].forEach(function (p) { var q = map.latLngToContainerPoint(AD.ll(p)), d = Math.hypot(q.x - cp.x, q.y - cp.y); if (d <= 18 && (!kb || d < kb.d - 3)) kb = { d: d, p: p, k: "sn_end" }; }); });
+        if (kb) { res.c = kb.p.slice(); res.kind = "pt"; res.label = tt(kb.k); return res; }
+      }
       if (snapSt.pt) { M.pts.concat(M.wl, M.geb, M.sond).forEach(function (p) { cands.push(p.pt); }); M.lines.forEach(function (l) { l.pts.forEach(function (p) { cands.push(p); }); }); M.areas.forEach(function (f) { f.pts.forEach(function (p) { cands.push(p); }); }); }
       cands.forEach(function (p) { if (curL && curL.pts.indexOf(p) >= 0) return; var q = map.latLngToContainerPoint(AD.ll(p)), d = Math.hypot(q.x - cp.x, q.y - cp.y); if (d <= tol && (!best || d < best.d)) best = { d: d, p: p }; });
       if (best) { res.c = best.p.slice(); res.kind = "pt"; res.label = tt("sn_pt"); return res; }
@@ -1729,7 +1797,7 @@
       map.on("zoomend moveend", scaleTxt); scaleTxt();
     }
     function addPt(ll) {
-      var startL = null; askHide(); ctxHide(); if (Date.now() - ctxT < 500) return;
+      var startL = null, tapL = null; askHide(); ctxHide(); if (Date.now() - ctxT < 500) return;
       if (!mode) return;
       if (mode === "edit") { if (Date.now() - lastMove < 250) return; sel = null; refresh(); return; }
       var c = AD.pt(ll), si = mode && mode !== "geo" && mode !== "cal" ? snapInfo(c) : null; if (si) c = si.c;
@@ -1768,10 +1836,10 @@
         if (!l) { l = { id: nid("l"), pts: [], rid: null, rohr: JSON.parse(JSON.stringify(opt.defRohr)), cfg: JSON.parse(JSON.stringify(lastCfg)) }; lineSync(l); M.lines.push(l); cur = l.id; sel = { id: l.id }; }
         l.pts.push(c); if (fresh && l.pts.length === 1) { startL = l;
           if (si && si.kind === "ln" && si.line) { var bs = si.line, ia = bs.pts[si.seg], ib = bs.pts[si.seg + 1]; l.from = bs.id; l.baseDir = si.dir; l.cfg = JSON.parse(JSON.stringify(cfgOf(bs))); l.rohr = JSON.parse(JSON.stringify(bs.rohr || l.rohr)); lineSync(l);   /* Abzweig: Knoten in der Basislinie, Basis-Richtung für «rechtwinklig» */
-            if (AD.dist(c, ia) > 0.05 && AD.dist(c, ib) > 0.05) bs.pts.splice(si.seg + 1, 0, c.slice()); startL = null; }
+            if (AD.dist(c, ia) > 0.05 && AD.dist(c, ib) > 0.05) bs.pts.splice(si.seg + 1, 0, c.slice()); startL = null; tapL = l; }
         }
       }
-      refresh(); if (startL) askStart(startL, c);
+      refresh(); if (startL) askStart(startL, c); else if (tapL) askTap(tapL, "from");
     }
     function endLine() {
       var l = cur && byId(M.lines, cur), askL = l && l.pts.length > 1 ? l : null; if (l && l.pts.length < 2) M.lines.splice(M.lines.indexOf(l), 1);
@@ -1780,7 +1848,7 @@
       if (askL) { var le = askL.pts[askL.pts.length - 1], tl = plan ? 0.6 : 0.08; M.lines.forEach(function (o) { if (o === askL || o.pts.length < 2) return; var cpE = map.latLngToContainerPoint(AD.ll(le)), h = segHit(cpE, o.pts); if (h && h.d <= 1.5 && AD.dist(le, o.pts[h.seg]) > tl && AD.dist(le, o.pts[h.seg + 1]) > tl) { o.pts.splice(h.seg + 1, 0, le.slice()); askL.to = o.id; } }); }   /* Endpunkt auf fremder Linie: Knoten (T-Anschluss) */
       if (askL) { var le2 = askL.pts[askL.pts.length - 1], gt = plan ? 0.6 : 0.3; M.geb.forEach(function (g) { if (AD.dist(le2, g.pt) <= gt) { askL.gid = g.id; g.lid = askL.id; } }); }
       cur = null; curN = null; curA = null; tmp = []; hideTip(); refresh();
-      if (askL && M.lines.indexOf(askL) >= 0) { askEnd(askL); quickOpen(askL); }
+      if (askL && M.lines.indexOf(askL) >= 0) { if (!(askL.to && !askL.abz && askTap(askL, "to"))) askEnd(askL); quickOpen(askL); }
     }
     function undo() {
       if (mode === "cal" && calPts.length) { calPts.pop(); $("#kmCalF").hidden = true; return draw(); }

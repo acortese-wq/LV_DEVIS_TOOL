@@ -218,3 +218,10 @@ Beim Linienzeichnen wechselt 1 Belag, 2 Wiese, 3 Pflästerung, 4 Rohplanie (glei
 - Hauseinführung ziehen: Fang wie beim Setzen (Leitung ◆, Gebäudeecke/-kante ▭, eigene Anschlussleitung ausgenommen) mit Fangmarke; das Ende der angeschlossenen Leitung folgt. Löst sich die Hauseinführung von der Hauptleitung, wird deren T-Verknüpfung (`to`/`from`) aufgehoben.
 - Abzweig ohne Schacht (`from`/`to`): Anfangs-/Endpunkt gleitet beim Ziehen entlang der Hauptleitung (der Knoten in der Hauptleitung wandert mit; war er nur ein T-Knoten, entsteht kein zusätzlicher Eckpunkt). Zieht man den Knoten der Hauptleitung, folgt der Abzweig. Gleiches gilt für Teilstrecken (Oberflächenwechsel, `pv`/`nx`).
 - Eigenschaften: «Angeschlossen an Linie n» / «Abzweig von Linie n» mit Knopf «Verbindung lösen» (4 Sprachen). Keine Kostenwirkung, ausser dass sich Längen mit der Geometrie ändern.
+
+## Eigenschaften, Pfeilgrösse, Fang, Abzweig-Plausibilität (V73)
+- Anklicken, Verschieben oder Ziehen eines Elements öffnet den Reiter «Eigenschaften», klappt die Zeile auf und holt sie ins Sichtfeld.
+- Pfeil: Grösse klein/mittel/gross (Spitze und Strichstärke, auch im Plan-Export).
+- Beim Zeichnen fängt eine Linie Schächte und Leitungsenden immer (Fangmarke «Schacht»/«Leitungsende», unabhängig vom Punktfang).
+- Abzweig ohne Schacht auf bestehender Leitung: Rückfrage «n×K55 entnehmen» (Hauptleitung wird am Knoten geteilt, danach reduzierte Belegung) oder «T-Stück montieren» (Hauptleitung komplett, Abzweig 1 Rohr); «Später entscheiden» erzeugt eine Prüfmeldung. **Kostenwirkung:** Die Teilung erzeugt zwei Graben-/Rohrpositionen mit geänderter Rohrzahl der Hauptleitung (weniger K55 nach dem Abzweig). T-Stück-Set ist im LV vorhanden («Übrige Set T-Stück»), wird aber nicht automatisch gerechnet.
+- Prüfungen: 4×K55 oder mehr je Seite in einem KS (rot; Handbuch 2.3.3.3 nennt Brunnenring Ø 80 als zu klein – die Zahl 4 stammt aus der Vorgabe des Anwenders, keine ausdrückliche Handbuchzahl), Rohrbilanz am Schacht (hinein ≠ hinaus), Rohrbilanz am Abzweig, Belegungswechsel ohne Grund, Info «ab hier nur noch …». Neue rote Meldungen und Bilanzfehler erscheinen sofort als Hinweis.
