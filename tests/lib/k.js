@@ -11,6 +11,19 @@ function loadPw() {
   process.exit(2);
 }
 const { chromium } = loadPw();
+/* Layout A startet die App in der Karte. Die bestehenden Tests prüfen die klassische Seite: dort wird «lvd-layout=classic» vorbelegt
+   (nur wenn noch nichts gesetzt ist). Tests für Layout A setzen localStorage «lvd-layout»="a" und laden neu – oder LVD_LAYOUT_A=1. */
+const LY_INIT = () => { try { if (localStorage.getItem('lvd-layout') == null) localStorage.setItem('lvd-layout', 'classic'); } catch (e) { /* file:// ohne Speicher */ } };
+if (!chromium.__lvdLy) {
+  const launch0 = chromium.launch.bind(chromium); chromium.__lvdLy = 1;
+  chromium.launch = async (...a) => {
+    const b = await launch0(...a); if (process.env.LVD_LAYOUT_A) return b;
+    const nc = b.newContext.bind(b), np = b.newPage.bind(b);
+    b.newContext = async (...o) => { const c = await nc(...o); await c.addInitScript(LY_INIT); return c; };
+    b.newPage = async (...o) => { const p = await np(...o); await p.addInitScript(LY_INIT); return p; };
+    return b;
+  };
+}
 function need(p) {
   if (!fs.existsSync(p)) { console.error('Testdatei fehlt: ' + path.relative(ROOT, p) + '\n→ einmalig im Repo ausführen: npm ci --omit=optional --prefix tests'); process.exit(2); }
   return p;

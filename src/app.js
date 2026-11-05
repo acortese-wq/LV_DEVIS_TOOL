@@ -603,13 +603,43 @@
     return FIG.html("graben", r, S, tt);
   }
   /* Kostenvorschau: gleiche Übernahme auf einer Kopie des Projekts, nichts wird gespeichert */
+  /* ---------- Layout A «Planungsfokus»: Kennzahlen und Dock-Inhalte (aus KVE.calc, gleiche Zahlen wie im Ergebnis) ---------- */
+  function lyData(out) {
+    var V = 0, n = 0; out.elems.forEach(function (e) { if (e.tab === "graben" && e.geo && e.geo.V > 0) V += e.geo.V; n += e.lines.length; }); n += out.vor.lines.length + out.be.lines.length;
+    var nStop = out.warn.filter(function (w) { return w.sev === "stop"; }).length, nAmb = out.warn.filter(function (w) { return w.sev === "amber"; }).length;
+    var st = n === 0 ? "empty" : nStop ? "stop" : nAmb || out.nOffen ? "amber" : "ok";
+    var pos = out.summary.length ? '<table class="lytab"><thead><tr><th scope="col">' + esc(tt("ly_cPos")) + '</th><th scope="col">' + esc(tt("ly_cText")) + '</th><th scope="col" class="num">' + esc(tt("ly_cQty")) + '</th><th scope="col">' + esc(tt("ly_cUnit")) + '</th><th scope="col" class="num">' + esc(tt("ly_cEp")) + '</th><th scope="col" class="num">' + esc(tt("ly_cTot")) + "</th></tr></thead><tbody>" +
+      out.summary.map(function (l) { var off = l.flag === "offen", lv = /^\d{3}\//.test(l.key), tx = lv ? lvT(l.key) : off || l.flag === "erfasst" ? (l.text || openText(l)) : (l.text || "");
+        return "<tr" + (off ? ' class="open"' : "") + "><td>" + esc(off ? tt("c_offenTag") : l.key) + "</td><td>" + esc(tx) + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit || "") + '</td><td class="num">' + (off ? "—" : chf(l.ep)) + '</td><td class="num">' + (off ? "—" : chf(l.total)) + "</td></tr>"; }).join("") + "</tbody></table>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>";
+    var aus = out.elems.filter(function (e) { return e.bal && e.bal.length; }).map(function (e) {
+      return '<div class="lyaus"><h3>' + esc(tt("tab_" + e.tab) + " · " + (e.name || "")) + '</h3><table class="lytab"><tbody>' + e.bal.filter(function (b) { return b.v; }).map(function (b) { return "<tr><td>" + esc(tt(b.id)) + '</td><td class="num">' + qf(r2(b.v)) + " " + esc(b.unit) + "</td></tr>"; }).join("") + "</tbody></table></div>"; }).join("") || '<p class="hint">' + esc(tt("ly_ausNone")) + "</p>";
+    var ws = out.warn.slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
+    var warn = (out.nOffen ? '<p class="lyoff">⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + "</p>" : "") + (ws.length ? '<ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + esc(w.tab ? tt("tab_" + w.tab) + " · " + w.el : (w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul>" : '<p class="hint">' + esc(tt("ly_warnNone")) + "</p>");
+    return { V: r2(V), st: st, nPos: out.summary.length, nWarn: ws.filter(function (w) { return w.sev !== "info"; }).length + (out.nOffen ? 1 : 0), kost: n ? kostTable(out) : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos: pos, aus: aus, warn: warn };
+  }
+  var LYTABS = ["graben", "schacht", "belag", "werkloch", "geb"];
+  function lyPref() { try { return localStorage.getItem("lvd-layout") === "classic" ? "classic" : "a"; } catch (e) { return "a"; } }
+  function lySetPref(v) { try { localStorage.setItem("lvd-layout", v); } catch (e) { } }
+  function lyWide() { return !window.matchMedia || window.matchMedia("(min-width:861px)").matches; }
+  function lyOpen() {   /* Kartenerfassung als Startbildschirm (Layout A) */
+    if (document.querySelector("dialog.kmdlg[open]")) return;
+    var tab = LYTABS.indexOf(S.tab) >= 0 ? S.tab : "graben", cfg = S.recs[tab][S.idx[tab]] || S.recs.graben[0];
+    if (cfg !== S.recs[tab][S.idx[tab]]) tab = "graben";
+    var b = document.createElement("button"), m = document.createElement("p");
+    openKarte(cfg, tab, b, m, { layoutA: true });
+  }
+  function lyGo(t) {   /* Wechsel aus Layout A in eine Ansicht der klassischen Seite */
+    var tgt = t === "rec" ? $("#tabs") : t === "res" ? $("#kpi") : $(".plankopf");
+    if (t === "rep") { reportOpen(); return; }
+    if (tgt) { window.scrollTo({ top: Math.max(0, tgt.getBoundingClientRect().top + window.scrollY - 8) }); var f = t === "rec" ? $("#tabCur") || $("#tabs button") : t === "res" ? $("#kpi") : $("#bLyMap"); if (f) { if (!f.hasAttribute("tabindex") && f.id === "kpi") f.setAttribute("tabindex", "-1"); f.focus(); } }
+  }
   function costPreview(cfg, tab) {
     return function (M, lenFn, fns) {
       var S0 = S, out = null;
       try {
         S = JSON.parse(JSON.stringify(S0)); var cc = (S.recs[tab] || []).filter(function (r) { return cfg.uid && r.uid === cfg.uid; })[0] || JSON.parse(JSON.stringify(cfg)), st = karteApply(M, cc, lenFn, Object.assign({ src: "karte" }, fns));
         S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: S.karte.base, bg: null, overlay: null }; syncDerived(cc, st);
-        var oc = KVE.calc(S, LV), sm = oc.sum; out = { n: sm.netto, b: sm.brutto, o: oc.nOffen };
+        var oc = KVE.calc(S, LV), sm = oc.sum; out = { n: sm.netto, b: sm.brutto, o: oc.nOffen, ly: lyData(oc) };
       } catch (e) { out = null; } finally { S = S0; }
       return out;
     };
@@ -730,7 +760,8 @@
         KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, cost: costPreview(cfg, tab), model: JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" && cfg ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" && cfg ? cfg.cm : "", abd: tab === "geb" && cfg ? cfg.abd : "hauff" }, defBelag: tab === "belag" && cfg ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
-          onClose: function () { var o = $(ex.focus || "#kmOpen"); if (o) o.focus(); }, autoPlan: !!ex.autoPlan, planObjs: JSON.parse(JSON.stringify({ lines: S.plan.lines, pts: S.plan.pts, sond: S.plan.sond, wl: S.plan.wl, geb: S.plan.geb, areas: S.plan.areas, notes: S.plan.notes })), planScale: (S.plan.cal && S.plan.cal.scale) || 0,
+          onClose: function () { if (ex.layoutA) return; var o = $(ex.focus || "#kmOpen"); if (o) o.focus(); },
+          layoutA: ex.layoutA ? { proj: S.kopf.projekt || "", ort: S.kopf.ort || "", go: lyGo, after: function (t) { if (t === "stay") setTimeout(lyOpen, 0); else lyGo(t); }, setPref: lySetPref } : null, autoPlan: !!ex.autoPlan, planObjs: JSON.parse(JSON.stringify({ lines: S.plan.lines, pts: S.plan.pts, sond: S.plan.sond, wl: S.plan.wl, geb: S.plan.geb, areas: S.plan.areas, notes: S.plan.notes })), planScale: (S.plan.cal && S.plan.cal.scale) || 0,
           onSave: function (M, cal, fns) { var bs = ["luft", "grau", "kataster", "leer", "av"].indexOf(fns.base) >= 0 ? fns.base : "farbe", keep = S.karte.bg; S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; save(); },
           onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st = karteApply(M, cfg, Object.assign({ src: "karte" }, fns) && lenFn, Object.assign({ src: "karte" }, fns)), bs = ["luft", "grau", "kataster", "leer", "av"].indexOf(fns.base) >= 0 ? fns.base : "farbe", keep = S.karte.bg;
             if (fns.planCleared) { ["lines", "pts", "sond", "wl", "geb", "areas", "notes"].forEach(function (k) { S.plan[k] = []; }); }
@@ -1121,6 +1152,17 @@
     var shown = res.querySelectorAll(".zusblk tbody tr:not(.grp):not(.fhide)").length, tot = res.querySelectorAll(".zusblk tbody tr:not(.grp)").length, c = $("#fCount"), cl = $("#fClr");
     if (c) c.textContent = on ? (shown ? fill(tt("fl_count"), { n: shown, m: tot }) : tt("fl_none")) : ""; if (cl) cl.hidden = !on;
   }
+  /* Kostentabelle (Ergebnis, Bericht-Vorschau, Layout-A-Dock): identische Darstellung */
+  function kostTable(out) {
+    var s = out.sum, erfL = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst") erfL.push(l); }); }); var sErf = r2(erfL.reduce(function (a, l) { return a + l.total; }, 0));
+    return "<h3>" + esc(tt("h_kosten")) + '</h3><table class="cost"><tbody><tr><td>' + esc(tt("k_zw")) + '</td><td class="num">' + chf(s.zwischen) + "</td></tr>" +
+        (erfL.length ? '<tr class="sub kerf"><td>' + esc(fill(tt("k_erf"), { n: erfL.length })) + '</td><td class="num">' + chf(sErf) + "</td></tr>" : "") +
+        (s.belag ? '<tr class="sub"><td>' + esc(tt("k_belagKS")) + '</td><td class="num">' + chf(s.belag) + "</td></tr>" : "") +
+        "<tr><td>" + esc(fill(tt("k_rabatt"), { s: s.stufe, p: s.pct })) + '</td><td class="num">− ' + chf(s.rabatt) + "</td></tr><tr><td>" + esc(tt("k_nach")) + '</td><td class="num">' + chf(s.nachRabatt) + "</td></tr>" +
+        "<tr><td>" + esc(tt("k_inst")) + '</td><td class="num">+ ' + chf(s.inst) + '</td></tr><tr class="sub"><td>' + esc(tt("k_netto")) + '</td><td class="num">' + chf(s.netto) + "</td></tr>" +
+        "<tr><td>" + esc(mwLab(s.mwSatz * 100)) + '</td><td class="num">' + chf(s.mwst) + '</td></tr><tr class="sum"><td>' + esc(tt("k_brutto")) + '</td><td class="num">' + chf(s.brutto) + "</td></tr>" +
+        (out.nOffen ? '<tr class="koffen"><td>⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + '</td><td class="num">' + esc(tt("k_offenV")) + "</td></tr>" : "") + "</tbody></table>";
+  }
   function renderResult() {
     var out = KVE.calc(S, LV); lastOut = out;
     var lvHtml = "", html = "", stop = out.warn.some(function (w) { return w.sev === "stop"; }), amber = out.warn.some(function (w) { return w.sev === "amber"; });
@@ -1166,13 +1208,7 @@
           return "<tr><td>" + esc(r.el) + "</td><td>" + esc(tt(r.id)) + ": " + esc(val) + "</td><td>" + esc(alt) + '</td><td class="num">' + (r.d >= 0 ? "+ " : "− ") + chf(Math.abs(r.d)) + "</td></tr>"; }).join("") + "</tbody></table>";
       html += "</div>";
       var s = out.sum;
-      var kost = "<h3>" + esc(tt("h_kosten")) + '</h3><table class="cost"><tbody><tr><td>' + esc(tt("k_zw")) + '</td><td class="num">' + chf(s.zwischen) + "</td></tr>" +
-        (erfL.length ? '<tr class="sub kerf"><td>' + esc(fill(tt("k_erf"), { n: erfL.length })) + '</td><td class="num">' + chf(sErf) + "</td></tr>" : "") +
-        (s.belag ? '<tr class="sub"><td>' + esc(tt("k_belagKS")) + '</td><td class="num">' + chf(s.belag) + "</td></tr>" : "") +
-        "<tr><td>" + esc(fill(tt("k_rabatt"), { s: s.stufe, p: s.pct })) + '</td><td class="num">− ' + chf(s.rabatt) + "</td></tr><tr><td>" + esc(tt("k_nach")) + '</td><td class="num">' + chf(s.nachRabatt) + "</td></tr>" +
-        "<tr><td>" + esc(tt("k_inst")) + '</td><td class="num">+ ' + chf(s.inst) + '</td></tr><tr class="sub"><td>' + esc(tt("k_netto")) + '</td><td class="num">' + chf(s.netto) + "</td></tr>" +
-        "<tr><td>" + esc(mwLab(s.mwSatz * 100)) + '</td><td class="num">' + chf(s.mwst) + '</td></tr><tr class="sum"><td>' + esc(tt("k_brutto")) + '</td><td class="num">' + chf(s.brutto) + "</td></tr>" +
-        (out.nOffen ? '<tr class="koffen"><td>⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + '</td><td class="num">' + esc(tt("k_offenV")) + "</td></tr>" : "") + "</tbody></table>";
+      var kost = kostTable(out);
       html += '<div class="kostblk">' + kost + "</div>"; lvHtml += kost;
     }
     var hon = S.recs.hon.map(function (r) { return [r, honCalc(r, out.sum.netto)]; }).filter(function (x) { return x[1].ok; });
@@ -1422,7 +1458,7 @@
     $("#kopfSum").innerHTML = "<b>" + esc(tt("ux_kopf")) + '</b><span class="ks">' + esc(p || tt("ux_kopfLeer")) + "</span>"; }
   function applyLang() {
     document.documentElement.lang = S.lang;
-    $("#t-title").textContent = tt("title"); $("#t-sub").textContent = tt("sub"); $("#t-role").textContent = tt("creatorRole");
+    $("#t-title").textContent = tt("title"); var lyb0 = $("#bLyMap"); if (lyb0) { lyb0.textContent = tt("ly_btn"); lyb0.title = tt("ly_btnT"); } $("#t-sub").textContent = tt("sub"); $("#t-role").textContent = tt("creatorRole");
     KOPF.forEach(function (k) { $("#l_" + k[0]).textContent = tt(k[1]); }); $("#l_rolle").textContent = tt("rolle"); $("#l_belagLief").textContent = tt("dv_belagLief");
     var r = $("#p_rolle"); r.innerHTML = ""; ["anv", "bl", "bhv"].forEach(function (v) { var o = document.createElement("option"); o.value = v; o.textContent = tt("r_" + v); r.appendChild(o); }); r.value = S.kopf.rolle;
     $("#helpTitle").textContent = tt("helpTitle"); $("#helpSteps").innerHTML = (T[S.lang] || T.de).help.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join(""); $("#helpNote").textContent = tt("helpNote");
@@ -1535,6 +1571,8 @@
     heal(); save(); applyKopf(); applyLang(); renderForm(); renderResult(); undoToast(tt("hp_demo_done"), sn); return true;
   }
   window.__LVD = { loadDemo: loadDemo, S: function () { return S; }, xlsxBytes: xlsxBytes, renderResult: renderResult, F: F, optLabel: optLabel, tt: tt, fill: fill, snap: snapState, commit: function (sn, msg) { save(); renderForm(); renderResult(); undoToast(msg, sn); } };
+    var lyb = $("#bLyMap"); if (lyb) lyb.onclick = function () { lySetPref("a"); lyOpen(); };
+    if (lyPref() === "a" && lyWide()) setTimeout(lyOpen, 0);   /* Layout A: Karte als Startbildschirm */
   }
   document.addEventListener("DOMContentLoaded", init);
 })();
