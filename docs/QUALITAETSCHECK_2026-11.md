@@ -124,6 +124,13 @@ Belege sind reproduzierbar: Rechenkern ohne Browser über `src/kve.js` + `src/da
 ## Nicht geprüft
 Honorar SIA 103 im Detail, französische/italienische Texte, Geometrie-Funktionen der Karte (Fang, Teilen), Assistent-Abläufe, Weitergabe-Build.
 
+## Umsetzung Paket 1 (V89, 05.11.2026) – ohne Kostenwirkung
+- **Nr. 1 behoben:** pdf.js öffnet PDFs mit `isEvalSupported: false` (offizielle Umgehung CVE-2024-4367). Wechsel auf pdf.js 4.x bleibt offen.
+- **Nr. 3 behoben:** Laden fragt nach, wenn das Projekt Inhalt hat; danach Hinweis mit «Rückgängig» (ganzer Stand inkl. Kopf und Einstellungen). Dateien ohne gültige Datensätze werden abgelehnt, das Projekt bleibt unverändert.
+- **Nr. 4 behoben:** Speicherfehler erscheint als rote Meldung mit «Sichern (JSON)» über der Kartenerfassung und verschwindet nach erfolgreichem Speichern.
+- **Nr. 10 behoben:** negative Werte in Mengen-/Massfeldern werden markiert.
+- Test t68.
+
 ## Vorschlag für die Reihenfolge
 1. **Sofort, ohne Kostenwirkung:** Nr. 1 (eine Zeile), Nr. 3, Nr. 4, Nr. 10.
 2. **Nach deinem Entscheid:** Nr. 2 (Apostroph akzeptieren), Nr. 6 und Nr. 7 (gegen LV-Text prüfen) – alle mit Kostenwirkung, Kernel und Skill gemeinsam.

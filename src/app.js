@@ -46,7 +46,13 @@
   heal();
   var saveT;
   function save() { clearTimeout(saveT); saveT = setTimeout(function () { var el = document.getElementById("saveState"), ok = true; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { ok = false; }
-    if (el) { var d = new Date(); el.className = "savestate no-print" + (ok ? "" : " err"); el.textContent = ok ? fill(tt("ux_saved"), { t: ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) }) : tt("ux_saveErr"); } }, 300); }
+    if (el) { var d = new Date(); el.className = "savestate no-print" + (ok ? "" : " err"); el.textContent = ok ? fill(tt("ux_saved"), { t: ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) }) : tt("ux_saveErr"); } saveErrDlg(ok); }, 300); }
+  function saveErrDlg(ok) {   /* Speicherfehler auch über der Kartenerfassung zeigen (dort ist die Statuszeile verdeckt) */
+    document.querySelectorAll(".kmsaveerr").forEach(function (b) { if (ok) b.remove(); }); if (ok) return;
+    var dl = document.querySelector("dialog.kmdlg[open]"); if (!dl || dl.querySelector(".kmsaveerr")) return;
+    var b = document.createElement("div"); b.className = "kmsaveerr"; b.setAttribute("role", "alert");
+    b.innerHTML = "<span>" + esc(tt("ux_saveErr")) + '</span> <button type="button" class="btn small">' + esc(tt("btnSave")) + "</button>"; b.querySelector("button").addEventListener("click", saveJson); dl.appendChild(b);
+  }
   var rec = function () { return S.recs[S.tab][S.idx[S.tab]]; };
 
   /* ---------- Felddefinitionen (KV-Assistent, erweitert) ---------- */
@@ -1506,12 +1512,24 @@
     go();
   }
   function fname(ext) { return "LV-Devis_" + ((S.kopf.sap || S.kopf.projekt || "Projekt").replace(/[^\w\-]+/g, "_")) + "." + ext; }
+  function hasContent() {   /* gibt es etwas, das beim Laden verloren ginge? */
+    var K = S.karte || {}, k = S.kopf || {};
+    var o = KVE.calc(S, LV), n = o.vor.lines.length + o.be.lines.length; o.elems.forEach(function (e) { n += e.lines.length; });
+    return !!(n || k.projekt || k.ort || k.sap || (K.lines || []).length || (K.pts || []).length || (K.notes || []).length || (S.plan && S.plan.img));
+  }
   function saveJson() { var c = JSON.parse(JSON.stringify(S)); delete c.ui; download(fname("json"), JSON.stringify({ v: 2, tool: "LV-Devis Tiefbau", lv: "V1.1 10.07.2026", data: c }, null, 1), "application/json"); }
   function load(file) {
     var rd = new FileReader();
     rd.onload = function () {
+      var full = JSON.stringify(S);   /* ganzer Stand (inkl. Kopf und Einstellungen) für Rückgängig */
+      var back = function () { S = JSON.parse(full); heal(); save(); applyKopf(); applyLang(); };
       try {
         var j = JSON.parse(rd.result), d = j.data || j, lang = S.lang;
+        if (d.v === 2 && d.recs) {   /* Datensätze müssen Listen sein, mindestens ein Reiter vorhanden */
+          var ks = Object.keys(d.recs).filter(function (t) { return TABS.indexOf(t) >= 0; });
+          if (!ks.length || ks.some(function (t) { return !Array.isArray(d.recs[t]); })) throw new Error(tt("ld_bad"));
+        }
+        if (hasContent() && !confirm(tt("ld_conf"))) return;
         if (d.v === 2 && d.recs) { S = d; }
         else if (Array.isArray(d.elems)) {           /* Import aus KV-Assistent */
           var n = defaults(); n.kopf = Object.assign(n.kopf, d.kopf || {}); n.sond = Object.assign(n.sond, d.sond || {}); n.wasser = Object.assign(n.wasser, d.wasser || {}); n.be = Object.assign(n.be, d.be || {}); if (d.dichte) n.dichte = d.dichte;
@@ -1525,8 +1543,8 @@
           if (d.head) { m.kopf.sap = d.head.sap || ""; m.kopf.bem = d.head.bem || ""; }
           S = m;
         } else throw new Error("format");
-        S.lang = lang; heal(); save(); applyKopf(); applyLang();
-      } catch (e) { alert("JSON: " + e.message); }
+        S.lang = lang; heal(); save(); applyKopf(); applyLang(); KARTE.toast(document.body, tt("ld_done"), tt("km_undoBtn"), back);
+      } catch (e) { if (JSON.stringify(S) !== full) back(); alert("JSON: " + (e.message === "format" ? tt("ld_bad") : e.message)); }
     };
     rd.readAsText(file);
   }
@@ -1559,7 +1577,7 @@
     $("#p_rolle").addEventListener("change", function () { S.kopf.rolle = this.value; save(); });
     $("#p_belagLief").addEventListener("change", function () { S.kopf.belagLief = this.checked; var v = this.checked ? "dritte" : "typN";
       LVTABS.forEach(function (t) { S.recs[t].forEach(function (e) { if (e.belag) e.belag.einbau = v; }); }); save(); renderForm(); renderResult(); });
-    var NUMOK = /^[+-]?(\d+([.,]\d*)?|[.,]\d+)$/;
+    var NUMOK = /^\+?(\d+([.,]\d*)?|[.,]\d+)$/;   /* Mengen und Masse: ohne Minus */
     window.numCheck = function (el) {
       var v = el.value.trim(), bad = v !== "" && !NUMOK.test(v), id = el.id ? el.id + "_err" : "", m = id && document.getElementById(id);
       el.classList.toggle("bad", bad); if (bad) el.setAttribute("aria-invalid", "true"); else el.removeAttribute("aria-invalid");

@@ -290,3 +290,9 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 - **Ausfüllen:** EP-Spalte gelb (Eingabefeld); Betrag = Menge × EP, Kapitelsummen, Zwischensumme, Rabatt-Staffel R151, Installationspauschale R152, Netto, MWST und Total inkl. MWST als Formeln. Kopf mit Feldern für Unternehmer, Gültigkeit, Ort/Datum und Unterschrift.
 - **Mit Preisen:** Projektpreise (LV V1.1 bzw. geänderte/eigene Preise). Total entspricht der Kostenübersicht bis auf Rundungsrappen (Excel rechnet Menge × EP je Zeile, das Tool rundet je Element).
 - Keine Kostenwirkung im Tool. Test t67 (mit LibreOffice zusätzlich geprüft: leeres Register mit eingetragenen Projektpreisen ergibt denselben Total).
+
+## Qualitätscheck Paket 1 (V89)
+- **PDF-Pläne sicherer:** pdf.js ohne Code-Ausführung aus Schriften (CVE-2024-4367).
+- **Laden:** Rückfrage bei vorhandenem Projekt, «Rückgängig» nach dem Laden, beschädigte Dateien abgelehnt (vorher: Projekt still ersetzt bzw. geleert).
+- **Speicherfehler** auch in der Kartenerfassung sichtbar (vorher: Karte meldete «gespeichert»).
+- **Negative Eingaben** markiert (vorher: still 0). Keine Kostenwirkung. Test t68. Details: `docs/QUALITAETSCHECK_2026-11.md`.

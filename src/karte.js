@@ -316,7 +316,7 @@
   /* file -> Promise<{pages, render(n)->Promise<{img,w,h,ratio,mpp}>}> */
   function planSource(file) {
     if (/\.pdf$/i.test(file.name) || file.type === "application/pdf") {
-      return loadPdfJs().then(function () { return file.arrayBuffer(); }).then(function (buf) { return window.pdfjsLib.getDocument({ data: buf }).promise; }).then(function (doc) {
+      return loadPdfJs().then(function () { return file.arrayBuffer(); }).then(function (buf) { return window.pdfjsLib.getDocument({ data: buf, isEvalSupported: false }).promise; }).then(function (doc) {
         return { pages: doc.numPages, render: function (n) {
           return doc.getPage(n).then(function (pg) {
             var v1 = pg.getViewport({ scale: 1 }), sc = Math.min(MAXPX / Math.max(v1.width, v1.height), Math.sqrt(MAXAREA / (v1.width * v1.height))), vp = pg.getViewport({ scale: sc }), c = document.createElement("canvas"); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
