@@ -674,3 +674,7 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 .rp .rp-maptab{font-size:8.5pt}.rp .rp-maptab .rpnr{font-weight:700;white-space:nowrap;width:3em}
 /* Speicherfehler über der Kartenerfassung (Statuszeile der Hauptseite ist dort verdeckt) */
 .kmsaveerr{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:2600;display:flex;align-items:center;gap:10px;max-width:min(680px,calc(100vw - 32px));padding:10px 14px;background:var(--signal-bg);color:var(--signal);border:2px solid var(--signal);border-radius:8px;font-weight:700;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+/* Hinweis: Projekt in anderem Fenster geändert */
+.tabsync{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:2600;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;max-width:min(720px,calc(100vw - 32px));padding:10px 14px;background:var(--amber-bg);color:#5c3d00;border:2px solid #8a5b00;border-radius:8px;font-weight:700;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.tabsync .tsb{display:flex;gap:6px;flex-wrap:wrap}
+@media print{.tabsync,.kmsaveerr{display:none!important}}

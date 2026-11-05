@@ -1027,23 +1027,32 @@ var KVE = (function () {
     var base = calc(P, LV), b0 = base.sum.zwischen, rows = [];
     var clone = function () { return JSON.parse(JSON.stringify(P)); };
     var delta = function (mut) { var Q = clone(); mut(Q); return r2(calc(Q, LV).sum.zwischen - b0); };
+    /* Annahme eines einzelnen Datensatzes: nur dieses Element neu rechnen, Zwischensumme wie in calc() (gleiche Summenfolge, Baustelleneinrichtung neu) – statt das ganze Projekt */
+    var deltaRec = function (tab, i, mut) {
+      var e = JSON.parse(JSON.stringify(P.recs[tab][i])); mut(e);
+      var r = calcRec(tab, e, LV, P), k = base.elems.map(function (x) { return x.tab === tab && x.idx === i ? r : x; });
+      var bs = k.reduce(function (s, x) { return s + x.sum; }, 0) + base.vor.sum, beN = baustelle(P, LV, r2(bs)), z = 0;
+      var add = function (ls) { for (var j = 0; j < ls.length; j++) z += ls[j].total; };   /* gleiche Reihenfolge wie calc(): Elemente, Vorarbeiten, Baustelleneinrichtung */
+      k.forEach(function (x) { add(x.lines); }); add(base.vor.lines); add(beN.lines);
+      return r2(r2(z) - b0);
+    };
     ["graben", "schacht", "werkloch", "fund"].forEach(function (tab) {
       ((P.recs || {})[tab] || []).forEach(function (e, i) {
         var be = base.elems.filter(function (x) { return x.tab === tab && x.idx === i; })[0];
         if (!be || !be.lines.length || (tab === "schacht" && e.modus !== "neu")) return;
         var h = e.hand || "normal", ha = h === "normal" ? "eng" : h === "eng" ? "sehr_eng" : "eng";
-        rows.push({ el: e.name, id: "a_hand", val: "o_hand_" + h, alt: "o_hand_" + ha, d: delta(function (Q) { Q.recs[tab][i].hand = ha; }) });
+        rows.push({ el: e.name, id: "a_hand", val: "o_hand_" + h, alt: "o_hand_" + ha, d: deltaRec(tab, i, function (Q) { Q.hand = ha; }) });
         if (tab === "graben") {
           if (e.umhMode === "manuell") { var u = num(e.umhArea, 0.035);
-            rows.push({ el: e.name, id: "a_umh", val: String(u) + " m²/m", alt: String(r2(u + 0.01)) + " m²/m", d: delta(function (Q) { Q.recs[tab][i].umhArea = String(u + 0.01); }) }); }
+            rows.push({ el: e.name, id: "a_umh", val: String(u) + " m²/m", alt: String(r2(u + 0.01)) + " m²/m", d: deltaRec(tab, i, function (Q) { Q.umhArea = String(u + 0.01); }) }); }
           else if (e.rohrSystem !== "block") { var uu = Math.max(5, num(e.umh, 5));
-            rows.push({ el: e.name, id: "a_umhCm", val: uu + " cm", alt: (uu + 5) + " cm", d: delta(function (Q) { Q.recs[tab][i].umh = String(uu + 5); }) }); }
+            rows.push({ el: e.name, id: "a_umhCm", val: uu + " cm", alt: (uu + 5) + " cm", d: deltaRec(tab, i, function (Q) { Q.umh = String(uu + 5); }) }); }
         } else {
           var ar = num(e.arbeit, 0.5), ara = ar >= 0.5 ? 0.75 : 0.5;
-          rows.push({ el: e.name, id: "a_arbeit", val: ar.toFixed(2) + " m", alt: ara.toFixed(2) + " m", d: delta(function (Q) { Q.recs[tab][i].arbeit = String(ara); }) });
+          rows.push({ el: e.name, id: "a_arbeit", val: ar.toFixed(2) + " m", alt: ara.toFixed(2) + " m", d: deltaRec(tab, i, function (Q) { Q.arbeit = String(ara); }) });
         }
         var dk = tab === "schacht" ? e.direkt !== false : !!e.direkt;
-        rows.push({ el: e.name, id: "a_direkt", val: dk ? "dv_ja" : "dv_nein", alt: dk ? "dv_nein" : "dv_ja", d: delta(function (Q) { Q.recs[tab][i].direkt = !dk; }) });
+        rows.push({ el: e.name, id: "a_direkt", val: dk ? "dv_ja" : "dv_nein", alt: dk ? "dv_nein" : "dv_ja", d: deltaRec(tab, i, function (Q) { Q.direkt = !dk; }) });
       });
     });
     var anyBelag = ["graben", "schacht", "werkloch", "fund"].some(function (tab) { return ((P.recs || {})[tab] || []).some(function (e) { return e.belag && e.belag.mode === "bit"; }); }) || ((P.recs || {}).belag || []).length > 0;

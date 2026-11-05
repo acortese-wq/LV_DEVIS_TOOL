@@ -301,3 +301,7 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 - **Vorher:** «1'200» wurde als 1 gerechnet (Feld rot, Hinweis falsch); eigene Preise erhielten den LV-Rabatt und konnten die Rabattstufe anheben.
 - **Nachher:** «1'200» und «1 200» = 1200 (Tool und Skill). Rabatt, Stufe und Installationspauschale nur auf LV-Positionen; eigene Preise (OFFEN mit eigenem Preis, freie Positionen ausserhalb LV) ohne Rabatt – Kostentabelle zeigt «ohne Rabatt» und «auf LV-Positionen CHF …». Excel-Kostenblatt und Offertregister rechnen mit denselben Formeln.
 - **Kostenwirkung:** nur Projekte mit Tausendertrennung in Eingaben bzw. mit eigenen Preisen. Beispielprojekt unverändert. Test t69.
+
+## Schneller bei grossen Projekten, zwei Tabs sicher (V91)
+- **Vorher:** bei 200 Datensätzen fror das Tool nach jeder Eingabe ~4 s ein; zwei offene Tabs überschrieben sich gegenseitig still.
+- **Nachher:** Ergebnis in ~0.3 s (Annahmen-Tabelle 40× schneller, Ergebnisse identisch); ein zweiter Tab übernimmt Änderungen automatisch oder fragt, wenn dort gerade gearbeitet wird. Keine Kostenwirkung. Test t70.

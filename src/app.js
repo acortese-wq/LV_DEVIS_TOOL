@@ -8,8 +8,9 @@
   if (window.__EXPIRED) return;   /* abgelaufene Weitergabe-Version: Tool nicht starten */
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
-  var chf = function (v) { return v == null ? "—" : v.toLocaleString("de-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
-  var qf = function (v) { return (v || 0).toLocaleString("de-CH", { minimumFractionDigits: 0, maximumFractionDigits: 2 }); };
+  var NF2 = new Intl.NumberFormat("de-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), NFQ = new Intl.NumberFormat("de-CH", { minimumFractionDigits: 0, maximumFractionDigits: 2 });   /* einmal anlegen: toLocaleString mit Optionen ist pro Aufruf teuer */
+  var chf = function (v) { return v == null ? "—" : NF2.format(v); };
+  var qf = function (v) { return NFQ.format(v || 0); };
   var num = KVE.num, r2 = KVE.r2;
   var S;
   var tt = function (k) { var d = T[S.lang] || T.de; return d[k] != null ? d[k] : (T.de[k] != null ? T.de[k] : k); };
@@ -44,9 +45,26 @@
   try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
   if (!S || S.v !== 2) S = defaults();
   heal();
-  var saveT;
-  function save() { clearTimeout(saveT); saveT = setTimeout(function () { var el = document.getElementById("saveState"), ok = true; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { ok = false; }
+  var saveT, savePending = false, syncHold = false;
+  function save() { savePending = true; clearTimeout(saveT); saveT = setTimeout(function () { savePending = false; var el = document.getElementById("saveState"), ok = true;
+    if (syncHold) { if (el) { el.className = "savestate no-print err"; el.textContent = tt("sy_hold"); } return; }   /* anderes Fenster hat geändert: nicht still überschreiben */
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { ok = false; }
     if (el) { var d = new Date(); el.className = "savestate no-print" + (ok ? "" : " err"); el.textContent = ok ? fill(tt("ux_saved"), { t: ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) }) : tt("ux_saveErr"); } saveErrDlg(ok); }, 300); }
+  /* Zwei Fenster/Tabs: Änderungen des anderen Fensters übernehmen (ruhig) oder bei eigener Arbeit nachfragen – nie still überschreiben */
+  window.addEventListener("storage", function (ev) {
+    if (ev.key !== KEY || ev.newValue == null || ev.newValue === JSON.stringify(S)) return;
+    var busy = savePending || !!document.querySelector("dialog[open]");
+    if (!busy) { var n; try { n = JSON.parse(ev.newValue); } catch (e) { return; } if (!n || n.v !== 2) return; var lg = S.lang, ui = S.ui, tb = S.tab, ix = S.idx; S = n; S.lang = lg; if (ui) S.ui = ui; S.tab = tb; Object.keys(ix || {}).forEach(function (t) { if (S.recs[t] && ix[t] < S.recs[t].length) S.idx[t] = ix[t]; }); heal(); applyKopf(); applyLang(); return; }   /* eigene Ansicht (Sprache, Reiter, Auswahl) bleibt */
+    syncHold = true; var b = document.querySelector(".tabsync");
+    if (b) return; b = document.createElement("div"); b.className = "tabsync"; b.setAttribute("role", "alert");
+    b.innerHTML = "<span>" + esc(tt("sy_msg")) + '</span><span class="tsb"><button type="button" class="btn small" data-sy="load">' + esc(tt("sy_load")) + '</button><button type="button" class="btn ghost small" data-sy="keep">' + esc(tt("sy_keep")) + "</button></span>";
+    b.addEventListener("click", function (e) { var t = e.target.closest("[data-sy]"); if (!t) return; if (t.dataset.sy === "load") { location.reload(); return; } syncHold = false; b.remove(); save(); });
+    (function place() {   /* im obersten offenen Dialog zeigen (sonst verdeckt); schliesst er, wandert der Hinweis weiter */
+      var ds = document.querySelectorAll("dialog[open]"), d = ds[ds.length - 1];
+      if (!b.isConnected && !syncHold) return; (d || document.body).appendChild(b);
+      if (d) d.addEventListener("close", function () { setTimeout(function () { if (syncHold) place(); }, 0); }, { once: true });
+    })();
+  });
   function saveErrDlg(ok) {   /* Speicherfehler auch über der Kartenerfassung zeigen (dort ist die Statuszeile verdeckt) */
     document.querySelectorAll(".kmsaveerr").forEach(function (b) { if (ok) b.remove(); }); if (ok) return;
     var dl = document.querySelector("dialog.kmdlg[open]"); if (!dl || dl.querySelector(".kmsaveerr")) return;

@@ -1281,6 +1281,10 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 .rp .rp-maptab{font-size:8.5pt}.rp .rp-maptab .rpnr{font-weight:700;white-space:nowrap;width:3em}
 /* Speicherfehler über der Kartenerfassung (Statuszeile der Hauptseite ist dort verdeckt) */
 .kmsaveerr{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:2600;display:flex;align-items:center;gap:10px;max-width:min(680px,calc(100vw - 32px));padding:10px 14px;background:var(--signal-bg);color:var(--signal);border:2px solid var(--signal);border-radius:8px;font-weight:700;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+/* Hinweis: Projekt in anderem Fenster geändert */
+.tabsync{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:2600;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;max-width:min(720px,calc(100vw - 32px));padding:10px 14px;background:var(--amber-bg);color:#5c3d00;border:2px solid #8a5b00;border-radius:8px;font-weight:700;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.tabsync .tsb{display:flex;gap:6px;flex-wrap:wrap}
+@media print{.tabsync,.kmsaveerr{display:none!important}}
 
 </style>
 </head>
@@ -2791,6 +2795,10 @@ Object.assign(TS.it,{
     ux_numBad: ["Keine gültige Zahl – bitte z. B. 12.5 oder 1'200 eingeben. So wird nicht korrekt gerechnet.", "Nombre non valide – saisir p. ex. 12.5 ou 1'200. Le calcul n’est pas correct ainsi.", "Numero non valido – inserire p. es. 12.5 o 1'200. Così il calcolo non è corretto.", "Not a valid number – enter e.g. 12.5 or 1'200. The calculation is not correct like this."],
     ux_saved: ["✓ Automatisch gespeichert um {t} – nur in diesem Browser. Für Weitergabe oder Archiv «Sichern» verwenden.", "✓ Enregistré automatiquement à {t} – uniquement dans ce navigateur. Pour transmettre ou archiver, utiliser «Sauvegarder».", "✓ Salvato automaticamente alle {t} – solo in questo browser. Per inoltrare o archiviare usare «Salva».", "✓ Saved automatically at {t} – in this browser only. Use “Save” to share or archive."],
     ux_saveErr: ["⚠ Automatisches Speichern nicht möglich – bitte «Sichern» verwenden, sonst gehen Eingaben verloren.", "⚠ Enregistrement automatique impossible – utiliser «Sauvegarder», sinon les saisies seront perdues.", "⚠ Salvataggio automatico non possibile – usare «Salva», altrimenti i dati vanno persi.", "⚠ Automatic saving failed – use “Save” or your entries will be lost."],
+    sy_msg: ["Das Projekt wurde in einem anderen Fenster oder Tab geändert. Hier wird vorerst nicht gespeichert.", "Le projet a été modifié dans une autre fenêtre ou un autre onglet. L’enregistrement est suspendu ici.", "Il progetto è stato modificato in un’altra finestra o scheda. Qui il salvataggio è sospeso.", "The project was changed in another window or tab. Saving is paused here."],
+    sy_load: ["Stand des anderen Fensters laden", "Charger l’état de l’autre fenêtre", "Caricare lo stato dell’altra finestra", "Load the other window’s state"],
+    sy_keep: ["Hier weiterarbeiten (anderes überschreiben)", "Continuer ici (écraser l’autre)", "Continuare qui (sovrascrivere l’altro)", "Keep working here (overwrite the other)"],
+    sy_hold: ["⚠ Nicht gespeichert – Projekt in anderem Fenster geändert, bitte oben wählen.", "⚠ Non enregistré – projet modifié dans une autre fenêtre, choisir ci-dessus.", "⚠ Non salvato – progetto modificato in un’altra finestra, scegliere sopra.", "⚠ Not saved – project changed in another window, please choose above."],
     ld_conf: ["Aktuelles Projekt durch die Datei ersetzen? Tipp: vorher mit «Sichern» eine Kopie speichern. Nach dem Laden kann es rückgängig gemacht werden.", "Remplacer le projet actuel par le fichier ? Conseil : enregistrer d’abord une copie avec « Sauvegarder ». Le chargement peut être annulé.", "Sostituire il progetto attuale con il file? Consiglio: prima salvare una copia con «Salva». Il caricamento si può annullare.", "Replace the current project with the file? Tip: save a copy with “Save” first. Loading can be undone."],
     ld_bad: ["Die Datei ist keine gültige LV-Devis-Sicherung (Datensätze fehlen oder sind beschädigt). Das Projekt bleibt unverändert.", "Le fichier n’est pas une sauvegarde LV-Devis valide (fiches manquantes ou endommagées). Le projet reste inchangé.", "Il file non è un salvataggio LV-Devis valido (schede mancanti o danneggiate). Il progetto resta invariato.", "The file is not a valid LV-Devis backup (records missing or damaged). The project is unchanged."],
     ld_done: ["Projekt aus Datei geladen.", "Projet chargé depuis le fichier.", "Progetto caricato dal file.", "Project loaded from file."],
@@ -4890,23 +4898,32 @@ var KVE = (function () {
     var base = calc(P, LV), b0 = base.sum.zwischen, rows = [];
     var clone = function () { return JSON.parse(JSON.stringify(P)); };
     var delta = function (mut) { var Q = clone(); mut(Q); return r2(calc(Q, LV).sum.zwischen - b0); };
+    /* Annahme eines einzelnen Datensatzes: nur dieses Element neu rechnen, Zwischensumme wie in calc() (gleiche Summenfolge, Baustelleneinrichtung neu) – statt das ganze Projekt */
+    var deltaRec = function (tab, i, mut) {
+      var e = JSON.parse(JSON.stringify(P.recs[tab][i])); mut(e);
+      var r = calcRec(tab, e, LV, P), k = base.elems.map(function (x) { return x.tab === tab && x.idx === i ? r : x; });
+      var bs = k.reduce(function (s, x) { return s + x.sum; }, 0) + base.vor.sum, beN = baustelle(P, LV, r2(bs)), z = 0;
+      var add = function (ls) { for (var j = 0; j < ls.length; j++) z += ls[j].total; };   /* gleiche Reihenfolge wie calc(): Elemente, Vorarbeiten, Baustelleneinrichtung */
+      k.forEach(function (x) { add(x.lines); }); add(base.vor.lines); add(beN.lines);
+      return r2(r2(z) - b0);
+    };
     ["graben", "schacht", "werkloch", "fund"].forEach(function (tab) {
       ((P.recs || {})[tab] || []).forEach(function (e, i) {
         var be = base.elems.filter(function (x) { return x.tab === tab && x.idx === i; })[0];
         if (!be || !be.lines.length || (tab === "schacht" && e.modus !== "neu")) return;
         var h = e.hand || "normal", ha = h === "normal" ? "eng" : h === "eng" ? "sehr_eng" : "eng";
-        rows.push({ el: e.name, id: "a_hand", val: "o_hand_" + h, alt: "o_hand_" + ha, d: delta(function (Q) { Q.recs[tab][i].hand = ha; }) });
+        rows.push({ el: e.name, id: "a_hand", val: "o_hand_" + h, alt: "o_hand_" + ha, d: deltaRec(tab, i, function (Q) { Q.hand = ha; }) });
         if (tab === "graben") {
           if (e.umhMode === "manuell") { var u = num(e.umhArea, 0.035);
-            rows.push({ el: e.name, id: "a_umh", val: String(u) + " m²/m", alt: String(r2(u + 0.01)) + " m²/m", d: delta(function (Q) { Q.recs[tab][i].umhArea = String(u + 0.01); }) }); }
+            rows.push({ el: e.name, id: "a_umh", val: String(u) + " m²/m", alt: String(r2(u + 0.01)) + " m²/m", d: deltaRec(tab, i, function (Q) { Q.umhArea = String(u + 0.01); }) }); }
           else if (e.rohrSystem !== "block") { var uu = Math.max(5, num(e.umh, 5));
-            rows.push({ el: e.name, id: "a_umhCm", val: uu + " cm", alt: (uu + 5) + " cm", d: delta(function (Q) { Q.recs[tab][i].umh = String(uu + 5); }) }); }
+            rows.push({ el: e.name, id: "a_umhCm", val: uu + " cm", alt: (uu + 5) + " cm", d: deltaRec(tab, i, function (Q) { Q.umh = String(uu + 5); }) }); }
         } else {
           var ar = num(e.arbeit, 0.5), ara = ar >= 0.5 ? 0.75 : 0.5;
-          rows.push({ el: e.name, id: "a_arbeit", val: ar.toFixed(2) + " m", alt: ara.toFixed(2) + " m", d: delta(function (Q) { Q.recs[tab][i].arbeit = String(ara); }) });
+          rows.push({ el: e.name, id: "a_arbeit", val: ar.toFixed(2) + " m", alt: ara.toFixed(2) + " m", d: deltaRec(tab, i, function (Q) { Q.arbeit = String(ara); }) });
         }
         var dk = tab === "schacht" ? e.direkt !== false : !!e.direkt;
-        rows.push({ el: e.name, id: "a_direkt", val: dk ? "dv_ja" : "dv_nein", alt: dk ? "dv_nein" : "dv_ja", d: delta(function (Q) { Q.recs[tab][i].direkt = !dk; }) });
+        rows.push({ el: e.name, id: "a_direkt", val: dk ? "dv_ja" : "dv_nein", alt: dk ? "dv_nein" : "dv_ja", d: deltaRec(tab, i, function (Q) { Q.direkt = !dk; }) });
       });
     });
     var anyBelag = ["graben", "schacht", "werkloch", "fund"].some(function (tab) { return ((P.recs || {})[tab] || []).some(function (e) { return e.belag && e.belag.mode === "bit"; }); }) || ((P.recs || {}).belag || []).length > 0;
@@ -7807,8 +7824,9 @@ var FIG = (function () {
   if (window.__EXPIRED) return;   /* abgelaufene Weitergabe-Version: Tool nicht starten */
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
-  var chf = function (v) { return v == null ? "—" : v.toLocaleString("de-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
-  var qf = function (v) { return (v || 0).toLocaleString("de-CH", { minimumFractionDigits: 0, maximumFractionDigits: 2 }); };
+  var NF2 = new Intl.NumberFormat("de-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), NFQ = new Intl.NumberFormat("de-CH", { minimumFractionDigits: 0, maximumFractionDigits: 2 });   /* einmal anlegen: toLocaleString mit Optionen ist pro Aufruf teuer */
+  var chf = function (v) { return v == null ? "—" : NF2.format(v); };
+  var qf = function (v) { return NFQ.format(v || 0); };
   var num = KVE.num, r2 = KVE.r2;
   var S;
   var tt = function (k) { var d = T[S.lang] || T.de; return d[k] != null ? d[k] : (T.de[k] != null ? T.de[k] : k); };
@@ -7843,9 +7861,26 @@ var FIG = (function () {
   try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
   if (!S || S.v !== 2) S = defaults();
   heal();
-  var saveT;
-  function save() { clearTimeout(saveT); saveT = setTimeout(function () { var el = document.getElementById("saveState"), ok = true; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { ok = false; }
+  var saveT, savePending = false, syncHold = false;
+  function save() { savePending = true; clearTimeout(saveT); saveT = setTimeout(function () { savePending = false; var el = document.getElementById("saveState"), ok = true;
+    if (syncHold) { if (el) { el.className = "savestate no-print err"; el.textContent = tt("sy_hold"); } return; }   /* anderes Fenster hat geändert: nicht still überschreiben */
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { ok = false; }
     if (el) { var d = new Date(); el.className = "savestate no-print" + (ok ? "" : " err"); el.textContent = ok ? fill(tt("ux_saved"), { t: ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) }) : tt("ux_saveErr"); } saveErrDlg(ok); }, 300); }
+  /* Zwei Fenster/Tabs: Änderungen des anderen Fensters übernehmen (ruhig) oder bei eigener Arbeit nachfragen – nie still überschreiben */
+  window.addEventListener("storage", function (ev) {
+    if (ev.key !== KEY || ev.newValue == null || ev.newValue === JSON.stringify(S)) return;
+    var busy = savePending || !!document.querySelector("dialog[open]");
+    if (!busy) { var n; try { n = JSON.parse(ev.newValue); } catch (e) { return; } if (!n || n.v !== 2) return; var lg = S.lang, ui = S.ui, tb = S.tab, ix = S.idx; S = n; S.lang = lg; if (ui) S.ui = ui; S.tab = tb; Object.keys(ix || {}).forEach(function (t) { if (S.recs[t] && ix[t] < S.recs[t].length) S.idx[t] = ix[t]; }); heal(); applyKopf(); applyLang(); return; }   /* eigene Ansicht (Sprache, Reiter, Auswahl) bleibt */
+    syncHold = true; var b = document.querySelector(".tabsync");
+    if (b) return; b = document.createElement("div"); b.className = "tabsync"; b.setAttribute("role", "alert");
+    b.innerHTML = "<span>" + esc(tt("sy_msg")) + '</span><span class="tsb"><button type="button" class="btn small" data-sy="load">' + esc(tt("sy_load")) + '</button><button type="button" class="btn ghost small" data-sy="keep">' + esc(tt("sy_keep")) + "</button></span>";
+    b.addEventListener("click", function (e) { var t = e.target.closest("[data-sy]"); if (!t) return; if (t.dataset.sy === "load") { location.reload(); return; } syncHold = false; b.remove(); save(); });
+    (function place() {   /* im obersten offenen Dialog zeigen (sonst verdeckt); schliesst er, wandert der Hinweis weiter */
+      var ds = document.querySelectorAll("dialog[open]"), d = ds[ds.length - 1];
+      if (!b.isConnected && !syncHold) return; (d || document.body).appendChild(b);
+      if (d) d.addEventListener("close", function () { setTimeout(function () { if (syncHold) place(); }, 0); }, { once: true });
+    })();
+  });
   function saveErrDlg(ok) {   /* Speicherfehler auch über der Kartenerfassung zeigen (dort ist die Statuszeile verdeckt) */
     document.querySelectorAll(".kmsaveerr").forEach(function (b) { if (ok) b.remove(); }); if (ok) return;
     var dl = document.querySelector("dialog.kmdlg[open]"); if (!dl || dl.querySelector(".kmsaveerr")) return;

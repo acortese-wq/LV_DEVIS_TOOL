@@ -139,6 +139,11 @@ Honorar SIA 103 im Detail, französische/italienische Texte, Geometrie-Funktione
 - Nicht geändert: geänderte Einheitspreise von LV-Positionen («EP geändert») und Pauschalen (Kleinmaterial, Akkordarbeiten) erhalten weiterhin Rabatt; die Baustelleneinrichtung in % rechnet weiterhin auf alle Positionen.
 - Skill-Vergleich 0 Abweichungen (300 Zufallsprojekte, neu auch mit Tausendertrennung); Test t69 (Excel mit LibreOffice neu gerechnet).
 
+## Umsetzung Paket 3 (V91, 05.11.2026) – ohne Kostenwirkung
+- **Nr. 8 behoben (Performance):** Die Annahmen-Tabelle rechnet je Annahme nur das betroffene Element neu (Zwischensumme in derselben Reihenfolge wie `calc()`, Baustelleneinrichtung neu) – Ergebnisse identisch (300 Zufallsprojekte, 2'040 Annahmen, 0 Abweichungen). Zahlenformat einmal angelegt statt bei jeder Zahl. Messung 200 Datensätze: Ergebnis **3'951 → 333 ms**, Annahmen **2'554 → 59 ms**, Excel **2'590 → 133 ms**.
+- **Nr. 5 behoben (zwei Tabs):** Ein ruhender Tab übernimmt Änderungen aus dem anderen sofort (eigene Ansicht bleibt). Arbeitet man gerade im Tab (offener Dialog, ungespeicherte Eingabe), erscheint ein Hinweis «in anderem Fenster geändert» mit «Stand des anderen Fensters laden» oder «Hier weiterarbeiten»; bis zur Wahl wird nichts überschrieben.
+- Test t70.
+
 ## Vorschlag für die Reihenfolge
 1. **Sofort, ohne Kostenwirkung:** Nr. 1 (eine Zeile), Nr. 3, Nr. 4, Nr. 10.
 2. **Nach deinem Entscheid:** Nr. 2 (Apostroph akzeptieren), Nr. 6 und Nr. 7 (gegen LV-Text prüfen) – alle mit Kostenwirkung, Kernel und Skill gemeinsam.
