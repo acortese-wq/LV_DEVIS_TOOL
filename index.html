@@ -1262,6 +1262,17 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 .kmlya .chfab{top:66px;right:14px}.kmlya .chpan{top:112px}
 .kmlya .lydpan{max-height:min(26vh,240px)}
 .kmdlg.kmlya .kmbottom{padding:4px 14px;gap:4px 12px}.kmdlg.kmlya .kmbottom .btn{min-height:30px;padding:3px 9px;font-size:12.5px}.kmdlg.kmlya .kmbottom select{min-height:30px;font-size:12.5px}
+.kmlya .lybase{position:absolute;top:10px;right:10px;z-index:1000;display:flex;background:var(--paper);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.18);padding:3px;gap:2px}
+.kmlya .lybase .btn{min-height:32px;border-radius:6px}.kmlya .lybase [aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+/* Werkzeug-Symbole (nur Darstellung, für Screenreader ausgeblendet) */
+.kmlya .kmtools [data-k]::before{display:inline-block;width:1.4em;flex:none;text-align:center;font-weight:400;color:currentColor;content:"" / ""}
+.kmlya .kmtools [data-k=medit]::before{content:"✥" / ""}.kmlya .kmtools [data-k=mline]::before{content:"╱" / ""}.kmlya .kmtools [data-k=mpt]::before{content:"▣" / ""}
+.kmlya .kmtools [data-k=mwl]::before{content:"◫" / ""}.kmlya .kmtools [data-k=mgeb]::before{content:"⌂" / ""}.kmlya .kmtools [data-k=route]::before{content:"↝" / ""}
+.kmlya .kmtools [data-k=msond]::before{content:"◎" / ""}.kmlya .kmtools [data-k=marea]::before{content:"▱" / ""}.kmlya .kmtools [data-k=mtext]::before{content:"T" / ""}
+.kmlya .kmtools [data-k=marrow]::before{content:"→" / ""}.kmlya .kmtools [data-k=msline]::before{content:"─" / ""}.kmlya .kmtools [data-k=mrect]::before{content:"▭" / ""}
+.kmlya .kmtools [data-k=mruler]::before{content:"⟷" / ""}.kmlya .kmtools [data-k=undo]::before{content:"↶" / ""}.kmlya .kmtools [data-k=redo]::before{content:"↷" / ""}
+.kmlya .kmtools [data-k=end]::before{content:"✓" / ""}.kmlya .kmtools [data-k=clear]::before{content:"✕" / ""}
+.kmlya .kmtools .btn[data-k]{display:flex;align-items:center;gap:2px}
 
 </style>
 </head>
@@ -3195,6 +3206,10 @@ Object.assign(TS.it,{
     ly_cTot: ["Betrag CHF", "Montant CHF", "Importo CHF", "Amount CHF"],
     ly_ausNone: ["Noch keine Mengen – Graben oder Schacht auf der Karte zeichnen und übernehmen.", "Pas encore de quantités – dessiner et reprendre une fouille ou une chambre.", "Nessuna quantità – disegnare e riprendere uno scavo o un pozzetto.", "No quantities yet – draw and apply a trench or manhole."],
     ly_warnNone: ["Keine Hinweise.", "Aucune remarque.", "Nessun avviso.", "No notes."],
+    ly_bFarbe: ["Landeskarte", "Carte nationale", "Carta nazionale", "National map"],
+    ly_bGrau: ["Grau", "Gris", "Grigio", "Grey"],
+    ly_bLuft: ["Luftbild", "Photo aérienne", "Foto aerea", "Aerial"],
+    ly_bKat: ["Parzellen", "Parcelles", "Particelle", "Parcels"],
     rp_t_erf: ["Eigene Preise (ausserhalb LV)", "Prix propres (hors LV)", "Prezzi propri (fuori LV)", "Own prices (outside LV)"],
     rp_t_off: ["Offene Positionen (nicht im Total)", "Positions ouvertes (pas dans le total)", "Posizioni aperte (non nel totale)", "Open items (not in total)"],
     rp_u_pos: ["Pos.", "pos.", "pos.", "items"],
@@ -5998,6 +6013,8 @@ var FIG = (function () {
           '<button type="button" class="btn ghost small lydcol" data-dcol aria-expanded="true">' + esc(tt("ly_dCol")) + "</button></div>" +
           DT.map(function (d) { return '<div class="lydpan" role="tabpanel" id="lyP_' + d[0] + '" aria-labelledby="lyT_' + d[0] + '"' + (d[0] === "prof" ? "" : ' tabindex="0"') + " hidden>" + (d[0] === "prof" ? "" : '<p class="hint">' + esc(tt("km_loading")) + "</p>") + "</div>"; }).join("");
         dlg.insertBefore(dock, bottom);
+        var lb = E("div", "lybase"); lb.setAttribute("role", "group"); lb.setAttribute("aria-label", tt("km_src"));   /* Kartenauswahl direkt auf der Karte */
+        lb.innerHTML = [["farbe", "ly_bFarbe"], ["grau", "ly_bGrau"], ["luft", "ly_bLuft"], ["kataster", "ly_bKat"]].map(function (a) { return '<button type="button" class="btn ghost small" data-lyb="' + a[0] + '" aria-pressed="false">' + esc(tt(a[1])) + "</button>"; }).join(""); canvas.appendChild(lb);
         var pf = dlg.querySelector("#kmProf"); if (pf) { dock.querySelector("#lyP_prof").appendChild(pf); var pn = E("p", "hint lypfh", esc(tt("ly_profHint"))); pn.id = "lyPfH"; dock.querySelector("#lyP_prof").insertBefore(pn, pf); }
       })();
       dlg.appendChild(E("p", "kmcred", "<b>" + esc(tt("km_cred")) + "</b> · " + esc(tt("km_cred2")))); head.appendChild(E("p", "kmcred kmcred-h", "<b>" + esc(tt("km_cred")) + "</b> · " + esc(tt("km_cred2"))));   /* Urheberhinweis: in der Kartenerfassung immer sichtbar */
@@ -7431,9 +7448,10 @@ var FIG = (function () {
       var kc = function (lab, val, cls) { return '<div class="lyc' + (cls ? " " + cls : "") + '"><span class="lyk">' + esc(lab) + "</span><b>" + val + "</b></div>"; };
       k.innerHTML = kc(tt("ly_kLen"), esc(fmt(len)) + " m") + kc(tt("ly_kAus"), ly ? esc(fmt(ly.V)) + " m³" : "–") + kc(tt("ly_kSch"), String(M.pts.length)) +
         kc(tt("ly_kNet"), v && v.n != null ? "CHF " + f0(v.n) : "–", "lymain") + kc(tt("ly_kBru"), v && v.b != null ? "CHF " + f0(v.b) : "–") + (v && v.o ? '<span class="lyoffb">⚠ ' + esc(tt("km_costOff").replace("{n}", v.o)) + "</span>" : "");
-      var st = $("#lySt"); if (st) { var sk = ly ? ly.st : "empty"; st.className = "lyst lyst-" + sk; st.textContent = tt("ly_st_" + sk); }
+      lyBase(); var st = $("#lySt"); if (st) { var sk = ly ? ly.st : "empty"; st.className = "lyst lyst-" + sk; st.textContent = tt("ly_st_" + sk); }
       if (ly) { ["aus", "kost", "pos", "warn"].forEach(function (t) { var p = $("#lyP_" + t); if (p) p.innerHTML = ly[t]; }); var cp = dlg.querySelector('[data-cnt="pos"]'), cw = dlg.querySelector('[data-cnt="warn"]'); if (cp) cp.textContent = ly.nPos ? "(" + ly.nPos + ")" : ""; if (cw) cw.textContent = ly.nWarn ? "(" + ly.nWarn + ")" : ""; }
     }
+    function lyBase() { dlg.querySelectorAll("[data-lyb]").forEach(function (x) { x.setAttribute("aria-pressed", x.getAttribute("data-lyb") === base ? "true" : "false"); }); }
     function lyDock() {
       var c = lyD.c; dlg.querySelectorAll(".lydtabs [role=tab]").forEach(function (b) { var on = b.getAttribute("data-dt") === lyD.t; b.setAttribute("aria-selected", on ? "true" : "false"); b.tabIndex = on ? 0 : -1; });
       dlg.querySelectorAll(".lydpan").forEach(function (p) { p.hidden = c || p.id !== "lyP_" + lyD.t; });
@@ -7451,6 +7469,7 @@ var FIG = (function () {
     }
     function lyClick(b) {
       if (b.hasAttribute("data-ly")) return lyGo(b.getAttribute("data-ly"));
+      if (b.hasAttribute("data-lyb")) { var nb0 = b.getAttribute("data-lyb"); if (nb0 !== base) { base = nb0; fillBase(); try { localStorage.setItem("lvd-km-base", nb0); } catch (x) { } setBase(nb0); } return lyBase(); }
       if (b.hasAttribute("data-dt")) { var t = b.getAttribute("data-dt"); if (lyD.t === t && !lyD.c) lyD.c = true; else { lyD.t = t; lyD.c = false; } return lyDock(); }
       if (b.hasAttribute("data-dcol")) { lyD.c = !lyD.c; return lyDock(); }
       var a = $("#lyAsk"), t2 = a ? a.getAttribute("data-t") : "proj", w = b.getAttribute("data-lya");
@@ -7513,7 +7532,7 @@ var FIG = (function () {
     dlg.addEventListener("change", function (e) { var ha = e.target.closest("[data-hz=auto]"); if (ha) { HZAUTO = ha.checked; try { localStorage.setItem("lvd-km-hzauto", HZAUTO ? "1" : "0"); } catch (x) { } if (HZAUTO) { hzSkip = {}; hzSeed(); } return; } var hm = e.target.closest("[data-hz=mode]"); if (hm) { SLOPE = hm.checked; try { localStorage.setItem("lvd-km-slope", SLOPE ? "1" : "0"); } catch (x) { } refresh(); return; } var t = e.target.closest("[data-rc]"); if (!t) return; RC[t.dataset.rc] = t.value; try { localStorage.setItem("lvd-km-rc", JSON.stringify(RC)); } catch (x) { } sugs = []; sugDraw(); sugRender(); rcRender(); });
     dlg.addEventListener("click", function (e) {
       var pb = e.target.closest("[data-prov]");
-      if (LY) { var lyb = e.target.closest("[data-ly],[data-lya],[data-dt],[data-dcol]"); if (lyb) { lyClick(lyb); return; } }
+      if (LY) { var lyb = e.target.closest("[data-ly],[data-lya],[data-dt],[data-dcol],[data-lyb]"); if (lyb) { lyClick(lyb); return; } }
       if (pb) { var nb = PROV[pb.dataset.prov][0][0]; if (provOf(base) !== pb.dataset.prov) { base = nb; fillBase(); try { localStorage.setItem("lvd-km-base", nb); } catch (x) { } setBase(nb); } return; }
       var ob = e.target.closest("[data-ov]");
       if (ob && ovl !== undefined) {

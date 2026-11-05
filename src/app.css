@@ -655,3 +655,14 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 .kmlya .chfab{top:66px;right:14px}.kmlya .chpan{top:112px}
 .kmlya .lydpan{max-height:min(26vh,240px)}
 .kmdlg.kmlya .kmbottom{padding:4px 14px;gap:4px 12px}.kmdlg.kmlya .kmbottom .btn{min-height:30px;padding:3px 9px;font-size:12.5px}.kmdlg.kmlya .kmbottom select{min-height:30px;font-size:12.5px}
+.kmlya .lybase{position:absolute;top:10px;right:10px;z-index:1000;display:flex;background:var(--paper);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.18);padding:3px;gap:2px}
+.kmlya .lybase .btn{min-height:32px;border-radius:6px}.kmlya .lybase [aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+/* Werkzeug-Symbole (nur Darstellung, für Screenreader ausgeblendet) */
+.kmlya .kmtools [data-k]::before{display:inline-block;width:1.4em;flex:none;text-align:center;font-weight:400;color:currentColor;content:"" / ""}
+.kmlya .kmtools [data-k=medit]::before{content:"✥" / ""}.kmlya .kmtools [data-k=mline]::before{content:"╱" / ""}.kmlya .kmtools [data-k=mpt]::before{content:"▣" / ""}
+.kmlya .kmtools [data-k=mwl]::before{content:"◫" / ""}.kmlya .kmtools [data-k=mgeb]::before{content:"⌂" / ""}.kmlya .kmtools [data-k=route]::before{content:"↝" / ""}
+.kmlya .kmtools [data-k=msond]::before{content:"◎" / ""}.kmlya .kmtools [data-k=marea]::before{content:"▱" / ""}.kmlya .kmtools [data-k=mtext]::before{content:"T" / ""}
+.kmlya .kmtools [data-k=marrow]::before{content:"→" / ""}.kmlya .kmtools [data-k=msline]::before{content:"─" / ""}.kmlya .kmtools [data-k=mrect]::before{content:"▭" / ""}
+.kmlya .kmtools [data-k=mruler]::before{content:"⟷" / ""}.kmlya .kmtools [data-k=undo]::before{content:"↶" / ""}.kmlya .kmtools [data-k=redo]::before{content:"↷" / ""}
+.kmlya .kmtools [data-k=end]::before{content:"✓" / ""}.kmlya .kmtools [data-k=clear]::before{content:"✕" / ""}
+.kmlya .kmtools .btn[data-k]{display:flex;align-items:center;gap:2px}

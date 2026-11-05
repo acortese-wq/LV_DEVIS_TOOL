@@ -37,4 +37,5 @@ Vom Benutzer am 05.11.2026 festgelegt (Masterprompt «Four Live Layouts», Refer
 - **Technik:** bestehende Technik behalten (Vanilla-JS, Leaflet, Einzeldatei), keine Migration. Rechenkern unverändert; Kosten vor/nach identisch.
 - **Arbeitsweise:** kurze Bestandsaufnahme, nötige Teile des Designsystems, dann Umbau; nach jedem grösseren Schritt Tests (`node tests/run.js`), Commit/Push auf `layout-a`.
 - **Veröffentlichung:** separates Vorschau-Artefakt (nicht die Haupt-Artefakt-URL); `claude/dreamy-cray-x10m0g`, GitHub Pages und Haupt-Artefakt bleiben unverändert. Am Schluss Pull Request von `layout-a` nach `claude/dreamy-cray-x10m0g`.
+- **Stand:** umgesetzt (siehe `docs/LAYOUT_A.md`), Test `t65`. Einstellung `lvd-layout` (`a`/`classic`); die Testhilfe `tests/lib/k.js` belegt `classic` vor, damit ältere Tests auf der klassischen Seite starten.
 - **Offen:** Layout B – Reserve/Zuschläge (nicht Teil von Layout A).
