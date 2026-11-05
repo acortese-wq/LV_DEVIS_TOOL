@@ -25,7 +25,7 @@ var KVE = (function () {
   };
 
   var r2 = function (x) { return Math.round((x + 1e-9) * 100) / 100; };
-  var num = function (v, d) { v = parseFloat(String(v).replace(",", ".")); return isFinite(v) ? v : (d || 0); };
+  var num = function (v, d) { v = parseFloat(String(v).replace(/['’\s]/g, "").replace(",", ".")); return isFinite(v) ? v : (d || 0); };   /* «1'200» und «1 200» = 1200 */
   var s2 = function (x) { return String(r2(x)); };     // Zahl für den Rechenweg
   var dens = ASPHALT_T;
 
@@ -1007,11 +1007,12 @@ var KVE = (function () {
       .sort(function (a, b) { return a.key < b.key ? -1 : a.key > b.key ? 1 : 0; });
     out.nOffen = all.filter(function (l) { return l.open; }).length;
     var zw = r2(all.reduce(function (s, l) { return s + l.total; }, 0));
-    var st = STAFFEL.filter(function (s) { return zw <= s.bis; })[0];
+    var eig = r2(all.filter(function (l) { return l.flag === "erfasst" || l.flag === "ausserLV"; }).reduce(function (s, l) { return s + l.total; }, 0)), lvz = r2(zw - eig);   /* eigene Preise: kein LV-Rabatt, keine Stufe */
+    var st = STAFFEL.filter(function (s) { return lvz <= s.bis; })[0];
     var idx = STAFFEL.indexOf(st);
     var mwSatz = num(P.mwst, MWST * 100) / 100;
-    var rabatt = r2(zw * st.pct / 100), nach = r2(zw - rabatt), inst = zw > 0 ? st.inst : 0, netto = r2(nach + inst), mw = r2(netto * mwSatz);
-    out.sum = { zwischen: zw, stufe: idx + 1, pct: st.pct, rabatt: rabatt, nachRabatt: nach,
+    var rabatt = r2(lvz * st.pct / 100), nach = r2(zw - rabatt), inst = lvz > 0 ? st.inst : 0, netto = r2(nach + inst), mw = r2(netto * mwSatz);
+    out.sum = { zwischen: zw, eigen: eig, rabattBasis: lvz, stufe: idx + 1, pct: st.pct, rabatt: rabatt, nachRabatt: nach,
                 inst: inst, netto: netto, mwst: mw, mwSatz: mwSatz, brutto: r2(netto + mw),
                 belag: r2(all.filter(function (l) { return l.ks === "Belag"; }).reduce(function (s, l) { return s + l.total; }, 0)) };
     out.elems.forEach(function (e) { out.warn = out.warn.concat(e.warn.map(function (w) { w.el = e.name; w.tab = e.tab; w.idx = e.idx; return w; })); });

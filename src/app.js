@@ -1161,11 +1161,11 @@
   }
   /* Kostentabelle (Ergebnis, Bericht-Vorschau, Layout-A-Dock): identische Darstellung */
   function kostTable(out) {
-    var s = out.sum, erfL = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst") erfL.push(l); }); }); var sErf = r2(erfL.reduce(function (a, l) { return a + l.total; }, 0));
+    var s = out.sum, erfL = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst" || l.flag === "ausserLV") erfL.push(l); }); });   /* eigene Preise: ohne LV-Rabatt */ var sErf = r2(erfL.reduce(function (a, l) { return a + l.total; }, 0));
     return "<h3>" + esc(tt("h_kosten")) + '</h3><table class="cost"><tbody><tr><td>' + esc(tt("k_zw")) + '</td><td class="num">' + chf(s.zwischen) + "</td></tr>" +
         (erfL.length ? '<tr class="sub kerf"><td>' + esc(fill(tt("k_erf"), { n: erfL.length })) + '</td><td class="num">' + chf(sErf) + "</td></tr>" : "") +
         (s.belag ? '<tr class="sub"><td>' + esc(tt("k_belagKS")) + '</td><td class="num">' + chf(s.belag) + "</td></tr>" : "") +
-        "<tr><td>" + esc(fill(tt("k_rabatt"), { s: s.stufe, p: s.pct })) + '</td><td class="num">− ' + chf(s.rabatt) + "</td></tr><tr><td>" + esc(tt("k_nach")) + '</td><td class="num">' + chf(s.nachRabatt) + "</td></tr>" +
+        "<tr><td>" + esc(fill(tt("k_rabatt"), { s: s.stufe, p: s.pct })) + (s.eigen ? " " + esc(fill(tt("k_rabattLV"), { b: chf(s.rabattBasis) })) : "") + '</td><td class="num">− ' + chf(s.rabatt) + "</td></tr><tr><td>" + esc(tt("k_nach")) + '</td><td class="num">' + chf(s.nachRabatt) + "</td></tr>" +
         "<tr><td>" + esc(tt("k_inst")) + '</td><td class="num">+ ' + chf(s.inst) + '</td></tr><tr class="sub"><td>' + esc(tt("k_netto")) + '</td><td class="num">' + chf(s.netto) + "</td></tr>" +
         "<tr><td>" + esc(mwLab(s.mwSatz * 100)) + '</td><td class="num">' + chf(s.mwst) + '</td></tr><tr class="sum"><td>' + esc(tt("k_brutto")) + '</td><td class="num">' + chf(s.brutto) + "</td></tr>" +
         (out.nOffen ? '<tr class="koffen"><td>⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + '</td><td class="num">' + esc(tt("k_offenV")) + "</td></tr>" : "") + "</tbody></table>";
@@ -1387,7 +1387,7 @@
       if (!CH[c]) { CH[c] = []; order.push(c); } CH[c] = CH[c].concat(add).sort(function (a, b) { return a.key < b.key ? -1 : a.key > b.key ? 1 : 0; });
     });
     var num3 = function (c) { return /^\d{3}$/.test(c); }; order.sort(function (a, b) { return num3(a) && num3(b) ? (a < b ? -1 : 1) : num3(a) ? -1 : num3(b) ? 1 : 0; });
-    var subs = [], tot0 = 0;
+    var subs = [], tot0 = 0, eigRef = null, eig0 = 0;
     order.forEach(function (c) {
       var chl = c === "—" ? tt("g_frei") : c === "OFFEN" ? tt("c_offenTag") : c === "P" ? tt("g_pausch") : "NPK " + c + " · " + (CHAPTERS[c] || ""); line(fillRow(XL.grp, chl));
       var first = nr(), st0 = 0;
@@ -1399,19 +1399,19 @@
           ep == null ? { v: null, s: XL.inp } : { v: ep, s: XL.inp }, qty == null ? { v: "", s: XL.num, f: 'IF(C' + r + '="","",ROUND(C' + r + "*E" + r + ",2))" } : { v: amt, s: XL.num, f: "ROUND(C" + r + "*E" + r + ",2)" }]);
       });
       var last = nr() - 1; line([{ v: " ", s: XL.sumLbl }, { v: tt("ox_sum") + " " + (num3(c) ? "NPK " + c : chl), s: XL.sumLbl }, { v: null, s: XL.sumLbl }, { v: null, s: XL.sumLbl }, { v: null, s: XL.sumLbl }, { v: st0, s: XL.sum, f: "SUM(F" + first + ":F" + last + ")" }]);
-      subs.push("F" + R.length); tot0 = r2(tot0 + st0);
+      subs.push("F" + R.length); tot0 = r2(tot0 + st0); if (c === "—") { eigRef = "F" + R.length; eig0 = st0; }   /* eigene Preise: ohne LV-Rabatt */
     });
     line([]);
     /* Kosten wie im Kostenblatt: Zwischensumme → Staffel → Rabatt → Installationspauschale → Netto → MWST → Total */
-    var c0 = nr(), s1 = c0 + 13, s5 = s1 + 4, st = KVE.STAFFEL.filter(function (x) { return tot0 <= x.bis; })[0] || KVE.STAFFEL[4], si = KVE.STAFFEL.indexOf(st) + 1;
-    var rab = r2(tot0 * st.pct / 100), nach = r2(tot0 - rab), inst = tot0 > 0 ? st.inst : 0, net = r2(nach + inst), mws = r2(net * sm.mwSatz);
+    var c0 = nr(), s1 = c0 + 13, s5 = s1 + 4, lv0 = r2(tot0 - eig0), LB = eigRef ? "(F" + c0 + "-" + eigRef + ")" : "F" + c0, st = KVE.STAFFEL.filter(function (x) { return lv0 <= x.bis; })[0] || KVE.STAFFEL[4], si = KVE.STAFFEL.indexOf(st) + 1;
+    var rab = r2(lv0 * st.pct / 100), nach = r2(tot0 - rab), inst = lv0 > 0 ? st.inst : 0, net = r2(nach + inst), mws = r2(net * sm.mwSatz);
     var row = function (lab, v, f, sv, sl) { line([{ v: " " }, { v: lab, s: sl || XL.def }, "", "", "", { v: v, s: sv || XL.num, f: f }]); };
     row(tt("k_zw"), tot0, subs.length ? subs.join("+") : "0", XL.sum, XL.sumLbl);
-    row(tt("x_stufe"), si, "1+(F" + c0 + ">C" + s1 + ")+(F" + c0 + ">C" + (s1 + 1) + ")+(F" + c0 + ">C" + (s1 + 2) + ")+(F" + c0 + ">C" + (s1 + 3) + ")", XL.int);
+    row(tt("x_stufe"), si, "1+(" + LB + ">C" + s1 + ")+(" + LB + ">C" + (s1 + 1) + ")+(" + LB + ">C" + (s1 + 2) + ")+(" + LB + ">C" + (s1 + 3) + ")", XL.int);
     row(tt("x_pct"), st.pct, "INDEX(E" + s1 + ":E" + s5 + ",F" + (c0 + 1) + ")", XL.pct);
-    row(tt("x_rabatt"), rab, "ROUND(F" + c0 + "*F" + (c0 + 2) + "/100,2)");
+    row(tt("x_rabatt") + (eigRef ? " (" + tt("ox_rabLV") + ")" : ""), rab, "ROUND(" + LB + "*F" + (c0 + 2) + "/100,2)");
     row(tt("k_nach"), nach, "F" + c0 + "-F" + (c0 + 3));
-    row(tt("k_inst"), inst, "IF(F" + c0 + ">0,INDEX(F" + s1 + ":F" + s5 + ",F" + (c0 + 1) + "),0)");
+    row(tt("k_inst"), inst, "IF(" + LB + ">0,INDEX(F" + s1 + ":F" + s5 + ",F" + (c0 + 1) + "),0)");
     row(tt("k_netto"), net, "F" + (c0 + 4) + "+F" + (c0 + 5), XL.sum, XL.sumLbl);
     line([{ v: " " }, { v: tt("x_mwstsatz") }, "", "", "", { v: r2(sm.mwSatz * 100), s: XL.pct }]);
     row(mwLab(sm.mwSatz * 100), mws, "ROUND(F" + (c0 + 6) + "*F" + (c0 + 7) + "/100,2)");
@@ -1453,20 +1453,20 @@
     kv(tt("projekt"), k.projekt); kv(tt("sap"), k.sap); kv(tt("bem"), k.bem); kv(tt("ort"), k.ort); kv(tt("bearb"), k.bearb); kv(tt("datum"), k.datum); kv(tt("rolle"), tt("r_" + k.rolle));
     kv(tt("dv_nr"), k.devisNr); kv(tt("dv_lieferant"), k.lieferant); kv(tt("dv_vertrag"), k.vertrag); kv(tt("dv_termin"), k.termin); kv(tt("dv_belagLief"), k.belagLief ? tt("dv_ja") : tt("dv_nein")); kv(tt("x_lvver"), "V1.1 · 10.07.2026");
     K.push([]); K.push(hdr([tt("h_kosten"), "CHF"]));
-    var erfX = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst") erfX.push(l); }); }); var extra = (erfX.length ? 1 : 0) + (out.nOffen ? 1 : 0);
-    var c0 = K.length + 1, s1 = c0 + 13 + extra, s5 = s1 + 4, sm = out.sum;
+    var erfX = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst" || l.flag === "ausserLV") erfX.push(l); }); }); var extra = (erfX.length ? 1 : 0) + (out.nOffen ? 1 : 0);
+    var c0 = K.length + 1, s1 = c0 + 13 + extra, s5 = s1 + 4, sm = out.sum, LB = erfX.length ? "(B" + c0 + "-B" + (c0 + 10) + ")" : "B" + c0;   /* Rabattbasis: ohne eigene Preise (Zeile nach dem Total) */
     var row = function (lab, v, f, st, ls) { K.push([{ v: lab, s: ls || XL.def }, { v: v, s: st || XL.num, f: f }]); };
     row(tt("k_zw"), sm.zwischen, sumRefs.length ? sumRefs.join("+") : "0");
-    row(tt("x_stufe"), sm.stufe, "1+(B" + c0 + ">A" + s1 + ")+(B" + c0 + ">A" + (s1 + 1) + ")+(B" + c0 + ">A" + (s1 + 2) + ")+(B" + c0 + ">A" + (s1 + 3) + ")", XL.int);
+    row(tt("x_stufe"), sm.stufe, "1+(" + LB + ">A" + s1 + ")+(" + LB + ">A" + (s1 + 1) + ")+(" + LB + ">A" + (s1 + 2) + ")+(" + LB + ">A" + (s1 + 3) + ")", XL.int);
     row(tt("x_pct"), sm.pct, "INDEX(B" + s1 + ":B" + s5 + ",B" + (c0 + 1) + ")", XL.pct);
-    row(tt("x_rabatt"), sm.rabatt, "ROUND(B" + c0 + "*B" + (c0 + 2) + "/100,2)");
+    row(tt("x_rabatt"), sm.rabatt, "ROUND(" + LB + "*B" + (c0 + 2) + "/100,2)");
     row(tt("k_nach"), sm.nachRabatt, "B" + c0 + "-B" + (c0 + 3));
-    row(tt("k_inst"), sm.inst, "IF(B" + c0 + ">0,INDEX(C" + s1 + ":C" + s5 + ",B" + (c0 + 1) + "),0)");
+    row(tt("k_inst"), sm.inst, "IF(" + LB + ">0,INDEX(C" + s1 + ":C" + s5 + ",B" + (c0 + 1) + "),0)");
     row(tt("k_netto"), sm.netto, "B" + (c0 + 4) + "+B" + (c0 + 5), XL.sum, XL.sumLbl);
     K.push([{ v: tt("x_mwstsatz") }, { v: r2(sm.mwSatz * 100), s: XL.pct }]);
     row(mwLab(sm.mwSatz * 100), sm.mwst, "ROUND(B" + (c0 + 6) + "*B" + (c0 + 7) + "/100,2)");
     row(tt("k_brutto"), sm.brutto, "B" + (c0 + 6) + "+B" + (c0 + 8), XL.sumFill, XL.sumLbl);
-    if (erfX.length) K.push([{ v: fill(tt("k_erf"), { n: erfX.length }), s: XL.warnA }, { v: r2(erfX.reduce(function (a, l) { return a + l.total; }, 0)), s: XL.numAmber }]);
+    if (erfX.length) K.push([{ v: fill(tt("k_erf"), { n: erfX.length }), s: XL.warnA }, { v: sm.eigen, s: XL.numAmber }]);
     if (out.nOffen) K.push([{ v: "⚠ " + fill(tt("k_offen"), { n: out.nOffen }), s: XL.stop }, { v: tt("k_offenV"), s: XL.stop }]);   /* Zeilen nach dem Total: Staffel-Verweise oben sind um «extra» verschoben */
     K.push([]); K.push([{ v: tt("x_staffel"), s: XL.bold }]); K.push(hdr([tt("x_bis"), tt("x_pct"), tt("x_inst")]));
     KVE.STAFFEL.forEach(function (t, i) { K.push([i < 4 ? { v: t.bis, s: XL.num } : { v: "> " + KVE.STAFFEL[3].bis, s: XL.def }, { v: t.pct, s: XL.pct }, { v: t.inst, s: XL.num }]); });
@@ -1579,7 +1579,7 @@
       LVTABS.forEach(function (t) { S.recs[t].forEach(function (e) { if (e.belag) e.belag.einbau = v; }); }); save(); renderForm(); renderResult(); });
     var NUMOK = /^\+?(\d+([.,]\d*)?|[.,]\d+)$/;   /* Mengen und Masse: ohne Minus */
     window.numCheck = function (el) {
-      var v = el.value.trim(), bad = v !== "" && !NUMOK.test(v), id = el.id ? el.id + "_err" : "", m = id && document.getElementById(id);
+      var v = el.value.trim(), bad = v !== "" && !NUMOK.test(v.replace(/(\d)['’ ](?=\d{3}(?!\d))/g, "$1")), id = el.id ? el.id + "_err" : "", m = id && document.getElementById(id);
       el.classList.toggle("bad", bad); if (bad) el.setAttribute("aria-invalid", "true"); else el.removeAttribute("aria-invalid");
       if (bad && !m && id) { m = document.createElement("p"); m.className = "hint err"; m.id = id; m.textContent = tt("ux_numBad"); el.insertAdjacentElement("afterend", m); el.setAttribute("aria-describedby", id); }
       if (!bad && m) { m.remove(); el.removeAttribute("aria-describedby"); }

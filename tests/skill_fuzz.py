@@ -9,6 +9,7 @@ os.makedirs(out, exist_ok=True)
 R = random.Random(42)
 ch = R.choice
 def f(a, b, nd=2): return str(round(R.uniform(a, b), nd))
+def tsd(): return ch(["1'%03d" % R.randint(0, 999), "1 %03d.5" % R.randint(0, 999), "2’%03d" % R.randint(0, 999)])  # Tausendertrennung (Apostroph, Leerzeichen)
 def belag():
     m = ch(["none", "bit", "bit", "humus", "pflaster"])
     return {"mode": m, "d": ch(["40", "80", "100", "130", "160", "220"]), "pak": ch(["le250", "gt250"]), "einbau": ch(["typN", "dritte"]), "typ": ch(["N", "L"]),
@@ -28,7 +29,7 @@ def free():
         else: l.append({"custom": True, "text": "Sonder", "unit": "St", "qty": f(0, 5), "ep": ch(["", f(10, 900)]), "reason": ch(["", "Offerte"])})
     return l
 def graben(i):
-    return {"name": "G%d" % i, "L": f(0, 120, 1), "T": ch(["0.6", "0.8", "1.2", "1.6", "2.2"]), "bmode": ch(["min60", "begangen", "nicht_begangen", "manuell"]), "aussen": ch(["", f(0.1, 0.6)]),
+    return {"name": "G%d" % i, "L": tsd() if R.random() < 0.08 else f(0, 120, 1), "T": ch(["0.6", "0.8", "1.2", "1.6", "2.2"]), "bmode": ch(["min60", "begangen", "nicht_begangen", "manuell"]), "aussen": ch(["", f(0.1, 0.6)]),
             "bman": f(0.3, 1.2), "aushubArt": ch(["normal", "normal", "saug"]), "saugH": f(0, 8, 1), "hand": ch(list(kve.HAND)), "gesp": ch([True, False]), "roh": ch([False, False, True]), "direkt": ch([True, False]),
             "rohrSystem": ch(["k55", "k55", "laengs", "block"]), "dn": ch(["55", "100", "120", "150"]), "len": ch(["5", "10"]), "n": ch(["1", "2", "4"]), "muffenMode": ch(["auto", "manuell"]),
             "muffenN": ch(["0", "6"]), "b90": ch(["0", "2"]), "b45": ch(["0", "1"]), "schneiden": ch(["0", "3"]), "warnband": ch([True, False]), "kalib": ch([True, False]),

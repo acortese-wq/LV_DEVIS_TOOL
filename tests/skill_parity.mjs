@@ -2,7 +2,7 @@
 import fs from 'fs'; import path from 'path'; import { execSync } from 'child_process'; import { fileURLToPath } from 'url';
 const H = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), dir = process.argv[2];
 const { chromium } = await import(execSync('npm root -g').toString().trim() + '/playwright/index.mjs');
-const br = await chromium.launch(), pg = await br.newPage(); let bad = 0;
+const br = await chromium.launch(), pg = await br.newPage(); let bad = 0; pg.on('dialog', d => d.accept());   /* Rückfrage «Projekt ersetzen?» bestätigen */
 await pg.goto('file://' + path.join(H, 'index.html')); await pg.waitForFunction(() => window.__LVD);
 for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.json'))) {
   await pg.setInputFiles('#fileIn', path.join(dir, f)); await pg.waitForTimeout(400);

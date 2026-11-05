@@ -76,7 +76,7 @@ def isfin(x):
 
 
 def num(v, d=None):
-    x = parse_float(jstr(v).replace(",", ".", 1))
+    x = parse_float(re.sub(r"['’\s]", "", jstr(v)).replace(",", ".", 1))  # «1'200» und «1 200» = 1200
     return x if isfin(x) else (d or 0)
 
 
@@ -1345,10 +1345,11 @@ def calc(P, LV_=None):
     out["summary"] = sorted(byKey.values(), key=lambda x: x["key"])
     out["nOffen"] = len([l for l in allL if l.get("open")])
     zw = r2(sum(l["total"] for l in allL))
-    st = next(s for s in STAFFEL if zw <= s["bis"]); idx = STAFFEL.index(st)
+    eig = r2(sum(l["total"] for l in allL if l["flag"] in ("erfasst", "ausserLV"))); lvz = r2(zw - eig)  # eigene Preise: kein LV-Rabatt, keine Stufe
+    st = next(s for s in STAFFEL if lvz <= s["bis"]); idx = STAFFEL.index(st)
     mwSatz = num(P.get("mwst"), MWST * 100) / 100
-    rabatt = r2(zw * st["pct"] / 100); nach = r2(zw - rabatt); inst = st["inst"] if zw > 0 else 0; netto = r2(nach + inst); mw = r2(netto * mwSatz)
-    out["sum"] = {"zwischen": zw, "stufe": idx + 1, "pct": st["pct"], "rabatt": rabatt, "nachRabatt": nach, "inst": inst, "netto": netto, "mwst": mw, "mwSatz": mwSatz,
+    rabatt = r2(lvz * st["pct"] / 100); nach = r2(zw - rabatt); inst = st["inst"] if lvz > 0 else 0; netto = r2(nach + inst); mw = r2(netto * mwSatz)
+    out["sum"] = {"zwischen": zw, "eigen": eig, "rabattBasis": lvz, "stufe": idx + 1, "pct": st["pct"], "rabatt": rabatt, "nachRabatt": nach, "inst": inst, "netto": netto, "mwst": mw, "mwSatz": mwSatz,
                   "brutto": r2(netto + mw), "belag": r2(sum(l["total"] for l in allL if l.get("ks") == "Belag"))}
     for e in out["elems"]:
         for w in e["warn"]:

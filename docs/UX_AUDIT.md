@@ -296,3 +296,8 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 - **Laden:** Rückfrage bei vorhandenem Projekt, «Rückgängig» nach dem Laden, beschädigte Dateien abgelehnt (vorher: Projekt still ersetzt bzw. geleert).
 - **Speicherfehler** auch in der Kartenerfassung sichtbar (vorher: Karte meldete «gespeichert»).
 - **Negative Eingaben** markiert (vorher: still 0). Keine Kostenwirkung. Test t68. Details: `docs/QUALITAETSCHECK_2026-11.md`.
+
+## Tausendertrennung und eigene Preise ohne Rabatt (V90) – Kostenwirkung
+- **Vorher:** «1'200» wurde als 1 gerechnet (Feld rot, Hinweis falsch); eigene Preise erhielten den LV-Rabatt und konnten die Rabattstufe anheben.
+- **Nachher:** «1'200» und «1 200» = 1200 (Tool und Skill). Rabatt, Stufe und Installationspauschale nur auf LV-Positionen; eigene Preise (OFFEN mit eigenem Preis, freie Positionen ausserhalb LV) ohne Rabatt – Kostentabelle zeigt «ohne Rabatt» und «auf LV-Positionen CHF …». Excel-Kostenblatt und Offertregister rechnen mit denselben Formeln.
+- **Kostenwirkung:** nur Projekte mit Tausendertrennung in Eingaben bzw. mit eigenen Preisen. Beispielprojekt unverändert. Test t69.

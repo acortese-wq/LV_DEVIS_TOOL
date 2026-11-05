@@ -131,6 +131,14 @@ Honorar SIA 103 im Detail, französische/italienische Texte, Geometrie-Funktione
 - **Nr. 10 behoben:** negative Werte in Mengen-/Massfeldern werden markiert.
 - Test t68.
 
+## Umsetzung Paket 2 (V90, 05.11.2026) – mit Kostenwirkung, Entscheid des Benutzers
+- **Nr. 2 behoben (Entscheid: Apostroph akzeptieren):** `num()` in `kve.js` und `kve.py` versteht Apostroph (' ’) und Leerzeichen als Tausendertrennung: «1'200» = «1 200» = 1200. Das Formular markiert solche Eingaben nicht mehr; «1'2» bleibt ungültig. Hinweistext korrigiert (vorher «sonst wird 0 gerechnet», was nicht stimmte).
+  *Kostenwirkung:* nur bei Eingaben mit Tausendertrennung – die wurden bisher als 1 (statt 1200) gerechnet.
+- **Nr. 7 behoben (Entscheid: eigene Preise ohne Rabatt):** Rabatt, Rabattstufe und Installationspauschale richten sich nur nach der Summe der **LV-Positionen**. Eigene Preise (erfasste OFFEN-Positionen und freie Positionen ausserhalb LV) zählen ohne Rabatt ins Total. Kostentabelle, Bericht, Excel-Kostenblatt (Formeln) und Offertregister «mit Preisen» rechnen gleich. Neue Felder `sum.eigen` und `sum.rabattBasis`.
+  *Kostenwirkung:* nur bei Projekten mit eigenen Preisen – Netto steigt (kein Rabatt mehr auf Fremdpreise, Stufe kann tiefer werden). Beispiel: LV-Summe ~38'000 (Stufe 3) + eigener Preis 60'000 → bisher Stufe 4 mit 7 % auf alles, neu Stufe 3 mit 5 % nur auf die LV-Summe. Projekte ohne eigene Preise (z. B. Beispielprojekt, Netto CHF 78'270.06) unverändert.
+- Nicht geändert: geänderte Einheitspreise von LV-Positionen («EP geändert») und Pauschalen (Kleinmaterial, Akkordarbeiten) erhalten weiterhin Rabatt; die Baustelleneinrichtung in % rechnet weiterhin auf alle Positionen.
+- Skill-Vergleich 0 Abweichungen (300 Zufallsprojekte, neu auch mit Tausendertrennung); Test t69 (Excel mit LibreOffice neu gerechnet).
+
 ## Vorschlag für die Reihenfolge
 1. **Sofort, ohne Kostenwirkung:** Nr. 1 (eine Zeile), Nr. 3, Nr. 4, Nr. 10.
 2. **Nach deinem Entscheid:** Nr. 2 (Apostroph akzeptieren), Nr. 6 und Nr. 7 (gegen LV-Text prüfen) – alle mit Kostenwirkung, Kernel und Skill gemeinsam.
