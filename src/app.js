@@ -618,7 +618,7 @@
     return { V: r2(V), st: st, nPos: out.summary.length, nWarn: ws.filter(function (w) { return w.sev !== "info"; }).length + (out.nOffen ? 1 : 0), kost: n ? kostTable(out) : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos: pos, aus: aus, warn: warn };
   }
   var LYTABS = ["graben", "schacht", "belag", "werkloch", "geb"];
-  function lyPref() { try { return localStorage.getItem("lvd-layout") === "classic" ? "classic" : "a"; } catch (e) { return "a"; } }
+  function lyPref() { try { var v = localStorage.getItem("lvd-layout"); if (v) return v === "classic" ? "classic" : "a"; } catch (e) { } return window.__LVD_LAYOUT_DEFAULT === "classic" ? "classic" : "a"; }   /* gespeicherte Wahl, sonst Vorgabe (Tests: klassisch), sonst Layout A */
   function lySetPref(v) { try { localStorage.setItem("lvd-layout", v); } catch (e) { } }
   function lyWide() { return !window.matchMedia || window.matchMedia("(min-width:861px)").matches; }
   function lyOpen(retry) {   /* Kartenerfassung als Startbildschirm (Layout A) */

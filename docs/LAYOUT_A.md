@@ -21,4 +21,4 @@ Branch `layout-a` · App-Konzept und Urheber: **Alessandro Cortese**
 - **Keine automatische Übernahme.** Wechsel in eine andere Ansicht mit nicht übernommenen Änderungen fragt: Übernehmen · Nur Zeichnung sichern · Verwerfen · Abbrechen. So geht nichts verloren und nichts wird ungewollt in die Datensätze geschrieben.
 - Nach «In Datensätze übernehmen» bleibt man im Layout A (Karte wird neu geöffnet).
 - Rechenkern unverändert: Kennzahlen und Dock verwenden `KVE.calc` auf der Sandkopie – dieselben Zahlen wie das Ergebnis nach dem Übernehmen.
-- Bestehende Tests starten weiterhin auf der klassischen Seite (Testhilfe setzt `lvd-layout=classic`); `t65` prüft Layout A.
+- Bestehende Tests starten weiterhin auf der klassischen Seite (Testhilfe setzt nur die Vorgabe `window.__LVD_LAYOUT_DEFAULT`, eine gespeicherte Wahl geht vor); `t65` prüft Layout A.

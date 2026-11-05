@@ -11,12 +11,9 @@ function loadPw() {
   process.exit(2);
 }
 const { chromium } = loadPw();
-/* Layout A startet die App in der Karte. Die bestehenden Tests prüfen die klassische Seite: dort wird «lvd-layout=classic» vorbelegt
-   (nur wenn noch nichts gesetzt ist). Tests für Layout A setzen localStorage «lvd-layout»="a" und laden neu – oder LVD_LAYOUT_A=1. */
-const LY_INIT = () => {   /* nur beim ersten Laden des Tabs: beim Neuladen den Speicher nicht anfassen (sonst kann ein direkt davor geschriebener Stand verloren gehen) */
-  if (/^lvd[CA]$/.test(window.name)) return; window.name = 'lvdC';
-  try { if (localStorage.getItem('lvd-layout') == null) localStorage.setItem('lvd-layout', 'classic'); } catch (e) { /* file:// ohne Speicher */ }
-};
+/* Layout A startet die App in der Karte. Die bestehenden Tests prüfen die klassische Seite: die Testhilfe setzt die Vorgabe
+   window.__LVD_LAYOUT_DEFAULT='classic'. Eine gespeicherte Wahl (localStorage «lvd-layout») geht vor – so testet t65 Layout A. LVD_LAYOUT_A=1 schaltet die Vorgabe ab. */
+const LY_INIT = () => { window.__LVD_LAYOUT_DEFAULT = 'classic'; };   /* nur Vorgabe; der Speicher wird nicht angefasst (sonst können Stände beim Neuladen verloren gehen) */
 if (!chromium.__lvdLy) {
   const launch0 = chromium.launch.bind(chromium); chromium.__lvdLy = 1;
   chromium.launch = async (...a) => {
