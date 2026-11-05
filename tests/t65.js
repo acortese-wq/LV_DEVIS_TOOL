@@ -1,5 +1,7 @@
 /* t65: Layout A «Planungsfokus» – Karte als Startbildschirm, Projektleiste mit Kennzahlen, unteres Dock, Ansichtswechsel ohne Datenverlust, Kosten identisch */
 const { chromium, ok, mk, getS, AXE, tmp } = require('./lib/k.js');
+/* Layout A beim nächsten Laden: window.name überlebt das Neuladen im selben Tab sicher (localStorage-Schreiben direkt vor reload() kann verloren gehen) */
+const toA = async pg => { await pg.addInitScript(() => { if (window.name === 'lvdA') { window.name = ''; try { localStorage.setItem('lvd-layout', 'a'); } catch (e) { } } }); await pg.evaluate(() => { window.name = 'lvdA'; }); await pg.reload(); };
 const waitLy = async (pg, ms) => { for (let t = 0; t < (ms || 15000); t += 250) { if (await pg.locator('dialog.kmlya[open]').count()) return true; await pg.waitForTimeout(250); } return false; };   /* <dialog> zählt für waitForSelector nicht immer als sichtbar */
 (async () => {
   const b = await chromium.launch(); const pg = await mk(b, 1440, 900);
@@ -8,7 +10,7 @@ const waitLy = async (pg, ms) => { for (let t = 0; t < (ms || 15000); t += 250) 
   const S0 = JSON.stringify((await getS(pg)).recs);
   ok(await pg.locator('dialog.kmlya[open]').count() === 0, 'Testhilfe: klassische Seite bleibt Standard für die übrigen Tests');
   // Start in Layout A
-  await pg.evaluate(() => localStorage.setItem('lvd-layout', 'a')); await pg.reload();
+  await toA(pg);
   ok(await waitLy(pg), 'App startet in der Karte (Layout A)'); await pg.waitForTimeout(1500);
   const fl = await pg.evaluate(() => (1000).toLocaleString('de-CH').charAt(1)), f0 = x => String(Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g, fl);   /* Tausendertrennung wie im Browser */
   const kpi = await pg.textContent('#lyKpi');
@@ -70,7 +72,7 @@ const waitLy = async (pg, ms) => { for (let t = 0; t < (ms || 15000); t += 250) 
   ok(await pg.locator('dialog.kmlya[open]').count() === 0 && await pg.evaluate(() => localStorage.getItem('lvd-layout')) === 'classic', 'Layout-Umschalter «Klassische Ansicht» merkt die Wahl');
   await pg.reload(); await pg.waitForTimeout(2500); ok(await pg.locator('dialog.kmlya[open]').count() === 0, 'klassische Ansicht bleibt nach Neuladen');
   // Handy: klassische Seite, kein Überlauf
-  const ph = await mk(b, 390, 844); await ph.evaluate(() => localStorage.setItem('lvd-layout', 'a')); await ph.reload(); await ph.waitForTimeout(2500);
+  const ph = await mk(b, 390, 844); await toA(ph); await ph.waitForTimeout(2500);
   ok(await ph.locator('dialog.kmlya[open]').count() === 0 && await ph.evaluate(() => document.documentElement.scrollWidth <= 391), 'Handy (390 px): klassische Seite, kein Überlauf');
   ok(pg.errs.length === 0 && ph.errs.length === 0, 'keine JS-Fehler ' + pg.errs.concat(ph.errs).join('|')); await b.close();
 })();
