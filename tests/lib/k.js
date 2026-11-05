@@ -11,6 +11,19 @@ function loadPw() {
   process.exit(2);
 }
 const { chromium } = loadPw();
+/* Layout A startet die App in der Karte. Die bestehenden Tests prüfen die klassische Seite: die Testhilfe setzt die Vorgabe
+   window.__LVD_LAYOUT_DEFAULT='classic'. Eine gespeicherte Wahl (localStorage «lvd-layout») geht vor – so testet t65 Layout A. LVD_LAYOUT_A=1 schaltet die Vorgabe ab. */
+const LY_INIT = () => { window.__LVD_LAYOUT_DEFAULT = 'classic'; };   /* nur Vorgabe; der Speicher wird nicht angefasst (sonst können Stände beim Neuladen verloren gehen) */
+if (!chromium.__lvdLy) {
+  const launch0 = chromium.launch.bind(chromium); chromium.__lvdLy = 1;
+  chromium.launch = async (...a) => {
+    const b = await launch0(...a); if (process.env.LVD_LAYOUT_A) return b;
+    const nc = b.newContext.bind(b), np = b.newPage.bind(b);
+    b.newContext = async (...o) => { const c = await nc(...o); await c.addInitScript(LY_INIT); return c; };
+    b.newPage = async (...o) => { const p = await np(...o); await p.addInitScript(LY_INIT); return p; };
+    return b;
+  };
+}
 function need(p) {
   if (!fs.existsSync(p)) { console.error('Testdatei fehlt: ' + path.relative(ROOT, p) + '\n→ einmalig im Repo ausführen: npm ci --omit=optional --prefix tests'); process.exit(2); }
   return p;

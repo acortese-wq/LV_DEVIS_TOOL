@@ -609,3 +609,60 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 .oftab .ofel{display:block;font-size:11.5px;font-weight:700;color:var(--ink-soft)}.oftab input{width:100%;min-width:90px;padding:5px 6px;font-size:13px}.oftab .ofep{width:96px;min-width:80px}.oftab .ofu{display:block;font-size:11px;color:var(--ink-soft)}
 .oftab input[aria-invalid=true]{border-color:#b8332a;background:#fde3e1}.oftab tr.erf td{background:#fffaf0}
 @media print{.ofrow{display:none!important}}
+/* ---------- Layout A «Planungsfokus»: Karte als Startbildschirm (App-Leiste, Projektleiste, unteres Dock) ---------- */
+.kmdlg.kmws.kmlya[open]{grid-template-rows:auto auto minmax(0,1fr) auto auto auto}
+.kmlya .kmhead{flex-wrap:wrap;row-gap:6px}
+.kmlya [data-pfb],.kmlya .kmheadb [data-k=close]{display:none}
+.lynav{display:flex;gap:2px;flex-wrap:wrap}
+.lynav .btn{min-height:34px}.lynav [aria-current=page]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.lybar{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px 18px;padding:6px 14px;background:#f7f8f9;border-bottom:1px solid var(--rule)}
+.lyp,.lyc{display:flex;flex-direction:column;justify-content:center;min-width:0}
+.lyk{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}
+.lyp b,.lyc b{font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lyp.lypn{max-width:340px}
+.lyst{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12.5px!important;border:1px solid var(--rule-strong);background:var(--paper)}
+.lyst-ok{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-line)}.lyst-amber{color:var(--amber);background:var(--amber-bg);border-color:var(--amber-line)}.lyst-stop{color:var(--signal);background:var(--signal-bg);border-color:var(--signal)}
+.lykpi{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;margin-left:auto;padding-left:14px;border-left:1px solid var(--rule)}
+.lyc.lymain b{color:var(--navy);font-size:15px}
+.lyoffb{font-size:12px;font-weight:700;color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-line);border-radius:10px;padding:2px 8px}
+.lylay{display:flex;flex-direction:column;justify-content:center}.lylay select{min-height:32px;font-size:13px}
+.lyask{flex:1 0 100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:8px 10px;border:1px solid var(--amber-line);background:var(--amber-bg);border-radius:8px}.lyask[hidden]{display:none}.lyask p{margin:0;font-size:13.5px}
+.lydock{border-top:1px solid var(--rule-strong);background:var(--paper);min-width:0}
+.lydbar{display:flex;align-items:center;gap:8px;padding:0 14px;border-bottom:1px solid var(--rule)}
+.lydtabs{display:flex;gap:2px;flex-wrap:wrap;flex:1}
+.lydtabs [role=tab]{font:inherit;font-weight:700;font-size:13px;padding:8px 12px;min-height:40px;border:0;border-bottom:3px solid transparent;background:transparent;color:var(--ink-soft);cursor:pointer}
+.lydtabs [aria-selected=true]{color:var(--navy);border-bottom-color:var(--navy)}
+.lydock-c .lydtabs [aria-selected=true]{border-bottom-color:transparent}
+.lydtabs [role=tab]:focus-visible,.lydpan:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.lycnt{font-weight:600;color:var(--ink-soft)}
+.lydpan{max-height:min(32vh,300px);overflow:auto;padding:8px 14px}.lydpan[hidden]{display:none}
+#lyP_prof{padding:0;max-height:none}#lyP_prof .lypfh{margin:4px 14px}
+.lydpan h3{margin:4px 0 6px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}
+.lydpan table.cost{max-width:560px;width:100%;margin:0}.lydpan table.cost td{padding:4px 8px}.lydpan>h3:first-child{display:none}
+.lytab{width:100%;border-collapse:collapse;font-size:13px}.lytab th{font-size:11.5px;text-align:left;color:var(--ink-soft);border-bottom:1px solid var(--rule-strong);padding:3px 6px;position:sticky;top:-8px;background:var(--paper)}
+.lytab td{padding:3px 6px;border-bottom:1px solid var(--rule);vertical-align:top}.lytab .num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}.lytab tr.open td{background:var(--amber-bg)}
+.lyaus{display:inline-block;vertical-align:top;width:min(100%,320px);margin:0 18px 8px 0}
+.lyoff{margin:0 0 6px;font-weight:700;color:var(--amber)}
+.lydpan .warns{margin:0}
+@media (max-width:860px){.lykpi{margin-left:0;padding-left:0;border-left:0}.lydpan{max-height:40vh}}
+@media print{.lybar,.lydock,.lynav{display:none}}
+.kmlya .lylay{display:flex;flex-direction:row;align-items:center;gap:6px}
+.kmdlg.kmlya .kmbottom .kmfoot{display:none}
+.kmlya .kmheadb{flex-wrap:wrap;align-items:center}.kmlya .kmheadb [data-k=apply],.kmlya .kmheadb [data-k=save]{min-height:34px}
+.kmlya .lysearch{position:absolute;top:10px;left:56px;z-index:1000;width:min(380px,calc(100% - 120px));max-width:none;flex:none}
+.kmlya .lysearch .kmsearch{background:var(--paper);padding:4px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.kmlya .lybar{padding-right:130px}
+.kmlya .chfab{top:66px;right:14px}.kmlya .chpan{top:112px}
+.kmlya .lydpan{max-height:min(26vh,240px)}
+.kmdlg.kmlya .kmbottom{padding:4px 14px;gap:4px 12px}.kmdlg.kmlya .kmbottom .btn{min-height:30px;padding:3px 9px;font-size:12.5px}.kmdlg.kmlya .kmbottom select{min-height:30px;font-size:12.5px}
+.kmlya .lybase{position:absolute;top:10px;right:10px;z-index:1000;display:flex;background:var(--paper);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.18);padding:3px;gap:2px}
+.kmlya .lybase .btn{min-height:32px;border-radius:6px}.kmlya .lybase [aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+/* Werkzeug-Symbole (nur Darstellung, für Screenreader ausgeblendet) */
+.kmlya .kmtools [data-k]::before{display:inline-block;width:1.4em;flex:none;text-align:center;font-weight:400;color:currentColor;content:"" / ""}
+.kmlya .kmtools [data-k=medit]::before{content:"✥" / ""}.kmlya .kmtools [data-k=mline]::before{content:"╱" / ""}.kmlya .kmtools [data-k=mpt]::before{content:"▣" / ""}
+.kmlya .kmtools [data-k=mwl]::before{content:"◫" / ""}.kmlya .kmtools [data-k=mgeb]::before{content:"⌂" / ""}.kmlya .kmtools [data-k=route]::before{content:"↝" / ""}
+.kmlya .kmtools [data-k=msond]::before{content:"◎" / ""}.kmlya .kmtools [data-k=marea]::before{content:"▱" / ""}.kmlya .kmtools [data-k=mtext]::before{content:"T" / ""}
+.kmlya .kmtools [data-k=marrow]::before{content:"→" / ""}.kmlya .kmtools [data-k=msline]::before{content:"─" / ""}.kmlya .kmtools [data-k=mrect]::before{content:"▭" / ""}
+.kmlya .kmtools [data-k=mruler]::before{content:"⟷" / ""}.kmlya .kmtools [data-k=undo]::before{content:"↶" / ""}.kmlya .kmtools [data-k=redo]::before{content:"↷" / ""}
+.kmlya .kmtools [data-k=end]::before{content:"✓" / ""}.kmlya .kmtools [data-k=clear]::before{content:"✕" / ""}
+.kmlya .kmtools .btn[data-k]{display:flex;align-items:center;gap:2px}
