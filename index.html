@@ -3059,6 +3059,24 @@ Object.assign(TS.it,{
     km_rt_lk: ["Aus Fussweg-Route erstellt (OpenStreetMap) – nur Vorschlag, Verlauf bitte prüfen (Querungen, Privatareal, Gehwegseite)", "Créée à partir d'un itinéraire piéton (OpenStreetMap) – proposition, vérifier le tracé (traversées, terrain privé, côté du trottoir)", "Creata da un percorso pedonale (OpenStreetMap) – proposta, verificare il tracciato (attraversamenti, area privata, lato marciapiede)", "Created from a footpath route (OpenStreetMap) – suggestion, check the course (crossings, private land, sidewalk side)"],
     btnReport: ["Projektbericht (Druck/PDF) …", "Rapport de projet (impression/PDF) …", "Rapporto di progetto (stampa/PDF) …", "Project report (print/PDF) …"],
     rp_title: ["Projektbericht", "Rapport de projet", "Rapporto di progetto", "Project report"],
+    ox_title: ["Offertregister", "Registre d’offre", "Registro d’offerta", "Tender form"],
+    ox_blank: ["ohne Preise", "sans prix", "senza prezzi", "without prices"],
+    ox_priced: ["mit Preisen", "avec prix", "con prezzi", "with prices"],
+    ox_sBlank: ["Offerte (leer)", "Offre (vide)", "Offerta (vuota)", "Tender (blank)"],
+    ox_sPriced: ["Offerte (mit Preisen)", "Offre (avec prix)", "Offerta (con prezzi)", "Tender (priced)"],
+    ox_unt: ["Unternehmer", "Entreprise", "Impresa", "Contractor"],
+    ox_firma: ["Firma", "Raison sociale", "Ditta", "Company"],
+    ox_adr: ["Adresse", "Adresse", "Indirizzo", "Address"],
+    ox_kontakt: ["Kontakt / Telefon", "Contact / téléphone", "Contatto / telefono", "Contact / phone"],
+    ox_gueltig: ["Offerte gültig bis", "Offre valable jusqu’au", "Offerta valida fino al", "Tender valid until"],
+    ox_hintBlank: ["Gelbe Felder: Einheitspreise (EP) in CHF exkl. MWST eintragen. Beträge, Summen, Rabatt, Installationspauschale und MWST rechnen automatisch.", "Champs jaunes : saisir les prix unitaires (PU) en CHF hors TVA. Montants, sommes, rabais, forfait d’installation et TVA se calculent automatiquement.", "Campi gialli: inserire i prezzi unitari (PU) in CHF IVA esclusa. Importi, somme, ribasso, forfait d’installazione e IVA si calcolano automaticamente.", "Yellow cells: enter unit prices in CHF excl. VAT. Amounts, totals, discount, installation lump sum and VAT are calculated automatically."],
+    ox_hintPriced: ["Einheitspreise gemäss Projekt (LV V1.1 bzw. geänderte oder eigene Preise). Gelbe Felder können überschrieben werden; OFFEN-Positionen haben keinen Preis.", "Prix unitaires selon le projet (LV V1.1 ou prix modifiés/propres). Les champs jaunes peuvent être modifiés ; les positions OUVERTES n’ont pas de prix.", "Prezzi unitari secondo il progetto (LV V1.1 o prezzi modificati/propri). I campi gialli si possono sovrascrivere; le posizioni APERTE non hanno prezzo.", "Unit prices as in the project (LV V1.1 or changed/own prices). Yellow cells can be overwritten; OPEN items have no price."],
+    ox_hintRegie: ["NPK 111 (Regiearbeiten) und NPK 113 (Baustelleneinrichtung) sind vollständig aufgeführt. Positionen ohne Menge sind Ansätze und zählen nicht zum Total.", "CAN 111 (travaux en régie) et CAN 113 (installation de chantier) sont listés intégralement. Les positions sans quantité sont des tarifs et ne comptent pas dans le total.", "NPK 111 (lavori a regia) e NPK 113 (impianto di cantiere) sono elencati per intero. Le posizioni senza quantità sono tariffe e non entrano nel totale.", "NPK 111 (daywork) and NPK 113 (site installation) are listed in full. Items without quantity are rates and are not included in the total."],
+    ox_ansatz: ["Ansatz, ohne Menge", "tarif, sans quantité", "tariffa, senza quantità", "rate, no quantity"],
+    ox_ortDatum: ["Ort, Datum", "Lieu, date", "Luogo, data", "Place, date"],
+    ox_sig: ["Unterschrift / Stempel", "Signature / timbre", "Firma / timbro", "Signature / stamp"],
+    ox_page: ["Seite", "Page", "Pagina", "Page"],
+    ox_sum: ["Summe", "Total", "Totale", "Total"],
     rp_mapCap: ["Leitungen und Schächte · {m} m · {n} Linie(n) · {s} Schacht/Schächte · Hintergrund abgeschwächt", "Conduites et chambres · {m} m · {n} ligne(s) · {s} chambre(s) · fond atténué", "Condotte e pozzetti · {m} m · {n} linea/e · {s} pozzetto/i · sfondo attenuato", "Lines and manholes · {m} m · {n} line(s) · {s} manhole(s) · background faded"],
     rp_mapNr: ["Nr.", "N°", "N.", "No."],
     rp_mapObj: ["Objekt", "Objet", "Oggetto", "Object"],
@@ -4978,7 +4996,7 @@ var LVM = (function () {
 var XLSXW = (function () {
   "use strict";
   var ST = { def: 0, hdr: 1, grp: 2, num: 3, sum: 4, title: 5, bold: 6, wrap: 7, ctx: 8, amber: 9, red: 10, numAmber: 11, numRed: 12,
-             grey: 13, int: 14, sumFill: 15, sumLbl: 16, pct: 17, elTitle: 18, code: 19, stop: 20, warnA: 21, info: 22 };
+             grey: 13, int: 14, sumFill: 15, sumLbl: 16, pct: 17, elTitle: 18, code: 19, stop: 20, warnA: 21, info: 22, inp: 23, inpTxt: 24, sig: 25 };
 
   var crcT = (function () { var t = [], c, n, k; for (n = 0; n < 256; n++) { c = n; for (k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
   function crc32(u) { var c = 0xFFFFFFFF; for (var i = 0; i < u.length; i++) c = crcT[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
@@ -5027,12 +5045,13 @@ var XLSXW = (function () {
         if (c.f != null) {
           var isStr = typeof c.v === "string";
           x += '<c r="' + ref + '" s="' + s + '"' + (isStr ? ' t="str"' : "") + "><f>" + esc(c.f) + "</f>" + (noCache ? "" : "<v>" + esc(c.v == null ? 0 : c.v) + "</v>") + "</c>";
-        } else if (typeof c.v === "number") x += '<c r="' + ref + '" s="' + s + '"><v>' + c.v + "</v></c>";
+        } else if (c.v == null) x += '<c r="' + ref + '" s="' + s + '"/>';   /* leere Zelle mit Format (z. B. Eingabefeld) */
+        else if (typeof c.v === "number") x += '<c r="' + ref + '" s="' + s + '"><v>' + c.v + "</v></c>";
         else x += '<c r="' + ref + '" s="' + s + '" t="inlineStr"><is><t xml:space="preserve">' + esc(c.v) + "</t></is></c>";
       });
       x += "</row>";
     });
-    x += '</sheetData><pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/></worksheet>';
+    x += '</sheetData><pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="' + (sh.portrait ? "portrait" : "landscape") + '" fitToWidth="1" fitToHeight="0"/>' + (sh.footer ? "<headerFooter><oddFooter>" + esc(sh.footer) + "</oddFooter></headerFooter>" : "") + "</worksheet>";
     return x;
   }
 
@@ -5053,10 +5072,13 @@ var XLSXW = (function () {
       '<fill><patternFill patternType="solid"><fgColor rgb="FFF0F1F3"/></patternFill></fill>',
       '<fill><patternFill patternType="solid"><fgColor rgb="FFFDF5E6"/></patternFill></fill>',
       '<fill><patternFill patternType="solid"><fgColor rgb="FFFDECED"/></patternFill></fill>',
-      '<fill><patternFill patternType="solid"><fgColor rgb="FFF4F6FA"/></patternFill></fill>'];
+      '<fill><patternFill patternType="solid"><fgColor rgb="FFF4F6FA"/></patternFill></fill>',
+      '<fill><patternFill patternType="solid"><fgColor rgb="FFFFF4C2"/></patternFill></fill>'];   /* 7 Eingabefeld (gelb) */
     var borders = ['<border><left/><right/><top/><bottom/><diagonal/></border>',
       '<border><left/><right/><top/><bottom style="thin"><color rgb="FFE4E6E9"/></bottom><diagonal/></border>',
-      '<border><left/><right/><top style="thin"><color rgb="FF1A1C1E"/></top><bottom/><diagonal/></border>'];
+      '<border><left/><right/><top style="thin"><color rgb="FF1A1C1E"/></top><bottom/><diagonal/></border>',
+      '<border><left style="thin"><color rgb="FF8F959D"/></left><right style="thin"><color rgb="FF8F959D"/></right><top style="thin"><color rgb="FF8F959D"/></top><bottom style="thin"><color rgb="FF8F959D"/></bottom><diagonal/></border>',
+      '<border><left/><right/><top/><bottom style="thin"><color rgb="FF1A1C1E"/></bottom><diagonal/></border>'];
     var al = function (w) { return '<alignment vertical="top"' + (w ? ' wrapText="1"' : "") + "/>"; };
     var xf = function (font, fill, border, num, w, h) {
       return '<xf numFmtId="' + num + '" fontId="' + font + '" fillId="' + fill + '" borderId="' + border + '" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyNumberFormat="1" applyAlignment="1">' +
@@ -5085,7 +5107,10 @@ var XLSXW = (function () {
       xf(6, 0, 1, 0, 0),            // 19 Positionsnummer
       xf(7, 5, 0, 0, 1),            // 20 kritisch
       xf(8, 4, 0, 0, 1),            // 21 Hinweis
-      xf(5, 0, 0, 0, 1)             // 22 Info
+      xf(5, 0, 0, 0, 1),            // 22 Info
+      xf(0, 7, 3, 164, 0),          // 23 Eingabe Zahl (gelb, umrandet)
+      xf(0, 7, 3, 0, 1),            // 24 Eingabe Text
+      xf(0, 0, 4, 0, 0)             // 25 Unterschriftslinie
     ];
     return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
       '<numFmts count="2"><numFmt numFmtId="164" formatCode="#,##0.00"/><numFmt numFmtId="165" formatCode="0.0&quot; %&quot;"/></numFmts>' +
@@ -5110,7 +5135,8 @@ var XLSXW = (function () {
       sh.first = i === 0;
       files.push({ name: "xl/worksheets/sheet" + (i + 1) + ".xml", data: enc(sheetXml(sh, opts.noCache)) });
     });
-    ct += "</Types>"; wb += '</sheets><calcPr calcId="191029" fullCalcOnLoad="1"/></workbook>';
+    var dn = sheets.map(function (sh, i) { return sh.titles ? '<definedName name="_xlnm.Print_Titles" localSheetId="' + i + '">\'' + esc(sh.name).replace(/'/g, "''") + "'!$" + sh.titles[0] + ":$" + sh.titles[1] + "</definedName>" : ""; }).join("");   /* Wiederholungszeilen beim Druck */
+    ct += "</Types>"; wb += '</sheets>' + (dn ? "<definedNames>" + dn + "</definedNames>" : "") + '<calcPr calcId="191029" fullCalcOnLoad="1"/></workbook>';
     rel += '<Relationship Id="rId' + (n + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
     var root = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>';
     files.unshift({ name: "[Content_Types].xml", data: enc(ct) }, { name: "_rels/.rels", data: enc(root) },
@@ -9122,6 +9148,67 @@ var FIG = (function () {
   var XL = XLSXW.ST;
   function sheetName(s, used) { var n = String(s).replace(/[\[\]:*?\/\\]/g, " ").slice(0, 31).trim(), b = n, i = 2; while (used.indexOf(n) >= 0) n = b.slice(0, 28) + " " + (i++); used.push(n); return n; }
   function qn(n) { return "'" + String(n).replace(/'/g, "''") + "'"; }
+  /* ---------- Excel: Offertregister für die Offertstellung (leer / mit Projektpreisen) ----------
+     Positionen des Projekts mit Mengen, dazu NPK 111 (Regie) und NPK 113 (Baustelleneinrichtung) vollständig; EP gelb = Eingabe;
+     Betrag, Kapitelsummen, Rabatt-Staffel, Installationspauschale und MWST als Formeln (wie Kostenblatt). Druckfertig A4 hoch. */
+  function offerSheet(out, priced, used, txt) {
+    var R = [], k = S.kopf, sm = out.sum, nr = function () { return R.length + 1; };
+    var line = function (cells) { R.push(cells); return R.length; };
+    var fillRow = function (st, first) { var r = [{ v: first, s: st }]; for (var i = 1; i < 6; i++) r.push({ v: null, s: st }); return r; };   /* leere Zellen: Kapiteltitel läuft über */
+    line([{ v: tt("ox_title") + " · " + tt(priced ? "ox_priced" : "ox_blank"), s: XL.title }]);
+    line([{ v: tt("title") + " · LV Swisscom V1.1 (10.07.2026)", s: XL.grey }]);
+    line([]);
+    [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["dv_nr", k.devisNr], ["bearb", k.bearb], ["datum", k.datum || today()]].forEach(function (x) { if (x[1]) line([{ v: tt(x[0]), s: XL.grey }, { v: x[1], s: XL.bold }]); });
+    line([]); line([{ v: tt("ox_unt"), s: XL.bold }]);
+    ["ox_firma", "ox_adr", "ox_kontakt", "ox_gueltig"].forEach(function (key) { line([{ v: tt(key), s: XL.grey }, { v: null, s: XL.inpTxt }]); });
+    line([]); line([{ v: " " }, { v: tt(priced ? "ox_hintPriced" : "ox_hintBlank"), s: XL.info }]); line([{ v: " " }, { v: tt("ox_hintRegie"), s: XL.info }]); line([]);
+    var head = line([tt("c_pos"), tt("c_text"), tt("c_qty"), tt("c_unit"), tt("c_ep"), tt("c_tot")].map(function (t) { return { v: t, s: XL.hdr }; }));
+    /* Kapitel: Projektzeilen (Zusammenstellung) + NPK 111/113 vollständig */
+    var chOf = function (l) { return l.key === "—" ? "—" : l.key === "OFFEN" ? "OFFEN" : l.key === "Pauschal" ? "P" : l.key.split("/")[0]; }, CH = {}, order = [];
+    out.summary.forEach(function (l) { var c = chOf(l); if (!CH[c]) { CH[c] = []; order.push(c); } CH[c].push(l); });
+    ["111", "113"].forEach(function (c) {
+      var have = {}; (CH[c] || []).forEach(function (l) { have[l.key] = 1; });
+      var add = Object.keys(LV).filter(function (key) { return key.split("/")[0] === c && !have[key]; }).map(function (key) { return { key: key, unit: LV[key].u, ep: LV[key].ep, qty: null, total: 0, ansatz: true }; });
+      if (!CH[c]) { CH[c] = []; order.push(c); } CH[c] = CH[c].concat(add).sort(function (a, b) { return a.key < b.key ? -1 : a.key > b.key ? 1 : 0; });
+    });
+    var num3 = function (c) { return /^\d{3}$/.test(c); }; order.sort(function (a, b) { return num3(a) && num3(b) ? (a < b ? -1 : 1) : num3(a) ? -1 : num3(b) ? 1 : 0; });
+    var subs = [], tot0 = 0;
+    order.forEach(function (c) {
+      var chl = c === "—" ? tt("g_frei") : c === "OFFEN" ? tt("c_offenTag") : c === "P" ? tt("g_pausch") : "NPK " + c + " · " + (CHAPTERS[c] || ""); line(fillRow(XL.grp, chl));
+      var first = nr(), st0 = 0;
+      CH[c].forEach(function (l) {
+        var r = nr(), off = l.flag === "offen", lv = /^\d{3}\//.test(l.key), ep = priced && !off && l.ep != null ? l.ep : null, qty = l.qty == null ? null : l.qty;
+        var text = off ? (l.text ? l.text + " – " : "") + openText(l) : lv ? (lvC(l.key) ? lvC(l.key) + " › " : "") + lvT(l.key) : txt(l);
+        var amt = qty == null ? "" : ep == null ? 0 : r2(qty * ep); if (typeof amt === "number") st0 = r2(st0 + amt);
+        line([{ v: off ? tt("c_offenTag") : l.key, s: XL.code }, { v: text + (l.ansatz ? "  (" + tt("ox_ansatz") + ")" : ""), s: l.ansatz ? XL.ctx : XL.wrap }, qty == null ? { v: null, s: XL.num } : { v: qty, s: XL.num }, { v: l.unit || "" },
+          ep == null ? { v: null, s: XL.inp } : { v: ep, s: XL.inp }, qty == null ? { v: "", s: XL.num, f: 'IF(C' + r + '="","",ROUND(C' + r + "*E" + r + ",2))" } : { v: amt, s: XL.num, f: "ROUND(C" + r + "*E" + r + ",2)" }]);
+      });
+      var last = nr() - 1; line([{ v: " ", s: XL.sumLbl }, { v: tt("ox_sum") + " " + (num3(c) ? "NPK " + c : chl), s: XL.sumLbl }, { v: null, s: XL.sumLbl }, { v: null, s: XL.sumLbl }, { v: null, s: XL.sumLbl }, { v: st0, s: XL.sum, f: "SUM(F" + first + ":F" + last + ")" }]);
+      subs.push("F" + R.length); tot0 = r2(tot0 + st0);
+    });
+    line([]);
+    /* Kosten wie im Kostenblatt: Zwischensumme → Staffel → Rabatt → Installationspauschale → Netto → MWST → Total */
+    var c0 = nr(), s1 = c0 + 13, s5 = s1 + 4, st = KVE.STAFFEL.filter(function (x) { return tot0 <= x.bis; })[0] || KVE.STAFFEL[4], si = KVE.STAFFEL.indexOf(st) + 1;
+    var rab = r2(tot0 * st.pct / 100), nach = r2(tot0 - rab), inst = tot0 > 0 ? st.inst : 0, net = r2(nach + inst), mws = r2(net * sm.mwSatz);
+    var row = function (lab, v, f, sv, sl) { line([{ v: " " }, { v: lab, s: sl || XL.def }, "", "", "", { v: v, s: sv || XL.num, f: f }]); };
+    row(tt("k_zw"), tot0, subs.length ? subs.join("+") : "0", XL.sum, XL.sumLbl);
+    row(tt("x_stufe"), si, "1+(F" + c0 + ">C" + s1 + ")+(F" + c0 + ">C" + (s1 + 1) + ")+(F" + c0 + ">C" + (s1 + 2) + ")+(F" + c0 + ">C" + (s1 + 3) + ")", XL.int);
+    row(tt("x_pct"), st.pct, "INDEX(E" + s1 + ":E" + s5 + ",F" + (c0 + 1) + ")", XL.pct);
+    row(tt("x_rabatt"), rab, "ROUND(F" + c0 + "*F" + (c0 + 2) + "/100,2)");
+    row(tt("k_nach"), nach, "F" + c0 + "-F" + (c0 + 3));
+    row(tt("k_inst"), inst, "IF(F" + c0 + ">0,INDEX(F" + s1 + ":F" + s5 + ",F" + (c0 + 1) + "),0)");
+    row(tt("k_netto"), net, "F" + (c0 + 4) + "+F" + (c0 + 5), XL.sum, XL.sumLbl);
+    line([{ v: " " }, { v: tt("x_mwstsatz") }, "", "", "", { v: r2(sm.mwSatz * 100), s: XL.pct }]);
+    row(mwLab(sm.mwSatz * 100), mws, "ROUND(F" + (c0 + 6) + "*F" + (c0 + 7) + "/100,2)");
+    row(tt("k_brutto"), r2(net + mws), "F" + (c0 + 6) + "+F" + (c0 + 8), XL.sumFill, XL.sumLbl);
+    line([]); line([{ v: " " }, { v: tt("x_staffel"), s: XL.bold }]);
+    line([{ v: " " }, { v: " " }, { v: tt("x_bis"), s: XL.hdr }, { v: " ", s: XL.hdr }, { v: tt("x_pct"), s: XL.hdr }, { v: tt("x_inst"), s: XL.hdr }]);
+    KVE.STAFFEL.forEach(function (t, i) { line([{ v: " " }, { v: tt("x_stufe") + " " + (i + 1), s: XL.grey }, i < 4 ? { v: t.bis, s: XL.num } : { v: "> " + KVE.STAFFEL[3].bis }, "", { v: t.pct, s: XL.pct }, { v: t.inst, s: XL.num }]); });
+    line([]); line([]);
+    line([{ v: tt("ox_ortDatum"), s: XL.grey }, { v: null, s: XL.sig }, "", { v: tt("ox_sig"), s: XL.grey }, { v: null, s: XL.sig }, { v: null, s: XL.sig }]);
+    return { name: sheetName(tt(priced ? "ox_sPriced" : "ox_sBlank"), used), rows: R, cols: [17, 58, 10, 6, 12, 14], freeze: head, titles: [head, head], portrait: true,
+      footer: "&L&8" + tt("title") + " · App-Konzept und Urheber: Alessandro Cortese&R&8" + tt("ox_page") + " &P / &N" };
+  }
   function xlsxSheets(out) {
     var used = [], nm = { k: sheetName(tt("h_kosten"), used), a: sheetName(tt("h_aufst"), used), z: sheetName(tt("h_zus"), used), b: sheetName(tt("h_bal"), used), w: sheetName(tt("h_warn"), used), g: sheetName(tt("h_grund"), used) };
     var fillRow = function (n, st, first) { var r = [{ v: first, s: st }]; for (var i = 1; i < n; i++) r.push({ v: " ", s: st }); return r; };
@@ -9195,7 +9282,7 @@ var FIG = (function () {
     S.recs.hon.forEach(function (r) { var h = honCalc(r, sm.netto); if (h.ok) H.push([{ v: r.name }, { v: h.B, s: XL.num }, { v: h.q, s: XL.num }, { v: h.Tm, s: XL.num }, { v: h.Tp, s: XL.num }, { v: num(r.h), s: XL.num }, { v: h.H, s: XL.num }, { v: h.NK, s: XL.num }, { v: h.net, s: XL.sum }]); });
     var G = [[{ v: tt("h_grund"), s: XL.title }], []];
     (T[S.lang] || T.de).g_list.concat([tt("g_lvOnlyDE"), tt("x_stand")]).forEach(function (x) { G.push([{ v: x, s: XL.wrap }]); });
-    var sheets = [{ name: nm.k, rows: K, cols: [46, 20, 18] }, { name: nm.a, rows: A, cols: [14, 88, 11, 7, 11, 13], freeze: 1 }, { name: nm.z, rows: Z, cols: [14, 88, 11, 7, 11, 13], freeze: 1 },
+    var sheets = [{ name: nm.k, rows: K, cols: [46, 20, 18] }, offerSheet(out, false, used, txt), offerSheet(out, true, used, txt), { name: nm.a, rows: A, cols: [14, 88, 11, 7, 11, 13], freeze: 1 }, { name: nm.z, rows: Z, cols: [14, 88, 11, 7, 11, 13], freeze: 1 },
       { name: nm.b, rows: B.length ? B : [[{ v: "—" }]], cols: [62, 14, 8] }, { name: sheetName(tt("h_vollst"), used), rows: V, cols: [64, 30] }, { name: sheetName(tt("h_annahmen"), used), rows: N, cols: [22, 40, 20, 14] }];
     if (H.length > 1) sheets.push({ name: sheetName(tt("tab_hon"), used), rows: H, cols: [30, 14, 8, 10, 10, 14, 12, 14] });
     sheets.push({ name: nm.w, rows: W, cols: [36, 12, 110] }, { name: nm.g, rows: G, cols: [150] });

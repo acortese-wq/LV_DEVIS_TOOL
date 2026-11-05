@@ -1357,6 +1357,67 @@
   var XL = XLSXW.ST;
   function sheetName(s, used) { var n = String(s).replace(/[\[\]:*?\/\\]/g, " ").slice(0, 31).trim(), b = n, i = 2; while (used.indexOf(n) >= 0) n = b.slice(0, 28) + " " + (i++); used.push(n); return n; }
   function qn(n) { return "'" + String(n).replace(/'/g, "''") + "'"; }
+  /* ---------- Excel: Offertregister für die Offertstellung (leer / mit Projektpreisen) ----------
+     Positionen des Projekts mit Mengen, dazu NPK 111 (Regie) und NPK 113 (Baustelleneinrichtung) vollständig; EP gelb = Eingabe;
+     Betrag, Kapitelsummen, Rabatt-Staffel, Installationspauschale und MWST als Formeln (wie Kostenblatt). Druckfertig A4 hoch. */
+  function offerSheet(out, priced, used, txt) {
+    var R = [], k = S.kopf, sm = out.sum, nr = function () { return R.length + 1; };
+    var line = function (cells) { R.push(cells); return R.length; };
+    var fillRow = function (st, first) { var r = [{ v: first, s: st }]; for (var i = 1; i < 6; i++) r.push({ v: null, s: st }); return r; };   /* leere Zellen: Kapiteltitel läuft über */
+    line([{ v: tt("ox_title") + " · " + tt(priced ? "ox_priced" : "ox_blank"), s: XL.title }]);
+    line([{ v: tt("title") + " · LV Swisscom V1.1 (10.07.2026)", s: XL.grey }]);
+    line([]);
+    [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["dv_nr", k.devisNr], ["bearb", k.bearb], ["datum", k.datum || today()]].forEach(function (x) { if (x[1]) line([{ v: tt(x[0]), s: XL.grey }, { v: x[1], s: XL.bold }]); });
+    line([]); line([{ v: tt("ox_unt"), s: XL.bold }]);
+    ["ox_firma", "ox_adr", "ox_kontakt", "ox_gueltig"].forEach(function (key) { line([{ v: tt(key), s: XL.grey }, { v: null, s: XL.inpTxt }]); });
+    line([]); line([{ v: " " }, { v: tt(priced ? "ox_hintPriced" : "ox_hintBlank"), s: XL.info }]); line([{ v: " " }, { v: tt("ox_hintRegie"), s: XL.info }]); line([]);
+    var head = line([tt("c_pos"), tt("c_text"), tt("c_qty"), tt("c_unit"), tt("c_ep"), tt("c_tot")].map(function (t) { return { v: t, s: XL.hdr }; }));
+    /* Kapitel: Projektzeilen (Zusammenstellung) + NPK 111/113 vollständig */
+    var chOf = function (l) { return l.key === "—" ? "—" : l.key === "OFFEN" ? "OFFEN" : l.key === "Pauschal" ? "P" : l.key.split("/")[0]; }, CH = {}, order = [];
+    out.summary.forEach(function (l) { var c = chOf(l); if (!CH[c]) { CH[c] = []; order.push(c); } CH[c].push(l); });
+    ["111", "113"].forEach(function (c) {
+      var have = {}; (CH[c] || []).forEach(function (l) { have[l.key] = 1; });
+      var add = Object.keys(LV).filter(function (key) { return key.split("/")[0] === c && !have[key]; }).map(function (key) { return { key: key, unit: LV[key].u, ep: LV[key].ep, qty: null, total: 0, ansatz: true }; });
+      if (!CH[c]) { CH[c] = []; order.push(c); } CH[c] = CH[c].concat(add).sort(function (a, b) { return a.key < b.key ? -1 : a.key > b.key ? 1 : 0; });
+    });
+    var num3 = function (c) { return /^\d{3}$/.test(c); }; order.sort(function (a, b) { return num3(a) && num3(b) ? (a < b ? -1 : 1) : num3(a) ? -1 : num3(b) ? 1 : 0; });
+    var subs = [], tot0 = 0;
+    order.forEach(function (c) {
+      var chl = c === "—" ? tt("g_frei") : c === "OFFEN" ? tt("c_offenTag") : c === "P" ? tt("g_pausch") : "NPK " + c + " · " + (CHAPTERS[c] || ""); line(fillRow(XL.grp, chl));
+      var first = nr(), st0 = 0;
+      CH[c].forEach(function (l) {
+        var r = nr(), off = l.flag === "offen", lv = /^\d{3}\//.test(l.key), ep = priced && !off && l.ep != null ? l.ep : null, qty = l.qty == null ? null : l.qty;
+        var text = off ? (l.text ? l.text + " – " : "") + openText(l) : lv ? (lvC(l.key) ? lvC(l.key) + " › " : "") + lvT(l.key) : txt(l);
+        var amt = qty == null ? "" : ep == null ? 0 : r2(qty * ep); if (typeof amt === "number") st0 = r2(st0 + amt);
+        line([{ v: off ? tt("c_offenTag") : l.key, s: XL.code }, { v: text + (l.ansatz ? "  (" + tt("ox_ansatz") + ")" : ""), s: l.ansatz ? XL.ctx : XL.wrap }, qty == null ? { v: null, s: XL.num } : { v: qty, s: XL.num }, { v: l.unit || "" },
+          ep == null ? { v: null, s: XL.inp } : { v: ep, s: XL.inp }, qty == null ? { v: "", s: XL.num, f: 'IF(C' + r + '="","",ROUND(C' + r + "*E" + r + ",2))" } : { v: amt, s: XL.num, f: "ROUND(C" + r + "*E" + r + ",2)" }]);
+      });
+      var last = nr() - 1; line([{ v: " ", s: XL.sumLbl }, { v: tt("ox_sum") + " " + (num3(c) ? "NPK " + c : chl), s: XL.sumLbl }, { v: null, s: XL.sumLbl }, { v: null, s: XL.sumLbl }, { v: null, s: XL.sumLbl }, { v: st0, s: XL.sum, f: "SUM(F" + first + ":F" + last + ")" }]);
+      subs.push("F" + R.length); tot0 = r2(tot0 + st0);
+    });
+    line([]);
+    /* Kosten wie im Kostenblatt: Zwischensumme → Staffel → Rabatt → Installationspauschale → Netto → MWST → Total */
+    var c0 = nr(), s1 = c0 + 13, s5 = s1 + 4, st = KVE.STAFFEL.filter(function (x) { return tot0 <= x.bis; })[0] || KVE.STAFFEL[4], si = KVE.STAFFEL.indexOf(st) + 1;
+    var rab = r2(tot0 * st.pct / 100), nach = r2(tot0 - rab), inst = tot0 > 0 ? st.inst : 0, net = r2(nach + inst), mws = r2(net * sm.mwSatz);
+    var row = function (lab, v, f, sv, sl) { line([{ v: " " }, { v: lab, s: sl || XL.def }, "", "", "", { v: v, s: sv || XL.num, f: f }]); };
+    row(tt("k_zw"), tot0, subs.length ? subs.join("+") : "0", XL.sum, XL.sumLbl);
+    row(tt("x_stufe"), si, "1+(F" + c0 + ">C" + s1 + ")+(F" + c0 + ">C" + (s1 + 1) + ")+(F" + c0 + ">C" + (s1 + 2) + ")+(F" + c0 + ">C" + (s1 + 3) + ")", XL.int);
+    row(tt("x_pct"), st.pct, "INDEX(E" + s1 + ":E" + s5 + ",F" + (c0 + 1) + ")", XL.pct);
+    row(tt("x_rabatt"), rab, "ROUND(F" + c0 + "*F" + (c0 + 2) + "/100,2)");
+    row(tt("k_nach"), nach, "F" + c0 + "-F" + (c0 + 3));
+    row(tt("k_inst"), inst, "IF(F" + c0 + ">0,INDEX(F" + s1 + ":F" + s5 + ",F" + (c0 + 1) + "),0)");
+    row(tt("k_netto"), net, "F" + (c0 + 4) + "+F" + (c0 + 5), XL.sum, XL.sumLbl);
+    line([{ v: " " }, { v: tt("x_mwstsatz") }, "", "", "", { v: r2(sm.mwSatz * 100), s: XL.pct }]);
+    row(mwLab(sm.mwSatz * 100), mws, "ROUND(F" + (c0 + 6) + "*F" + (c0 + 7) + "/100,2)");
+    row(tt("k_brutto"), r2(net + mws), "F" + (c0 + 6) + "+F" + (c0 + 8), XL.sumFill, XL.sumLbl);
+    line([]); line([{ v: " " }, { v: tt("x_staffel"), s: XL.bold }]);
+    line([{ v: " " }, { v: " " }, { v: tt("x_bis"), s: XL.hdr }, { v: " ", s: XL.hdr }, { v: tt("x_pct"), s: XL.hdr }, { v: tt("x_inst"), s: XL.hdr }]);
+    KVE.STAFFEL.forEach(function (t, i) { line([{ v: " " }, { v: tt("x_stufe") + " " + (i + 1), s: XL.grey }, i < 4 ? { v: t.bis, s: XL.num } : { v: "> " + KVE.STAFFEL[3].bis }, "", { v: t.pct, s: XL.pct }, { v: t.inst, s: XL.num }]); });
+    line([]); line([]);
+    line([{ v: tt("ox_ortDatum"), s: XL.grey }, { v: null, s: XL.sig }, "", { v: tt("ox_sig"), s: XL.grey }, { v: null, s: XL.sig }, { v: null, s: XL.sig }]);
+    return { name: sheetName(tt(priced ? "ox_sPriced" : "ox_sBlank"), used), rows: R, cols: [17, 58, 10, 6, 12, 14], freeze: head, titles: [head, head], portrait: true,
+      footer: "&L&8" + tt("title") + " · App-Konzept und Urheber: Alessandro Cortese&R&8" + tt("ox_page") + " &P / &N" };
+  }
   function xlsxSheets(out) {
     var used = [], nm = { k: sheetName(tt("h_kosten"), used), a: sheetName(tt("h_aufst"), used), z: sheetName(tt("h_zus"), used), b: sheetName(tt("h_bal"), used), w: sheetName(tt("h_warn"), used), g: sheetName(tt("h_grund"), used) };
     var fillRow = function (n, st, first) { var r = [{ v: first, s: st }]; for (var i = 1; i < n; i++) r.push({ v: " ", s: st }); return r; };
@@ -1430,7 +1491,7 @@
     S.recs.hon.forEach(function (r) { var h = honCalc(r, sm.netto); if (h.ok) H.push([{ v: r.name }, { v: h.B, s: XL.num }, { v: h.q, s: XL.num }, { v: h.Tm, s: XL.num }, { v: h.Tp, s: XL.num }, { v: num(r.h), s: XL.num }, { v: h.H, s: XL.num }, { v: h.NK, s: XL.num }, { v: h.net, s: XL.sum }]); });
     var G = [[{ v: tt("h_grund"), s: XL.title }], []];
     (T[S.lang] || T.de).g_list.concat([tt("g_lvOnlyDE"), tt("x_stand")]).forEach(function (x) { G.push([{ v: x, s: XL.wrap }]); });
-    var sheets = [{ name: nm.k, rows: K, cols: [46, 20, 18] }, { name: nm.a, rows: A, cols: [14, 88, 11, 7, 11, 13], freeze: 1 }, { name: nm.z, rows: Z, cols: [14, 88, 11, 7, 11, 13], freeze: 1 },
+    var sheets = [{ name: nm.k, rows: K, cols: [46, 20, 18] }, offerSheet(out, false, used, txt), offerSheet(out, true, used, txt), { name: nm.a, rows: A, cols: [14, 88, 11, 7, 11, 13], freeze: 1 }, { name: nm.z, rows: Z, cols: [14, 88, 11, 7, 11, 13], freeze: 1 },
       { name: nm.b, rows: B.length ? B : [[{ v: "—" }]], cols: [62, 14, 8] }, { name: sheetName(tt("h_vollst"), used), rows: V, cols: [64, 30] }, { name: sheetName(tt("h_annahmen"), used), rows: N, cols: [22, 40, 20, 14] }];
     if (H.length > 1) sheets.push({ name: sheetName(tt("tab_hon"), used), rows: H, cols: [30, 14, 8, 10, 10, 14, 12, 14] });
     sheets.push({ name: nm.w, rows: W, cols: [36, 12, 110] }, { name: nm.g, rows: G, cols: [150] });

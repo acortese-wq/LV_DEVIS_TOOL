@@ -2,7 +2,7 @@
 var XLSXW = (function () {
   "use strict";
   var ST = { def: 0, hdr: 1, grp: 2, num: 3, sum: 4, title: 5, bold: 6, wrap: 7, ctx: 8, amber: 9, red: 10, numAmber: 11, numRed: 12,
-             grey: 13, int: 14, sumFill: 15, sumLbl: 16, pct: 17, elTitle: 18, code: 19, stop: 20, warnA: 21, info: 22 };
+             grey: 13, int: 14, sumFill: 15, sumLbl: 16, pct: 17, elTitle: 18, code: 19, stop: 20, warnA: 21, info: 22, inp: 23, inpTxt: 24, sig: 25 };
 
   var crcT = (function () { var t = [], c, n, k; for (n = 0; n < 256; n++) { c = n; for (k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
   function crc32(u) { var c = 0xFFFFFFFF; for (var i = 0; i < u.length; i++) c = crcT[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
@@ -51,12 +51,13 @@ var XLSXW = (function () {
         if (c.f != null) {
           var isStr = typeof c.v === "string";
           x += '<c r="' + ref + '" s="' + s + '"' + (isStr ? ' t="str"' : "") + "><f>" + esc(c.f) + "</f>" + (noCache ? "" : "<v>" + esc(c.v == null ? 0 : c.v) + "</v>") + "</c>";
-        } else if (typeof c.v === "number") x += '<c r="' + ref + '" s="' + s + '"><v>' + c.v + "</v></c>";
+        } else if (c.v == null) x += '<c r="' + ref + '" s="' + s + '"/>';   /* leere Zelle mit Format (z. B. Eingabefeld) */
+        else if (typeof c.v === "number") x += '<c r="' + ref + '" s="' + s + '"><v>' + c.v + "</v></c>";
         else x += '<c r="' + ref + '" s="' + s + '" t="inlineStr"><is><t xml:space="preserve">' + esc(c.v) + "</t></is></c>";
       });
       x += "</row>";
     });
-    x += '</sheetData><pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/></worksheet>';
+    x += '</sheetData><pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="' + (sh.portrait ? "portrait" : "landscape") + '" fitToWidth="1" fitToHeight="0"/>' + (sh.footer ? "<headerFooter><oddFooter>" + esc(sh.footer) + "</oddFooter></headerFooter>" : "") + "</worksheet>";
     return x;
   }
 
@@ -77,10 +78,13 @@ var XLSXW = (function () {
       '<fill><patternFill patternType="solid"><fgColor rgb="FFF0F1F3"/></patternFill></fill>',
       '<fill><patternFill patternType="solid"><fgColor rgb="FFFDF5E6"/></patternFill></fill>',
       '<fill><patternFill patternType="solid"><fgColor rgb="FFFDECED"/></patternFill></fill>',
-      '<fill><patternFill patternType="solid"><fgColor rgb="FFF4F6FA"/></patternFill></fill>'];
+      '<fill><patternFill patternType="solid"><fgColor rgb="FFF4F6FA"/></patternFill></fill>',
+      '<fill><patternFill patternType="solid"><fgColor rgb="FFFFF4C2"/></patternFill></fill>'];   /* 7 Eingabefeld (gelb) */
     var borders = ['<border><left/><right/><top/><bottom/><diagonal/></border>',
       '<border><left/><right/><top/><bottom style="thin"><color rgb="FFE4E6E9"/></bottom><diagonal/></border>',
-      '<border><left/><right/><top style="thin"><color rgb="FF1A1C1E"/></top><bottom/><diagonal/></border>'];
+      '<border><left/><right/><top style="thin"><color rgb="FF1A1C1E"/></top><bottom/><diagonal/></border>',
+      '<border><left style="thin"><color rgb="FF8F959D"/></left><right style="thin"><color rgb="FF8F959D"/></right><top style="thin"><color rgb="FF8F959D"/></top><bottom style="thin"><color rgb="FF8F959D"/></bottom><diagonal/></border>',
+      '<border><left/><right/><top/><bottom style="thin"><color rgb="FF1A1C1E"/></bottom><diagonal/></border>'];
     var al = function (w) { return '<alignment vertical="top"' + (w ? ' wrapText="1"' : "") + "/>"; };
     var xf = function (font, fill, border, num, w, h) {
       return '<xf numFmtId="' + num + '" fontId="' + font + '" fillId="' + fill + '" borderId="' + border + '" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyNumberFormat="1" applyAlignment="1">' +
@@ -109,7 +113,10 @@ var XLSXW = (function () {
       xf(6, 0, 1, 0, 0),            // 19 Positionsnummer
       xf(7, 5, 0, 0, 1),            // 20 kritisch
       xf(8, 4, 0, 0, 1),            // 21 Hinweis
-      xf(5, 0, 0, 0, 1)             // 22 Info
+      xf(5, 0, 0, 0, 1),            // 22 Info
+      xf(0, 7, 3, 164, 0),          // 23 Eingabe Zahl (gelb, umrandet)
+      xf(0, 7, 3, 0, 1),            // 24 Eingabe Text
+      xf(0, 0, 4, 0, 0)             // 25 Unterschriftslinie
     ];
     return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
       '<numFmts count="2"><numFmt numFmtId="164" formatCode="#,##0.00"/><numFmt numFmtId="165" formatCode="0.0&quot; %&quot;"/></numFmts>' +
@@ -134,7 +141,8 @@ var XLSXW = (function () {
       sh.first = i === 0;
       files.push({ name: "xl/worksheets/sheet" + (i + 1) + ".xml", data: enc(sheetXml(sh, opts.noCache)) });
     });
-    ct += "</Types>"; wb += '</sheets><calcPr calcId="191029" fullCalcOnLoad="1"/></workbook>';
+    var dn = sheets.map(function (sh, i) { return sh.titles ? '<definedName name="_xlnm.Print_Titles" localSheetId="' + i + '">\'' + esc(sh.name).replace(/'/g, "''") + "'!$" + sh.titles[0] + ":$" + sh.titles[1] + "</definedName>" : ""; }).join("");   /* Wiederholungszeilen beim Druck */
+    ct += "</Types>"; wb += '</sheets>' + (dn ? "<definedNames>" + dn + "</definedNames>" : "") + '<calcPr calcId="191029" fullCalcOnLoad="1"/></workbook>';
     rel += '<Relationship Id="rId' + (n + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
     var root = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>';
     files.unshift({ name: "[Content_Types].xml", data: enc(ct) }, { name: "_rels/.rels", data: enc(root) },

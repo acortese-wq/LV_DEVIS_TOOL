@@ -283,3 +283,10 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 - **Vorher:** Karte 760 × 420 im Hochformat, jede Linie mit vollem Text (Name · Länge · Rohranlage · Belag), dazu Schachtnamen, Werkleitungen, Gebäude, Sondagen und Flächen – Texte überdeckten sich.
 - **Nachher:** eigene Seite A4 quer; auf der Karte nur Nummern (L1 … für Leitungen, 1 … für Schächte), Beschreibung in einer Tabelle darunter bzw. auf der Folgeseite; nur Leitungen, Schächte und Notizen/Pfeile; Kartenhintergrund abgeschwächt. Der Hintergrund wird beim Öffnen des Berichts im Projekt abgelegt, der Druck wartet höchstens 5 s auf das Bild.
 - Bildschirm-Situation und Export unverändert. Keine Kostenwirkung. Test t66.
+
+## Excel: Offertregister mit und ohne Preise (V87)
+- **Neu im Excel:** zwei Blätter direkt nach der Kostenübersicht – «Offerte (leer)» und «Offerte (mit Preisen)», druckfertig A4 hoch, Tabellenkopf auf jeder Seite, Fusszeile mit Seitenzahl und Urheber.
+- **Inhalt:** alle Projektpositionen mit Mengen (inkl. OFFEN-, eigener und freier Positionen), dazu NPK 111 (Regiearbeiten, 58 Positionen) und NPK 113 (Baustelleneinrichtung, 24 Positionen) vollständig; Positionen ohne Menge sind als «Ansatz» markiert und zählen nicht zum Total.
+- **Ausfüllen:** EP-Spalte gelb (Eingabefeld); Betrag = Menge × EP, Kapitelsummen, Zwischensumme, Rabatt-Staffel R151, Installationspauschale R152, Netto, MWST und Total inkl. MWST als Formeln. Kopf mit Feldern für Unternehmer, Gültigkeit, Ort/Datum und Unterschrift.
+- **Mit Preisen:** Projektpreise (LV V1.1 bzw. geänderte/eigene Preise). Total entspricht der Kostenübersicht bis auf Rundungsrappen (Excel rechnet Menge × EP je Zeile, das Tool rundet je Element).
+- Keine Kostenwirkung im Tool. Test t67 (mit LibreOffice zusätzlich geprüft: leeres Register mit eingetragenen Projektpreisen ergibt denselben Total).
