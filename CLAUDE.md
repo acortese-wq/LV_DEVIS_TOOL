@@ -26,16 +26,15 @@ Reine Oberflächenänderungen: Build + betroffene Tests, z. B. `node tests/run.j
 - Eingaben sind Text; Zahlen wie «1'200» werden markiert.
 - Änderungen mit Kostenwirkung dem Benutzer klar melden. Vorher/Nachher-Liste: `docs/UX-Audit_2026-10.md`.
 - Branch: `claude/dreamy-cray-x10m0g` (Hauptstand, Standard-Branch), kein Pull Request ohne Auftrag.
-- Vorhaben Layout A: Branch `layout-a` (vom Benutzer freigegeben am 05.11.2026), siehe unten.
+- Layout A: abgeschlossen und am 05.11.2026 über PR #1 in `claude/dreamy-cray-x10m0g` übernommen, siehe unten.
 
 ## Veröffentlichung
 Artefakt-URL (immer dieselbe aktualisieren): https://claude.ai/artifact/F2BDoDDnQFxmsbmzGnwKxx
 
-## Vorhaben Layout A (Branch `layout-a`)
+## Layout A «Planungsfokus» (abgeschlossen, im Hauptstand)
 Vom Benutzer am 05.11.2026 festgelegt (Masterprompt «Four Live Layouts», Referenzgrafik A–D):
 - **Umfang:** nur Layout A «Planungsfokus» – Karte als Startbildschirm; oben Projekt, Gemeinde, Status, Kennzahlen (Länge, Aushub, Schächte, Kosten exkl./inkl. MWST); links Werkzeuge in Gruppen; rechts kontextabhängige Eigenschaften; unten Reiter Höhenprofil, Ausmass, Kosten, Positionen, Hinweise. Datensätze, Ergebnis und Bericht bleiben als Panels erreichbar. Layout-Umschalter nur vorbereiten (B–D folgen später).
 - **Technik:** bestehende Technik behalten (Vanilla-JS, Leaflet, Einzeldatei), keine Migration. Rechenkern unverändert; Kosten vor/nach identisch.
-- **Arbeitsweise:** kurze Bestandsaufnahme, nötige Teile des Designsystems, dann Umbau; nach jedem grösseren Schritt Tests (`node tests/run.js`), Commit/Push auf `layout-a`.
-- **Veröffentlichung:** separates Vorschau-Artefakt (nicht die Haupt-Artefakt-URL); `claude/dreamy-cray-x10m0g`, GitHub Pages und Haupt-Artefakt bleiben unverändert. Am Schluss Pull Request von `layout-a` nach `claude/dreamy-cray-x10m0g`.
+- **Veröffentlichung:** PR #1 übernommen (05.11.2026); Haupt-Artefakt mit Layout A aktualisiert. Das frühere Vorschau-Artefakt (https://claude.ai/artifact/BzQWaueHkNAPtvUXe6j2V8) wird nicht mehr nachgeführt; Änderungen nur noch im Hauptstand.
 - **Stand:** umgesetzt (siehe `docs/LAYOUT_A.md`), Test `t65`. Einstellung `lvd-layout` (`a`/`classic`); die Testhilfe `tests/lib/k.js` setzt die Vorgabe `window.__LVD_LAYOUT_DEFAULT='classic'` (Speicher bleibt unberührt), damit ältere Tests auf der klassischen Seite starten; eine gespeicherte Wahl geht vor.
 - **Offen:** Layout B – Reserve/Zuschläge (nicht Teil von Layout A).
