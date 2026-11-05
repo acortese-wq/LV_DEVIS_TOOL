@@ -278,3 +278,8 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 - **Unten:** Dock mit Reitern Höhenprofil, Ausmass, Kosten, Positionen, Hinweise (einklappbar, Wahl wird gemerkt).
 - **Kein Datenverlust:** Wechsel in eine andere Ansicht mit nicht übernommenen Änderungen fragt nach (Übernehmen · Nur Zeichnung sichern · Verwerfen · Abbrechen). Nach «Übernehmen» bleibt man in der Karte.
 - **Kosten unverändert:** Kennzahlen und Dock rechnen mit demselben Rechenkern wie das Ergebnis (Test t65: Vorschau = Ergebnis vor und nach dem Übernehmen). Keine Kostenwirkung.
+
+## Projektbericht: Situationskarte entlastet (V87)
+- **Vorher:** Karte 760 × 420 im Hochformat, jede Linie mit vollem Text (Name · Länge · Rohranlage · Belag), dazu Schachtnamen, Werkleitungen, Gebäude, Sondagen und Flächen – Texte überdeckten sich.
+- **Nachher:** eigene Seite A4 quer; auf der Karte nur Nummern (L1 … für Leitungen, 1 … für Schächte), Beschreibung in einer Tabelle darunter bzw. auf der Folgeseite; nur Leitungen, Schächte und Notizen/Pfeile; Kartenhintergrund abgeschwächt. Der Hintergrund wird beim Öffnen des Berichts im Projekt abgelegt, der Druck wartet höchstens 5 s auf das Bild.
+- Bildschirm-Situation und Export unverändert. Keine Kostenwirkung. Test t66.

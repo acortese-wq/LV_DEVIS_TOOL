@@ -1273,6 +1273,12 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 .kmlya .kmtools [data-k=mruler]::before{content:"⟷" / ""}.kmlya .kmtools [data-k=undo]::before{content:"↶" / ""}.kmlya .kmtools [data-k=redo]::before{content:"↷" / ""}
 .kmlya .kmtools [data-k=end]::before{content:"✓" / ""}.kmlya .kmtools [data-k=clear]::before{content:"✕" / ""}
 .kmlya .kmtools .btn[data-k]{display:flex;align-items:center;gap:2px}
+/* Projektbericht: Situationskarte auf eigener Querseite (A4 quer) */
+@page rpland{size:A4 landscape;margin:10mm 12mm}
+.rp .rp-map{page:rpland;break-before:page;break-after:page}
+.rp .rpmapfig{margin:0 0 4pt;border:0}body .rp .rpmapfig svg{width:100%!important;height:auto;max-height:none!important;display:block;border:0.5pt solid #8fa1ac}
+.rp .rpmapfig figcaption{font-size:8pt;color:#333;margin-top:2pt}
+.rp .rp-maptab{font-size:8.5pt}.rp .rp-maptab .rpnr{font-weight:700;white-space:nowrap;width:3em}
 
 </style>
 </head>
@@ -3053,6 +3059,12 @@ Object.assign(TS.it,{
     km_rt_lk: ["Aus Fussweg-Route erstellt (OpenStreetMap) – nur Vorschlag, Verlauf bitte prüfen (Querungen, Privatareal, Gehwegseite)", "Créée à partir d'un itinéraire piéton (OpenStreetMap) – proposition, vérifier le tracé (traversées, terrain privé, côté du trottoir)", "Creata da un percorso pedonale (OpenStreetMap) – proposta, verificare il tracciato (attraversamenti, area privata, lato marciapiede)", "Created from a footpath route (OpenStreetMap) – suggestion, check the course (crossings, private land, sidewalk side)"],
     btnReport: ["Projektbericht (Druck/PDF) …", "Rapport de projet (impression/PDF) …", "Rapporto di progetto (stampa/PDF) …", "Project report (print/PDF) …"],
     rp_title: ["Projektbericht", "Rapport de projet", "Rapporto di progetto", "Project report"],
+    rp_mapCap: ["Leitungen und Schächte · {m} m · {n} Linie(n) · {s} Schacht/Schächte · Hintergrund abgeschwächt", "Conduites et chambres · {m} m · {n} ligne(s) · {s} chambre(s) · fond atténué", "Condotte e pozzetti · {m} m · {n} linea/e · {s} pozzetto/i · sfondo attenuato", "Lines and manholes · {m} m · {n} line(s) · {s} manhole(s) · background faded"],
+    rp_mapNr: ["Nr.", "N°", "N.", "No."],
+    rp_mapObj: ["Objekt", "Objet", "Oggetto", "Object"],
+    rp_mapDesc: ["Beschreibung", "Description", "Descrizione", "Description"],
+    rp_mapLine: ["Leitung", "Conduite", "Condotta", "Line"],
+    rp_mapSch: ["Schacht", "Chambre", "Pozzetto", "Manhole"],
     rp_gl: ["Gliederung der Mengen", "Structure des quantités", "Struttura delle quantità", "Structure of quantities"],
     rp_m_abs: ["Nach Abschnitten", "Par sections", "Per sezioni", "By sections"],
     rp_m_abs_s: ["Jedes Element (Graben, Schacht, …) mit seinen Positionen und Summe.", "Chaque élément (fouille, chambre, …) avec ses positions et sa somme.", "Ogni elemento (scavo, pozzetto, …) con le sue posizioni e somma.", "Each element (trench, shaft, …) with its items and sum."],
@@ -5588,9 +5600,9 @@ var FIG = (function () {
   }
   function mapFigure(g, tt, o) {
     var W = o.W, H = o.H, box = geoBox(g, W, H); if (!box) return null;
-    var bb = box.bb, sc = box.sc, k = W / 360, px = function (p) { return [((p[0] - bb[0]) / sc), ((bb[3] - p[1]) / sc)]; };
+    var bb = box.bb, sc = box.sc, k = o.k || W / 360, px = function (p) { return [((p[0] - bb[0]) / sc), ((bb[3] - p[1]) / sc)]; };
     var fig = document.createElement("figure"); fig.className = o.cls || "kmprev";
-    fig.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(tt("km_prevAlt")) + '"><rect width="' + W + '" height="' + H + '" fill="#eef1f3"/><rect width="' + W + '" height="' + H + '" fill="#fff"/>' + ((o.base === "leer" || (o.base === "av" && !avCfg().u)) ? "" : '<image href="' + esc(o.bg || bgUrl(box, o.base)) + '" width="' + W + '" height="' + H + '"/>') + overlaySvg(o.overlay, px) + geoSvg(g, px, k, { labels: o.labels }) + '</svg><figcaption>' + esc(o.cap || "") + (o.base === "kataster" ? " · © geo.admin.ch / Kantone (Amtliche Vermessung)" : " · © swisstopo") + "</figcaption>";
+    fig.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(tt("km_prevAlt")) + '"><rect width="' + W + '" height="' + H + '" fill="#eef1f3"/><rect width="' + W + '" height="' + H + '" fill="#fff"/>' + ((o.base === "leer" || (o.base === "av" && !avCfg().u)) ? "" : '<image href="' + esc(o.bg || bgUrl(box, o.base)) + '" width="' + W + '" height="' + H + '"/>' + (o.pale ? '<rect width="' + W + '" height="' + H + '" fill="#fff" fill-opacity="' + o.pale + '"/>' : "")) + overlaySvg(o.overlay, px) + geoSvg(g, px, k, { labels: o.labels }) + '</svg><figcaption>' + esc(o.cap || "") + (o.base === "kataster" ? " · © geo.admin.ch / Kantone (Amtliche Vermessung)" : " · © swisstopo") + "</figcaption>";
     var im = fig.querySelector("image"); im.addEventListener("error", function () { im.remove(); });
     return fig;
   }
@@ -9040,11 +9052,27 @@ var FIG = (function () {
     if (out.nOffen) rows.push({ k: "⚠ " + tt("rp_t_off"), v: out.nOffen, u: tt("rp_u_pos"), n: out.nOffen, note: tt("k_offenV") });
     return rows;
   }
+  /* Projektbericht: Situationskarte auf eigener Querseite – nur Leitungen, Schächte und Notizen, auf der Karte nur Nummern (L1 …, 1 …), Beschreibung in der Tabelle, Hintergrund abgeschwächt */
+  var RPW = 1120, RPH = 690;
+  function rpGeo() { var g = situGeo(); g.areas = []; g.sond = []; g.wl = []; g.geb = []; g.extra = []; g.lab = { lines: S.karte.lines.map(function (l, i) { return "L" + (i + 1); }), pts: [] }; return g; }
+  function rpCacheBg() { var K = S.karte; if (!K.lines.length && !K.pts.length && !K.notes.length) return; var g = rpGeo(), base = KARTE.ovBase(K.base); if (K.bgRp && K.bgRp.key === KARTE.bgKey(g, RPW, RPH, base)) return; KARTE.cacheBg(g, base, RPW, RPH, function (bg) { S.karte.bgRp = bg; save(); }); }
+  function reportMap() {
+    var K = S.karte, P = S.plan, h = "", hasMap = K.lines.length || K.pts.length || K.notes.length;
+    if (hasMap) {
+      var g = rpGeo(), base = KARTE.ovBase(K.base), bg = K.bgRp && K.bgRp.key === KARTE.bgKey(g, RPW, RPH, base) ? K.bgRp.src : null, lab = mkLabels(K, mapFns());
+      var fig = KARTE.mapFigure(g, tt, { W: RPW, H: RPH, k: 1.7, pale: 0.55, base: base, bg: bg, labels: true, cls: "situfig rpmapfig", cap: fill(tt("rp_mapCap"), { m: KARTE.fmt(KARTE.total(g.lines)), n: K.lines.length, s: K.pts.length }) });
+      var rows = K.lines.map(function (l, i) { return '<tr><td class="rpnr">L' + (i + 1) + "</td><td>" + esc(tt("rp_mapLine")) + "</td><td>" + esc(lab.lines[i] || "") + "</td></tr>"; }).concat(K.pts.map(function (p, i) { return '<tr><td class="rpnr">' + (i + 1) + "</td><td>" + esc(tt("rp_mapSch")) + "</td><td>" + esc(lab.pts[i] || "") + "</td></tr>"; }));
+      h += '<section class="rp-sec rp-map"><h2>' + esc(tt("sit_h")) + "</h2>" + (fig ? fig.outerHTML : "") +
+        (rows.length ? '<table class="rp-tab rp-maptab"><thead><tr><th>' + esc(tt("rp_mapNr")) + "</th><th>" + esc(tt("rp_mapObj")) + "</th><th>" + esc(tt("rp_mapDesc")) + "</th></tr></thead><tbody>" + rows.join("") + "</tbody></table>" : "") + "</section>";
+    }
+    if (P.img) { var pv = KARTE.planPreview(P, tt, mkLabels(P, planFns())); if (pv) { pv.className = "situfig"; h += '<section class="rp-sec"><h2>' + esc(tt("sit_capPlan")) + "</h2>" + pv.outerHTML + "</section>"; } }
+    return h;
+  }
   function reportBuild(o) {
     var out = KVE.calc(S, LV), k = S.kopf, h = "";
     h += "<h1>" + esc(tt("rp_title")) + "</h1>";
     if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb], ["datum", k.datum || today()]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
-    if (o.situ) { var sit = $("#result .situ"); if (sit) { var c = sit.cloneNode(true); c.classList.remove("no-summary"); [].slice.call(c.querySelectorAll(".situhead,.situsum,button")).forEach(function (x) { x.remove(); }); [].slice.call(c.querySelectorAll("[hidden]")).forEach(function (x) { x.hidden = false; }); h += '<section class="rp-sec">' + c.outerHTML + "</section>"; } }
+    if (o.situ) h += reportMap();
     if (o.mengen) {
       if (o.mode === "total") {
         var rows = reportTotals(out);
@@ -9084,9 +9112,11 @@ var FIG = (function () {
       var sub = e.submitter && e.submitter.value; if (sub !== "print") return;
       R.mode = d.querySelector("input[name=rpm]:checked").value; [].slice.call(d.querySelectorAll("[data-rp]")).forEach(function (i) { R[i.dataset.rp] = i.checked; }); save();
       var doc = document.getElementById("reportDoc"); if (doc) doc.remove(); doc = document.createElement("div"); doc.id = "reportDoc"; doc.className = "rp"; doc.innerHTML = reportBuild(R); document.body.appendChild(doc); wrapTables(doc);
-      document.body.classList.add("report-print"); setTimeout(function () { window.print(); }, 50);
+      document.body.classList.add("report-print");
+      var ims = [].slice.call(doc.querySelectorAll("image")).filter(function (im) { return !/^data:/.test(im.getAttribute("href") || ""); });   /* Kartenhintergrund noch nicht im Projekt: höchstens 5 s auf das Bild warten */
+      Promise.all(ims.map(function (im) { return new Promise(function (r) { var t = setTimeout(r, 5000); im.addEventListener("load", function () { clearTimeout(t); r(); }); im.addEventListener("error", function () { clearTimeout(t); r(); }); }); })).then(function () { setTimeout(function () { window.print(); }, 50); });
     });
-    d.showModal();
+    d.showModal(); rpCacheBg();
   }
   /* ---------- Excel ---------- */
   var XL = XLSXW.ST;

@@ -1287,11 +1287,27 @@
     if (out.nOffen) rows.push({ k: "⚠ " + tt("rp_t_off"), v: out.nOffen, u: tt("rp_u_pos"), n: out.nOffen, note: tt("k_offenV") });
     return rows;
   }
+  /* Projektbericht: Situationskarte auf eigener Querseite – nur Leitungen, Schächte und Notizen, auf der Karte nur Nummern (L1 …, 1 …), Beschreibung in der Tabelle, Hintergrund abgeschwächt */
+  var RPW = 1120, RPH = 690;
+  function rpGeo() { var g = situGeo(); g.areas = []; g.sond = []; g.wl = []; g.geb = []; g.extra = []; g.lab = { lines: S.karte.lines.map(function (l, i) { return "L" + (i + 1); }), pts: [] }; return g; }
+  function rpCacheBg() { var K = S.karte; if (!K.lines.length && !K.pts.length && !K.notes.length) return; var g = rpGeo(), base = KARTE.ovBase(K.base); if (K.bgRp && K.bgRp.key === KARTE.bgKey(g, RPW, RPH, base)) return; KARTE.cacheBg(g, base, RPW, RPH, function (bg) { S.karte.bgRp = bg; save(); }); }
+  function reportMap() {
+    var K = S.karte, P = S.plan, h = "", hasMap = K.lines.length || K.pts.length || K.notes.length;
+    if (hasMap) {
+      var g = rpGeo(), base = KARTE.ovBase(K.base), bg = K.bgRp && K.bgRp.key === KARTE.bgKey(g, RPW, RPH, base) ? K.bgRp.src : null, lab = mkLabels(K, mapFns());
+      var fig = KARTE.mapFigure(g, tt, { W: RPW, H: RPH, k: 1.7, pale: 0.55, base: base, bg: bg, labels: true, cls: "situfig rpmapfig", cap: fill(tt("rp_mapCap"), { m: KARTE.fmt(KARTE.total(g.lines)), n: K.lines.length, s: K.pts.length }) });
+      var rows = K.lines.map(function (l, i) { return '<tr><td class="rpnr">L' + (i + 1) + "</td><td>" + esc(tt("rp_mapLine")) + "</td><td>" + esc(lab.lines[i] || "") + "</td></tr>"; }).concat(K.pts.map(function (p, i) { return '<tr><td class="rpnr">' + (i + 1) + "</td><td>" + esc(tt("rp_mapSch")) + "</td><td>" + esc(lab.pts[i] || "") + "</td></tr>"; }));
+      h += '<section class="rp-sec rp-map"><h2>' + esc(tt("sit_h")) + "</h2>" + (fig ? fig.outerHTML : "") +
+        (rows.length ? '<table class="rp-tab rp-maptab"><thead><tr><th>' + esc(tt("rp_mapNr")) + "</th><th>" + esc(tt("rp_mapObj")) + "</th><th>" + esc(tt("rp_mapDesc")) + "</th></tr></thead><tbody>" + rows.join("") + "</tbody></table>" : "") + "</section>";
+    }
+    if (P.img) { var pv = KARTE.planPreview(P, tt, mkLabels(P, planFns())); if (pv) { pv.className = "situfig"; h += '<section class="rp-sec"><h2>' + esc(tt("sit_capPlan")) + "</h2>" + pv.outerHTML + "</section>"; } }
+    return h;
+  }
   function reportBuild(o) {
     var out = KVE.calc(S, LV), k = S.kopf, h = "";
     h += "<h1>" + esc(tt("rp_title")) + "</h1>";
     if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb], ["datum", k.datum || today()]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
-    if (o.situ) { var sit = $("#result .situ"); if (sit) { var c = sit.cloneNode(true); c.classList.remove("no-summary"); [].slice.call(c.querySelectorAll(".situhead,.situsum,button")).forEach(function (x) { x.remove(); }); [].slice.call(c.querySelectorAll("[hidden]")).forEach(function (x) { x.hidden = false; }); h += '<section class="rp-sec">' + c.outerHTML + "</section>"; } }
+    if (o.situ) h += reportMap();
     if (o.mengen) {
       if (o.mode === "total") {
         var rows = reportTotals(out);
@@ -1331,9 +1347,11 @@
       var sub = e.submitter && e.submitter.value; if (sub !== "print") return;
       R.mode = d.querySelector("input[name=rpm]:checked").value; [].slice.call(d.querySelectorAll("[data-rp]")).forEach(function (i) { R[i.dataset.rp] = i.checked; }); save();
       var doc = document.getElementById("reportDoc"); if (doc) doc.remove(); doc = document.createElement("div"); doc.id = "reportDoc"; doc.className = "rp"; doc.innerHTML = reportBuild(R); document.body.appendChild(doc); wrapTables(doc);
-      document.body.classList.add("report-print"); setTimeout(function () { window.print(); }, 50);
+      document.body.classList.add("report-print");
+      var ims = [].slice.call(doc.querySelectorAll("image")).filter(function (im) { return !/^data:/.test(im.getAttribute("href") || ""); });   /* Kartenhintergrund noch nicht im Projekt: höchstens 5 s auf das Bild warten */
+      Promise.all(ims.map(function (im) { return new Promise(function (r) { var t = setTimeout(r, 5000); im.addEventListener("load", function () { clearTimeout(t); r(); }); im.addEventListener("error", function () { clearTimeout(t); r(); }); }); })).then(function () { setTimeout(function () { window.print(); }, 50); });
     });
-    d.showModal();
+    d.showModal(); rpCacheBg();
   }
   /* ---------- Excel ---------- */
   var XL = XLSXW.ST;
