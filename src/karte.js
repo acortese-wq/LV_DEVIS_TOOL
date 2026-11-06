@@ -705,6 +705,66 @@
         var tb = E("button", "btn ghost small nc-theme", dlg.classList.contains("nc-dark") ? "☀" : "☾"); tb.type = "button"; tb.setAttribute("data-nctheme", ""); tb.setAttribute("aria-pressed", dlg.classList.contains("nc-dark") ? "true" : "false"); tb.setAttribute("aria-label", tt("ly_themeD")); tb.title = tt("ly_themeD");
         tb.addEventListener("click", function () { var d = !dlg.classList.contains("nc-dark"); dlg.classList.toggle("nc-dark", d); tb.textContent = d ? "☀" : "☾"; tb.setAttribute("aria-pressed", d ? "true" : "false"); try { localStorage.setItem("lvd-theme", d ? "dark" : "light"); } catch (e) { } });
         hb2.insertBefore(tb, lg.nextSibling);
+        (function () {   /* Phase G: Bedienmodi Einfach/Standard/Experte (UI-Einstellung lvd-uimode, nicht im Projekt) + Befehlsleiste Strg+K */
+          var md = "s"; try { md = localStorage.getItem("lvd-uimode") || "s"; } catch (e) { } if (["e", "s", "x"].indexOf(md) < 0) md = "s";
+          var setMode = function (m) { md = m; dlg.classList.toggle("nc-m-e", m === "e"); dlg.classList.toggle("nc-m-x", m === "x"); try { localStorage.setItem("lvd-uimode", m); } catch (e) { }
+            var ms = dlg.querySelector("#lyMode"); if (ms) ms.value = m;
+            if (m === "e" && ["prof", "aus", "pos"].indexOf(lyD.t) >= 0) { lyD.t = "kost"; setTimeout(lyDock, 0); } };
+          var sm = E("select", "lymode"); sm.id = "lyMode"; sm.setAttribute("aria-label", tt("ly_mode")); sm.title = tt("ly_mode");
+          sm.innerHTML = [["e", "ly_mE"], ["s", "ly_mS"], ["x", "ly_mX"]].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join("");
+          sm.addEventListener("change", function () { setMode(sm.value); toast(dlg, tt("ly_mode") + ": " + sm.options[sm.selectedIndex].text); });
+          var kb = E("button", "btn ghost small lycmdk-b", '<span aria-hidden="true">⌕</span><kbd aria-hidden="true">Strg K</kbd>'); kb.type = "button"; kb.setAttribute("aria-label", tt("ly_cmdk") + " (Strg+K)"); kb.title = tt("ly_cmdkPh") + " (Strg+K)"; kb.setAttribute("aria-haspopup", "dialog"); kb.setAttribute("aria-keyshortcuts", "Control+K");
+          hb2.insertBefore(sm, hb2.firstChild); hb2.insertBefore(kb, hb2.firstChild); setMode(md);
+          var ks = E("button", "btn ghost small lykeys", esc(tt("ly_keys"))); ks.type = "button"; ks.title = tt("ly_keysL"); ks.addEventListener("click", function () { toast(dlg, tt("ly_keysL")); }); bottom.appendChild(ks);   /* nur im Modus Experte sichtbar */
+          /* Befehlsleiste */
+          var pal = null, items = [], hit = [], act = 0, from = null;
+          var lab = function (b) { return (b.getAttribute("aria-label") || b.textContent || "").replace(/\s+/g, " ").trim(); };
+          var collect = function () {
+            var L0 = [], add = function (g, t, run, s) { if (t) L0.push({ g: g, t: t, s: s || "", run: run }); };
+            var ed0 = dlg.querySelector("#kmToolsBody [data-k=medit]"), edl = ed0 ? lab(ed0) + " › " : "";
+            dlg.querySelectorAll("#kmToolsBody button[data-k], #kmToolsBody button[data-eop]").forEach(function (b) { if (b.disabled) return; var hid = !b.offsetParent; add("ly_cgTool", (b.hasAttribute("data-eop") ? edl : "") + lab(b), function () { b.click(); }, hid && md === "e" ? tt("ly_mHid") : ""); });
+            dlg.querySelectorAll(".lynav [data-ly]").forEach(function (b) { add("ly_cgView", lab(b), function () { b.click(); }); });
+            dlg.querySelectorAll(".lydtabs [role=tab]").forEach(function (b) { add("ly_cgView", tt("ly_dock") + ": " + lab(b).replace(/\s*\(\d+\)$/, ""), function () { var t = b.getAttribute("data-dt"); if (md === "e" && ["prof", "aus", "pos"].indexOf(t) >= 0) setMode("s"); lyD.t = t; lyD.c = false; lyDock(); b.focus(); }); });
+            [["e", "ly_mE"], ["s", "ly_mS"], ["x", "ly_mX"]].forEach(function (o) { if (o[0] !== md) add("ly_cgCmd", tt("ly_mode") + ": " + tt(o[1]), function () { setMode(o[0]); }); });
+            var q = function (s) { return dlg.querySelector(s); };
+            [[".nc-theme", tt("ly_themeD")], [".lymidtog,.kmmidtog", null], ["[data-k=save]", null], ["[data-k=apply]", null], ["[data-pfb]", null], ["[data-hpk]", tt("hp_ctx")], ["[data-lywarn]", null]].forEach(function (a) { var b = q(a[0]); if (b && !b.disabled) add("ly_cgCmd", a[1] || lab(b), function () { b.click(); }); });
+            dlg.querySelectorAll(".lyviewb button, .lyviewb select").forEach(function (b) { if (b.tagName === "BUTTON" && !b.disabled) add("ly_cgCmd", lab(b), function () { b.click(); }); });
+            dlg.querySelectorAll("[data-lylang]").forEach(function (b) { if (b.getAttribute("aria-pressed") !== "true") add("ly_cgCmd", tt("ly_lang") + ": " + b.textContent, function () { b.click(); }); });
+            add("ly_cgCmd", tt("ly_dock") + " ⇅ (Strg+J)", function () { lyD.c = !lyD.c; lyDock(); });
+            add("ly_cgCmd", tt("ly_keys"), function () { toast(dlg, tt("ly_keysL")); });
+            exObjs().forEach(function (g) { g.it.forEach(function (x) { add("ly_cgObj", x.n, function () { if (window.__LYEXP) window.__LYEXP.set("e"); exSelect(x.id); }, x.s); }); });
+            document.querySelectorAll("#lyPosB tr[data-dk]").forEach(function (tr) { var k = tr.getAttribute("data-dk"), c = tr.children; if (!c[2]) return; add("ly_cgPos", k + " " + c[2].textContent.slice(0, 70), function () { if (md === "e") setMode("s"); lyD.t = "pos"; lyD.c = false; lyDock(); var inp = document.querySelector('.lydock [data-dq="q"]'); if (inp) { inp.value = k; inp.dispatchEvent(new Event("input", { bubbles: true })); inp.focus(); } }, c[6] ? c[6].textContent : ""); });
+            return L0;
+          };
+          var paint = function () {
+            var inp = pal.querySelector("input"), ws = inp.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+            hit = items.filter(function (it) { var h = (it.t + " " + it.s + " " + tt(it.g)).toLowerCase(); return ws.every(function (w) { return h.indexOf(w) >= 0; }); });
+            if (!ws.length) hit = hit.filter(function (it) { return it.g !== "ly_cgPos" && it.g !== "ly_cgObj"; }).concat(hit.filter(function (it) { return it.g === "ly_cgObj"; }).slice(0, 8));
+            hit = hit.slice(0, 60); act = Math.min(act, Math.max(0, hit.length - 1));
+            var ul = pal.querySelector("[role=listbox]"), g0 = "";
+            ul.innerHTML = hit.length ? hit.map(function (it, i) { var hd = it.g !== g0 ? '<li role="presentation" class="lyk-g">' + esc(tt(it.g)) + "</li>" : ""; g0 = it.g; return hd + '<li role="option" id="lyk_' + i + '" data-ki="' + i + '" aria-selected="' + (i === act ? "true" : "false") + '"><span>' + esc(it.t) + "</span>" + (it.s ? "<small>" + esc(it.s) + "</small>" : "") + "</li>"; }).join("") : '<li role="presentation" class="lyk-none">' + esc(tt("ly_cmdkNone")) + "</li>";
+            inp.setAttribute("aria-activedescendant", hit.length ? "lyk_" + act : ""); var a0 = ul.querySelector('[aria-selected="true"]'); if (a0 && a0.scrollIntoView) a0.scrollIntoView({ block: "nearest" });
+            pal.querySelector(".lyk-n").textContent = tt("ly_cmdkN").replace("{n}", hit.length);
+          };
+          var closeP = function (back) { if (!pal || pal.hidden) return; pal.hidden = true; if (back && from && from.focus) try { from.focus(); } catch (e) { } };
+          var run = function (i) { var it = hit[i]; if (!it) return; closeP(false); setTimeout(function () { try { it.run(); } catch (e) { } }, 0); };
+          var openP = function () {
+            if (!pal) { pal = E("div", "lycmdk"); pal.hidden = true; pal.setAttribute("role", "dialog"); pal.setAttribute("aria-modal", "true"); pal.setAttribute("aria-label", tt("ly_cmdk"));
+              pal.innerHTML = '<div class="lyk-box"><input type="text" role="combobox" aria-expanded="true" aria-controls="lykL" aria-autocomplete="list" autocomplete="off" spellcheck="false" placeholder="' + esc(tt("ly_cmdkPh")) + '" aria-label="' + esc(tt("ly_cmdkPh")) + '"><ul id="lykL" role="listbox" aria-label="' + esc(tt("ly_cmdk")) + '"></ul><p class="lyk-f"><span class="lyk-n" role="status" aria-live="polite"></span> <span>↑↓ · Enter · Esc</span></p></div>';
+              dlg.appendChild(pal); var inp = pal.querySelector("input");
+              inp.addEventListener("input", function () { act = 0; paint(); });
+              inp.addEventListener("keydown", function (e) { if (e.key === "ArrowDown") { e.preventDefault(); act = Math.min(hit.length - 1, act + 1); paint(); } else if (e.key === "ArrowUp") { e.preventDefault(); act = Math.max(0, act - 1); paint(); } else if (e.key === "Enter") { e.preventDefault(); run(act); } else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeP(true); } else if (e.key === "Tab") { e.preventDefault(); } });
+              pal.addEventListener("mousedown", function (e) { if (e.target === pal) { e.preventDefault(); closeP(true); } });
+              pal.addEventListener("click", function (e) { var li = e.target.closest("[data-ki]"); if (li) run(+li.getAttribute("data-ki")); });
+            }
+            from = document.activeElement; items = collect(); act = 0; pal.hidden = false; var i0 = pal.querySelector("input"); i0.value = ""; paint(); i0.focus();
+          };
+          kb.addEventListener("click", openP);
+          var onK = function (e) { if (!document.body.contains(dlg)) { document.removeEventListener("keydown", onK, true); return; } if (!dlg.open) return; if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "k") { e.preventDefault(); e.stopPropagation(); if (pal && !pal.hidden) closeP(true); else openP(); } };
+          document.addEventListener("keydown", onK, true);
+          dlg.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("#kmToolsBody button"); if (b && md === "e") setTimeout(function () { if (!b.offsetParent) { var m0 = dlg.querySelector("#kmMap"); if (m0) m0.focus(); } }, 0); });   /* Einfach: ausgeschaltetes Zusatzwerkzeug verschwindet → Fokus auf die Karte */
+          window.__LYCMD = { open: openP, mode: setMode };
+        })();
         var fo = bottom.querySelector(".kmfoot"); if (fo) ["save", "apply"].forEach(function (k) { var x = fo.querySelector('[data-k="' + k + '"]'); if (x) hb2.appendChild(x); });   /* Sichern/Übernehmen oben rechts */
         var sw0 = head.querySelector(".kmsw"); if (sw0) { sw0.classList.add("lysearch"); canvas.appendChild(sw0); }   /* Ortssuche als Feld über der Karte */
         var vw = bottom.querySelector(".kmview"), tg0 = head.querySelector(".kmmidtog"); if (vw && tg0) vw.insertBefore(tg0, vw.firstChild);   /* Ebenen und Fenster-Reset in die Fussleiste */
@@ -728,7 +788,7 @@
           var help = canvas.querySelector("#kmHelp"), units = canvas.querySelector("#kmUnits"), st = bottom.querySelector(".kmstat");
           var cmd = E("div", "lycmd"); cmd.setAttribute("role", "status"); cmd.setAttribute("aria-live", "polite"); cmd.setAttribute("aria-label", tt("ly_cmd")); if (help) cmd.appendChild(help);
           if (st) st.after(cmd); else bottom.insertBefore(cmd, bottom.firstChild);
-          if (vw2) { var dm = E("details", "lyviewm"); dm.innerHTML = "<summary>" + esc(tt("ly_view")) + "</summary>"; var box = E("div", "lyviewb"); while (vw2.firstChild) box.appendChild(vw2.firstChild); if (units) box.appendChild(units); dm.appendChild(box); vw2.appendChild(dm); vw2.classList.add("lyview"); }
+          if (vw2) { var dm = E("details", "lyviewm"); dm.innerHTML = "<summary>" + esc(tt("ly_view")) + "</summary>"; var box = E("div", "lyviewb"); while (vw2.firstChild) box.appendChild(vw2.firstChild); if (units) box.appendChild(units); var lyl = head.querySelector(".lylay"); if (lyl) box.insertBefore(lyl, box.firstChild); dm.appendChild(box); vw2.appendChild(dm); vw2.classList.add("lyview"); }
           var cr = dlg.querySelector(":scope > p.kmcred"); if (cr) { cr.classList.add("lycred"); bottom.appendChild(cr); }
           dm && dm.addEventListener("toggle", function () { if (dm.open) { var x = dm.querySelector("button,select,a"); if (x) x.focus(); } });
           dlg.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && dm && dm.open) { ev.preventDefault(); ev.stopPropagation(); dm.open = false; dm.querySelector("summary").focus(); } }, true);

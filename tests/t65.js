@@ -68,6 +68,7 @@ const waitLy = async (pg, ms) => { for (let t = 0; t < (ms || 15000); t += 250) 
   ok(kpi3.includes('CHF ' + f0(out3.n)) && kpi3.includes('CHF ' + f0(out3.b)), 'nach «Übernehmen»: Ergebnis = Vorschau in der Projektleiste (' + f0(out3.n) + ')');
   ok(await pg.locator('dialog.kmlya[open]').count() === 1, 'nach «Übernehmen» bleibt die Karte Startbildschirm');
   // Klassische Ansicht wählen
+  if (!(await pg.locator('#lySel').isVisible())) await pg.click('.lyviewm > summary');
   await pg.selectOption('#lySel', 'classic'); await pg.waitForTimeout(500);
   ok(await pg.locator('dialog.kmlya[open]').count() === 0 && await pg.evaluate(() => localStorage.getItem('lvd-layout')) === 'classic', 'Layout-Umschalter «Klassische Ansicht» merkt die Wahl');
   await pg.reload(); await pg.waitForTimeout(2500); ok(await pg.locator('dialog.kmlya[open]').count() === 0, 'klassische Ansicht bleibt nach Neuladen');

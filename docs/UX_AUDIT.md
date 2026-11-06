@@ -363,3 +363,8 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 - **Vorher:** Dock «Positionen» als feste Liste ohne Suche, Filter oder Sortierung; Prüfstatus nur auf der Ergebnisseite (offen → geprüft → klären); Dock «Kosten» nur mit der Kostenübersicht.
 - **Nachher:** Positionstabelle mit Suche, Status- und Kapitelfilter, Sortierung je Spalte, ziehbaren Spaltenbreiten und Prüfstatus direkt in der Zeile; neuer Status **«In Prüfung»** (auch auf der Ergebnisseite; Zyklus offen → In Prüfung → geprüft → klären). Kosten-Reiter mit Kosten je Kapitel, je Abschnitt und Top 10 (Klick springt zur Position).
 - **Kostenwirkung:** keine (Filter, Sortierung und Prüfstatus ändern die Rechnung nicht; t78 identisch). Hinweis: Auf der Ergebnisseite braucht «Geprüft» jetzt zwei Klicks statt einem. Tests t80, t35.
+
+## Bedienmodi und Befehlsleiste (V101, Redesign Phase G)
+- **Vorher:** ein einziger Umfang für alle; Werkzeuge, Ansichten und Positionen nur über ihre Knöpfe auffindbar; Layout-Umschalter in der Kopfleiste.
+- **Nachher:** Bedienmodus Einfach / Standard / Experte (gemerkt pro Gerät, nicht im Projekt). **Strg+K** öffnet eine Befehlsleiste, die Werkzeuge, Ansichten, Befehle, Kartenobjekte und LV-Positionen durchsucht; im Modus Einfach ausgeblendete Werkzeuge bleiben dort erreichbar. Layout-Umschalter im Menü «Ansicht».
+- **Kostenwirkung:** keine (t78 identisch). Tests t81, t65.
