@@ -79,6 +79,7 @@ Vollständige Felder, Optionen, Vorgaben und Bedingungen: **`references/felder.m
 - **Zubehör neuer Rohre** (Graben mit Rohren, Reiter Rohr mit «verlegen»): Fehlen Warnband, Schnur/Draht einziehen oder Kalibrieren, meldet das Skript eine `stop`-Warnung. Den Benutzer **ausdrücklich fragen**. Nur wenn er bestätigt, dass es bewusst nicht ausgeführt wird, im Datensatz `"zubV": { "warn": true, "schnur": true, "kal": true }` (nur die bestätigten Punkte) setzen – nie von sich aus.
 - **Leitungszone** wird aus Bettung (`bett`, cm, Vorgabe 5) + Rohrlagen + Umhüllung (`umh`, cm, min. 5) über die Grabenbreite berechnet; `umhMode: "manuell"` mit `umhArea` (m²/m) nur auf Wunsch.
 - **Grabenbreite** «begangen/nicht begangen»: ohne `aussen` wird das Aussenmass aus den Rohren abgeleitet (max. 4 je Lage, 4 cm Abstand).
+- **Mehrere Rohrtypen im selben Graben** (Kies/Betonkies): `mix: [{"dn":"100","n":"2"},{"dn":"55","n":"2"}]` – grösster DN zuunterst, jeder Typ in eigener Lage (max. 4 je Lage, 4 cm Abstand). Bestimmt Rohrhöhe und Material der Leitungszone sowie das Aussenmass (breiteste Lage). `dn`/`n` bleiben der Haupttyp; Lieferung/Verlegen der weiteren Typen als eigene Rohranlage erfassen.
 - Positionen ohne LV-Preis bleiben OFFEN, ausser der Anwender erfasst einen eigenen Einheitspreis (`oep`); Abweichungen vom LV-Preis werden als «EP geändert» markiert.
 
 ## Skripte

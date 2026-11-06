@@ -602,6 +602,7 @@
         var bm = KVE.blockMass(r.bloecke); r.block = { breite: String(Math.ceil((bm.reqW + 0.10) * 100) / 100), hoehe: String(Math.ceil((bm.reqH + 0.10) * 100) / 100) };   /* Rohre + 5 cm Betonüberdeckung */
       } else if (c.art === "laengs") { r.rohrSystem = "laengs"; r.dn2 = String(ent[0][0]); r.n2 = String(ent[0][1]); }
       else { r.rohrSystem = "k55"; r.dn = String(ent[0][0]); r.n = String(ent[0][1]); r.umhType = "kies"; }
+      if (c.art !== "beton" && c.art !== "laengs" && ent.length > 1) r.mix = ent.map(function (e) { return { dn: String(e[0]), n: String(e[1]) }; }); else delete r.mix;   /* Rohrlagen: grösster DN unten, je Typ eigene Lage */
     }
     if (c.fl) {
       r.roh = c.fl === "roh"; if (!r.belag) r.belag = newRec("graben", 1).belag;
@@ -630,7 +631,6 @@
   }
   function xsecHtml(l, Lm) {
     var r = newRec("graben", 1), c = KARTE.cfgOf(l), ent = KARTE.pipeList(c); r.L = round1(Lm || 1); applyCfg(l, r, Lm);
-    r.pipes = []; ent.slice().sort(function (a, b) { return b[0] - a[0]; }).forEach(function (e) { for (var i = 0; i < e[1]; i++) r.pipes.push(e[0]); });
     return FIG.html("graben", r, S, tt);
   }
   /* Kostenvorschau: gleiche Übernahme auf einer Kopie des Projekts, nichts wird gespeichert */

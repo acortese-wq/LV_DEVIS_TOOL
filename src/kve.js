@@ -348,21 +348,31 @@ var KVE = (function () {
     return { parts: parts, reqW: 2 * BLOCK_EDGE + parts.reduce(function (s, p) { return s + p.w; }, 0) + (parts.length - 1) * PIPE_GAP,
              reqH: 2 * BLOCK_EDGE + Math.max.apply(null, parts.map(function (p) { return p.h; })) };
   }
+  /* Rohrlagen (von unten nach oben): Kies/Betonkies mit mehreren Rohrtypen (c.mix) – grösster DN zuunterst, jeder Typ in eigener Lage;
+     je Lage max. 4 Rohre. Ein Rohrtyp allein: wie bisher ⌈n/4⌉ Lagen. Gilt für Breite, Leitungszone (Ausmass) und Grafik. */
+  function rohrLagen(c) {
+    var lae = c.rohrSystem === "laengs", typ = [];
+    if (!lae && c.rohrSystem !== "block" && c.mix && c.mix.length > 1) typ = c.mix.map(function (m) { return [num(m.dn, 55), Math.max(0, Math.round(num(m.n, 0)))]; }).filter(function (t) { return t[1] > 0; }).sort(function (a, b) { return b[0] - a[0]; });
+    if (!typ.length) typ = [[num(lae ? c.dn2 : c.dn, 55), Math.max(1, num(lae ? c.n2 : c.n, 1))]];
+    var out = []; typ.forEach(function (t) { for (var r = t[1]; r > 0; r -= PER_LAGE) { var k = Math.min(r, PER_LAGE), d = rohrOD(t[0]); out.push({ dn: t[0], n: k, d: d, w: k * d + (k - 1) * PIPE_GAP }); } });
+    return out;
+  }
   function rohrAussen(c) {
     if (c.rohrSystem === "block") { var bw = num((c.block || {}).breite, 0); return bw > 0 ? { a: bw, src: "block" } : { a: blockMass(c.bloecke).reqW, src: "blockAuto" }; }
-    var lae = c.rohrSystem === "laengs", n = Math.max(1, num(lae ? c.n2 : c.n, 1)), d = rohrOD(lae ? c.dn2 : c.dn), per = Math.min(n, PER_LAGE);
-    return { a: per * d + (per - 1) * PIPE_GAP, src: "rohre", lagen: Math.ceil(n / PER_LAGE) };
+    var lg = rohrLagen(c);
+    return { a: Math.max.apply(null, lg.map(function (x) { return x.w; })), src: "rohre", lagen: lg.length };
   }
   /* Leitungszone aus dem Rohrverband: Bettung unter den Rohren + Rohrlagen + Umhüllung über den Rohren (min. 5 cm),
      über die ganze Grabenbreite; Material = Querschnitt − Rohrquerschnitte. Modus «manuell»: erfasste Fläche (m²/m). */
   var UMH_MIN = 0.05;
   function zoneQ(c, b, T) {
     if (c.umhMode === "manuell") { var A0 = num(c.umhArea, 0.035); return { auto: false, A: A0, Ab: A0, Ap: 0, hZ: b > 0 ? A0 / b : 0, hR: 0, bett: 0, umh: 0 }; }
-    var lae = c.rohrSystem === "laengs", n = Math.max(1, num(lae ? c.n2 : c.n, 1)), d = rohrOD(lae ? c.dn2 : c.dn), lagen = Math.ceil(n / PER_LAGE);
+    var lg = rohrLagen(c), lagen = lg.length, n = 0, d = 0, hR = (lagen - 1) * PIPE_GAP, Ap = 0;
+    lg.forEach(function (x) { n += x.n; d = Math.max(d, x.d); hR += x.d; Ap += x.n * Math.PI * x.d * x.d / 4; });
     var umhIn = num(c.umh, 5), umh = Math.max(UMH_MIN, umhIn / 100), bett = Math.max(0, num(c.bett, 5) / 100);
-    var hR = lagen * d + (lagen - 1) * PIPE_GAP, hZ = bett + hR + umh, zuHoch = T > 0 && hZ > T + 1e-9;
+    var hZ = bett + hR + umh, zuHoch = T > 0 && hZ > T + 1e-9;
     if (zuHoch) hZ = T;
-    var Ab = b * hZ, Ap = n * Math.PI * d * d / 4, A = Math.max(0, Ab - Ap);
+    var Ab = b * hZ, A = Math.max(0, Ab - Ap);
     return { auto: true, A: A, Ab: Ab, Ap: Ap, hZ: hZ, hR: hR, bett: bett, umh: umh, umhIn: umhIn, umhMin: umhIn / 100 < UMH_MIN - 1e-9, zuHoch: zuHoch, n: n, d: d, lagen: lagen };
   }
   /* Zubehör neuer Rohranlagen (Warnband, Schnur/Draht einziehen, Kalibrieren): fehlt es, ist das ein kritischer Punkt,
@@ -1064,5 +1074,5 @@ var KVE = (function () {
 
   return { calc: calc, calcRec: calcRec, sens: sens, r2: r2, num: num, STAFFEL: STAFFEL, SCHACHT: SCHACHT, MWST: MWST, HAND: HAND, ASPHALT_T: ASPHALT_T,
            COMPLETE: COMPLETE, LOC_INFO: LOC_INFO, TABS: TABS, ROH: ROH, BOE: BOE, MUF: MUF, VK: VK, KVS: KVS, PS_AUF: PS_AUF, ABSCHL: ABSCHL,
-           sizeOf: sizeOf, sysDefault: sysDefault, shapeOf: shapeOf, grabenBreite: grabenBreite, zoneQ: zoneQ, zubFehlt: zubFehlt, blockMass: blockMass, rohrOD: rohrOD, PER_LAGE: PER_LAGE };
+           sizeOf: sizeOf, sysDefault: sysDefault, shapeOf: shapeOf, grabenBreite: grabenBreite, zoneQ: zoneQ, zubFehlt: zubFehlt, blockMass: blockMass, rohrOD: rohrOD, rohrLagen: rohrLagen, PER_LAGE: PER_LAGE };
 })();

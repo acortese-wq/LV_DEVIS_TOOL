@@ -31,7 +31,7 @@ def free():
 def graben(i):
     return {"name": "G%d" % i, "L": tsd() if R.random() < 0.08 else f(0, 120, 1), "T": ch(["0.6", "0.8", "1.2", "1.6", "2.2"]), "bmode": ch(["min60", "begangen", "nicht_begangen", "manuell"]), "aussen": ch(["", f(0.1, 0.6)]),
             "bman": f(0.3, 1.2), "aushubArt": ch(["normal", "normal", "saug"]), "saugH": f(0, 8, 1), "hand": ch(list(kve.HAND)), "gesp": ch([True, False]), "roh": ch([False, False, True]), "direkt": ch([True, False]),
-            "rohrSystem": ch(["k55", "k55", "laengs", "block"]), "dn": ch(["55", "100", "120", "150"]), "len": ch(["5", "10"]), "n": ch(["1", "2", "4"]), "muffenMode": ch(["auto", "manuell"]),
+            "rohrSystem": ch(["k55", "k55", "laengs", "block"]), "dn": ch(["55", "100", "120", "150"]), "len": ch(["5", "10"]), "n": ch(["1", "2", "4"]), "mix": ([{"dn": ch(["55", "100", "120", "150"]), "n": ch(["1", "2", "3", "5"])} for _ in range(R.randint(2, 3))] if R.random() < 0.4 else []), "muffenMode": ch(["auto", "manuell"]),
             "muffenN": ch(["0", "6"]), "b90": ch(["0", "2"]), "b45": ch(["0", "1"]), "schneiden": ch(["0", "3"]), "warnband": ch([True, False]), "kalib": ch([True, False]),
             "einzug": ch(["keine", "schnur", "draht"]), "dn2": ch(["100", "120", "150"]), "n2": ch(["1", "2"]),
             "abzweiger": [{"art": ch(list(kve.ABZW)), "n": ch(["1", "2"])}] if R.random() < 0.5 else [],

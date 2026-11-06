@@ -119,7 +119,8 @@ var FIG = (function () {
       if (block) (r.bloecke || []).forEach(function (bl) { for (var i = 0; i < Math.min(num(bl.n, 1), 8); i++) pipes.push(num(bl.dn, 55)); });
       else if (r.rohrSystem === "laengs") for (var i2 = 0; i2 < Math.min(num(r.n2, 1), 8); i2++) pipes.push(num(r.dn2, 100));
       else for (var i3 = 0; i3 < Math.min(num(r.n, 1), 12); i3++) pipes.push(num(r.dn, 55));
-      if (!block && r.pipes && r.pipes.length) pipes = r.pipes.slice(0, 16);   /* gemischte Rohrtypen einer Linie */
+      var LG = block ? null : KVE.rohrLagen(r);   /* Rohrlagen wie in der Rechnung: grösster DN unten, je Typ eigene Lage */
+      if (LG) { pipes = []; LG.forEach(function (x) { for (var i = 0; i < x.n; i++) pipes.push(x.dn); }); }
       if (block && BMb.parts.length) {   /* Rohre in den Teilblöcken, von oben nach unten je Lage, innerhalb des Blocks */
         var cGap = 0.04, eEdge = 0.05, gx = x0 + (tw - uw) / 2 + (bkHas ? Math.max(0, (bkW - BMb.reqW) / 2) : 0) * s + eEdge * s, topY = uy + eEdge * s;
         BMb.parts.forEach(function (pt) { for (var bi = 0; bi < pt.n; bi++) { var brow = Math.floor(bi / pt.cols), bcol = bi % pt.cols, rr2 = pt.d / 2 * s, cx2 = gx + (bcol * (pt.d + cGap) + pt.d / 2) * s, cy2 = topY + (brow * (pt.d + cGap) + pt.d / 2) * s;
@@ -127,11 +128,11 @@ var FIG = (function () {
           gx += (pt.w + cGap) * s; });
         var bkSmall = bkHas && (BMb.reqW > bkW + 0.005 || BMb.reqH > bkH + 0.005);
         o += tx(x0 + tw / 2, uy - 4, "Rohrblock " + fq(Math.round(bkW * 100) / 100) + " × " + fq(Math.round(bkH * 100) / 100) + " m" + (bkSmall ? " – " + tt("ux_blk_klein") : ""), bkSmall ? "sm warnTx" : "sm", "middle");
-      } else if (pipes.length) { var od = KVE.rohrOD, rm = Math.max(3, od(Math.max.apply(null, pipes)) / 2 * s), gap = Math.max(3, 0.04 * s), per = Math.max(1, Math.floor((uw - 4) / (2 * rm + gap)));
-        if (!block) per = Math.min(per, KVE.PER_LAGE);
-        pipes.forEach(function (dn, i) { var row = Math.floor(i / per), n = Math.min(per, pipes.length - row * per), k = i % per, rr = Math.max(3, od(dn) / 2 * s);
-          var cx = x0 + tw / 2 + (k - (n - 1) / 2) * (2 * rm + gap), cy = gy + th - rm - (ZQ && ZQ.auto ? ZQ.bett * s : 4) - row * (2 * rm + gap);
-          o += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rr + '" fill="' + (dn >= 100 ? "var(--pipe2)" : "var(--pipe)") + '" stroke="var(--ink)" stroke-width=".8"/><circle cx="' + cx + '" cy="' + cy + '" r="' + rr * 0.62 + '" fill="var(--figbg)"/>'; }); }
+      } else if (LG && LG.length) { var gap = Math.max(3, 0.04 * s), yb = gy + th - (ZQ && ZQ.auto ? ZQ.bett * s : 4);
+        LG.forEach(function (x) { var rr = Math.max(3, x.d / 2 * s), cy = yb - rr;
+          for (var k = 0; k < x.n; k++) { var cx = x0 + tw / 2 + (k - (x.n - 1) / 2) * (2 * rr + gap);
+            o += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rr + '" fill="' + (x.dn >= 100 ? "var(--pipe2)" : "var(--pipe)") + '" stroke="var(--ink)" stroke-width=".8"/><circle cx="' + cx + '" cy="' + cy + '" r="' + rr * 0.62 + '" fill="var(--figbg)"/>'; }
+          yb -= 2 * rr + gap; }); }
       if (sf.k === "bit") o += '<path d="M' + x0 + " " + (gy - 8) + "v" + (bd.h + 10) + "M" + (x0 + tw) + " " + (gy - 8) + "v" + (bd.h + 10) + '" stroke="var(--cut)" stroke-width="2"/>';
       if (r.gesp) o += '<path d="M' + (x0 + 2) + " " + gy + "V" + (gy + th) + "M" + (x0 + tw - 2) + " " + gy + "V" + (gy + th) + '" stroke="var(--copper)" stroke-width="4"/>';
       var hk = { normal: 0.10, eng: 0.30, sehr_eng: 0.50 }[r.hand] || 0.10;

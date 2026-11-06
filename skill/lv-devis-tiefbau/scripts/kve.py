@@ -512,13 +512,28 @@ def blockMass(bloecke):
             "reqH": 2 * BLOCK_EDGE + max(p["h"] for p in parts)}
 
 
+def rohrLagen(c):
+    """Rohrlagen von unten nach oben: mehrere Rohrtypen (c.mix, nur Kies/Betonkies) – grösster DN zuunterst, jeder Typ in eigener Lage; je Lage max. 4 Rohre."""
+    lae = c.get("rohrSystem") == "laengs"; typ = []
+    mix = c.get("mix") or []
+    if not lae and c.get("rohrSystem") != "block" and len(mix) > 1:
+        typ = [[num(g(m, "dn"), 55), max(0, int(math.floor(num(g(m, "n"), 0) + 0.5)))] for m in mix]
+        typ = sorted([t for t in typ if t[1] > 0], key=lambda t: -t[0])
+    if not typ:
+        typ = [[num(c.get("dn2") if lae else c.get("dn"), 55), max(1, num(c.get("n2") if lae else c.get("n"), 1))]]
+    out = []
+    for t in typ:
+        r = t[1]
+        while r > 0:
+            k = min(r, PER_LAGE); d = rohrOD(t[0]); out.append({"dn": t[0], "n": k, "d": d, "w": k * d + (k - 1) * PIPE_GAP}); r -= PER_LAGE
+    return out
+
+
 def rohrAussen(c):
     if c.get("rohrSystem") == "block":
         bw = num(g(c.get("block") or {}, "breite"), 0)
         return bw if bw > 0 else blockMass(c.get("bloecke"))["reqW"]
-    lae = c.get("rohrSystem") == "laengs"
-    n = max(1, num(c.get("n2") if lae else c.get("n"), 1)); d = rohrOD(c.get("dn2") if lae else c.get("dn")); per = min(n, PER_LAGE)
-    return per * d + (per - 1) * PIPE_GAP
+    return max(x["w"] for x in rohrLagen(c))
 
 
 def zubFehlt(tab, c):
@@ -553,13 +568,12 @@ def zoneQ(c, b, T_):
     if c.get("umhMode") == "manuell":
         A0 = num(c.get("umhArea"), 0.035)
         return {"auto": False, "A": A0, "Ab": A0, "Ap": 0, "hZ": A0 / b if b > 0 else 0, "hR": 0, "bett": 0, "umh": 0}
-    lae = c.get("rohrSystem") == "laengs"
-    n = max(1, num(c.get("n2") if lae else c.get("n"), 1)); d = rohrOD(c.get("dn2") if lae else c.get("dn")); lagen = ceil(n / PER_LAGE)
+    lg = rohrLagen(c); hR = (len(lg) - 1) * PIPE_GAP + sum(x["d"] for x in lg); Ap = sum(x["n"] * math.pi * x["d"] * x["d"] / 4 for x in lg)
     umhIn = num(c.get("umh"), 5); umh = max(UMH_MIN, umhIn / 100); bett = max(0, num(c.get("bett"), 5) / 100)
-    hR = lagen * d + (lagen - 1) * PIPE_GAP; hZ = bett + hR + umh; zuHoch = T_ > 0 and hZ > T_ + 1e-9
+    hZ = bett + hR + umh; zuHoch = T_ > 0 and hZ > T_ + 1e-9
     if zuHoch:
         hZ = T_
-    Ab = b * hZ; Ap = n * math.pi * d * d / 4; A = max(0, Ab - Ap)
+    Ab = b * hZ; A = max(0, Ab - Ap)
     return {"auto": True, "A": A, "Ab": Ab, "Ap": Ap, "hZ": hZ, "hR": hR, "bett": bett, "umh": umh, "umhIn": umhIn, "umhMin": umhIn / 100 < UMH_MIN - 1e-9, "zuHoch": zuHoch}
 
 
