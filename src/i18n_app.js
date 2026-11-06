@@ -73,7 +73,8 @@
       "Supplément difficulté {k}: absent du LV (fouille à la main). Position OUVERTE – demander le prix à l'entreprise.",
       "Supplemento difficoltà {k}: non presente nel LV (scavo a mano). Posizione APERTA – chiedere il prezzo all'impresa.",
       "Difficulty surcharge {k}: not in the LV (hand excavation). Item OPEN – request a price from the contractor."],
-    title: ["LV-Devis Tiefbau", "Devis LV génie civil", "Preventivo LV genio civile", "BoQ estimate civil works"],
+    title: ["NIUcost – Kostenrechner Tiefbau", "NIUcost – Calculateur de coûts génie civil", "NIUcost – Calcolatore costi genio civile", "NIUcost – Civil works cost calculator"],
+    wm_sub: ["Kostenrechner Tiefbau", "Calculateur de coûts génie civil", "Calcolatore costi genio civile", "Civil works cost calculator"],
     sub: ["Kostenvoranschlag nach Bauteilen – LV Swisscom Infrastrukturarbeiten bei Baukooperationen (V1.1, 10.07.2026).",
           "Devis par éléments – LV Swisscom travaux d'infrastructure lors de coopérations de construction (V1.1, 10.07.2026).",
           "Preventivo per elementi – LV Swisscom lavori d'infrastruttura in cooperazioni edili (V1.1, 10.07.2026).",
@@ -450,7 +451,7 @@
     rp_u_stk: ["Stk.", "pce", "pz.", "pcs"],
     rp_n_aus: ["Summe der Aushub-Positionen (ohne Transport/Deponie/Einbau)", "Somme des positions d’excavation (sans transport/décharge/remblai)", "Somma delle posizioni di scavo (senza trasporto/discarica/riempimento)", "Sum of excavation items (excluding transport/disposal/backfill)"],
     rp_n_rohr: ["Summe der Positionen «Rohre liefern» (je Rohr einmal gezählt)", "Somme des positions « fournir les tubes » (chaque tube une fois)", "Somma delle posizioni «fornire i tubi» (ogni tubo una volta)", "Sum of «supply pipes» items (each pipe counted once)"],
-    rp_foot: ["Erstellt mit LV-Devis Tiefbau · Konzept: Alessandro Cortese", "Créé avec LV-Devis Tiefbau · Concept : Alessandro Cortese", "Creato con LV-Devis Tiefbau · Concetto: Alessandro Cortese", "Created with LV-Devis Tiefbau · Concept: Alessandro Cortese"],
+    rp_foot: ["Erstellt mit NIUcost · Konzept: Alessandro Cortese", "Créé avec NIUcost · Concept : Alessandro Cortese", "Creato con NIUcost · Concetto: Alessandro Cortese", "Created with NIUcost · Concept: Alessandro Cortese"],
     km_redo: ["Wiederholen", "Rétablir", "Ripeti", "Redo"],
     ms_t: ["Auswahl bearbeiten", "Modifier la sélection", "Modifica selezione", "Edit selection"],
     ms_n: ["{n} gewählt", "{n} sélectionné(s)", "{n} selezionato/i", "{n} selected"],
@@ -521,7 +522,7 @@
     k_offen: ["Nicht im Total: {n} offene Position(en) ohne Preis", "Pas dans le total : {n} position(s) ouverte(s) sans prix", "Non nel totale: {n} posizione/i aperta/e senza prezzo", "Not in total: {n} open item(s) without price"],
     k_offenV: ["nicht bewertet", "non évalué", "non valutato", "not valued"],
     km_costOff: ["{n} offen (nicht im Total)", "{n} ouvert(s) (pas dans le total)", "{n} aperta/e (non nel totale)", "{n} open (not in total)"],
-    ly_app: ["LV-Devis Tiefbau", "LV-Devis génie civil", "LV-Devis genio civile", "LV-Devis civil works"],   /* Layout steht im Umschalter */
+    ly_app: ["NIUcost", "NIUcost", "NIUcost", "NIUcost"],   /* Layout steht im Umschalter */
     ly_views: ["Ansichten", "Vues", "Viste", "Views"],
     ly_vMap: ["Karte", "Carte", "Mappa", "Map"],
     ly_vProj: ["Projekt", "Projet", "Progetto", "Project"],

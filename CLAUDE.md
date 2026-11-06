@@ -1,7 +1,7 @@
 # LV-Devis Tiefbau
 
 Einzeldatei-HTML-Tool für Kostenvoranschläge Swisscom-Tiefbau nach «LV Swisscom Infrastrukturarbeiten bei Baukooperationen V1.1 (10.07.2026)».
-App-Konzept und Urheber: **Alessandro Cortese** (immer nennen). Sprache mit dem Benutzer: Deutsch. Bestehende Struktur, Farbwelt und Sprache respektieren. Farbwelt seit 06.11.2026: **Petrol** (Akzent `#0b6b72`, dunkel `#0a4f55`), **kein Swisscom-Logo** (stattdessen Zeichen «AC»); übrige Swisscom-Bezüge (LV, Handbuch, Links) bleiben auf Wunsch des Benutzers bestehen.
+Produktname: **NIUcost – Kostenrechner Tiefbau** (Logo als SVG in `src/shell.html`, seit 06.11.2026). App-Konzept und Urheber: **Alessandro Cortese** (immer nennen). Sprache mit dem Benutzer: Deutsch. Bestehende Struktur, Farbwelt und Sprache respektieren. Farbwelt seit 06.11.2026: **Petrol** (Akzent `#0b6b72`, dunkel `#0a4f55`), **kein Swisscom-Logo** (stattdessen Zeichen «AC»); übrige Swisscom-Bezüge (LV, Handbuch, Links) bleiben auf Wunsch des Benutzers bestehen.
 
 ## Aufbau
 - `src/` ist die Quelle, `index.html` wird daraus gebaut: `python3 build.py` (nach jeder Änderung in `src/`).
