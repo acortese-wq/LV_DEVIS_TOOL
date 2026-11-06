@@ -706,3 +706,4 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 .kmgcp{display:grid;place-items:center;border-radius:50%;font:700 11px/1 system-ui,sans-serif;color:#fff;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.5);cursor:grab}.kmgcp:focus-visible{outline:3px solid #ffbf00;outline-offset:2px}
 .kmgcp.kmgcps{background:#b03a2e;border-radius:3px}.kmgcp.kmgcpt{background:#1b7a3a}
 .kmgcp-l{margin-top:6px}.kmgcpt-t{width:100%;border-collapse:collapse;font-size:12px;margin:4px 0}.kmgcpt-t th,.kmgcpt-t td{padding:2px 4px;border-bottom:1px solid var(--rule);text-align:left}.kmgcpt-t input.kmn{width:100%;min-width:86px;font-size:12px}.kmgcpt-t tr.warn td{background:#fff3cd}
+tr.pst-ip .pst{background:#e7f0fb;border-color:#0a5aa8;color:#083f78}tr.pst-ip td:first-child{box-shadow:inset 3px 0 #0a5aa8}

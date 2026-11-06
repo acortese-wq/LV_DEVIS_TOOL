@@ -358,3 +358,8 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 - **Vorher:** Arbeitsplatz hell; auf 1440×900 nur ~302 px Kartenhöhe (Hilfetext, Masshinweis, zwei Knopfzeilen, Urheberzeile); kein Projektbaum; Dock fest.
 - **Nachher:** dunkles Engineering-Design aus den bestehenden Farben (Petrol bleibt Akzent; umschaltbar ☀/☾), eine CAD-Statuszeile mit Befehlszeile und Menü «Ansicht», Dock-Höhe ziehbar, Kostenleiste mit Rabattstufe/Honorar/Hinweisen, Projektexplorer (Suche, Auswahl synchron mit Karte und Eigenschaften), Kürzel Strg+J/B/F. Karte 886×503 px. Details: `docs/NIUCOST_REDESIGN.md`.
 - **Kostenwirkung:** keine – Regressions-Referenz (64 Projekte, 2732 Positionen) identisch (Test t78). Tests t79, t65.
+
+## Dock-Tabellen: Positionen und Kosten (V100, Redesign Phase F)
+- **Vorher:** Dock «Positionen» als feste Liste ohne Suche, Filter oder Sortierung; Prüfstatus nur auf der Ergebnisseite (offen → geprüft → klären); Dock «Kosten» nur mit der Kostenübersicht.
+- **Nachher:** Positionstabelle mit Suche, Status- und Kapitelfilter, Sortierung je Spalte, ziehbaren Spaltenbreiten und Prüfstatus direkt in der Zeile; neuer Status **«In Prüfung»** (auch auf der Ergebnisseite; Zyklus offen → In Prüfung → geprüft → klären). Kosten-Reiter mit Kosten je Kapitel, je Abschnitt und Top 10 (Klick springt zur Position).
+- **Kostenwirkung:** keine (Filter, Sortierung und Prüfstatus ändern die Rechnung nicht; t78 identisch). Hinweis: Auf der Ergebnisseite braucht «Geprüft» jetzt zwei Klicks statt einem. Tests t80, t35.

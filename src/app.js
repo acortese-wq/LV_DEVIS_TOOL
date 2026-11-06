@@ -639,14 +639,14 @@
     var V = 0, n = 0; out.elems.forEach(function (e) { if (e.tab === "graben" && e.geo && e.geo.V > 0) V += e.geo.V; n += e.lines.length; }); n += out.vor.lines.length + out.be.lines.length;
     var nStop = out.warn.filter(function (w) { return w.sev === "stop"; }).length, nAmb = out.warn.filter(function (w) { return w.sev === "amber"; }).length;
     var st = n === 0 ? "empty" : nStop ? "stop" : nAmb || out.nOffen ? "amber" : "ok";
-    var pos = out.summary.length ? '<table class="lytab"><thead><tr><th scope="col">' + esc(tt("ly_cPos")) + '</th><th scope="col">' + esc(tt("ly_cText")) + '</th><th scope="col" class="num">' + esc(tt("ly_cQty")) + '</th><th scope="col">' + esc(tt("ly_cUnit")) + '</th><th scope="col" class="num">' + esc(tt("ly_cEp")) + '</th><th scope="col" class="num">' + esc(tt("ly_cTot")) + "</th></tr></thead><tbody>" +
+    LYOUT = out; var pos = out.summary.length ? dockPos(out) : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos0 = out.summary.length ? '<table class="lytab"><thead><tr><th scope="col">' + esc(tt("ly_cPos")) + '</th><th scope="col">' + esc(tt("ly_cText")) + '</th><th scope="col" class="num">' + esc(tt("ly_cQty")) + '</th><th scope="col">' + esc(tt("ly_cUnit")) + '</th><th scope="col" class="num">' + esc(tt("ly_cEp")) + '</th><th scope="col" class="num">' + esc(tt("ly_cTot")) + "</th></tr></thead><tbody>" +
       out.summary.map(function (l) { var off = l.flag === "offen", lv = /^\d{3}\//.test(l.key), tx = lv ? lvT(l.key) : off || l.flag === "erfasst" ? (l.text || openText(l)) : (l.text || "");
         return "<tr" + (off ? ' class="open"' : "") + "><td>" + esc(off ? tt("c_offenTag") : l.key) + "</td><td>" + esc(tx) + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(uT(l.unit || "")) + '</td><td class="num">' + (off ? "—" : chf(l.ep)) + '</td><td class="num">' + (off ? "—" : chf(l.total)) + "</td></tr>"; }).join("") + "</tbody></table>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>";
     var aus = out.elems.filter(function (e) { return e.bal && e.bal.length; }).map(function (e) {
       return '<div class="lyaus"><h3>' + esc(tt("tab_" + e.tab) + " · " + (e.name || "")) + '</h3><table class="lytab"><tbody>' + e.bal.filter(function (b) { return b.v; }).map(function (b) { return "<tr><td>" + esc(tt(b.id)) + '</td><td class="num">' + qf(r2(b.v)) + " " + esc(b.unit) + "</td></tr>"; }).join("") + "</tbody></table></div>"; }).join("") || '<p class="hint">' + esc(tt("ly_ausNone")) + "</p>";
     var ws = out.warn.slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
     var warn = (out.nOffen ? '<p class="lyoff">⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + "</p>" : "") + (ws.length ? '<ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + esc(w.tab ? tt("tab_" + w.tab) + " · " + w.el : (w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul>" : '<p class="hint">' + esc(tt("ly_warnNone")) + "</p>");
-    return { V: r2(V), st: st, nPos: out.summary.length, nWarn: ws.filter(function (w) { return w.sev !== "info"; }).length + (out.nOffen ? 1 : 0), kost: n ? kostTable(out) : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos: pos, aus: aus, warn: warn };
+    return { V: r2(V), st: st, nPos: out.summary.length, nWarn: ws.filter(function (w) { return w.sev !== "info"; }).length + (out.nOffen ? 1 : 0), kost: n ? '<div class="lykost">' + '<div class="lykost-a">' + kostTable(out) + "</div>" + dockKostX(out) + "</div>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos: pos, aus: aus, warn: warn };
   }
   var LYTABS = ["graben", "schacht", "belag", "werkloch", "geb"];
   function lyPref() { try { var v = localStorage.getItem("lvd-layout"); if (v) return v === "classic" ? "classic" : "a"; } catch (e) { } return window.__LVD_LAYOUT_DEFAULT === "classic" ? "classic" : "a"; }   /* gespeicherte Wahl, sonst Vorgabe (Tests: klassisch), sonst Layout A */
@@ -1134,14 +1134,52 @@
     el.innerHTML = lvHtml ? h + lvHtml : h + '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>"; wrapTables(el);
   }
   /* ---------- Positionen: Filter, Prüfstatus (lokal, mit Zeitstempel), Top 10 ---------- */
-  var FQ = { q: "", st: "" }, PST = ["", "ok", "klaeren"], PICON = { "": "○", ok: "✔", klaeren: "⚠" };
+  var FQ = { q: "", st: "" }, PST = ["", "ip", "ok", "klaeren"], PICON = { "": "○", ip: "◐", ok: "✔", klaeren: "⚠" };   /* «In Prüfung» (ip) seit Redesign Phase F; bestehende Werte unverändert */
   var stOf = function (k) { return ((S.pruef || {})[k] || {}).st || ""; };
-  var pstLab = function (st) { return tt(st === "ok" ? "c_pst_ok" : st === "klaeren" ? "c_pst_kl" : "c_pst_offen"); };
-  function pruefCount(out) { var ok = 0, kl = 0, tot = 0; (out.summary || []).forEach(function (l) { if (l.flag === "offen") return; tot++; var st = stOf(l.key); if (st === "ok") ok++; else if (st === "klaeren") kl++; }); return { ok: ok, kl: kl, of: tot - ok - kl, tot: tot }; }
+  var pstLab = function (st) { return tt(st === "ok" ? "c_pst_ok" : st === "klaeren" ? "c_pst_kl" : st === "ip" ? "c_pst_ip" : "c_pst_offen"); };
+  /* ---------- Dock (Arbeitsplatz): Positionstabelle mit Suche, Status-/Kapitelfilter, Sortierung, Prüfstatus; Kosten je Kapitel/Abschnitt ---------- */
+  var DQ = { q: "", st: "", ch: "", s: "key", d: 1 }, LYOUT = null;
+  function chapOf(l) { return /^\d{3}\//.test(l.key) ? l.key.slice(0, 5) : l.flag === "offen" ? "~OFFEN" : "~X"; }
+  function chapLab(c, out) { if (c === "~OFFEN") return tt("c_offenTag"); if (c === "~X") return tt("ly_chX"); var f = (out.summary || []).filter(function (l) { return chapOf(l) === c; })[0], cx = f ? String(lvC(f.key) || "").split(" › ")[0] : ""; return c.slice(0, 3) + " · " + c.slice(4) + "00" + (cx ? " – " + (cx.length > 46 ? cx.slice(0, 45) + "…" : cx) : ""); }
+  function dockRows(out) {
+    var q = DQ.q.trim().toLowerCase(), rows = (out.summary || []).filter(function (l) { var off = l.flag === "offen", st = off ? "" : stOf(l.key), tx = /^\d{3}\//.test(l.key) ? lvT(l.key) : (l.text || openText(l));
+      if (DQ.st && (off || st !== (DQ.st === "offen" ? "" : DQ.st))) return false; if (DQ.st === "offenpos" && !off) return false; if (DQ.ch && chapOf(l) !== DQ.ch) return false; return !q || (l.key + " " + tx).toLowerCase().indexOf(q) >= 0; });
+    if (DQ.st === "offenpos") rows = (out.summary || []).filter(function (l) { return l.flag === "offen" && (!q || (l.key + " " + (l.text || openText(l))).toLowerCase().indexOf(q) >= 0); });
+    var key = DQ.s, d = DQ.d; rows.sort(function (a, b) { var va = key === "key" ? a.key : key === "qty" ? a.qty : key === "ep" ? a.ep : key === "tot" ? a.total : key === "st" ? PST.indexOf(stOf(a.key)) : String(/^\d{3}\//.test(a.key) ? lvT(a.key) : a.text || ""), vb = key === "key" ? b.key : key === "qty" ? b.qty : key === "ep" ? b.ep : key === "tot" ? b.total : key === "st" ? PST.indexOf(stOf(b.key)) : String(/^\d{3}\//.test(b.key) ? lvT(b.key) : b.text || ""); return (va < vb ? -1 : va > vb ? 1 : 0) * d; });
+    return rows;
+  }
+  function dockRowHtml(l) {
+    var off = l.flag === "offen", lv = /^\d{3}\//.test(l.key), tx = lv ? lvT(l.key) : off || l.flag === "erfasst" ? (l.text || openText(l)) : (l.text || ""), st = off ? "" : stOf(l.key), note = ((S.pruef || {})[l.key] || {}).note || "";
+    return "<tr" + (off ? ' class="open"' : st ? ' class="pst-' + (st === "klaeren" ? "kl" : st) + '"' : "") + ' data-dk="' + esc(l.key) + '"><td>' + (off ? "" : '<button type="button" class="pst" data-dpst="' + esc(l.key) + '" aria-label="' + esc(tt("pst_cycle") + ": " + pstLab(st) + " – " + l.key) + '"><span aria-hidden="true">' + PICON[st] + '</span><span class="pst-t">' + esc(pstLab(st)) + "</span></button>") + "</td><td>" + esc(off ? tt("c_offenTag") : l.key) + "</td><td>" + esc(tx) + (note ? '<small class="lynote">✎ ' + esc(note) + "</small>" : "") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(uT(l.unit || "")) + '</td><td class="num">' + (off ? "—" : chf(l.ep)) + '</td><td class="num">' + (off ? "—" : chf(l.total)) + "</td></tr>";
+  }
+  function dockPos(out) {
+    var chs = []; (out.summary || []).forEach(function (l) { var c = chapOf(l); if (chs.indexOf(c) < 0) chs.push(c); }); chs.sort();
+    var th = function (k, lab, cls) { var on = DQ.s === k; return '<th scope="col"' + (cls ? ' class="' + cls + '"' : "") + ' aria-sort="' + (on ? (DQ.d > 0 ? "ascending" : "descending") : "none") + '"><button type="button" class="lysort" data-dsort="' + k + '">' + esc(lab) + (on ? (DQ.d > 0 ? " ▲" : " ▼") : "") + "</button></th>"; };
+    var rows = dockRows(out), c = pruefCount(out);
+    return '<div class="lyptools" role="search"><input type="search" data-dq="q" value="' + esc(DQ.q) + '" placeholder="' + esc(tt("ly_pQ")) + '" aria-label="' + esc(tt("ly_pQ")) + '">' +
+      '<select data-dq="st" aria-label="' + esc(tt("fl_status")) + '"><option value="">' + esc(tt("fl_all")) + "</option>" + [["offen", "c_pst_offen"], ["ip", "c_pst_ip"], ["ok", "c_pst_ok"], ["klaeren", "c_pst_kl"], ["offenpos", "ly_pOpenPos"]].map(function (o) { return '<option value="' + o[0] + '"' + (DQ.st === o[0] ? " selected" : "") + ">" + esc(tt(o[1])) + "</option>"; }).join("") + "</select>" +
+      '<select data-dq="ch" aria-label="' + esc(tt("ly_pCh")) + '"><option value="">' + esc(tt("ly_pChAll")) + "</option>" + chs.map(function (x) { return '<option value="' + esc(x) + '"' + (DQ.ch === x ? " selected" : "") + ">" + esc(chapLab(x, out)) + "</option>"; }).join("") + "</select>" +
+      '<span class="lypcnt" id="lyPCnt" role="status" aria-live="polite">' + esc(tt("ly_pCnt").replace("{n}", rows.length).replace("{t}", out.summary.length)) + '</span><span class="lypst" id="lyPSt">' + esc(fill(tt("pst_sum"), c).split(".")[0]) + "</span></div>" +
+      '<table class="lytab lyptab"><thead><tr>' + th("st", tt("ly_cSt")) + th("key", tt("ly_cPos")) + th("txt", tt("ly_cText")) + th("qty", tt("ly_cQty"), "num") + '<th scope="col">' + esc(tt("ly_cUnit")) + "</th>" + th("ep", tt("ly_cEp"), "num") + th("tot", tt("ly_cTot"), "num") + '</tr></thead><tbody id="lyPosB">' + rows.map(dockRowHtml).join("") + "</tbody></table>";
+  }
+  function dockRefresh(full) { var p = document.querySelector("#lyP_pos"); if (!p || !LYOUT) return; if (full) { var a = document.activeElement, dq = a && a.getAttribute && a.getAttribute("data-dq"), pos0 = a && a.selectionStart; p.innerHTML = dockPos(LYOUT); if (dq) { var n = p.querySelector('[data-dq="' + dq + '"]'); if (n) { n.focus(); try { if (pos0 != null) n.setSelectionRange(pos0, pos0); } catch (e) { } } } return; }
+    var rows = dockRows(LYOUT), b = p.querySelector("#lyPosB"); if (b) b.innerHTML = rows.map(dockRowHtml).join(""); var cn = p.querySelector("#lyPCnt"); if (cn) cn.textContent = tt("ly_pCnt").replace("{n}", rows.length).replace("{t}", LYOUT.summary.length); }
+  function dockPstPaint(k) { if (!LYOUT) return; var tr = document.querySelector('#lyP_pos tr[data-dk="' + (window.CSS && CSS.escape ? CSS.escape(k) : k) + '"]'), l = (LYOUT.summary || []).filter(function (x) { return x.key === k && x.flag !== "offen"; })[0]; if (tr && l) { var nt = document.createElement("tbody"); nt.innerHTML = dockRowHtml(l); var nr = nt.firstChild; tr.replaceWith(nr); var nb = nr.querySelector("[data-dpst]"); if (nb && document.activeElement && document.activeElement.hasAttribute && document.activeElement.hasAttribute("data-dpst")) nb.focus(); } var s = document.querySelector("#lyPSt"); if (s) s.textContent = fill(tt("pst_sum"), pruefCount(LYOUT)).split(".")[0]; }
+  function dockKostX(out) {
+    var all = (out.summary || []).filter(function (l) { return l.flag !== "offen" && l.total; }), zw = out.sum.zwischen || 1, by = {}; all.forEach(function (l) { var c = chapOf(l); by[c] = (by[c] || 0) + l.total; });
+    var bar = function (v) { var p = Math.max(0, Math.min(100, v / zw * 100)); return '<span class="lybar2" aria-hidden="true"><i style="width:' + p.toFixed(1) + '%"></i></span><span class="num lypct">' + p.toFixed(1) + " %</span>"; };
+    var t1 = Object.keys(by).sort(function (a, b) { return by[b] - by[a]; }).map(function (c) { return "<tr><td>" + esc(chapLab(c, out)) + '</td><td class="num">' + chf(r2(by[c])) + "</td><td>" + bar(by[c]) + "</td></tr>"; }).join("");
+    var el = out.elems.filter(function (e) { return e.sum; }).slice().sort(function (a, b) { return b.sum - a.sum; }), t2 = el.map(function (e) { return "<tr><td>" + esc(tt("tab_" + e.tab) + " · " + (e.name || "")) + '</td><td class="num">' + chf(e.sum) + "</td><td>" + bar(e.sum) + "</td></tr>"; }).join("");
+    if (out.vor && out.vor.sum) t2 += "<tr><td>" + esc(tt("h_vorarbeiten")) + '</td><td class="num">' + chf(out.vor.sum) + "</td><td>" + bar(out.vor.sum) + "</td></tr>"; if (out.be && out.be.sum) t2 += "<tr><td>" + esc(tt("h_be")) + '</td><td class="num">' + chf(out.be.sum) + "</td><td>" + bar(out.be.sum) + "</td></tr>";
+    var top = all.slice().sort(function (a, b) { return b.total - a.total; }).slice(0, 10), t3 = top.map(function (l, i) { var tx = /^\d{3}\//.test(l.key) ? lvT(l.key) : (l.text || ""); return "<tr><td>" + (i + 1) + '. <button type="button" class="linkbtn" data-dgo="' + esc(l.key) + '">' + esc(l.key) + "</button> " + esc(String(tx).slice(0, 60)) + '</td><td class="num">' + chf(l.total) + "</td><td>" + bar(l.total) + "</td></tr>"; }).join("");
+    var tbl = function (h, body) { return '<section class="lykx"><h4>' + esc(h) + '</h4><table class="lytab"><tbody>' + body + "</tbody></table></section>"; };
+    return '<div class="lykost-b">' + tbl(tt("ly_kCh"), t1) + tbl(tt("ly_kEl"), t2) + tbl(tt("top_h"), t3) + '<p class="hint">' + esc(tt("ly_kNote")) + "</p></div>";
+  }
+  function pruefCount(out) { var ok = 0, kl = 0, ip = 0, tot = 0; (out.summary || []).forEach(function (l) { if (l.flag === "offen") return; tot++; var st = stOf(l.key); if (st === "ok") ok++; else if (st === "klaeren") kl++; else if (st === "ip") ip++; }); return { ok: ok, kl: kl, ip: ip, of: tot - ok - kl - ip, tot: tot }; }
   function fbarHtml(out) {
     var c = pruefCount(out), top = (out.summary || []).filter(function (l) { return l.flag !== "offen"; }).slice().sort(function (a, b) { return b.total - a.total; }).slice(0, 10);
     return '<div class="fbar no-print" role="search"><label class="fl" for="fQ">' + esc(tt("fl_label")) + '</label><input type="search" id="fQ" value="' + esc(FQ.q) + '" placeholder="' + esc(tt("fl_ph")) + '" autocomplete="off">' +
-      '<label class="fl" for="fSt">' + esc(tt("fl_status")) + '</label><select id="fSt"><option value="">' + esc(tt("fl_all")) + '</option><option value="offen"' + (FQ.st === "offen" ? " selected" : "") + ">" + esc(tt("c_pst_offen")) + '</option><option value="ok"' + (FQ.st === "ok" ? " selected" : "") + ">" + esc(tt("c_pst_ok")) + '</option><option value="klaeren"' + (FQ.st === "klaeren" ? " selected" : "") + ">" + esc(tt("c_pst_kl")) + "</option></select>" +
+      '<label class="fl" for="fSt">' + esc(tt("fl_status")) + '</label><select id="fSt"><option value="">' + esc(tt("fl_all")) + '</option><option value="offen"' + (FQ.st === "offen" ? " selected" : "") + ">" + esc(tt("c_pst_offen")) + '</option><option value="ok"' + (FQ.st === "ok" ? " selected" : "") + ">" + esc(tt("c_pst_ok")) + '</option><option value="ip"' + (FQ.st === "ip" ? " selected" : "") + ">" + esc(tt("c_pst_ip")) + '</option><option value="klaeren"' + (FQ.st === "klaeren" ? " selected" : "") + ">" + esc(tt("c_pst_kl")) + "</option></select>" +
       '<button type="button" class="btn ghost small" id="fClr" hidden>' + esc(tt("fl_clear")) + '</button><span class="fcount" id="fCount" role="status" aria-live="polite"></span>' +
       '<p class="fsum" id="pSum">' + esc(fill(tt("pst_sum"), c)) + "</p></div>" +
       (top.length ? '<details class="top10 no-print"><summary>' + esc(tt("top_h")) + '</summary><ol>' + top.map(function (l) { var t = /^\d{3}\//.test(l.key) ? lvT(l.key) : l.text; return '<li><button type="button" class="linkbtn" data-topgo="' + esc(l.key) + '">' + esc(l.key) + "</button> " + esc(String(t || "").slice(0, 70)) + ' <b class="num">CHF ' + chf(l.total) + "</b></li>"; }).join("") + "</ol></details>" : "");
@@ -1158,7 +1196,7 @@
   }
   function pstPaint(tr, k) {
     var e = (S.pruef || {})[k] || {}, st = e.st || "", b = tr.querySelector(".pst"), inp = tr.querySelector(".pnote"), pr = tr.querySelector(".pnote-p"), ts = tr.querySelector(".pts");
-    tr.classList.toggle("pst-ok", st === "ok"); tr.classList.toggle("pst-kl", st === "klaeren");
+    tr.classList.toggle("pst-ok", st === "ok"); tr.classList.toggle("pst-kl", st === "klaeren"); tr.classList.toggle("pst-ip", st === "ip");
     b.innerHTML = '<span aria-hidden="true">' + PICON[st] + '</span><span class="pst-t">' + esc(pstLab(st)) + "</span>"; b.setAttribute("aria-label", tt("pst_cycle") + ": " + pstLab(st) + " – " + k);
     inp.hidden = !(st || e.note); pr.textContent = e.note ? tt("pst_note") + ": " + e.note : ""; ts.textContent = e.ts ? fill(tt("pst_changed"), { t: new Date(e.ts).toLocaleString("de-CH", { dateStyle: "short", timeStyle: "short" }) }) : ""; ts.hidden = !e.ts;
   }
@@ -1166,7 +1204,7 @@
     S.pruef = S.pruef || {}; var e = Object.assign({}, S.pruef[k] || {}, patch, { ts: new Date().toISOString() });
     if (!e.st && !e.note) delete S.pruef[k]; else S.pruef[k] = e; save();
     var tr = document.querySelector('#result .zusblk td.art[data-k="' + (window.CSS && CSS.escape ? CSS.escape(k) : k) + '"]'); tr = tr && tr.parentNode; if (tr) pstPaint(tr, k);
-    var ps = $("#pSum"); if (ps && lastOut) ps.textContent = fill(tt("pst_sum"), pruefCount(lastOut)); applyFilter();
+    var ps = $("#pSum"); if (ps && lastOut) ps.textContent = fill(tt("pst_sum"), pruefCount(lastOut)); applyFilter(); dockPstPaint(k);
   }
   function applyFilter() {
     var q = FQ.q.trim().toLowerCase(), st = FQ.st, res = $("#result"); if (!res) return; var on = !!(q || st);
@@ -1633,6 +1671,14 @@
       else if (a === "dup") { var c = JSON.parse(JSON.stringify(rec())); c.name = (c.name || "") + " (2)"; delete c.uid; L.splice(S.idx[S.tab] + 1, 0, c); S.idx[S.tab]++; }
       else if (a === "del") { undoSn = snapState(); L.splice(S.idx[S.tab], 1); if (!L.length) L.push(newRec(S.tab, 1)); S.idx[S.tab] = Math.min(S.idx[S.tab], L.length - 1); }
       save(); renderForm(); renderResult(); if (undoSn) undoToast(tt("ux_recDeleted"), undoSn);
+    });
+    document.addEventListener("input", function (ev) { var d = ev.target.closest && ev.target.closest(".lydock [data-dq]"); if (!d) return; DQ[d.getAttribute("data-dq")] = d.value; dockRefresh(false); });
+    document.addEventListener("change", function (ev) { var d = ev.target.closest && ev.target.closest(".lydock select[data-dq]"); if (!d) return; DQ[d.getAttribute("data-dq")] = d.value; dockRefresh(false); });
+    document.addEventListener("click", function (ev) {
+      var t = ev.target.closest && ev.target.closest(".lydock [data-dsort],.lydock [data-dpst],.lydock [data-dgo]"); if (!t) return;
+      if (t.hasAttribute("data-dsort")) { var k = t.getAttribute("data-dsort"); if (DQ.s === k) DQ.d = -DQ.d; else { DQ.s = k; DQ.d = k === "tot" || k === "qty" || k === "ep" ? -1 : 1; } dockRefresh(true); var nb = document.querySelector('.lydock [data-dsort="' + k + '"]'); if (nb) nb.focus(); return; }
+      if (t.hasAttribute("data-dpst")) { var k0 = t.getAttribute("data-dpst"), nx = PST[(PST.indexOf(stOf(k0)) + 1) % PST.length]; pstSet(k0, { st: nx }); return; }
+      if (t.hasAttribute("data-dgo")) { DQ = { q: t.getAttribute("data-dgo"), st: "", ch: "", s: DQ.s, d: DQ.d }; var tb = document.querySelector("#lyT_pos"); if (tb) tb.click(); setTimeout(function () { dockRefresh(true); }, 0); }
     });
     $("#result").addEventListener("click", function (ev) {
       var g = ev.target.closest("[data-go]"); if (g) { ev.preventDefault(); var p = g.dataset.go.split(":"); S.tab = p[0]; S.idx[p[0]] = +p[1]; save(); renderForm(); renderResult(); window.scrollTo({ top: $("#tabs").offsetTop - 8, behavior: "smooth" }); return; }

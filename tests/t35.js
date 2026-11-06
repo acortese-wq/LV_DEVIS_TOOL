@@ -8,7 +8,7 @@ await pg.fill('#fQ','zzzxx'); await pg.waitForTimeout(200); ok((await pg.textCon
 await pg.click('#fClr'); ok((await pg.inputValue('#fQ'))==='','Zurücksetzen');
 // Prüfstatus
 await pg.click('[data-toggle=zus]'); const first=pg.locator('.zusblk td.art[data-k]').first(); const key=await first.getAttribute('data-k'); const btn=first.locator('.pst');
-await btn.click(); ok((await btn.textContent()).includes('Geprüft'),'Status 1× Klick: Geprüft (Text + Symbol)'); await btn.click(); ok((await btn.textContent()).includes('Klären'),'2× Klick: Klären');
+await btn.click(); ok((await btn.textContent()).includes('In Prüfung'),'Status 1× Klick: In Prüfung (Text + Symbol)'); await btn.click(); ok((await btn.textContent()).includes('Geprüft'),'2× Klick: Geprüft'); await btn.click(); ok((await btn.textContent()).includes('Klären'),'3× Klick: Klären');
 await pg.locator('.zusblk tr.pst-kl .pnote').fill('Menge mit Ausmass abgleichen'); await pg.waitForTimeout(700);
 let S=await getS(pg); const e=S.pruef&&S.pruef[key]; console.log(JSON.stringify(e)); ok(e&&e.st==='klaeren'&&e.note.includes('Ausmass')&&/^\d{4}-/.test(e.ts),'Status, Notiz, Zeitstempel gespeichert');
 ok((await pg.textContent('#pSum')).includes('1 zu klären'),'Prüfstand-Summe: '+(await pg.textContent('#pSum')).slice(0,60));
