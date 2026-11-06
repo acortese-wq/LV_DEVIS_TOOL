@@ -43,7 +43,7 @@ const fs = require('fs'), vm = require('vm'), path = require('path');
   const r = await pg.evaluate(() => ({ lang: document.documentElement.lang, nav: document.querySelector('.lynav').textContent, pts: window.__KM.M().pts.length, dock: document.querySelector('.lydtabs').textContent, chat: (document.querySelector('.chnote') || {}).textContent || '' }));
   ok(r.lang === 'it' && /Progetto/.test(r.nav) && /Costi/.test(r.dock), 'Planungsfokus auf Italienisch neu aufgebaut');
   ok(r.pts === n0, 'gezeichneter Schacht bleibt beim Sprachwechsel erhalten (' + r.pts + ')');
-  ok(/solo in tedesco/.test(r.chat) && !/Regelbasiert/.test(r.chat), 'Assistent beschriftet sich mit (Beratungsinhalte: Hinweis «nur Deutsch»)');
+  ok(!/solo in tedesco/.test(r.chat) && !/Regelbasiert/.test(r.chat), 'Assistent beschriftet sich mit (Beratungsinhalte übersetzt, kein Hinweis «nur Deutsch»)');
   await pg.click('[data-ly=proj]'); await pg.waitForTimeout(300); ok(await pg.locator('#lyAsk:visible').count() === 1, 'nicht übernommene Änderung bleibt gemerkt (Rückfrage beim Wechsel)');
   await pg.click('[data-lya=drop]'); await pg.waitForTimeout(500);
   ok(await pg.textContent('#t-creator') === 'Concetto dell’app e autore: Alessandro Cortese' && /Pavimentazione marciapiede/.test(await pg.evaluate(() => JSON.stringify(window.__LVD.tt('p_gehMin')))), 'Urheberzeile und Belagsparameter übersetzt');

@@ -343,3 +343,8 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 - **Ein Werkzeug für beides:** «DXF/PDF importieren» – DXF wird Hintergrund, PDF/Bild wird Planunterlage; das Fenster «Ebenen» öffnet sich.
 - **DXF-Farben:** je Layer Farbwahl im Importfenster und in der Seitenleiste, «Eine Farbe für alle», «Originalfarben». Ist keine Farbe bestimmbar (weder Layer- noch Objektfarbe, kein bekanntes Schema), wird **violett** (#7b2cbf) dargestellt. Farben gelten in Karte und Projektbericht und werden gespeichert.
 - Keine Kostenwirkung. Test t75.
+
+## Assistent vollständig in DE/FR/IT/EN (V97)
+- **Vorher:** Bedienung und Themen des Assistenten waren übersetzt, die Beratungsinhalte und Wissensantworten (Handbuch-Zusammenfassungen, Projektstand, Projekt-Check) blieben deutsch mit Hinweis «nur Deutsch».
+- **Nachher:** alle 24 geführten Beratungen, die Wissensantworten, Projektstand/Zusammenfassung, Projekt-Check, Vorschläge und Rückfragen erscheinen in der gewählten Sprache (rund 500 Textbausteine, Schweizer Fachbegriffe: chambre/pozzetto, desserte/allacciamento, OFAC/UFAC usw.). Fragen dürfen auf Französisch, Italienisch oder Englisch gestellt werden (Glossar auf die deutschen Stichwörter); «retour/indietro/back» und «annuler/annulla/cancel» steuern die Beratung. Sprachwechsel wirkt sofort auf neue Antworten.
+- Verbindlich bleibt das Handbuch (deutsch); die Übersetzungen sind Zusammenfassungen. Keine Kostenwirkung. Test t76 (alle Beratungen je zwei Antwortwege, ohne deutsche Reste).

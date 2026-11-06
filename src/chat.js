@@ -5,7 +5,34 @@
   var D = null, turns = 0, pan, msgs, ta, note;
   var $ = function (q, r) { return (r || document).querySelector(q); };
   var tt = function (k) { return D.tt(k); };
-  function E(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function E(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = L(txt); return e; }
+  /* Mehrsprachigkeit: Beratungs- und Wissenstexte sind deutsch hinterlegt und werden beim Anzeigen bausteinweise übersetzt (src/chat_i18n.js).
+     Längere Bausteine zuerst; kurze Bausteine nur als ganze Wörter. Zahlen, Positionsnummern und Projektdaten bleiben unverändert. */
+  var TRC = {};
+  function curLang() { try { return (D && D.S && D.S().lang) || "de"; } catch (e) { return "de"; } }
+  function L(s) {
+    var lg = curLang(), li = { fr: 0, it: 1, en: 2 }[lg]; if (li == null || s == null) return s; var M0 = window.LVW_CHAT_TR; if (!M0) return s;
+    var C0 = TRC[lg]; if (!C0) { var ks = Object.keys(M0).filter(function (k) { return k.trim().length > 1 && M0[k][li] !== k; }).sort(function (a, b) { return b.length - a.length; });
+      var esc0 = function (k) { return k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }, LT = "A-Za-zÀ-ÖØ-öø-ÿ";
+      C0 = TRC[lg] = new RegExp(ks.map(function (k) { var e = esc0(k); if (k.length < 14) { if (/^[A-Za-zÀ-ÿ]/.test(k)) e = "(?<![" + LT + "])" + e; if (/[A-Za-zÀ-ÿ]$/.test(k)) e = e + "(?![" + LT + "])"; } return e; }).join("|"), "g"); }
+    return String(s).replace(C0, function (m) { return M0[m] ? M0[m][li] : m; });
+  }
+  /* Fragen auf Französisch, Italienisch oder Englisch: Fachwörter auf die deutschen Stichwörter abbilden */
+  var GLO = [[/chambre|pozzett|manhole|regard/, "schacht"], [/distance|distanza|spacing|écart/, "abstand schachtabstand"], [/type de chambre|tipo di pozzett|manhole type|types? de chambres|tipi di pozzett/, "schachttyp"],
+    [/rayon|raggio|radius|courbure|curvatura|bend/, "biegeradius"], [/raccordement|allacciament|connection|bâtiment|batiment|edifici|building|maison|casa|house/, "gebäudeanschluss hausanschluss"],
+    [/répartition des co|repartition des co|ripartizione dei cost|cost shar|qui paie|chi paga|who pays/, "kostenteiler"], [/deuxième chemin|chemins? séparés|percors[oi] separat|second path|separate path|redondan|ridondan|redundan/, "zweitweg getrennte wege"],
+    [/\bcentral|centrale|central office/, "zentrale hauptkanal"], [/traversée|traversee|attraversament|crossing|desserte|zone à bâtir|zona edificabile|development area/, "strassenquerung erschliessung"],
+    [/relevé|releve|rilievo|survey|as-built/, "einmass"], [/couvercle|coperchio|cover\b/, "abdeckung schachtabdeckung"], [/ligne aérienne|linea aerea|overhead/, "freileitung"], [/poteau|palo|\bpole/, "mast holzmast"],
+    [/câble aérien|cable aerien|cavo aereo|aerial cable/, "luftkabel"], [/flèche|freccia|\bsag\b/, "durchhang"], [/ancrage|ancoraggi|anchor/, "verankerung"], [/ofac|ufac|foca|aviation|aviazione|navigation aérienne|navigazione aerea/, "meldepflicht bazl luftfahrthindernis"],
+    [/résumé|resume|riassunto|summary|aperçu|panoramica|overview/, "zusammenfassung"], [/avertissement|avvis|warning/, "warnungen"], [/que manque|qu.est-ce qui manque|cosa manca|what.*missing|missing/, "was fehlt"],
+    [/plus gros|maggior|biggest|cost driver|facteur de co|fattore di cost/, "kostentreiber grösste"], [/profil|profilo|elevation/, "höhenprofil"], [/impression|stampa|\bprint/, "druck"], [/proposition|propost|suggestion/, "vorschläge"],
+    [/accrochage|aggancio|snap/, "fang"], [/normes?\b|norme|standards?/, "normen"], [/introduction|introduzione|cable entry|entrée de câble/, "kabeleinführung hauseinführung"], [/fouille|scavo|trench/, "graben"],
+    [/mode d.emploi|istruzioni|\bguide|\bhelp|aide|aiuto/, "anleitung"], [/contrôle du projet|verifica del progetto|project check|mon projet|mio progetto|my project/, "projekt-check"], [/siphon|sifone/, "siphon"],
+    [/démontage|demontage|smantell|removal|dismantl/, "abbruch"], [/tracé|trace\b|tracciat|route selection|choix du tracé/, "trasse trassenwahl"], [/matériau|materiale|material|mode de construction|modo di costruzione|construction method/, "bauweise rohrmaterial"],
+    [/compactage|compattazion|compaction|valeurs? me|valori me/, "me-messung verdichtung"], [/verrouill|blocco|locking/, "absperrplatte schachtdeckel sichern"], [/poteau de transition|palo di transizione|transition pole|\bust\b/, "überführungsmast ust"],
+    [/rabais|ribasso|discount/, "rabatt"], [/\btva\b|\biva\b|\bvat\b/, "mwst"], [/entretien|manutenzion|maintenance|dérangement|guasto|fault/, "unterhalt störung"]];
+  function deQ(q) { var ql = String(q || "").toLowerCase(); if (curLang() === "de") return ql; var add = []; GLO.forEach(function (g) { if (g[0].test(ql)) add.push(g[1]); });
+    if (/^(retour|indietro|back)\b/.test(ql)) return "zurück"; if (/^(annuler|annulla|cancel|stop|arrêt|fine|end)\b/.test(ql)) return "abbrechen"; return ql + (add.length ? " " + add.join(" ") : ""); }
   var chf = function (v) { return (Math.round(v * 100) / 100).toLocaleString("de-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
 
   /* ---------- Wissensbasis ---------- */
@@ -108,7 +135,7 @@
   var HELP = "Ich antworte aus dem hinterlegten Wissen, ohne KI und ohne Tokens. Beispiele:\n• «Was ist der grösste Kostentreiber?» / «Zusammenfassung»\n• «Was fehlt noch?» / «Warnungen»\n• «Schachtabstand Basis Cu», «Schachttypen», «Biegeradius», «Gebäudeanschluss», «Kostenteiler»\n• «Position 151/672.201» oder Stichworte aus dem LV (z. B. «Kontrollschacht Brunnenring»)\n• Bedienung: «Fang», «Höhenprofil», «Druck», «Vorschläge»\n• Änderung vorschlagen: «setze graben 1 T auf 1.2»";
 
   function answer(q) {
-    var ql = q.toLowerCase(), cmd = command(q); if (cmd) return { t: cmd };
+    var ql = deQ(q), cmd = command(q); if (cmd) return { t: cmd };
     var out = calc(), mk = /\b\d{3}\/\d{3}\.\d{3}\b/.exec(q);
     if (mk && LV[mk[0]]) { var e = LV[mk[0]]; return { t: lvLine(mk[0]) + (e.c ? "\nHinweis: " + String(e.c).replace(/\s+/g, " ").slice(0, 300) : ""), s: "LV Swisscom V1.1" }; }
     if (out && /kostentreiber|teuerst|grösst|groesst|größt|anteil|top ?\d*/.test(ql) && /(kosten|position|preis|treiber|teuer)/.test(ql)) return { t: topPos(out), s: "Projektstand" };
@@ -235,7 +262,7 @@
   function back() { FL.box.remove(); var pv = FL.hist.pop(); delete FL.ans[FL.f.steps[pv].id]; addMsg("user", "↩ " + tt("ch_back")); ask(pv); }
   function cancel() { if (FL && FL.box) FL.box.remove(); FL = null; addMsg("bot", tt("ch_cancelled")); }
   function flowText(q) {   /* Freitext während eines Dialogs: Option, «zurück» oder «abbrechen» */
-    var ql = q.toLowerCase().trim(); if (/^(zur(ü|ue)ck)/.test(ql) && FL.hist.length) { back(); return true; } if (/^(abbr|stop|ende|schluss)/.test(ql)) { addMsg("user", q); cancel(); return true; }
+    var ql = deQ(q).trim(); if (/^(zur(ü|ue)ck)/.test(ql) && FL.hist.length) { back(); return true; } if (/^(abbr|stop|ende|schluss)/.test(ql)) { addMsg("user", q); cancel(); return true; }
     var st = FL.f.steps[FL.cur], opts = typeof st.opts === "function" ? st.opts(FL.ans) : st.opts, hit = opts.filter(function (o) { var l = o[1].toLowerCase(); return l === ql || (ql.length > 2 && l.indexOf(ql) >= 0); });
     if (hit.length === 1) { pick(hit[0]); return true; } return false;
   }
@@ -258,12 +285,12 @@
       ks.forEach(function (k) { var b = E("button", "btn small", flT(k)); b.type = "button"; b.onclick = function () { if (after) after(); startFlow(k); }; bx.appendChild(b); }); d.appendChild(bx); host.appendChild(d);
     });
   }
-  function flT(k) { var x = tt("fl_" + k); return x && x !== "fl_" + k ? x : FLOWS[k].title; }   /* Thementitel übersetzt; Inhalte der Beratung bleiben Deutsch */
+  function flT(k) { var x = tt("fl_" + k); return x && x !== "fl_" + k ? x : L(FLOWS[k].title); }   /* Thementitel und Beratungsinhalte übersetzt (chat_i18n.js) */
   function chooser() { var bx = E("div", "chfl"); addMsg("bot", tt("ch_choose")); flowList(bx, function () { bx.remove(); }); msgs.appendChild(bx); msgs.scrollTop = msgs.scrollHeight; }
   function send(q) {
     q = String(q || "").trim(); if (!q) return; var intro = $(".chq", pan); if (intro) intro.hidden = true;
     if (FL && flowText(q)) { ta.value = ""; return; } if (FL) cancel();
-    addMsg("user", q); ta.value = ""; var tr = FLTRIG.filter(function (x) { return x[1].test(q.toLowerCase()); })[0]; if (tr) { startFlow(tr[0]); return; } var kd = Object.keys(FLOWS).filter(function (k) { return (FLOWS[k].direct || /(beratung|geführt|gefuehrt|führe mich|hilf mir)/i.test(q)) && FLOWS[k].kw && FLOWS[k].kw.test(q.toLowerCase()); })[0]; if (kd) { startFlow(kd); return; } if (/(beratung|geführt|führe mich|hilf mir|wizard)/i.test(q)) { chooser(); return; } var a; try { a = answer(q); } catch (e) { a = { t: "Das konnte ich nicht auswerten (" + (e.message || e) + ")." }; }
+    addMsg("user", q); ta.value = ""; var tr = FLTRIG.filter(function (x) { return x[1].test(deQ(q)); })[0]; if (tr) { startFlow(tr[0]); return; } var kd = Object.keys(FLOWS).filter(function (k) { return (FLOWS[k].direct || /(beratung|geführt|gefuehrt|führe mich|hilf mir)/i.test(q)) && FLOWS[k].kw && FLOWS[k].kw.test(q.toLowerCase()); })[0]; if (kd) { startFlow(kd); return; } if (/(beratung|geführt|führe mich|hilf mir|wizard)/i.test(q)) { chooser(); return; } var a; try { a = answer(q); } catch (e) { a = { t: "Das konnte ich nicht auswerten (" + (e.message || e) + ")." }; }
     addMsg("bot", a.t, a.s); turns++;
     if (a.h && window.__LVHELP) { var hx = E("div", "chopts"), hbn = E("button", "btn small", tt("hp_open") + ": " + window.__LVHELP.title(a.h)); hbn.type = "button"; hbn.onclick = function () { window.__LVHELP.open(a.h); }; hx.appendChild(hbn); msgs.appendChild(hx); msgs.scrollTop = msgs.scrollHeight; }
     if (a.fl) { var bx = E("div", "chopts"), bb = E("button", "btn small", tt("ch_guided") + ": " + flT(a.fl)); bb.type = "button"; bb.onclick = function () { bx.remove(); startFlow(a.fl); }; bx.appendChild(bb); msgs.appendChild(bx); msgs.scrollTop = msgs.scrollHeight; }
@@ -274,7 +301,7 @@
     pan = E("section", "chpan"); pan.id = "chPan"; pan.hidden = true; pan.setAttribute("role", "dialog"); pan.setAttribute("aria-modal", "false"); pan.setAttribute("aria-label", tt("ch_title"));
     var hd = E("div", "chhd"), ti = E("strong", "", tt("ch_title")), nw = E("button", "btn ghost small", tt("ch_new")), cl = E("button", "btn ghost small", "✕"); nw.type = cl.type = "button"; cl.setAttribute("aria-label", tt("ch_close"));
     hd.appendChild(ti); hd.appendChild(nw); hd.appendChild(cl);
-    note = E("p", "hint chnote", tt("ch_info") + (tt("ch_deOnly") ? " " + tt("ch_deOnly") : "")); msgs = E("div", "chmsgs"); msgs.setAttribute("role", "log"); msgs.setAttribute("aria-live", "polite"); msgs.tabIndex = 0; msgs.setAttribute("aria-label", tt("ch_title"));
+    note = E("p", "hint chnote", tt("ch_info")); msgs = E("div", "chmsgs"); msgs.setAttribute("role", "log"); msgs.setAttribute("aria-live", "polite"); msgs.tabIndex = 0; msgs.setAttribute("aria-label", tt("ch_title"));
     var qs = E("div", "chq"); ["ch_q1", "ch_q2", "ch_q3"].forEach(function (k) { var b = E("button", "btn ghost small", tt(k)); b.type = "button"; b.setAttribute("data-chk", k); b.onclick = function () { send(tt(k)); }; qs.appendChild(b); });
     qs.appendChild(E("strong", "chqh", tt("ch_guided"))); flowList(qs); msgs.appendChild(qs);
     var f = E("form", "chf"); ta = E("textarea"); ta.rows = 2; ta.setAttribute("aria-label", tt("ch_ph")); ta.placeholder = tt("ch_ph");
@@ -285,9 +312,9 @@
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !pan.hidden && !document.querySelector("dialog[open]")) toggle(false); });
     pan.appendChild(hd); pan.appendChild(note); pan.appendChild(msgs); pan.appendChild(f); document.body.appendChild(pan); document.body.appendChild(fab);
     fab.onclick = function () { toggle(pan.hidden); };
-    window.__LVCHAT = { relang: function () {   /* Sprache gewechselt: Bedienelemente neu beschriften (Beratungsinhalte aus dem Handbuch bleiben Deutsch) */
+    window.__LVCHAT = { flows: function () { return Object.keys(FLOWS); }, start: function (k) { startFlow(k); }, relang: function () {   /* Sprache gewechselt: Bedienelemente neu beschriften; Beratungsinhalte werden beim Anzeigen übersetzt */
       fab.textContent = tt("ch_fab"); pan.setAttribute("aria-label", tt("ch_title")); ti.textContent = tt("ch_title"); nw.textContent = tt("ch_new"); cl.setAttribute("aria-label", tt("ch_close"));
-      note.textContent = tt("ch_info") + (tt("ch_deOnly") ? " " + tt("ch_deOnly") : ""); msgs.setAttribute("aria-label", tt("ch_title"));
+      note.textContent = tt("ch_info"); msgs.setAttribute("aria-label", tt("ch_title"));
       qs.querySelectorAll("[data-chk]").forEach(function (b) { b.textContent = tt(b.getAttribute("data-chk")); }); var qh = qs.querySelector(".chqh"); if (qh) qh.textContent = tt("ch_guided");
       [].slice.call(qs.querySelectorAll("details.chgrp")).forEach(function (d) { d.remove(); }); flowList(qs);
       ta.placeholder = tt("ch_ph"); ta.setAttribute("aria-label", tt("ch_ph")); sb.textContent = tt("ch_send");

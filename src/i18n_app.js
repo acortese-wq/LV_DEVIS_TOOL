@@ -1073,7 +1073,6 @@
     hz_sfx: ["schräg","oblique","inclinata","slope"],
     ch_src: ["Quelle", "Source", "Fonte", "Source"],
     ch_guided: ["Geführte Beratung", "Conseil guidé", "Consulenza guidata", "Guided advice"],
-    ch_deOnly: ["", "La consultation guidée et les réponses tirées du manuel sont disponibles uniquement en allemand.", "La consulenza guidata e le risposte tratte dal manuale sono disponibili solo in tedesco.", "Guided advice and answers from the manual are available in German only."],
     fl_abstand: ["", "Distance entre chambres et occupation des tubes", "Distanza tra pozzetti e occupazione dei tubi", "Manhole spacing and duct occupancy"],
     fl_typ: ["", "Choisir le type de chambre et le couvercle", "Scegliere tipo di pozzetto e copertura", "Choose manhole type and cover"],
     fl_geb: ["", "Raccordement de bâtiment", "Allacciamento dell’edificio", "Building connection"],
