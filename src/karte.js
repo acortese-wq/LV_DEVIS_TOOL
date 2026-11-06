@@ -556,7 +556,8 @@
       '<button type="button" class="btn small" data-k="marea" aria-pressed="false">' + esc(tt("km_area")) + "</button>" +
       '<button type="button" class="btn small" data-k="mwl" aria-pressed="false">' + esc(tt("km_wl")) + '</button><select id="kmWlT" class="kmwlt" aria-label="' + esc(tt("km_wlType")) + '">' + ["ts", "bo", "sg", "zs"].map(function (k) { return '<option value="' + k + '"' + (k === "sg" ? " selected" : "") + ">" + esc(tt("km_wl" + k)) + "</option>"; }).join("") + "</select>" +
       '<button type="button" class="btn small" data-k="mgeb" aria-pressed="false">' + esc(tt("km_geb")) + "</button>" +
-      (plan ? "" : '<button type="button" class="btn small" data-k="route" aria-pressed="false" aria-haspopup="dialog">' + esc(tt("km_rt_btn")) + "</button>") +
+      (plan ? "" : '<button type="button" class="btn small" data-k="route" aria-pressed="false" aria-haspopup="dialog">' + esc(tt("km_rt_btn")) + "</button>" +
+        '<button type="button" class="btn small" data-k="dxfin" aria-haspopup="dialog">' + esc(tt("km_dxfIn")) + '</button><input type="file" id="kmDxfF" accept=".dxf,application/dxf,image/vnd.dxf" hidden>') +
       "</div>" +
       '<div class="kmgrp" role="group" aria-label="' + esc(tt("km_g_note")) + '"><span class="kmgl" aria-hidden="true">' + esc(tt("km_g_note")) + "</span>" +
       '<button type="button" class="btn small" data-k="mtext" aria-pressed="false">' + esc(tt("km_nText")) + "</button>" +
@@ -617,7 +618,7 @@
       var pick = function (sel) { return dlg.querySelector(sel); };
       var grp = function (title, sels) { var g = E("div", "kmtg"); g.setAttribute("role", "group"); g.setAttribute("aria-label", title); g.appendChild(E("span", "kmgl", esc(title))); sels.forEach(function (q) { var n = pick(/^[#.\[]|^label/.test(q) ? q : '[data-k="' + q + '"]'); if (n) g.appendChild(n); }); return g; };
       tools.appendChild(grp(tt("ws_sel"), ["medit", "#kmEop"]));
-      tools.appendChild(grp(tt("ws_draw"), ["mcal", "mline", "mpt", "mwl", "#kmWlT", "mgeb", "route", "msond", "marea"]));
+      tools.appendChild(grp(tt("ws_draw"), ["mcal", "mline", "mpt", "mwl", "#kmWlT", "mgeb", "route", "dxfin", "#kmDxfF", "msond", "marea"]));
       tools.appendChild(grp(tt("ws_note"), ["mtext", "marrow", "msline", "mrect", "label[for=kmCol]", "#kmCol"]));
       tools.appendChild(grp(tt("ws_measure"), ["mruler", "undo", "redo", "end", "clear", "label[for=kmStep]", "#kmStep"]));
       /* Kopf: Titel, Suche, Knöpfe */
@@ -815,6 +816,11 @@
         var n = catList.filter(function (c) { var q = w.toLowerCase(); return c.label.toLowerCase().indexOf(q) >= 0 || c.id.toLowerCase().indexOf(q) >= 0; }).length;
         if (!n) return; var b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.dataset.q = w; b.textContent = w + " (" + n + ")"; box.appendChild(b);
       });
+      var gwr = catList.filter(function (c) { return c.id === "ch.bfs.gebaeude_wohnungs_register"; })[0] || catList.filter(function (c) { return /gebäudestatus|statut des bâtiments|stato dell.edificio|building status/i.test(c.label); })[0];
+      if (gwr) {   /* Direktwahl: GWR – Gebäudestatus (ein Klick blendet die Ebene ein bzw. aus) */
+        var on = ov.some(function (o) { return o.id === gwr.id; }), g = document.createElement("button"); g.type = "button"; g.className = "chip"; g.dataset.ovq = gwr.id; g.setAttribute("aria-pressed", on ? "true" : "false");
+        g.textContent = (on ? "✓ " : "+ ") + gwr.label; g.title = tt("km_chipGwr"); box.insertBefore(g, box.firstChild);
+      }
       box.hidden = !box.children.length;
     }
     function openCat() {
@@ -1420,7 +1426,7 @@
         var r = rowOf(l);
         var t = head(r, tt("km_lineN").replace("{n}", i + 1), l.rid); t.insertAdjacentHTML("beforeend", " · " + fmt(effLen(l.pts)) + " m" + (SLOPE && hzOf(l) ? " " + esc(tt("hz_sfx")) : ""));
         var ed = document.createElement("div"); ed.className = "kmled"; r.appendChild(ed); lineEd(l, ed, false);
-        if (l.route) linkHint(r, tt("km_rt_lk"), null);   /* Routenlinie entsteht immer ohne Verbindung (kein from/to, kein Schacht); Hinweis ohne Löschen-Knopf */
+        if (l.route) linkHint(r, tt("km_rt_lk"), null); if (l.dxf != null) linkHint(r, tt("km_dxfLk").replace("{l}", l.dxf || "0"), null);   /* Routenlinie entsteht immer ohne Verbindung (kein from/to, kein Schacht); Hinweis ohne Löschen-Knopf */
         [["from", "km_lk_from"], ["to", "km_lk_to"]].forEach(function (a) { var bl = byId(M.lines, l[a[0]]); if (bl) linkHint(r, tt(a[1]).replace("{n}", M.lines.indexOf(bl) + 1), function () { delete l[a[0]]; delete l.abz; if (a[0] === "from") delete l.baseDir; }, a[0]); });
         if (l.abz) { var ab = l.abz, bb = byId(M.lines, l.from || l.to); linkHint(r, ab.mode === "entn" ? tt("tp_hint_entn").replace("{x}", ab.x).replace("{dn}", ab.dn).replace("{n}", bb ? M.lines.indexOf(bb) + 1 : "?") : tt("tp_hint_tst").replace("{n}", bb ? M.lines.indexOf(bb) + 1 : "?"), null); }
         btns(r, l.id); return r;
@@ -1836,6 +1842,66 @@
       sugs = []; sugDraw(); sugRender(); refresh(); toast(dlg, tt("sg_done").replace("{s}", ns).replace("{w}", nw), tt("km_undoBtn"), function () { if (undoSt.length) { var b = $("[data-k=undo]"); if (b) b.click(); } });
     }
     /* DXF-Export (Netzkanten 100, Netzknoten 200, Knickpunkte 201) – Koordinaten wie gezeichnet (LV95) */
+    /* ---------- DXF-Import (Linien): LINE, LWPOLYLINE, POLYLINE; LV95 oder LV03; Ebenen wählbar; zusammenhängende LINE-Stücke werden verbunden ---------- */
+    function dxfParse(txt) {
+      var R = txt.split(/\r\n|\r|\n/), segs = [], skip = {}, sec = null, e = null, poly = null, bad = 0, sys = { lv95: 0, lv03: 0 };
+      var conv = function (x, y) { if (x > 2.4e6 && x < 2.9e6 && y > 1.0e6 && y < 1.4e6) { sys.lv95++; return [x, y]; } if (x > 4.4e5 && x < 9e5 && y > 4e4 && y < 4e5) { sys.lv03++; return [x + 2e6, y + 1e6]; } return null; };
+      var flush = function () {
+        if (!e) return; var t = e.t;
+        if (t === "LINE" && e.x.length && e.x2 != null) segs.push({ l: e.l, p: [[e.x[0], e.y[0]], [e.x2, e.y2]], line: 1 });
+        else if (t === "LWPOLYLINE" && e.x.length > 1) { var p = e.x.map(function (x, i) { return [x, e.y[i]]; }); if (e.f & 1) p.push(p[0].slice()); segs.push({ l: e.l, p: p }); }
+        else if (t === "POLYLINE") poly = { l: e.l, p: [], c: !!(e.f & 1) };
+        else if (t === "VERTEX" && poly && e.x.length) poly.p.push([e.x[0], e.y[0]]);
+        else if (t === "SEQEND" && poly) { if (poly.c && poly.p.length > 1) poly.p.push(poly.p[0].slice()); if (poly.p.length > 1) segs.push({ l: poly.l, p: poly.p }); poly = null; }
+        else if (t !== "VERTEX" && t !== "SEQEND" && t !== "POLYLINE") skip[t] = (skip[t] || 0) + 1;
+        e = null;
+      };
+      for (var i = 0; i + 1 < R.length; i += 2) {
+        var c = parseInt(R[i], 10), v = R[i + 1].trim(); if (!isFinite(c)) continue;
+        if (c === 0) { flush(); if (v === "SECTION") { sec = "?"; continue; } if (v === "ENDSEC") { sec = null; continue; } if (sec === "ENTITIES") e = { t: v, l: "0", x: [], y: [], f: 0 }; continue; }
+        if (c === 2 && sec === "?") { sec = v; continue; }
+        if (!e) continue;
+        if (c === 8) e.l = v; else if (c === 10) e.x.push(parseFloat(v)); else if (c === 20) e.y.push(parseFloat(v)); else if (c === 11) e.x2 = parseFloat(v); else if (c === 21) e.y2 = parseFloat(v); else if (c === 70) e.f = parseInt(v, 10) || 0;
+      }
+      flush();
+      /* Koordinaten umrechnen, ungültige verwerfen */
+      var ok = []; segs.forEach(function (s) { var p = s.p.map(function (q) { return isFinite(q[0]) && isFinite(q[1]) ? conv(q[0], q[1]) : null; }); if (p.some(function (q) { return !q; })) { bad++; return; } s.p = p.map(function (q) { return [Math.round(q[0] * 100) / 100, Math.round(q[1] * 100) / 100]; }); ok.push(s); });
+      /* LINE-Stücke derselben Ebene zu Linienzügen verbinden (Toleranz 1 cm) */
+      var key = function (q) { return Math.round(q[0] * 100) + "," + Math.round(q[1] * 100); }, out = ok.filter(function (s) { return !s.line; }), byL = {};
+      ok.filter(function (s) { return s.line; }).forEach(function (s) { (byL[s.l] = byL[s.l] || []).push(s.p); });
+      Object.keys(byL).forEach(function (l) {
+        var S0 = byL[l], used = new Array(S0.length).fill(false), ends = {};
+        S0.forEach(function (p, i) { [key(p[0]), key(p[1])].forEach(function (k) { (ends[k] = ends[k] || []).push(i); }); });
+        var take = function (k) { var a = ends[k] || []; for (var j = 0; j < a.length; j++) if (!used[a[j]]) return a[j]; return -1; };
+        S0.forEach(function (p, i) {
+          if (used[i]) return; used[i] = true; var ch = [p[0].slice(), p[1].slice()];
+          for (var j; (j = take(key(ch[ch.length - 1]))) >= 0;) { used[j] = true; var q = S0[j]; ch.push((key(q[0]) === key(ch[ch.length - 1]) ? q[1] : q[0]).slice()); }
+          for (var j2; (j2 = take(key(ch[0]))) >= 0;) { used[j2] = true; var q2 = S0[j2]; ch.unshift((key(q2[1]) === key(ch[0]) ? q2[0] : q2[1]).slice()); }
+          out.push({ l: l, p: ch });
+        });
+      });
+      out = out.map(function (s) { s.p = s.p.filter(function (q, i) { return !i || Math.hypot(q[0] - s.p[i - 1][0], q[1] - s.p[i - 1][1]) > 0.005; }); return s; }).filter(function (s) { return s.p.length > 1; });
+      return { lines: out, skip: skip, bad: bad, sys: sys.lv03 > sys.lv95 ? "LV03" : "LV95" };
+    }
+    function dxfAsk(res, fname) {
+      var a = $("#kmDxfAsk"); if (a) a.remove(); a = document.createElement("div"); a.id = "kmDxfAsk"; a.className = "kmroute kmdxf"; a.setAttribute("role", "dialog"); a.setAttribute("aria-labelledby", "kmDxfT");
+      var lays = {}; res.lines.forEach(function (s) { lays[s.l] = (lays[s.l] || 0) + 1; }); var ln = Object.keys(lays).sort(), sk = Object.keys(res.skip).map(function (k) { return k + " " + res.skip[k]; }).join(", ");
+      a.innerHTML = '<p class="kmrt-t" id="kmDxfT"><b>' + esc(tt("km_dxfT")) + "</b> · " + esc(fname) + '</p><p class="hint">' + esc(tt("km_dxfInfo").replace("{n}", res.lines.length).replace("{k}", ln.length).replace("{c}", res.sys)) + (sk ? " " + esc(tt("km_dxfSkip").replace("{s}", sk)) : "") + (res.bad ? " " + esc(tt("km_dxfBad").replace("{n}", res.bad)) : "") + "</p>" +
+        '<fieldset class="kmdxfl"><legend>' + esc(tt("km_dxfLays")) + "</legend>" + ln.map(function (l, i) { return '<label class="check"><input type="checkbox" data-dxl="' + esc(l) + '" checked> ' + esc(tt("km_dxfLay").replace("{l}", l).replace("{n}", lays[l])) + "</label>"; }).join("") + "</fieldset>" +
+        '<div class="kmbar"><button type="button" class="btn small" data-dxg="go">' + esc(tt("km_dxfGo")) + '</button> <button type="button" class="btn ghost small" data-dxg="x">' + esc(tt("km_dxfX")) + "</button></div>";
+      canvas0().appendChild(a); var f = a.querySelector("button"); if (f) f.focus();
+      a.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); a.remove(); } });
+      a.addEventListener("click", function (ev) {
+        var b = ev.target.closest("[data-dxg]"); if (!b) return; if (b.dataset.dxg === "x") { a.remove(); return; }
+        var want = {}; a.querySelectorAll("[data-dxl]").forEach(function (c) { if (c.checked) want[c.getAttribute("data-dxl")] = 1; });
+        var sel0 = res.lines.filter(function (s) { return want[s.l]; }); if (!sel0.length) return; endLine(); snap();
+        var made = sel0.map(function (s) { var l = { id: nid("l"), pts: s.p, rid: null, rohr: clone(opt.defRohr), cfg: clone(lastCfg), dxf: s.l }; lineSync(l); M.lines.push(l); return l; });
+        a.remove(); sel = { id: made[0].id }; refresh();
+        try { var all = []; made.forEach(function (l) { all = all.concat(l.pts.map(AD.ll)); }); map.fitBounds(L.latLngBounds(all).pad(0.15), { maxZoom: 19 }); } catch (x) { }
+        toast(dlg, tt("km_dxfDone").replace("{n}", made.length), tt("km_undoBtn"), function () { undo(); });
+      });
+    }
+    function canvas0() { var m0 = $("#kmMap"); return (m0 && m0.parentNode) || dlg; }
     function dxfExport() {
       var o = ["0", "SECTION", "2", "TABLES", "0", "TABLE", "2", "LAYER", "70", "3"], lay = function (n, c) { o.push("0", "LAYER", "2", n, "70", "0", "62", String(c), "6", "CONTINUOUS"); };
       lay("100", 3); lay("200", 1); lay("201", 5); o.push("0", "ENDTAB", "0", "ENDSEC", "0", "SECTION", "2", "ENTITIES");
@@ -2169,7 +2235,9 @@
       ovGrp = L.layerGroup().addTo(map); grp = L.layerGroup().addTo(map); tiles(); drawOv(); selList();
       $("#kmCat").addEventListener("toggle", function (e) { if (e.target.open) openCat(); });
       $("#kmCatQ").addEventListener("input", resList);
-      $("#kmCat .kmchips").addEventListener("click", function (e) { var c = e.target.closest("[data-q]"); if (!c) return; $("#kmCat").open = true; $("#kmCatQ").value = c.dataset.q; openCat(); resList(); $("#kmCatQ").focus(); });
+      $("#kmCat .kmchips").addEventListener("click", function (e) {
+        var d = e.target.closest("[data-ovq]"); if (d) { var c0 = (catList || []).filter(function (x) { return x.id === d.dataset.ovq; })[0]; if (!c0) return; var i = ov.findIndex(function (o) { return o.id === c0.id; }); if (i >= 0) ov.splice(i, 1); else ov.push({ id: c0.id, label: c0.label, type: c0.type, srv: c0.srv, fmt: c0.fmt, op: 0.8 }); saveOv(); drawOv(); selList(); resList(); chips(); return; }
+        var c = e.target.closest("[data-q]"); if (!c) return; $("#kmCat").open = true; $("#kmCatQ").value = c.dataset.q; openCat(); resList(); $("#kmCatQ").focus(); });
       $("#kmCatS").addEventListener("click", function (e) { var b = e.target.closest("[data-ovdel]"); if (!b) return; ov.splice(+b.dataset.ovdel, 1); saveOv(); drawOv(); selList(); resList(); });
     }
     if (window.ResizeObserver) { ro = new ResizeObserver(function () { try { map.invalidateSize({ animate: false }); ovDraw(); } catch (e) { } }); ro.observe($("#kmMap")); }
@@ -2200,6 +2268,15 @@
     });
     map.on("zoomend", function () { if (mode === "edit" || M.notes.some(function (n) { return n.type === "arrow"; })) draw(); });
     var cs = $("#kmCol"); cs.addEventListener("change", function () { noteCol = cs.value; });
+    var dxfF = $("#kmDxfF"); if (dxfF) dxfF.addEventListener("change", function () {
+      var f = dxfF.files && dxfF.files[0]; if (!f) return;
+      if (f.size > 20e6) { toast(dlg, "⚠ " + tt("km_dxfBig")); return; }
+      var rd = new FileReader(); rd.onload = function () { var t = String(rd.result || "");
+        if (/^AutoCAD Binary DXF/.test(t.slice(0, 22))) { toast(dlg, "⚠ " + tt("km_dxfBin")); return; }
+        var res; try { res = dxfParse(t); } catch (e) { res = { lines: [] }; }
+        if (!res.lines.length) { toast(dlg, "⚠ " + tt("km_dxfNone")); return; } dxfAsk(res, f.name); };
+      rd.readAsText(f);
+    });
 
     dlg.addEventListener("change", function (e) { var ha = e.target.closest("[data-hz=auto]"); if (ha) { HZAUTO = ha.checked; try { localStorage.setItem("lvd-km-hzauto", HZAUTO ? "1" : "0"); } catch (x) { } if (HZAUTO) { hzSkip = {}; hzSeed(); } return; } var hm = e.target.closest("[data-hz=mode]"); if (hm) { SLOPE = hm.checked; try { localStorage.setItem("lvd-km-slope", SLOPE ? "1" : "0"); } catch (x) { } refresh(); return; } var t = e.target.closest("[data-rc]"); if (!t) return; RC[t.dataset.rc] = t.value; try { localStorage.setItem("lvd-km-rc", JSON.stringify(RC)); } catch (x) { } sugs = []; sugDraw(); sugRender(); rcRender(); });
     dlg.addEventListener("click", function (e) {
@@ -2236,6 +2313,7 @@
       else if (k === "undo") undo(); else if (k === "redo") redo();
       else if (k === "clear") { var sn0 = JSON.stringify(M); snap(); M.lines = []; M.pts = []; M.sond = []; M.notes = []; M.areas = []; M.wl = []; M.geb = []; rul = []; cur = null; curN = null; curA = null; sel = null; refresh(); toast(dlg, tt("km_cleared"), tt("km_undoBtn"), function () { M = JSON.parse(sn0); M.notes = M.notes || []; M.areas = M.areas || []; M.wl = M.wl || []; M.geb = M.geb || []; refresh(); }); }
       else if (k === "geo") openGeo();
+      else if (k === "dxfin") { var dfi = $("#kmDxfF"); if (dfi) { dfi.value = ""; dfi.click(); } }
       else if (k === "fit") fitAll();
       else if (k === "max") { var on = !dlg.classList.contains("kmmax"); dlg.classList.toggle("kmmax", on); b.setAttribute("aria-pressed", on ? "true" : "false"); try { localStorage.setItem("lvd-km-max", on ? "1" : "0"); } catch (x) { } setTimeout(function () { map.invalidateSize({ animate: false }); ovDraw(); }, 50); }
       else if (k === "lbl") { showLbl = !showLbl; b.setAttribute("aria-pressed", showLbl ? "true" : "false"); draw(); }

@@ -690,3 +690,6 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 .kmlya .lylay .lyk{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .kmlya .lylay select{max-width:190px}
 .kmlya .kmhead h2{font-size:15px}
+.kmchips .chip[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.kmdxfl{border:1px solid var(--rule);border-radius:8px;padding:6px 10px;margin:6px 0;max-height:220px;overflow:auto}.kmdxfl legend{font-size:12px;font-weight:700;color:var(--ink-soft)}.kmdxfl .check{display:flex;gap:8px;align-items:center;font-size:13px;margin:3px 0}
+.kmlya .kmtools [data-k=dxfin]::before{content:"⇪" / ""}
