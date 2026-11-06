@@ -110,3 +110,33 @@
   .kmdlg.kmlya .lyp b,.kmdlg.kmlya .lyc b{font-size:13.5px}
 }
 @media (min-width:861px) and (max-width:1500px){.kmdlg.kmlya .lybar .lyp:nth-child(2){display:none}}
+/* Projektexplorer */
+.kmdlg.kmlya .lyltabs{display:flex;gap:2px;padding:4px 6px 0;border-bottom:1px solid var(--rule)}
+.kmdlg.kmlya .lyltabs [role=tab]{flex:1;border:0;background:transparent;color:var(--ink-soft);font:600 12.5px var(--nc-font);padding:6px 4px;cursor:pointer;border-radius:6px 6px 0 0}
+.kmdlg.kmlya .lyltabs [role=tab][aria-selected=true]{color:var(--ink);box-shadow:inset 0 -2px 0 var(--nc-accent-text);background:var(--paper)}
+.kmdlg.kmlya .lyexp{padding:6px;display:flex;flex-direction:column;gap:6px;overflow:auto;min-height:0}
+.kmdlg.kmlya .lyexq{width:100%;min-height:30px;font-size:13px;padding:4px 8px}
+.kmdlg.kmlya .lyext details{border:0;border-radius:6px;background:transparent;margin:0 0 2px}
+.kmdlg.kmlya .lyext details details{margin-left:10px}
+.kmdlg.kmlya .lyext summary{display:flex;justify-content:space-between;gap:6px;cursor:pointer;padding:4px 6px;font:700 12.5px var(--nc-font);color:var(--ink);border-radius:5px}
+.kmdlg.kmlya .lyext summary:hover{background:var(--panel)}
+.kmdlg.kmlya .lyexc{font-weight:600;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.kmdlg.kmlya .lyexi{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;border:0;background:transparent;color:var(--ink);padding:3px 8px 3px 18px;border-radius:5px;cursor:pointer;font:500 12.5px var(--nc-font);border-left:2px solid transparent}
+.kmdlg.kmlya .lyexi small{color:var(--ink-soft);font-size:11px}
+.kmdlg.kmlya .lyexi:hover{background:var(--panel)}
+.kmdlg.kmlya .lyexi.on{background:color-mix(in srgb,var(--nc-accent) 28%,transparent);border-left-color:var(--nc-accent-text)}
+.kmdlg.kmlya .lyexl{margin:6px 6px 2px;font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
+.kmdlg.kmlya .lyexs{display:flex;align-items:center;gap:4px;margin:0;padding:2px 8px 2px 14px;font-size:12px;color:var(--ink)}
+.kmdlg.kmlya .lytbody[hidden],.kmdlg.kmlya .lyexp[hidden]{display:none}
+.kmlya.nc-dark #kmCol,.kmlya.nc-dark #kmCol option{background:var(--nc-raised)!important;color:var(--nc-text)!important}
+.kmdlg.kmlya .kmhead > *{min-width:0}
+.kmdlg.kmlya .lynav{flex:1 1 auto;min-width:0}
+.kmdlg.kmlya .lybar{min-width:0;max-width:100%}
+@media (max-width:1359px){.kmdlg.kmlya .kmhead,.kmdlg.kmlya .kmheadb{flex-wrap:wrap}.kmdlg.kmlya .kmheadb{justify-content:flex-end}}
+.kmdlg.kmlya{grid-template-columns:minmax(0,1fr)}
+@media (max-width:1359px){
+  .kmdlg.kmlya .chfab{top:auto;bottom:44px;right:12px}
+  .kmdlg.kmlya .lybar{padding:4px 14px}
+  .kmdlg.kmlya .lysearch{width:min(300px,42%)}
+}
+@media (max-width:1100px){.kmdlg.kmlya .lybase .btn{padding:3px 7px;font-size:12px}.kmdlg.kmlya .lysearch .btn{padding:4px 8px}}
