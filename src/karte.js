@@ -588,8 +588,8 @@
         '<button type="button" class="btn small" data-ms="join" title="' + esc(tt("ms_join_t")) + '">' + esc(tt("ms_join")) + '</button><button type="button" class="btn small" data-ms="copy" title="' + esc(tt("ms_copy_t")) + '">' + esc(tt("ms_copy")) + '</button><button type="button" class="btn small" data-ms="par" title="' + esc(tt("ms_par_t")) + '">' + esc(tt("ms_par")) + '</button>' +
         '<button type="button" class="btn ghost small del" data-ms="del">' + esc(tt("ms_del")) + '</button><button type="button" class="btn ghost small" data-ms="clr">' + esc(tt("ms_clr")) + "</button></div>" +
       (plan ? "" : '<div class="kmroute" id="kmRoute" role="group" aria-label="' + esc(tt("km_rt_t")) + '" hidden><p class="kmrt-t"><b>' + esc(tt("km_rt_t")) + '</b></p>' +
-        ["A", "B"].map(function (k) { return '<div class="kmrt-f"><label for="kmRt' + k + '">' + esc(tt(k === "A" ? "km_rt_from" : "km_rt_to")) + '</label><input id="kmRt' + k + '" type="text" autocomplete="off" placeholder="' + esc(tt("km_rt_ph")) + '"><ul class="kmrt-h" id="kmRt' + k + 'h"></ul></div>'; }).join("") +
-        '<div class="kmbar"><button type="button" class="btn small" id="kmRtGo" disabled>' + esc(tt("km_rt_go")) + '</button> <button type="button" class="btn ghost small" id="kmRtX">' + esc(tt("km_rt_close")) + '</button></div><p class="hint" id="kmRtMsg" role="status" aria-live="polite">' + esc(tt("km_rt_hint")) + "</p></div>") +
+        ["A", "B"].map(function (k) { return '<div class="kmrt-f"><label for="kmRt' + k + '">' + esc(tt(k === "A" ? "km_rt_from" : "km_rt_to")) + '</label><span class="kmrt-in"><input id="kmRt' + k + '" type="text" autocomplete="off" placeholder="' + esc(tt("km_rt_ph")) + '"><button type="button" class="btn ghost small" id="kmRtP' + k + '" aria-pressed="false" title="' + esc(tt(k === "A" ? "km_rt_pickA" : "km_rt_pickB")) + '" aria-label="' + esc(tt(k === "A" ? "km_rt_pickA" : "km_rt_pickB")) + '">📍 ' + esc(tt("km_rt_pick")) + '</button></span><ul class="kmrt-h" id="kmRt' + k + 'h"></ul></div>'; }).join("") +
+        '<div class="kmbar"><button type="button" class="btn small" id="kmRtGo" disabled>' + esc(tt("km_rt_go")) + '</button> <button type="button" class="btn small" id="kmRtStr" hidden>' + esc(tt("km_rt_straight")) + '</button> <button type="button" class="btn ghost small" id="kmRtX">' + esc(tt("km_rt_close")) + '</button></div><p class="hint" id="kmRtMsg" role="status" aria-live="polite">' + esc(tt("km_rt_hint")) + "</p></div>") +
       '<div class="kmpal" id="kmPal" role="group" aria-label="' + esc(tt("pal_t")) + '" hidden></div>' +
       '<div class="kmleg" id="kmLeg" hidden></div>' +
       (plan ? "" : '<section class="kmprof" id="kmProf" hidden aria-label="' + esc(tt("pf_title")) + '"></section>') +
@@ -1044,7 +1044,7 @@
       if (!tip) tip = L.tooltip({ permanent: true, direction: "right", offset: [14, 0], className: "kmtip", opacity: 0.95 });
       tip.setLatLng(ll).setContent(esc(t)); if (!map.hasLayer(tip)) tip.addTo(map);
     }
-    window.__KM = { M: function () { return M; }, refresh: function () { refresh(); } };   /* nur für Tests */
+    window.__KM = { M: function () { return M; }, refresh: function () { refresh(); }, map: function () { return map; }, ll: function (p) { return AD.ll(p); }, fit: function () { fitAll(); } };   /* nur für Tests */
     var MODES = { ruler: "mruler", geo: "mgeo", line: "mline", pt: "mpt", sond: "msond", cal: "mcal", edit: "medit", area: "marea", wl: "mwl", geb: "mgeb", text: "mtext", arrow: "marrow", sline: "msline", rect: "mrect" };
     function draw() {
       grp.clearLayers(); layers = {}; var edit = mode === "edit";
@@ -2165,7 +2165,7 @@
       ["input", "change"].forEach(function (n) { dlg.addEventListener(n, function (e) { if (e.target.closest && e.target.closest("#kmObj,#kmProps,#kmQuick")) lyEdited = true; }); });
       var dtl = dlg.querySelector(".lydtabs"); if (dtl) dtl.addEventListener("keydown", function (e) { if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return; var bs = [].slice.call(dtl.querySelectorAll("[role=tab]")), i0 = bs.indexOf(document.activeElement); if (i0 < 0) return; var nb = bs[(i0 + (e.key === "ArrowRight" ? 1 : bs.length - 1)) % bs.length]; nb.focus(); e.preventDefault(); });
     }
-    map.on("click", function (e) { var t = e.originalEvent && e.originalEvent.target; if (mode === "edit" && t && t.closest && t.closest(".leaflet-marker-icon,.leaflet-interactive")) return; addPt(e.latlng); });
+    map.on("click", function (e) { if (rtPickFn && rtPickFn(e.latlng)) return; var t = e.originalEvent && e.originalEvent.target; if (mode === "edit" && t && t.closest && t.closest(".leaflet-marker-icon,.leaflet-interactive")) return; addPt(e.latlng); });
     map.on("mousemove", function (e) { var t = Date.now(); if (t - (snapPreview.t || 0) < 25) return; snapPreview.t = t; var oe = e.originalEvent; liveTip(e.latlng, oe && oe.shiftKey); }); map.on("mouseout", function () { hideTip(); if (snapLayer) snapLayer.clearLayers(); });
     document.addEventListener("keydown", function (e) { if (e.key === "Shift") shiftDown = true; }); document.addEventListener("keyup", function (e) { if (e.key === "Shift") shiftDown = false; });
     map.on("dblclick", function () { if (mode === "line" || mode === "sline" || mode === "area") endLine(); });
@@ -2289,13 +2289,41 @@
           });
         }).catch(function () { ul.innerHTML = '<li class="kmnote err">' + esc(tt("km_searchErr")) + "</li>"; });
     });
-    /* Route von Adresse zu Adresse (Fussweg, OpenStreetMap-Routing): erzeugt eine editierbare Linie als Vorschlag */
+    /* Route von Adresse zu Adresse (Fussweg, OpenStreetMap-Routing): erzeugt eine editierbare Linie als Vorschlag.
+       Start/Ziel auch als Kartenpunkt (📍): Fang auf Schacht (Linie wird angeschlossen) oder Leitungsende; ohne Route wird eine gerade Linie angeboten. */
+    var rtPickFn = null;
     if (!plan && $("#kmRoute")) (function () {
       var RT = "https://routing.openstreetmap.de/routed-foot/route/v1/foot/", rt = $("#kmRoute"), msg = $("#kmRtMsg"), go = $("#kmRtGo"), pick = { A: null, B: null }, tmr = {}, busy = false;
       function say(k, o, err) { var t = tt(k); Object.keys(o || {}).forEach(function (x) { t = t.replace("{" + x + "}", o[x]); }); msg.textContent = t; msg.className = "hint" + (err ? " reqmsg" : ""); }
-      function ready() { go.disabled = busy || !pick.A || !pick.B; }
+      function ready() { go.disabled = busy || !pick.A || !pick.B; if (!pick.A || !pick.B) str.hidden = true; }
+      var str = $("#kmRtStr"), pickK = null, rtLay = L.layerGroup().addTo(map);
+      function marks() { rtLay.clearLayers(); ["A", "B"].forEach(function (k) { var p = pick[k]; if (!p) return; L.circleMarker([p.lat, p.lon], { radius: 7, color: "#fff", weight: 2, fillColor: k === "A" ? "#1c6b3f" : "#b8332a", fillOpacity: 1, interactive: false }).bindTooltip(k === "A" ? tt("km_rt_from") : tt("km_rt_to"), { permanent: true, direction: "top", offset: [0, -8] }).addTo(rtLay); }); }
+      function pickMode(k) {   /* k = "A"/"B" Punktwahl an, null aus */
+        pickK = k; ["A", "B"].forEach(function (x) { var b = $("#kmRtP" + x); if (b) b.setAttribute("aria-pressed", x === k ? "true" : "false"); });
+        $("#kmMap").classList.toggle("kmrtpick", !!k); rtPickFn = k ? pickAt : null;
+        if (k) { say("km_rt_pickMsg", { w: tt(k === "A" ? "km_rt_from" : "km_rt_to") }); $("#kmMap").focus(); }
+      }
+      function pickAt(ll) {   /* Fang: Schacht (28 px) vor Leitungsende (28 px), sonst Klickpunkt */
+        if (!pickK) return false; var k = pickK, cp = map.latLngToContainerPoint(ll), best = null;
+        M.pts.forEach(function (p, i) { var q = map.latLngToContainerPoint(AD.ll(p.pt)), d = Math.hypot(q.x - cp.x, q.y - cp.y); if (d <= 28 && (!best || d < best.d)) best = { d: d, pt: p.pt, sid: p.id, lab: tt("km_rt_ptSch").replace("{n}", i + 1) + (p.name ? " – " + p.name : "") }; });
+        if (!best) M.lines.forEach(function (l, i) { if (l.pts.length < 2) return; [l.pts[0], l.pts[l.pts.length - 1]].forEach(function (p) { var q = map.latLngToContainerPoint(AD.ll(p)), d = Math.hypot(q.x - cp.x, q.y - cp.y); if (d <= 28 && (!best || d < best.d)) best = { d: d, pt: p, lab: tt("km_rt_ptEnd").replace("{n}", i + 1) }; }); });
+        var pt = best ? best.pt.slice() : AD.pt(ll), w = L.latLng(AD.ll(pt)), lab = best ? best.lab : tt("km_rt_ptLbl").replace("{e}", Math.round(pt[0]).toLocaleString("de-CH")).replace("{n}", Math.round(pt[1]).toLocaleString("de-CH"));
+        pick[k] = { lat: w.lat, lon: w.lng, label: lab, pt: pt, sid: best && best.sid ? best.sid : null }; $("#kmRt" + k).value = lab; $("#kmRt" + k + "h").innerHTML = "";
+        pickMode(null); marks(); ready(); say("km_rt_hint"); var nx = k === "A" && !pick.B ? $("#kmRtPB") : go; if (nx && !nx.disabled) nx.focus(); return true;
+      }
+      ["A", "B"].forEach(function (k) { $("#kmRtP" + k).addEventListener("click", function () { pickMode(pickK === k ? null : k); }); });
+      $("#kmMap").addEventListener("keydown", function (e) { if (pickK && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); e.stopPropagation(); pickAt(map.getCenter()); } else if (pickK && e.key === "Escape") { e.preventDefault(); e.stopPropagation(); pickMode(null); say("km_rt_hint"); } }, true);
+      function ptOf(p) { return p.pt ? p.pt.slice() : AD.pt(L.latLng(p.lat, p.lon)); }
+      function finish(pts, isRoute) {   /* Linie anlegen; gewählte Kartenpunkte exakt treffen und an Schacht anschliessen */
+        endLine(); snap(); var l = { id: nid("l"), pts: pts, rid: null, rohr: JSON.parse(JSON.stringify(opt.defRohr)), cfg: JSON.parse(JSON.stringify(lastCfg)) }; if (isRoute) l.route = 1;
+        if (pick.A.sid) l.s = pick.A.sid; if (pick.B.sid) l.e = pick.B.sid;
+        lineSync(l); M.lines.push(l); cur = null; sel = { id: l.id }; rtLay.clearLayers(); refresh();
+        try { map.fitBounds(L.latLngBounds(pts.map(AD.ll)).pad(0.25), { maxZoom: 19 }); } catch (e) { }
+        sugs = sugCompute(); sugDraw(); sugRender(); showProps(l.id); return l;
+      }
+      str.addEventListener("click", function () { if (!pick.A || !pick.B) return; var a = ptOf(pick.A), b = ptOf(pick.B); if (Math.hypot(a[0] - b[0], a[1] - b[1]) < 0.05) return; finish([a, b], false); str.hidden = true; say("km_rt_strOk", { m: fmt(lineLen([a, b])) }); });
       function search(k) {
-        var inp = $("#kmRt" + k), ul = $("#kmRt" + k + "h"), q = inp.value.trim(); pick[k] = null; ready(); if (q.length < 3) { ul.innerHTML = ""; return; }
+        var inp = $("#kmRt" + k), ul = $("#kmRt" + k + "h"), q = inp.value.trim(); pick[k] = null; ready(); marks(); if (q.length < 3) { ul.innerHTML = ""; return; }
         ul.innerHTML = '<li class="kmnote">' + esc(tt("km_searching")) + "</li>";
         fetch(SEARCH + "?type=locations&origins=address,zipcode,gazetteer&limit=6&sr=2056&lang=" + (opt.lang || "de") + "&searchText=" + encodeURIComponent(q))
           .then(function (r) { if (!r.ok) throw 0; return r.json(); })
@@ -2303,13 +2331,13 @@
             if (inp.value.trim() !== q) return; var hits = (j.results || []).filter(function (r) { return r.attrs && isFinite(r.attrs.lat) && isFinite(r.attrs.lon); });
             ul.innerHTML = hits.length ? "" : '<li class="kmnote">' + esc(tt("km_none")) + "</li>";
             hits.forEach(function (r) { var li = document.createElement("li"), b = document.createElement("button"); b.type = "button"; b.className = "kmhit"; var lb = String(r.attrs.label || "").replace(/<[^>]*>/g, ""); b.textContent = lb;
-              b.addEventListener("click", function () { pick[k] = { lat: r.attrs.lat, lon: r.attrs.lon, label: lb }; inp.value = lb; ul.innerHTML = ""; ready(); if (k === "A") $("#kmRtB").focus(); else go.focus(); });
+              b.addEventListener("click", function () { pick[k] = { lat: r.attrs.lat, lon: r.attrs.lon, label: lb }; inp.value = lb; ul.innerHTML = ""; ready(); marks(); if (k === "A") $("#kmRtB").focus(); else go.focus(); });
               li.appendChild(b); ul.appendChild(li); });
             if (hits.length === 1 && /\d/.test(q) && String(hits[0].attrs.label || "").replace(/<[^>]*>/g, "").toLowerCase().indexOf(q.toLowerCase()) === 0) { /* eindeutiger Treffer: nicht automatisch wählen, Benutzer bestätigt */ }
           }).catch(function () { ul.innerHTML = '<li class="kmnote err">' + esc(tt("km_searchErr")) + "</li>"; });
       }
       ["A", "B"].forEach(function (k) {
-        var inp = $("#kmRt" + k); inp.addEventListener("input", function () { clearTimeout(tmr[k]); tmr[k] = setTimeout(function () { search(k); }, 350); });
+        var inp = $("#kmRt" + k); inp.addEventListener("input", function () { if (pick[k]) { pick[k] = null; ready(); marks(); } clearTimeout(tmr[k]); tmr[k] = setTimeout(function () { search(k); }, 350); });   /* Tippen verwirft den gewählten Punkt sofort */
         inp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); clearTimeout(tmr[k]); var f = $("#kmRt" + k + "h .kmhit"); if (f && !pick[k]) f.click(); else if (!pick[k]) search(k); else if (k === "A") $("#kmRtB").focus(); else if (!go.disabled) go.click(); } });
       });
       function dp(pts, tol) {   /* Douglas-Peucker */
@@ -2324,20 +2352,22 @@
           .then(function (j) {
             var rr = j && j.routes && j.routes[0]; if (!rr || !rr.geometry || rr.geometry.coordinates.length < 2) throw 1;
             var raw = rr.geometry.coordinates.map(function (c) { return AD.pt(L.latLng(c[1], c[0])); }), pts = dp(raw, 1.5).map(function (q) { return [Math.round(q[0] * 100) / 100, Math.round(q[1] * 100) / 100]; });
-            if (pts.length < 2) throw 1; endLine(); snap();
-            var l = { id: nid("l"), pts: pts, rid: null, rohr: JSON.parse(JSON.stringify(opt.defRohr)), cfg: JSON.parse(JSON.stringify(lastCfg)), route: 1 }; lineSync(l); M.lines.push(l); cur = null; sel = { id: l.id }; refresh();
-            try { map.fitBounds(L.latLngBounds(pts.map(AD.ll)).pad(0.25), { maxZoom: 19 }); } catch (e) { }
+            if (pts.length < 2) throw 1;
+            var far = function (p, q) { return Math.hypot(p[0] - q[0], p[1] - q[1]) > 0.05; };   /* Kartenpunkt: Linie beginnt/endet genau dort (Zubringer zum Weg) */
+            if (pick.A.pt) { if (far(pick.A.pt, pts[0])) pts.unshift(pick.A.pt.slice()); else pts[0] = pick.A.pt.slice(); }
+            if (pick.B.pt) { if (far(pick.B.pt, pts[pts.length - 1])) pts.push(pick.B.pt.slice()); else pts[pts.length - 1] = pick.B.pt.slice(); }
+            finish(pts, true);
             var wp = j.waypoints || [], da = wp[0] && isFinite(wp[0].distance) ? Math.round(wp[0].distance) : 0, db = wp[1] && isFinite(wp[1].distance) ? Math.round(wp[1].distance) : 0;
-            say("km_rt_ok", { m: fmt(lineLen(pts)), n: pts.length, a: da, b: db }); sugs = sugCompute(); sugDraw(); sugRender(); showProps(l.id);
-          }).catch(function (e) { say(e === 1 ? "km_rt_none" : "km_rt_err", null, true); })
+            say(pick.A.pt || pick.B.pt ? "km_rt_okPt" : "km_rt_ok", { m: fmt(lineLen(pts)), n: pts.length, a: da, b: db });
+          }).catch(function (e) { say(e === 1 ? "km_rt_none" : "km_rt_err", null, true); str.hidden = false; })
           .then(function () { busy = false; ready(); });
       }
       go.addEventListener("click", make);
       $("#kmRtX").addEventListener("click", function () { closeRt(); });
-      function closeRt() { rt.hidden = true; var b = dlg.querySelector('[data-k=route]'); if (b) { b.setAttribute("aria-pressed", "false"); b.focus(); } }
+      function closeRt() { pickMode(null); rtLay.clearLayers(); rt.hidden = true; var b = dlg.querySelector('[data-k=route]'); if (b) { b.setAttribute("aria-pressed", "false"); b.focus(); } }
       window.__KMRT = { open: function () { rt.hidden = false; }, pick: pick };
       dlg.addEventListener("click", function (e) { var b = e.target.closest('[data-k=route]'); if (!b) return; var o = rt.hidden; rt.hidden = !o; b.setAttribute("aria-pressed", o ? "true" : "false"); if (o) $("#kmRtA").focus(); });
-      rt.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.stopPropagation(); e.preventDefault(); closeRt(); } });
+      rt.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.stopPropagation(); e.preventDefault(); if (pickK) { pickMode(null); say("km_rt_hint"); } else closeRt(); } });
     })();
     if (!plan) {
       var ovMsg = function (k, err) { var m = $("#kmOvMsg"); m.textContent = k ? tt(k) : ""; m.className = "hint" + (err ? " reqmsg" : ""); };

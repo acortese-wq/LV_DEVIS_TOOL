@@ -305,3 +305,7 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 ## Schneller bei grossen Projekten, zwei Tabs sicher (V91)
 - **Vorher:** bei 200 Datensätzen fror das Tool nach jeder Eingabe ~4 s ein; zwei offene Tabs überschrieben sich gegenseitig still.
 - **Nachher:** Ergebnis in ~0.3 s (Annahmen-Tabelle 40× schneller, Ergebnisse identisch); ein zweiter Tab übernimmt Änderungen automatisch oder fragt, wenn dort gerade gearbeitet wird. Keine Kostenwirkung. Test t70.
+
+## Route auch mit Kartenpunkten (V92)
+- **Vorher:** Route nur von Adresse zu Adresse; Linie immer ohne Verbindung; ohne Routing-Dienst nur eine Fehlermeldung.
+- **Nachher:** je Feld «📍 Karte»: Klick in die Karte (oder Enter = Kartenmitte) setzt Start/Ziel, Fang auf Schacht bzw. Leitungsende (28 px). Adresse und Kartenpunkt mischbar. Die Linie beginnt/endet genau am Kartenpunkt und wird an einen gefangenen Schacht angeschlossen. Findet der Dienst keine Route oder ist er nicht erreichbar: Knopf «Gerade Linie zeichnen». Keine Kostenwirkung (erst «In Datensätze übernehmen» rechnet). Test t71.
