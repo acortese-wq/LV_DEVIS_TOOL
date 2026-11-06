@@ -1,0 +1,112 @@
+/* ===== Engineering-Arbeitsplatz (Layout A) – Thema «dunkel», Struktur Phase E. Gilt nur im Arbeitsplatz; Druck/Bericht/Excel bleiben hell. ===== */
+.kmdlg.kmlya.nc-dark{
+  --nc-bg:#0d1a23; --nc-surface:#10202b; --nc-panel:#17303d; --nc-raised:#1f3b49;
+  --nc-text:#f7f9fa; --nc-text-soft:#c3ced5; --nc-muted:#8fa1ac; --nc-line:#2c4a59; --nc-line-strong:#4b6c7c;
+  --nc-accent-text:#5fb3b9; --nc-focus:#67c3d6; --nc-danger-text:#f08a80; --nc-danger-bg:#3a1f22; --nc-warn-text:#e8b25a; --nc-warn-bg:#33291a; --nc-ok-text:#6cc59a; --nc-ok-bg:#16322a;
+  /* bestehende Variablen auf die Rollen abbilden (alle Komponenten folgen automatisch) */
+  --paper:var(--nc-surface); --panel:var(--nc-panel); --panel-2:var(--nc-raised); --page:var(--nc-bg);
+  --ink:var(--nc-text); --ink-soft:var(--nc-text-soft); --rule:var(--nc-line); --rule-strong:var(--nc-line-strong);
+  --navy:var(--nc-accent); --link:var(--nc-accent-text); --focus:var(--nc-focus);
+  --signal:var(--nc-danger-text); --signal-bg:var(--nc-danger-bg); --amber:var(--nc-warn-text); --amber-bg:var(--nc-warn-bg); --ok:var(--nc-ok-text); --ok-bg:var(--nc-ok-bg);
+  --figbg:#10202b;
+  background:var(--nc-bg); color:var(--nc-text); color-scheme:dark;
+}
+.kmlya.nc-dark .kmhead,.kmlya.nc-dark .lybar,.kmlya.nc-dark .lydock,.kmlya.nc-dark .kmbottom{background:var(--nc-surface);border-color:var(--nc-line)}
+.kmlya.nc-dark .kmtools,.kmlya.nc-dark .kmside,.kmlya.nc-dark .kmmid,.kmlya.nc-dark .kmright{background:var(--nc-panel);color:var(--nc-text)}
+.kmlya.nc-dark .kmwh{background:var(--nc-accent-strong);color:#fff}
+.kmlya.nc-dark select,.kmlya.nc-dark input[type=text],.kmlya.nc-dark input[type=number],.kmlya.nc-dark input[type=search],.kmlya.nc-dark input[type=url],.kmlya.nc-dark textarea{background:var(--nc-raised);color:var(--nc-text);border-color:var(--nc-line-strong)}
+.kmlya.nc-dark input::placeholder,.kmlya.nc-dark textarea::placeholder{color:var(--nc-muted)}
+.kmlya.nc-dark select:disabled,.kmlya.nc-dark input:disabled{background:var(--nc-panel);color:var(--nc-muted)}
+.kmlya.nc-dark .btn{background:var(--nc-accent);border-color:var(--nc-accent);color:#fff}
+.kmlya.nc-dark .btn:hover{background:var(--nc-accent-strong);border-color:var(--nc-accent-strong)}
+.kmlya.nc-dark .btn.ghost{background:transparent;color:var(--nc-text);border-color:var(--nc-line-strong)}
+.kmlya.nc-dark .btn.ghost:hover{background:var(--nc-raised);color:var(--nc-text)}
+.kmlya.nc-dark .btn[aria-pressed=true],.kmlya.nc-dark .btn.ghost[aria-pressed=true],.kmlya.nc-dark [aria-current=page]{background:var(--nc-accent);border-color:var(--nc-accent);color:#fff}
+.kmlya.nc-dark .btn:disabled{background:var(--nc-panel);border-color:var(--nc-line);color:var(--nc-muted);opacity:1}
+.kmlya.nc-dark .btn.del,.kmlya.nc-dark .btn.ghost.del{color:var(--nc-danger-text);border-color:#7a3a35}
+.kmlya.nc-dark .hint,.kmlya.nc-dark .lyk,.kmlya.nc-dark .kmgl,.kmlya.nc-dark small{color:var(--nc-text-soft)}
+.kmlya.nc-dark a{color:var(--nc-accent-text)}
+.kmlya.nc-dark :focus-visible{outline-color:var(--nc-focus)}
+.kmlya.nc-dark details,.kmlya.nc-dark .kmcat,.kmlya.nc-dark .kmobj > *,.kmlya.nc-dark .kmquick,.kmlya.nc-dark .kmprops,.kmlya.nc-dark .kmsum,.kmlya.nc-dark .kmcard,.kmlya.nc-dark .kmlt{background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line)}
+.kmlya.nc-dark summary{color:var(--nc-accent-text)}
+.kmlya.nc-dark table,.kmlya.nc-dark th,.kmlya.nc-dark td{border-color:var(--nc-line);color:var(--nc-text)}
+.kmlya.nc-dark .lytab tr:nth-child(even) td{background:rgba(255,255,255,.03)}
+.kmlya.nc-dark .lytab thead th{background:var(--nc-panel);color:var(--nc-text-soft)}
+.kmlya.nc-dark [role=tab]{color:var(--nc-text-soft);background:transparent}
+.kmlya.nc-dark [role=tab][aria-selected=true]{color:var(--nc-text);box-shadow:inset 0 -2px 0 var(--nc-accent-text)}
+.kmlya.nc-dark .lydbar{background:var(--nc-surface);border-color:var(--nc-line)}
+.kmlya.nc-dark .chip{background:var(--nc-raised);color:var(--nc-text);border-color:var(--nc-line-strong)}
+.kmlya.nc-dark .kmtoast{background:#f7f9fa;color:#10202b}
+.kmlya.nc-dark .kmtoast .btn{background:var(--nc-accent);color:#fff}
+/* Karte bleibt hell (swisstopo); schwebende Bedienelemente auf der Karte im Thema */
+.kmlya.nc-dark .kmmap{background:#e9edef}
+.kmlya.nc-dark .lybase,.kmlya.nc-dark .lysearch .kmsearch{background:var(--nc-surface)}
+.kmlya.nc-dark .leaflet-control-zoom a{background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line)}
+.kmlya.nc-dark .leaflet-control-attribution{background:rgba(16,32,43,.85);color:var(--nc-text-soft)}
+.kmlya.nc-dark .leaflet-control-attribution a{color:var(--nc-accent-text)}
+/* Grafiken (Querschnitt, Profil) im dunklen Panel auf hellem Grund lassen – Lesbarkeit der Fachgrafik */
+.kmlya.nc-dark .kmxs svg,.kmlya.nc-dark .kmpfsvg{background:#f7f9fa;border-radius:6px}
+/* Theme-Schalter */
+.kmlya .nc-theme{min-width:34px}
+@media print{.kmdlg.kmlya.nc-dark{background:#fff;color:#000}}
+.kmlya #kmTitle{display:flex;align-items:center;gap:8px;letter-spacing:.02em}.kmlya .nc-logo{width:26px;height:26px;flex:none}
+/* hart codierte helle Flächen im Arbeitsplatz auf Thema-Flächen umstellen (Kartenmarken .kmsnap/.kmtip bleiben hell, sie liegen auf der Karte) */
+.kmlya.nc-dark table{background:transparent}
+.kmlya.nc-dark .kmhit,.kmlya.nc-dark .kmws .kmhits,.kmlya.nc-dark .kmc select,.kmlya.nc-dark .kmc input,.kmlya.nc-dark .kmcat,.kmlya.nc-dark .kmv span,.kmlya.nc-dark .kmseg [aria-pressed=false],.kmlya.nc-dark .kmpipe,.kmlya.nc-dark .kmquick,.kmlya.nc-dark .kmask,.kmlya.nc-dark .kmsch.ex span,.kmlya.nc-dark .kmprops,.kmlya.nc-dark .kmdxcol,.kmlya.nc-dark .chip{background:var(--nc-raised);color:var(--nc-text)}
+.kmlya.nc-dark .kmrow,.kmlya.nc-dark .kmtool,.kmlya.nc-dark .kmws .kmtools,.kmlya.nc-dark .kmws .kmpan .kmcost,.kmlya.nc-dark .kmws .kmgrid.kmfloat .kmwf.kmtools,.kmlya.nc-dark .lybar{background:var(--nc-panel);color:var(--nc-text)}
+.kmlya.nc-dark .kmws .kmtools .btn:not([aria-pressed=true]),.kmws.kmlya.nc-dark .kmtools .btn:not([aria-pressed=true]){background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line-strong)}
+.kmlya.nc-dark .chip:hover{background:var(--nc-surface)}
+.kmlya.nc-dark .kmgcpt-t tr.warn td{background:var(--nc-warn-bg);color:var(--nc-warn-text)}
+.kmdlg.kmlya.nc-dark .kmbottom select{background:var(--nc-raised);color:var(--nc-text)}
+.kmlya.nc-dark .lytab td,.kmlya.nc-dark .lytab th{background:transparent}
+.kmlya.nc-dark .lytab tfoot td,.kmlya.nc-dark .lytab .tot td,.kmlya.nc-dark .lytab tr.tot td{background:var(--nc-panel)}
+.kmlya.nc-dark #kmTitle{color:var(--nc-text)}
+.kmlya.nc-dark tr.sub td,.kmlya.nc-dark tfoot td{background:var(--nc-panel);color:var(--nc-text-soft)}
+.kmlya.nc-dark tr.grp td,.kmlya.nc-dark tr.sum td{background:var(--nc-panel);color:var(--nc-text)}
+.kmlya.nc-dark tr.sum td{border-top-color:var(--nc-text-soft)}
+.kmlya.nc-dark .cost tr.koffen td{background:var(--nc-danger-bg);color:var(--nc-danger-text);border-top-color:var(--nc-danger)}
+.kmlya.nc-dark .cost tr.kerf td{color:var(--nc-warn-text)}
+/* ---- Phase E: kompakter Arbeitsplatz, Arbeitsfläche maximal ---- */
+.kmdlg.kmlya .kmhead{padding:6px 12px;min-height:0;gap:8px}
+.kmdlg.kmlya .kmhead .btn{min-height:30px;padding:4px 10px;font-size:13px}
+.kmdlg.kmlya .kmheadb [data-k=apply]{min-height:32px}
+.kmdlg.kmlya .lylay select{min-height:30px;padding:3px 8px;font-size:13px}
+.kmdlg.kmlya .lybar{padding-top:4px;padding-bottom:4px}
+.kmdlg.kmlya .lydpan{max-height:none;height:var(--lydh,220px);overflow:auto}
+.kmdlg.kmlya .lydrag{height:6px;cursor:ns-resize;background:linear-gradient(var(--rule),var(--rule)) center/40px 2px no-repeat;touch-action:none}
+.kmdlg.kmlya .lydrag:hover,.kmdlg.kmlya .lydrag:focus-visible{background-color:var(--panel);outline:2px solid var(--focus);outline-offset:-2px}
+.kmdlg.kmlya .kmbottom{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;padding:3px 10px;min-height:34px;position:relative}
+.kmdlg.kmlya .kmbottom .kmfang{display:flex;gap:4px;flex:none}
+.kmdlg.kmlya .kmbottom .kmfang .btn{min-height:26px;padding:2px 8px;font-size:12px}
+.kmdlg.kmlya .kmbottom .kmstat{flex:none;font-size:12px;font-family:var(--nc-mono);color:var(--ink-soft);display:flex;gap:10px}
+.kmdlg.kmlya .lycmd{flex:1;min-width:0;font-size:12.5px;border-left:1px solid var(--rule);padding-left:10px}
+.kmdlg.kmlya .lycmd .kmhelp{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.kmdlg.kmlya .lycmd .kmhelp::before{content:"› ";color:var(--nc-accent-text);font-weight:700}
+.kmdlg.kmlya .kmbottom .lyview{flex:none;display:block;margin:0;padding:0;border:0;background:transparent}
+.kmdlg.kmlya .lyviewm>summary{list-style:none;cursor:pointer;font-size:12.5px;font-weight:600;padding:4px 10px;border:1px solid var(--rule-strong);border-radius:6px;color:var(--ink)}
+.kmdlg.kmlya .lyviewm>summary::-webkit-details-marker{display:none}
+.kmdlg.kmlya .lyviewm>summary::after{content:" ▴"}
+.kmdlg.kmlya .lyviewb{position:absolute;right:8px;bottom:calc(100% + 4px);z-index:1300;display:flex;flex-wrap:wrap;gap:6px;align-items:center;width:min(560px,calc(100vw - 24px));padding:10px;background:var(--paper);border:1px solid var(--rule-strong);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.kmdlg.kmlya .lyviewb .kmunits{flex-basis:100%;margin:2px 0 0;font-size:12px}
+.kmdlg.kmlya .lycred{flex:none;margin:0;font-size:11px;color:var(--ink-soft);max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kmdlg.kmlya .lynav .lymidtog{margin-left:6px}
+.kmdlg.kmlya .kmleg{bottom:22px}
+@media (max-width:1180px){.kmdlg.kmlya .lycred{display:none}}
+.kmlya.nc-dark .lyc.lymain b{color:var(--nc-accent-text)}
+.kmdlg.kmlya .chfab{top:54px}
+.kmdlg.kmlya .kmhead{flex-wrap:nowrap}.kmdlg.kmlya .lynav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}
+.kmdlg.kmlya .kmheadb{flex-wrap:nowrap}
+@media (max-width:1360px){.kmdlg.kmlya .lylang .btn{padding:4px 7px}.kmdlg.kmlya .lynav .btn{padding:4px 8px}}
+.kmdlg.kmlya .kmbottom .kmfang{order:1}.kmdlg.kmlya .kmbottom .kmstat{order:2}.kmdlg.kmlya .lycmd{order:3}.kmdlg.kmlya .kmbottom .lyview{order:4}.kmdlg.kmlya .lycred{order:5}
+.kmdlg.kmlya .lykpi .lyx b{font-size:13px}
+.kmdlg.kmlya .lywarnb{border:1px solid var(--rule-strong);background:transparent;color:var(--amber);border-radius:999px;padding:2px 10px;font:600 12px var(--nc-font);cursor:pointer;white-space:nowrap}
+.kmdlg.kmlya .lywarnb:hover{background:var(--panel)}
+@media (min-width:861px){
+  .kmdlg.kmlya .lybar{flex-wrap:nowrap;gap:6px 14px;padding:4px 140px 4px 14px;align-items:center}
+  .kmdlg.kmlya .lyp.lypn{max-width:260px;min-width:120px;flex:0 1 260px}
+  .kmdlg.kmlya .lykpi{flex-wrap:nowrap;gap:4px 14px;min-width:0;overflow-x:auto;scrollbar-width:thin}
+  .kmdlg.kmlya .lyc{flex:none}
+  .kmdlg.kmlya .lyc .lyk{font-size:10.5px}
+  .kmdlg.kmlya .lyp b,.kmdlg.kmlya .lyc b{font-size:13.5px}
+}
+@media (min-width:861px) and (max-width:1500px){.kmdlg.kmlya .lybar .lyp:nth-child(2){display:none}}

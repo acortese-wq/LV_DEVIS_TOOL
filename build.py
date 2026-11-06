@@ -3,7 +3,7 @@ import datetime, os, sys
 H = os.path.dirname(os.path.abspath(__file__))
 def rd(p): return open(os.path.join(H, 'src', p), encoding='utf8').read()
 shell = rd('shell.html')
-css = rd('kv.css') + '\n' + rd('app.css')
+css = rd('tokens.css') + '\n' + rd('kv.css') + '\n' + rd('app.css') + '\n' + rd('workspace.css')
 scripts = [('data/lv.js', 'lv'), ('schacht_data.js', 'schachtdaten'), ('data/schacht_img.js', 'schachtbilder'), ('i18n_kv.js', 'i18n'),
            ('schacht_i18n.js', 'i18n-schacht'), ('i18n_app.js', 'i18n-app'), ('kve.js', 'kve'), ('model.js', 'model'), ('xlsxw.js', 'xlsx'), ('fig.js', 'fig'), ('karte.js', 'karte'), ('app.js', 'app'), ('chat_flows2.js', 'chatflows'), ('chat_i18n.js', 'chati18n'), ('chat.js', 'chat'), ('help_data.js', 'helpdata'), ('help.js', 'help')]
 js = '\n'.join('<script id="%s">\n%s\n</script>' % (i, rd(f).replace('</script', '<\\/script')) for f, i in scripts)

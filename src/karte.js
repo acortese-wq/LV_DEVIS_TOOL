@@ -694,13 +694,17 @@
       [tool, main, right].forEach(function (n) { if (n && n.parentNode) n.parentNode.removeChild(n); });
       dlg.appendChild(grid); dlg.appendChild(bottom);
       if (LY) (function () {   /* Layout A: App-Leiste (Ansichten), Projektleiste mit Kennzahlen, unteres Dock */
-        dlg.classList.add("kmlya", "kmmax"); var t0 = $("#kmTitle"); if (t0) t0.textContent = tt("ly_app");
+        dlg.classList.add("kmlya", "kmmax"); var t0 = $("#kmTitle"); if (t0) { t0.textContent = tt("ly_app"); t0.insertAdjacentHTML("afterbegin", '<svg class="nc-logo" viewBox="0 0 160 160" aria-hidden="true" focusable="false"><rect width="160" height="160" rx="16" fill="#0b5561"/><path d="M0 16a16 16 0 0 1 16-16h128a16 16 0 0 1 16 16v18H0z" fill="#00a3ad"/><path d="M34 46h92l-10 96H44z" fill="none" stroke="#fff" stroke-width="9" stroke-linejoin="round"/><circle cx="80" cy="96" r="29" fill="#fff"/><path d="M69 110V82h5l12 18V82h5v28h-5L74 92v18z" fill="#0b5561"/></svg>'); }
+        var thm = "dark"; try { thm = localStorage.getItem("lvd-theme") || "dark"; } catch (e) { } dlg.classList.toggle("nc-dark", thm === "dark");   /* Engineering-Thema (UI-Einstellung, nicht im Projekt) */
         var hb2 = head.querySelector(".kmheadb"), nav = E("nav", "lynav"); nav.setAttribute("aria-label", tt("ly_views"));
         nav.innerHTML = [["map", "ly_vMap"], ["proj", "ly_vProj"], ["rec", "ly_vRec"], ["res", "ly_vRes"], ["rep", "ly_vRep"]].map(function (a) { return '<button type="button" class="btn ghost small" data-ly="' + a[0] + '"' + (a[0] === "map" ? ' aria-current="page"' : "") + ">" + esc(tt(a[1])) + "</button>"; }).join("");
         head.insertBefore(nav, hb2);
         var lg = E("div", "lylang"); lg.setAttribute("role", "group"); lg.setAttribute("aria-label", tt("ly_lang"));   /* Sprache auch im Planungsfokus */
         lg.innerHTML = ["de", "fr", "it", "en"].map(function (c) { return '<button type="button" class="btn ghost small" data-lylang="' + c + '" aria-pressed="' + (c === (LY.lang || opt.lang) ? "true" : "false") + '" lang="' + c + '">' + c.toUpperCase() + "</button>"; }).join("");
         hb2.insertBefore(lg, hb2.firstChild);
+        var tb = E("button", "btn ghost small nc-theme", dlg.classList.contains("nc-dark") ? "☀" : "☾"); tb.type = "button"; tb.setAttribute("data-nctheme", ""); tb.setAttribute("aria-pressed", dlg.classList.contains("nc-dark") ? "true" : "false"); tb.setAttribute("aria-label", tt("ly_themeD")); tb.title = tt("ly_themeD");
+        tb.addEventListener("click", function () { var d = !dlg.classList.contains("nc-dark"); dlg.classList.toggle("nc-dark", d); tb.textContent = d ? "☀" : "☾"; tb.setAttribute("aria-pressed", d ? "true" : "false"); try { localStorage.setItem("lvd-theme", d ? "dark" : "light"); } catch (e) { } });
+        hb2.insertBefore(tb, lg.nextSibling);
         var fo = bottom.querySelector(".kmfoot"); if (fo) ["save", "apply"].forEach(function (k) { var x = fo.querySelector('[data-k="' + k + '"]'); if (x) hb2.appendChild(x); });   /* Sichern/Übernehmen oben rechts */
         var sw0 = head.querySelector(".kmsw"); if (sw0) { sw0.classList.add("lysearch"); canvas.appendChild(sw0); }   /* Ortssuche als Feld über der Karte */
         var vw = bottom.querySelector(".kmview"), tg0 = head.querySelector(".kmmidtog"); if (vw && tg0) vw.insertBefore(tg0, vw.firstChild);   /* Ebenen und Fenster-Reset in die Fussleiste */
@@ -718,9 +722,28 @@
         dlg.insertBefore(dock, bottom);
         var lb = E("div", "lybase"); lb.setAttribute("role", "group"); lb.setAttribute("aria-label", tt("km_src"));   /* Kartenauswahl direkt auf der Karte */
         lb.innerHTML = [["farbe", "ly_bFarbe"], ["grau", "ly_bGrau"], ["luft", "ly_bLuft"], ["kataster", "ly_bKat"]].map(function (a) { return '<button type="button" class="btn ghost small" data-lyb="' + a[0] + '" aria-pressed="false">' + esc(tt(a[1])) + "</button>"; }).join(""); canvas.appendChild(lb);
+        /* Phase E: eine Statuszeile wie in CAD (Fang · Koordinate/Massstab · Befehlszeile · Ansicht ▾ · Urheber), Ebenen in die Kopfleiste, Dock in der Höhe ziehbar */
+        (function () {
+          var vw2 = bottom.querySelector(".kmview"), mt = vw2 && vw2.querySelector(".kmmidtog"); if (mt) { mt.classList.add("lymidtog"); nav.appendChild(mt); }
+          var help = canvas.querySelector("#kmHelp"), units = canvas.querySelector("#kmUnits"), st = bottom.querySelector(".kmstat");
+          var cmd = E("div", "lycmd"); cmd.setAttribute("role", "status"); cmd.setAttribute("aria-live", "polite"); cmd.setAttribute("aria-label", tt("ly_cmd")); if (help) cmd.appendChild(help);
+          if (st) st.after(cmd); else bottom.insertBefore(cmd, bottom.firstChild);
+          if (vw2) { var dm = E("details", "lyviewm"); dm.innerHTML = "<summary>" + esc(tt("ly_view")) + "</summary>"; var box = E("div", "lyviewb"); while (vw2.firstChild) box.appendChild(vw2.firstChild); if (units) box.appendChild(units); dm.appendChild(box); vw2.appendChild(dm); vw2.classList.add("lyview"); }
+          var cr = dlg.querySelector(":scope > p.kmcred"); if (cr) { cr.classList.add("lycred"); bottom.appendChild(cr); }
+          dm && dm.addEventListener("toggle", function () { if (dm.open) { var x = dm.querySelector("button,select,a"); if (x) x.focus(); } });
+          dlg.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && dm && dm.open) { ev.preventDefault(); ev.stopPropagation(); dm.open = false; dm.querySelector("summary").focus(); } }, true);
+          /* Dock-Höhe: Griff ziehen oder mit Pfeiltasten (UI-Einstellung lvd-dockh) */
+          var DH = "lvd-dockh", h0 = 220; try { h0 = Math.max(120, Math.min(560, +localStorage.getItem(DH) || 220)); } catch (e) { }
+          dlg.style.setProperty("--lydh", h0 + "px");
+          var gr2 = E("div", "lydrag"); gr2.setAttribute("role", "separator"); gr2.setAttribute("aria-orientation", "horizontal"); gr2.setAttribute("tabindex", "0"); gr2.setAttribute("aria-label", tt("ly_dockH")); gr2.setAttribute("aria-valuemin", "120"); gr2.setAttribute("aria-valuemax", "560"); gr2.setAttribute("aria-valuenow", String(h0)); dock.insertBefore(gr2, dock.firstChild);
+          var setH = function (h) { h = Math.round(Math.max(120, Math.min(Math.min(560, window.innerHeight * 0.6), h))); dlg.style.setProperty("--lydh", h + "px"); gr2.setAttribute("aria-valuenow", String(h)); try { localStorage.setItem(DH, String(h)); } catch (e) { } try { map.invalidateSize({ animate: false }); } catch (e) { } };
+          gr2.addEventListener("pointerdown", function (ev) { ev.preventDefault(); var y0 = ev.clientY, hh = parseFloat(getComputedStyle(dlg).getPropertyValue("--lydh")) || 220; gr2.setPointerCapture(ev.pointerId); var mv = function (e2) { setH(hh + (y0 - e2.clientY)); }, up = function () { gr2.removeEventListener("pointermove", mv); gr2.removeEventListener("pointerup", up); }; gr2.addEventListener("pointermove", mv); gr2.addEventListener("pointerup", up); });
+          gr2.addEventListener("keydown", function (ev) { var hh = parseFloat(getComputedStyle(dlg).getPropertyValue("--lydh")) || 220, d = ev.key === "ArrowUp" ? 20 : ev.key === "ArrowDown" ? -20 : 0; if (d) { ev.preventDefault(); setH(hh + (ev.shiftKey ? d * 3 : d)); } });
+        })();
         var pf = dlg.querySelector("#kmProf"); if (pf) { dock.querySelector("#lyP_prof").appendChild(pf); var pn = E("p", "hint lypfh", esc(tt("ly_profHint"))); pn.id = "lyPfH"; dock.querySelector("#lyP_prof").insertBefore(pn, pf); }
       })();
       dlg.appendChild(E("p", "kmcred", "<b>" + esc(tt("km_cred")) + "</b> · " + esc(tt("km_cred2")))); head.appendChild(E("p", "kmcred kmcred-h", "<b>" + esc(tt("km_cred")) + "</b> · " + esc(tt("km_cred2"))));   /* Urheberhinweis: in der Kartenerfassung immer sichtbar */
+      if (LY) { var crl = dlg.querySelector(":scope > p.kmcred"); if (crl) { crl.classList.add("lycred"); crl.title = crl.textContent; bottom.appendChild(crl); } }   /* Arbeitsplatz: Urheber in der Statuszeile */
       /* Fenster: Werkzeuge, Ebenen/Katalog und Eigenschaften lassen sich am Titel verschieben (lösen sich dabei aus der Spalte), minimieren und wieder andocken; Ebenen/Katalog erscheint nur bei Bedarf */
       if (window.matchMedia && window.matchMedia("(min-width:861px)").matches) (function () {
         var KEY = "lvd-km-win", st = {}; try { st = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { }
@@ -778,7 +801,7 @@
         tog.addEventListener("click", function () { layout(); if (isOpen()) { front(P[1]); var g = mid.querySelector(".kmgrab"); if (g) g.focus(); } });
         mid.addEventListener("keydown", function (e) { if (e.key === "Escape" && isOpen()) { e.stopPropagation(); e.preventDefault(); grid.classList.remove("kmmid-open"); tog.setAttribute("aria-expanded", "false"); layout(); tog.focus(); } });
         canvas.addEventListener("pointerdown", function (e) { if (isOpen() && !P[1].pinned && e.target.closest("#kmMap")) { grid.classList.remove("kmmid-open"); tog.setAttribute("aria-expanded", "false"); layout(); } });
-        var rb = E("button", "btn ghost small", esc(tt("win_reset"))); rb.type = "button"; rb.title = tt("win_reset_t"); rb.addEventListener("click", function () { st = {}; try { localStorage.removeItem(KEY); } catch (e) { } P.forEach(function (p) { p.el.style.zIndex = ""; }); grid.classList.remove("kmmid-open"); tog.setAttribute("aria-expanded", "false"); layout(); }); if (LY && tog.parentNode !== head) tog.parentNode.insertBefore(rb, tog.nextSibling); else head.insertBefore(rb, tog.nextSibling);
+        var rb = E("button", "btn ghost small", esc(tt("win_reset"))); rb.type = "button"; rb.title = tt("win_reset_t"); rb.addEventListener("click", function () { st = {}; try { localStorage.removeItem(KEY); } catch (e) { } P.forEach(function (p) { p.el.style.zIndex = ""; }); grid.classList.remove("kmmid-open"); tog.setAttribute("aria-expanded", "false"); layout(); }); var vbx = LY ? dlg.querySelector(".lyviewb") : null; if (vbx) vbx.insertBefore(rb, vbx.firstChild); else if (LY && tog.parentNode !== head) tog.parentNode.insertBefore(rb, tog.nextSibling); else head.insertBefore(rb, tog.nextSibling);
         window.addEventListener("resize", function () { if (dlg.open) layout(); });
         window.__KMWIN = { layout: layout, state: function () { return st; } };
         layout(); setTimeout(layout, 300);
@@ -2436,7 +2459,8 @@
       var len = M.lines.filter(function (l) { return l.pts.length > 1; }).reduce(function (a, l) { return a + effLen(l.pts); }, 0);
       var kc = function (lab, val, cls) { return '<div class="lyc' + (cls ? " " + cls : "") + '"><span class="lyk">' + esc(lab) + "</span><b>" + val + "</b></div>"; };
       k.innerHTML = kc(tt("ly_kLen"), esc(fmt(len)) + " m") + kc(tt("ly_kAus"), ly ? esc(fmt(ly.V)) + " m³" : "–") + kc(tt("ly_kSch"), String(M.pts.length)) +
-        kc(tt("ly_kNet"), v && v.n != null ? "CHF " + f0(v.n) : "–", "lymain") + kc(tt("ly_kBru"), v && v.b != null ? "CHF " + f0(v.b) : "–") + (v && v.o ? '<span class="lyoffb">⚠ ' + esc(tt("km_costOff").replace("{n}", v.o)) + "</span>" : "");
+        kc(tt("ly_kNet"), v && v.n != null ? "CHF " + f0(v.n) : "–", "lymain") + kc(tt("ly_kBru"), v && v.b != null ? "CHF " + f0(v.b) : "–") +
+        (v && v.st != null ? kc(tt("ly_kRab"), esc(tt("ly_kRabV").replace("{s}", v.st).replace("{p}", v.pct)), "lyx") : "") + (v && v.hon > 0 ? kc(tt("ly_kHon"), "CHF " + f0(v.hon), "lyx") : "") + (ly && ly.nWarn ? '<button type="button" class="lywarnb" data-lywarn>⚑ ' + esc(tt("ly_kWarn").replace("{n}", ly.nWarn)) + "</button>" : "") + (v && v.o ? '<span class="lyoffb">⚠ ' + esc(tt("km_costOff").replace("{n}", v.o)) + "</span>" : "");
       lyBase(); var st = $("#lySt"); if (st) { var sk = ly ? ly.st : "empty"; st.className = "lyst lyst-" + sk; st.textContent = tt("ly_st_" + sk); }
       if (ly) { ["aus", "kost", "pos", "warn"].forEach(function (t) { var p = $("#lyP_" + t); if (p) p.innerHTML = ly[t]; }); var cp = dlg.querySelector('[data-cnt="pos"]'), cw = dlg.querySelector('[data-cnt="warn"]'); if (cp) cp.textContent = ly.nPos ? "(" + ly.nPos + ")" : ""; if (cw) cw.textContent = ly.nWarn ? "(" + ly.nWarn + ")" : ""; }
     }
@@ -2457,6 +2481,7 @@
       a.hidden = false; a.setAttribute("data-t", t); a.querySelector("button").focus();
     }
     function lyClick(b) {
+      if (b.hasAttribute("data-lywarn")) { lyD.t = "warn"; lyD.c = false; lyDock(); var tw = dlg.querySelector("#lyT_warn"); if (tw) tw.focus(); return; }
       if (b.hasAttribute("data-ly")) return lyGo(b.getAttribute("data-ly"));
       if (b.hasAttribute("data-lylang")) {   /* Sprache wechseln: Karte in der neuen Sprache neu aufbauen, Zeichnung (auch nicht übernommene Änderungen) und Ausschnitt bleiben */
         var lc = b.getAttribute("data-lylang"); if (lc === (LY.lang || opt.lang) || !LY.setLang) return; if (cur || curN || curA || tmp.length) endLine();
@@ -2542,7 +2567,7 @@
     dlg.addEventListener("change", function (e) { var ha = e.target.closest("[data-hz=auto]"); if (ha) { HZAUTO = ha.checked; try { localStorage.setItem("lvd-km-hzauto", HZAUTO ? "1" : "0"); } catch (x) { } if (HZAUTO) { hzSkip = {}; hzSeed(); } return; } var hm = e.target.closest("[data-hz=mode]"); if (hm) { SLOPE = hm.checked; try { localStorage.setItem("lvd-km-slope", SLOPE ? "1" : "0"); } catch (x) { } refresh(); return; } var t = e.target.closest("[data-rc]"); if (!t) return; RC[t.dataset.rc] = t.value; try { localStorage.setItem("lvd-km-rc", JSON.stringify(RC)); } catch (x) { } sugs = []; sugDraw(); sugRender(); rcRender(); });
     dlg.addEventListener("click", function (e) {
       var pb = e.target.closest("[data-prov]");
-      if (LY) { var lyb = e.target.closest("[data-ly],[data-lya],[data-dt],[data-dcol],[data-lyb],[data-lylang]"); if (lyb) { lyClick(lyb); return; } }
+      if (LY) { var lyb = e.target.closest("[data-ly],[data-lya],[data-dt],[data-dcol],[data-lyb],[data-lylang],[data-lywarn]"); if (lyb) { lyClick(lyb); return; } }
       if (pb) { var nb = PROV[pb.dataset.prov][0][0]; if (provOf(base) !== pb.dataset.prov) { base = nb; fillBase(); try { localStorage.setItem("lvd-km-base", nb); } catch (x) { } setBase(nb); } return; }
       var ob = e.target.closest("[data-ov]");
       if (ob && ovl !== undefined) {

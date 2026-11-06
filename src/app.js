@@ -672,7 +672,8 @@
       try {
         S = JSON.parse(JSON.stringify(S0)); var cc = (S.recs[tab] || []).filter(function (r) { return cfg.uid && r.uid === cfg.uid; })[0] || JSON.parse(JSON.stringify(cfg)), st = karteApply(M, cc, lenFn, Object.assign({ src: "karte" }, fns));
         S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], dxf: S.karte.dxf || null, base: S.karte.base, bg: null, overlay: null }; syncDerived(cc, st);
-        var oc = KVE.calc(S, LV), sm = oc.sum; out = { n: sm.netto, b: sm.brutto, o: oc.nOffen, ly: lyData(oc) };
+        var oc = KVE.calc(S, LV), sm = oc.sum, hon = (S.recs.hon || []).reduce(function (a, r) { try { var h = LVM.honCalc(r, sm.netto); return a + (h && h.net > 0 ? h.net : 0); } catch (e) { return a; } }, 0);   /* nur Anzeige (Kostenleiste), keine Rechenänderung */
+        out = { n: sm.netto, b: sm.brutto, o: oc.nOffen, st: sm.stufe, pct: sm.pct, hon: hon, ly: lyData(oc) };
       } catch (e) { out = null; } finally { S = S0; }
       return out;
     };

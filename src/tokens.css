@@ -1,0 +1,14 @@
+/* ===== NIUcost Design-Tokens (zentral) – Konzept: Alessandro Cortese =====
+   Rollen-Tokens --nc-*; Markenfarben unverändert (Petrol #0b6b72 / #0a4f55, Logo #00a3ad).
+   Thema «hell» = bisherige Werte; Thema «dunkel» (Engineering-Arbeitsplatz) aus bestehenden Werten abgeleitet,
+   hellere Stufen desselben Farbtons nur dort, wo der Kontrast sonst < 4.5:1 wäre (siehe docs/NIUCOST_REDESIGN.md, Phase B). */
+:root{
+  --nc-accent:#0b6b72; --nc-accent-strong:#0a4f55; --nc-brand:#00a3ad; --nc-brand-text:#00838c;
+  --nc-bg:#f0f1f3; --nc-surface:#ffffff; --nc-panel:#eef1f3; --nc-raised:#f7f9fa;
+  --nc-text:#10202b; --nc-text-soft:#516470; --nc-muted:#8fa1ac; --nc-line:#c3ced5; --nc-line-strong:#8fa1ac;
+  --nc-accent-text:#0b6b72; --nc-focus:#0e7490;
+  --nc-danger:#b8332a; --nc-danger-text:#b8332a; --nc-danger-bg:#fbeceb;
+  --nc-warn-text:#8a5b00; --nc-warn-bg:#fdf4e3; --nc-ok-text:#1c6446; --nc-ok-bg:#e9f3ee;
+  --nc-dxf-fallback:#7b2cbf; --nc-radius:8px; --nc-gap:8px;
+  --nc-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif; --nc-mono:ui-monospace,"SF Mono",Consolas,monospace;
+}

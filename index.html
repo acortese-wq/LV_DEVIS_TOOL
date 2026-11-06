@@ -10,6 +10,21 @@
 <title>NIUcost – Kostenrechner Tiefbau</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%20160%20160%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22wmc%22%3E%3Crect%20width%3D%22160%22%20height%3D%22160%22%20rx%3D%2216%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cg%20clip-path%3D%22url%28%23wmc%29%22%3E%3Crect%20width%3D%22160%22%20height%3D%22160%22%20fill%3D%22%230b5561%22/%3E%3Crect%20width%3D%22160%22%20height%3D%2234%22%20fill%3D%22%2300a3ad%22/%3E%3C/g%3E%3Cpath%20d%3D%22M34%2046h92l-10%2096H44z%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%227%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M44%2046v-8h72v8%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%226%22/%3E%3Ccircle%20cx%3D%2280%22%20cy%3D%2296%22%20r%3D%2229%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%2280%22%20cy%3D%2296%22%20r%3D%2223%22%20fill%3D%22none%22%20stroke%3D%22%2300a3ad%22%20stroke-width%3D%224%22/%3E%3Cpath%20d%3D%22M69%20110V82h5l12%2018V82h5v28h-5L74%2092v18z%22%20fill%3D%22%230b5561%22/%3E%3C/svg%3E">
 <style>
+/* ===== NIUcost Design-Tokens (zentral) – Konzept: Alessandro Cortese =====
+   Rollen-Tokens --nc-*; Markenfarben unverändert (Petrol #0b6b72 / #0a4f55, Logo #00a3ad).
+   Thema «hell» = bisherige Werte; Thema «dunkel» (Engineering-Arbeitsplatz) aus bestehenden Werten abgeleitet,
+   hellere Stufen desselben Farbtons nur dort, wo der Kontrast sonst < 4.5:1 wäre (siehe docs/NIUCOST_REDESIGN.md, Phase B). */
+:root{
+  --nc-accent:#0b6b72; --nc-accent-strong:#0a4f55; --nc-brand:#00a3ad; --nc-brand-text:#00838c;
+  --nc-bg:#f0f1f3; --nc-surface:#ffffff; --nc-panel:#eef1f3; --nc-raised:#f7f9fa;
+  --nc-text:#10202b; --nc-text-soft:#516470; --nc-muted:#8fa1ac; --nc-line:#c3ced5; --nc-line-strong:#8fa1ac;
+  --nc-accent-text:#0b6b72; --nc-focus:#0e7490;
+  --nc-danger:#b8332a; --nc-danger-text:#b8332a; --nc-danger-bg:#fbeceb;
+  --nc-warn-text:#8a5b00; --nc-warn-bg:#fdf4e3; --nc-ok-text:#1c6446; --nc-ok-bg:#e9f3ee;
+  --nc-dxf-fallback:#7b2cbf; --nc-radius:8px; --nc-gap:8px;
+  --nc-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif; --nc-mono:ui-monospace,"SF Mono",Consolas,monospace;
+}
+
 
 :root{
   --paper:#ffffff;
@@ -1314,6 +1329,119 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 .kmgcp{display:grid;place-items:center;border-radius:50%;font:700 11px/1 system-ui,sans-serif;color:#fff;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.5);cursor:grab}.kmgcp:focus-visible{outline:3px solid #ffbf00;outline-offset:2px}
 .kmgcp.kmgcps{background:#b03a2e;border-radius:3px}.kmgcp.kmgcpt{background:#1b7a3a}
 .kmgcp-l{margin-top:6px}.kmgcpt-t{width:100%;border-collapse:collapse;font-size:12px;margin:4px 0}.kmgcpt-t th,.kmgcpt-t td{padding:2px 4px;border-bottom:1px solid var(--rule);text-align:left}.kmgcpt-t input.kmn{width:100%;min-width:86px;font-size:12px}.kmgcpt-t tr.warn td{background:#fff3cd}
+
+/* ===== Engineering-Arbeitsplatz (Layout A) – Thema «dunkel», Struktur Phase E. Gilt nur im Arbeitsplatz; Druck/Bericht/Excel bleiben hell. ===== */
+.kmdlg.kmlya.nc-dark{
+  --nc-bg:#0d1a23; --nc-surface:#10202b; --nc-panel:#17303d; --nc-raised:#1f3b49;
+  --nc-text:#f7f9fa; --nc-text-soft:#c3ced5; --nc-muted:#8fa1ac; --nc-line:#2c4a59; --nc-line-strong:#4b6c7c;
+  --nc-accent-text:#5fb3b9; --nc-focus:#67c3d6; --nc-danger-text:#f08a80; --nc-danger-bg:#3a1f22; --nc-warn-text:#e8b25a; --nc-warn-bg:#33291a; --nc-ok-text:#6cc59a; --nc-ok-bg:#16322a;
+  /* bestehende Variablen auf die Rollen abbilden (alle Komponenten folgen automatisch) */
+  --paper:var(--nc-surface); --panel:var(--nc-panel); --panel-2:var(--nc-raised); --page:var(--nc-bg);
+  --ink:var(--nc-text); --ink-soft:var(--nc-text-soft); --rule:var(--nc-line); --rule-strong:var(--nc-line-strong);
+  --navy:var(--nc-accent); --link:var(--nc-accent-text); --focus:var(--nc-focus);
+  --signal:var(--nc-danger-text); --signal-bg:var(--nc-danger-bg); --amber:var(--nc-warn-text); --amber-bg:var(--nc-warn-bg); --ok:var(--nc-ok-text); --ok-bg:var(--nc-ok-bg);
+  --figbg:#10202b;
+  background:var(--nc-bg); color:var(--nc-text); color-scheme:dark;
+}
+.kmlya.nc-dark .kmhead,.kmlya.nc-dark .lybar,.kmlya.nc-dark .lydock,.kmlya.nc-dark .kmbottom{background:var(--nc-surface);border-color:var(--nc-line)}
+.kmlya.nc-dark .kmtools,.kmlya.nc-dark .kmside,.kmlya.nc-dark .kmmid,.kmlya.nc-dark .kmright{background:var(--nc-panel);color:var(--nc-text)}
+.kmlya.nc-dark .kmwh{background:var(--nc-accent-strong);color:#fff}
+.kmlya.nc-dark select,.kmlya.nc-dark input[type=text],.kmlya.nc-dark input[type=number],.kmlya.nc-dark input[type=search],.kmlya.nc-dark input[type=url],.kmlya.nc-dark textarea{background:var(--nc-raised);color:var(--nc-text);border-color:var(--nc-line-strong)}
+.kmlya.nc-dark input::placeholder,.kmlya.nc-dark textarea::placeholder{color:var(--nc-muted)}
+.kmlya.nc-dark select:disabled,.kmlya.nc-dark input:disabled{background:var(--nc-panel);color:var(--nc-muted)}
+.kmlya.nc-dark .btn{background:var(--nc-accent);border-color:var(--nc-accent);color:#fff}
+.kmlya.nc-dark .btn:hover{background:var(--nc-accent-strong);border-color:var(--nc-accent-strong)}
+.kmlya.nc-dark .btn.ghost{background:transparent;color:var(--nc-text);border-color:var(--nc-line-strong)}
+.kmlya.nc-dark .btn.ghost:hover{background:var(--nc-raised);color:var(--nc-text)}
+.kmlya.nc-dark .btn[aria-pressed=true],.kmlya.nc-dark .btn.ghost[aria-pressed=true],.kmlya.nc-dark [aria-current=page]{background:var(--nc-accent);border-color:var(--nc-accent);color:#fff}
+.kmlya.nc-dark .btn:disabled{background:var(--nc-panel);border-color:var(--nc-line);color:var(--nc-muted);opacity:1}
+.kmlya.nc-dark .btn.del,.kmlya.nc-dark .btn.ghost.del{color:var(--nc-danger-text);border-color:#7a3a35}
+.kmlya.nc-dark .hint,.kmlya.nc-dark .lyk,.kmlya.nc-dark .kmgl,.kmlya.nc-dark small{color:var(--nc-text-soft)}
+.kmlya.nc-dark a{color:var(--nc-accent-text)}
+.kmlya.nc-dark :focus-visible{outline-color:var(--nc-focus)}
+.kmlya.nc-dark details,.kmlya.nc-dark .kmcat,.kmlya.nc-dark .kmobj > *,.kmlya.nc-dark .kmquick,.kmlya.nc-dark .kmprops,.kmlya.nc-dark .kmsum,.kmlya.nc-dark .kmcard,.kmlya.nc-dark .kmlt{background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line)}
+.kmlya.nc-dark summary{color:var(--nc-accent-text)}
+.kmlya.nc-dark table,.kmlya.nc-dark th,.kmlya.nc-dark td{border-color:var(--nc-line);color:var(--nc-text)}
+.kmlya.nc-dark .lytab tr:nth-child(even) td{background:rgba(255,255,255,.03)}
+.kmlya.nc-dark .lytab thead th{background:var(--nc-panel);color:var(--nc-text-soft)}
+.kmlya.nc-dark [role=tab]{color:var(--nc-text-soft);background:transparent}
+.kmlya.nc-dark [role=tab][aria-selected=true]{color:var(--nc-text);box-shadow:inset 0 -2px 0 var(--nc-accent-text)}
+.kmlya.nc-dark .lydbar{background:var(--nc-surface);border-color:var(--nc-line)}
+.kmlya.nc-dark .chip{background:var(--nc-raised);color:var(--nc-text);border-color:var(--nc-line-strong)}
+.kmlya.nc-dark .kmtoast{background:#f7f9fa;color:#10202b}
+.kmlya.nc-dark .kmtoast .btn{background:var(--nc-accent);color:#fff}
+/* Karte bleibt hell (swisstopo); schwebende Bedienelemente auf der Karte im Thema */
+.kmlya.nc-dark .kmmap{background:#e9edef}
+.kmlya.nc-dark .lybase,.kmlya.nc-dark .lysearch .kmsearch{background:var(--nc-surface)}
+.kmlya.nc-dark .leaflet-control-zoom a{background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line)}
+.kmlya.nc-dark .leaflet-control-attribution{background:rgba(16,32,43,.85);color:var(--nc-text-soft)}
+.kmlya.nc-dark .leaflet-control-attribution a{color:var(--nc-accent-text)}
+/* Grafiken (Querschnitt, Profil) im dunklen Panel auf hellem Grund lassen – Lesbarkeit der Fachgrafik */
+.kmlya.nc-dark .kmxs svg,.kmlya.nc-dark .kmpfsvg{background:#f7f9fa;border-radius:6px}
+/* Theme-Schalter */
+.kmlya .nc-theme{min-width:34px}
+@media print{.kmdlg.kmlya.nc-dark{background:#fff;color:#000}}
+.kmlya #kmTitle{display:flex;align-items:center;gap:8px;letter-spacing:.02em}.kmlya .nc-logo{width:26px;height:26px;flex:none}
+/* hart codierte helle Flächen im Arbeitsplatz auf Thema-Flächen umstellen (Kartenmarken .kmsnap/.kmtip bleiben hell, sie liegen auf der Karte) */
+.kmlya.nc-dark table{background:transparent}
+.kmlya.nc-dark .kmhit,.kmlya.nc-dark .kmws .kmhits,.kmlya.nc-dark .kmc select,.kmlya.nc-dark .kmc input,.kmlya.nc-dark .kmcat,.kmlya.nc-dark .kmv span,.kmlya.nc-dark .kmseg [aria-pressed=false],.kmlya.nc-dark .kmpipe,.kmlya.nc-dark .kmquick,.kmlya.nc-dark .kmask,.kmlya.nc-dark .kmsch.ex span,.kmlya.nc-dark .kmprops,.kmlya.nc-dark .kmdxcol,.kmlya.nc-dark .chip{background:var(--nc-raised);color:var(--nc-text)}
+.kmlya.nc-dark .kmrow,.kmlya.nc-dark .kmtool,.kmlya.nc-dark .kmws .kmtools,.kmlya.nc-dark .kmws .kmpan .kmcost,.kmlya.nc-dark .kmws .kmgrid.kmfloat .kmwf.kmtools,.kmlya.nc-dark .lybar{background:var(--nc-panel);color:var(--nc-text)}
+.kmlya.nc-dark .kmws .kmtools .btn:not([aria-pressed=true]),.kmws.kmlya.nc-dark .kmtools .btn:not([aria-pressed=true]){background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line-strong)}
+.kmlya.nc-dark .chip:hover{background:var(--nc-surface)}
+.kmlya.nc-dark .kmgcpt-t tr.warn td{background:var(--nc-warn-bg);color:var(--nc-warn-text)}
+.kmdlg.kmlya.nc-dark .kmbottom select{background:var(--nc-raised);color:var(--nc-text)}
+.kmlya.nc-dark .lytab td,.kmlya.nc-dark .lytab th{background:transparent}
+.kmlya.nc-dark .lytab tfoot td,.kmlya.nc-dark .lytab .tot td,.kmlya.nc-dark .lytab tr.tot td{background:var(--nc-panel)}
+.kmlya.nc-dark #kmTitle{color:var(--nc-text)}
+.kmlya.nc-dark tr.sub td,.kmlya.nc-dark tfoot td{background:var(--nc-panel);color:var(--nc-text-soft)}
+.kmlya.nc-dark tr.grp td,.kmlya.nc-dark tr.sum td{background:var(--nc-panel);color:var(--nc-text)}
+.kmlya.nc-dark tr.sum td{border-top-color:var(--nc-text-soft)}
+.kmlya.nc-dark .cost tr.koffen td{background:var(--nc-danger-bg);color:var(--nc-danger-text);border-top-color:var(--nc-danger)}
+.kmlya.nc-dark .cost tr.kerf td{color:var(--nc-warn-text)}
+/* ---- Phase E: kompakter Arbeitsplatz, Arbeitsfläche maximal ---- */
+.kmdlg.kmlya .kmhead{padding:6px 12px;min-height:0;gap:8px}
+.kmdlg.kmlya .kmhead .btn{min-height:30px;padding:4px 10px;font-size:13px}
+.kmdlg.kmlya .kmheadb [data-k=apply]{min-height:32px}
+.kmdlg.kmlya .lylay select{min-height:30px;padding:3px 8px;font-size:13px}
+.kmdlg.kmlya .lybar{padding-top:4px;padding-bottom:4px}
+.kmdlg.kmlya .lydpan{max-height:none;height:var(--lydh,220px);overflow:auto}
+.kmdlg.kmlya .lydrag{height:6px;cursor:ns-resize;background:linear-gradient(var(--rule),var(--rule)) center/40px 2px no-repeat;touch-action:none}
+.kmdlg.kmlya .lydrag:hover,.kmdlg.kmlya .lydrag:focus-visible{background-color:var(--panel);outline:2px solid var(--focus);outline-offset:-2px}
+.kmdlg.kmlya .kmbottom{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;padding:3px 10px;min-height:34px;position:relative}
+.kmdlg.kmlya .kmbottom .kmfang{display:flex;gap:4px;flex:none}
+.kmdlg.kmlya .kmbottom .kmfang .btn{min-height:26px;padding:2px 8px;font-size:12px}
+.kmdlg.kmlya .kmbottom .kmstat{flex:none;font-size:12px;font-family:var(--nc-mono);color:var(--ink-soft);display:flex;gap:10px}
+.kmdlg.kmlya .lycmd{flex:1;min-width:0;font-size:12.5px;border-left:1px solid var(--rule);padding-left:10px}
+.kmdlg.kmlya .lycmd .kmhelp{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.kmdlg.kmlya .lycmd .kmhelp::before{content:"› ";color:var(--nc-accent-text);font-weight:700}
+.kmdlg.kmlya .kmbottom .lyview{flex:none;display:block;margin:0;padding:0;border:0;background:transparent}
+.kmdlg.kmlya .lyviewm>summary{list-style:none;cursor:pointer;font-size:12.5px;font-weight:600;padding:4px 10px;border:1px solid var(--rule-strong);border-radius:6px;color:var(--ink)}
+.kmdlg.kmlya .lyviewm>summary::-webkit-details-marker{display:none}
+.kmdlg.kmlya .lyviewm>summary::after{content:" ▴"}
+.kmdlg.kmlya .lyviewb{position:absolute;right:8px;bottom:calc(100% + 4px);z-index:1300;display:flex;flex-wrap:wrap;gap:6px;align-items:center;width:min(560px,calc(100vw - 24px));padding:10px;background:var(--paper);border:1px solid var(--rule-strong);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.kmdlg.kmlya .lyviewb .kmunits{flex-basis:100%;margin:2px 0 0;font-size:12px}
+.kmdlg.kmlya .lycred{flex:none;margin:0;font-size:11px;color:var(--ink-soft);max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kmdlg.kmlya .lynav .lymidtog{margin-left:6px}
+.kmdlg.kmlya .kmleg{bottom:22px}
+@media (max-width:1180px){.kmdlg.kmlya .lycred{display:none}}
+.kmlya.nc-dark .lyc.lymain b{color:var(--nc-accent-text)}
+.kmdlg.kmlya .chfab{top:54px}
+.kmdlg.kmlya .kmhead{flex-wrap:nowrap}.kmdlg.kmlya .lynav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}
+.kmdlg.kmlya .kmheadb{flex-wrap:nowrap}
+@media (max-width:1360px){.kmdlg.kmlya .lylang .btn{padding:4px 7px}.kmdlg.kmlya .lynav .btn{padding:4px 8px}}
+.kmdlg.kmlya .kmbottom .kmfang{order:1}.kmdlg.kmlya .kmbottom .kmstat{order:2}.kmdlg.kmlya .lycmd{order:3}.kmdlg.kmlya .kmbottom .lyview{order:4}.kmdlg.kmlya .lycred{order:5}
+.kmdlg.kmlya .lykpi .lyx b{font-size:13px}
+.kmdlg.kmlya .lywarnb{border:1px solid var(--rule-strong);background:transparent;color:var(--amber);border-radius:999px;padding:2px 10px;font:600 12px var(--nc-font);cursor:pointer;white-space:nowrap}
+.kmdlg.kmlya .lywarnb:hover{background:var(--panel)}
+@media (min-width:861px){
+  .kmdlg.kmlya .lybar{flex-wrap:nowrap;gap:6px 14px;padding:4px 140px 4px 14px;align-items:center}
+  .kmdlg.kmlya .lyp.lypn{max-width:260px;min-width:120px;flex:0 1 260px}
+  .kmdlg.kmlya .lykpi{flex-wrap:nowrap;gap:4px 14px;min-width:0;overflow-x:auto;scrollbar-width:thin}
+  .kmdlg.kmlya .lyc{flex:none}
+  .kmdlg.kmlya .lyc .lyk{font-size:10.5px}
+  .kmdlg.kmlya .lyp b,.kmdlg.kmlya .lyc b{font-size:13.5px}
+}
+@media (min-width:861px) and (max-width:1500px){.kmdlg.kmlya .lybar .lyp:nth-child(2){display:none}}
 
 </style>
 </head>
@@ -3385,6 +3513,14 @@ TS.en = {
     ly_noProj: ["(ohne Namen)", "(sans nom)", "(senza nome)", "(untitled)"],
     ly_layout: ["Layout", "Mise en page", "Layout", "Layout"],
     ly_lang: ["Sprache", "Langue", "Lingua", "Language"],
+    ly_themeD: ["Dunkles Engineering-Design", "Design sombre «Engineering»", "Design scuro «Engineering»", "Dark engineering design"],
+    ly_kRab: ["Rabatt", "Rabais", "Ribasso", "Discount"],
+    ly_kRabV: ["Stufe {s} · {p} %", "niveau {s} · {p} %", "livello {s} · {p} %", "level {s} · {p} %"],
+    ly_kHon: ["Honorar", "Honoraires", "Onorario", "Fee"],
+    ly_kWarn: ["{n} Hinweise", "{n} remarques", "{n} avvisi", "{n} notes"],
+    ly_cmd: ["Befehlszeile", "Ligne de commande", "Riga di comando", "Command line"],
+    ly_view: ["Ansicht", "Affichage", "Vista", "View"],
+    ly_dockH: ["Höhe des unteren Bereichs (ziehen oder Pfeiltasten)", "Hauteur de la zone inférieure (glisser ou flèches)", "Altezza dell’area inferiore (trascinare o frecce)", "Height of the bottom area (drag or arrow keys)"],
     ly_A: ["A · Planungsfokus", "A · Focus planification", "A · Focus pianificazione", "A · Planning focus"],
     ly_B: ["B · Kostenfokus", "B · Focus coûts", "B · Focus costi", "B · Cost focus"],
     ly_C: ["C · Prüfung", "C · Contrôle", "C · Verifica", "C · Review"],
@@ -6324,13 +6460,17 @@ var FIG = (function () {
       [tool, main, right].forEach(function (n) { if (n && n.parentNode) n.parentNode.removeChild(n); });
       dlg.appendChild(grid); dlg.appendChild(bottom);
       if (LY) (function () {   /* Layout A: App-Leiste (Ansichten), Projektleiste mit Kennzahlen, unteres Dock */
-        dlg.classList.add("kmlya", "kmmax"); var t0 = $("#kmTitle"); if (t0) t0.textContent = tt("ly_app");
+        dlg.classList.add("kmlya", "kmmax"); var t0 = $("#kmTitle"); if (t0) { t0.textContent = tt("ly_app"); t0.insertAdjacentHTML("afterbegin", '<svg class="nc-logo" viewBox="0 0 160 160" aria-hidden="true" focusable="false"><rect width="160" height="160" rx="16" fill="#0b5561"/><path d="M0 16a16 16 0 0 1 16-16h128a16 16 0 0 1 16 16v18H0z" fill="#00a3ad"/><path d="M34 46h92l-10 96H44z" fill="none" stroke="#fff" stroke-width="9" stroke-linejoin="round"/><circle cx="80" cy="96" r="29" fill="#fff"/><path d="M69 110V82h5l12 18V82h5v28h-5L74 92v18z" fill="#0b5561"/></svg>'); }
+        var thm = "dark"; try { thm = localStorage.getItem("lvd-theme") || "dark"; } catch (e) { } dlg.classList.toggle("nc-dark", thm === "dark");   /* Engineering-Thema (UI-Einstellung, nicht im Projekt) */
         var hb2 = head.querySelector(".kmheadb"), nav = E("nav", "lynav"); nav.setAttribute("aria-label", tt("ly_views"));
         nav.innerHTML = [["map", "ly_vMap"], ["proj", "ly_vProj"], ["rec", "ly_vRec"], ["res", "ly_vRes"], ["rep", "ly_vRep"]].map(function (a) { return '<button type="button" class="btn ghost small" data-ly="' + a[0] + '"' + (a[0] === "map" ? ' aria-current="page"' : "") + ">" + esc(tt(a[1])) + "</button>"; }).join("");
         head.insertBefore(nav, hb2);
         var lg = E("div", "lylang"); lg.setAttribute("role", "group"); lg.setAttribute("aria-label", tt("ly_lang"));   /* Sprache auch im Planungsfokus */
         lg.innerHTML = ["de", "fr", "it", "en"].map(function (c) { return '<button type="button" class="btn ghost small" data-lylang="' + c + '" aria-pressed="' + (c === (LY.lang || opt.lang) ? "true" : "false") + '" lang="' + c + '">' + c.toUpperCase() + "</button>"; }).join("");
         hb2.insertBefore(lg, hb2.firstChild);
+        var tb = E("button", "btn ghost small nc-theme", dlg.classList.contains("nc-dark") ? "☀" : "☾"); tb.type = "button"; tb.setAttribute("data-nctheme", ""); tb.setAttribute("aria-pressed", dlg.classList.contains("nc-dark") ? "true" : "false"); tb.setAttribute("aria-label", tt("ly_themeD")); tb.title = tt("ly_themeD");
+        tb.addEventListener("click", function () { var d = !dlg.classList.contains("nc-dark"); dlg.classList.toggle("nc-dark", d); tb.textContent = d ? "☀" : "☾"; tb.setAttribute("aria-pressed", d ? "true" : "false"); try { localStorage.setItem("lvd-theme", d ? "dark" : "light"); } catch (e) { } });
+        hb2.insertBefore(tb, lg.nextSibling);
         var fo = bottom.querySelector(".kmfoot"); if (fo) ["save", "apply"].forEach(function (k) { var x = fo.querySelector('[data-k="' + k + '"]'); if (x) hb2.appendChild(x); });   /* Sichern/Übernehmen oben rechts */
         var sw0 = head.querySelector(".kmsw"); if (sw0) { sw0.classList.add("lysearch"); canvas.appendChild(sw0); }   /* Ortssuche als Feld über der Karte */
         var vw = bottom.querySelector(".kmview"), tg0 = head.querySelector(".kmmidtog"); if (vw && tg0) vw.insertBefore(tg0, vw.firstChild);   /* Ebenen und Fenster-Reset in die Fussleiste */
@@ -6348,9 +6488,28 @@ var FIG = (function () {
         dlg.insertBefore(dock, bottom);
         var lb = E("div", "lybase"); lb.setAttribute("role", "group"); lb.setAttribute("aria-label", tt("km_src"));   /* Kartenauswahl direkt auf der Karte */
         lb.innerHTML = [["farbe", "ly_bFarbe"], ["grau", "ly_bGrau"], ["luft", "ly_bLuft"], ["kataster", "ly_bKat"]].map(function (a) { return '<button type="button" class="btn ghost small" data-lyb="' + a[0] + '" aria-pressed="false">' + esc(tt(a[1])) + "</button>"; }).join(""); canvas.appendChild(lb);
+        /* Phase E: eine Statuszeile wie in CAD (Fang · Koordinate/Massstab · Befehlszeile · Ansicht ▾ · Urheber), Ebenen in die Kopfleiste, Dock in der Höhe ziehbar */
+        (function () {
+          var vw2 = bottom.querySelector(".kmview"), mt = vw2 && vw2.querySelector(".kmmidtog"); if (mt) { mt.classList.add("lymidtog"); nav.appendChild(mt); }
+          var help = canvas.querySelector("#kmHelp"), units = canvas.querySelector("#kmUnits"), st = bottom.querySelector(".kmstat");
+          var cmd = E("div", "lycmd"); cmd.setAttribute("role", "status"); cmd.setAttribute("aria-live", "polite"); cmd.setAttribute("aria-label", tt("ly_cmd")); if (help) cmd.appendChild(help);
+          if (st) st.after(cmd); else bottom.insertBefore(cmd, bottom.firstChild);
+          if (vw2) { var dm = E("details", "lyviewm"); dm.innerHTML = "<summary>" + esc(tt("ly_view")) + "</summary>"; var box = E("div", "lyviewb"); while (vw2.firstChild) box.appendChild(vw2.firstChild); if (units) box.appendChild(units); dm.appendChild(box); vw2.appendChild(dm); vw2.classList.add("lyview"); }
+          var cr = dlg.querySelector(":scope > p.kmcred"); if (cr) { cr.classList.add("lycred"); bottom.appendChild(cr); }
+          dm && dm.addEventListener("toggle", function () { if (dm.open) { var x = dm.querySelector("button,select,a"); if (x) x.focus(); } });
+          dlg.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && dm && dm.open) { ev.preventDefault(); ev.stopPropagation(); dm.open = false; dm.querySelector("summary").focus(); } }, true);
+          /* Dock-Höhe: Griff ziehen oder mit Pfeiltasten (UI-Einstellung lvd-dockh) */
+          var DH = "lvd-dockh", h0 = 220; try { h0 = Math.max(120, Math.min(560, +localStorage.getItem(DH) || 220)); } catch (e) { }
+          dlg.style.setProperty("--lydh", h0 + "px");
+          var gr2 = E("div", "lydrag"); gr2.setAttribute("role", "separator"); gr2.setAttribute("aria-orientation", "horizontal"); gr2.setAttribute("tabindex", "0"); gr2.setAttribute("aria-label", tt("ly_dockH")); gr2.setAttribute("aria-valuemin", "120"); gr2.setAttribute("aria-valuemax", "560"); gr2.setAttribute("aria-valuenow", String(h0)); dock.insertBefore(gr2, dock.firstChild);
+          var setH = function (h) { h = Math.round(Math.max(120, Math.min(Math.min(560, window.innerHeight * 0.6), h))); dlg.style.setProperty("--lydh", h + "px"); gr2.setAttribute("aria-valuenow", String(h)); try { localStorage.setItem(DH, String(h)); } catch (e) { } try { map.invalidateSize({ animate: false }); } catch (e) { } };
+          gr2.addEventListener("pointerdown", function (ev) { ev.preventDefault(); var y0 = ev.clientY, hh = parseFloat(getComputedStyle(dlg).getPropertyValue("--lydh")) || 220; gr2.setPointerCapture(ev.pointerId); var mv = function (e2) { setH(hh + (y0 - e2.clientY)); }, up = function () { gr2.removeEventListener("pointermove", mv); gr2.removeEventListener("pointerup", up); }; gr2.addEventListener("pointermove", mv); gr2.addEventListener("pointerup", up); });
+          gr2.addEventListener("keydown", function (ev) { var hh = parseFloat(getComputedStyle(dlg).getPropertyValue("--lydh")) || 220, d = ev.key === "ArrowUp" ? 20 : ev.key === "ArrowDown" ? -20 : 0; if (d) { ev.preventDefault(); setH(hh + (ev.shiftKey ? d * 3 : d)); } });
+        })();
         var pf = dlg.querySelector("#kmProf"); if (pf) { dock.querySelector("#lyP_prof").appendChild(pf); var pn = E("p", "hint lypfh", esc(tt("ly_profHint"))); pn.id = "lyPfH"; dock.querySelector("#lyP_prof").insertBefore(pn, pf); }
       })();
       dlg.appendChild(E("p", "kmcred", "<b>" + esc(tt("km_cred")) + "</b> · " + esc(tt("km_cred2")))); head.appendChild(E("p", "kmcred kmcred-h", "<b>" + esc(tt("km_cred")) + "</b> · " + esc(tt("km_cred2"))));   /* Urheberhinweis: in der Kartenerfassung immer sichtbar */
+      if (LY) { var crl = dlg.querySelector(":scope > p.kmcred"); if (crl) { crl.classList.add("lycred"); crl.title = crl.textContent; bottom.appendChild(crl); } }   /* Arbeitsplatz: Urheber in der Statuszeile */
       /* Fenster: Werkzeuge, Ebenen/Katalog und Eigenschaften lassen sich am Titel verschieben (lösen sich dabei aus der Spalte), minimieren und wieder andocken; Ebenen/Katalog erscheint nur bei Bedarf */
       if (window.matchMedia && window.matchMedia("(min-width:861px)").matches) (function () {
         var KEY = "lvd-km-win", st = {}; try { st = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { }
@@ -6408,7 +6567,7 @@ var FIG = (function () {
         tog.addEventListener("click", function () { layout(); if (isOpen()) { front(P[1]); var g = mid.querySelector(".kmgrab"); if (g) g.focus(); } });
         mid.addEventListener("keydown", function (e) { if (e.key === "Escape" && isOpen()) { e.stopPropagation(); e.preventDefault(); grid.classList.remove("kmmid-open"); tog.setAttribute("aria-expanded", "false"); layout(); tog.focus(); } });
         canvas.addEventListener("pointerdown", function (e) { if (isOpen() && !P[1].pinned && e.target.closest("#kmMap")) { grid.classList.remove("kmmid-open"); tog.setAttribute("aria-expanded", "false"); layout(); } });
-        var rb = E("button", "btn ghost small", esc(tt("win_reset"))); rb.type = "button"; rb.title = tt("win_reset_t"); rb.addEventListener("click", function () { st = {}; try { localStorage.removeItem(KEY); } catch (e) { } P.forEach(function (p) { p.el.style.zIndex = ""; }); grid.classList.remove("kmmid-open"); tog.setAttribute("aria-expanded", "false"); layout(); }); if (LY && tog.parentNode !== head) tog.parentNode.insertBefore(rb, tog.nextSibling); else head.insertBefore(rb, tog.nextSibling);
+        var rb = E("button", "btn ghost small", esc(tt("win_reset"))); rb.type = "button"; rb.title = tt("win_reset_t"); rb.addEventListener("click", function () { st = {}; try { localStorage.removeItem(KEY); } catch (e) { } P.forEach(function (p) { p.el.style.zIndex = ""; }); grid.classList.remove("kmmid-open"); tog.setAttribute("aria-expanded", "false"); layout(); }); var vbx = LY ? dlg.querySelector(".lyviewb") : null; if (vbx) vbx.insertBefore(rb, vbx.firstChild); else if (LY && tog.parentNode !== head) tog.parentNode.insertBefore(rb, tog.nextSibling); else head.insertBefore(rb, tog.nextSibling);
         window.addEventListener("resize", function () { if (dlg.open) layout(); });
         window.__KMWIN = { layout: layout, state: function () { return st; } };
         layout(); setTimeout(layout, 300);
@@ -8066,7 +8225,8 @@ var FIG = (function () {
       var len = M.lines.filter(function (l) { return l.pts.length > 1; }).reduce(function (a, l) { return a + effLen(l.pts); }, 0);
       var kc = function (lab, val, cls) { return '<div class="lyc' + (cls ? " " + cls : "") + '"><span class="lyk">' + esc(lab) + "</span><b>" + val + "</b></div>"; };
       k.innerHTML = kc(tt("ly_kLen"), esc(fmt(len)) + " m") + kc(tt("ly_kAus"), ly ? esc(fmt(ly.V)) + " m³" : "–") + kc(tt("ly_kSch"), String(M.pts.length)) +
-        kc(tt("ly_kNet"), v && v.n != null ? "CHF " + f0(v.n) : "–", "lymain") + kc(tt("ly_kBru"), v && v.b != null ? "CHF " + f0(v.b) : "–") + (v && v.o ? '<span class="lyoffb">⚠ ' + esc(tt("km_costOff").replace("{n}", v.o)) + "</span>" : "");
+        kc(tt("ly_kNet"), v && v.n != null ? "CHF " + f0(v.n) : "–", "lymain") + kc(tt("ly_kBru"), v && v.b != null ? "CHF " + f0(v.b) : "–") +
+        (v && v.st != null ? kc(tt("ly_kRab"), esc(tt("ly_kRabV").replace("{s}", v.st).replace("{p}", v.pct)), "lyx") : "") + (v && v.hon > 0 ? kc(tt("ly_kHon"), "CHF " + f0(v.hon), "lyx") : "") + (ly && ly.nWarn ? '<button type="button" class="lywarnb" data-lywarn>⚑ ' + esc(tt("ly_kWarn").replace("{n}", ly.nWarn)) + "</button>" : "") + (v && v.o ? '<span class="lyoffb">⚠ ' + esc(tt("km_costOff").replace("{n}", v.o)) + "</span>" : "");
       lyBase(); var st = $("#lySt"); if (st) { var sk = ly ? ly.st : "empty"; st.className = "lyst lyst-" + sk; st.textContent = tt("ly_st_" + sk); }
       if (ly) { ["aus", "kost", "pos", "warn"].forEach(function (t) { var p = $("#lyP_" + t); if (p) p.innerHTML = ly[t]; }); var cp = dlg.querySelector('[data-cnt="pos"]'), cw = dlg.querySelector('[data-cnt="warn"]'); if (cp) cp.textContent = ly.nPos ? "(" + ly.nPos + ")" : ""; if (cw) cw.textContent = ly.nWarn ? "(" + ly.nWarn + ")" : ""; }
     }
@@ -8087,6 +8247,7 @@ var FIG = (function () {
       a.hidden = false; a.setAttribute("data-t", t); a.querySelector("button").focus();
     }
     function lyClick(b) {
+      if (b.hasAttribute("data-lywarn")) { lyD.t = "warn"; lyD.c = false; lyDock(); var tw = dlg.querySelector("#lyT_warn"); if (tw) tw.focus(); return; }
       if (b.hasAttribute("data-ly")) return lyGo(b.getAttribute("data-ly"));
       if (b.hasAttribute("data-lylang")) {   /* Sprache wechseln: Karte in der neuen Sprache neu aufbauen, Zeichnung (auch nicht übernommene Änderungen) und Ausschnitt bleiben */
         var lc = b.getAttribute("data-lylang"); if (lc === (LY.lang || opt.lang) || !LY.setLang) return; if (cur || curN || curA || tmp.length) endLine();
@@ -8172,7 +8333,7 @@ var FIG = (function () {
     dlg.addEventListener("change", function (e) { var ha = e.target.closest("[data-hz=auto]"); if (ha) { HZAUTO = ha.checked; try { localStorage.setItem("lvd-km-hzauto", HZAUTO ? "1" : "0"); } catch (x) { } if (HZAUTO) { hzSkip = {}; hzSeed(); } return; } var hm = e.target.closest("[data-hz=mode]"); if (hm) { SLOPE = hm.checked; try { localStorage.setItem("lvd-km-slope", SLOPE ? "1" : "0"); } catch (x) { } refresh(); return; } var t = e.target.closest("[data-rc]"); if (!t) return; RC[t.dataset.rc] = t.value; try { localStorage.setItem("lvd-km-rc", JSON.stringify(RC)); } catch (x) { } sugs = []; sugDraw(); sugRender(); rcRender(); });
     dlg.addEventListener("click", function (e) {
       var pb = e.target.closest("[data-prov]");
-      if (LY) { var lyb = e.target.closest("[data-ly],[data-lya],[data-dt],[data-dcol],[data-lyb],[data-lylang]"); if (lyb) { lyClick(lyb); return; } }
+      if (LY) { var lyb = e.target.closest("[data-ly],[data-lya],[data-dt],[data-dcol],[data-lyb],[data-lylang],[data-lywarn]"); if (lyb) { lyClick(lyb); return; } }
       if (pb) { var nb = PROV[pb.dataset.prov][0][0]; if (provOf(base) !== pb.dataset.prov) { base = nb; fillBase(); try { localStorage.setItem("lvd-km-base", nb); } catch (x) { } setBase(nb); } return; }
       var ob = e.target.closest("[data-ov]");
       if (ob && ovl !== undefined) {
@@ -9109,7 +9270,8 @@ var FIG = (function () {
       try {
         S = JSON.parse(JSON.stringify(S0)); var cc = (S.recs[tab] || []).filter(function (r) { return cfg.uid && r.uid === cfg.uid; })[0] || JSON.parse(JSON.stringify(cfg)), st = karteApply(M, cc, lenFn, Object.assign({ src: "karte" }, fns));
         S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], dxf: S.karte.dxf || null, base: S.karte.base, bg: null, overlay: null }; syncDerived(cc, st);
-        var oc = KVE.calc(S, LV), sm = oc.sum; out = { n: sm.netto, b: sm.brutto, o: oc.nOffen, ly: lyData(oc) };
+        var oc = KVE.calc(S, LV), sm = oc.sum, hon = (S.recs.hon || []).reduce(function (a, r) { try { var h = LVM.honCalc(r, sm.netto); return a + (h && h.net > 0 ? h.net : 0); } catch (e) { return a; } }, 0);   /* nur Anzeige (Kostenleiste), keine Rechenänderung */
+        out = { n: sm.netto, b: sm.brutto, o: oc.nOffen, st: sm.stufe, pct: sm.pct, hon: hon, ly: lyData(oc) };
       } catch (e) { out = null; } finally { S = S0; }
       return out;
     };
