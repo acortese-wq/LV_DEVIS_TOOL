@@ -1,7 +1,7 @@
 # LV-Devis Tiefbau
 
 Einzeldatei-HTML-Tool für Kostenvoranschläge Swisscom-Tiefbau nach «LV Swisscom Infrastrukturarbeiten bei Baukooperationen V1.1 (10.07.2026)».
-App-Konzept und Urheber: **Alessandro Cortese** (immer nennen). Sprache mit dem Benutzer: Deutsch. Bestehende Struktur, Farbwelt (Swisscom-Look) und Sprache respektieren.
+App-Konzept und Urheber: **Alessandro Cortese** (immer nennen). Sprache mit dem Benutzer: Deutsch. Bestehende Struktur, Farbwelt und Sprache respektieren. Farbwelt seit 06.11.2026: **Petrol** (Akzent `#0b6b72`, dunkel `#0a4f55`), **kein Swisscom-Logo** (stattdessen Zeichen «AC»); übrige Swisscom-Bezüge (LV, Handbuch, Links) bleiben auf Wunsch des Benutzers bestehen.
 
 ## Aufbau
 - `src/` ist die Quelle, `index.html` wird daraus gebaut: `python3 build.py` (nach jeder Änderung in `src/`).
@@ -27,6 +27,7 @@ Reine Oberflächenänderungen: Build + betroffene Tests, z. B. `node tests/run.j
 - Änderungen mit Kostenwirkung dem Benutzer klar melden. Vorher/Nachher-Liste: `docs/UX-Audit_2026-10.md`.
 - Branch: `claude/dreamy-cray-x10m0g` (Hauptstand, Standard-Branch), kein Pull Request ohne Auftrag.
 - Layout A: abgeschlossen und am 05.11.2026 über PR #1 in `claude/dreamy-cray-x10m0g` übernommen, siehe unten.
+- Branch `neutral` (06.11.2026): früherer Versuch «Swisscom-Bezüge entfernen»; nur Logo/Farben wurden in den Hauptstand übernommen, der Branch wird nicht weitergeführt.
 
 ## Veröffentlichung
 Artefakt-URL (immer dieselbe aktualisieren): https://claude.ai/artifact/F2BDoDDnQFxmsbmzGnwKxx

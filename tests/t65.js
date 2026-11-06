@@ -1,7 +1,7 @@
 /* t65: Layout A «Planungsfokus» – Karte als Startbildschirm, Projektleiste mit Kennzahlen, unteres Dock, Ansichtswechsel ohne Datenverlust, Kosten identisch */
 const { chromium, ok, mk, getS, AXE, tmp } = require('./lib/k.js');
 /* Layout A beim nächsten Laden: window.name überlebt das Neuladen im selben Tab sicher (localStorage-Schreiben direkt vor reload() kann verloren gehen) */
-const toA = async pg => { await pg.addInitScript(() => { if (window.name === 'lvdA') { window.name = ''; try { localStorage.setItem('lvd-layout', 'a'); } catch (e) { } } }); await pg.evaluate(() => { window.name = 'lvdA'; }); await pg.reload(); };
+const toA = async pg => { await pg.evaluate(() => localStorage.setItem('lvd-layout', 'a')); await pg.waitForTimeout(1500); await pg.reload(); };   /* Wahl speichern, Speicher abschliessen lassen, dann neu laden (kein Speicherzugriff beim Laden) */
 const waitLy = async (pg, ms) => { for (let t = 0; t < (ms || 15000); t += 250) { if (await pg.locator('dialog.kmlya[open]').count()) return true; await pg.waitForTimeout(250); } return false; };   /* <dialog> zählt für waitForSelector nicht immer als sichtbar */
 (async () => {
   const b = await chromium.launch(); const pg = await mk(b, 1440, 900);

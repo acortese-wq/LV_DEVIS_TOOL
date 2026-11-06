@@ -7,14 +7,14 @@
   --ink-soft:#516470;
   --rule:#c3ced5;
   --rule-strong:#8fa1ac;
-  --navy:#00397a;
+  --navy:#0a4f55;
   --signal:#b8332a;
   --signal-bg:#fbeceb;
   --amber:#8a5b00;
   --amber-bg:#fdf4e3;
   --ok:#1c6446;
   --ok-bg:#e9f3ee;
-  --focus:#0072d6;
+  --focus:#0e7490;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -273,8 +273,8 @@ dl.gloss dd{margin:0;color:var(--ink)}
   --ink-soft:#5d6167;   /* vorher #71767c: 4.3:1 auf Hellgrau, jetzt ≥ 5.8:1 (WCAG AA) */
   --rule:#e4e6e9;
   --rule-strong:#d3d7dc;
-  --navy:#0d47c8;
-  --link:#0a63d9;
+  --navy:#0b6b72;
+  --link:#0e6a8a;
   --ok:#1c6b3f;      --ok-bg:#eaf7ee;     --ok-line:#c9e6d3;
   --amber:#8a5b00;   --amber-bg:#fdf5e6;  --amber-line:#f0dfb8;
   --signal:#c2192b;  --signal-bg:#fdeced; --signal-line:#f3c9ce;
@@ -576,7 +576,7 @@ button.x:hover{color:var(--signal)}
 .chipfield{display:inline-block;margin:0 8px 10px 0}
 .chip{font:inherit;font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid var(--rule);background:#fff;color:var(--ink-soft);cursor:pointer}
 .chip:hover{background:#f6f7f8}
-.chip.on{background:var(--brand,#0d47c8);border-color:var(--brand,#0d47c8);color:#fff}
+.chip.on{background:var(--brand,#0b6b72);border-color:var(--brand,#0b6b72);color:#fff}
 .chip.on:hover{opacity:.92}
 
 /* Rohrblock- und Abzweiger-Listen */
