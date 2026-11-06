@@ -1,9 +1,7 @@
 /* Daten aus "Auswahl Schachtbau und Abdeckungen" (A. Cortese), unverändert übernommen; P -> SP, T -> TS */
 var DOC_BASE = "";
-/* Normendatenbank Wireline, gefiltert auf Domain "Canalisation".
-   Solange DOC_BASE leer ist, führen alle Dokumentlinks hierhin.       */
-var DMS_URL = "https://swisscom.sharepoint.com/sites/access-dms-wireline/WirelineNorms/Forms/AllItems.aspx?useFiltersInViewXml=1&FilterField1=Domain&FilterValue1=Canalisation&FilterType1=MultiChoice&FilterOp1=Eq";
-var HGC_CATEGORY = "https://www.hgc.ch/de/Tiefbau-%7C-Gartenbau/Rohre%2C-Sch%C3%A4chte%2C-Abdeckungen/Spezialtiefbauprodukte/Swisscom-Produkte/c/m_5356";
+/* Kein Link auf interne Dokumentablagen; Dokumente werden nur genannt. */
+var DMS_URL = ""; var HGC_CATEGORY = "https://www.hgc.ch/de/Tiefbau-%7C-Gartenbau/Rohre%2C-Sch%C3%A4chte%2C-Abdeckungen/Spezialtiefbauprodukte/Swisscom-Produkte/c/m_5356";
 var HGC_PRODUCT = {
   /* Geprüfte Direktlinks. Weitere über "HGC-Produktlinks" im Formular ergänzen
      und die Tabelle anschliessend hier einsetzen.                            */

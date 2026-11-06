@@ -17,7 +17,7 @@ body{background:var(--page)}
 .tab:hover{background:#f3f5f8;color:var(--ink)}
 .tab.on{background:var(--navy);color:#fff}
 .tab.sep{margin-left:10px}
-.tab .cnt{min-width:19px;height:19px;line-height:19px;border-radius:10px;background:#e7eefc;color:var(--navy);font-size:11px;text-align:center;padding:0 5px}
+.tab .cnt{min-width:19px;height:19px;line-height:19px;border-radius:10px;background:#e3f1f2;color:var(--navy);font-size:11px;text-align:center;padding:0 5px}
 .tab.on .cnt{background:#fff}
 .tab:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* Datensatz-Navigation */
@@ -163,7 +163,7 @@ body.rules-on .rw.rule{display:block}
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
 .tile{position:relative;display:flex;flex-direction:column;gap:2px;min-height:48px;padding:9px 11px;border:1px solid var(--rule-strong);border-radius:9px;background:#fff;cursor:pointer;line-height:1.25;transition:border-color .12s,background .12s}
 .tile:hover{border-color:var(--navy);background:#f7f9fe}
-.tile.on{border:2px solid var(--navy);padding:8px 10px;background:#eef3fd}
+.tile.on{border:2px solid var(--navy);padding:8px 10px;background:#eaf5f5}
 .tile.on::after{content:"✓";position:absolute;top:6px;right:9px;color:var(--navy);font-weight:700}
 .tile .tt{font-size:13.5px;font-weight:600;color:var(--ink);padding-right:14px}
 .tile .ts{font-size:11.5px;color:var(--ink-soft)}
@@ -223,7 +223,7 @@ svg text.warnTx{fill:var(--signal)!important}
 .kmhelp{margin:0}
 .kmfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .kmlen{margin:0;font-weight:700;color:var(--navy);font-size:16px}
-.leaflet-container a{color:#00397a}
+.leaflet-container a{color:#0a4f55}
 @media print{.kmdlg,.kmfield .btn,.kmmsg{display:none!important}}
 .kmdlg[open]{overflow:auto}
 .kmmap{height:min(46vh,420px)}
@@ -252,7 +252,7 @@ svg text.warnTx{fill:var(--signal)!important}
 .reclist .recq{display:block;width:calc(100% - 24px);margin:0 12px 8px;padding:7px 9px;border:1px solid var(--rule-strong);border-radius:6px;font:inherit;font-size:13px}
 .recul{list-style:none;margin:0;padding:0 0 6px;max-height:220px;overflow:auto}
 .recul button{display:flex;justify-content:space-between;gap:8px;width:100%;text-align:left;border:0;background:#fff;padding:8px 12px;font:inherit;font-size:13px;color:var(--ink);cursor:pointer;min-height:40px}
-.recul button:hover{background:var(--panel)}.recul button[aria-current=true]{background:#eef3fd;font-weight:650}
+.recul button:hover{background:var(--panel)}.recul button[aria-current=true]{background:#eaf5f5;font-weight:650}
 .recul .ok{color:var(--ok)}.recul .open{color:var(--amber);font-weight:650}
 .kmintro{border:1px solid #cfe0fb;background:#eef4fd;border-radius:8px;font-size:13px}
 .kmintro summary{padding:8px 12px;cursor:pointer;font-weight:650;color:var(--navy)}.kmintro ol{margin:0;padding:0 14px 8px 30px}
@@ -290,7 +290,7 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 .kmcat{border:1px solid var(--rule);border-radius:8px;background:#fff;font-size:13px}.kmcat summary{padding:8px 12px;cursor:pointer;font-weight:650;color:var(--navy)}
 .kmcatb{padding:0 12px 10px}.kmcatb label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:3px}.kmcatb input[type=search]{width:100%;padding:7px 9px;border:1px solid var(--rule-strong);border-radius:6px;font:inherit}
 .kmcatl{list-style:none;margin:6px 0 0;padding:0;max-height:150px;overflow:auto}.kmcath{font-size:12px;margin:10px 0 0}
-.kmhit[aria-pressed=true]{background:#eef3fd;font-weight:650}
+.kmhit[aria-pressed=true]{background:#eaf5f5;font-weight:650}
 .kmov{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--rule)}.kmovn{flex:1 1 220px}.kmov label{margin:0;display:flex;gap:6px;align-items:center}
 .leaflet-control-attribution a{text-decoration:underline}
 
@@ -300,10 +300,10 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 @media (min-width:900px){.brandrow{margin-bottom:6px}.logo{width:170px}}
 
 /* Bearbeiten / Beschriften */
-.kmv span{display:block;width:14px;height:14px;background:#fff;border:2px solid #0d47c8;border-radius:50%;cursor:grab;box-shadow:0 0 0 1px #fff}
-.kmm span{display:block;width:10px;height:10px;background:#0d47c8;border:1px solid #fff;border-radius:50%;opacity:.7;cursor:copy}
+.kmv span{display:block;width:14px;height:14px;background:#fff;border:2px solid #0b6b72;border-radius:50%;cursor:grab;box-shadow:0 0 0 1px #fff}
+.kmm span{display:block;width:10px;height:10px;background:#0b6b72;border:1px solid #fff;border-radius:50%;opacity:.7;cursor:copy}
 .kmtext span{display:inline-block;white-space:nowrap;font:700 14px "Segoe UI",sans-serif;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;cursor:move}
-.kmtext.sS span,.kmtext.ss span{font-size:11px}.kmtext.sl span{font-size:20px}.kmtext.on span{outline:2px dashed #0d47c8;outline-offset:2px}
+.kmtext.sS span,.kmtext.ss span{font-size:11px}.kmtext.sl span{font-size:20px}.kmtext.on span{outline:2px dashed #0b6b72;outline-offset:2px}
 .kmnudge{display:inline-flex;gap:2px}.kmnudge .btn{min-width:30px;padding:4px 6px}
 .kmbar .kmn{width:56px;padding:6px 8px;border:1px solid var(--rule-strong);border-radius:6px;font:inherit;font-size:13px}
 #kmCol{font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--rule-strong);border-radius:6px;background:#fff}
@@ -343,8 +343,8 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 .kmgrp{display:flex;flex-wrap:wrap;gap:6px;align-items:center;position:relative;padding-top:15px}
 .kmgl{position:absolute;top:0;left:0;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft)}
 .kmgrp+.kmgrp{border-left:1px solid var(--rule);padding-left:14px}
-.kmv{display:block}.kmv span{display:block;box-sizing:border-box;background:#fff;border:2px solid #0d47c8;border-radius:50%;cursor:grab;box-shadow:0 0 0 1px #fff}
-.kmm span{display:block;box-sizing:border-box;width:10px;height:10px;margin:7px;background:#0d47c8;border:1px solid #fff;border-radius:50%;opacity:.7;cursor:copy}
+.kmv{display:block}.kmv span{display:block;box-sizing:border-box;background:#fff;border:2px solid #0b6b72;border-radius:50%;cursor:grab;box-shadow:0 0 0 1px #fff}
+.kmm span{display:block;box-sizing:border-box;width:10px;height:10px;margin:7px;background:#0b6b72;border:1px solid #fff;border-radius:50%;opacity:.7;cursor:copy}
 .kmtip{font:600 12px "Segoe UI",sans-serif;color:#1a1c1e;background:#fff;border:1px solid #1a1c1e;box-shadow:0 1px 4px rgba(0,0,0,.3)}.kmtip:before{display:none}
 .kmunits{margin:0}
 #kmMap:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
@@ -378,7 +378,7 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 .kmfold{border:0;background:transparent;font-size:1rem;min-width:28px;min-height:28px;cursor:pointer;color:var(--navy)}.kmsm{font-weight:400;color:var(--ink-2,#516470)}.kmrow.kmclosed{padding-top:4px;padding-bottom:4px}.kmbody{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;width:100%}.kmbody[hidden]{display:none}.kmleg{display:flex;flex-wrap:wrap;gap:12px;font-size:.85em;margin:2px 0}.kmlg1{display:inline-flex;align-items:center;gap:4px}.kmcost{margin:0;font-size:.85em;color:var(--ink-2,#516470)}.kmmissl{margin:6px 0 0;padding:0;list-style:none}.kmmissl li{margin:2px 0}.kmmore{width:100%;margin:4px 0}.kmmiss summary{color:#8a4b00}.kmfoot{flex-wrap:wrap;gap:8px}
 .kmovauto{border:2px solid var(--navy);border-radius:8px;padding:6px 8px;margin:6px 0;background:#eef3ff}
 .kmlbl.rot span{transform:translate(-50%,-50%) rotate(var(--a,0deg)) translateY(-0.95em)}
-.kmleft{position:relative}.kmask{position:absolute;z-index:1200;background:#fff;border:2px solid var(--navy);border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;gap:4px;max-width:270px;box-shadow:0 2px 8px rgba(0,0,0,.3)}.kmask[hidden]{display:none}.kmask-t{margin:0 0 2px;font-weight:700}.kmask .btn{text-align:left;white-space:normal}.kmask .sug{outline:2px solid #0072d6;outline-offset:1px}.kmsch.ex span{background:#fff;color:var(--navy);box-shadow:0 0 0 2px var(--navy)}.kmsch.ex.on span{background:#fff;color:#b8332a;box-shadow:0 0 0 2px #b8332a}
+.kmleft{position:relative}.kmask{position:absolute;z-index:1200;background:#fff;border:2px solid var(--navy);border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;gap:4px;max-width:270px;box-shadow:0 2px 8px rgba(0,0,0,.3)}.kmask[hidden]{display:none}.kmask-t{margin:0 0 2px;font-weight:700}.kmask .btn{text-align:left;white-space:normal}.kmask .sug{outline:2px solid #0e7490;outline-offset:1px}.kmsch.ex span{background:#fff;color:var(--navy);box-shadow:0 0 0 2px var(--navy)}.kmsch.ex.on span{background:#fff;color:#b8332a;box-shadow:0 0 0 2px #b8332a}
 .kmask{pointer-events:none}.kmask .btn,.kmask-t{pointer-events:auto}
 .kmask-ty{pointer-events:auto;display:flex;align-items:center;gap:6px;font-size:.9em}.kmask-ty select{min-height:30px;max-width:160px}
 .kmctx{pointer-events:auto;max-width:300px}.kmctx .btn{width:100%}.kmctx-s{color:var(--ink-2,#516470)}.kmprops{position:absolute;z-index:1250;width:320px;max-height:60%;overflow:auto;background:#fff;border:2px solid var(--navy);border-radius:8px;padding:6px 8px;box-shadow:0 2px 10px rgba(0,0,0,.35)}.kmprops[hidden]{display:none}.kmprops-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}.kmprops .kmrow{border:0;background:transparent;padding:0}
@@ -464,9 +464,9 @@ ul.vollst .vst{white-space:normal}ul.vollst .vname{min-width:0;overflow-wrap:any
   body:not(.print-detail):not(.summary-print) .kopfbox{margin:0 0 4pt}
 }
 
-.kmsnap span{position:absolute;transform:translate(-50%,-50%);min-width:18px;padding:0 3px;text-align:center;font:700 12px/18px "Segoe UI",sans-serif;background:#fff;border:2px solid #0072d6;border-radius:4px;color:#0d47c8;pointer-events:none}
-.kmsnap.pt span{border-radius:50%}.kmsnap.ln span{transform:translate(-50%,-50%) rotate(0);border-radius:2px;background:#0072d6;color:#fff}.kmsnap.rect span{background:#0d47c8;color:#fff;border-color:#fff}
-.kmsnap i{position:absolute;left:14px;top:-26px;white-space:nowrap;font:600 11px "Segoe UI",sans-serif;font-style:normal;background:#fff;color:#0d47c8;padding:0 4px;border-radius:3px;box-shadow:0 0 0 1px #0072d6;pointer-events:none}
+.kmsnap span{position:absolute;transform:translate(-50%,-50%);min-width:18px;padding:0 3px;text-align:center;font:700 12px/18px "Segoe UI",sans-serif;background:#fff;border:2px solid #0e7490;border-radius:4px;color:#0b6b72;pointer-events:none}
+.kmsnap.pt span{border-radius:50%}.kmsnap.ln span{transform:translate(-50%,-50%) rotate(0);border-radius:2px;background:#0e7490;color:#fff}.kmsnap.rect span{background:#0b6b72;color:#fff;border-color:#fff}
+.kmsnap i{position:absolute;left:14px;top:-26px;white-space:nowrap;font:600 11px "Segoe UI",sans-serif;font-style:normal;background:#fff;color:#0b6b72;padding:0 4px;border-radius:3px;box-shadow:0 0 0 1px #0e7490;pointer-events:none}
 .kmws .kmfang{flex-wrap:wrap}.kmws .kmstat{flex-wrap:wrap}
 .kmws .kmbottom .kmlen{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:min(52vw,640px)}.kmws .kmbottom .kmcost{display:none}
 .kmws .kmcanvas .kmhelp{min-height:3.4em;max-height:3.4em;overflow:hidden}.kmws .kmcanvas .kmunits{min-height:1.8em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -576,7 +576,7 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 /* Mehrfachauswahl */
 .kmmsb{position:absolute;top:8px;left:52px;right:52px;z-index:660;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:5px 8px;background:var(--paper);border:1px solid var(--rule-strong);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.2);width:fit-content;max-width:calc(100% - 104px);font-size:12.5px}.kmmsb[hidden]{display:none}
 .kmmsb label{display:inline-flex;align-items:center;gap:3px;font-weight:600}.kmmsb input{width:52px;padding:3px 5px;font-size:13px}.kmmsb #kmMsN{font-weight:700;color:var(--navy)}.kmmsb .del{color:#b8332a}
-.kmrubber{position:absolute;z-index:700;border:2px dashed #0d47c8;background:rgba(13,71,200,.1);pointer-events:none}
+.kmrubber{position:absolute;z-index:700;border:2px dashed #0b6b72;background:rgba(13,71,200,.1);pointer-events:none}
 
 /* Bearbeitungsart */
 .kmeop{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:4px 0 0}.kmeop[hidden]{display:none}.kmws .kmtools .kmeop .btn{min-height:30px;padding:3px 6px;font-size:12.5px}
@@ -678,3 +678,9 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 .tabsync{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:2600;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;max-width:min(720px,calc(100vw - 32px));padding:10px 14px;background:var(--amber-bg);color:#5c3d00;border:2px solid #8a5b00;border-radius:8px;font-weight:700;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
 .tabsync .tsb{display:flex;gap:6px;flex-wrap:wrap}
 @media print{.tabsync,.kmsaveerr{display:none!important}}
+/* Eigener Schriftzug (ersetzt das frühere Firmenlogo) */
+.wordmark{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.01em;color:var(--navy);line-height:1}
+.wordmark .wm-mark{display:inline-grid;place-items:center;width:46px;height:46px;border-radius:10px;background:var(--navy);color:#fff;font-size:19px}
+.wordmark .wm-txt{font-size:24px}
+@media (max-width:580px){.wordmark .wm-mark{width:38px;height:38px;font-size:16px}.wordmark .wm-txt{font-size:20px}}
+@media print{.wordmark .wm-mark{width:30px;height:30px;font-size:13px;-webkit-print-color-adjust:exact;print-color-adjust:exact}.wordmark .wm-txt{font-size:15pt}}

@@ -6,7 +6,7 @@
 <meta name="author" content="Alessandro Cortese">
 <meta name="creator" content="Alessandro Cortese">
 <meta name="copyright" content="© 2026 Alessandro Cortese">
-<meta name="description" content="LV-Devis Tiefbau – Kostenvoranschlag nach Bauteilen auf Basis LV Swisscom. App-Konzept, Struktur und fachliche Ausgestaltung: Alessandro Cortese.">
+<meta name="description" content="LV-Devis Tiefbau – Kostenvoranschlag nach Bauteilen. App-Konzept, Struktur und fachliche Ausgestaltung: Alessandro Cortese.">
 <title>LV-Devis Tiefbau</title>
 <style>
 
@@ -18,14 +18,14 @@
   --ink-soft:#516470;
   --rule:#c3ced5;
   --rule-strong:#8fa1ac;
-  --navy:#00397a;
+  --navy:#0a4f55;
   --signal:#b8332a;
   --signal-bg:#fbeceb;
   --amber:#8a5b00;
   --amber-bg:#fdf4e3;
   --ok:#1c6446;
   --ok-bg:#e9f3ee;
-  --focus:#0072d6;
+  --focus:#0e7490;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -273,7 +273,7 @@ dl.gloss dd{margin:0;color:var(--ink)}
 @media (max-width:620px){dl.gloss{grid-template-columns:1fr;gap:2px 0}dl.gloss dd{margin-bottom:7px}}
 
 /* =====================================================================
-   Kartenlayout im Stil des Swisscom-Bauauftragscockpits.
+   Kartenlayout.
    Diese Schicht überschreibt bewusst die Grundgestaltung weiter oben;
    Struktur und Druckausgabe bleiben unverändert.
    ===================================================================== */
@@ -284,8 +284,8 @@ dl.gloss dd{margin:0;color:var(--ink)}
   --ink-soft:#5d6167;   /* vorher #71767c: 4.3:1 auf Hellgrau, jetzt ≥ 5.8:1 (WCAG AA) */
   --rule:#e4e6e9;
   --rule-strong:#d3d7dc;
-  --navy:#0d47c8;
-  --link:#0a63d9;
+  --navy:#0b6b72;
+  --link:#0e6a8a;
   --ok:#1c6b3f;      --ok-bg:#eaf7ee;     --ok-line:#c9e6d3;
   --amber:#8a5b00;   --amber-bg:#fdf5e6;  --amber-line:#f0dfb8;
   --signal:#c2192b;  --signal-bg:#fdeced; --signal-line:#f3c9ce;
@@ -587,7 +587,7 @@ button.x:hover{color:var(--signal)}
 .chipfield{display:inline-block;margin:0 8px 10px 0}
 .chip{font:inherit;font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid var(--rule);background:#fff;color:var(--ink-soft);cursor:pointer}
 .chip:hover{background:#f6f7f8}
-.chip.on{background:var(--brand,#0d47c8);border-color:var(--brand,#0d47c8);color:#fff}
+.chip.on{background:var(--brand,#0b6b72);border-color:var(--brand,#0b6b72);color:#fff}
 .chip.on:hover{opacity:.92}
 
 /* Rohrblock- und Abzweiger-Listen */
@@ -624,7 +624,7 @@ body{background:var(--page)}
 .tab:hover{background:#f3f5f8;color:var(--ink)}
 .tab.on{background:var(--navy);color:#fff}
 .tab.sep{margin-left:10px}
-.tab .cnt{min-width:19px;height:19px;line-height:19px;border-radius:10px;background:#e7eefc;color:var(--navy);font-size:11px;text-align:center;padding:0 5px}
+.tab .cnt{min-width:19px;height:19px;line-height:19px;border-radius:10px;background:#e3f1f2;color:var(--navy);font-size:11px;text-align:center;padding:0 5px}
 .tab.on .cnt{background:#fff}
 .tab:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* Datensatz-Navigation */
@@ -770,7 +770,7 @@ body.rules-on .rw.rule{display:block}
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
 .tile{position:relative;display:flex;flex-direction:column;gap:2px;min-height:48px;padding:9px 11px;border:1px solid var(--rule-strong);border-radius:9px;background:#fff;cursor:pointer;line-height:1.25;transition:border-color .12s,background .12s}
 .tile:hover{border-color:var(--navy);background:#f7f9fe}
-.tile.on{border:2px solid var(--navy);padding:8px 10px;background:#eef3fd}
+.tile.on{border:2px solid var(--navy);padding:8px 10px;background:#eaf5f5}
 .tile.on::after{content:"✓";position:absolute;top:6px;right:9px;color:var(--navy);font-weight:700}
 .tile .tt{font-size:13.5px;font-weight:600;color:var(--ink);padding-right:14px}
 .tile .ts{font-size:11.5px;color:var(--ink-soft)}
@@ -830,7 +830,7 @@ svg text.warnTx{fill:var(--signal)!important}
 .kmhelp{margin:0}
 .kmfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .kmlen{margin:0;font-weight:700;color:var(--navy);font-size:16px}
-.leaflet-container a{color:#00397a}
+.leaflet-container a{color:#0a4f55}
 @media print{.kmdlg,.kmfield .btn,.kmmsg{display:none!important}}
 .kmdlg[open]{overflow:auto}
 .kmmap{height:min(46vh,420px)}
@@ -859,7 +859,7 @@ svg text.warnTx{fill:var(--signal)!important}
 .reclist .recq{display:block;width:calc(100% - 24px);margin:0 12px 8px;padding:7px 9px;border:1px solid var(--rule-strong);border-radius:6px;font:inherit;font-size:13px}
 .recul{list-style:none;margin:0;padding:0 0 6px;max-height:220px;overflow:auto}
 .recul button{display:flex;justify-content:space-between;gap:8px;width:100%;text-align:left;border:0;background:#fff;padding:8px 12px;font:inherit;font-size:13px;color:var(--ink);cursor:pointer;min-height:40px}
-.recul button:hover{background:var(--panel)}.recul button[aria-current=true]{background:#eef3fd;font-weight:650}
+.recul button:hover{background:var(--panel)}.recul button[aria-current=true]{background:#eaf5f5;font-weight:650}
 .recul .ok{color:var(--ok)}.recul .open{color:var(--amber);font-weight:650}
 .kmintro{border:1px solid #cfe0fb;background:#eef4fd;border-radius:8px;font-size:13px}
 .kmintro summary{padding:8px 12px;cursor:pointer;font-weight:650;color:var(--navy)}.kmintro ol{margin:0;padding:0 14px 8px 30px}
@@ -897,7 +897,7 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 .kmcat{border:1px solid var(--rule);border-radius:8px;background:#fff;font-size:13px}.kmcat summary{padding:8px 12px;cursor:pointer;font-weight:650;color:var(--navy)}
 .kmcatb{padding:0 12px 10px}.kmcatb label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:3px}.kmcatb input[type=search]{width:100%;padding:7px 9px;border:1px solid var(--rule-strong);border-radius:6px;font:inherit}
 .kmcatl{list-style:none;margin:6px 0 0;padding:0;max-height:150px;overflow:auto}.kmcath{font-size:12px;margin:10px 0 0}
-.kmhit[aria-pressed=true]{background:#eef3fd;font-weight:650}
+.kmhit[aria-pressed=true]{background:#eaf5f5;font-weight:650}
 .kmov{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--rule)}.kmovn{flex:1 1 220px}.kmov label{margin:0;display:flex;gap:6px;align-items:center}
 .leaflet-control-attribution a{text-decoration:underline}
 
@@ -907,10 +907,10 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 @media (min-width:900px){.brandrow{margin-bottom:6px}.logo{width:170px}}
 
 /* Bearbeiten / Beschriften */
-.kmv span{display:block;width:14px;height:14px;background:#fff;border:2px solid #0d47c8;border-radius:50%;cursor:grab;box-shadow:0 0 0 1px #fff}
-.kmm span{display:block;width:10px;height:10px;background:#0d47c8;border:1px solid #fff;border-radius:50%;opacity:.7;cursor:copy}
+.kmv span{display:block;width:14px;height:14px;background:#fff;border:2px solid #0b6b72;border-radius:50%;cursor:grab;box-shadow:0 0 0 1px #fff}
+.kmm span{display:block;width:10px;height:10px;background:#0b6b72;border:1px solid #fff;border-radius:50%;opacity:.7;cursor:copy}
 .kmtext span{display:inline-block;white-space:nowrap;font:700 14px "Segoe UI",sans-serif;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;cursor:move}
-.kmtext.sS span,.kmtext.ss span{font-size:11px}.kmtext.sl span{font-size:20px}.kmtext.on span{outline:2px dashed #0d47c8;outline-offset:2px}
+.kmtext.sS span,.kmtext.ss span{font-size:11px}.kmtext.sl span{font-size:20px}.kmtext.on span{outline:2px dashed #0b6b72;outline-offset:2px}
 .kmnudge{display:inline-flex;gap:2px}.kmnudge .btn{min-width:30px;padding:4px 6px}
 .kmbar .kmn{width:56px;padding:6px 8px;border:1px solid var(--rule-strong);border-radius:6px;font:inherit;font-size:13px}
 #kmCol{font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--rule-strong);border-radius:6px;background:#fff}
@@ -950,8 +950,8 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 .kmgrp{display:flex;flex-wrap:wrap;gap:6px;align-items:center;position:relative;padding-top:15px}
 .kmgl{position:absolute;top:0;left:0;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft)}
 .kmgrp+.kmgrp{border-left:1px solid var(--rule);padding-left:14px}
-.kmv{display:block}.kmv span{display:block;box-sizing:border-box;background:#fff;border:2px solid #0d47c8;border-radius:50%;cursor:grab;box-shadow:0 0 0 1px #fff}
-.kmm span{display:block;box-sizing:border-box;width:10px;height:10px;margin:7px;background:#0d47c8;border:1px solid #fff;border-radius:50%;opacity:.7;cursor:copy}
+.kmv{display:block}.kmv span{display:block;box-sizing:border-box;background:#fff;border:2px solid #0b6b72;border-radius:50%;cursor:grab;box-shadow:0 0 0 1px #fff}
+.kmm span{display:block;box-sizing:border-box;width:10px;height:10px;margin:7px;background:#0b6b72;border:1px solid #fff;border-radius:50%;opacity:.7;cursor:copy}
 .kmtip{font:600 12px "Segoe UI",sans-serif;color:#1a1c1e;background:#fff;border:1px solid #1a1c1e;box-shadow:0 1px 4px rgba(0,0,0,.3)}.kmtip:before{display:none}
 .kmunits{margin:0}
 #kmMap:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
@@ -985,7 +985,7 @@ nav[aria-label=Reiter]{display:flex;gap:8px;align-items:flex-start}nav[aria-labe
 .kmfold{border:0;background:transparent;font-size:1rem;min-width:28px;min-height:28px;cursor:pointer;color:var(--navy)}.kmsm{font-weight:400;color:var(--ink-2,#516470)}.kmrow.kmclosed{padding-top:4px;padding-bottom:4px}.kmbody{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;width:100%}.kmbody[hidden]{display:none}.kmleg{display:flex;flex-wrap:wrap;gap:12px;font-size:.85em;margin:2px 0}.kmlg1{display:inline-flex;align-items:center;gap:4px}.kmcost{margin:0;font-size:.85em;color:var(--ink-2,#516470)}.kmmissl{margin:6px 0 0;padding:0;list-style:none}.kmmissl li{margin:2px 0}.kmmore{width:100%;margin:4px 0}.kmmiss summary{color:#8a4b00}.kmfoot{flex-wrap:wrap;gap:8px}
 .kmovauto{border:2px solid var(--navy);border-radius:8px;padding:6px 8px;margin:6px 0;background:#eef3ff}
 .kmlbl.rot span{transform:translate(-50%,-50%) rotate(var(--a,0deg)) translateY(-0.95em)}
-.kmleft{position:relative}.kmask{position:absolute;z-index:1200;background:#fff;border:2px solid var(--navy);border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;gap:4px;max-width:270px;box-shadow:0 2px 8px rgba(0,0,0,.3)}.kmask[hidden]{display:none}.kmask-t{margin:0 0 2px;font-weight:700}.kmask .btn{text-align:left;white-space:normal}.kmask .sug{outline:2px solid #0072d6;outline-offset:1px}.kmsch.ex span{background:#fff;color:var(--navy);box-shadow:0 0 0 2px var(--navy)}.kmsch.ex.on span{background:#fff;color:#b8332a;box-shadow:0 0 0 2px #b8332a}
+.kmleft{position:relative}.kmask{position:absolute;z-index:1200;background:#fff;border:2px solid var(--navy);border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;gap:4px;max-width:270px;box-shadow:0 2px 8px rgba(0,0,0,.3)}.kmask[hidden]{display:none}.kmask-t{margin:0 0 2px;font-weight:700}.kmask .btn{text-align:left;white-space:normal}.kmask .sug{outline:2px solid #0e7490;outline-offset:1px}.kmsch.ex span{background:#fff;color:var(--navy);box-shadow:0 0 0 2px var(--navy)}.kmsch.ex.on span{background:#fff;color:#b8332a;box-shadow:0 0 0 2px #b8332a}
 .kmask{pointer-events:none}.kmask .btn,.kmask-t{pointer-events:auto}
 .kmask-ty{pointer-events:auto;display:flex;align-items:center;gap:6px;font-size:.9em}.kmask-ty select{min-height:30px;max-width:160px}
 .kmctx{pointer-events:auto;max-width:300px}.kmctx .btn{width:100%}.kmctx-s{color:var(--ink-2,#516470)}.kmprops{position:absolute;z-index:1250;width:320px;max-height:60%;overflow:auto;background:#fff;border:2px solid var(--navy);border-radius:8px;padding:6px 8px;box-shadow:0 2px 10px rgba(0,0,0,.35)}.kmprops[hidden]{display:none}.kmprops-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}.kmprops .kmrow{border:0;background:transparent;padding:0}
@@ -1071,9 +1071,9 @@ ul.vollst .vst{white-space:normal}ul.vollst .vname{min-width:0;overflow-wrap:any
   body:not(.print-detail):not(.summary-print) .kopfbox{margin:0 0 4pt}
 }
 
-.kmsnap span{position:absolute;transform:translate(-50%,-50%);min-width:18px;padding:0 3px;text-align:center;font:700 12px/18px "Segoe UI",sans-serif;background:#fff;border:2px solid #0072d6;border-radius:4px;color:#0d47c8;pointer-events:none}
-.kmsnap.pt span{border-radius:50%}.kmsnap.ln span{transform:translate(-50%,-50%) rotate(0);border-radius:2px;background:#0072d6;color:#fff}.kmsnap.rect span{background:#0d47c8;color:#fff;border-color:#fff}
-.kmsnap i{position:absolute;left:14px;top:-26px;white-space:nowrap;font:600 11px "Segoe UI",sans-serif;font-style:normal;background:#fff;color:#0d47c8;padding:0 4px;border-radius:3px;box-shadow:0 0 0 1px #0072d6;pointer-events:none}
+.kmsnap span{position:absolute;transform:translate(-50%,-50%);min-width:18px;padding:0 3px;text-align:center;font:700 12px/18px "Segoe UI",sans-serif;background:#fff;border:2px solid #0e7490;border-radius:4px;color:#0b6b72;pointer-events:none}
+.kmsnap.pt span{border-radius:50%}.kmsnap.ln span{transform:translate(-50%,-50%) rotate(0);border-radius:2px;background:#0e7490;color:#fff}.kmsnap.rect span{background:#0b6b72;color:#fff;border-color:#fff}
+.kmsnap i{position:absolute;left:14px;top:-26px;white-space:nowrap;font:600 11px "Segoe UI",sans-serif;font-style:normal;background:#fff;color:#0b6b72;padding:0 4px;border-radius:3px;box-shadow:0 0 0 1px #0e7490;pointer-events:none}
 .kmws .kmfang{flex-wrap:wrap}.kmws .kmstat{flex-wrap:wrap}
 .kmws .kmbottom .kmlen{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:min(52vw,640px)}.kmws .kmbottom .kmcost{display:none}
 .kmws .kmcanvas .kmhelp{min-height:3.4em;max-height:3.4em;overflow:hidden}.kmws .kmcanvas .kmunits{min-height:1.8em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1183,7 +1183,7 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 /* Mehrfachauswahl */
 .kmmsb{position:absolute;top:8px;left:52px;right:52px;z-index:660;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:5px 8px;background:var(--paper);border:1px solid var(--rule-strong);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.2);width:fit-content;max-width:calc(100% - 104px);font-size:12.5px}.kmmsb[hidden]{display:none}
 .kmmsb label{display:inline-flex;align-items:center;gap:3px;font-weight:600}.kmmsb input{width:52px;padding:3px 5px;font-size:13px}.kmmsb #kmMsN{font-weight:700;color:var(--navy)}.kmmsb .del{color:#b8332a}
-.kmrubber{position:absolute;z-index:700;border:2px dashed #0d47c8;background:rgba(13,71,200,.1);pointer-events:none}
+.kmrubber{position:absolute;z-index:700;border:2px dashed #0b6b72;background:rgba(13,71,200,.1);pointer-events:none}
 
 /* Bearbeitungsart */
 .kmeop{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:4px 0 0}.kmeop[hidden]{display:none}.kmws .kmtools .kmeop .btn{min-height:30px;padding:3px 6px;font-size:12.5px}
@@ -1285,6 +1285,12 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 .tabsync{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:2600;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;max-width:min(720px,calc(100vw - 32px));padding:10px 14px;background:var(--amber-bg);color:#5c3d00;border:2px solid #8a5b00;border-radius:8px;font-weight:700;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
 .tabsync .tsb{display:flex;gap:6px;flex-wrap:wrap}
 @media print{.tabsync,.kmsaveerr{display:none!important}}
+/* Eigener Schriftzug (ersetzt das frühere Firmenlogo) */
+.wordmark{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.01em;color:var(--navy);line-height:1}
+.wordmark .wm-mark{display:inline-grid;place-items:center;width:46px;height:46px;border-radius:10px;background:var(--navy);color:#fff;font-size:19px}
+.wordmark .wm-txt{font-size:24px}
+@media (max-width:580px){.wordmark .wm-mark{width:38px;height:38px;font-size:16px}.wordmark .wm-txt{font-size:20px}}
+@media print{.wordmark .wm-mark{width:30px;height:30px;font-size:13px;-webkit-print-color-adjust:exact;print-color-adjust:exact}.wordmark .wm-txt{font-size:15pt}}
 
 </style>
 </head>
@@ -1293,7 +1299,7 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 <div class="sheet">
   <header class="plankopf">
     <div class="brandrow">
-      <img class="logo" alt="Swisscom" src="data:image/webp;base64,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">
+      <div class="wordmark" role="img" aria-label="Alessandro Cortese"><span class="wm-mark" aria-hidden="true">AC</span></div>
       <div class="creator">
         <strong>App-Konzept und Urheber: Alessandro Cortese</strong>
         <span id="t-role">Fachliche Struktur und Ausgestaltung</span>
@@ -1373,7 +1379,7 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 </div>
 <div id="lb" role="dialog" aria-modal="true" aria-label="Zeichnung"><button type="button" class="lbclose" id="lbClose">×</button><img alt=""></div>
 <div id="expiry" role="alertdialog" aria-modal="true" aria-labelledby="expT" hidden><div class="expbox"><h2 id="expT"></h2><p id="expP"></p><p class="sub" id="expS"></p><p class="meta">LV-Devis Tiefbau · App-Konzept und Urheber: Alessandro Cortese</p></div></div>
-<script>var BUILD = "2026-11-05", EXPIRES = "", RECIPIENT = "";
+<script>var BUILD = "2026-11-06", EXPIRES = "", RECIPIENT = "";
 /* Ablaufdatum (nur gesetzt bei Weitergabe-Version): nach Ablauf öffnet sich das Tool nicht mehr. Die Prüfung merkt sich das späteste gesehene Datum, damit Zurückstellen der Uhr nicht hilft. */
 (function () {
   if (!EXPIRES) return;
@@ -1407,10 +1413,8 @@ var LV_PDIFF = {"151/224.301": [108.95, 108.75]};
 <script id="schachtdaten">
 /* Daten aus "Auswahl Schachtbau und Abdeckungen" (A. Cortese), unverändert übernommen; P -> SP, T -> TS */
 var DOC_BASE = "";
-/* Normendatenbank Wireline, gefiltert auf Domain "Canalisation".
-   Solange DOC_BASE leer ist, führen alle Dokumentlinks hierhin.       */
-var DMS_URL = "https://swisscom.sharepoint.com/sites/access-dms-wireline/WirelineNorms/Forms/AllItems.aspx?useFiltersInViewXml=1&FilterField1=Domain&FilterValue1=Canalisation&FilterType1=MultiChoice&FilterOp1=Eq";
-var HGC_CATEGORY = "https://www.hgc.ch/de/Tiefbau-%7C-Gartenbau/Rohre%2C-Sch%C3%A4chte%2C-Abdeckungen/Spezialtiefbauprodukte/Swisscom-Produkte/c/m_5356";
+/* Kein Link auf interne Dokumentablagen; Dokumente werden nur genannt. */
+var DMS_URL = ""; var HGC_CATEGORY = "https://www.hgc.ch/de/Tiefbau-%7C-Gartenbau/Rohre%2C-Sch%C3%A4chte%2C-Abdeckungen/Spezialtiefbauprodukte/Swisscom-Produkte/c/m_5356";
 var HGC_PRODUCT = {
   /* Geprüfte Direktlinks. Weitere über "HGC-Produktlinks" im Formular ergänzen
      und die Tabelle anschliessend hier einsetzen.                            */
@@ -5086,14 +5090,14 @@ var XLSXW = (function () {
       '<font><b/><sz val="10"/><name val="Arial"/></font>',
       '<font><b/><sz val="10"/><color rgb="FFFFFFFF"/><name val="Arial"/></font>',
       '<font><sz val="8"/><color rgb="FF71767C"/><name val="Arial"/></font>',
-      '<font><b/><sz val="15"/><color rgb="FF0D47C8"/><name val="Arial"/></font>',
+      '<font><b/><sz val="15"/><color rgb="FF0B6B72"/><name val="Arial"/></font>',
       '<font><sz val="10"/><color rgb="FF71767C"/><name val="Arial"/></font>',
       '<font><sz val="9"/><name val="Consolas"/></font>',
       '<font><b/><sz val="10"/><color rgb="FFC2192B"/><name val="Arial"/></font>',
       '<font><sz val="10"/><color rgb="FF8A5B00"/><name val="Arial"/></font>'
     ];
     var fills = ['<fill><patternFill patternType="none"/></fill>', '<fill><patternFill patternType="gray125"/></fill>',
-      '<fill><patternFill patternType="solid"><fgColor rgb="FF0D47C8"/></patternFill></fill>',
+      '<fill><patternFill patternType="solid"><fgColor rgb="FF0B6B72"/></patternFill></fill>',
       '<fill><patternFill patternType="solid"><fgColor rgb="FFF0F1F3"/></patternFill></fill>',
       '<fill><patternFill patternType="solid"><fgColor rgb="FFFDF5E6"/></patternFill></fill>',
       '<fill><patternFill patternType="solid"><fgColor rgb="FFFDECED"/></patternFill></fill>',
@@ -5629,7 +5633,7 @@ var FIG = (function () {
       }
     });
     (g.notes || []).forEach(function (n) {
-      var c = n.color || "#0d47c8", q = n.pts.map(px);
+      var c = n.color || "#0b6b72", q = n.pts.map(px);
       if (n.type === "text") o2 += '<text x="' + f1(q[0][0]) + '" y="' + f1(q[0][1]) + '" font-size="' + ({ s: 10, m: 13, l: 19 }[n.size || "m"] * k) + '" font-weight="700" fill="' + c + '" stroke="#fff" stroke-width="' + 0.8 * k + '" paint-order="stroke">' + esc(n.text || "") + "</text>";
       else if (n.type === "rect") o2 += '<rect x="' + f1(Math.min(q[0][0], q[1][0])) + '" y="' + f1(Math.min(q[0][1], q[1][1])) + '" width="' + f1(Math.abs(q[0][0] - q[1][0])) + '" height="' + f1(Math.abs(q[0][1] - q[1][1])) + '" fill="' + c + '" fill-opacity=".08" stroke="' + c + '" stroke-width="' + 2 * k + '"/>';
       else { o2 += '<polyline points="' + q.map(function (p) { return f1(p[0]) + "," + f1(p[1]); }).join(" ") + '" fill="none" stroke="' + c + '" stroke-width="' + 2.5 * k * (n.type === "arrow" ? ({ s: 0.65, m: 1, l: 1.7 }[n.size || "m"] || 1) : 1) + '"/>';
@@ -5639,7 +5643,7 @@ var FIG = (function () {
       (arr || []).forEach(function (p, i) { var q = px(p), r = r0 * k; o2 += fn(q, r, i) + txt(q[0] + r + 2.5 * k, q[1] + 3 * k, lab[key] && lab[key][i]); });
     };
     sym(g.pts, function (q, r, i) { var ex = (g.pm || [])[i]; ex = ex && ex !== "neu";   /* bestehender Schacht (Anschluss/Deckel): weiss mit blauem Rand */
-      return '<rect x="' + f1(q[0] - r) + '" y="' + f1(q[1] - r) + '" width="' + 2 * r + '" height="' + 2 * r + '" fill="' + (ex ? "#fff" : "#0d47c8") + '" stroke="' + (ex ? "#0d47c8" : "#fff") + '" stroke-width="' + (ex ? 2 : 1.5) * k + '"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 4 * k) + '" text-anchor="middle" font-size="' + 11 * k + '" font-weight="700" fill="' + (ex ? "#0d47c8" : "#fff") + '">' + (i + 1) + "</text>"; }, "pts", "", 9);
+      return '<rect x="' + f1(q[0] - r) + '" y="' + f1(q[1] - r) + '" width="' + 2 * r + '" height="' + 2 * r + '" fill="' + (ex ? "#fff" : "#0b6b72") + '" stroke="' + (ex ? "#0b6b72" : "#fff") + '" stroke-width="' + (ex ? 2 : 1.5) * k + '"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 4 * k) + '" text-anchor="middle" font-size="' + 11 * k + '" font-weight="700" fill="' + (ex ? "#0b6b72" : "#fff") + '">' + (i + 1) + "</text>"; }, "pts", "", 9);
     sym(g.sond, function (q, r, i) { return '<circle cx="' + f1(q[0]) + '" cy="' + f1(q[1]) + '" r="' + r + '" fill="#8a5b00" stroke="#fff" stroke-width="' + 1.5 * k + '"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 4 * k) + '" text-anchor="middle" font-size="' + 10 * k + '" font-weight="700" fill="#fff">S' + (i + 1) + "</text>"; }, "sond", "", 9);
     sym(g.wl, function (q, r, i) { return '<rect x="' + f1(q[0] - r) + '" y="' + f1(q[1] - r) + '" width="' + 2 * r + '" height="' + 2 * r + '" fill="#b25e00" stroke="#fff" stroke-width="' + 1.5 * k + '" transform="rotate(45 ' + f1(q[0]) + " " + f1(q[1]) + ')"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 4 * k) + '" text-anchor="middle" font-size="' + 10 * k + '" font-weight="700" fill="#fff">W' + (i + 1) + "</text>"; }, "wl", "", 8);
     sym(g.geb, function (q, r, i) { return '<polygon points="' + f1(q[0] - r) + "," + f1(q[1] + r) + " " + f1(q[0] - r) + "," + f1(q[1] - r / 3) + " " + f1(q[0]) + "," + f1(q[1] - r) + " " + f1(q[0] + r) + "," + f1(q[1] - r / 3) + " " + f1(q[0] + r) + "," + f1(q[1] + r) + '" fill="#1c6b3f" stroke="#fff" stroke-width="' + 1.5 * k + '"/><text x="' + f1(q[0]) + '" y="' + f1(q[1] + 5 * k) + '" text-anchor="middle" font-size="' + 9 * k + '" font-weight="700" fill="#fff">G' + (i + 1) + "</text>"; }, "geb", "", 8);
@@ -5787,7 +5791,7 @@ var FIG = (function () {
       leg = '<rect x="' + lx + '" y="' + ly + '" width="' + lw + '" height="' + lh + '" fill="#fff" fill-opacity=".92" stroke="#1a1c1e" stroke-width=".25"/><text x="' + (lx + 2.5) + '" y="' + (ly + 4.2) + '" font-size="2.6" font-weight="700">' + esc(tt("ex_legend")) + "</text>";
       items.forEach(function (it, i) { var y = ly + 9 + i * 5.4, x = lx + 3.5, sy = "";
         if (it[0].indexOf("ls:") === 0) { var fk = it[0].slice(3), sd = (LSTY[fk] || LSTY[""])[1]; sy = '<line x1="' + (x - 2.5) + '" y1="' + y + '" x2="' + (x + 2.5) + '" y2="' + y + '" stroke="' + (LSTY[fk] || LSTY[""])[0] + '" stroke-width=".8"' + (sd ? ' stroke-dasharray="' + sd.split(" ").map(function (v) { return v * 0.25; }).join(" ") + '"' : "") + (sd === "1 7" ? ' stroke-linecap="round"' : "") + "/>"; }
-        else if (it[0] === "l") sy = '<line x1="' + (x - 2.5) + '" y1="' + y + '" x2="' + (x + 2.5) + '" y2="' + y + '" stroke="#b8332a" stroke-width=".8"/>'; else if (it[0] === "s") sy = '<rect x="' + (x - 1.8) + '" y="' + (y - 1.8) + '" width="3.6" height="3.6" fill="#0d47c8"/>'; else if (it[0] === "o") sy = '<circle cx="' + x + '" cy="' + y + '" r="1.9" fill="#8a5b00"/>';
+        else if (it[0] === "l") sy = '<line x1="' + (x - 2.5) + '" y1="' + y + '" x2="' + (x + 2.5) + '" y2="' + y + '" stroke="#b8332a" stroke-width=".8"/>'; else if (it[0] === "s") sy = '<rect x="' + (x - 1.8) + '" y="' + (y - 1.8) + '" width="3.6" height="3.6" fill="#0b6b72"/>'; else if (it[0] === "o") sy = '<circle cx="' + x + '" cy="' + y + '" r="1.9" fill="#8a5b00"/>';
         else if (it[0] === "w") sy = '<rect x="' + (x - 1.6) + '" y="' + (y - 1.6) + '" width="3.2" height="3.2" fill="#b25e00" transform="rotate(45 ' + x + " " + y + ')"/>'; else if (it[0] === "g") sy = '<polygon points="' + (x - 1.9) + "," + (y + 1.8) + " " + (x - 1.9) + "," + y + " " + x + "," + (y - 1.9) + " " + (x + 1.9) + "," + y + " " + (x + 1.9) + "," + (y + 1.8) + '" fill="#1c6b3f"/>'; else sy = '<rect x="' + (x - 2.2) + '" y="' + (y - 1.6) + '" width="4.4" height="3.2" fill="#f28c00" fill-opacity=".4" stroke="#8a5b00" stroke-width=".3"/>';
         leg += sy + '<text x="' + (lx + 8.5) + '" y="' + (y + 0.9) + '" font-size="2.4">' + esc(it[1]) + "</text>"; }); }
     /* Schriftfeld */
@@ -5983,7 +5987,7 @@ var FIG = (function () {
       '<button type="button" class="btn ghost small" data-k="center">' + esc(tt("km_center")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="lbl" aria-pressed="true">' + esc(tt("km_lbl")) + "</button>" +
       (plan ? "" : '<button type="button" class="btn ghost small" data-k="sv">' + esc(tt("km_sv")) + '</button><button type="button" class="btn ghost small" data-k="svkey" title="' + esc(tt("km_sv_keyHint")) + '">' + esc(tt("km_sv_key")) + "</button>") +
-      (plan ? "" : '<span class="kmseg" role="group" aria-label="' + esc(tt("km_prov")) + '"><button type="button" class="btn small" data-prov="swisstopo" aria-pressed="false">swisstopo</button><button type="button" class="btn small" data-prov="geoadmin" aria-pressed="false">geo.admin.ch</button></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase"></select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + '</button><span id="kmAv" hidden><input type="url" id="kmAvUrl" class="kmavin" aria-label="' + esc(tt("km_avUrl")) + '" placeholder="https://…/wms"><input type="text" id="kmAvLy" class="kmavin" aria-label="' + esc(tt("km_avLy")) + '" placeholder="' + esc(tt("km_avLy")) + '"><button type="button" class="btn small" id="kmAvGo">' + esc(tt("km_avGo")) + '</button></span><a class="btn ghost small" id="kmNetz" href="https://www.swisscom.ch/rida/online/geoportal/ng/index.html?login" target="_blank" rel="noopener noreferrer">' + esc(tt("km_netz")) + "</a>") + "</div></div>" +
+      (plan ? "" : '<span class="kmseg" role="group" aria-label="' + esc(tt("km_prov")) + '"><button type="button" class="btn small" data-prov="swisstopo" aria-pressed="false">swisstopo</button><button type="button" class="btn small" data-prov="geoadmin" aria-pressed="false">geo.admin.ch</button></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase"></select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + '</button><span id="kmAv" hidden><input type="url" id="kmAvUrl" class="kmavin" aria-label="' + esc(tt("km_avUrl")) + '" placeholder="https://…/wms"><input type="text" id="kmAvLy" class="kmavin" aria-label="' + esc(tt("km_avLy")) + '" placeholder="' + esc(tt("km_avLy")) + '"><button type="button" class="btn small" id="kmAvGo">' + esc(tt("km_avGo")) + '</button></span>') + "</div></div>" +
       (plan ? '<form class="kmcalf" id="kmCalF" hidden><label for="kmCalM">' + esc(tt("pl_calAsk")) + '</label><input type="text" inputmode="decimal" id="kmCalM" class="numin"><button type="submit" class="btn small">' + esc(tt("pl_calSet")) + "</button></form>" : "") +
       '<div class="kmmain"><div class="kmleft">' +
       '<div id="kmMap" class="kmmap" tabindex="0" role="application" aria-label="' + esc(tt("km_mapLbl")) + '"></div><div class="kmask" id="kmAsk" hidden role="group"></div><div class="kmask kmctx" id="kmCtx" hidden role="group"></div><div class="kmprops" id="kmProps" hidden role="dialog"></div><div class="kmprops kmsv" id="kmSv" hidden role="dialog"></div>' +
@@ -6247,7 +6251,7 @@ var FIG = (function () {
       var r = $("#kmAv"); if (!r) return; r.hidden = base !== "av"; var c = avCfg(), u = $("#kmAvUrl"), l = $("#kmAvLy"); if (u && !u.value) u.value = c.u || "https://wms.cadastralwebmap.ch/WMS"; if (l && !l.value) l.value = c.l;
     }
     function calTxt() { return cal.scale && cal.auto ? tt("pl_calAuto").replace("{r}", cal.auto).replace("{s}", (Math.round(cal.scale * 1000) / 1000)) : cal.scale ? tt("pl_calOk").replace("{m}", fmt(cal.m)).replace("{s}", (Math.round(cal.scale * 1000) / 1000)) : tt("pl_calNo"); }
-    var undoSt = [], curN = null, curA = null, tmp = [], layers = {}, lastMove = 0, noteCol = "#0d47c8";
+    var undoSt = [], curN = null, curA = null, tmp = [], layers = {}, lastMove = 0, noteCol = "#0b6b72";
     var NT = { text: "km_nText", arrow: "km_nArrow", sline: "km_nLine", rect: "km_nRect" };
     var redoSt = [], msel = {};
     var snap = function () { lyEdited = true; undoSt.push(JSON.stringify(M)); if (undoSt.length > 100) undoSt.shift(); redoSt.length = 0; };
@@ -6380,7 +6384,7 @@ var FIG = (function () {
       m.on("dragend", function () { lastMove = Date.now(); sel = { id: o.id }; refresh(); showProps(o.id); });
     }
     function noteLayers(n, edit, on) {
-      var col = n.color || "#0d47c8", L0 = [], upd;
+      var col = n.color || "#0b6b72", L0 = [], upd;
       if (n.type === "text") {
         var m = L.marker(AD.ll(n.pts[0]), { interactive: edit, draggable: edit, keyboard: false, icon: L.divIcon({ className: "kmtext s" + (n.size || "m") + (on ? " on" : ""), html: '<span style="color:' + col + '">' + esc(n.text || "") + "</span>", iconSize: null, iconAnchor: [0, 10] }) }).addTo(grp);
         if (edit) { dragPt(m, n, "pts"); m.off("drag"); m.on("drag", function (e) { n.pts[0] = AD.pt(e.target.getLatLng()); }); bindObj(m, n.id, true); }
@@ -6454,7 +6458,7 @@ var FIG = (function () {
     function draw() {
       grp.clearLayers(); layers = {}; var edit = mode === "edit";
       M.lines.forEach(function (l) {
-        var ll = l.pts.map(AD.ll), on = isOn(l.id), sty = LSTY[cfgOf(l).fl || ""], col = on ? "#0d47c8" : sty[0];
+        var ll = l.pts.map(AD.ll), on = isOn(l.id), sty = LSTY[cfgOf(l).fl || ""], col = on ? "#0b6b72" : sty[0];
         if (ll.length > 1) {
           var halo = L.polyline(ll, { color: "#fff", weight: 8, interactive: false }).addTo(grp), main = L.polyline(ll, { color: col, weight: on ? 5 : 3.5, dashArray: l.hzArt === "luft" ? "2 8" : l.hzArt === "bohr" ? "10 5 2 5" : (sty[1] || null), lineCap: sty[1] === "1 7" ? "round" : "butt", interactive: edit, bubblingMouseEvents: false }).addTo(grp);
           layers[l.id] = { upd: function () { var q = l.pts.map(AD.ll); halo.setLatLngs(q); main.setLatLngs(q); } };
@@ -6464,7 +6468,7 @@ var FIG = (function () {
         else handles(l, true, 2);
       });
       M.areas.forEach(function (f) {
-        var on = isOn(f.id), col = on ? "#0d47c8" : "#8a5b00", ll = f.pts.map(AD.ll);
+        var on = isOn(f.id), col = on ? "#0b6b72" : "#8a5b00", ll = f.pts.map(AD.ll);
         if (ll.length > 2) { var pg = L.polygon(ll, { color: col, weight: on ? 4 : 2.5, fillColor: "#f28c00", fillOpacity: 0.3, interactive: edit, bubblingMouseEvents: false }).addTo(grp); layers[f.id] = { upd: function () { pg.setLatLngs(f.pts.map(AD.ll)); } }; if (edit) bindObj(pg, f.id); }
         else if (ll.length > 1) L.polyline(ll, { color: col, weight: 3, dashArray: "5 4", interactive: false }).addTo(grp);
         if (!(edit && (on || hAll()))) ll.forEach(function (q) { L.circleMarker(q, { radius: 4, color: col, weight: 2, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
@@ -6492,9 +6496,9 @@ var FIG = (function () {
       if (rul.length) { var rl = rul.map(AD.ll); if (rl.length > 1) { L.polyline(rl, { color: "#fff", weight: 6, interactive: false }).addTo(grp); L.polyline(rl, { color: "#1a1c1e", weight: 2.5, dashArray: "7 5", interactive: false }).addTo(grp); }
         rl.forEach(function (q) { L.circleMarker(q, { radius: 4, color: "#1a1c1e", weight: 2, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
         if (rl.length > 1) L.marker(rl[rl.length - 1], { interactive: false, keyboard: false, icon: L.divIcon({ className: "kmlbl r", html: "<span><b>" + esc(cal && !cal.scale ? tt("km_noScale") : fmt(lineLen(rul)) + " m") + "</b></span>", iconSize: [0, 0] }) }).addTo(grp); }
-      tmp.forEach(function (q) { L.circleMarker(AD.ll(q), { radius: 5, color: "#0d47c8", weight: 2, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
-      if (plan) { calPts.forEach(function (q) { L.circleMarker(AD.ll(q), { radius: 6, color: "#0d47c8", weight: 3, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
-        if (cal.a && cal.b && !cal.auto && !calPts.length) L.polyline([AD.ll(cal.a), AD.ll(cal.b)], { color: "#0d47c8", weight: 2, dashArray: "6 5", interactive: false }).addTo(grp); }
+      tmp.forEach(function (q) { L.circleMarker(AD.ll(q), { radius: 5, color: "#0b6b72", weight: 2, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
+      if (plan) { calPts.forEach(function (q) { L.circleMarker(AD.ll(q), { radius: 6, color: "#0b6b72", weight: 3, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
+        if (cal.a && cal.b && !cal.auto && !calPts.length) L.polyline([AD.ll(cal.a), AD.ll(cal.b)], { color: "#0b6b72", weight: 2, dashArray: "6 5", interactive: false }).addTo(grp); }
       updTotal(); $("#kmUnits").textContent = tt(plan ? "km_unitsPlan" : "km_units");
       Object.keys(MODES).forEach(function (m) { var b = $("[data-k=" + MODES[m] + "]"); if (b) b.setAttribute("aria-pressed", mode === m ? "true" : "false"); });
       $("[data-k=marea]").textContent = mode === "area" ? tt("km_areaOn") : tt("km_area"); $("[data-k=mline]").textContent = mode === "line" ? tt("km_drawOn") : tt("km_draw"); $("[data-k=mpt]").textContent = mode === "pt" ? tt("km_ptOn") : tt("km_pt"); $("[data-k=msond]").textContent = mode === "sond" ? tt("km_sondOn") : tt("km_sond");
@@ -6886,7 +6890,7 @@ var FIG = (function () {
         if (n.type === "text" || n.type === "arrow") {
           r.appendChild(cell(tt("km_size"), sel1(tt("km_size"), [["s", tt("km_sS")], ["m", tt("km_sM")], ["l", tt("km_sLg")]], n.size || "m", function (v) { n.size = v; draw(); })));
         }
-        r.appendChild(cell(tt("km_col"), sel1(tt("km_col"), COL.map(function (c) { return [c[0], tt(c[1])]; }), n.color || "#0d47c8", function (v) { n.color = v; draw(); })));
+        r.appendChild(cell(tt("km_col"), sel1(tt("km_col"), COL.map(function (c) { return [c[0], tt(c[1])]; }), n.color || "#0b6b72", function (v) { n.color = v; draw(); })));
         btns(r, n.id); return r;
       };
       M.notes.forEach(function (n, i) { h.appendChild(row_notes(n, i)); });
@@ -7386,7 +7390,7 @@ var FIG = (function () {
       if (si.guide) {
         var g = si.guide, sp0 = map.latLngToContainerPoint(AD.ll(g.from)), u = 1, sp1 = map.latLngToContainerPoint(AD.ll([g.from[0] + g.D[0] * u, g.from[1] + g.D[1] * u])), sx = sp1.x - sp0.x, sy = sp1.y - sp0.y, sl = Math.hypot(sx, sy) || 1; sx /= sl; sy /= sl;
         var e1 = map.containerPointToLatLng(L.point(sp0.x + sx * 260, sp0.y + sy * 260)), e2 = map.containerPointToLatLng(L.point(sp0.x - sx * 260, sp0.y - sy * 260));
-        L.polyline([e2, e1], { color: "#0072d6", weight: 1, dashArray: "4 4", interactive: false, opacity: 0.85 }).addTo(snapLayer);
+        L.polyline([e2, e1], { color: "#0e7490", weight: 1, dashArray: "4 4", interactive: false, opacity: 0.85 }).addTo(snapLayer);
       }
       return si;
     }
@@ -8850,7 +8854,7 @@ var FIG = (function () {
     sch.forEach(function (c) { var k = KVE.SCHACHT[c.typ]; if (!k) return; var sh = k.kind === "KS" ? "KS" : k.kind === "PLS" ? "PLS" : k.kind === "ES" ? "ES" : "KES"; if (!seen[sh]) { seen[sh] = 1; h += li(ts.docPlan + " " + SHAFTS[sh].plan + " – " + (SHAFTS[sh].n[S.lang] || SHAFTS[sh].n.de), SHAFTS[sh].docFile); } });
     Object.keys(SP).forEach(function (a) { if (SP[a].doc && lastOut && lastOut.elems.some(function (e) { return e.tab === "schacht" && e.geo && (e.geo.rows || []).some(function (r) { return r[0] === a; }); })) h += li(ts.docDraw + " " + a + " – " + (SP[a].n[S.lang] || SP[a].n.de), SP[a].doc); });
     h += li(ts.docSchema, "Auswahlschema_Schachtbau_und_Abdeckungen_de_fr.pdf") + li(ts.docPcm, "PcM_Info_Schaechte_als_Arbeitsplatz.pdf") + li(ts.docHandbuch, "Handbuch_unter-_und_oberirdischer_Netzbau.docx");
-    h += '<li><a href="' + esc(DMS_URL) + '" target="_blank" rel="noopener">' + esc(ts.docDms) + '</a></li><li class="no-print"><a href="' + esc(HGC_CATEGORY) + '" target="_blank" rel="noopener">' + esc(ts.hgcCat) + "</a></li>";
+    h += (DMS_URL ? '<li><a href="' + esc(DMS_URL) + '" target="_blank" rel="noopener">' + esc(ts.docDms) + '</a></li>' : "") + '<li class="no-print"><a href="' + esc(HGC_CATEGORY) + '" target="_blank" rel="noopener">' + esc(ts.hgcCat) + "</a></li>";
     var refs = (S.lang === "fr" ? ["SCHEMA_FR", "TAB_FR"] : ["SCHEMA_DE", "TAB_DE"]).filter(function (k) { return SIMG[k]; });
     return '<details class="ref no-summary"><summary>' + esc(ts.hDocs) + '</summary><ul class="doclist" style="padding:6px 14px">' + h + '</ul><p class="note" style="margin:6px 14px 12px">' + esc(ts.docNote) + "</p></details>" +
       '<details class="ref no-summary no-print"><summary>' + esc(ts.hRef) + '</summary><div class="figs">' + refs.map(function (k) { return '<figure><img src="' + SIMG[k] + '" alt="' + esc(ts.hRef) + '" loading="lazy" data-lb="' + k + '"></figure>'; }).join("") + "</div></details>" +

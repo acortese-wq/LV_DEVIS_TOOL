@@ -67,14 +67,14 @@ var XLSXW = (function () {
       '<font><b/><sz val="10"/><name val="Arial"/></font>',
       '<font><b/><sz val="10"/><color rgb="FFFFFFFF"/><name val="Arial"/></font>',
       '<font><sz val="8"/><color rgb="FF71767C"/><name val="Arial"/></font>',
-      '<font><b/><sz val="15"/><color rgb="FF0D47C8"/><name val="Arial"/></font>',
+      '<font><b/><sz val="15"/><color rgb="FF0B6B72"/><name val="Arial"/></font>',
       '<font><sz val="10"/><color rgb="FF71767C"/><name val="Arial"/></font>',
       '<font><sz val="9"/><name val="Consolas"/></font>',
       '<font><b/><sz val="10"/><color rgb="FFC2192B"/><name val="Arial"/></font>',
       '<font><sz val="10"/><color rgb="FF8A5B00"/><name val="Arial"/></font>'
     ];
     var fills = ['<fill><patternFill patternType="none"/></fill>', '<fill><patternFill patternType="gray125"/></fill>',
-      '<fill><patternFill patternType="solid"><fgColor rgb="FF0D47C8"/></patternFill></fill>',
+      '<fill><patternFill patternType="solid"><fgColor rgb="FF0B6B72"/></patternFill></fill>',
       '<fill><patternFill patternType="solid"><fgColor rgb="FFF0F1F3"/></patternFill></fill>',
       '<fill><patternFill patternType="solid"><fgColor rgb="FFFDF5E6"/></patternFill></fill>',
       '<fill><patternFill patternType="solid"><fgColor rgb="FFFDECED"/></patternFill></fill>',
