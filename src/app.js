@@ -651,7 +651,6 @@
   var LYTABS = ["graben", "schacht", "belag", "werkloch", "geb"];
   function lyPref() { try { var v = localStorage.getItem("lvd-layout"); if (v) return v === "classic" ? "classic" : "a"; } catch (e) { } return window.__LVD_LAYOUT_DEFAULT === "classic" ? "classic" : "a"; }   /* gespeicherte Wahl, sonst Vorgabe (Tests: klassisch), sonst Layout A */
   function lySetPref(v) { try { localStorage.setItem("lvd-layout", v); } catch (e) { } }
-  function lyWide() { return !window.matchMedia || window.matchMedia("(min-width:861px)").matches; }
   function lyOpen(retry, keep) {   /* Kartenerfassung als Startbildschirm (Layout A); keep = { model, view, edited } beim Sprachwechsel */
     if (document.querySelector("dialog.kmdlg[open]")) return;
     var tab = LYTABS.indexOf(S.tab) >= 0 ? S.tab : "graben", cfg = S.recs[tab][S.idx[tab]] || S.recs.graben[0];
@@ -1745,7 +1744,7 @@
   }
   window.__LVD = { loadDemo: loadDemo, S: function () { return S; }, xlsxBytes: xlsxBytes, renderResult: renderResult, F: F, optLabel: optLabel, tt: tt, fill: fill, snap: snapState, commit: function (sn, msg) { save(); renderForm(); renderResult(); undoToast(msg, sn); } };
     var lyb = $("#bLyMap"); if (lyb) lyb.onclick = function () { lySetPref("a"); lyOpen(1); };
-    if (lyPref() === "a" && lyWide()) setTimeout(function () { lyOpen(); }, 0);   /* Layout A: Karte als Startbildschirm */
+    if (lyPref() === "a") setTimeout(function () { lyOpen(); }, 0);   /* Layout A: Karte als Startbildschirm (seit Phase H auch auf Handy/Tablet) */
   }
   document.addEventListener("DOMContentLoaded", init);
 })();

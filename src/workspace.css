@@ -194,3 +194,84 @@
 .kmdlg.kmlya .lyviewb .lylay{order:-1;flex:1 1 100%;display:flex;flex-direction:column;align-items:stretch;gap:3px}
 .kmdlg.kmlya .lyviewb .lylay .lyk{position:static;width:auto;height:auto;overflow:visible;clip:auto}
 .kmdlg.kmlya .lyviewb .lylay select{max-width:none}
+
+/* ---------- Phase H: Handy/Tablet (≤ 860 px) – Karte vollflächig, Menü ☰, Leiste unten, Bottom Sheets ---------- */
+.kmdlg.kmlya .lyhm,.kmdlg.kmlya .lymk,.kmdlg.kmlya .lymtab,.kmdlg.kmlya .lymgrip{display:none}
+@media (max-width:860px){
+  .kmdlg.kmlya[open]{display:flex!important;flex-direction:column;overflow:hidden!important;width:100vw;max-width:100vw;height:100vh;height:100dvh;max-height:none;margin:0;padding:0;border:0;border-radius:0;--lymt:58px}
+  .kmdlg.kmlya .kmhead{flex:0 0 auto;flex-wrap:nowrap!important;align-items:center;gap:6px;padding:6px 10px;min-height:48px}
+  .kmdlg.kmlya .kmhead h2{flex:1 1 auto;min-width:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kmdlg.kmlya .kmhead .lynav,.kmdlg.kmlya .kmhead .kmcred-h{display:none!important}
+  .kmdlg.kmlya .kmheadb{flex-wrap:nowrap!important;gap:6px;margin-left:0}
+  .kmdlg.kmlya .kmheadb>*:not([data-k=save]){display:none!important}
+  .kmdlg.kmlya .lyhm,.kmdlg.kmlya .lymk{display:inline-flex;min-width:44px;min-height:44px;justify-content:center;align-items:center;font-size:18px;padding:0 10px}
+  .kmdlg.kmlya .kmheadb [data-k=save]{min-height:44px}
+  .kmdlg.kmlya.ly-hm .kmhead{flex-wrap:wrap!important;max-height:70vh;overflow:auto}
+  .kmdlg.kmlya.ly-hm .kmhead .lynav{display:flex!important;flex:1 0 100%;order:5;flex-wrap:wrap;gap:6px}
+  .kmdlg.kmlya.ly-hm .kmheadb{flex:1 0 100%;order:6;flex-wrap:wrap!important;justify-content:flex-start}
+  .kmdlg.kmlya.ly-hm .kmheadb>*{display:inline-flex!important}
+  .kmdlg.kmlya.ly-hm .kmheadb .lylang{display:flex!important}
+  .kmdlg.kmlya .kmhead .btn,.kmdlg.kmlya .lymode{min-height:44px}
+  .kmdlg.kmlya .lybar{flex:0 0 auto;flex-wrap:nowrap!important;overflow-x:auto;gap:12px;padding:4px 10px;min-height:0;scrollbar-width:none}
+  .kmdlg.kmlya .lybar .lyp{display:none}
+  .kmdlg.kmlya .lybar .lyp:nth-child(3){display:flex;flex:0 0 auto}
+  .kmdlg.kmlya .lykpi{flex-wrap:nowrap!important;gap:12px;margin:0;padding:0;border:0}
+  .kmdlg.kmlya .lykpi>*{flex:0 0 auto;white-space:nowrap}
+  .kmdlg.kmlya .lyask{position:fixed;left:8px;right:8px;top:56px;z-index:1400}
+  .kmdlg.kmlya .kmgrid{flex:1 1 auto!important;min-height:0;display:block!important;position:relative;margin-bottom:var(--lymt);grid-template-columns:none!important}
+  .kmdlg.kmlya .kmgrid>.kmcanvas{position:absolute!important;inset:0!important;width:auto!important;height:auto!important;min-height:0!important;margin:0}
+  .kmdlg.kmlya .kmcanvas .kmmap{height:100%!important}
+  .kmdlg.kmlya .kmwh{display:none!important}
+  /* Blätter: geschlossen = ausgeblendet; offen = halbe Höhe, mit Griff ganz */
+  .kmdlg.kmlya .kmgrid>.kmtools,.kmdlg.kmlya .kmgrid>.kmmid,.kmdlg.kmlya .kmgrid>.kmside,.kmdlg.kmlya .lydock,.kmdlg.kmlya .kmbottom{display:none!important}
+  .kmdlg.kmlya.ly-ms-tools .kmgrid>.kmtools,.kmdlg.kmlya.ly-ms-mid .kmgrid>.kmmid,.kmdlg.kmlya.ly-ms-side .kmgrid>.kmside,.kmdlg.kmlya.ly-ms-dock .lydock,.kmdlg.kmlya.ly-ms-more .kmbottom{
+    display:block!important;position:fixed!important;left:0!important;right:0!important;top:auto!important;bottom:var(--lymt)!important;width:auto!important;max-width:none!important;
+    height:52vh!important;height:52dvh!important;max-height:none!important;margin:0!important;overflow:auto!important;z-index:1250!important;resize:none!important;
+    background:var(--panel)!important;border:1px solid var(--rule-strong)!important;border-bottom:0!important;border-radius:14px 14px 0 0!important;box-shadow:0 -10px 30px rgba(0,0,0,.35)!important;padding:18px 12px 12px!important;transform:none!important}
+  .kmdlg.kmlya.ly-msf.ly-ms .kmgrid>.kmtools,.kmdlg.kmlya.ly-msf.ly-ms .kmgrid>.kmmid,.kmdlg.kmlya.ly-msf.ly-ms .kmgrid>.kmside,.kmdlg.kmlya.ly-msf.ly-ms-dock .lydock,.kmdlg.kmlya.ly-msf.ly-ms-more .kmbottom{height:calc(100vh - 130px)!important;height:calc(100dvh - 130px)!important}
+  .kmdlg.kmlya .lymgrip{display:block;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--lymt) + 52vh - 22px);bottom:calc(var(--lymt) + 52dvh - 22px);z-index:1260;width:88px;height:24px;padding:0;border:0;background:transparent;cursor:pointer}
+  .kmdlg.kmlya .lymgrip[hidden]{display:none}
+  .kmdlg.kmlya .lymgrip span{display:block;width:44px;height:5px;margin:auto;border-radius:3px;background:var(--rule-strong)}
+  .kmdlg.kmlya .lymgrip:focus-visible{outline:2px solid var(--nc-focus);outline-offset:2px;border-radius:6px}
+  .kmdlg.kmlya.ly-msf .lymgrip{bottom:calc(100vh - 130px + var(--lymt) - 22px);bottom:calc(100dvh - 130px + var(--lymt) - 22px)}
+  .kmdlg.kmlya .lymtab{display:flex;position:fixed;left:0;right:0;bottom:0;height:var(--lymt);z-index:1300;background:var(--paper);border-top:1px solid var(--rule-strong);padding:0 0 env(safe-area-inset-bottom)}
+  .kmdlg.kmlya .lymtab button{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:transparent;color:var(--nc-text-soft,var(--ink));font:inherit;font-size:11px;line-height:1.1;padding:4px 2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kmdlg.kmlya .lymtab button span{font-size:18px}
+  .kmdlg.kmlya .lymtab button[aria-expanded=true]{color:var(--nc-accent-text);box-shadow:inset 0 3px 0 var(--nc-accent)}
+  .kmdlg.kmlya .lymtab button:focus-visible{outline:2px solid var(--nc-focus);outline-offset:-3px}
+  /* Inhalte in den Blättern */
+  .kmdlg.kmlya .kmtools .btn{width:100%;min-height:44px}
+  .kmdlg.kmlya .lydock .lydrag,.kmdlg.kmlya .lydock .lydcol{display:none!important}
+  .kmdlg.kmlya .lydock .lydpan{max-height:none!important;height:auto!important;overflow:visible}
+  .kmdlg.kmlya .lydtabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
+  .kmdlg.kmlya .lydtabs [role=tab]{min-height:44px;white-space:nowrap}
+  .kmdlg.kmlya .lykost{grid-template-columns:minmax(0,1fr)!important}
+  .kmdlg.kmlya .lyptools{flex-wrap:wrap}
+  .kmdlg.kmlya .lyptools input,.kmdlg.kmlya .lyptools select{flex:1 1 140px;min-width:0;min-height:44px}
+  .kmdlg.kmlya .lyptab{table-layout:auto;min-width:560px}
+  .kmdlg.kmlya #lyP_pos{overflow-x:auto}
+  .kmdlg.kmlya .kmbottom{flex-wrap:wrap!important;align-content:flex-start;gap:8px}
+  .kmdlg.kmlya .kmbottom>*{flex:1 0 100%;max-width:100%}
+  .kmdlg.kmlya .kmbottom .lycmd{border-left:0;padding-left:0}
+  .kmdlg.kmlya .kmbottom .lycmd .kmhelp{white-space:normal}
+  .kmdlg.kmlya .lyviewm[open] .lyviewb,.kmdlg.kmlya .lyviewb{position:static!important;width:auto!important;box-shadow:none!important;margin-top:6px}
+  .kmdlg.kmlya .lycred{display:block!important;white-space:normal!important;overflow:visible!important}
+  .kmdlg.kmlya.ly-hm .kmheadb>.lycmdk-b{display:none!important}
+  .kmdlg.kmlya .lysearch{left:56px!important;right:8px!important;width:auto!important;max-width:none!important}
+  .kmdlg.kmlya .lysearch .kmsearch{display:flex;width:100%}
+  .kmdlg.kmlya .lysearch input{flex:1 1 auto;min-width:0;width:auto!important}
+  .kmdlg.kmlya .lykpi .lymain{order:-2}
+  .kmdlg.kmlya .lykpi .lymain+.lyc{order:-1}
+  .kmdlg.kmlya .lybar .lyp:nth-child(3){order:5}
+  .kmdlg.kmlya .lymk span{font-size:22px;line-height:1}
+  .kmdlg.kmlya .lybase{top:62px!important;bottom:auto!important;left:56px!important;right:auto!important;flex-wrap:wrap}
+  .kmdlg.kmlya .lybase .btn{padding:4px 8px;font-size:12px;min-height:36px}
+  .kmdlg.kmlya .kmleg{display:none}
+  .kmdlg.kmlya .chfab,dialog.kmlya .chfab{bottom:calc(var(--lymt) + 12px)!important;top:auto!important;right:10px!important}
+  .kmdlg.kmlya.ly-ms .chfab{display:none!important}
+  .kmdlg.kmlya .chpan{bottom:calc(var(--lymt) + 8px)!important;top:auto!important;left:8px!important;right:8px!important;width:auto!important;height:min(70vh,calc(100dvh - 140px))!important}
+  .kmdlg.kmlya .lycmdk{padding:8px}
+  .kmdlg.kmlya .lyk-box{max-height:calc(100dvh - 24px)}
+  .kmdlg.kmlya .kmtoast{bottom:calc(var(--lymt) + 12px)!important}
+}
+@media (max-width:360px){.kmdlg.kmlya .lymtab button{font-size:9.5px;letter-spacing:-.01em}.kmdlg.kmlya .lymtab button span{font-size:17px}}

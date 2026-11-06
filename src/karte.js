@@ -765,6 +765,38 @@
           dlg.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("#kmToolsBody button"); if (b && md === "e") setTimeout(function () { if (!b.offsetParent) { var m0 = dlg.querySelector("#kmMap"); if (m0) m0.focus(); } }, 0); });   /* Einfach: ausgeschaltetes Zusatzwerkzeug verschwindet → Fokus auf die Karte */
           window.__LYCMD = { open: openP, mode: setMode };
         })();
+        (function () {   /* Phase H: Handy/Tablet (≤ 860 px) – Karte vollflächig, Menü oben, Leiste unten mit Bottom Sheets (½ / voll); Desktop unverändert */
+          var mq = window.matchMedia ? window.matchMedia("(max-width:860px)") : { matches: false }, cur0 = "";
+          var hm = E("button", "btn ghost small lyhm", "☰"); hm.type = "button"; hm.setAttribute("aria-expanded", "false"); hm.setAttribute("aria-label", tt("ly_mMenu")); hm.title = tt("ly_mMenu"); head.insertBefore(hm, hb2.nextSibling);
+          var mk0 = E("button", "btn ghost small lymk", '<span aria-hidden="true">⌕</span>'); mk0.type = "button"; mk0.setAttribute("aria-label", tt("ly_cmdkPh")); mk0.title = tt("ly_cmdkPh"); head.insertBefore(mk0, hm); mk0.addEventListener("click", function () { if (window.__LYCMD) window.__LYCMD.open(); });
+          var inv = function () { setTimeout(function () { try { map.invalidateSize({ animate: false }); } catch (e) { } }, 60); };
+          hm.addEventListener("click", function () { var o = !dlg.classList.contains("ly-hm"); dlg.classList.toggle("ly-hm", o); hm.setAttribute("aria-expanded", o ? "true" : "false"); hm.textContent = o ? "✕" : "☰"; if (o) { var f = head.querySelector(".lynav button"); if (f) f.focus(); } inv(); });
+          var SH = [["tools", "ly_mT", "⚒", ".kmtools"], ["mid", "ws_layers", "◧", ".kmmid"], ["side", "ly_mP", "☰", ".kmside"], ["dock", "ly_mA", "▦", ".lydock"], ["more", "ly_mM", "⋯", ".kmbottom"]];
+          var tb0 = E("nav", "lymtab"); tb0.setAttribute("aria-label", tt("ly_mNav"));
+          tb0.innerHTML = SH.map(function (s) { return '<button type="button" data-msh="' + s[0] + '" aria-expanded="false"><span aria-hidden="true">' + s[2] + "</span>" + esc(tt(s[1])) + "</button>"; }).join("");
+          var grip = E("button", "lymgrip", '<span aria-hidden="true"></span>'); grip.type = "button"; grip.hidden = true; grip.setAttribute("aria-label", tt("ly_mGrip")); grip.setAttribute("aria-pressed", "false");
+          dlg.appendChild(grip); dlg.appendChild(tb0);
+          SH.forEach(function (s) { var el = s[3] === ".kmbottom" ? bottom : dlg.querySelector(s[3]); if (el) { if (!el.id) el.id = "lyMS_" + s[0]; tb0.querySelector('[data-msh="' + s[0] + '"]').setAttribute("aria-controls", el.id); } });
+          var show = function (k, from) {
+            if (k === cur0) k = ""; cur0 = k;
+            SH.forEach(function (s) { dlg.classList.toggle("ly-ms-" + s[0], s[0] === k); var b = tb0.querySelector('[data-msh="' + s[0] + '"]'); b.setAttribute("aria-expanded", s[0] === k ? "true" : "false"); });
+            dlg.classList.toggle("ly-ms", !!k); if (!k) { dlg.classList.remove("ly-msf"); grip.setAttribute("aria-pressed", "false"); } grip.hidden = !k;
+            grid.classList.toggle("kmmid-open", k === "mid"); var mt0 = dlg.querySelector(".kmmidtog"); if (mt0) mt0.setAttribute("aria-expanded", k === "mid" ? "true" : "false");
+            if (k === "dock" && lyD.c) { lyD.c = false; lyDock(); }
+            if (k) { var el = dlg.querySelector("#" + tb0.querySelector('[data-msh="' + k + '"]').getAttribute("aria-controls")); if (el) { el.scrollTop = 0; var f = el.querySelector('[role=tab][aria-selected=true],button:not([hidden]),input,select'); if (f && from !== "pointer") try { f.focus({ preventScroll: true }); } catch (e) { } } }
+            else if (from === "esc") { var b0 = dlg.querySelector('.lymtab [data-msh]'); if (b0) b0.focus(); }
+          };
+          tb0.addEventListener("click", function (e) { var b = e.target.closest("[data-msh]"); if (b) show(b.getAttribute("data-msh"), e.detail ? "pointer" : "key"); });
+          grip.addEventListener("click", function () { var f = !dlg.classList.contains("ly-msf"); dlg.classList.toggle("ly-msf", f); grip.setAttribute("aria-pressed", f ? "true" : "false"); });
+          dlg.addEventListener("keydown", function (e) { if (e.key === "Escape" && cur0 && mq.matches) { var pal0 = dlg.querySelector(".lycmdk"); if (pal0 && !pal0.hidden) return; var dm0 = dlg.querySelector(".lyviewm[open]"); if (dm0) return; e.preventDefault(); e.stopPropagation(); show("", "esc"); } }, true);
+          /* Werkzeug gewählt → Blatt schliessen, damit auf der Karte gezeichnet werden kann */
+          dlg.addEventListener("click", function (e) { if (!mq.matches || cur0 !== "tools") return; var b = e.target.closest && e.target.closest("#kmToolsBody button[data-k^=m], #kmToolsBody button[data-k=route], #kmToolsBody button[data-eop]"); if (b) setTimeout(function () { if (b.getAttribute("aria-pressed") === "true" || b.hasAttribute("data-eop")) show(""); }, 0); });
+          /* Ebenen-Knopf der Kopfleiste steuert auf dem Handy das Blatt «Ebenen» */
+          var mt = dlg.querySelector(".kmmidtog"); if (mt) mt.addEventListener("click", function (e) { if (!mq.matches) return; e.stopImmediatePropagation(); dlg.classList.remove("ly-hm"); hm.setAttribute("aria-expanded", "false"); hm.textContent = "☰"; show(cur0 === "mid" ? "" : "mid"); }, true);
+          var onMq = function () { if (!mq.matches) { show(""); dlg.classList.remove("ly-hm"); hm.setAttribute("aria-expanded", "false"); hm.textContent = "☰"; } inv(); };
+          if (mq.addEventListener) mq.addEventListener("change", onMq); else if (mq.addListener) mq.addListener(onMq);
+          window.__LYMOB = { show: show };
+        })();
         var fo = bottom.querySelector(".kmfoot"); if (fo) ["save", "apply"].forEach(function (k) { var x = fo.querySelector('[data-k="' + k + '"]'); if (x) hb2.appendChild(x); });   /* Sichern/Übernehmen oben rechts */
         var sw0 = head.querySelector(".kmsw"); if (sw0) { sw0.classList.add("lysearch"); canvas.appendChild(sw0); }   /* Ortssuche als Feld über der Karte */
         var vw = bottom.querySelector(".kmview"), tg0 = head.querySelector(".kmmidtog"); if (vw && tg0) vw.insertBefore(tg0, vw.firstChild);   /* Ebenen und Fenster-Reset in die Fussleiste */
@@ -791,7 +823,7 @@
           if (vw2) { var dm = E("details", "lyviewm"); dm.innerHTML = "<summary>" + esc(tt("ly_view")) + "</summary>"; var box = E("div", "lyviewb"); while (vw2.firstChild) box.appendChild(vw2.firstChild); if (units) box.appendChild(units); var lyl = head.querySelector(".lylay"); if (lyl) box.insertBefore(lyl, box.firstChild); dm.appendChild(box); vw2.appendChild(dm); vw2.classList.add("lyview"); }
           var cr = dlg.querySelector(":scope > p.kmcred"); if (cr) { cr.classList.add("lycred"); bottom.appendChild(cr); }
           dm && dm.addEventListener("toggle", function () { if (dm.open) { var x = dm.querySelector("button,select,a"); if (x) x.focus(); } });
-          dlg.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && dm && dm.open) { ev.preventDefault(); ev.stopPropagation(); dm.open = false; dm.querySelector("summary").focus(); } }, true);
+          dlg.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && dm && dm.open && !dlg.querySelector(".lycmdk:not([hidden])")) { ev.preventDefault(); ev.stopPropagation(); dm.open = false; dm.querySelector("summary").focus(); } }, true);
           /* Dock-Höhe: Griff ziehen oder mit Pfeiltasten (UI-Einstellung lvd-dockh) */
           var DH = "lvd-dockh", h0 = 220; try { h0 = Math.max(120, Math.min(560, +localStorage.getItem(DH) || 220)); } catch (e) { }
           dlg.style.setProperty("--lydh", h0 + "px");

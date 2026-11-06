@@ -368,3 +368,8 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 - **Vorher:** ein einziger Umfang für alle; Werkzeuge, Ansichten und Positionen nur über ihre Knöpfe auffindbar; Layout-Umschalter in der Kopfleiste.
 - **Nachher:** Bedienmodus Einfach / Standard / Experte (gemerkt pro Gerät, nicht im Projekt). **Strg+K** öffnet eine Befehlsleiste, die Werkzeuge, Ansichten, Befehle, Kartenobjekte und LV-Positionen durchsucht; im Modus Einfach ausgeblendete Werkzeuge bleiben dort erreichbar. Layout-Umschalter im Menü «Ansicht».
 - **Kostenwirkung:** keine (t78 identisch). Tests t81, t65.
+
+## Handy und Tablet: Arbeitsplatz mit Bottom Sheets (V102, Redesign Phase H)
+- **Vorher:** Handy startete auf der klassischen Seite; die Karte war dort eine lange Scrollseite (665 px breit auf 390 px, Bereiche untereinander).
+- **Nachher:** Arbeitsplatz auch auf dem Handy: Karte vollflächig, Menü ☰ oben, Bereichsleiste unten (Werkzeuge, Ebenen, Eigenschaften, Auswertung, Mehr) mit Bottom Sheets (½/voll), Kosten netto immer sichtbar, Befehlsleiste über ⌕. 320–860 px ohne Überlauf, Zielgrössen ≥ 44 px. Die klassische Seite bleibt über «Ansicht › Layout» wählbar.
+- **Kostenwirkung:** keine (t78 identisch). Tests t82, t65.

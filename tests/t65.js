@@ -72,8 +72,8 @@ const waitLy = async (pg, ms) => { for (let t = 0; t < (ms || 15000); t += 250) 
   await pg.selectOption('#lySel', 'classic'); await pg.waitForTimeout(500);
   ok(await pg.locator('dialog.kmlya[open]').count() === 0 && await pg.evaluate(() => localStorage.getItem('lvd-layout')) === 'classic', 'Layout-Umschalter «Klassische Ansicht» merkt die Wahl');
   await pg.reload(); await pg.waitForTimeout(2500); ok(await pg.locator('dialog.kmlya[open]').count() === 0, 'klassische Ansicht bleibt nach Neuladen');
-  // Handy: klassische Seite, kein Überlauf
+  // Handy: Arbeitsplatz mit Bereichsleiste unten (Phase H), kein Überlauf
   const ph = await mk(b, 390, 844); await toA(ph); await ph.waitForTimeout(2500);
-  ok(await ph.locator('dialog.kmlya[open]').count() === 0 && await ph.evaluate(() => document.documentElement.scrollWidth <= 391), 'Handy (390 px): klassische Seite, kein Überlauf');
+  ok(await ph.locator('dialog.kmlya[open]').count() === 1 && await ph.locator('.lymtab').isVisible() && await ph.evaluate(() => document.querySelector('dialog.kmlya').scrollWidth <= 391), 'Handy (390 px): Arbeitsplatz mit Bereichsleiste, kein Überlauf');
   ok(pg.errs.length === 0 && ph.errs.length === 0, 'keine JS-Fehler ' + pg.errs.concat(ph.errs).join('|')); await b.close();
 })();
