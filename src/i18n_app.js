@@ -752,6 +752,7 @@
     ov_gAdd: ["Passpunkt hinzufügen", "Ajouter un point de calage", "Aggiungere punto di appoggio", "Add control point"],
     ov_gClr: ["Alle Passpunkte löschen", "Supprimer tous les points de calage", "Eliminare tutti i punti di appoggio", "Delete all control points"],
     ov_gClrDone: ["Passpunkte gelöscht – Ausrichtung bleibt.", "Points de calage supprimés – l’alignement reste.", "Punti di appoggio eliminati – l’allineamento resta.", "Control points deleted – alignment remains."],
+    ov_gNew: ["Neue Ausrichtung: bisherige Passpunkte entfernt (zum Verfeinern «Passpunkt hinzufügen» in der Liste verwenden).", "Nouvel alignement : anciens points de calage retirés (pour affiner, utiliser « Ajouter un point de calage » dans la liste).", "Nuovo allineamento: punti di appoggio precedenti rimossi (per affinare usare «Aggiungere punto di appoggio» nell’elenco).", "New alignment: previous control points removed (to refine, use “Add control point” in the list)."],
     km_lbl: ["Beschriftung", "Étiquettes", "Etichette", "Labels"],
     ex_btn: ["Plan exportieren (A4/A3, massstäblich)", "Exporter le plan (A4/A3, à l'échelle)", "Esportare il piano (A4/A3, in scala)", "Export plan (A4/A3, to scale)"],
     ex_title: ["Plan exportieren – A4/A3 massstäblich", "Exporter le plan – A4/A3 à l'échelle", "Esportare il piano – A4/A3 in scala", "Export plan – A4/A3 to scale"],

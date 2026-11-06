@@ -20,7 +20,7 @@ const K = require('./lib/k.js'), { chromium, ok, mk, getS, AXE } = K;
     let o = await O(); const sp = px(o, S[i][0], S[i][1]), tp = px(T, S[i][0], S[i][1]);
     await fitTo([sp, tp]); let c = await scr(sp); await pg.mouse.click(c[0], c[1]); await pg.waitForTimeout(150);
     c = await scr(tp); await pg.mouse.click(c[0], c[1]); await pg.waitForTimeout(200);
-    if (i === 1) { o = await O(); ok(Math.abs(o.mpp - 0.05) < 0.005 && Math.abs(o.rot - 12) < 1.5, 'nach 2 Punkten ausgerichtet (Massstab ' + o.mpp.toFixed(4) + ', Drehung ' + o.rot.toFixed(2) + '°)'); ok(await pg.locator('[data-gk=end]').isVisible(), 'Modus bleibt aktiv für weitere Punkte («Fertig» sichtbar)'); }
+    if (i === 1) { o = await O(); ok(Math.abs(o.mpp - 0.05) < 0.005 && Math.abs(o.rot - 12) < 1.5, 'nach 2 Punkten ausgerichtet (Massstab ' + o.mpp.toFixed(4) + ', Drehung ' + o.rot.toFixed(2) + '°)'); ok(await pg.locator('[data-gk=add]').isVisible() && await pg.getAttribute('[data-k=mgeo]', 'aria-pressed') === 'false', 'nach 2 Punkten fertig, «Passpunkt hinzufügen» angeboten'); await pg.click('[data-gk=add]'); await pg.waitForTimeout(150); ok(await pg.locator('[data-gk=end]').isVisible(), '«Passpunkt hinzufügen» setzt fort, bestehende Punkte bleiben (Modus aktiv bis «Fertig»)'); }
   }
   let o = await O();
   ok(o.gcp.length === 4 && o.gcp.every(g => g.r != null) && o.rms != null, 'Ausgleich über 4 Punkte mit Restabweichung je Punkt (±' + (o.rms * 100).toFixed(1) + ' cm)');
