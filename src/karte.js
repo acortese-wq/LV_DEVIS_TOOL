@@ -254,12 +254,12 @@
   }
   /* DXF-Hintergrund im Bericht: sichtbare Layer, nur was im Ausschnitt liegt; Texte massstäblich */
   function dxfSvg(D, px, sc, W, H) {
-    if (!D || !D.it || !D.lay) return ""; var o = "", n = 0, inb = function (q) { return q[0] > -50 && q[0] < W + 50 && q[1] > -50 && q[1] < H + 50; };
+    if (!D || !D.it || !D.lay) return ""; var colOf = function (s) { var L0 = D.lay[s.l] || {}; return (L0.fc ? L0.c : s.c || L0.c) || "#7b2cbf"; }, o = "", n = 0, inb = function (q) { return q[0] > -50 && q[0] < W + 50 && q[1] > -50 && q[1] < H + 50; };
     D.it.forEach(function (s) { if (n > 6000 || !D.lay[s.l] || !D.lay[s.l].on) return;
       if (s.t) { var q = px(s.p), fs = (s.h || 0.25) / sc; if (fs < 2.2 || !inb(q)) return; n++;
-        o += '<text x="' + q[0].toFixed(1) + '" y="' + q[1].toFixed(1) + '" font-size="' + fs.toFixed(1) + '" fill="' + esc(s.c || D.lay[s.l].c || "#333") + '" font-family="Arial,sans-serif" text-anchor="' + ["start", "middle", "end"][s.ah || 0] + '" dominant-baseline="' + ["alphabetic", "central", "hanging"][s.av || 0] + '"' + (s.r ? ' transform="rotate(' + (-s.r) + " " + q[0].toFixed(1) + " " + q[1].toFixed(1) + ')"' : "") + ">" + esc(s.t) + "</text>"; return; }
+        o += '<text x="' + q[0].toFixed(1) + '" y="' + q[1].toFixed(1) + '" font-size="' + fs.toFixed(1) + '" fill="' + esc(colOf(s)) + '" font-family="Arial,sans-serif" text-anchor="' + ["start", "middle", "end"][s.ah || 0] + '" dominant-baseline="' + ["alphabetic", "central", "hanging"][s.av || 0] + '"' + (s.r ? ' transform="rotate(' + (-s.r) + " " + q[0].toFixed(1) + " " + q[1].toFixed(1) + ')"' : "") + ">" + esc(s.t) + "</text>"; return; }
       var P = s.p.map(px); if (!P.some(inb)) return; n++;
-      var LY = D.lay[s.l]; o += '<polyline points="' + P.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" ") + '" fill="none" stroke="' + esc(s.c || LY.c || "#333") + '" stroke-width="' + ((LY.w || 1.3) * 0.55).toFixed(2) + '"' + (LY.d ? ' stroke-dasharray="4 3"' : "") + ' stroke-opacity=".85"/>'; });
+      var LY = D.lay[s.l]; o += '<polyline points="' + P.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" ") + '" fill="none" stroke="' + esc(colOf(s)) + '" stroke-width="' + ((LY.w || 1.3) * 0.55).toFixed(2) + '"' + (LY.d ? ' stroke-dasharray="4 3"' : "") + ' stroke-opacity=".85"/>'; });
     return o ? '<g class="dxfbg">' + o + "</g>" : "";
   }
   /* kleine Vorschau je Datensatz */
@@ -323,6 +323,25 @@
     ks.sort(function (a, b) { return c[b] - c[a]; });
     return ks.length === 1 || c[ks[0]] > c[ks[1]] ? ks[0] : 0;
   }
+  /* Plankopf mit Zentrumskoordinate (z. B. Swisscom Geo-Portal / Netzauskunft, Werkleitungsauskünfte): «Zentrumskoordinate 2759580 / 1191179» (LV95, LV03 wird umgerechnet) */
+  function planCenter(txt) {
+    if (!/Zentrumskoordinate|Zentrum(?:s)?koord|Kartenmitte|Coordonn[ée]es? (?:du )?centre|Coordinat[ae] (?:del )?centr|Cent(?:re|er) coordinate/i.test(txt)) return null;
+    var num = function (x) { return parseFloat(String(x).replace(/['\u2019\s]/g, "").replace(",", ".")); };
+    var m = /(2['\u2019 ]?[4-8]\d{2}['\u2019 ]?\d{3}(?:[.,]\d+)?)\s*[\/,;]\s*(1['\u2019 ]?[0-3]\d{2}['\u2019 ]?\d{3}(?:[.,]\d{1,3}(?!\d))?)/.exec(txt);   /* LV95 (genau 7 Stellen; folgender Text kann direkt anschliessen): E / N; Werte stehen im Plankopf oft getrennt von der Bezeichnung, teils direkt an andere Zahlen angehängt */
+    if (m) return [num(m[1]), num(m[2])];
+    m = /(?:^|[^\d.])([4-8]\d{2}['\u2019 ]?\d{3}(?:[.,]\d+)?)\s*[\/,;]\s*([0-3]\d{2}['\u2019 ]?\d{3}(?:[.,]\d+)?)(?!\d)/.exec(txt);   /* LV03 */
+    if (m) { var e = num(m[1]), n = num(m[2]); if (e > 4.4e5 && e < 9e5 && n > 4e4 && n < 4e5) return [e + 2e6, n + 1e6]; }
+    return null;
+  }
+  /* Kartenrahmen: äusserste dunkle Linien, die mehr als 55 % der Breite/Höhe durchlaufen → [x0,y0,x1,y1] in Pixeln */
+  function frameBox(c) {
+    var w = c.width, h = c.height, st = Math.max(1, Math.round(Math.max(w, h) / 1600)), d = c.getContext("2d").getImageData(0, 0, w, h).data, dk = function (x, y) { var i = (y * w + x) * 4; return d[i] + d[i + 1] + d[i + 2] < 330; };
+    var rows = [], cols = [], y, x, n;
+    for (y = 0; y < h; y += 1) { n = 0; for (x = 0; x < w; x += st) if (dk(x, y)) n++; if (n * st > 0.55 * w) rows.push(y); }
+    for (x = 0; x < w; x += 1) { n = 0; for (y = 0; y < h; y += st) if (dk(x, y)) n++; if (n * st > 0.55 * h) cols.push(x); }
+    if (rows.length < 2 || cols.length < 2) return null; var y0 = rows[0], y1 = rows[rows.length - 1], x0 = cols[0], x1 = cols[cols.length - 1];
+    return (x1 - x0) > 0.5 * w && (y1 - y0) > 0.5 * h ? [x0, y0, x1, y1] : null;
+  }
   /* file -> Promise<{pages, render(n)->Promise<{img,w,h,ratio,mpp}>}> */
   function planSource(file) {
     if (/\.pdf$/i.test(file.name) || file.type === "application/pdf") {
@@ -336,6 +355,7 @@
                 var txt = tc.items.map(function (i) { return i.str; }).join(""), N = detectRatio(txt, file.name);
                 if (N) { r.ratio = N; r.mpp = 0.0003528 * N / sc; }   /* 1 pt = 0.3528 mm */
                 try { r.grid = gridFromItems(tc.items, vp, sc, r.mpp || 0); r.words = planWords(txt.replace(/ {2,}/g, " ")); } catch (e) { r.grid = null; r.words = []; }
+                try { var zc = planCenter(txt); if (zc && r.mpp) { var fr = frameBox(c); r.center = { E: zc[0], N: zc[1], fx: fr ? (fr[0] + fr[2]) / 2 : c.width / 2, fy: fr ? (fr[1] + fr[3]) / 2 : c.height / 2, fr: !!fr, gp: /Geo-?Portal|Netzauskunft|Auskunftnummer/i.test(txt) }; } } catch (e) { }
                 return r;
               }, function () { return r; });
             });
@@ -567,7 +587,7 @@
       '<button type="button" class="btn small" data-k="mwl" aria-pressed="false">' + esc(tt("km_wl")) + '</button><select id="kmWlT" class="kmwlt" aria-label="' + esc(tt("km_wlType")) + '">' + ["ts", "bo", "sg", "zs"].map(function (k) { return '<option value="' + k + '"' + (k === "sg" ? " selected" : "") + ">" + esc(tt("km_wl" + k)) + "</option>"; }).join("") + "</select>" +
       '<button type="button" class="btn small" data-k="mgeb" aria-pressed="false">' + esc(tt("km_geb")) + "</button>" +
       (plan ? "" : '<button type="button" class="btn small" data-k="route" aria-pressed="false" aria-haspopup="dialog">' + esc(tt("km_rt_btn")) + "</button>" +
-        '<button type="button" class="btn small" data-k="dxfin" aria-haspopup="dialog">' + esc(tt("km_dxfIn")) + '</button><input type="file" id="kmDxfF" accept=".dxf,application/dxf,image/vnd.dxf" hidden>') +
+        '<button type="button" class="btn small" data-k="dxfin" aria-haspopup="dialog">' + esc(tt("km_dxfIn")) + '</button><input type="file" id="kmDxfF" accept=".dxf,application/dxf,image/vnd.dxf,.pdf,application/pdf" hidden>') +
       "</div>" +
       '<div class="kmgrp" role="group" aria-label="' + esc(tt("km_g_note")) + '"><span class="kmgl" aria-hidden="true">' + esc(tt("km_g_note")) + "</span>" +
       '<button type="button" class="btn small" data-k="mtext" aria-pressed="false">' + esc(tt("km_nText")) + "</button>" +
@@ -1953,12 +1973,15 @@
       var npts = 0; rest.forEach(function (s) { if (!s.t) npts += s.p.length; });
       var simp = 0; [0.05, 0.2, 0.5].forEach(function (tol) { if (npts <= 150000) return; simp = tol; npts = 0; rest.forEach(function (s) { if (!s.t && s.p.length > 2) s.p = dpSimp(s.p, tol); if (!s.t) npts += s.p.length; }); });
       var lays = {}; rest.forEach(function (s) { var L1 = lays[s.l] = lays[s.l] || { n: 0, k: 0, c: layCol[s.l] != null && layCol[s.l] > 0 && layCol[s.l] !== 7 ? aciCol(layCol[s.l]) : null }; L1.n++; if (s.k) L1.k++; });
-      var sc0 = 0; Object.keys(lays).forEach(function (l) { var st = dxfKnown(l); if (st) { sc0++; lays[l].g = st.g; if (!lays[l].c) lays[l].c = st.c; lays[l].w = st.w; if (st.d) lays[l].d = st.d; } if (!lays[l].c) lays[l].c = "#333333"; });
+      var sc0 = 0; Object.keys(lays).forEach(function (l) { var st = dxfKnown(l); if (st) { sc0++; lays[l].g = st.g; if (!lays[l].c) lays[l].c = st.c; lays[l].w = st.w; if (st.d) lays[l].d = st.d; } if (!lays[l].c) lays[l].c = DXF_VIOLET; });
       rest.forEach(function (s) { if (!s.c) delete s.c; });
       return { it: rest, lay: lays, scheme: sc0 ? "sc" : "", cnt: cnt, skip: skip, bad: bad, sys: sys.lv03 > sys.lv95 ? "LV03" : "LV95", simp: simp, nTxt: rest.filter(function (s) { return s.t; }).length };
     }
     /* Bekannte Ebenenschlüssel: Swisscom-Netzauskunft (SIA 405), z. B. SCZ161U-MLU1 = Trasse unterirdisch, < 0.5 m, Lage genau.
        Darstellung angelehnt an das Swisscom Geo-Portal: Bestand dunkel, Lage ungenau gestrichelt, Schächte blau. */
+    var DXF_VIOLET = "#7b2cbf";   /* keine Farbe bestimmbar (weder Layer- noch Objektfarbe, kein bekanntes Schema) */
+    function dxfCol(D, s) { var L0 = D.lay[s.l] || {}; return (L0.fc ? L0.c : s.c || L0.c) || DXF_VIOLET; }
+    function hexCol(c) { c = String(c || ""); if (/^#[0-9a-f]{6}$/i.test(c)) return c.toLowerCase(); var m = /rgb\((\d+),(\d+),(\d+)\)/.exec(c.replace(/\s/g, "")); if (m) return "#" + [m[1], m[2], m[3]].map(function (x) { return ("0" + (+x).toString(16)).slice(-2); }).join(""); var h = /hsl\((\d+),(\d+)%,(\d+)%\)/.exec(c.replace(/\s/g, "")); if (h) { var H = +h[1] / 360, S = +h[2] / 100, Lq = +h[3] / 100, q = Lq < 0.5 ? Lq * (1 + S) : Lq + S - Lq * S, p = 2 * Lq - q, f = function (t) { t = (t + 1) % 1; return t < 1 / 6 ? p + (q - p) * 6 * t : t < 0.5 ? q : t < 2 / 3 ? p + (q - p) * (2 / 3 - t) * 6 : p; }; return "#" + [f(H + 1 / 3), f(H), f(H - 1 / 3)].map(function (x) { return ("0" + Math.round(x * 255).toString(16)).slice(-2); }).join(""); } return DXF_VIOLET; }
     function dxfParseKey(l) { var m = /^SCZ(16[123])([A-Z-])-?-?(MLU|MFU|MSU|T--)(-|0|1)$/i.exec(String(l || "").replace(/\s+/g, "")); return m ? { o: m[1], u: m[2].toUpperCase(), k: m[3].toUpperCase(), q: m[4] } : null; }
     function dxfKnown(l) {
       var m = dxfParseKey(l); if (!m) return null; var sch = m.o === "163", ung = m.q === "0";
@@ -1996,16 +2019,18 @@
       a.innerHTML = '<p class="kmrt-t" id="kmDxfT"><b>' + esc(tt("km_dxfT")) + "</b> · " + esc(fname) + '</p><p class="hint">' + esc(tt("km_dxfInfo2").replace("{g}", nL).replace("{t}", res.nTxt).replace("{k}", ln.length).replace("{c}", res.sys)) +
         (sk ? " " + esc(tt("km_dxfSkip").replace("{s}", sk)) : "") + (res.bad ? " " + esc(tt("km_dxfBad").replace("{n}", res.bad)) : "") + (res.simp ? " " + esc(tt("km_dxfSimp").replace("{m}", String(res.simp))) : "") + (M.dxf ? " " + esc(tt("km_dxfRepl")) : "") + "</p>" + (res.scheme === "sc" ? '<p class="hint kmdxsc">ℹ ' + esc(tt("dx_sc")) + "</p>" : "") +
         '<table class="kmdxtab"><thead><tr><th scope="col">' + esc(tt("km_dxfLays")) + '</th><th scope="col">' + esc(tt("km_dxfShow")) + '</th><th scope="col">' + esc(tt("km_dxfAsLine")) + "</th></tr></thead><tbody>" +
-        ln.map(function (l, i) { var L1 = res.lay[l], lb = dxfLbl(l); return '<tr><th scope="row"><span class="kmdxsw' + (L1.d ? " dash" : "") + '" style="background:' + esc(L1.c) + '" aria-hidden="true"></span>' + (lb ? esc(lb) + ' <span class="hint kmdxc">' + esc(l) + "</span>" : esc(l)) + ' <span class="hint">(' + L1.n + ")</span></th>" +
+        ln.map(function (l, i) { var L1 = res.lay[l], lb = dxfLbl(l); return '<tr><th scope="row"><input type="color" class="kmdxcol" data-dxc="' + esc(l) + '" value="' + esc(hexCol(L1.c)) + '" aria-label="' + esc(tt("km_dxfCol") + ": " + (lb || l)) + '" title="' + esc(tt("km_dxfCol_t")) + '">' + (lb ? esc(lb) + ' <span class="hint kmdxc">' + esc(l) + "</span>" : esc(l)) + ' <span class="hint">(' + L1.n + ")</span></th>" +
           '<td><input type="checkbox" data-dxs="' + esc(l) + '" checked aria-label="' + esc(tt("km_dxfShow") + ": " + l) + '"></td><td>' + (L1.k ? '<input type="checkbox" data-dxl="' + esc(l) + '" aria-label="' + esc(tt("km_dxfAsLine") + ": " + l + " (" + L1.k + ")") + '"> <span class="hint">' + L1.k + "</span>" : "–") + "</td></tr>"; }).join("") +
-        '</tbody></table><p class="hint">' + esc(tt("km_dxfHint")) + '</p><div class="kmbar"><button type="button" class="btn small" data-dxg="go">' + esc(tt("km_dxfGo")) + '</button> <button type="button" class="btn ghost small" data-dxg="x">' + esc(tt("km_dxfX")) + "</button></div>";
+        '</tbody></table><div class="kmbar kmdxall"><label for="kmDxfAllC">' + esc(tt("km_dxfColAll")) + '</label><input type="color" id="kmDxfAllC" value="' + DXF_VIOLET + '"><button type="button" class="btn ghost small" data-dxg="col">' + esc(tt("km_dxfColAllGo")) + '</button></div><p class="hint">' + esc(tt("km_dxfHint")) + '</p><div class="kmbar"><button type="button" class="btn small" data-dxg="go">' + esc(tt("km_dxfGo")) + '</button> <button type="button" class="btn ghost small" data-dxg="x">' + esc(tt("km_dxfX")) + "</button></div>";
       canvas0().appendChild(a); var f = a.querySelector("button[data-dxg=go]"); if (f) f.focus();
       a.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); a.remove(); } });
       a.addEventListener("click", function (ev) {
         var b = ev.target.closest("[data-dxg]"); if (!b) return; if (b.dataset.dxg === "x") { a.remove(); return; }
+        if (b.dataset.dxg === "col") { var v0 = $("#kmDxfAllC").value; a.querySelectorAll("[data-dxc]").forEach(function (c) { c.value = v0; }); return; }
+        var colU = {}; a.querySelectorAll("[data-dxc]").forEach(function (c) { var l = c.getAttribute("data-dxc"); if (c.value !== hexCol(res.lay[l].c)) colU[l] = c.value; });
         var show = {}, want = {}; a.querySelectorAll("[data-dxs]").forEach(function (c) { show[c.getAttribute("data-dxs")] = c.checked; }); a.querySelectorAll("[data-dxl]").forEach(function (c) { if (c.checked) want[c.getAttribute("data-dxl")] = 1; });
         endLine(); var old = M.dxf || null, sn = JSON.stringify(M, noDxf); undoSt.push(sn); redoSt.length = 0; lyEdited = true;
-        var lay = {}; ln.forEach(function (l) { var R0 = res.lay[l]; lay[l] = { c: R0.c, n: R0.n, k: R0.k, on: show[l] !== false }; if (R0.w) lay[l].w = R0.w; if (R0.d) lay[l].d = R0.d; if (R0.g != null) lay[l].g = R0.g; });
+        var lay = {}; ln.forEach(function (l) { var R0 = res.lay[l]; lay[l] = { c: colU[l] || R0.c, n: R0.n, k: R0.k, on: show[l] !== false }; if (colU[l]) lay[l].fc = 1; if (R0.w) lay[l].w = R0.w; if (R0.d) lay[l].d = R0.d; if (R0.g != null) lay[l].g = R0.g; });
         M.dxf = { name: fname, sys: res.sys, lay: lay, it: res.it, sc: res.scheme || "" };
         var made = res.it.filter(function (s) { return s.k && want[s.l]; }).map(dxfToLine);
         a.remove(); dxfCache = null; if (made.length) sel = { id: made[0].id }; refresh(); dxfPanel();   /* dxfPanel zeichnet auch neu */
@@ -2025,7 +2050,7 @@
       dxfLay.clearLayers(); dxfTxt.clearLayers(); if (!D || !D.it) return;
       if (!dxfCache) dxfCache = D.it.map(function (s) { return s.t ? AD.ll(s.p) : s.p.map(AD.ll); });
       D.it.forEach(function (s, i) { if (s.t || !D.lay[s.l] || !D.lay[s.l].on) return;
-        var LY0 = D.lay[s.l], pl = L.polyline(dxfCache[i], { renderer: dxfRen, color: s.c || LY0.c || "#333", weight: LY0.w || 1.3, dashArray: LY0.d || null, opacity: 0.9, interactive: !!s.k, bubblingMouseEvents: true }); if (s.k) pl.on("click", function (ev) { if (mode) return; L.DomEvent.stop(ev); dxfPick(i); }); dxfLay.addLayer(pl); });
+        var LY0 = D.lay[s.l], pl = L.polyline(dxfCache[i], { renderer: dxfRen, color: dxfCol(D, s), weight: LY0.w || 1.3, dashArray: LY0.d || null, opacity: 0.9, interactive: !!s.k, bubblingMouseEvents: true }); if (s.k) pl.on("click", function (ev) { if (mode) return; L.DomEvent.stop(ev); dxfPick(i); }); dxfLay.addLayer(pl); });
       dxfTexts();
     }
     function dxfTexts() {
@@ -2033,7 +2058,7 @@
       var z = map.getZoom(), c = map.getCenter(), mpp = 156543.03 * Math.cos(c.lat * Math.PI / 180) / Math.pow(2, z), bb = map.getBounds().pad(0.2), n = 0;
       D.it.forEach(function (s, i) { if (!s.t || n > 2500 || !D.lay[s.l] || !D.lay[s.l].on) return; var px = (s.h || 0.25) / mpp; if (px < 2.5) return; px = Math.max(9, px);   /* ab ~1:400 lesbar (min. 9 px), wie Planbeschriftung */ var ll = dxfCache[i]; if (!bb.contains(ll)) return; n++;
         var tx = ["0", "-50%", "-100%"][s.ah || 0], ty = ["0", "50%", "100%"][s.av || 0];
-        var ic = L.divIcon({ className: "kmdxft", iconSize: [0, 0], html: '<span style="font-size:' + Math.min(px, 400).toFixed(1) + "px;color:" + esc(s.c || D.lay[s.l].c || "#333") + ";transform:rotate(" + (-(s.r || 0)) + "deg) translate(" + tx + ",-100%) translate(0," + ty + ')">' + esc(s.t) + "</span>" });
+        var ic = L.divIcon({ className: "kmdxft", iconSize: [0, 0], html: '<span style="font-size:' + Math.min(px, 400).toFixed(1) + "px;color:" + esc(dxfCol(D, s)) + ";transform:rotate(" + (-(s.r || 0)) + "deg) translate(" + tx + ",-100%) translate(0," + ty + ')">' + esc(s.t) + "</span>" });
         dxfTxt.addLayer(L.marker(ll, { icon: ic, pane: "kmdxft", interactive: false, keyboard: false })); });
     }
     function dxfPick(i) {
@@ -2052,17 +2077,20 @@
       var ln = Object.keys(D.lay).sort(function (x, y) { var gx = D.lay[x].g == null ? 9 : D.lay[x].g, gy = D.lay[y].g == null ? 9 : D.lay[y].g; return gx - gy || x.localeCompare(y); });
       b.innerHTML = '<p class="hint">' + esc(D.name || "DXF") + " · " + D.it.length + " " + esc(tt("km_dxfObj")) + " · " + esc(D.sys || "LV95") + '</p><div class="kmbar"><button type="button" class="btn ghost small" data-dxa="on">' + esc(tt("km_dxfAllOn")) + '</button><button type="button" class="btn ghost small" data-dxa="off">' + esc(tt("km_dxfAllOff")) + "</button></div>" +
         (D.sc ? '<p class="hint kmdxsc">' + esc(tt("dx_scShort")) + "</p>" : "") +
-        '<ul class="kmdxl">' + ln.map(function (l) { var L1 = D.lay[l], lb = dxfLbl(l); return '<li><label class="check"><input type="checkbox" data-dxo="' + esc(l) + '"' + (L1.on ? " checked" : "") + '><span class="kmdxsw' + (L1.d ? " dash" : "") + '" style="background:' + esc(L1.c) + '" aria-hidden="true"></span><span>' + (lb ? esc(lb) + ' <span class="hint kmdxc">' + esc(l) + "</span>" : esc(l)) + ' <span class="hint">(' + L1.n + ")</span></span></label>" +
+        '<ul class="kmdxl">' + ln.map(function (l) { var L1 = D.lay[l], lb = dxfLbl(l); return '<li><input type="color" class="kmdxcol" data-dxc="' + esc(l) + '" value="' + esc(hexCol(L1.c)) + '" aria-label="' + esc(tt("km_dxfCol") + ": " + (lb || l)) + '" title="' + esc(tt("km_dxfCol_t")) + '"><label class="check"><input type="checkbox" data-dxo="' + esc(l) + '"' + (L1.on ? " checked" : "") + '><span>' + (lb ? esc(lb) + ' <span class="hint kmdxc">' + esc(l) + "</span>" : esc(l)) + ' <span class="hint">(' + L1.n + ")</span></span></label>" +
           (L1.k ? '<button type="button" class="btn ghost small" data-dxk="' + esc(l) + '" title="' + esc(tt("km_dxfLayLine_t")) + '" aria-label="' + esc(tt("km_dxfLayLine") + ": " + l) + '">' + esc(tt("km_dxfLayLine")) + "</button>" : "") + "</li>"; }).join("") + "</ul>" +
+        '<div class="kmbar kmdxall"><label for="kmDxfAllC2">' + esc(tt("km_dxfColAll")) + '</label><input type="color" id="kmDxfAllC2" value="' + DXF_VIOLET + '"><button type="button" class="btn ghost small" data-dxa="col">' + esc(tt("km_dxfColAllGo")) + '</button><button type="button" class="btn ghost small" data-dxa="orig">' + esc(tt("km_dxfColOrig")) + "</button></div>" +
         '<div class="kmbar"><button type="button" class="btn ghost small" data-dxa="new">' + esc(tt("km_dxfNew")) + '</button><button type="button" class="btn ghost small del" data-dxa="del">' + esc(tt("km_dxfDel")) + "</button></div>";
     }
     function dxfPanelEv() {
       var b = $("#kmDxfB"); if (!b) return;
-      b.addEventListener("change", function (e) { var c = e.target.closest("[data-dxo]"); if (!c || !M.dxf) return; M.dxf.lay[c.getAttribute("data-dxo")].on = c.checked; lyEdited = true; dxfDraw(); });
+      b.addEventListener("change", function (e) { if (!M.dxf) return; var k0 = e.target.closest("[data-dxc]"); if (k0) { var L0 = M.dxf.lay[k0.getAttribute("data-dxc")]; L0.c0 = L0.c0 || L0.c; L0.c = k0.value; L0.fc = 1; lyEdited = true; dxfDraw(); return; }
+        var c = e.target.closest("[data-dxo]"); if (!c) return; M.dxf.lay[c.getAttribute("data-dxo")].on = c.checked; lyEdited = true; dxfDraw(); });
       b.addEventListener("click", function (e) {
         var a = e.target.closest("[data-dxa]"), k = e.target.closest("[data-dxk]"), D = M.dxf; if (!D) return;
         if (k) { var ly = k.getAttribute("data-dxk"), its = D.it.filter(function (s) { return s.k && s.l === ly; }); if (!its.length) return; snap(); var made = its.map(dxfToLine); sel = { id: made[0].id }; refresh(); toast(dlg, tt("km_dxfDone").replace("{n}", made.length), tt("km_undoBtn"), function () { undo(); }); return; }
         if (!a) return; var w = a.dataset.dxa;
+        if (w === "col" || w === "orig") { var v1 = ($("#kmDxfAllC2") || {}).value || DXF_VIOLET; Object.keys(D.lay).forEach(function (l) { var L0 = D.lay[l]; if (w === "col") { L0.c0 = L0.c0 || L0.c; L0.c = v1; L0.fc = 1; } else { if (L0.c0) L0.c = L0.c0; delete L0.fc; } }); lyEdited = true; dxfPanel(); return; }
         if (w === "on" || w === "off") { Object.keys(D.lay).forEach(function (l) { D.lay[l].on = w === "on"; }); lyEdited = true; dxfPanel(); }
         else if (w === "new") { var fi = $("#kmDxfF"); if (fi) { fi.value = ""; fi.click(); } }
         else if (w === "del") { var old = D; M.dxf = null; lyEdited = true; dxfCache = null; dxfPanel(); var fo = $("[data-k=dxfin]"); if (fo) fo.focus(); toast(dlg, tt("km_dxfDelDone"), tt("km_undoBtn"), function () { M.dxf = old; dxfCache = null; dxfPanel(); }); }
@@ -2451,6 +2479,10 @@
     var cs = $("#kmCol"); cs.addEventListener("change", function () { noteCol = cs.value; });
     var dxfF = $("#kmDxfF"); if (dxfF) dxfF.addEventListener("change", function () {
       var f = dxfF.files && dxfF.files[0]; if (!f) return;
+      if (!/\.dxf$/i.test(f.name) && (/\.pdf$/i.test(f.name) || f.type === "application/pdf" || /^image\/(png|jpe?g|gif|webp)$/.test(f.type))) {   /* PDF/Bild: als Planunterlage auf die Karte (Geo-Portal: automatisch platziert) */
+        var of = $("#kmOvF"); if (of) { try { var dt = new DataTransfer(); dt.items.add(f); of.files = dt.files; } catch (x) { return; } var od = $("#kmOvD"); if (od) od.open = true; var tg = $(".kmmidtog"); if (tg && tg.getAttribute("aria-expanded") !== "true") tg.click(); of.dispatchEvent(new Event("change")); }
+        return;
+      }
       if (f.size > 20e6) { toast(dlg, "⚠ " + tt("km_dxfBig")); return; }
       var rd = new FileReader(); rd.onload = function () { var by = new Uint8Array(rd.result), t;
         if (/^AutoCAD Binary DXF/.test(String.fromCharCode.apply(null, by.subarray(0, 22)))) { toast(dlg, "⚠ " + tt("km_dxfBin")); return; }
@@ -2661,6 +2693,9 @@
           ov0 = JSON.stringify(ovl); ovl.E = res.E; ovl.N = res.N; ovl.rot = 0; if (res.mpp) { ovl.mpp = res.mpp; ovl.auto = 0; } ovl.autoSrc = res.src; ovl.conf = false;
           fitAll(); refresh(); m0.textContent = ""; at.textContent = res.txt; card.hidden = false; $("[data-oa=ok]").focus();
         };
+        if (r.center && mpp) { var zc = r.center; fin({ src: "center", E: zc.E + (r.w / 2 - zc.fx) * mpp, N: zc.N - (r.h / 2 - zc.fy) * mpp, mpp: mpp, txt: autoTxt(zc.gp ? "ov_autoGp" : "ov_autoCenter", { e: Math.round(zc.E), n: Math.round(zc.N), r: r.ratio || "" }) });
+          if (ovl && run === autoRun) { ovl.conf = true; ovl.op = zc.gp ? 0.5 : ovl.op; ovDraw(); }   /* exakt aus dem Plankopf: ohne weitere Bestätigung gültig, «Verwerfen» bleibt möglich */
+          return; }
         if (r.grid) { var g = r.grid; return fin({ src: "grid", E: g.E0 + g.mpp * r.w / 2, N: g.N0 - g.mpp * r.h / 2, mpp: g.mpp, txt: autoTxt("ov_autoGrid", { n: g.n, s: g.rms < 0.1 ? "0.1" : (Math.round(g.rms * 10) / 10) }) }); }
         if (!mpp) return fin(null);
         m0.textContent = tt("ov_autoRun"); m0.className = "hint";

@@ -336,3 +336,10 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 - **Gespeichert und gedruckt:** DXF-Hintergrund mit Layerstand im Projekt und in der JSON-Sicherung; sichtbare Layer erscheinen in der Situationskarte des Projektberichts.
 - **Bericht:** Situationskarte jetzt auf A4 hoch (alle Seiten hoch), festes Seitenverhältnis – nichts verzogen.
 - **Kostenwirkung:** keine durch den Hintergrund; nur Linien, die bewusst «als Leitung» übernommen werden (wie gezeichnete Leitungen nach «Übernehmen»). Tests t73, t66.
+
+## Geo-Portal-PDF automatisch auf der Karte, DXF-Farben (V97)
+- **Vorher:** Ein Plan-PDF der Swisscom-Netzauskunft (Geo-Portal) liess sich nur über Passpunkte ausrichten; DXF-Layer ohne Farbe erschienen grau, Farben waren nicht wählbar.
+- **PDF automatisch platziert:** Steht im Plankopf eine Zentrumskoordinate (z. B. «Zentrumskoordinate 2759580 / 1191179», LV95 oder LV03) und ein Massstab (1:500), wird der Plan exakt gesetzt: Kartenrahmen wird im Bild erkannt, seine Mitte = Zentrumskoordinate, Massstab aus dem Plankopf, Nord oben. Gilt ohne weitere Bestätigung («Verwerfen» und Passpunkte bleiben möglich). Funktioniert auch, wenn Bezeichnungen und Werte im PDF getrennt stehen. Geprüft mit einer echten Netzauskunft (PDF und DXF desselben Ausschnitts liegen deckungsgleich).
+- **Ein Werkzeug für beides:** «DXF/PDF importieren» – DXF wird Hintergrund, PDF/Bild wird Planunterlage; das Fenster «Ebenen» öffnet sich.
+- **DXF-Farben:** je Layer Farbwahl im Importfenster und in der Seitenleiste, «Eine Farbe für alle», «Originalfarben». Ist keine Farbe bestimmbar (weder Layer- noch Objektfarbe, kein bekanntes Schema), wird **violett** (#7b2cbf) dargestellt. Farben gelten in Karte und Projektbericht und werden gespeichert.
+- Keine Kostenwirkung. Test t75.
