@@ -645,13 +645,14 @@
   function lyPref() { try { var v = localStorage.getItem("lvd-layout"); if (v) return v === "classic" ? "classic" : "a"; } catch (e) { } return window.__LVD_LAYOUT_DEFAULT === "classic" ? "classic" : "a"; }   /* gespeicherte Wahl, sonst Vorgabe (Tests: klassisch), sonst Layout A */
   function lySetPref(v) { try { localStorage.setItem("lvd-layout", v); } catch (e) { } }
   function lyWide() { return !window.matchMedia || window.matchMedia("(min-width:861px)").matches; }
-  function lyOpen(retry) {   /* Kartenerfassung als Startbildschirm (Layout A) */
+  function lyOpen(retry, keep) {   /* Kartenerfassung als Startbildschirm (Layout A); keep = { model, view, edited } beim Sprachwechsel */
     if (document.querySelector("dialog.kmdlg[open]")) return;
     var tab = LYTABS.indexOf(S.tab) >= 0 ? S.tab : "graben", cfg = S.recs[tab][S.idx[tab]] || S.recs.graben[0];
     if (cfg !== S.recs[tab][S.idx[tab]]) tab = "graben";
     var b = document.createElement("button"), m = $("#lyMsg") || document.createElement("p");
-    KARTE.load().then(function () { openKarte(cfg, tab, b, m, { layoutA: true }); }, function () {   /* Kartenbibliothek nicht geladen: einmal neu versuchen, sonst Meldung neben dem Knopf */
-      if (!retry) setTimeout(function () { lyOpen(1); }, 800); else openKarte(cfg, tab, b, m, { layoutA: true }); });
+    var ex = { layoutA: true, keep: keep || null };
+    KARTE.load().then(function () { openKarte(cfg, tab, b, m, ex); }, function () {   /* Kartenbibliothek nicht geladen: einmal neu versuchen, sonst Meldung neben dem Knopf */
+      if (!retry) setTimeout(function () { lyOpen(1, keep); }, 800); else openKarte(cfg, tab, b, m, ex); });
   }
   function lyGo(t) {   /* Wechsel aus Layout A in eine Ansicht der klassischen Seite */
     var tgt = t === "rec" ? $("#tabs") : t === "res" ? $("#kpi") : $(".plankopf");
@@ -782,11 +783,12 @@
           var u0 = ensureUid(cfg); cfg.trasse.forEach(function (pts, i) { S.karte.lines.push({ id: "m" + i + u0, pts: pts, rid: i === 0 ? u0 : null, rohr: { sys: cfg.rohrSystem, dn: cfg.dn, len: cfg.len, n: cfg.n } }); }); delete cfg.trasse;
         }
         var g = tab === "graben" && cfg;
-        KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, cost: costPreview(cfg, tab), model: JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
+        KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, cost: costPreview(cfg, tab), model: ex.keep && ex.keep.model ? ex.keep.model : JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), view: ex.keep ? ex.keep.view : null, edited: !!(ex.keep && ex.keep.edited), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" && cfg ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" && cfg ? cfg.cm : "", abd: tab === "geb" && cfg ? cfg.abd : "hauff" }, defBelag: tab === "belag" && cfg ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
           onClose: function () { if (ex.layoutA) return; var o = $(ex.focus || "#kmOpen"); if (o) o.focus(); },
-          layoutA: ex.layoutA ? { proj: S.kopf.projekt || "", ort: S.kopf.ort || "", go: lyGo, after: function (t) { if (t === "stay") setTimeout(function () { lyOpen(); }, 0); else lyGo(t); }, setPref: lySetPref } : null, autoPlan: !!ex.autoPlan, planObjs: JSON.parse(JSON.stringify({ lines: S.plan.lines, pts: S.plan.pts, sond: S.plan.sond, wl: S.plan.wl, geb: S.plan.geb, areas: S.plan.areas, notes: S.plan.notes })), planScale: (S.plan.cal && S.plan.cal.scale) || 0,
+          layoutA: ex.layoutA ? { proj: S.kopf.projekt || "", ort: S.kopf.ort || "", go: lyGo, after: function (t) { if (t === "stay") setTimeout(function () { lyOpen(); }, 0); else lyGo(t); }, setPref: lySetPref,
+            lang: S.lang, setLang: function (l, keep) { S.lang = l; save(); applyLang(); setTimeout(function () { lyOpen(0, keep); }, 0); } } : null, autoPlan: !!ex.autoPlan, planObjs: JSON.parse(JSON.stringify({ lines: S.plan.lines, pts: S.plan.pts, sond: S.plan.sond, wl: S.plan.wl, geb: S.plan.geb, areas: S.plan.areas, notes: S.plan.notes })), planScale: (S.plan.cal && S.plan.cal.scale) || 0,
           onSave: function (M, cal, fns) { var bs = ["luft", "grau", "kataster", "leer", "av"].indexOf(fns.base) >= 0 ? fns.base : "farbe", keep = S.karte.bg; S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; save(); },
           onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st = karteApply(M, cfg, Object.assign({ src: "karte" }, fns) && lenFn, Object.assign({ src: "karte" }, fns)), bs = ["luft", "grau", "kataster", "leer", "av"].indexOf(fns.base) >= 0 ? fns.base : "farbe", keep = S.karte.bg;
             if (fns.planCleared) { ["lines", "pts", "sond", "wl", "geb", "areas", "notes"].forEach(function (k) { S.plan[k] = []; }); }

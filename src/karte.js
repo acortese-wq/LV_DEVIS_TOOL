@@ -656,6 +656,9 @@
         var hb2 = head.querySelector(".kmheadb"), nav = E("nav", "lynav"); nav.setAttribute("aria-label", tt("ly_views"));
         nav.innerHTML = [["map", "ly_vMap"], ["proj", "ly_vProj"], ["rec", "ly_vRec"], ["res", "ly_vRes"], ["rep", "ly_vRep"]].map(function (a) { return '<button type="button" class="btn ghost small" data-ly="' + a[0] + '"' + (a[0] === "map" ? ' aria-current="page"' : "") + ">" + esc(tt(a[1])) + "</button>"; }).join("");
         head.insertBefore(nav, hb2);
+        var lg = E("div", "lylang"); lg.setAttribute("role", "group"); lg.setAttribute("aria-label", tt("ly_lang"));   /* Sprache auch im Planungsfokus */
+        lg.innerHTML = ["de", "fr", "it", "en"].map(function (c) { return '<button type="button" class="btn ghost small" data-lylang="' + c + '" aria-pressed="' + (c === (LY.lang || opt.lang) ? "true" : "false") + '" lang="' + c + '">' + c.toUpperCase() + "</button>"; }).join("");
+        hb2.insertBefore(lg, hb2.firstChild);
         var fo = bottom.querySelector(".kmfoot"); if (fo) ["save", "apply"].forEach(function (k) { var x = fo.querySelector('[data-k="' + k + '"]'); if (x) hb2.appendChild(x); });   /* Sichern/Übernehmen oben rechts */
         var sw0 = head.querySelector(".kmsw"); if (sw0) { sw0.classList.add("lysearch"); canvas.appendChild(sw0); }   /* Ortssuche als Feld über der Karte */
         var vw = bottom.querySelector(".kmview"), tg0 = head.querySelector(".kmmidtog"); if (vw && tg0) vw.insertBefore(tg0, vw.firstChild);   /* Ebenen und Fenster-Reset in die Fussleiste */
@@ -866,7 +869,7 @@
       if (!noSnap) snap(); o.pts.splice(pj.seg + 1, 0, q); return pj.seg + 1;
     }
     function bindObj(lay, id, noMove) {
-      lay.on("click", function (e) { L.DomEvent.stop(e); if (Date.now() - lastMove < 250) return; if (e.originalEvent && (e.originalEvent.shiftKey || e.originalEvent.ctrlKey || e.originalEvent.metaKey) && mode === "edit") { var ids = selIds(); if (sel) { msel[sel.id] = 1; sel = null; } if (msel[id]) delete msel[id]; else msel[id] = 1; ids = Object.keys(msel); refresh(); return; } var fo = mode === "edit" && e.latlng ? findObj(id) : null;
+      lay.on("click", function (e) { L.DomEvent.stop(e); if (Date.now() - lastMove < 250) return; if (e.originalEvent && (e.originalEvent.shiftKey || e.originalEvent.ctrlKey || e.originalEvent.metaKey) && (mode === "edit" || !mode)) {   /* Mehrfachauswahl: im Bearbeiten-Modus und ohne Werkzeug */ var ids = selIds(); if (sel) { msel[sel.id] = 1; sel = null; } if (msel[id]) delete msel[id]; else msel[id] = 1; ids = Object.keys(msel); refresh(); return; } var fo = mode === "edit" && e.latlng ? findObj(id) : null;
         if (fo && isPolyObj(fo) && editOp === "ins") { var closed = fo.arr === M.areas, k = insertAtClick(fo.o, e.latlng, closed); sel = { id: id }; msel = {}; refresh(); showProps(id); return; }
         if (fo && fo.arr === M.lines && editOp === "split" && fo.o.pts.length > 1) { snap(); var k2 = insertAtClick(fo.o, e.latlng, false, true), sp = k2 > 0 ? splitAtIdx(fo.o, k2) : false; if (!sp) { undoSt.pop(); toast(dlg, tt("eo_splitNo")); refresh(); return; } sel = { id: id }; msel = {}; refresh(); showProps(id); toast(dlg, tt("eo_split_done")); return; }
         select(id); });
@@ -1613,9 +1616,16 @@
     }
     function pfData() {
       var ls = M.lines.filter(function (l) { return l.pts.length > 1; }); if (!ls.length) return null;
-      var l0 = (PF.line && byId(ls, PF.line)) || (sel && byId(ls, sel.id)) || ls[0]; PF.line = l0.id; var off = 0, pcs = [];
-      chainOf(l0).forEach(function (l) { var L0 = lineLen(l.pts), h = hzOf(l); pcs.push({ l: l, off: off, L: L0, h: h && h.P ? h : null }); off += L0; });
-      return { pcs: pcs, total: off, l0: l0 };
+      var sl = selIds().map(function (id) { return byId(ls, id); }).filter(Boolean), key = sl.map(function (l) { return l.id; }).join(",");
+      if (key !== PF.selKey) { PF.selKey = key; if (key) { PF.line = null; PF.follow = sl[0].id; } }   /* neue Auswahl: Profil folgt ihr (manuelle Wahl im Auswahlfeld gilt bis zur nächsten Auswahl) */
+      var multi = !PF.line && sl.length > 1, l0 = multi ? sl[0] : (PF.line && byId(ls, PF.line)) || (PF.follow && byId(ls, PF.follow)) || ls[0], off = 0, pcs = [];
+      (multi ? sl : chainOf(l0)).forEach(function (l) { var L0 = lineLen(l.pts), h = hzOf(l); pcs.push({ l: l, off: off, L: L0, h: h && h.P ? h : null }); off += L0; });
+      return { pcs: pcs, total: off, l0: l0, multi: multi };
+    }
+    function pfLoadActive() {   /* Höhen der aktiven Linie(n) immer laden – unabhängig von «automatisch laden»; Fehlschläge nicht wiederholen */
+      if (plan || hzBusy || !dlg.open) return; var D0 = pfData(); if (!D0) return;
+      var need = D0.pcs.filter(function (pc) { var l = pc.l; return !pc.h && l.id !== cur && l.hzArt !== "luft" && l.hzArt !== "bohr" && !hzSkip[l.id + sigOf(l.pts)]; }).map(function (pc) { return pc.l; });
+      if (need.length) hzLoad(need, true);
     }
     function niceStep(span, n) { var raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw || 1))), f = raw / mag; return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * mag; }
     var pfGeo = null;
@@ -1623,7 +1633,7 @@
       var host = $("#kmProf"); if (!host) return; if (LY) PF.on = lyD.t === "prof" && !lyD.c; host.hidden = !PF.on; var tb = $("[data-pfb]"); if (tb) tb.setAttribute("aria-pressed", PF.on ? "true" : "false"); if (!PF.on) return;
       var fo = document.activeElement && host.contains(document.activeElement) ? (document.activeElement.getAttribute("data-p") ? "m:" + document.activeElement.getAttribute("data-p") : document.activeElement.getAttribute("data-pf") ? "c:" + document.activeElement.getAttribute("data-pf") + ":" + (document.activeElement.getAttribute("data-lid") || "") : null) : null;
       var D0 = pfData(), f1 = function (v) { return (Math.round(v * 10) / 10).toLocaleString("de-CH"); };
-      var ctl = '<div class="kmpfctl"><label>' + esc(tt("pf_line")) + ' <select data-pf="line">' + M.lines.filter(function (l) { return l.pts.length > 1; }).map(function (l) { return '<option value="' + l.id + '"' + (D0 && D0.l0 === l ? " selected" : "") + ">" + esc(tt("km_lineN").replace("{n}", M.lines.indexOf(l) + 1) + " · " + fmt(lineLen(l.pts)) + " m") + "</option>"; }).join("") + "</select></label>" +
+      var ctl = '<div class="kmpfctl"><label>' + esc(tt("pf_line")) + ' <select data-pf="line">' + (D0 && D0.multi ? '<option value="__sel" selected>' + esc(tt("pf_selN").replace("{n}", D0.pcs.length).replace("{m}", fmt(D0.total))) + "</option>" : "") + M.lines.filter(function (l) { return l.pts.length > 1; }).map(function (l) { return '<option value="' + l.id + '"' + (D0 && !D0.multi && D0.l0 === l ? " selected" : "") + ">" + esc(tt("km_lineN").replace("{n}", M.lines.indexOf(l) + 1) + " · " + fmt(lineLen(l.pts)) + " m") + "</option>"; }).join("") + "</select></label>" +
         '<div class="kmbar"><button type="button" class="btn small" data-pf="load"' + (hzBusy ? " disabled" : "") + ">" + esc(tt(hzBusy ? "hz_loading" : "hz_load")) + '</button> <button type="button" class="btn ghost small" data-pf="pick" aria-pressed="' + (PF.pick ? "true" : "false") + '">' + esc(tt("pf_pick")) + "</button></div>" + '<p class="hint">' + esc(tt("pf_pickh")) + "</p>" + '<div class="kmpfh"><label>' + esc(tt("pf_covmin")) + ' <input type="text" inputmode="decimal" size="4" data-pf="covmin" value="' + esc(PFC.min) + '" placeholder="–"></label> <label>' + esc(tt("pf_covmax")) + ' <input type="text" inputmode="decimal" size="4" data-pf="covmax" value="' + esc(PFC.max) + '" placeholder="–"></label> <label class="kmpfck"><input type="checkbox" data-pf="ex"' + (PFC.ex ? " checked" : "") + "> " + esc(tt("pf_ex")) + '</label></div><p class="hint">' + esc(tt("pf_covh")) + "</p>";
       if (!D0) { host.innerHTML = '<div class="kmpfin">' + ctl + "</div></div>"; return; }
       var rows = D0.pcs.map(function (pc) {
@@ -1684,7 +1694,7 @@
       });
       host.addEventListener("change", function (e) {
         var b = e.target.closest("[data-pf]"); if (!b) return; var k = b.getAttribute("data-pf"), l = byId(M.lines, b.getAttribute("data-lid"));
-        if (k === "line") { PF.line = b.value; pfRender(); return; }
+        if (k === "line") { PF.line = b.value === "__sel" ? null : b.value; if (!PF.line) PF.selKey = null; pfRender(); pfLoadActive(); return; }
         if (k === "covmin" || k === "covmax" || k === "ex") { if (k === "ex") PFC.ex = b.checked; else PFC[k === "covmin" ? "min" : "max"] = String(b.value).trim(); try { localStorage.setItem("lvd-km-pfc", JSON.stringify(PFC)); } catch (x) { } rcRender(); pfRender(); return; }
         if (!l) return; snap();
         if (k === "art") { if (b.value === "g") { delete l.hzArt; delete l.hzH0; delete l.hzH1; delete l.hzF; } else l.hzArt = b.value; }
@@ -1855,7 +1865,7 @@
     function refresh() { draw(); rows(); costSoon(); }
     var costT = 0, costLast = null;
     function costSoon() {
-      legend(); markerSync(); msbRender(); eopRender(); hzAuto(); evalRender(); rcRender(); sumRender(); hzRender(); palRender(); if (!pfInit) { pfInit = 1; pfWire(); } pfRender(); if (!sugInit) { sugInit = 1; sugRender(); } if (!opt.cost) return; clearTimeout(costT);
+      legend(); markerSync(); msbRender(); eopRender(); hzAuto(); if (!plan) setTimeout(pfLoadActive, 150); evalRender(); rcRender(); sumRender(); hzRender(); palRender(); if (!pfInit) { pfInit = 1; pfWire(); } pfRender(); if (!sugInit) { sugInit = 1; sugRender(); } if (!opt.cost) return; clearTimeout(costT);
       costT = setTimeout(function () { var el = $("#kmCost"), ef = $("#kmCostF"); if (!el) return; var v = null; try { v = opt.cost(JSON.parse(JSON.stringify(M)), function (m) { return effLen(m); }, { area: area, perim: perim, base: base }); } catch (e) { v = null; }
         var nn = v == null ? null : (typeof v === "object" ? v.n : v), bb = v != null && typeof v === "object" ? v.b : null, f0 = function (x) { return Math.round(x).toLocaleString("de-CH"); };
         costLast = nn == null ? null : { n: nn, b: bb };
@@ -2127,6 +2137,10 @@
     }
     function lyClick(b) {
       if (b.hasAttribute("data-ly")) return lyGo(b.getAttribute("data-ly"));
+      if (b.hasAttribute("data-lylang")) {   /* Sprache wechseln: Karte in der neuen Sprache neu aufbauen, Zeichnung (auch nicht übernommene Änderungen) und Ausschnitt bleiben */
+        var lc = b.getAttribute("data-lylang"); if (lc === (LY.lang || opt.lang) || !LY.setLang) return; if (cur || curN || curA || tmp.length) endLine();
+        var keep = { model: JSON.parse(JSON.stringify(M)), view: { c: map.getCenter(), z: map.getZoom() }, edited: lyEdited }; close(); LY.setLang(lc, keep); return;
+      }
       if (b.hasAttribute("data-lyb")) { var nb0 = b.getAttribute("data-lyb"); if (nb0 !== base) { base = nb0; fillBase(); try { localStorage.setItem("lvd-km-base", nb0); } catch (x) { } setBase(nb0); } return lyBase(); }
       if (b.hasAttribute("data-dt")) { var t = b.getAttribute("data-dt"); if (lyD.t === t && !lyD.c) lyD.c = true; else { lyD.t = t; lyD.c = false; } return lyDock(); }
       if (b.hasAttribute("data-dcol")) { lyD.c = !lyD.c; return lyDock(); }
@@ -2190,7 +2204,7 @@
     dlg.addEventListener("change", function (e) { var ha = e.target.closest("[data-hz=auto]"); if (ha) { HZAUTO = ha.checked; try { localStorage.setItem("lvd-km-hzauto", HZAUTO ? "1" : "0"); } catch (x) { } if (HZAUTO) { hzSkip = {}; hzSeed(); } return; } var hm = e.target.closest("[data-hz=mode]"); if (hm) { SLOPE = hm.checked; try { localStorage.setItem("lvd-km-slope", SLOPE ? "1" : "0"); } catch (x) { } refresh(); return; } var t = e.target.closest("[data-rc]"); if (!t) return; RC[t.dataset.rc] = t.value; try { localStorage.setItem("lvd-km-rc", JSON.stringify(RC)); } catch (x) { } sugs = []; sugDraw(); sugRender(); rcRender(); });
     dlg.addEventListener("click", function (e) {
       var pb = e.target.closest("[data-prov]");
-      if (LY) { var lyb = e.target.closest("[data-ly],[data-lya],[data-dt],[data-dcol],[data-lyb]"); if (lyb) { lyClick(lyb); return; } }
+      if (LY) { var lyb = e.target.closest("[data-ly],[data-lya],[data-dt],[data-dcol],[data-lyb],[data-lylang]"); if (lyb) { lyClick(lyb); return; } }
       if (pb) { var nb = PROV[pb.dataset.prov][0][0]; if (provOf(base) !== pb.dataset.prov) { base = nb; fillBase(); try { localStorage.setItem("lvd-km-base", nb); } catch (x) { } setBase(nb); } return; }
       var ob = e.target.closest("[data-ov]");
       if (ob && ovl !== undefined) {
@@ -2430,7 +2444,7 @@
       $("#kmOvR").addEventListener("change", function (e) { var v = num2(e.target.value); if (ovl && isFinite(v)) { ov0 = JSON.stringify(ovl); ovl.rot = v; ovDraw(); } });
       $("#kmOvS").addEventListener("change", function (e) { var v = num2(e.target.value); if (ovl && v > 0) { ov0 = JSON.stringify(ovl); ovl.mpp = v; ovl.auto = 0; ovDraw(); } });
     }
-    hzSeed(); wsLate(); dlg.showModal(); map.invalidateSize(); fitAll(); ovDraw(); refresh();
+    hzSeed(); wsLate(); dlg.showModal(); map.invalidateSize(); if (opt.view && opt.view.c) map.setView(opt.view.c, opt.view.z, { animate: false }); else fitAll(); ovDraw(); refresh(); if (opt.edited) lyEdited = true;
     if (!plan && opt.autoPlan && !ovl && opt.planImg && opt.planImg.img) { $("#kmOvPlan").click(); } (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 

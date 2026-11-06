@@ -686,3 +686,7 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 @media print{.wordmark .wm-mark{width:30px;height:30px;font-size:13px;-webkit-print-color-adjust:exact;print-color-adjust:exact}.wordmark .wm-txt{font-size:15pt}}
 .kmrt-in{display:flex;gap:6px}.kmrt-in input{flex:1;min-width:0}.kmrt-in .btn{white-space:nowrap}.kmrt-in [aria-pressed=true]{background:var(--navy);color:#fff}
 .kmmap.kmrtpick,.kmmap.kmrtpick .leaflet-interactive{cursor:crosshair}
+.lylang{display:flex;gap:2px}.lylang .btn{min-height:34px;min-width:38px;padding:4px 8px}.lylang [aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.kmlya .lylay .lyk{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.kmlya .lylay select{max-width:190px}
+.kmlya .kmhead h2{font-size:15px}
