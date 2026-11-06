@@ -22,6 +22,6 @@ m=await KM(); ok(m.lines[0].hz&&m.lines[0].hz.sig===JSON.stringify(m.lines[0].pt
 await pg.click('#kmTabE'); await pg.waitForTimeout(200); await pg.uncheck('[data-hz=auto]');
 const b2=await v.nth(1).boundingBox().catch(()=>null); await pg.click('#kmTabP');
 await pg.mouse.click(bx.x+112,bx.y+202); await pg.waitForTimeout(300); const b3=await pg.locator('.kmv').nth(0).boundingBox(); await pg.mouse.move(b3.x+b3.width/2,b3.y+b3.height/2); await pg.mouse.down(); await pg.mouse.move(b3.x+b3.width/2+20,b3.y+b3.height/2-30,{steps:5}); await pg.mouse.up(); await pg.waitForTimeout(1200);
-ok(req===2,'Schalter aus: kein automatisches Laden ('+req+')');
+ok(req===3,'Schalter aus: die aktive (ausgewählte) Linie lädt ihr Profil trotzdem (Vorgabe seit V93) ('+req+')');   /* «automatisch laden» gilt nur noch für nicht ausgewählte Linien */
 }
 ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();

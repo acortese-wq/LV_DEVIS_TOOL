@@ -309,3 +309,9 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 ## Route auch mit Kartenpunkten (V92)
 - **Vorher:** Route nur von Adresse zu Adresse; Linie immer ohne Verbindung; ohne Routing-Dienst nur eine Fehlermeldung.
 - **Nachher:** je Feld «📍 Karte»: Klick in die Karte (oder Enter = Kartenmitte) setzt Start/Ziel, Fang auf Schacht bzw. Leitungsende (28 px). Adresse und Kartenpunkt mischbar. Die Linie beginnt/endet genau am Kartenpunkt und wird an einen gefangenen Schacht angeschlossen. Findet der Dienst keine Route oder ist er nicht erreichbar: Knopf «Gerade Linie zeichnen». Keine Kostenwirkung (erst «In Datensätze übernehmen» rechnet). Test t71.
+
+## Höhenprofil der aktiven Linie, Mehrfachauswahl, Sprache überall (V93)
+- **Höhenprofil:** folgt immer der ausgewählten Linie (Linie anklicken auch ohne Werkzeug, oder Objektliste); fehlende Höhen werden sofort geladen, auch wenn «automatisch laden» aus ist (Fehlschläge werden nicht wiederholt). Umschalt-/Strg-Klick wählt mehrere Linien – aneinandergereiht im Profil («Auswahl: n Linien · m»). Manuelle Wahl im Auswahlfeld bleibt.
+- **Sprache im Planungsfokus:** Knöpfe DE FR IT EN in der Kopfzeile; die Karte wird in der neuen Sprache neu aufgebaut, Zeichnung, Ausschnitt und nicht übernommene Änderungen bleiben erhalten. Kopfzeile kompakter (Titel ohne «Planungsfokus», Layout im Umschalter).
+- **Vier Sprachen:** Assistent beschriftet sich beim Sprachwechsel neu (Themen übersetzt; Beratungsinhalte aus dem Handbuch bleiben Deutsch mit Hinweis), Urheberzeile, Belagsparameter (IT/EN), Einheiten (St → p/pz/pcs, Pauschal), Rohr-Zubehör, Schacht-Assistent komplett auf Englisch (164 Texte, 55 Bezeichnungen). LV-Positionstexte: EN zeigt weiterhin Deutsch (kein englisches LV).
+- Keine Kostenwirkung. Test t72 (prüft auch, dass jeder Text in allen 4 Sprachen vorhanden ist).

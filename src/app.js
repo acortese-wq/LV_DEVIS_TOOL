@@ -334,13 +334,20 @@
   var resT;
   function scheduleResult() { clearTimeout(resT); resT = setTimeout(renderResult, 120); }
 
+  /* Anzeige: Einheiten und Zubehör-Bezeichnungen in der gewählten Sprache (Schlüssel und Rechenkern bleiben deutsch) */
+  var UNITS = { fr: { St: "p", "Stück": "p", Pauschal: "forfait" }, it: { St: "pz", "Stück": "pz", Pauschal: "forfait" }, en: { St: "pcs", "Stück": "pcs", Pauschal: "lump sum" } };
+  function uT(u) { var m = UNITS[S.lang]; return m && m[u] != null ? m[u] : (u == null ? "" : u); }
+  var ZW = { fr: [["Halbschalenabzweiger", "Dérivation demi-coquille"], ["Doppelsteckmuffen", "Manchons doubles"], ["Reparaturmuffen", "Manchons de réparation"], ["Verbindungsstück", "Raccord"], [" Ausgängen", " sorties"], [" mit ", " avec "], [" auf ", " sur "]],
+    it: [["Halbschalenabzweiger", "Derivazione a semiguscio"], ["Doppelsteckmuffen", "Manicotti doppi"], ["Reparaturmuffen", "Manicotti di riparazione"], ["Verbindungsstück", "Raccordo"], [" Ausgängen", " uscite"], [" mit ", " con "], [" auf ", " su "]],
+    en: [["Halbschalenabzweiger", "Half-shell branch"], ["Doppelsteckmuffen", "Double socket couplings"], ["Reparaturmuffen", "Repair couplings"], ["Verbindungsstück", "Connector"], [" Ausgängen", " outlets"], [" mit ", " with "], [" auf ", " onto "]] };
+  function zT(k) { var r = String(k); (ZW[S.lang] || []).forEach(function (w) { r = r.split(w[0]).join(w[1]); }); return r; }
   function listEl(cfg, key, cat, labKey, unit) {
     var wrap = document.createElement("div"); wrap.className = "sublist";
     var lab = document.createElement("p"); lab.className = "sublab"; lab.textContent = tt(labKey); wrap.appendChild(lab);
     cfg[key].forEach(function (row, i) {
       var r = document.createElement("div"); r.className = "subrow";
       var s = document.createElement("select"); s.style.flex = "1"; s.setAttribute("aria-label", tt(labKey));
-      [["", tt("sel")]].concat(Object.keys(cat).map(function (k) { return [k, k + (cat[k].l ? "" : " ⚠")]; })).forEach(function (o) { var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; if (row.typ === o[0]) op.selected = true; s.appendChild(op); });
+      [["", tt("sel")]].concat(Object.keys(cat).map(function (k) { return [k, zT(k) + (cat[k].l ? "" : " ⚠")]; })).forEach(function (o) { var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; if (row.typ === o[0]) op.selected = true; s.appendChild(op); });
       s.addEventListener("change", function () { row.typ = s.value; save(); refreshFig(); zubRender(); scheduleResult(); });
       var q = document.createElement("input"); q.type = "text"; q.inputMode = "decimal"; q.value = row.q; q.style.width = "70px"; q.setAttribute("aria-label", unit);
       q.addEventListener("input", function () { row.q = q.value; save(); refreshFig(); zubRender(); scheduleResult(); });
@@ -484,7 +491,7 @@
       g[k].forEach(function (p) {
         var row = document.createElement("div"); row.className = "xr"; row.dataset.s = (p + " " + lvT(p) + " " + lvC(p) + " " + LV[p].t).toLowerCase();
         var isAuto = !!autoSet()[p];
-        row.innerHTML = '<span class="art">' + esc(p) + (isAuto ? ' <span class="badge auto" title="' + esc(tt("xAutoT")) + '">auto</span>' : "") + "</span><span>" + esc(lvT(p)) + '</span><span class="num ctx">' + esc(LV[p].u) + " · " + chf(LV[p].ep) + "</span>";
+        row.innerHTML = '<span class="art">' + esc(p) + (isAuto ? ' <span class="badge auto" title="' + esc(tt("xAutoT")) + '">auto</span>' : "") + "</span><span>" + esc(lvT(p)) + '</span><span class="num ctx">' + esc(uT(LV[p].u)) + " · " + chf(LV[p].ep) + "</span>";
         var i = document.createElement("input"); i.type = "text"; i.inputMode = "decimal"; i.value = (cfg.x || {})[p] || ""; i.className = "mini" + (i.value ? " filled" : ""); i.setAttribute("aria-label", p);
         i.addEventListener("input", function () { cfg.x = cfg.x || {}; if (num(i.value, 0) > 0) cfg.x[p] = i.value; else delete cfg.x[p]; i.classList.toggle("filled", !!i.value); save(); scheduleResult(); });
         row.appendChild(i); grp.appendChild(row);
@@ -634,7 +641,7 @@
     var st = n === 0 ? "empty" : nStop ? "stop" : nAmb || out.nOffen ? "amber" : "ok";
     var pos = out.summary.length ? '<table class="lytab"><thead><tr><th scope="col">' + esc(tt("ly_cPos")) + '</th><th scope="col">' + esc(tt("ly_cText")) + '</th><th scope="col" class="num">' + esc(tt("ly_cQty")) + '</th><th scope="col">' + esc(tt("ly_cUnit")) + '</th><th scope="col" class="num">' + esc(tt("ly_cEp")) + '</th><th scope="col" class="num">' + esc(tt("ly_cTot")) + "</th></tr></thead><tbody>" +
       out.summary.map(function (l) { var off = l.flag === "offen", lv = /^\d{3}\//.test(l.key), tx = lv ? lvT(l.key) : off || l.flag === "erfasst" ? (l.text || openText(l)) : (l.text || "");
-        return "<tr" + (off ? ' class="open"' : "") + "><td>" + esc(off ? tt("c_offenTag") : l.key) + "</td><td>" + esc(tx) + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit || "") + '</td><td class="num">' + (off ? "—" : chf(l.ep)) + '</td><td class="num">' + (off ? "—" : chf(l.total)) + "</td></tr>"; }).join("") + "</tbody></table>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>";
+        return "<tr" + (off ? ' class="open"' : "") + "><td>" + esc(off ? tt("c_offenTag") : l.key) + "</td><td>" + esc(tx) + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(uT(l.unit || "")) + '</td><td class="num">' + (off ? "—" : chf(l.ep)) + '</td><td class="num">' + (off ? "—" : chf(l.total)) + "</td></tr>"; }).join("") + "</tbody></table>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>";
     var aus = out.elems.filter(function (e) { return e.bal && e.bal.length; }).map(function (e) {
       return '<div class="lyaus"><h3>' + esc(tt("tab_" + e.tab) + " · " + (e.name || "")) + '</h3><table class="lytab"><tbody>' + e.bal.filter(function (b) { return b.v; }).map(function (b) { return "<tr><td>" + esc(tt(b.id)) + '</td><td class="num">' + qf(r2(b.v)) + " " + esc(b.unit) + "</td></tr>"; }).join("") + "</tbody></table></div>"; }).join("") || '<p class="hint">' + esc(tt("ly_ausNone")) + "</p>";
     var ws = out.warn.slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
@@ -979,14 +986,14 @@
   function rowHtml(l) {
     if (l.flag === "offen") {
       return '<tr class="open"><td class="art"><span class="badge">' + esc(tt("c_offenTag")) + "</span></td><td>" + esc(l.text || openText(l)) + (l.text ? '<div class="rw">' + esc(openText(l)) + "</div>" : "") +
-        (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + ofBtn(l, "of_rowBtn") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit) + '</td><td class="num">—</td><td class="num">—</td></tr>';
+        (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + ofBtn(l, "of_rowBtn") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(uT(l.unit)) + '</td><td class="num">—</td><td class="num">—</td></tr>';
     }
     var erf = l.flag === "erfasst", cls = l.flag === "ausserLV" ? "bad" : l.flag === "epGeaendert" || erf ? "chg" : "", mark = l.flag === "ausserLV" ? " ⚠" : l.flag === "epGeaendert" || erf ? " ✎" : "";
     var txt = /^\d{3}\//.test(l.key) ? lvT(l.key) : erf ? (l.text || openText(l)) : l.text, ctx = /^\d{3}\//.test(l.key) ? lvC(l.key) : erf ? tt("c_erfTag") : l.ctx;
     if (erf) return '<tr class="chg erf"><td class="art"><span class="badge erf">' + esc(tt("c_erfBadge")) + "</span></td><td>" + '<span class="ctx">' + esc(ctx) + "</span><div>" + esc(txt) + mark + "</div>" + (l.text ? '<div class="rw">' + esc(openText(l)) + "</div>" : "") +
-      (l.why ? '<div class="rw">' + esc(tt("of_why")) + ": " + esc(l.why) + "</div>" : "") + (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + ofBtn(l, "of_rowEdit") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit) + '</td><td class="num">' + chf(l.ep) + '</td><td class="num">' + chf(l.total) + "</td></tr>";
+      (l.why ? '<div class="rw">' + esc(tt("of_why")) + ": " + esc(l.why) + "</div>" : "") + (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + ofBtn(l, "of_rowEdit") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(uT(l.unit)) + '</td><td class="num">' + chf(l.ep) + '</td><td class="num">' + chf(l.total) + "</td></tr>";
     return '<tr class="' + cls + '"><td class="art" data-k="' + esc(l.key) + '">' + esc(l.key) + (l.ks === "Belag" ? '<sup class="ks">B</sup>' : "") + "</td><td>" + (ctx ? '<span class="ctx">' + esc(ctx) + "</span>" : "") + "<div>" + esc(txt) + mark + "</div>" +
-      (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(l.unit) + '</td><td class="num">' + chf(l.ep) + '</td><td class="num">' + chf(l.total) + "</td></tr>";
+      (l.rule ? '<div class="rw rule">' + esc(l.rule) + "</div>" : "") + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(uT(l.unit)) + '</td><td class="num">' + chf(l.ep) + '</td><td class="num">' + chf(l.total) + "</td></tr>";
   }
   function head() { return "<thead><tr><th>" + esc(tt("c_pos")) + "</th><th>" + esc(tt("c_text")) + '</th><th class="num">' + esc(tt("c_qty")) + "</th><th>" + esc(tt("c_unit")) + '</th><th class="num">' + esc(tt("c_ep")) + '</th><th class="num">' + esc(tt("c_tot")) + "</th></tr></thead>"; }
   function groupedRows(lines) { var h = ""; ORDER.forEach(function (g) { var ls = lines.filter(function (l) { return l.grp === g; }); if (!ls.length) return; h += '<tr class="grp"><td colspan="6">' + esc(tt(g)) + "</td></tr>" + ls.map(rowHtml).join(""); }); return h; }
@@ -1415,7 +1422,7 @@
         var r = nr(), off = l.flag === "offen", lv = /^\d{3}\//.test(l.key), ep = priced && !off && l.ep != null ? l.ep : null, qty = l.qty == null ? null : l.qty;
         var text = off ? (l.text ? l.text + " – " : "") + openText(l) : lv ? (lvC(l.key) ? lvC(l.key) + " › " : "") + lvT(l.key) : txt(l);
         var amt = qty == null ? "" : ep == null ? 0 : r2(qty * ep); if (typeof amt === "number") st0 = r2(st0 + amt);
-        line([{ v: off ? tt("c_offenTag") : l.key, s: XL.code }, { v: text + (l.ansatz ? "  (" + tt("ox_ansatz") + ")" : ""), s: l.ansatz ? XL.ctx : XL.wrap }, qty == null ? { v: null, s: XL.num } : { v: qty, s: XL.num }, { v: l.unit || "" },
+        line([{ v: off ? tt("c_offenTag") : l.key, s: XL.code }, { v: text + (l.ansatz ? "  (" + tt("ox_ansatz") + ")" : ""), s: l.ansatz ? XL.ctx : XL.wrap }, qty == null ? { v: null, s: XL.num } : { v: qty, s: XL.num }, { v: uT(l.unit || "") },
           ep == null ? { v: null, s: XL.inp } : { v: ep, s: XL.inp }, qty == null ? { v: "", s: XL.num, f: 'IF(C' + r + '="","",ROUND(C' + r + "*E" + r + ",2))" } : { v: amt, s: XL.num, f: "ROUND(C" + r + "*E" + r + ",2)" }]);
       });
       var last = nr() - 1; line([{ v: " ", s: XL.sumLbl }, { v: tt("ox_sum") + " " + (num3(c) ? "NPK " + c : chl), s: XL.sumLbl }, { v: null, s: XL.sumLbl }, { v: null, s: XL.sumLbl }, { v: null, s: XL.sumLbl }, { v: st0, s: XL.sum, f: "SUM(F" + first + ":F" + last + ")" }]);
@@ -1452,10 +1459,10 @@
     var A = [hdr([tt("c_pos"), tt("c_text"), tt("c_qty"), tt("c_unit"), tt("c_ep"), tt("c_tot")])], sumRefs = [];
     function lineText(l) { return l.flag === "offen" ? (l.text ? l.text + " – " : "") + openText(l) + (l.rule ? "  ·  " + l.rule : "") : txt(l) + (l.rule ? "  ·  " + l.rule : ""); }
     function lineRow(l) {
-      if (l.flag === "offen") return [{ v: tt("c_offenTag"), s: XL.stop }, { v: lineText(l), s: XL.warnA }, { v: l.qty, s: XL.num }, { v: l.unit }, { v: "—", s: XL.grey }, { v: "—", s: XL.grey }];
+      if (l.flag === "offen") return [{ v: tt("c_offenTag"), s: XL.stop }, { v: lineText(l), s: XL.warnA }, { v: l.qty, s: XL.num }, { v: uT(l.unit) }, { v: "—", s: XL.grey }, { v: "—", s: XL.grey }];
       var r = A.length + 1, bad = l.flag === "ausserLV", chg = (l.flag === "epGeaendert" || l.flag === "erfasst");
       return [{ v: l.key + (l.ks === "Belag" ? " B" : ""), s: XL.code }, { v: lineText(l) + (bad ? " ⚠" : chg ? " ✎" : ""), s: bad ? XL.red : chg ? XL.amber : XL.wrap },
-        { v: l.qty, s: bad ? XL.numRed : chg ? XL.numAmber : XL.num }, { v: l.unit }, { v: l.ep, s: bad ? XL.numRed : chg ? XL.numAmber : XL.num },
+        { v: l.qty, s: bad ? XL.numRed : chg ? XL.numAmber : XL.num }, { v: uT(l.unit) }, { v: l.ep, s: bad ? XL.numRed : chg ? XL.numAmber : XL.num },
         { v: l.total, s: bad ? XL.numRed : chg ? XL.numAmber : XL.num, f: "ROUND(C" + r + "*E" + r + ",2)" }];
     }
     function block(title, lines, sum) {
@@ -1495,9 +1502,9 @@
     out.summary.forEach(function (l) {
       var ch = l.key === "—" ? "—" : l.key === "OFFEN" ? "OFFEN" : l.key === "Pauschal" ? "P" : l.key.split("/")[0];
       if (ch !== curCh) { closeCh(); curCh = ch; subTot = 0; Z.push(fillRow(6, XL.grp, ch === "—" ? tt("g_frei") : ch === "OFFEN" ? tt("c_offenTag") : ch === "P" ? tt("g_pausch") : "NPK " + ch + " · " + (CHAPTERS[ch] || ""))); first = Z.length + 1; }
-      if (l.flag === "offen") { Z.push([{ v: tt("c_offenTag"), s: XL.stop }, { v: lineText(l), s: XL.warnA }, { v: l.qty, s: XL.num }, { v: l.unit }, { v: "—", s: XL.grey }, { v: "—", s: XL.grey }]); return; }
+      if (l.flag === "offen") { Z.push([{ v: tt("c_offenTag"), s: XL.stop }, { v: lineText(l), s: XL.warnA }, { v: l.qty, s: XL.num }, { v: uT(l.unit) }, { v: "—", s: XL.grey }, { v: "—", s: XL.grey }]); return; }
       var bad = l.flag === "ausserLV", chg = (l.flag === "epGeaendert" || l.flag === "erfasst"), st = bad ? XL.numRed : chg ? XL.numAmber : XL.num;
-      Z.push([{ v: l.key, s: XL.code }, { v: lineText(l), s: bad ? XL.red : chg ? XL.amber : XL.wrap }, { v: l.qty, s: st }, { v: l.unit }, { v: l.ep, s: st }, { v: l.total, s: st }]);
+      Z.push([{ v: l.key, s: XL.code }, { v: lineText(l), s: bad ? XL.red : chg ? XL.amber : XL.wrap }, { v: l.qty, s: st }, { v: uT(l.unit) }, { v: l.ep, s: st }, { v: l.total, s: st }]);
       subTot = r2(subTot + l.total);
     });
     closeCh();
@@ -1576,9 +1583,10 @@
     $("#kopfSum").innerHTML = "<b>" + esc(tt("ux_kopf")) + '</b><span class="ks">' + esc(p || tt("ux_kopfLeer")) + "</span>"; }
   function applyLang() {
     document.documentElement.lang = S.lang;
-    $("#t-title").textContent = tt("title"); var lyb0 = $("#bLyMap"); if (lyb0) { lyb0.textContent = tt("ly_btn"); lyb0.title = tt("ly_btnT"); } $("#t-sub").textContent = tt("sub"); $("#t-role").textContent = tt("creatorRole");
+    $("#t-title").textContent = tt("title"); var lyb0 = $("#bLyMap"); if (lyb0) { lyb0.textContent = tt("ly_btn"); lyb0.title = tt("ly_btnT"); } $("#t-sub").textContent = tt("sub"); var tcr = $("#t-creator"); if (tcr) tcr.textContent = tt("km_cred"); $("#t-role").textContent = tt("creatorRole");
     KOPF.forEach(function (k) { $("#l_" + k[0]).textContent = tt(k[1]); }); $("#l_rolle").textContent = tt("rolle"); $("#l_belagLief").textContent = tt("dv_belagLief");
     var r = $("#p_rolle"); r.innerHTML = ""; ["anv", "bl", "bhv"].forEach(function (v) { var o = document.createElement("option"); o.value = v; o.textContent = tt("r_" + v); r.appendChild(o); }); r.value = S.kopf.rolle;
+    if (window.__LVCHAT) window.__LVCHAT.relang();
     $("#helpTitle").textContent = tt("helpTitle"); $("#helpSteps").innerHTML = (T[S.lang] || T.de).help.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join(""); $("#helpNote").textContent = tt("helpNote");
     $("#h-result").textContent = tt("h_result");
     $("#bPrint").textContent = tt("btnPrint"); $("#bPrintFull").textContent = tt("btnPrintFull"); $("#bPrintSum").textContent = tt("btnPrintSum"); $("#bReport").textContent = tt("btnReport"); $("#bXlsx").textContent = tt("btnXlsx"); $("#bSave").textContent = tt("btnSave"); $("#bLoad").textContent = tt("btnLoad"); $("#bNew").textContent = tt("btnNew");

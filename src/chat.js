@@ -255,9 +255,10 @@
     [["u", "ch_g_u"], ["o", "ch_g_o"], ["p", "ch_g_p"]].forEach(function (g) {
       var ks = Object.keys(FLOWS).filter(function (k) { return FLOWS[k].grp === g[0]; }); if (!ks.length) return;
       var d = E("details", "chgrp"), sm = E("summary", "", tt(g[1]) + " (" + ks.length + ")"), bx = E("div", "chopts"); d.appendChild(sm);
-      ks.forEach(function (k) { var b = E("button", "btn small", FLOWS[k].title); b.type = "button"; b.onclick = function () { if (after) after(); startFlow(k); }; bx.appendChild(b); }); d.appendChild(bx); host.appendChild(d);
+      ks.forEach(function (k) { var b = E("button", "btn small", flT(k)); b.type = "button"; b.onclick = function () { if (after) after(); startFlow(k); }; bx.appendChild(b); }); d.appendChild(bx); host.appendChild(d);
     });
   }
+  function flT(k) { var x = tt("fl_" + k); return x && x !== "fl_" + k ? x : FLOWS[k].title; }   /* Thementitel übersetzt; Inhalte der Beratung bleiben Deutsch */
   function chooser() { var bx = E("div", "chfl"); addMsg("bot", tt("ch_choose")); flowList(bx, function () { bx.remove(); }); msgs.appendChild(bx); msgs.scrollTop = msgs.scrollHeight; }
   function send(q) {
     q = String(q || "").trim(); if (!q) return; var intro = $(".chq", pan); if (intro) intro.hidden = true;
@@ -265,7 +266,7 @@
     addMsg("user", q); ta.value = ""; var tr = FLTRIG.filter(function (x) { return x[1].test(q.toLowerCase()); })[0]; if (tr) { startFlow(tr[0]); return; } var kd = Object.keys(FLOWS).filter(function (k) { return (FLOWS[k].direct || /(beratung|geführt|gefuehrt|führe mich|hilf mir)/i.test(q)) && FLOWS[k].kw && FLOWS[k].kw.test(q.toLowerCase()); })[0]; if (kd) { startFlow(kd); return; } if (/(beratung|geführt|führe mich|hilf mir|wizard)/i.test(q)) { chooser(); return; } var a; try { a = answer(q); } catch (e) { a = { t: "Das konnte ich nicht auswerten (" + (e.message || e) + ")." }; }
     addMsg("bot", a.t, a.s); turns++;
     if (a.h && window.__LVHELP) { var hx = E("div", "chopts"), hbn = E("button", "btn small", tt("hp_open") + ": " + window.__LVHELP.title(a.h)); hbn.type = "button"; hbn.onclick = function () { window.__LVHELP.open(a.h); }; hx.appendChild(hbn); msgs.appendChild(hx); msgs.scrollTop = msgs.scrollHeight; }
-    if (a.fl) { var bx = E("div", "chopts"), bb = E("button", "btn small", tt("ch_guided") + ": " + FLOWS[a.fl].title); bb.type = "button"; bb.onclick = function () { bx.remove(); startFlow(a.fl); }; bx.appendChild(bb); msgs.appendChild(bx); msgs.scrollTop = msgs.scrollHeight; }
+    if (a.fl) { var bx = E("div", "chopts"), bb = E("button", "btn small", tt("ch_guided") + ": " + flT(a.fl)); bb.type = "button"; bb.onclick = function () { bx.remove(); startFlow(a.fl); }; bx.appendChild(bb); msgs.appendChild(bx); msgs.scrollTop = msgs.scrollHeight; }
   }
   function toggle(open) { pan.hidden = !open; $("#chFab").setAttribute("aria-expanded", open ? "true" : "false"); if (open) ta.focus(); else $("#chFab").focus(); }
   function build() {
@@ -273,8 +274,8 @@
     pan = E("section", "chpan"); pan.id = "chPan"; pan.hidden = true; pan.setAttribute("role", "dialog"); pan.setAttribute("aria-modal", "false"); pan.setAttribute("aria-label", tt("ch_title"));
     var hd = E("div", "chhd"), ti = E("strong", "", tt("ch_title")), nw = E("button", "btn ghost small", tt("ch_new")), cl = E("button", "btn ghost small", "✕"); nw.type = cl.type = "button"; cl.setAttribute("aria-label", tt("ch_close"));
     hd.appendChild(ti); hd.appendChild(nw); hd.appendChild(cl);
-    note = E("p", "hint chnote", tt("ch_info")); msgs = E("div", "chmsgs"); msgs.setAttribute("role", "log"); msgs.setAttribute("aria-live", "polite"); msgs.tabIndex = 0; msgs.setAttribute("aria-label", tt("ch_title"));
-    var qs = E("div", "chq"); ["ch_q1", "ch_q2", "ch_q3"].forEach(function (k) { var b = E("button", "btn ghost small", tt(k)); b.type = "button"; b.onclick = function () { send(tt(k)); }; qs.appendChild(b); });
+    note = E("p", "hint chnote", tt("ch_info") + (tt("ch_deOnly") ? " " + tt("ch_deOnly") : "")); msgs = E("div", "chmsgs"); msgs.setAttribute("role", "log"); msgs.setAttribute("aria-live", "polite"); msgs.tabIndex = 0; msgs.setAttribute("aria-label", tt("ch_title"));
+    var qs = E("div", "chq"); ["ch_q1", "ch_q2", "ch_q3"].forEach(function (k) { var b = E("button", "btn ghost small", tt(k)); b.type = "button"; b.setAttribute("data-chk", k); b.onclick = function () { send(tt(k)); }; qs.appendChild(b); });
     qs.appendChild(E("strong", "chqh", tt("ch_guided"))); flowList(qs); msgs.appendChild(qs);
     var f = E("form", "chf"); ta = E("textarea"); ta.rows = 2; ta.setAttribute("aria-label", tt("ch_ph")); ta.placeholder = tt("ch_ph");
     var sb = E("button", "btn small", tt("ch_send")); sb.type = "submit"; f.appendChild(ta); f.appendChild(sb);
@@ -284,6 +285,13 @@
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !pan.hidden && !document.querySelector("dialog[open]")) toggle(false); });
     pan.appendChild(hd); pan.appendChild(note); pan.appendChild(msgs); pan.appendChild(f); document.body.appendChild(pan); document.body.appendChild(fab);
     fab.onclick = function () { toggle(pan.hidden); };
+    window.__LVCHAT = { relang: function () {   /* Sprache gewechselt: Bedienelemente neu beschriften (Beratungsinhalte aus dem Handbuch bleiben Deutsch) */
+      fab.textContent = tt("ch_fab"); pan.setAttribute("aria-label", tt("ch_title")); ti.textContent = tt("ch_title"); nw.textContent = tt("ch_new"); cl.setAttribute("aria-label", tt("ch_close"));
+      note.textContent = tt("ch_info") + (tt("ch_deOnly") ? " " + tt("ch_deOnly") : ""); msgs.setAttribute("aria-label", tt("ch_title"));
+      qs.querySelectorAll("[data-chk]").forEach(function (b) { b.textContent = tt(b.getAttribute("data-chk")); }); var qh = qs.querySelector(".chqh"); if (qh) qh.textContent = tt("ch_guided");
+      [].slice.call(qs.querySelectorAll("details.chgrp")).forEach(function (d) { d.remove(); }); flowList(qs);
+      ta.placeholder = tt("ch_ph"); ta.setAttribute("aria-label", tt("ch_ph")); sb.textContent = tt("ch_send");
+    } };
     /* beim Zeichnen (modaler Dialog) wandert der Assistent in den offenen Dialog, danach zurück */
     var place = function () { var d = document.querySelector("dialog[open]:not(.hpdlg)") || document.body; if (fab.parentNode !== d) { var had = pan.contains(document.activeElement) || document.activeElement === fab; d.appendChild(pan); d.appendChild(fab); if (had) (pan.hidden ? fab : ta).focus(); } };
     new MutationObserver(place).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ["open"] });

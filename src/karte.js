@@ -1054,9 +1054,9 @@
       M.lines.forEach(function (l) {
         var ll = l.pts.map(AD.ll), on = isOn(l.id), sty = LSTY[cfgOf(l).fl || ""], col = on ? "#0b6b72" : sty[0];
         if (ll.length > 1) {
-          var halo = L.polyline(ll, { color: "#fff", weight: 8, interactive: false }).addTo(grp), main = L.polyline(ll, { color: col, weight: on ? 5 : 3.5, dashArray: l.hzArt === "luft" ? "2 8" : l.hzArt === "bohr" ? "10 5 2 5" : (sty[1] || null), lineCap: sty[1] === "1 7" ? "round" : "butt", interactive: edit, bubblingMouseEvents: false }).addTo(grp);
+          var halo = L.polyline(ll, { color: "#fff", weight: 8, interactive: false }).addTo(grp), main = L.polyline(ll, { color: col, weight: on ? 5 : 3.5, dashArray: l.hzArt === "luft" ? "2 8" : l.hzArt === "bohr" ? "10 5 2 5" : (sty[1] || null), lineCap: sty[1] === "1 7" ? "round" : "butt", interactive: edit || !mode, bubblingMouseEvents: false }).addTo(grp);   /* ohne Werkzeug: Linie anklicken = auswählen (Höhenprofil folgt), Verschieben nur im Bearbeiten-Modus */
           layers[l.id] = { upd: function () { var q = l.pts.map(AD.ll); halo.setLatLngs(q); main.setLatLngs(q); } };
-          if (edit) bindObj(main, l.id);
+          if (edit || !mode) bindObj(main, l.id);
         }
         if (!(edit && (on || hAll()))) ll.forEach(function (q, j) { L.circleMarker(q, { radius: l.id === cur && j === ll.length - 1 ? 6 : 4, color: col, weight: 2, fillColor: "#fff", fillOpacity: 1, interactive: false }).addTo(grp); });
         else handles(l, true, 2);
