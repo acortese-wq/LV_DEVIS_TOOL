@@ -248,9 +248,19 @@
     var W = o.W, H = o.H, box = geoBox(g, W, H); if (!box) return null;
     var bb = box.bb, sc = box.sc, k = o.k || W / 360, px = function (p) { return [((p[0] - bb[0]) / sc), ((bb[3] - p[1]) / sc)]; };
     var fig = document.createElement("figure"); fig.className = o.cls || "kmprev";
-    fig.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(tt("km_prevAlt")) + '"><rect width="' + W + '" height="' + H + '" fill="#eef1f3"/><rect width="' + W + '" height="' + H + '" fill="#fff"/>' + ((o.base === "leer" || (o.base === "av" && !avCfg().u)) ? "" : '<image href="' + esc(o.bg || bgUrl(box, o.base)) + '" width="' + W + '" height="' + H + '"/>' + (o.pale ? '<rect width="' + W + '" height="' + H + '" fill="#fff" fill-opacity="' + o.pale + '"/>' : "")) + overlaySvg(o.overlay, px) + geoSvg(g, px, k, { labels: o.labels }) + '</svg><figcaption>' + esc(o.cap || "") + (o.base === "kataster" ? " · © geo.admin.ch / Kantone (Amtliche Vermessung)" : " · © swisstopo") + "</figcaption>";
+    fig.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(tt("km_prevAlt")) + '"><rect width="' + W + '" height="' + H + '" fill="#eef1f3"/><rect width="' + W + '" height="' + H + '" fill="#fff"/>' + ((o.base === "leer" || (o.base === "av" && !avCfg().u)) ? "" : '<image href="' + esc(o.bg || bgUrl(box, o.base)) + '" width="' + W + '" height="' + H + '"/>' + (o.pale ? '<rect width="' + W + '" height="' + H + '" fill="#fff" fill-opacity="' + o.pale + '"/>' : "")) + overlaySvg(o.overlay, px) + dxfSvg(o.dxf, px, sc, W, H) + geoSvg(g, px, k, { labels: o.labels }) + '</svg><figcaption>' + esc(o.cap || "") + (o.dxf && o.dxf.it ? " · DXF: " + esc(o.dxf.name || "") : "") + (o.base === "kataster" ? " · © geo.admin.ch / Kantone (Amtliche Vermessung)" : " · © swisstopo") + "</figcaption>";
     var im = fig.querySelector("image"); im.addEventListener("error", function () { im.remove(); });
     return fig;
+  }
+  /* DXF-Hintergrund im Bericht: sichtbare Layer, nur was im Ausschnitt liegt; Texte massstäblich */
+  function dxfSvg(D, px, sc, W, H) {
+    if (!D || !D.it || !D.lay) return ""; var o = "", n = 0, inb = function (q) { return q[0] > -50 && q[0] < W + 50 && q[1] > -50 && q[1] < H + 50; };
+    D.it.forEach(function (s) { if (n > 6000 || !D.lay[s.l] || !D.lay[s.l].on) return;
+      if (s.t) { var q = px(s.p), fs = (s.h || 0.25) / sc; if (fs < 2.2 || !inb(q)) return; n++;
+        o += '<text x="' + q[0].toFixed(1) + '" y="' + q[1].toFixed(1) + '" font-size="' + fs.toFixed(1) + '" fill="' + esc(s.c || D.lay[s.l].c || "#333") + '" font-family="Arial,sans-serif" text-anchor="' + ["start", "middle", "end"][s.ah || 0] + '" dominant-baseline="' + ["alphabetic", "central", "hanging"][s.av || 0] + '"' + (s.r ? ' transform="rotate(' + (-s.r) + " " + q[0].toFixed(1) + " " + q[1].toFixed(1) + ')"' : "") + ">" + esc(s.t) + "</text>"; return; }
+      var P = s.p.map(px); if (!P.some(inb)) return; n++;
+      var LY = D.lay[s.l]; o += '<polyline points="' + P.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" ") + '" fill="none" stroke="' + esc(s.c || LY.c || "#333") + '" stroke-width="' + ((LY.w || 1.3) * 0.55).toFixed(2) + '"' + (LY.d ? ' stroke-dasharray="4 3"' : "") + ' stroke-opacity=".85"/>'; });
+    return o ? '<g class="dxfbg">' + o + "</g>" : "";
   }
   /* kleine Vorschau je Datensatz */
   /* Übersicht (Situation, Vorschau): statt Landeskarte (farbig/grau) der Parzellenplan; Luftbild, leere Basis und eigener WMS bleiben */
@@ -598,6 +608,7 @@
       '<p class="hint kmunits" id="kmUnits"></p></div>' +
       '<div class="kmright"><div class="kmquick" id="kmQuick" hidden role="group" aria-label="' + esc(tt("km_lt_title")) + '"></div><h3 class="kmoh">' + esc(tt("km_obj")) + '</h3><div class="kmbar"><button type="button" class="btn ghost small" id="kmFoldAll" hidden></button></div><div class="kmobj" id="kmObj" role="group" aria-label="' + esc(tt("km_obj")) + '"></div>' + '<details class="kmmiss" id="kmMiss" hidden><summary></summary><ul class="kmmissl"></ul></details>' +
       (plan ? "" : '<details class="kmcat" id="kmCat"><summary>' + esc(tt("km_cat")) + '</summary><div class="kmcatb"><p class="hint kmtel">' + esc(tt("km_catTel")) + '</p><div class="kmchips" id="kmChips" role="group" aria-label="' + esc(tt("km_catChips")) + '" hidden></div><label for="kmCatQ">' + esc(tt("km_catSearch")) + '</label><input type="search" id="kmCatQ" autocomplete="off" placeholder="' + esc(tt("km_catPh")) + '"><p class="hint" id="kmCatMsg" role="status"></p><ul class="kmcatl" id="kmCatL" aria-label="' + esc(tt("km_catRes")) + '"></ul><h3 class="kmcath">' + esc(tt("km_catSel")) + '</h3><ul class="kmcatl kmcats" id="kmCatS"></ul></div></details>') +
+      (plan ? "" : '<details class="kmcat kmdxfd" id="kmDxfD" open hidden><summary>' + esc(tt("km_dxfBg")) + '</summary><div class="kmcatb" id="kmDxfB"></div></details>') +
       (plan ? "" : '<details class="kmcat kmovd" id="kmOvD"><summary>' + esc(tt("ov_title")) + '</summary><div class="kmcatb"><p class="hint">' + esc(tt("ov_hint")) + '</p>' +
         '<label for="kmOvF">' + esc(tt("pl_file")) + '</label><input type="file" id="kmOvF" accept=".pdf,application/pdf,image/*"><p class="hint" id="kmOvMsg" role="status"></p><div class="kmovauto" id="kmOvAuto" hidden><p class="hint" id="kmOvAutoT"></p><div class="kmbar"><button type="button" class="btn small" data-oa="ok">' + esc(tt("ov_confirm")) + '</button><button type="button" class="btn ghost small" data-oa="ref">' + esc(tt("ov_refine")) + '</button><button type="button" class="btn ghost small del" data-oa="no">' + esc(tt("ov_discard")) + '</button></div></div>' +
         '<div class="kmbar"><button type="button" class="btn small" id="kmOvPlan">' + esc(tt("ov_fromPlan")) + '</button><button type="button" class="btn small" data-k="mgeo" aria-pressed="false">' + esc(tt("ov_geo")) + '</button><button type="button" class="btn small" data-ov="tr" id="kmOvTr">' + esc(tt("ov_tr")) + '</button><button type="button" class="btn ghost small" data-ov="c">' + esc(tt("ov_center")) + '</button><button type="button" class="btn ghost small del" data-ov="x">' + esc(tt("km_catRemove")) + '</button></div>' +
@@ -627,7 +638,7 @@
       if (slot) canvas.appendChild(slot);
       /* Mitte: Ebenen, Marker, Hilfe */
       var h1 = E("h3", "kmph", esc(tt("ws_layers"))); mid.appendChild(h1);
-      ["#kmCat", "#kmOvD"].forEach(function (q) { var n = pick(q); if (n) mid.appendChild(n); });
+      ["#kmCat", "#kmDxfD", "#kmOvD"].forEach(function (q) { var n = pick(q); if (n) mid.appendChild(n); });
       mid.appendChild(E("h3", "kmph", esc(tt("ws_marker")))); mid.appendChild(E("p", "hint", esc(tt("ws_markerHint")))); mid.appendChild(E("div", "kmmk", "")).id = "kmMk";
       if (intro) mid.appendChild(intro);
       /* Rechts: Eigenschaften | Auswertung */
@@ -854,7 +865,7 @@
     var undoSt = [], curN = null, curA = null, tmp = [], layers = {}, lastMove = 0, noteCol = "#0b6b72";
     var NT = { text: "km_nText", arrow: "km_nArrow", sline: "km_nLine", rect: "km_nRect" };
     var redoSt = [], msel = {};
-    var snap = function () { lyEdited = true; undoSt.push(JSON.stringify(M)); if (undoSt.length > 100) undoSt.shift(); redoSt.length = 0; };
+    var snap = function () { lyEdited = true; undoSt.push(JSON.stringify(M, noDxf)); if (undoSt.length > 100) undoSt.shift(); redoSt.length = 0; };
     function isOn(id) { return !!((sel && sel.id === id) || msel[id]); }
     function selIds() { var a = []; if (sel && findObj(sel.id)) a.push(sel.id); Object.keys(msel).forEach(function (k) { if (a.indexOf(k) < 0 && findObj(k)) a.push(k); }); return a; }
     var findObj = function (id) { var a = [M.lines, M.pts, M.sond, M.notes, M.areas, M.wl, M.geb]; for (var i = 0; i < a.length; i++) { var o = byId(a[i], id); if (o) return { arr: a[i], o: o }; } return null; };
@@ -1426,7 +1437,7 @@
         var r = rowOf(l);
         var t = head(r, tt("km_lineN").replace("{n}", i + 1), l.rid); t.insertAdjacentHTML("beforeend", " · " + fmt(effLen(l.pts)) + " m" + (SLOPE && hzOf(l) ? " " + esc(tt("hz_sfx")) : ""));
         var ed = document.createElement("div"); ed.className = "kmled"; r.appendChild(ed); lineEd(l, ed, false);
-        if (l.route) linkHint(r, tt("km_rt_lk"), null); if (l.dxf != null) linkHint(r, tt("km_dxfLk").replace("{l}", l.dxf || "0"), null);   /* Routenlinie entsteht immer ohne Verbindung (kein from/to, kein Schacht); Hinweis ohne Löschen-Knopf */
+        if (l.route) linkHint(r, tt("km_rt_lk"), null); if (l.dxf != null) linkHint(r, tt("km_dxfLk").replace("{l}", dxfLbl(l.dxf) || l.dxf || "0") + (l.dxfBel ? " · " + tt("km_dxfBel").replace("{b}", l.dxfBel) : ""), null);   /* Routenlinie entsteht immer ohne Verbindung (kein from/to, kein Schacht); Hinweis ohne Löschen-Knopf */
         [["from", "km_lk_from"], ["to", "km_lk_to"]].forEach(function (a) { var bl = byId(M.lines, l[a[0]]); if (bl) linkHint(r, tt(a[1]).replace("{n}", M.lines.indexOf(bl) + 1), function () { delete l[a[0]]; delete l.abz; if (a[0] === "from") delete l.baseDir; }, a[0]); });
         if (l.abz) { var ab = l.abz, bb = byId(M.lines, l.from || l.to); linkHint(r, ab.mode === "entn" ? tt("tp_hint_entn").replace("{x}", ab.x).replace("{dn}", ab.dn).replace("{n}", bb ? M.lines.indexOf(bb) + 1 : "?") : tt("tp_hint_tst").replace("{n}", bb ? M.lines.indexOf(bb) + 1 : "?"), null); }
         btns(r, l.id); return r;
@@ -1842,66 +1853,221 @@
       sugs = []; sugDraw(); sugRender(); refresh(); toast(dlg, tt("sg_done").replace("{s}", ns).replace("{w}", nw), tt("km_undoBtn"), function () { if (undoSt.length) { var b = $("[data-k=undo]"); if (b) b.click(); } });
     }
     /* DXF-Export (Netzkanten 100, Netzknoten 200, Knickpunkte 201) – Koordinaten wie gezeichnet (LV95) */
-    /* ---------- DXF-Import (Linien): LINE, LWPOLYLINE, POLYLINE; LV95 oder LV03; Ebenen wählbar; zusammenhängende LINE-Stücke werden verbunden ---------- */
+    /* ---------- DXF: ganze Datei als Hintergrund (Linien, Bögen, Kreise, Ellipsen, Texte, Blöcke; je Layer ein/aus; ohne Kosten)
+       + Übernahme gewählter Layer bzw. angeklickter Linien als Leitung (kostenwirksam). LV95 oder LV03; ASCII-DXF. ---------- */
+    var ACI = ["#000000", "#ff0000", "#ffff00", "#00ff00", "#00ffff", "#0000ff", "#ff00ff", "#000000", "#808080", "#c0c0c0"];
+    function aciCol(i) { i = Math.abs(i | 0); if (i >= 1 && i <= 9) return ACI[i]; if (i >= 250) { var g = Math.round(51 + (i - 250) * 40); return "rgb(" + g + "," + g + "," + g + ")"; } if (i >= 10 && i < 250) { var h = Math.floor((i - 10) / 10) * 15, v = (i % 2) ? 0.65 : 1, l = [50, 42, 35, 28, 22][Math.floor((i % 10) / 2)] * v; return "hsl(" + h + ",80%," + Math.round(l) + "%)"; } return "#333333"; }
     function dxfParse(txt) {
-      var R = txt.split(/\r\n|\r|\n/), segs = [], skip = {}, sec = null, e = null, poly = null, bad = 0, sys = { lv95: 0, lv03: 0 };
-      var conv = function (x, y) { if (x > 2.4e6 && x < 2.9e6 && y > 1.0e6 && y < 1.4e6) { sys.lv95++; return [x, y]; } if (x > 4.4e5 && x < 9e5 && y > 4e4 && y < 4e5) { sys.lv03++; return [x + 2e6, y + 1e6]; } return null; };
-      var flush = function () {
-        if (!e) return; var t = e.t;
-        if (t === "LINE" && e.x.length && e.x2 != null) segs.push({ l: e.l, p: [[e.x[0], e.y[0]], [e.x2, e.y2]], line: 1 });
-        else if (t === "LWPOLYLINE" && e.x.length > 1) { var p = e.x.map(function (x, i) { return [x, e.y[i]]; }); if (e.f & 1) p.push(p[0].slice()); segs.push({ l: e.l, p: p }); }
-        else if (t === "POLYLINE") poly = { l: e.l, p: [], c: !!(e.f & 1) };
-        else if (t === "VERTEX" && poly && e.x.length) poly.p.push([e.x[0], e.y[0]]);
-        else if (t === "SEQEND" && poly) { if (poly.c && poly.p.length > 1) poly.p.push(poly.p[0].slice()); if (poly.p.length > 1) segs.push({ l: poly.l, p: poly.p }); poly = null; }
-        else if (t !== "VERTEX" && t !== "SEQEND" && t !== "POLYLINE") skip[t] = (skip[t] || 0) + 1;
-        e = null;
-      };
-      for (var i = 0; i + 1 < R.length; i += 2) {
-        var c = parseInt(R[i], 10), v = R[i + 1].trim(); if (!isFinite(c)) continue;
-        if (c === 0) { flush(); if (v === "SECTION") { sec = "?"; continue; } if (v === "ENDSEC") { sec = null; continue; } if (sec === "ENTITIES") e = { t: v, l: "0", x: [], y: [], f: 0 }; continue; }
-        if (c === 2 && sec === "?") { sec = v; continue; }
-        if (!e) continue;
-        if (c === 8) e.l = v; else if (c === 10) e.x.push(parseFloat(v)); else if (c === 20) e.y.push(parseFloat(v)); else if (c === 11) e.x2 = parseFloat(v); else if (c === 21) e.y2 = parseFloat(v); else if (c === 70) e.f = parseInt(v, 10) || 0;
+      var R = txt.split(/\r\n|\r|\n/), P = [];
+      for (var i = 0; i + 1 < R.length; i += 2) { var c = parseInt(R[i], 10); if (isFinite(c)) P.push([c, R[i + 1]]); }
+      /* 1) Rohobjekte je Abschnitt: Layer-Tabelle (Farben), Blöcke, Objekte */
+      var sec = null, layCol = {}, blocks = {}, ents = [], cur = null, blk = null, tbl = null, lay = null;
+      var push = function () { if (!cur) return; if (blk) blk.e.push(cur); else if (sec === "ENTITIES") ents.push(cur); cur = null; };
+      for (var j = 0; j < P.length; j++) {
+        var c0 = P[j][0], v = P[j][1], vt = v.trim();
+        if (c0 === 0) {
+          push(); if (lay) { if (lay.n != null) layCol[lay.n] = lay.c; lay = null; }
+          if (vt === "SECTION") { sec = "?"; continue; } if (vt === "ENDSEC") { sec = null; blk = null; continue; }
+          if (sec === "TABLES") { if (vt === "TABLE") tbl = "?"; else if (vt === "ENDTAB") tbl = null; else if (vt === "LAYER") lay = { n: null, c: 7 }; continue; }
+          if (sec === "BLOCKS") { if (vt === "BLOCK") { blk = { n: null, bx: 0, by: 0, e: [], hdr: true }; continue; } if (vt === "ENDBLK") { if (blk && blk.n != null) blocks[blk.n] = blk; blk = null; continue; } if (blk) blk.hdr = false; }
+          if (sec === "ENTITIES" || (sec === "BLOCKS" && blk)) cur = { t: vt, c: [] };
+          continue;
+        }
+        if (c0 === 2 && sec === "?") { sec = vt; continue; }
+        if (lay) { if (c0 === 2) lay.n = vt; else if (c0 === 62) lay.c = parseInt(vt, 10); continue; }
+        if (blk && blk.hdr) { if (c0 === 2) blk.n = vt; else if (c0 === 10) blk.bx = parseFloat(vt); else if (c0 === 20) blk.by = parseFloat(vt); continue; }
+        if (cur) cur.c.push([c0, v]);
       }
-      flush();
-      /* Koordinaten umrechnen, ungültige verwerfen */
-      var ok = []; segs.forEach(function (s) { var p = s.p.map(function (q) { return isFinite(q[0]) && isFinite(q[1]) ? conv(q[0], q[1]) : null; }); if (p.some(function (q) { return !q; })) { bad++; return; } s.p = p.map(function (q) { return [Math.round(q[0] * 100) / 100, Math.round(q[1] * 100) / 100]; }); ok.push(s); });
-      /* LINE-Stücke derselben Ebene zu Linienzügen verbinden (Toleranz 1 cm) */
-      var key = function (q) { return Math.round(q[0] * 100) + "," + Math.round(q[1] * 100); }, out = ok.filter(function (s) { return !s.line; }), byL = {};
-      ok.filter(function (s) { return s.line; }).forEach(function (s) { (byL[s.l] = byL[s.l] || []).push(s.p); });
-      Object.keys(byL).forEach(function (l) {
-        var S0 = byL[l], used = new Array(S0.length).fill(false), ends = {};
-        S0.forEach(function (p, i) { [key(p[0]), key(p[1])].forEach(function (k) { (ends[k] = ends[k] || []).push(i); }); });
-        var take = function (k) { var a = ends[k] || []; for (var j = 0; j < a.length; j++) if (!used[a[j]]) return a[j]; return -1; };
-        S0.forEach(function (p, i) {
-          if (used[i]) return; used[i] = true; var ch = [p[0].slice(), p[1].slice()];
-          for (var j; (j = take(key(ch[ch.length - 1]))) >= 0;) { used[j] = true; var q = S0[j]; ch.push((key(q[0]) === key(ch[ch.length - 1]) ? q[1] : q[0]).slice()); }
-          for (var j2; (j2 = take(key(ch[0]))) >= 0;) { used[j2] = true; var q2 = S0[j2]; ch.unshift((key(q2[1]) === key(ch[0]) ? q2[0] : q2[1]).slice()); }
-          out.push({ l: l, p: ch });
+      push();
+      /* 2) Objekte auslegen (mit Blocktransformation), Koordinaten LV95/LV03 */
+      var sys = { lv95: 0, lv03: 0 }, bad = 0, skip = {}, cnt = {}, out = [], S = [];
+      var conv = function (x, y) { if (x > 2.4e6 && x < 2.9e6 && y > 1.0e6 && y < 1.4e6) { sys.lv95++; return [x, y]; } if (x > 4.4e5 && x < 9e5 && y > 4e4 && y < 4e5) { sys.lv03++; return [x + 2e6, y + 1e6]; } return null; };
+      var rd = function (q) { return [Math.round(q[0] * 100) / 100, Math.round(q[1] * 100) / 100]; };
+      var I = function (x, y) { return [x, y]; };
+      var arcPts = function (cx, cy, r, a0, a1, xf) { var sw = a1 - a0; while (sw <= 0) sw += 360; var n = Math.max(4, Math.min(96, Math.ceil(sw / 7.5))), p = []; for (var k = 0; k <= n; k++) { var a = (a0 + sw * k / n) * Math.PI / 180; p.push(xf(cx + r * Math.cos(a), cy + r * Math.sin(a))); } return p; };
+      var bulge = function (a, b, bu, xf) { /* Bogensegment einer Polylinie */
+        var th = 4 * Math.atan(bu), ch = Math.hypot(b[0] - a[0], b[1] - a[1]); if (!ch || Math.abs(bu) < 1e-6) return [];
+        var r = ch / (2 * Math.sin(th / 2)), mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, d = r * Math.cos(th / 2), ux = -(b[1] - a[1]) / ch, uy = (b[0] - a[0]) / ch, cx = mx + ux * d, cy = my + uy * d;
+        var s0 = Math.atan2(a[1] - cy, a[0] - cx), n = Math.max(2, Math.min(48, Math.ceil(Math.abs(th) * 180 / Math.PI / 7.5))), p = [];
+        for (var k = 1; k < n; k++) { var an = s0 + th * k / n; p.push(xf(cx + Math.abs(r) * Math.cos(an), cy + Math.abs(r) * Math.sin(an))); } return p; };
+      var add = function (it, ptsRaw) { var p = ptsRaw.map(function (q) { return isFinite(q[0]) && isFinite(q[1]) ? conv(q[0], q[1]) : null; }); if (!p.length || p.some(function (q) { return !q; })) { bad++; return; } if (it.t) it.p = rd(p[0]); else it.p = p.map(rd); out.push(it); };
+      var col = function (e, ly, inh) { var c = e.g(62); c = c == null ? 256 : parseInt(c, 10); if (c === 0 && inh) return inh; if (c === 256 || c === 0) return null; return aciCol(c); };   /* null = Layerfarbe */
+      var poly = null;
+      function walk(list, xf, sc, rot, lyIn, colIn, depth) {
+        list.forEach(function (e0) {
+          var e = { t: e0.t, c: e0.c, g: function (k) { for (var q = 0; q < e0.c.length; q++) if (e0.c[q][0] === k) return e0.c[q][1].trim(); return null; }, all: function (k) { return e0.c.filter(function (x) { return x[0] === k; }).map(function (x) { return x[1]; }); }, f: function (k, d) { var x = parseFloat(this.g(k)); return isFinite(x) ? x : d; } };
+          var ly = e.g(8) || "0"; if (ly === "0" && lyIn) ly = lyIn; var cl = col(e, ly, colIn), t = e.t;
+          cnt[t] = (cnt[t] || 0) + 1;
+          if (t === "LINE") add({ l: ly, c: cl, k: 1, ln: 1 }, [xf(e.f(10), e.f(20)), xf(e.f(11), e.f(21))]);
+          else if (t === "LWPOLYLINE") {
+            var V = [], cur2 = null; e.c.forEach(function (x) { if (x[0] === 10) { cur2 = [parseFloat(x[1]), NaN, 0]; V.push(cur2); } else if (x[0] === 20 && cur2) cur2[1] = parseFloat(x[1]); else if (x[0] === 42 && cur2) cur2[2] = parseFloat(x[1]) || 0; });
+            var cl1 = (parseInt(e.g(70), 10) || 0) & 1, pp = []; if (cl1 && V.length > 2) V.push(V[0]);
+            V.forEach(function (q, k) { pp.push(xf(q[0], q[1])); if (k < V.length - 1 && q[2]) pp = pp.concat(bulge([q[0], q[1]], [V[k + 1][0], V[k + 1][1]], q[2], xf)); });
+            if (pp.length > 1) add({ l: ly, c: cl, k: 1 }, pp);
+          }
+          else if (t === "POLYLINE") poly = { l: ly, c: cl, v: [], cl: ((parseInt(e.g(70), 10) || 0) & 1), m: ((parseInt(e.g(70), 10) || 0) & (16 | 64)) };
+          else if (t === "VERTEX") { if (poly) poly.v.push([e.f(10), e.f(20), e.f(42, 0), parseInt(e.g(70), 10) || 0]); }
+          else if (t === "SEQEND") { if (poly && !poly.m) { var W = poly.v.filter(function (q) { return !(q[3] & 16); }); if (poly.cl && W.length > 2) W.push(W[0]); var p2 = []; W.forEach(function (q, k) { p2.push(xf(q[0], q[1])); if (k < W.length - 1 && q[2]) p2 = p2.concat(bulge([q[0], q[1]], [W[k + 1][0], W[k + 1][1]], q[2], xf)); }); if (p2.length > 1) add({ l: poly.l, c: poly.c, k: 1 }, p2); } else if (poly) skip["POLYFACE"] = (skip["POLYFACE"] || 0) + 1; poly = null; }
+          else if (t === "CIRCLE") { var cx = e.f(10), cy = e.f(20), r = e.f(40, 0), oc = xf(cx, cy), oo = conv(oc[0], oc[1]); if (r > 0) add({ l: ly, c: cl, o: oo ? rd(oo) : undefined }, arcPts(cx, cy, r, 0, 360, xf)); }
+          else if (t === "ARC") { var r2 = e.f(40, 0); if (r2 > 0) add({ l: ly, c: cl }, arcPts(e.f(10), e.f(20), r2, e.f(50, 0), e.f(51, 360), xf)); }
+          else if (t === "ELLIPSE") { var ex = e.f(10), ey = e.f(20), ax = e.f(11), ay = e.f(21), ra = e.f(40, 1), p0 = e.f(41, 0), p1 = e.f(42, 2 * Math.PI), bx = -ay * ra, by = ax * ra, sw = p1 - p0; while (sw <= 0) sw += 2 * Math.PI; var n3 = Math.max(8, Math.ceil(sw / (Math.PI / 24))), ep = []; for (var k3 = 0; k3 <= n3; k3++) { var u = p0 + sw * k3 / n3; ep.push(xf(ex + ax * Math.cos(u) + bx * Math.sin(u), ey + ay * Math.cos(u) + by * Math.sin(u))); } add({ l: ly, c: cl }, ep); }
+          else if (t === "SPLINE") { var X = e.all(11).length ? [e.all(11), e.all(21)] : [e.all(10), e.all(20)], sp = X[0].map(function (x, k) { return xf(parseFloat(x), parseFloat(X[1][k])); }); if (sp.length > 1) add({ l: ly, c: cl }, sp); }
+          else if (t === "POINT") { var ox = e.f(10), oy = e.f(20), d0 = 0.15; add({ l: ly, c: cl }, [xf(ox - d0, oy), xf(ox + d0, oy)]); add({ l: ly, c: cl }, [xf(ox, oy - d0), xf(ox, oy + d0)]); }
+          else if (t === "TEXT" || t === "MTEXT" || t === "ATTRIB") {
+            var s = t === "MTEXT" ? e.all(3).join("") + (e.g(1) != null ? e.all(1).join("") : "") : (e.g(1) || "");
+            s = s.replace(/\\P/g, " ").replace(/\\[A-Za-z][^;\\{}]*;/g, "").replace(/\\[LlOoKk]/g, "").replace(/[{}]/g, "").replace(/%%[cC]/g, "Ø").replace(/%%[dD]/g, "°").replace(/%%[pP]/g, "±").replace(/%%[uUoO]/g, "").trim();
+            if (!s) return; var h = e.f(40, 0.25) * sc, ha = parseInt(e.g(72), 10) || 0, va = parseInt(e.g(73), 10) || 0, am = parseInt(e.g(71), 10) || 0;
+            var useAl = t !== "MTEXT" && (ha || va) && e.g(11) != null, q0 = useAl ? xf(e.f(11), e.f(21)) : xf(e.f(10), e.f(20));
+            var an = t === "MTEXT" ? (e.g(50) != null ? e.f(50, 0) : Math.atan2(e.f(21, 0), e.f(11, 1)) * 180 / Math.PI) : e.f(50, 0);
+            var ah = t === "MTEXT" ? [0, 0, 1, 2, 0, 1, 2, 0, 1, 2][am] || 0 : (ha === 1 || ha === 4 ? 1 : ha === 2 ? 2 : 0), av = t === "MTEXT" ? (am >= 7 ? 0 : am >= 4 ? 1 : am >= 1 ? 2 : 0) : (ha === 4 ? 1 : va === 3 ? 2 : va === 2 ? 1 : 0);
+            add({ l: ly, c: cl, t: s.slice(0, 200), h: Math.round(h * 1000) / 1000, r: Math.round((an + rot) * 10) / 10, ah: ah, av: av }, [q0]);
+          }
+          else if (t === "INSERT" && depth < 5) {
+            var B = blocks[e.g(2)]; if (!B) return; var px0 = e.f(10, 0), py0 = e.f(20, 0), sx = e.f(41, 1), sy = e.f(42, 1), ro = e.f(50, 0) * Math.PI / 180, cs = Math.cos(ro), sn = Math.sin(ro);
+            var nc = Math.max(1, parseInt(e.g(70), 10) || 1), nr = Math.max(1, parseInt(e.g(71), 10) || 1), dc = e.f(44, 0), dr = e.f(45, 0);
+            for (var a1 = 0; a1 < Math.min(nc, 50); a1++) for (var b1 = 0; b1 < Math.min(nr, 50); b1++) (function (ox2, oy2) {
+              var xf2 = function (x, y) { var u = (x - B.bx) * sx + ox2, w = (y - B.by) * sy + oy2; return xf(px0 + u * cs - w * sn, py0 + u * sn + w * cs); };
+              walk(B.e, xf2, sc * Math.abs(sx), rot + e.f(50, 0), ly, cl, depth + 1);
+            })(a1 * dc, b1 * dr);
+          }
+          else if (t !== "ATTDEF" && t !== "SEQEND" && t !== "VERTEX") skip[t] = (skip[t] || 0) + 1;
+        });
+      }
+      walk(ents, I, 1, 0, null, null, 0);
+      /* 3) LINE-Stücke derselben Ebene und Farbe zu Linienzügen verbinden (1 cm) */
+      var key = function (q) { return Math.round(q[0] * 100) + "," + Math.round(q[1] * 100); }, rest = out.filter(function (s) { return !s.ln; }), byL = {};
+      out.filter(function (s) { return s.ln; }).forEach(function (s) { var k0 = s.l + "\u0000" + (s.c || ""); (byL[k0] = byL[k0] || []).push(s.p); });
+      Object.keys(byL).forEach(function (k0) {
+        var L0 = k0.split("\u0000"), S0 = byL[k0], used = new Array(S0.length).fill(false), ends = {};
+        S0.forEach(function (p, i2) { [key(p[0]), key(p[1])].forEach(function (k) { (ends[k] = ends[k] || []).push(i2); }); });
+        var take = function (k) { var a = ends[k] || []; for (var q = 0; q < a.length; q++) if (!used[a[q]]) return a[q]; return -1; };
+        S0.forEach(function (p, i2) {
+          if (used[i2]) return; used[i2] = true; var ch = [p[0].slice(), p[1].slice()];
+          for (var q; (q = take(key(ch[ch.length - 1]))) >= 0;) { used[q] = true; var s1 = S0[q]; ch.push((key(s1[0]) === key(ch[ch.length - 1]) ? s1[1] : s1[0]).slice()); }
+          for (var q2; (q2 = take(key(ch[0]))) >= 0;) { used[q2] = true; var s2 = S0[q2]; ch.unshift((key(s2[1]) === key(ch[0]) ? s2[0] : s2[1]).slice()); }
+          rest.push({ l: L0[0], c: L0[1] || null, k: 1, p: ch });
         });
       });
-      out = out.map(function (s) { s.p = s.p.filter(function (q, i) { return !i || Math.hypot(q[0] - s.p[i - 1][0], q[1] - s.p[i - 1][1]) > 0.005; }); return s; }).filter(function (s) { return s.p.length > 1; });
-      return { lines: out, skip: skip, bad: bad, sys: sys.lv03 > sys.lv95 ? "LV03" : "LV95" };
+      rest = rest.map(function (s) { if (!s.t) s.p = s.p.filter(function (q, k) { return !k || Math.hypot(q[0] - s.p[k - 1][0], q[1] - s.p[k - 1][1]) > 0.005; }); return s; }).filter(function (s) { return s.t || s.p.length > 1; });
+      /* 4) Umfang begrenzen: sehr grosse Dateien vereinfachen (Douglas-Peucker), damit Speichern im Browser möglich bleibt */
+      var npts = 0; rest.forEach(function (s) { if (!s.t) npts += s.p.length; });
+      var simp = 0; [0.05, 0.2, 0.5].forEach(function (tol) { if (npts <= 150000) return; simp = tol; npts = 0; rest.forEach(function (s) { if (!s.t && s.p.length > 2) s.p = dpSimp(s.p, tol); if (!s.t) npts += s.p.length; }); });
+      var lays = {}; rest.forEach(function (s) { var L1 = lays[s.l] = lays[s.l] || { n: 0, k: 0, c: layCol[s.l] != null && layCol[s.l] > 0 && layCol[s.l] !== 7 ? aciCol(layCol[s.l]) : null }; L1.n++; if (s.k) L1.k++; });
+      var sc0 = 0; Object.keys(lays).forEach(function (l) { var st = dxfKnown(l); if (st) { sc0++; lays[l].g = st.g; if (!lays[l].c) lays[l].c = st.c; lays[l].w = st.w; if (st.d) lays[l].d = st.d; } if (!lays[l].c) lays[l].c = "#333333"; });
+      rest.forEach(function (s) { if (!s.c) delete s.c; });
+      return { it: rest, lay: lays, scheme: sc0 ? "sc" : "", cnt: cnt, skip: skip, bad: bad, sys: sys.lv03 > sys.lv95 ? "LV03" : "LV95", simp: simp, nTxt: rest.filter(function (s) { return s.t; }).length };
     }
+    /* Bekannte Ebenenschlüssel: Swisscom-Netzauskunft (SIA 405), z. B. SCZ161U-MLU1 = Trasse unterirdisch, < 0.5 m, Lage genau.
+       Darstellung angelehnt an das Swisscom Geo-Portal: Bestand dunkel, Lage ungenau gestrichelt, Schächte blau. */
+    function dxfParseKey(l) { var m = /^SCZ(16[123])([A-Z-])-?-?(MLU|MFU|MSU|T--)(-|0|1)$/i.exec(String(l || "").replace(/\s+/g, "")); return m ? { o: m[1], u: m[2].toUpperCase(), k: m[3].toUpperCase(), q: m[4] } : null; }
+    function dxfKnown(l) {
+      var m = dxfParseKey(l); if (!m) return null; var sch = m.o === "163", ung = m.q === "0";
+      if (m.k === "T--") return { g: m.o === "163" ? 3 : 1, c: sch ? "#1f4e9a" : "#3a3a3a", w: 1 };
+      return { g: m.o === "161" ? 0 : m.o === "162" ? 2 : 3, c: sch ? "#1f4e9a" : "#111111", w: m.k === "MFU" && !sch ? 1.3 : m.o === "161" ? 2.2 : 1.4, d: ung ? "6 4" : "" };
+    }
+    function dxfLbl(l) {
+      var m = dxfParseKey(l); if (!m) return ""; var a = [tt(m.o === "161" ? (m.u === "A" ? "dx_161A" : "dx_161U") : m.o === "162" ? "dx_162" : "dx_163")];
+      if (m.k === "T--") a.push(tt("dx_txt")); else { a.push(tt(m.k === "MLU" ? "dx_lt" : m.k === "MFU" ? (m.o === "161" ? "dx_ge" : "dx_fl") : "dx_pt")); if (m.q === "0" || m.q === "1") a.push(tt(m.q === "1" ? "dx_ok" : "dx_nok")); }
+      return a.join(" · ");
+    }
+    /* Belegung aus Plantext (z. B. «2 x K100», «K55») → Rohre der Leitung */
+    function dxfBel(s) {
+      var D = M.dxf; if (!D || !s.p || s.p.length < 2) return null; var best = null;
+      D.it.forEach(function (t) { if (!t.t || !/(^|\s)(\d+\s*x\s*)?K\d+/i.test(t.t)) return; var h = 1e9; for (var k = 1; k < s.p.length; k++) h = Math.min(h, segDist(t.p, s.p[k - 1], s.p[k])); if (h <= 3 && (!best || h < best.d)) best = { d: h, t: t.t }; });
+      if (!best) return null; var mm = /(?:(\d+)\s*x\s*)?K(\d+)/i.exec(best.t), rt = {}; if (mm && [55, 100, 120, 150].indexOf(+mm[2]) >= 0) rt[+mm[2]] = +(mm[1] || 1);
+      return { t: best.t, rt: Object.keys(rt).length ? rt : null };
+    }
+    function segDist(p, a, b) { var dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy, t = L2 ? ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L2 : 0; t = Math.max(0, Math.min(1, t)); return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy); }
+    function dpSimp(p, tol) {
+      if (p.length < 3) return p; var keep = new Array(p.length).fill(false); keep[0] = keep[p.length - 1] = true; var st = [[0, p.length - 1]];
+      while (st.length) { var ab = st.pop(), a = p[ab[0]], b = p[ab[1]], dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy, mx = -1, mi = -1;
+        for (var i = ab[0] + 1; i < ab[1]; i++) { var t = L2 ? ((p[i][0] - a[0]) * dx + (p[i][1] - a[1]) * dy) / L2 : 0; t = Math.max(0, Math.min(1, t)); var d = Math.hypot(p[i][0] - a[0] - t * dx, p[i][1] - a[1] - t * dy); if (d > mx) { mx = d; mi = i; } }
+        if (mx > tol) { keep[mi] = true; st.push([ab[0], mi], [mi, ab[1]]); } }
+      return p.filter(function (_, i) { return keep[i]; });
+    }
+    /* Leitung aus einem DXF-Linienzug */
+    function dxfToLine(s) { var b = dxfBel(s), cf = clone(lastCfg); if (b && b.rt) cf.rt = b.rt; var l = { id: nid("l"), pts: s.p.map(function (q) { return q.slice(); }), rid: null, rohr: clone(opt.defRohr), cfg: cf, dxf: s.l }; if (b) l.dxfBel = b.t; lineSync(l); M.lines.push(l); return l; }
+    function dxfFit(pts) { try { map.fitBounds(L.latLngBounds(pts.map(AD.ll)).pad(0.1), { maxZoom: 19 }); } catch (x) { } }
+    /* Importfenster: je Layer «anzeigen» und «als Leitung übernehmen» */
     function dxfAsk(res, fname) {
       var a = $("#kmDxfAsk"); if (a) a.remove(); a = document.createElement("div"); a.id = "kmDxfAsk"; a.className = "kmroute kmdxf"; a.setAttribute("role", "dialog"); a.setAttribute("aria-labelledby", "kmDxfT");
-      var lays = {}; res.lines.forEach(function (s) { lays[s.l] = (lays[s.l] || 0) + 1; }); var ln = Object.keys(lays).sort(), sk = Object.keys(res.skip).map(function (k) { return k + " " + res.skip[k]; }).join(", ");
-      a.innerHTML = '<p class="kmrt-t" id="kmDxfT"><b>' + esc(tt("km_dxfT")) + "</b> · " + esc(fname) + '</p><p class="hint">' + esc(tt("km_dxfInfo").replace("{n}", res.lines.length).replace("{k}", ln.length).replace("{c}", res.sys)) + (sk ? " " + esc(tt("km_dxfSkip").replace("{s}", sk)) : "") + (res.bad ? " " + esc(tt("km_dxfBad").replace("{n}", res.bad)) : "") + "</p>" +
-        '<fieldset class="kmdxfl"><legend>' + esc(tt("km_dxfLays")) + "</legend>" + ln.map(function (l, i) { return '<label class="check"><input type="checkbox" data-dxl="' + esc(l) + '" checked> ' + esc(tt("km_dxfLay").replace("{l}", l).replace("{n}", lays[l])) + "</label>"; }).join("") + "</fieldset>" +
-        '<div class="kmbar"><button type="button" class="btn small" data-dxg="go">' + esc(tt("km_dxfGo")) + '</button> <button type="button" class="btn ghost small" data-dxg="x">' + esc(tt("km_dxfX")) + "</button></div>";
-      canvas0().appendChild(a); var f = a.querySelector("button"); if (f) f.focus();
+      var ln = Object.keys(res.lay).sort(function (x, y) { var gx = res.lay[x].g == null ? 9 : res.lay[x].g, gy = res.lay[y].g == null ? 9 : res.lay[y].g; return gx - gy || x.localeCompare(y); }), nL = res.it.length - res.nTxt, nK = res.it.filter(function (s) { return s.k; }).length;
+      var sk = Object.keys(res.skip).map(function (k) { return k + " " + res.skip[k]; }).join(", ");
+      a.innerHTML = '<p class="kmrt-t" id="kmDxfT"><b>' + esc(tt("km_dxfT")) + "</b> · " + esc(fname) + '</p><p class="hint">' + esc(tt("km_dxfInfo2").replace("{g}", nL).replace("{t}", res.nTxt).replace("{k}", ln.length).replace("{c}", res.sys)) +
+        (sk ? " " + esc(tt("km_dxfSkip").replace("{s}", sk)) : "") + (res.bad ? " " + esc(tt("km_dxfBad").replace("{n}", res.bad)) : "") + (res.simp ? " " + esc(tt("km_dxfSimp").replace("{m}", String(res.simp))) : "") + (M.dxf ? " " + esc(tt("km_dxfRepl")) : "") + "</p>" + (res.scheme === "sc" ? '<p class="hint kmdxsc">ℹ ' + esc(tt("dx_sc")) + "</p>" : "") +
+        '<table class="kmdxtab"><thead><tr><th scope="col">' + esc(tt("km_dxfLays")) + '</th><th scope="col">' + esc(tt("km_dxfShow")) + '</th><th scope="col">' + esc(tt("km_dxfAsLine")) + "</th></tr></thead><tbody>" +
+        ln.map(function (l, i) { var L1 = res.lay[l], lb = dxfLbl(l); return '<tr><th scope="row"><span class="kmdxsw' + (L1.d ? " dash" : "") + '" style="background:' + esc(L1.c) + '" aria-hidden="true"></span>' + (lb ? esc(lb) + ' <span class="hint kmdxc">' + esc(l) + "</span>" : esc(l)) + ' <span class="hint">(' + L1.n + ")</span></th>" +
+          '<td><input type="checkbox" data-dxs="' + esc(l) + '" checked aria-label="' + esc(tt("km_dxfShow") + ": " + l) + '"></td><td>' + (L1.k ? '<input type="checkbox" data-dxl="' + esc(l) + '" aria-label="' + esc(tt("km_dxfAsLine") + ": " + l + " (" + L1.k + ")") + '"> <span class="hint">' + L1.k + "</span>" : "–") + "</td></tr>"; }).join("") +
+        '</tbody></table><p class="hint">' + esc(tt("km_dxfHint")) + '</p><div class="kmbar"><button type="button" class="btn small" data-dxg="go">' + esc(tt("km_dxfGo")) + '</button> <button type="button" class="btn ghost small" data-dxg="x">' + esc(tt("km_dxfX")) + "</button></div>";
+      canvas0().appendChild(a); var f = a.querySelector("button[data-dxg=go]"); if (f) f.focus();
       a.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); a.remove(); } });
       a.addEventListener("click", function (ev) {
         var b = ev.target.closest("[data-dxg]"); if (!b) return; if (b.dataset.dxg === "x") { a.remove(); return; }
-        var want = {}; a.querySelectorAll("[data-dxl]").forEach(function (c) { if (c.checked) want[c.getAttribute("data-dxl")] = 1; });
-        var sel0 = res.lines.filter(function (s) { return want[s.l]; }); if (!sel0.length) return; endLine(); snap();
-        var made = sel0.map(function (s) { var l = { id: nid("l"), pts: s.p, rid: null, rohr: clone(opt.defRohr), cfg: clone(lastCfg), dxf: s.l }; lineSync(l); M.lines.push(l); return l; });
-        a.remove(); sel = { id: made[0].id }; refresh();
-        try { var all = []; made.forEach(function (l) { all = all.concat(l.pts.map(AD.ll)); }); map.fitBounds(L.latLngBounds(all).pad(0.15), { maxZoom: 19 }); } catch (x) { }
-        toast(dlg, tt("km_dxfDone").replace("{n}", made.length), tt("km_undoBtn"), function () { undo(); });
+        var show = {}, want = {}; a.querySelectorAll("[data-dxs]").forEach(function (c) { show[c.getAttribute("data-dxs")] = c.checked; }); a.querySelectorAll("[data-dxl]").forEach(function (c) { if (c.checked) want[c.getAttribute("data-dxl")] = 1; });
+        endLine(); var old = M.dxf || null, sn = JSON.stringify(M, noDxf); undoSt.push(sn); redoSt.length = 0; lyEdited = true;
+        var lay = {}; ln.forEach(function (l) { var R0 = res.lay[l]; lay[l] = { c: R0.c, n: R0.n, k: R0.k, on: show[l] !== false }; if (R0.w) lay[l].w = R0.w; if (R0.d) lay[l].d = R0.d; if (R0.g != null) lay[l].g = R0.g; });
+        M.dxf = { name: fname, sys: res.sys, lay: lay, it: res.it, sc: res.scheme || "" };
+        var made = res.it.filter(function (s) { return s.k && want[s.l]; }).map(dxfToLine);
+        a.remove(); dxfCache = null; if (made.length) sel = { id: made[0].id }; refresh(); dxfPanel();   /* dxfPanel zeichnet auch neu */
+        var tg = $(".kmmidtog"); if (tg && tg.getAttribute("aria-expanded") !== "true") tg.click();   /* Fenster «Ebenen» mit der Layerliste zeigen */
+        var dd = $("#kmDxfD"); if (dd) { dd.open = true; try { dd.scrollIntoView({ block: "nearest" }); } catch (x) { } }
+        var all = []; res.it.forEach(function (s) { if (lay[s.l].on) all = all.concat(s.t ? [s.p] : [s.p[0], s.p[s.p.length - 1]]); }); if (all.length) dxfFit(all);
+        toast(dlg, tt(made.length ? "km_dxfDone2" : "km_dxfDone0").replace("{n}", made.length).replace("{k}", ln.length), tt("km_undoBtn"), function () { undoSt.pop(); restoreM(sn); M.dxf = old; dxfCache = null; refresh(); dxfPanel(); });
       });
     }
+    function noDxf(k, v) { return k === "dxf" && v && v.it ? undefined : v; }
     function canvas0() { var m0 = $("#kmMap"); return (m0 && m0.parentNode) || dlg; }
+    /* Darstellung auf der Karte: Linien (Canvas, ohne Kosten), Texte massstäblich; je Layer ein/aus */
+    var dxfLay = null, dxfTxt = null, dxfCache = null, dxfRen = null;
+    function dxfDraw() {
+      if (plan || !map) return; var D = M.dxf;
+      if (!dxfLay) { var pn = map.createPane("kmdxf"); pn.style.zIndex = 390; var pt = map.createPane("kmdxft"); pt.style.zIndex = 395; pt.style.pointerEvents = "none"; dxfRen = L.canvas({ pane: "kmdxf", tolerance: 5 }); dxfLay = L.layerGroup().addTo(map); dxfTxt = L.layerGroup().addTo(map); map.on("zoomend moveend", dxfTexts); }
+      dxfLay.clearLayers(); dxfTxt.clearLayers(); if (!D || !D.it) return;
+      if (!dxfCache) dxfCache = D.it.map(function (s) { return s.t ? AD.ll(s.p) : s.p.map(AD.ll); });
+      D.it.forEach(function (s, i) { if (s.t || !D.lay[s.l] || !D.lay[s.l].on) return;
+        var LY0 = D.lay[s.l], pl = L.polyline(dxfCache[i], { renderer: dxfRen, color: s.c || LY0.c || "#333", weight: LY0.w || 1.3, dashArray: LY0.d || null, opacity: 0.9, interactive: !!s.k, bubblingMouseEvents: true }); if (s.k) pl.on("click", function (ev) { if (mode) return; L.DomEvent.stop(ev); dxfPick(i); }); dxfLay.addLayer(pl); });
+      dxfTexts();
+    }
+    function dxfTexts() {
+      if (!dxfTxt) return; dxfTxt.clearLayers(); var D = M.dxf; if (!D || !D.it || !dxfCache) return;
+      var z = map.getZoom(), c = map.getCenter(), mpp = 156543.03 * Math.cos(c.lat * Math.PI / 180) / Math.pow(2, z), bb = map.getBounds().pad(0.2), n = 0;
+      D.it.forEach(function (s, i) { if (!s.t || n > 2500 || !D.lay[s.l] || !D.lay[s.l].on) return; var px = (s.h || 0.25) / mpp; if (px < 2.5) return; px = Math.max(9, px);   /* ab ~1:400 lesbar (min. 9 px), wie Planbeschriftung */ var ll = dxfCache[i]; if (!bb.contains(ll)) return; n++;
+        var tx = ["0", "-50%", "-100%"][s.ah || 0], ty = ["0", "50%", "100%"][s.av || 0];
+        var ic = L.divIcon({ className: "kmdxft", iconSize: [0, 0], html: '<span style="font-size:' + Math.min(px, 400).toFixed(1) + "px;color:" + esc(s.c || D.lay[s.l].c || "#333") + ";transform:rotate(" + (-(s.r || 0)) + "deg) translate(" + tx + ",-100%) translate(0," + ty + ')">' + esc(s.t) + "</span>" });
+        dxfTxt.addLayer(L.marker(ll, { icon: ic, pane: "kmdxft", interactive: false, keyboard: false })); });
+    }
+    function dxfPick(i) {
+      var s = M.dxf && M.dxf.it[i]; if (!s) return; var a = $("#kmDxfAsk"); if (a) a.remove(); a = document.createElement("div"); a.id = "kmDxfAsk"; a.className = "kmroute kmdxf"; a.setAttribute("role", "dialog"); a.setAttribute("aria-labelledby", "kmDxfT");
+      var Lm = 0; for (var k = 1; k < s.p.length; k++) Lm += Math.hypot(s.p[k][0] - s.p[k - 1][0], s.p[k][1] - s.p[k - 1][1]);
+      var lb = dxfLbl(s.l), bel = dxfBel(s);
+      a.innerHTML = '<p class="kmrt-t" id="kmDxfT"><b>' + esc(tt("km_dxfPick").replace("{l}", lb || s.l).replace("{m}", fmt(Lm))) + '</b></p>' + (lb ? '<p class="hint kmdxc">' + esc(s.l) + "</p>" : "") +
+        (bel ? '<p class="hint">' + esc(tt("km_dxfBel").replace("{b}", bel.t)) + (bel.rt ? " → " + esc(tt("km_dxfBelGo")) : "") + "</p>" : "") + (M.dxf.sc ? '<p class="hint">' + esc(tt("km_dxfBest")) + "</p>" : "") + '<div class="kmbar"><button type="button" class="btn small" data-dxp="go">' + esc(tt("km_dxfPickGo")) + '</button> <button type="button" class="btn ghost small" data-dxp="x">' + esc(tt("km_dxfX")) + "</button></div>";
+      canvas0().appendChild(a); a.querySelector("button").focus();
+      a.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); a.remove(); } });
+      a.addEventListener("click", function (ev) { var b = ev.target.closest("[data-dxp]"); if (!b) return; a.remove(); if (b.dataset.dxp !== "go") return; snap(); var l = dxfToLine(s); sel = { id: l.id }; refresh(); toast(dlg, tt("km_dxfDone").replace("{n}", 1), tt("km_undoBtn"), function () { undo(); }); });
+    }
+    /* Seitenleiste «DXF-Hintergrund»: Layer ein/aus, Layer als Leitung, entfernen */
+    function dxfPanel() {
+      dxfDraw(); var d = $("#kmDxfD"), b = $("#kmDxfB"); if (!d || !b) return; var D = M.dxf; d.hidden = !D; if (!D) { b.innerHTML = ""; return; }
+      var ln = Object.keys(D.lay).sort(function (x, y) { var gx = D.lay[x].g == null ? 9 : D.lay[x].g, gy = D.lay[y].g == null ? 9 : D.lay[y].g; return gx - gy || x.localeCompare(y); });
+      b.innerHTML = '<p class="hint">' + esc(D.name || "DXF") + " · " + D.it.length + " " + esc(tt("km_dxfObj")) + " · " + esc(D.sys || "LV95") + '</p><div class="kmbar"><button type="button" class="btn ghost small" data-dxa="on">' + esc(tt("km_dxfAllOn")) + '</button><button type="button" class="btn ghost small" data-dxa="off">' + esc(tt("km_dxfAllOff")) + "</button></div>" +
+        (D.sc ? '<p class="hint kmdxsc">' + esc(tt("dx_scShort")) + "</p>" : "") +
+        '<ul class="kmdxl">' + ln.map(function (l) { var L1 = D.lay[l], lb = dxfLbl(l); return '<li><label class="check"><input type="checkbox" data-dxo="' + esc(l) + '"' + (L1.on ? " checked" : "") + '><span class="kmdxsw' + (L1.d ? " dash" : "") + '" style="background:' + esc(L1.c) + '" aria-hidden="true"></span><span>' + (lb ? esc(lb) + ' <span class="hint kmdxc">' + esc(l) + "</span>" : esc(l)) + ' <span class="hint">(' + L1.n + ")</span></span></label>" +
+          (L1.k ? '<button type="button" class="btn ghost small" data-dxk="' + esc(l) + '" title="' + esc(tt("km_dxfLayLine_t")) + '" aria-label="' + esc(tt("km_dxfLayLine") + ": " + l) + '">' + esc(tt("km_dxfLayLine")) + "</button>" : "") + "</li>"; }).join("") + "</ul>" +
+        '<div class="kmbar"><button type="button" class="btn ghost small" data-dxa="new">' + esc(tt("km_dxfNew")) + '</button><button type="button" class="btn ghost small del" data-dxa="del">' + esc(tt("km_dxfDel")) + "</button></div>";
+    }
+    function dxfPanelEv() {
+      var b = $("#kmDxfB"); if (!b) return;
+      b.addEventListener("change", function (e) { var c = e.target.closest("[data-dxo]"); if (!c || !M.dxf) return; M.dxf.lay[c.getAttribute("data-dxo")].on = c.checked; lyEdited = true; dxfDraw(); });
+      b.addEventListener("click", function (e) {
+        var a = e.target.closest("[data-dxa]"), k = e.target.closest("[data-dxk]"), D = M.dxf; if (!D) return;
+        if (k) { var ly = k.getAttribute("data-dxk"), its = D.it.filter(function (s) { return s.k && s.l === ly; }); if (!its.length) return; snap(); var made = its.map(dxfToLine); sel = { id: made[0].id }; refresh(); toast(dlg, tt("km_dxfDone").replace("{n}", made.length), tt("km_undoBtn"), function () { undo(); }); return; }
+        if (!a) return; var w = a.dataset.dxa;
+        if (w === "on" || w === "off") { Object.keys(D.lay).forEach(function (l) { D.lay[l].on = w === "on"; }); lyEdited = true; dxfPanel(); }
+        else if (w === "new") { var fi = $("#kmDxfF"); if (fi) { fi.value = ""; fi.click(); } }
+        else if (w === "del") { var old = D; M.dxf = null; lyEdited = true; dxfCache = null; dxfPanel(); var fo = $("[data-k=dxfin]"); if (fo) fo.focus(); toast(dlg, tt("km_dxfDelDone"), tt("km_undoBtn"), function () { M.dxf = old; dxfCache = null; dxfPanel(); }); }
+      });
+    }
     function dxfExport() {
       var o = ["0", "SECTION", "2", "TABLES", "0", "TABLE", "2", "LAYER", "70", "3"], lay = function (n, c) { o.push("0", "LAYER", "2", n, "70", "0", "62", String(c), "6", "CONTINUOUS"); };
       lay("100", 3); lay("200", 1); lay("201", 5); o.push("0", "ENDTAB", "0", "ENDSEC", "0", "SECTION", "2", "ENTITIES");
@@ -2020,6 +2186,9 @@
         M.lines.forEach(function (l) { if (l === curL || l.pts.length < 2) return; [l.pts[0], l.pts[l.pts.length - 1]].forEach(function (p) { var q = map.latLngToContainerPoint(AD.ll(p)), d = Math.hypot(q.x - cp.x, q.y - cp.y); if (d <= 28 && (!kb || d < kb.d + 6)) kb = { d: d, p: p, k: "sn_end" }; }); });
         if (kb) { res.c = kb.p.slice(); res.kind = "pt"; res.label = tt(kb.k); return res; }
       }
+      if (mode && mode !== "edit" && M.dxf && M.dxf.it) {   /* DXF-Bestand: Schacht-/Knotenmitte, Linienenden und -punkte, Linie */
+        var dz = dxfSnap(c, cp, snapSt.ln); if (dz) { res.c = dz.c; res.kind = "pt"; res.label = tt(dz.k); return res; }
+      }
       if (snapSt.pt) { M.pts.concat(M.wl, M.geb, M.sond).forEach(function (p) { cands.push(p.pt); }); M.lines.forEach(function (l) { l.pts.forEach(function (p) { cands.push(p); }); }); M.areas.forEach(function (f) { f.pts.forEach(function (p) { cands.push(p); }); }); }
       cands.forEach(function (p) { if (curL && curL.pts.indexOf(p) >= 0) return; var q = map.latLngToContainerPoint(AD.ll(p)), d = Math.hypot(q.x - cp.x, q.y - cp.y); if (d <= tol && (!best || d < best.d)) best = { d: d, p: p }; });
       if (best) { res.c = best.p.slice(); res.kind = "pt"; res.label = tt("sn_pt"); return res; }
@@ -2046,6 +2215,17 @@
       return res;
     }
     function snapPoint(c) { return snapInfo(c).c; }
+    function dxfSnap(c, cp, withLine) {
+      var D = M.dxf, z = map.getZoom(), mpp = 156543.03 * Math.cos(map.getCenter().lat * Math.PI / 180) / Math.pow(2, z), tP = 14 * mpp, tL = 9 * mpp, best = null;
+      var near = function (q, tol) { return Math.abs(q[0] - c[0]) <= tol && Math.abs(q[1] - c[1]) <= tol; }, take = function (q, k, d) { if (!best || d < best.d) best = { c: [Math.round(q[0] * 100) / 100, Math.round(q[1] * 100) / 100], k: k, d: d }; };
+      D.it.forEach(function (s) { if (s.t || !D.lay[s.l] || !D.lay[s.l].on) return; var p = s.p, n = p.length, cl = n > 3 && p[0][0] === p[n - 1][0] && p[0][1] === p[n - 1][1];
+        if (s.o) { if (near(s.o, tP)) take(s.o, "sn_dxfo", Math.hypot(s.o[0] - c[0], s.o[1] - c[1])); return; }
+        if (cl) { var ex = 0, ey = 0; for (var i = 0; i < n - 1; i++) { ex += p[i][0]; ey += p[i][1]; } var m = [ex / (n - 1), ey / (n - 1)]; if (near(m, tP * 1.6)) take(m, "sn_dxfo", Math.hypot(m[0] - c[0], m[1] - c[1]) * 0.6); }
+        for (var k = 0; k < n; k++) if (near(p[k], tP)) take(p[k], "sn_dxfp", Math.hypot(p[k][0] - c[0], p[k][1] - c[1]));
+        if (withLine) for (var k2 = 1; k2 < n; k2++) { var a = p[k2 - 1], b = p[k2]; if (Math.min(a[0], b[0]) - tL > c[0] || Math.max(a[0], b[0]) + tL < c[0] || Math.min(a[1], b[1]) - tL > c[1] || Math.max(a[1], b[1]) + tL < c[1]) continue;
+          var dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy, t = L2 ? Math.max(0, Math.min(1, ((c[0] - a[0]) * dx + (c[1] - a[1]) * dy) / L2)) : 0, q = [a[0] + t * dx, a[1] + t * dy], d = Math.hypot(q[0] - c[0], q[1] - c[1]); if (d <= tL) take(q, "sn_dxfl", d + tP); } });
+      return best;   /* Punkte gehen vor Linie (Linie mit Zuschlag tP) */
+    }
     /* Fangmarke und Hilfslinie am Cursor */
     var snapLayer = null;
     function snapPreview(ll, shift) {
@@ -2126,13 +2306,13 @@
     function undo() {
       if (mode === "cal" && calPts.length) { calPts.pop(); $("#kmCalF").hidden = true; return draw(); }
       if (tmp.length) { tmp.pop(); return draw(); }
-      var s = undoSt.pop(); if (!s) return; redoSt.push(JSON.stringify(M)); restoreM(s);
+      var s = undoSt.pop(); if (!s) return; redoSt.push(JSON.stringify(M, noDxf)); restoreM(s);
     }
     function redo() {
-      if (!redoSt.length) return; var s = redoSt.pop(); undoSt.push(JSON.stringify(M)); restoreM(s);
+      if (!redoSt.length) return; var s = redoSt.pop(); undoSt.push(JSON.stringify(M, noDxf)); restoreM(s);
     }
     function restoreM(s) {
-      M = JSON.parse(s); M.sond = M.sond || []; M.notes = M.notes || []; M.areas = M.areas || []; M.wl = M.wl || []; M.geb = M.geb || [];
+      var dk = M.dxf; M = JSON.parse(s); if (!M.dxf && dk) M.dxf = dk; M.sond = M.sond || []; M.notes = M.notes || []; M.areas = M.areas || []; M.wl = M.wl || []; M.geb = M.geb || [];
       if (cur && !byId(M.lines, cur)) cur = null; if (curN && !byId(M.notes, curN)) curN = null; if (curA && !byId(M.areas, curA)) curA = null; if (sel && !findObj(sel.id)) sel = null; Object.keys(msel).forEach(function (k) { if (!findObj(k)) delete msel[k]; });
       refresh();
     }
@@ -2232,7 +2412,8 @@
     } else {
       map = L.map($("#kmMap"), { center: [46.8, 8.23], zoom: 8, minZoom: 7, maxZoom: 22, doubleClickZoom: false, zoomAnimation: false, attributionControl: false }); L.control.attribution({ prefix: "Leaflet" }).addTo(map);
       var op0 = map.createPane("kmov"); op0.style.zIndex = 250; op0.style.pointerEvents = "none"; map.on("zoom move viewreset resize", ovDraw);
-      ovGrp = L.layerGroup().addTo(map); grp = L.layerGroup().addTo(map); tiles(); drawOv(); selList();
+      ovGrp = L.layerGroup().addTo(map); grp = L.layerGroup().addTo(map); tiles(); drawOv(); selList(); dxfPanelEv(); dxfPanel();
+      if (M.dxf) setTimeout(function () { var tg = $(".kmmidtog"); if (tg && tg.getAttribute("aria-expanded") !== "true") tg.click(); }, 0);   /* Projekt mit DXF: Layerliste sichtbar */
       $("#kmCat").addEventListener("toggle", function (e) { if (e.target.open) openCat(); });
       $("#kmCatQ").addEventListener("input", resList);
       $("#kmCat .kmchips").addEventListener("click", function (e) {
@@ -2271,11 +2452,12 @@
     var dxfF = $("#kmDxfF"); if (dxfF) dxfF.addEventListener("change", function () {
       var f = dxfF.files && dxfF.files[0]; if (!f) return;
       if (f.size > 20e6) { toast(dlg, "⚠ " + tt("km_dxfBig")); return; }
-      var rd = new FileReader(); rd.onload = function () { var t = String(rd.result || "");
-        if (/^AutoCAD Binary DXF/.test(t.slice(0, 22))) { toast(dlg, "⚠ " + tt("km_dxfBin")); return; }
-        var res; try { res = dxfParse(t); } catch (e) { res = { lines: [] }; }
-        if (!res.lines.length) { toast(dlg, "⚠ " + tt("km_dxfNone")); return; } dxfAsk(res, f.name); };
-      rd.readAsText(f);
+      var rd = new FileReader(); rd.onload = function () { var by = new Uint8Array(rd.result), t;
+        if (/^AutoCAD Binary DXF/.test(String.fromCharCode.apply(null, by.subarray(0, 22)))) { toast(dlg, "⚠ " + tt("km_dxfBin")); return; }
+        try { t = new TextDecoder("utf-8", { fatal: true }).decode(by); } catch (e) { t = new TextDecoder("windows-1252").decode(by); }   /* UTF-8, sonst ANSI (Windows-1252) */
+        var res; try { res = dxfParse(t); } catch (e) { if (window.console) console.error(e); res = { it: [] }; }
+        if (!res.it.length) { toast(dlg, "⚠ " + tt("km_dxfNone")); return; } dxfAsk(res, f.name); };
+      rd.readAsArrayBuffer(f);
     });
 
     dlg.addEventListener("change", function (e) { var ha = e.target.closest("[data-hz=auto]"); if (ha) { HZAUTO = ha.checked; try { localStorage.setItem("lvd-km-hzauto", HZAUTO ? "1" : "0"); } catch (x) { } if (HZAUTO) { hzSkip = {}; hzSeed(); } return; } var hm = e.target.closest("[data-hz=mode]"); if (hm) { SLOPE = hm.checked; try { localStorage.setItem("lvd-km-slope", SLOPE ? "1" : "0"); } catch (x) { } refresh(); return; } var t = e.target.closest("[data-rc]"); if (!t) return; RC[t.dataset.rc] = t.value; try { localStorage.setItem("lvd-km-rc", JSON.stringify(RC)); } catch (x) { } sugs = []; sugDraw(); sugRender(); rcRender(); });
