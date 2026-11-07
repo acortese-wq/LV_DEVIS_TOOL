@@ -6027,7 +6027,11 @@ var FIG = (function () {
   /* WMS als Kachelebene (feste Weltkachel-Raster, EPSG:3857): bleibt beim Zoomen und Verschieben lagestabil, lädt nur neue Kacheln und
      zeigt beim Zoomen sofort das vorherige Bild skaliert – statt eines Gesamtbildes, das nach jeder Bewegung neu geladen und ersetzt wurde (Linien «sprangen»). */
   function viewWms(url, layers, o) {
-    var bad = 0, lay = L.tileLayer.wms(url, { layers: layers, styles: "", format: "image/png", transparent: true, version: "1.1.1", maxZoom: 22, tileSize: 256, detectRetina: true, zIndex: 2, updateWhenZooming: false, keepBuffer: 4, attribution: o && o.attr || "" });
+    /* grosse Kacheln (512 CSS-px, wenige Anfragen, keine Retina-Halbierung: bei Bildschirmskalierung 125/150 % (Windows) sonst viermal mehr, halb so grosse Kacheln mit Lücken/Nähten);
+       das Kartenbild wird in höherer Auflösung angefordert und auf die Kachel skaliert */
+    var bad = 0, px = Math.min(1024, 512 * Math.ceil(window.devicePixelRatio || 1));
+    var lay = L.tileLayer.wms(url, { layers: layers, styles: "", format: "image/png", transparent: true, version: "1.1.1", maxZoom: 22, tileSize: 512, detectRetina: false, zIndex: 2, updateWhenZooming: false, keepBuffer: 3, attribution: o && o.attr || "" });
+    lay.wmsParams.width = lay.wmsParams.height = px;
     lay.on("tileload", function () { bad = 0; });
     lay.on("tileerror", function () { if (++bad >= 4 && o && o.fail) { var f = o.fail; o.fail = null; f(); } });
     return lay;

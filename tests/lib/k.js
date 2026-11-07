@@ -44,8 +44,8 @@ const INDEX = 'file://' + path.join(ROOT, 'index.html');
 const png = fs.readFileSync(FX('plan.png')); const dataUrl = 'data:image/png;base64,' + png.toString('base64');
 let fails = []; const ok = (c, m) => { if (!c) { fails.push(m); console.log('  FAIL', m); } else console.log('  ok  ', m); };
 process.on('beforeExit', () => { if (fails.length && !process.exitCode) process.exitCode = 1; });   /* Fehlschläge auch im Rückgabewert */
-async function mk(b, w, h) {
-  const pg = await b.newPage({ viewport: { width: w || 1600, height: h || 1000 } }); pg.errs = [];
+async function mk(b, w, h, dsf) {
+  const vp = { viewport: { width: w || 1600, height: h || 1000 } }; const pg = dsf ? await (await b.newContext(Object.assign({ deviceScaleFactor: dsf }, vp))).newPage() : await b.newPage(vp); pg.errs = [];
   pg.on('pageerror', e => pg.errs.push(e.message + ' @ ' + (e.stack || '').split('\n').slice(1, 3).join(' ').replace(/file:\/\/\/[^ ]*index.html/g, '')));
   pg.on('dialog', d => d.accept());
   await pg.route('**/*', r => {

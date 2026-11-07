@@ -390,3 +390,9 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 - **Nachher:** Kachelebene (WMS in festem Kachelraster EPSG:3857, scharf auf Retina): jede Kachel liegt immer an ihrer Weltposition, beim Zoomen/Verschieben werden nur neue Kacheln nachgeladen. Gemessen mit Testkacheln: Abweichung 0 px über Zoomstufen 17–20, Verschieben und Mausrad. Bei wiederholten WMS-Fehlern wechselt die Ebene wie bisher automatisch auf WMTS.
 - **Hinweis:** Die Linien der Parzellen zeichnet der Kartendienst; je nach Massstab blendet er Linien oder Beschriftungen ein oder aus (das ist Dienst-seitig). Der echte Dienst ist aus der Arbeitsumgebung nicht erreichbar (geprüft mit Testkacheln).
 - **Kostenwirkung:** keine. Test t86.
+
+## Parzellen: grosse Kacheln, keine Lücken bei Windows-Skalierung (V107)
+- **Rückmeldung:** Auf einem Windows-PC erschienen die neuen Parzellen-Kacheln mit Lücken/Versatz zwischen den Kacheln.
+- **Ursache:** Die Kachelebene halbierte bei Bildschirmskalierung über 100 % (Windows 125/150 %) automatisch die Kachelgrösse (128 px, «Retina»-Modus). Das ergab etwa viermal mehr, sehr kleine Kacheln, die einzeln nachluden (Lücken) und bei gebrochener Skalierung Nähte zeigen können.
+- **Nachher:** feste Kachelgrösse 512 px (CSS), unabhängig von der Skalierung; das Bild wird in höherer Auflösung (512–1024 px) angefordert und auf die Kachel skaliert. Statt rund 12 (100 %) bzw. ~48 (125–150 %) nun 4 Kacheln im Kartenausschnitt. Lagetreu geprüft bei Skalierung 100 / 125 / 150 / 200 % (0 px Abweichung, Test t86).
+- **Kostenwirkung:** keine.
