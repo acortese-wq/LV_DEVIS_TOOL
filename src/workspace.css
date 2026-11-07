@@ -40,7 +40,7 @@
 .kmlya.nc-dark .kmtoast .btn{background:var(--nc-accent);color:#fff}
 /* Karte bleibt hell (swisstopo); schwebende Bedienelemente auf der Karte im Thema */
 .kmlya.nc-dark .kmmap{background:#e9edef}
-.kmlya.nc-dark .lybase,.kmlya.nc-dark .lysearch .kmsearch{background:var(--nc-surface)}
+.kmlya.nc-dark .lybase,.kmlya.nc-dark .lyspop{background:var(--nc-surface)}
 .kmlya.nc-dark .leaflet-control-zoom a{background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line)}
 .kmlya.nc-dark .leaflet-control-attribution{background:rgba(16,32,43,.85);color:var(--nc-text-soft)}
 .kmlya.nc-dark .leaflet-control-attribution a{color:var(--nc-accent-text)}
@@ -137,9 +137,8 @@
 @media (max-width:1359px){
   .kmdlg.kmlya .chfab{top:auto;bottom:44px;right:12px}
   .kmdlg.kmlya .lybar{padding:4px 14px}
-  .kmdlg.kmlya .lysearch{width:min(300px,42%)}
 }
-@media (max-width:1100px){.kmdlg.kmlya .lybase .btn{padding:3px 7px;font-size:12px}.kmdlg.kmlya .lysearch .btn{padding:4px 8px}}
+
 /* Phase F: Dock-Tabellen */
 .kmdlg.kmlya .lyptools{position:sticky;top:-8px;z-index:2;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:4px 0 6px;background:var(--paper)}
 .kmdlg.kmlya .lyptools input[type=search]{flex:1 1 220px;min-height:30px;font-size:13px;padding:3px 8px}
@@ -257,15 +256,10 @@
   .kmdlg.kmlya .lyviewm[open] .lyviewb,.kmdlg.kmlya .lyviewb{position:static!important;width:auto!important;box-shadow:none!important;margin-top:6px}
   .kmdlg.kmlya .lycred{display:block!important;white-space:normal!important;overflow:visible!important}
   .kmdlg.kmlya.ly-hm .kmheadb>.lycmdk-b{display:none!important}
-  .kmdlg.kmlya .lysearch{left:56px!important;right:8px!important;width:auto!important;max-width:none!important}
-  .kmdlg.kmlya .lysearch .kmsearch{display:flex;width:100%}
-  .kmdlg.kmlya .lysearch input{flex:1 1 auto;min-width:0;width:auto!important}
   .kmdlg.kmlya .lykpi .lymain{order:-2}
   .kmdlg.kmlya .lykpi .lymain+.lyc{order:-1}
   .kmdlg.kmlya .lybar .lyp:nth-child(3){order:5}
   .kmdlg.kmlya .lymk span{font-size:22px;line-height:1}
-  .kmdlg.kmlya .lybase{top:62px!important;bottom:auto!important;left:56px!important;right:auto!important;flex-wrap:wrap}
-  .kmdlg.kmlya .lybase .btn{padding:4px 8px;font-size:12px;min-height:36px}
   .kmdlg.kmlya .kmleg{display:none}
   .kmdlg.kmlya .chfab,dialog.kmlya .chfab{bottom:calc(var(--lymt) + 12px)!important;top:auto!important;right:10px!important}
   .kmdlg.kmlya.ly-ms .chfab{display:none!important}
@@ -275,3 +269,30 @@
   .kmdlg.kmlya .kmtoast{bottom:calc(var(--lymt) + 12px)!important}
 }
 @media (max-width:360px){.kmdlg.kmlya .lymtab button{font-size:9.5px;letter-spacing:-.01em}.kmdlg.kmlya .lymtab button span{font-size:17px}}
+
+/* ---------- Suche (Kopfleiste, Mitte) und Kartenauswahl: minimiert, kein Überlagern ---------- */
+.kmdlg.kmlya .kmhead{position:relative}
+.kmdlg.kmlya .lysearch{position:static;flex:0 0 auto;margin:0 auto;max-width:none;width:auto}
+.kmdlg.kmlya .lysbtn{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.kmdlg.kmlya .lysearch.open .lysbtn{background:var(--nc-accent);color:#fff;border-color:var(--nc-accent)}
+.kmdlg.kmlya .lyspop{display:none}
+.kmdlg.kmlya .lysearch.open .lyspop{display:block;position:absolute;left:50%;top:calc(100% + 2px);transform:translateX(-50%);width:min(460px,calc(100vw - 16px));z-index:1600;padding:8px;background:var(--paper);border:1px solid var(--rule-strong);border-radius:8px;box-shadow:0 10px 28px rgba(0,0,0,.4)}
+.kmdlg.kmlya .lyspop .kmsearch{display:flex;flex-wrap:nowrap;gap:6px;margin:0;padding:0;background:transparent;box-shadow:none}
+.kmdlg.kmlya .lyspop .kmsearch label{position:absolute;left:-9999px}
+.kmdlg.kmlya .lyspop .kmsearch input{flex:1;min-width:0;min-height:36px}
+.kmdlg.kmlya .lyspop .kmhits{position:static;margin:6px 0 0;max-height:min(50vh,320px);border:0;background:transparent}
+.kmdlg.kmlya .lybase{position:absolute;top:10px;right:10px;left:auto;z-index:1000;display:block;padding:0;background:transparent;box-shadow:none}
+.kmdlg.kmlya .lybtn{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;min-height:34px;background:var(--paper);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.kmdlg.kmlya .lybtn{color:var(--ink)}.kmdlg.kmlya.nc-dark .lybtn,.kmdlg.kmlya.nc-dark .lybl{background:var(--nc-surface);color:var(--nc-text)}.kmdlg.kmlya .lybase.open .lybtn{color:#fff}
+.kmdlg.kmlya .lybase.open .lybtn{background:var(--nc-accent);color:#fff;border-color:var(--nc-accent)}
+.kmdlg.kmlya .lybl{position:absolute;right:0;top:calc(100% + 4px);min-width:100%;display:flex;flex-direction:column;gap:2px;padding:4px;background:var(--paper);border:1px solid var(--rule-strong);border-radius:8px;box-shadow:0 10px 28px rgba(0,0,0,.4)}
+.kmdlg.kmlya .lybl[hidden]{display:none}
+.kmdlg.kmlya .lybl .btn{justify-content:flex-start;text-align:left;min-height:36px;white-space:nowrap}
+@media (max-width:860px){
+  .kmdlg.kmlya .lysearch{margin:0 0 0 auto}
+  .kmdlg.kmlya .lysbt{display:none}
+  .kmdlg.kmlya .lysbtn{min-width:44px;min-height:44px;justify-content:center}
+  .kmdlg.kmlya .lysearch.open .lyspop{left:8px;right:8px;width:auto;transform:none;position:fixed;top:56px}
+  .kmdlg.kmlya .lybl .btn{min-height:44px}
+  .kmdlg.kmlya .lybtn{min-height:44px}
+}

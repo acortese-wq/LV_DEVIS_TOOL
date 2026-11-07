@@ -301,6 +301,7 @@
     km_title: ["Trasse und Schächte auf der Karte", "Tracé et regards sur la carte", "Tracciato e pozzetti sulla carta", "Route and manholes on the map"],
     km_close: ["Schliessen", "Fermer", "Chiudere", "Close"],
     km_search: ["Adresse oder Ort suchen", "Rechercher une adresse ou un lieu", "Cercare indirizzo o località", "Search address or place"],
+    km_searchS: ["Suche", "Recherche", "Cerca", "Search"],
     km_searchPh: ["z. B. Bahnhofstrasse 1, Chur", "p. ex. Rue de la Gare 1, Sion", "p. es. Via Stazione 1, Bellinzona", "e.g. Bahnhofstrasse 1, Chur"],
     km_go: ["Suchen", "Chercher", "Cercare", "Search"],
     km_hits: ["Suchresultate", "Résultats", "Risultati", "Search results"],

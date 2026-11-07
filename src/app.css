@@ -649,8 +649,6 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 .kmlya .lylay{display:flex;flex-direction:row;align-items:center;gap:6px}
 .kmdlg.kmlya .kmbottom .kmfoot{display:none}
 .kmlya .kmheadb{flex-wrap:wrap;align-items:center}.kmlya .kmheadb [data-k=apply],.kmlya .kmheadb [data-k=save]{min-height:34px}
-.kmlya .lysearch{position:absolute;top:10px;left:56px;z-index:1000;width:min(380px,calc(100% - 120px));max-width:none;flex:none}
-.kmlya .lysearch .kmsearch{background:var(--paper);padding:4px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
 .kmlya .lybar{padding-right:130px}
 .kmlya .chfab{top:66px;right:14px}.kmlya .chpan{top:112px}
 .kmlya .lydpan{max-height:min(26vh,240px)}

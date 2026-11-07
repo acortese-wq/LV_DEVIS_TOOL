@@ -724,7 +724,7 @@
           var sm = E("select", "lymode"); sm.id = "lyMode"; sm.setAttribute("aria-label", tt("ly_mode")); sm.title = tt("ly_mode");
           sm.innerHTML = [["e", "ly_mE"], ["s", "ly_mS"], ["x", "ly_mX"]].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join("");
           sm.addEventListener("change", function () { setMode(sm.value); toast(dlg, tt("ly_mode") + ": " + sm.options[sm.selectedIndex].text); });
-          var kb = E("button", "btn ghost small lycmdk-b", '<span aria-hidden="true">⌕</span><kbd aria-hidden="true">Strg K</kbd>'); kb.type = "button"; kb.setAttribute("aria-label", tt("ly_cmdk") + " (Strg+K)"); kb.title = tt("ly_cmdkPh") + " (Strg+K)"; kb.setAttribute("aria-haspopup", "dialog"); kb.setAttribute("aria-keyshortcuts", "Control+K");
+          var kb = E("button", "btn ghost small lycmdk-b", '<span aria-hidden="true">›_</span><kbd aria-hidden="true">Strg K</kbd>'); kb.type = "button"; kb.setAttribute("aria-label", tt("ly_cmdk") + " (Strg+K)"); kb.title = tt("ly_cmdkPh") + " (Strg+K)"; kb.setAttribute("aria-haspopup", "dialog"); kb.setAttribute("aria-keyshortcuts", "Control+K");
           hb2.insertBefore(sm, hb2.firstChild); hb2.insertBefore(kb, hb2.firstChild); setMode(md);
           var ks = E("button", "btn ghost small lykeys", esc(tt("ly_keys"))); ks.type = "button"; ks.title = tt("ly_keysL"); ks.addEventListener("click", function () { toast(dlg, tt("ly_keysL")); }); bottom.appendChild(ks);   /* nur im Modus Experte sichtbar */
           /* Befehlsleiste */
@@ -738,7 +738,7 @@
             dlg.querySelectorAll(".lydtabs [role=tab]").forEach(function (b) { add("ly_cgView", tt("ly_dock") + ": " + lab(b).replace(/\s*\(\d+\)$/, ""), function () { var t = b.getAttribute("data-dt"); if (md === "e" && ["prof", "aus", "pos"].indexOf(t) >= 0) setMode("s"); lyD.t = t; lyD.c = false; lyDock(); b.focus(); }); });
             [["e", "ly_mE"], ["s", "ly_mS"], ["x", "ly_mX"]].forEach(function (o) { if (o[0] !== md) add("ly_cgCmd", tt("ly_mode") + ": " + tt(o[1]), function () { setMode(o[0]); }); });
             var q = function (s) { return dlg.querySelector(s); };
-            [[".nc-theme", tt("ly_themeD")], [".lymidtog,.kmmidtog", null], ["[data-k=save]", null], ["[data-k=apply]", null], ["[data-pfb]", null], ["[data-hpk]", tt("hp_ctx")], ["[data-lywarn]", null]].forEach(function (a) { var b = q(a[0]); if (b && !b.disabled) add("ly_cgCmd", a[1] || lab(b), function () { b.click(); }); });
+            [[".nc-theme", tt("ly_themeD")], [".lymidtog,.kmmidtog", null], [".lysbtn", tt("km_search")], [".lybtn", tt("km_src")], ["[data-k=save]", null], ["[data-k=apply]", null], ["[data-pfb]", null], ["[data-hpk]", tt("hp_ctx")], ["[data-lywarn]", null]].forEach(function (a) { var b = q(a[0]); if (b && !b.disabled) add("ly_cgCmd", a[1] || lab(b), function () { b.click(); }); });
             dlg.querySelectorAll(".lyviewb button, .lyviewb select").forEach(function (b) { if (b.tagName === "BUTTON" && !b.disabled) add("ly_cgCmd", lab(b), function () { b.click(); }); });
             dlg.querySelectorAll("[data-lylang]").forEach(function (b) { if (b.getAttribute("aria-pressed") !== "true") add("ly_cgCmd", tt("ly_lang") + ": " + b.textContent, function () { b.click(); }); });
             add("ly_cgCmd", tt("ly_dock") + " ⇅ (Strg+J)", function () { lyD.c = !lyD.c; lyDock(); });
@@ -779,7 +779,7 @@
         (function () {   /* Phase H: Handy/Tablet (≤ 860 px) – Karte vollflächig, Menü oben, Leiste unten mit Bottom Sheets (½ / voll); Desktop unverändert */
           var mq = window.matchMedia ? window.matchMedia("(max-width:860px)") : { matches: false }, cur0 = "";
           var hm = E("button", "btn ghost small lyhm", "☰"); hm.type = "button"; hm.setAttribute("aria-expanded", "false"); hm.setAttribute("aria-label", tt("ly_mMenu")); hm.title = tt("ly_mMenu"); head.insertBefore(hm, hb2.nextSibling);
-          var mk0 = E("button", "btn ghost small lymk", '<span aria-hidden="true">⌕</span>'); mk0.type = "button"; mk0.setAttribute("aria-label", tt("ly_cmdkPh")); mk0.title = tt("ly_cmdkPh"); head.insertBefore(mk0, hm); mk0.addEventListener("click", function () { if (window.__LYCMD) window.__LYCMD.open(); });
+          var mk0 = E("button", "btn ghost small lymk", '<span aria-hidden="true">›_</span>'); mk0.type = "button"; mk0.setAttribute("aria-label", tt("ly_cmdkPh")); mk0.title = tt("ly_cmdkPh"); head.insertBefore(mk0, hm); mk0.addEventListener("click", function () { if (window.__LYCMD) window.__LYCMD.open(); });
           var inv = function () { setTimeout(function () { try { map.invalidateSize({ animate: false }); } catch (e) { } }, 60); };
           hm.addEventListener("click", function () { var o = !dlg.classList.contains("ly-hm"); dlg.classList.toggle("ly-hm", o); hm.setAttribute("aria-expanded", o ? "true" : "false"); hm.textContent = o ? "✕" : "☰"; if (o) { var f = head.querySelector(".lynav button"); if (f) f.focus(); } inv(); });
           var SH = [["tools", "ly_mT", "⚒", ".kmtools"], ["mid", "ws_layers", "◧", ".kmmid"], ["side", "ly_mP", "☰", ".kmside"], ["dock", "ly_mA", "▦", ".lydock"], ["more", "ly_mM", "⋯", ".kmbottom"]];
@@ -812,7 +812,20 @@
           if (lyNq.addEventListener) lyNq.addEventListener("change", onNq); else if (lyNq.addListener) lyNq.addListener(onNq);
         })();
         var fo = bottom.querySelector(".kmfoot"); if (fo) ["save", "apply"].forEach(function (k) { var x = fo.querySelector('[data-k="' + k + '"]'); if (x) hb2.appendChild(x); });   /* Sichern/Übernehmen oben rechts */
-        var sw0 = head.querySelector(".kmsw"); if (sw0) { sw0.classList.add("lysearch"); canvas.appendChild(sw0); }   /* Ortssuche als Feld über der Karte */
+        var sw0 = head.querySelector(".kmsw"); if (sw0) (function () {   /* Ortssuche: minimiert als Symbol in der Kopfleiste (Mitte); Klick klappt das Feld unter der Kopfleiste auf, ohne die Kartenauswahl zu überlagern */
+          sw0.classList.add("lysearch"); var pop = E("div", "lyspop"); pop.id = "lySP"; while (sw0.firstChild) pop.appendChild(sw0.firstChild);
+          var sb = E("button", "btn ghost small lysbtn", '<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="lysbt">' + esc(tt("km_searchS")) + "</span>");
+          sb.type = "button"; sb.setAttribute("aria-expanded", "false"); sb.setAttribute("aria-controls", "lySP"); sb.setAttribute("aria-label", tt("km_search")); sb.title = tt("km_search");
+          sw0.appendChild(sb); sw0.appendChild(pop); head.insertBefore(sw0, hb2);
+          var qi = pop.querySelector("#kmQ"), hl = pop.querySelector("#kmHits");
+          var sOpen = function (o, f) { sw0.classList.toggle("open", o); sb.setAttribute("aria-expanded", o ? "true" : "false"); if (o) { dlg.classList.remove("ly-hm"); var hm0 = dlg.querySelector(".lyhm"); if (hm0) { hm0.setAttribute("aria-expanded", "false"); hm0.textContent = "☰"; } if (f !== false && qi) qi.focus(); } else { if (hl) hl.innerHTML = ""; if (qi) qi.value = ""; } };
+          sb.addEventListener("click", function () { sOpen(!sw0.classList.contains("open")); });
+          sw0.addEventListener("keydown", function (e) { if (e.key === "Escape" && sw0.classList.contains("open")) { e.preventDefault(); e.stopPropagation(); sOpen(false); sb.focus(); } });
+          hl && hl.addEventListener("click", function (e) { if (e.target.closest(".kmhit")) setTimeout(function () { sOpen(false, false); }, 0); });   /* Treffer gewählt → wieder minimieren */
+          dlg.addEventListener("pointerdown", function (e) { if (sw0.classList.contains("open") && !sw0.contains(e.target)) sOpen(false, false); }, true);
+          sw0.addEventListener("focusout", function () { setTimeout(function () { if (sw0.classList.contains("open") && !sw0.contains(document.activeElement) && qi && !qi.value.trim() && hl && !hl.children.length) sOpen(false, false); }, 200); });
+          window.__LYSEARCH = { open: function () { sOpen(true); }, close: function () { sOpen(false); } };
+        })();
         var vw = bottom.querySelector(".kmview"), tg0 = head.querySelector(".kmmidtog"); if (vw && tg0) vw.insertBefore(tg0, vw.firstChild);   /* Ebenen und Fenster-Reset in die Fussleiste */
         var bar = E("section", "lybar"); bar.setAttribute("aria-label", tt("ly_bar"));
         var cell = function (k, id, cls) { return '<div class="lyp' + (cls ? " " + cls : "") + '"><span class="lyk">' + esc(tt(k)) + '</span><b id="' + id + '"></b></div>'; };
@@ -826,8 +839,19 @@
           '<button type="button" class="btn ghost small lydcol" data-dcol aria-expanded="true">' + esc(tt("ly_dCol")) + "</button></div>" +
           DT.map(function (d) { return '<div class="lydpan" role="tabpanel" id="lyP_' + d[0] + '" aria-labelledby="lyT_' + d[0] + '"' + (d[0] === "prof" ? "" : ' tabindex="0"') + " hidden>" + (d[0] === "prof" ? "" : '<p class="hint">' + esc(tt("km_loading")) + "</p>") + "</div>"; }).join("");
         dlg.insertBefore(dock, bottom);
-        var lb = E("div", "lybase"); lb.setAttribute("role", "group"); lb.setAttribute("aria-label", tt("km_src"));   /* Kartenauswahl direkt auf der Karte */
-        lb.innerHTML = [["farbe", "ly_bFarbe"], ["grau", "ly_bGrau"], ["luft", "ly_bLuft"], ["luftstr", "ly_bLuftStr"], ["kataster", "ly_bKat"]].map(function (a) { return '<button type="button" class="btn ghost small" data-lyb="' + a[0] + '" aria-pressed="false">' + esc(tt(a[1])) + "</button>"; }).join(""); canvas.appendChild(lb);
+        var lb = E("div", "lybase"); lb.setAttribute("aria-label", tt("km_src"));   /* Kartenauswahl auf der Karte: minimiert als ein Knopf mit der aktiven Karte, Klick klappt die Liste auf */
+        lb.innerHTML = '<button type="button" class="btn ghost small lybtn" aria-expanded="false" aria-controls="lyBL" aria-label="' + esc(tt("km_src")) + '"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false"><path d="M10 2l8 4-8 4-8-4zM2 10l8 4 8-4M2 14l8 4 8-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span class="lybt"></span><span aria-hidden="true">▾</span></button><div class="lybl" id="lyBL" role="group" aria-label="' + esc(tt("km_src")) + '" hidden>' +
+          [["farbe", "ly_bFarbe"], ["grau", "ly_bGrau"], ["luft", "ly_bLuft"], ["luftstr", "ly_bLuftStr"], ["kataster", "ly_bKat"]].map(function (a) { return '<button type="button" class="btn ghost small" data-lyb="' + a[0] + '" aria-pressed="false">' + esc(tt(a[1])) + "</button>"; }).join("") + "</div>"; canvas.appendChild(lb);
+        (function () {
+          var bt = lb.querySelector(".lybtn"), bl = lb.querySelector(".lybl");
+          var bOpen = function (o, f) { bl.hidden = !o; lb.classList.toggle("open", o); bt.setAttribute("aria-expanded", o ? "true" : "false"); if (o && f !== false) { var x = bl.querySelector('[aria-pressed="true"]') || bl.querySelector("button"); if (x) x.focus(); } };
+          bt.addEventListener("click", function () { bOpen(bl.hidden); });
+          lb.addEventListener("keydown", function (e) { if (e.key === "Escape" && !bl.hidden) { e.preventDefault(); e.stopPropagation(); bOpen(false); bt.focus(); } });
+          bl.addEventListener("click", function (e) { if (e.target.closest("[data-lyb]")) setTimeout(function () { bOpen(false); bt.focus(); }, 0); });
+          dlg.addEventListener("pointerdown", function (e) { if (!bl.hidden && !lb.contains(e.target)) bOpen(false, false); }, true);
+          lb.addEventListener("focusout", function () { setTimeout(function () { if (!bl.hidden && !lb.contains(document.activeElement)) bOpen(false, false); }, 200); });
+          window.__LYBASE = { open: function () { bOpen(true); } };
+        })();
         /* Phase E: eine Statuszeile wie in CAD (Fang · Koordinate/Massstab · Befehlszeile · Ansicht ▾ · Urheber), Ebenen in die Kopfleiste, Dock in der Höhe ziehbar */
         (function () {
           var vw2 = bottom.querySelector(".kmview"), mt = vw2 && vw2.querySelector(".kmmidtog"); if (mt) { mt.classList.add("lymidtog"); nav.appendChild(mt); }
@@ -2623,7 +2647,7 @@
       var b = L.latLngBounds(pts.map(AD.ll)); if (force || !map.getBounds().contains(b)) { if (pts.length > 1) map.fitBounds(b.pad(0.4), { maxZoom: 19, animate: false }); else map.setView(b.getCenter(), Math.max(map.getZoom(), 18), { animate: false }); }
     }
     function exSelect(id) { if (!findObj(id)) return; sel = { id: id }; msel = {}; exZoom(id, false); refresh(); if (typeof showProps === "function") try { showProps(id); } catch (e) { } }
-    function lyBase() { dlg.querySelectorAll("[data-lyb]").forEach(function (x) { x.setAttribute("aria-pressed", x.getAttribute("data-lyb") === base ? "true" : "false"); }); }
+    function lyBase() { var cl = ""; dlg.querySelectorAll("[data-lyb]").forEach(function (x) { var on = x.getAttribute("data-lyb") === base; x.setAttribute("aria-pressed", on ? "true" : "false"); if (on) cl = x.textContent; }); var bt0 = dlg.querySelector(".lybtn .lybt"); if (bt0) bt0.textContent = cl || tt("km_src"); }
     function lyDock() {
       var c = lyD.c; dlg.querySelectorAll(".lydtabs [role=tab]").forEach(function (b) { var on = b.getAttribute("data-dt") === lyD.t; b.setAttribute("aria-selected", on ? "true" : "false"); b.tabIndex = on ? 0 : -1; });
       dlg.querySelectorAll(".lydpan").forEach(function (p) { p.hidden = c || p.id !== "lyP_" + lyD.t; });

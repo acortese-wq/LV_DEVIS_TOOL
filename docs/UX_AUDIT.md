@@ -390,3 +390,8 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 - **Nachher:** wieder ein zusammenhängendes Bild, aber mit 50 % Rand rundum. Es wird nur neu geladen, wenn die Zoomstufe wechselt oder der Ausschnitt den geladenen Bereich verlässt. Verschieben innerhalb des Randes lässt die Parzellen unverändert (kein Springen, kein leerer Rand beim Ziehen). Bildgrösse auf 2600 px begrenzt. Lage Bild ↔ Karte exakt (≤ 1 px) bei Bildschirmskalierung 100/125/150/200 %; bei wiederholten Fehlern Wechsel auf WMTS wie bisher.
 - **Offen:** Beim Zoomen lädt der Dienst weiterhin ein neues Bild; zeichnet er dabei Linien leicht anders (Massstabs-Generalisierung des Dienstes), bleibt das ein Dienst-Effekt. Der echte Dienst ist aus der Arbeitsumgebung nicht erreichbar.
 - **Kostenwirkung:** keine. Test t86.
+
+## Suche und Kartenauswahl minimiert (V109)
+- **Vorher:** Suchfeld und Kartenauswahl standen dauerhaft über der Karte (Suche links, Kartenauswahl rechts, bei schmalen Fenstern übereinander) und überlagerten sich gegenseitig und mit der Karte.
+- **Nachher:** **Suche** = Symbol 🔍 «Suche» in der Kopfleiste (Mitte; auf dem Handy nur Symbol). Klick (oder Befehlsleiste Strg+K › «Suche») klappt das Feld mittig unter der Kopfleiste auf; Treffer wählen, Esc, Klick auf die Karte oder Fokus-Wechsel bei leerem Feld minimieren es wieder. **Kartenauswahl** = ein Knopf mit der aktiven Karte («Landeskarte ▾») oben rechts auf der Karte; Klick klappt die Liste der fünf Karten auf, nach der Wahl/Esc/Klick daneben klappt sie zu. Beide sind nie gleichzeitig offen, nichts überlagert sich mehr. Befehls-Symbol der Kopfleiste ist jetzt «›_ Strg K».
+- **Kostenwirkung:** keine. Tests t87, t65, t85.
