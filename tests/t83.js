@@ -21,7 +21,7 @@ const SIZES = [[1920, 1080], [1440, 900], [1280, 800], [1024, 768], [768, 1024],
       // alle Bereiche erreichbar
       let reach = true;
       if (mob) { for (const k of ['tools', 'mid', 'side', 'dock', 'more']) { await pg.click('.lymtab [data-msh=' + k + ']'); await pg.waitForTimeout(150); const v = await pg.evaluate(k => { const id = document.querySelector('.lymtab [data-msh=' + k + ']').getAttribute('aria-controls'), e = document.getElementById(id), r = e && e.getBoundingClientRect(); return !!r && r.height > 100 && r.width >= innerWidth - 2 && document.querySelector('dialog.kmlya').scrollWidth <= innerWidth + 1; }, k); reach = reach && v; await pg.click('.lymtab [data-msh=' + k + ']'); await pg.waitForTimeout(100); } }
-      else { for (const t of ['prof', 'aus', 'kost', 'pos', 'warn']) { await pg.evaluate(t => { const b = document.querySelector('#lyT_' + t); if (b.getAttribute('aria-selected') !== 'true') b.click(); }, t); await pg.waitForTimeout(120); reach = reach && await pg.locator('#lyP_' + t).isVisible(); }
+      else { for (const t of ['prof', 'aus', 'kost', 'pos', 'warn']) { await pg.evaluate(t => { const b = document.querySelector('#lyT_' + t), p = document.querySelector('#lyP_' + t); if (b.getAttribute('aria-selected') !== 'true' || p.hidden) b.click(); }, t); await pg.waitForTimeout(120); reach = reach && await pg.locator('#lyP_' + t).isVisible(); }
         reach = reach && await pg.locator('.kmtools').isVisible() && await pg.locator('.kmside').isVisible(); }
       const g0 = G.cases[0].out.sum, cost = m.kpi.includes('CHF ' + f0(g0.netto)) && m.kpi.includes('CHF ' + f0(g0.brutto));
       const mapMin = mob ? 0.6 : 0.35, mapOk = m.mw >= (mob ? w - 1 : 0.4 * w) && m.mh >= mapMin * h - (h < 600 ? 60 : 0);

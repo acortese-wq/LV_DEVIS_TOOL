@@ -373,3 +373,8 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 - **Vorher:** Handy startete auf der klassischen Seite; die Karte war dort eine lange Scrollseite (665 px breit auf 390 px, Bereiche untereinander).
 - **Nachher:** Arbeitsplatz auch auf dem Handy: Karte vollflächig, Menü ☰ oben, Bereichsleiste unten (Werkzeuge, Ebenen, Eigenschaften, Auswertung, Mehr) mit Bottom Sheets (½/voll), Kosten netto immer sichtbar, Befehlsleiste über ⌕. 320–860 px ohne Überlauf, Zielgrössen ≥ 44 px. Die klassische Seite bleibt über «Ansicht › Layout» wählbar.
 - **Kostenwirkung:** keine (t78 identisch). Tests t82, t65.
+
+## Schmale Bildschirme: unterer Bereich startet eingeklappt (V104)
+- **Vorher:** bei 1024×768 Karte nur 506×276 px (18 % der Fläche), weil Werkzeuge, Eigenschaften und unterer Bereich gleichzeitig offen waren.
+- **Nachher:** zwischen 861 und 1100 px startet der untere Bereich eingeklappt; Reiter bleiben sichtbar, ein Klick (oder Strg+J) öffnet. Die eigene Wahl wird für schmale Bildschirme getrennt gemerkt; breite Bildschirme und Handy unverändert. Karte 506×496 px (32 %).
+- **Kostenwirkung:** keine. Test t84.

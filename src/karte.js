@@ -566,6 +566,10 @@
     M.sond = M.sond || []; M.notes = M.notes || []; M.areas = M.areas || []; M.wl = M.wl || []; M.geb = M.geb || [];
     var LY = plan ? null : (opt.layoutA || null), lyEdited = false, lyTarget = null, lyD = { t: "kost", c: false };   /* Layout A «Planungsfokus» (Startbildschirm) */
     if (LY) try { var ld0 = JSON.parse(localStorage.getItem("lvd-ly-dock") || "null"); if (ld0 && typeof ld0 === "object") { if (["prof", "aus", "kost", "pos", "warn"].indexOf(ld0.t) >= 0) lyD.t = ld0.t; lyD.c = !!ld0.c; } } catch (e) { }
+    /* Schmale Bildschirme (861–1100 px): unterer Bereich startet eingeklappt, damit die Karte Platz hat; eigene Wahl dort gemerkt (lvd-ly-dockn), breite Bildschirme unverändert */
+    var lyNq = window.matchMedia ? window.matchMedia("(min-width:861px) and (max-width:1100px)") : { matches: false }, lyWideC = lyD.c;
+    var lyNarC = function () { try { var n = JSON.parse(localStorage.getItem("lvd-ly-dockn") || "null"); if (n && typeof n === "object") return !!n.c; } catch (e) { } return true; };
+    if (LY && lyNq.matches) lyD.c = lyNarC();
     var cal = plan ? JSON.parse(JSON.stringify(opt.plan.cal || {})) : null;
     var AD = plan ? { ll: function (p) { return [-p[1], p[0]]; }, pt: function (ll) { return [Math.round(ll.lng * 10) / 10, Math.round(-ll.lat * 10) / 10]; },
       dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]) * (cal.scale || 0); } }
@@ -797,6 +801,8 @@
           var onMq = function () { if (!mq.matches) { show(""); dlg.classList.remove("ly-hm"); hm.setAttribute("aria-expanded", "false"); hm.textContent = "☰"; } inv(); };
           if (mq.addEventListener) mq.addEventListener("change", onMq); else if (mq.addListener) mq.addListener(onMq);
           window.__LYMOB = { show: show };
+          var onNq = function () { lyD.c = lyNq.matches ? lyNarC() : lyWideC; lyDock.q = true; try { lyDock(); } finally { lyDock.q = false; } };   /* Wechsel schmal ↔ breit: jeweilige Wahl herstellen, ohne sie zu überschreiben */
+          if (lyNq.addEventListener) lyNq.addEventListener("change", onNq); else if (lyNq.addListener) lyNq.addListener(onNq);
         })();
         var fo = bottom.querySelector(".kmfoot"); if (fo) ["save", "apply"].forEach(function (k) { var x = fo.querySelector('[data-k="' + k + '"]'); if (x) hb2.appendChild(x); });   /* Sichern/Übernehmen oben rechts */
         var sw0 = head.querySelector(".kmsw"); if (sw0) { sw0.classList.add("lysearch"); canvas.appendChild(sw0); }   /* Ortssuche als Feld über der Karte */
@@ -2615,7 +2621,7 @@
       dlg.querySelectorAll(".lydpan").forEach(function (p) { p.hidden = c || p.id !== "lyP_" + lyD.t; });
       var cb = dlg.querySelector("[data-dcol]"); if (cb) { cb.setAttribute("aria-expanded", c ? "false" : "true"); cb.textContent = tt(c ? "ly_dOpen" : "ly_dCol"); }
       dlg.classList.toggle("lydock-c", c);
-      try { localStorage.setItem("lvd-ly-dock", JSON.stringify(lyD)); } catch (e) { }
+      if (!lyDock.q) try { if (lyNq.matches) localStorage.setItem("lvd-ly-dockn", JSON.stringify({ c: lyD.c })); else { lyWideC = lyD.c; localStorage.setItem("lvd-ly-dock", JSON.stringify(lyD)); } } catch (e) { }
       if (PF) pfRender(); setTimeout(function () { try { map.invalidateSize({ animate: false }); } catch (e) { } }, 30);
     }
     function lyGo(t) {
