@@ -384,3 +384,9 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 - **Nachher:** fünfte Quelle «Luftbild + Strassen» = swisstopo SWISSIMAGE mit dem amtlichen Strassenverzeichnis (`ch.swisstopo.amtliches-strassenverzeichnis`: Strassenachsen und -namen) als Deckschicht. Gilt für Karte, Druck/Bericht-Hintergrund (eine WMS-Abfrage mit beiden Ebenen), Link zu map.geo.admin, Menü «Kartenquelle» und Exportdialog; Wahl gemerkt und im Projekt gespeichert. 4 Sprachen.
 - **Hinweis:** Der Kartendienst ist aus der Arbeitsumgebung nicht erreichbar; geprüft ist, dass die richtigen Ebenen angefragt werden. Die Strassennamen zeigt swisstopo erst in grösseren Massstäben. Der beschriftete Luftbild-Hintergrund von map.geo.admin.ch selbst ist ein Vektor-Kartenstil und lässt sich ohne zusätzliche Bibliothek nicht 1:1 übernehmen.
 - **Kostenwirkung:** keine. Test t85.
+
+## Parzellen beim Zoomen lagestabil (V106)
+- **Vorher:** Die Parzellenebene (und der Hintergrund «AV») war ein einziges Bild für den ganzen Kartenausschnitt, das nach jedem Zoomen/Verschieben neu geladen und ersetzt wurde: Parzellenlinien sprangen, am Rand fehlte Bild, bei schnellem Zoomen blieb das alte, skalierte Bild stehen.
+- **Nachher:** Kachelebene (WMS in festem Kachelraster EPSG:3857, scharf auf Retina): jede Kachel liegt immer an ihrer Weltposition, beim Zoomen/Verschieben werden nur neue Kacheln nachgeladen. Gemessen mit Testkacheln: Abweichung 0 px über Zoomstufen 17–20, Verschieben und Mausrad. Bei wiederholten WMS-Fehlern wechselt die Ebene wie bisher automatisch auf WMTS.
+- **Hinweis:** Die Linien der Parzellen zeichnet der Kartendienst; je nach Massstab blendet er Linien oder Beschriftungen ein oder aus (das ist Dienst-seitig). Der echte Dienst ist aus der Arbeitsumgebung nicht erreichbar (geprüft mit Testkacheln).
+- **Kostenwirkung:** keine. Test t86.

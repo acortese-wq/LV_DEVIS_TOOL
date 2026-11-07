@@ -6024,24 +6024,13 @@ var FIG = (function () {
   function fmt(v) { return (Math.round(v * 10) / 10).toLocaleString("de-CH", { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
 
   /* Ein einziges WMS-Bild pro Kartenausschnitt statt Kacheln: keine Nähte/Versätze an Kachelgrenzen, Beschriftung nur einmal (Parzellenplan, OpenData AV) */
+  /* WMS als Kachelebene (feste Weltkachel-Raster, EPSG:3857): bleibt beim Zoomen und Verschieben lagestabil, lädt nur neue Kacheln und
+     zeigt beim Zoomen sofort das vorherige Bild skaliert – statt eines Gesamtbildes, das nach jeder Bewegung neu geladen und ersetzt wurde (Linien «sprangen»). */
   function viewWms(url, layers, o) {
-    var V = L.Layer.extend({
-      onAdd: function (m) { this._m = m; this._t = 0; this._bad = 0; m.on("moveend", this._upd, this); this._upd(); },
-      onRemove: function (m) { m.off("moveend", this._upd, this); this._t++; if (this._im) { m.removeLayer(this._im); this._im = null; } },
-      _upd: function () {
-        var m = this._m, sz = m.getSize(), b = m.getBounds(), me = this, t = ++this._t, k = Math.min(2, window.devicePixelRatio || 1);
-        var sw = L.CRS.EPSG3857.project(b.getSouthWest()), ne = L.CRS.EPSG3857.project(b.getNorthEast());
-        var u = url + (url.indexOf("?") < 0 ? "?" : "&") + "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=" + encodeURIComponent(layers) + "&STYLES=&SRS=EPSG:3857&BBOX=" + [sw.x, sw.y, ne.x, ne.y].map(function (v) { return v.toFixed(2); }).join(",") + "&WIDTH=" + Math.round(sz.x * k) + "&HEIGHT=" + Math.round(sz.y * k) + "&FORMAT=image/png&TRANSPARENT=TRUE";
-        var img = new Image();
-        img.onload = function () {
-          if (t !== me._t || !me._m) return; me._bad = 0;
-          var ov = L.imageOverlay(u, b, { pane: "tilePane", zIndex: 2, interactive: false, attribution: o && o.attr || "" }).addTo(me._m), old = me._im; me._im = ov; if (old) me._m.removeLayer(old);
-        };
-        img.onerror = function () { if (t === me._t && ++me._bad >= 2 && o && o.fail) { var f = o.fail; o.fail = null; f(); } };
-        img.src = u;
-      }
-    });
-    return new V();
+    var bad = 0, lay = L.tileLayer.wms(url, { layers: layers, styles: "", format: "image/png", transparent: true, version: "1.1.1", maxZoom: 22, tileSize: 256, detectRetina: true, zIndex: 2, updateWhenZooming: false, keepBuffer: 4, attribution: o && o.attr || "" });
+    lay.on("tileload", function () { bad = 0; });
+    lay.on("tileerror", function () { if (++bad >= 4 && o && o.fail) { var f = o.fail; o.fail = null; f(); } });
+    return lay;
   }
 
   /* ---------- Automatische Ausrichtung des Plans ohne Passpunkte ----------
