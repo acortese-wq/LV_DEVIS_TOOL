@@ -776,14 +776,15 @@
           tb0.innerHTML = SH.map(function (s) { return '<button type="button" data-msh="' + s[0] + '" aria-expanded="false"><span aria-hidden="true">' + s[2] + "</span>" + esc(tt(s[1])) + "</button>"; }).join("");
           var grip = E("button", "lymgrip", '<span aria-hidden="true"></span>'); grip.type = "button"; grip.hidden = true; grip.setAttribute("aria-label", tt("ly_mGrip")); grip.setAttribute("aria-pressed", "false");
           dlg.appendChild(grip); dlg.appendChild(tb0);
-          SH.forEach(function (s) { var el = s[3] === ".kmbottom" ? bottom : dlg.querySelector(s[3]); if (el) { if (!el.id) el.id = "lyMS_" + s[0]; tb0.querySelector('[data-msh="' + s[0] + '"]').setAttribute("aria-controls", el.id); } });
+          var ctl = function () { SH.forEach(function (s) { var el = s[3] === ".kmbottom" ? bottom : dlg.querySelector(s[3]); if (el) { if (!el.id) el.id = "lyMS_" + s[0]; tb0.querySelector('[data-msh="' + s[0] + '"]').setAttribute("aria-controls", el.id); } }); };   /* Dock entsteht erst später → verzögert verknüpfen */
+          ctl(); setTimeout(ctl, 0);
           var show = function (k, from) {
-            if (k === cur0) k = ""; cur0 = k;
+            ctl(); if (k === cur0) k = ""; cur0 = k;
             SH.forEach(function (s) { dlg.classList.toggle("ly-ms-" + s[0], s[0] === k); var b = tb0.querySelector('[data-msh="' + s[0] + '"]'); b.setAttribute("aria-expanded", s[0] === k ? "true" : "false"); });
             dlg.classList.toggle("ly-ms", !!k); if (!k) { dlg.classList.remove("ly-msf"); grip.setAttribute("aria-pressed", "false"); } grip.hidden = !k;
             grid.classList.toggle("kmmid-open", k === "mid"); var mt0 = dlg.querySelector(".kmmidtog"); if (mt0) mt0.setAttribute("aria-expanded", k === "mid" ? "true" : "false");
             if (k === "dock" && lyD.c) { lyD.c = false; lyDock(); }
-            if (k) { var el = dlg.querySelector("#" + tb0.querySelector('[data-msh="' + k + '"]').getAttribute("aria-controls")); if (el) { el.scrollTop = 0; var f = el.querySelector('[role=tab][aria-selected=true],button:not([hidden]),input,select'); if (f && from !== "pointer") try { f.focus({ preventScroll: true }); } catch (e) { } } }
+            if (k) { var el = document.getElementById(tb0.querySelector('[data-msh="' + k + '"]').getAttribute("aria-controls") || ""); if (el) { el.scrollTop = 0; var f = el.querySelector('[role=tab][aria-selected=true],button:not([hidden]),input,select'); if (f && from !== "pointer") try { f.focus({ preventScroll: true }); } catch (e) { } } }
             else if (from === "esc") { var b0 = dlg.querySelector('.lymtab [data-msh]'); if (b0) b0.focus(); }
           };
           tb0.addEventListener("click", function (e) { var b = e.target.closest("[data-msh]"); if (b) show(b.getAttribute("data-msh"), e.detail ? "pointer" : "key"); });

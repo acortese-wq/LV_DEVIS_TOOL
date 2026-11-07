@@ -11,7 +11,7 @@ Produktname: **NIUcost – Kostenrechner Tiefbau** (Logo als SVG in `src/shell.h
 - Skill für Claude-KI: `skill/lv-devis-tiefbau/` (Python-Portierung des Rechenkerns, `scripts/kve.py`). Neu erzeugen: `node tools/build_skill.mjs`.
 
 ## Redesign «Engineering-Arbeitsplatz» (Masterprompt 06.11.2026)
-Plan, Bestandsanalyse, Tokens und Phasen D–J: `docs/NIUCOST_REDESIGN.md`. Regressions-Referenz `tests/fixtures/golden.json` (64 Projekte, vor dem Redesign eingefroren) – Test `t78` muss immer identisch bleiben; Referenz nie «passend machen», nur bei gewollter Fachänderung bewusst mit `node tools/make_golden.js` neu erzeugen und dem Benutzer melden. Rechenkern im Redesign nicht verändern; UI-Einstellungen nur in eigenen localStorage-Schlüsseln, nie im Projektzustand.
+Plan, Bestandsanalyse, Tokens und Phasen D–J: `docs/NIUCOST_REDESIGN.md`; Abschlussbericht mit QS-Matrix und offenen Punkten: `docs/NIUCOST_ABSCHLUSSBERICHT.md` (Phasen A–I umgesetzt, J = GitHub Pages offen). Mobile (≤ 860 px): Bereichsleiste `.lymtab` mit Bottom Sheets (`window.__LYMOB`), Befehlsleiste `window.__LYCMD`. Regressions-Referenz `tests/fixtures/golden.json` (64 Projekte, vor dem Redesign eingefroren) – Test `t78` muss immer identisch bleiben; Referenz nie «passend machen», nur bei gewollter Fachänderung bewusst mit `node tools/make_golden.js` neu erzeugen und dem Benutzer melden. Rechenkern im Redesign nicht verändern; UI-Einstellungen nur in eigenen localStorage-Schlüsseln, nie im Projektzustand.
 
 ## Pflicht bei jeder Änderung am Rechenkern
 Rechenlogik gilt zweimal: `src/kve.js` **und** `skill/lv-devis-tiefbau/scripts/kve.py` (identisch halten). Danach:
