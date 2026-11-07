@@ -199,7 +199,7 @@
     var cx = (e0 + e1) / 2, cy = (n0 + n1) / 2, w = Math.max((e1 - e0) * 1.3, 60), h = Math.max((n1 - n0) * 1.3, 60 * H / W), sc = Math.max(w / W, h / H);
     w = sc * W; h = sc * H; return { bb: [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2], sc: sc, W: W, H: H };
   }
-  var BGL = { farbe: "ch.swisstopo.pixelkarte-farbe", grau: "ch.swisstopo.pixelkarte-grau", luft: "ch.swisstopo.swissimage", kataster: "ch.kantone.cadastralwebmap-farbe" };
+  var BGL = { farbe: "ch.swisstopo.pixelkarte-farbe", grau: "ch.swisstopo.pixelkarte-grau", luft: "ch.swisstopo.swissimage", luftstr: "ch.swisstopo.swissimage,ch.swisstopo.amtliches-strassenverzeichnis", kataster: "ch.kantone.cadastralwebmap-farbe" };
   function avCfg() { try { var c = JSON.parse(localStorage.getItem("lvd-km-av") || "{}"); return { u: String(c.u || ""), l: String(c.l || "") }; } catch (e) { return { u: "", l: "" }; } }
   function bgUrl(box, base) {
     if (base === "av") { var c = avCfg(); return c.u + (c.u.indexOf("?") < 0 ? "?" : "&") + "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=" + encodeURIComponent(c.l) + "&STYLES=&SRS=EPSG:2056&BBOX=" + box.bb.map(function (v) { return v.toFixed(1); }).join(",") + "&WIDTH=" + box.W + "&HEIGHT=" + box.H + "&FORMAT=image/png&TRANSPARENT=FALSE&BGCOLOR=0xFFFFFF"; }
@@ -455,7 +455,7 @@
       '<div class="kmbar" role="group" aria-label="' + esc(tt("ex_opts")) + '">' + (kinds.length > 1 ? sel("exKind", tt("ex_src"), [["map", tt("ex_srcMap")], ["plan", tt("ex_srcPlan")]]) : "") +
       sel("exFmt", tt("ex_fmt"), [["A3", "A3"], ["A4", "A4"]]) + sel("exOr", tt("ex_orient"), [["quer", tt("ex_quer")], ["hoch", tt("ex_hoch")]]) +
       sel("exN", tt("ex_scale"), [["0", tt("ex_auto")]].concat(NSTD.map(function (n) { return [String(n), "1 : " + n]; }))) +
-      '<span id="exBaseW">' + sel("exBase", tt("ex_base"), [["farbe", tt("km_bFarbe")], ["grau", tt("km_bGrau")], ["luft", tt("km_aerial")], ["kataster", tt("km_bKat")], ["av", tt("km_bAV")], ["none", tt("ex_noBase")]]) + "</span></div>" +
+      '<span id="exBaseW">' + sel("exBase", tt("ex_base"), [["farbe", tt("km_bFarbe")], ["grau", tt("km_bGrau")], ["luft", tt("km_aerial")], ["luftstr", tt("km_aerialStr")], ["kataster", tt("km_bKat")], ["av", tt("km_bAV")], ["none", tt("ex_noBase")]]) + "</span></div>" +
       '<div class="kmbar"><label class="kmbl" for="exT">' + esc(tt("ex_ttl")) + '</label><input type="text" id="exT" class="kmw" value="' + esc(S.title) + '" style="width:260px"><label class="check"><input type="checkbox" id="exLbl" checked> <span>' + esc(tt("ex_lbl")) + '</span></label><label class="check"><input type="checkbox" id="exLeg" checked> <span>' + esc(tt("ex_leg")) + "</span></label>" +
       '<span class="kmnudge" role="group" aria-label="' + esc(tt("ex_pos")) + '">' + [["l", "←", "km_nl"], ["u", "↑", "km_nu"], ["d", "↓", "km_nd"], ["r", "→", "km_nr"], ["0", "◎", "ex_posReset"]].map(function (a) { return '<button type="button" class="btn ghost small" data-x="' + a[0] + '" aria-label="' + esc(tt(a[2])) + '">' + a[1] + "</button>"; }).join("") + "</span></div>" +
       '<p class="hint" id="exInfo" role="status"></p><div class="exprev" id="exPrev" tabindex="0" role="region" aria-label="' + esc(tt("ex_prevLbl")) + '"></div><p class="hint">' + esc(tt("ex_note")) + '</p><div class="kmfoot"><span></span><span class="kmbar"><button type="button" class="btn ghost" data-x="png">' + esc(tt("ex_png")) + '</button><button type="button" class="btn" data-x="print">' + esc(tt("ex_print")) + "</button></span></div>";
@@ -560,8 +560,8 @@
 
   function open(opt) {
     var tt = opt.tt, cat = opt.cat, plan = opt.kind === "plan", M = JSON.parse(JSON.stringify(opt.model || { lines: [], pts: [], sond: [] })), cur = null, mode = "", sel = null, base = "farbe", map, layer, grp, calPts = [];
-    var PROV = { swisstopo: [["farbe", "km_bFarbe"], ["grau", "km_bGrau"], ["luft", "km_aerial"]], geoadmin: [["kataster", "km_bKat"], ["av", "km_bAV"], ["leer", "km_bLeer"], ["viewer", "km_bViewer"]] };
-    try { var sb = localStorage.getItem("lvd-km-base"); if (sb && ["farbe", "grau", "luft", "kataster", "leer", "av"].indexOf(sb) >= 0) base = sb; } catch (e) { }
+    var PROV = { swisstopo: [["farbe", "km_bFarbe"], ["grau", "km_bGrau"], ["luft", "km_aerial"], ["luftstr", "km_aerialStr"]], geoadmin: [["kataster", "km_bKat"], ["av", "km_bAV"], ["leer", "km_bLeer"], ["viewer", "km_bViewer"]] };
+    try { var sb = localStorage.getItem("lvd-km-base"); if (sb && ["farbe", "grau", "luft", "luftstr", "kataster", "leer", "av"].indexOf(sb) >= 0) base = sb; } catch (e) { }
     var provOf = function (b) { return PROV.geoadmin.some(function (o) { return o[0] === b; }) ? "geoadmin" : "swisstopo"; };
     M.sond = M.sond || []; M.notes = M.notes || []; M.areas = M.areas || []; M.wl = M.wl || []; M.geb = M.geb || [];
     var LY = plan ? null : (opt.layoutA || null), lyEdited = false, lyTarget = null, lyD = { t: "kost", c: false };   /* Layout A «Planungsfokus» (Startbildschirm) */
@@ -820,7 +820,7 @@
           DT.map(function (d) { return '<div class="lydpan" role="tabpanel" id="lyP_' + d[0] + '" aria-labelledby="lyT_' + d[0] + '"' + (d[0] === "prof" ? "" : ' tabindex="0"') + " hidden>" + (d[0] === "prof" ? "" : '<p class="hint">' + esc(tt("km_loading")) + "</p>") + "</div>"; }).join("");
         dlg.insertBefore(dock, bottom);
         var lb = E("div", "lybase"); lb.setAttribute("role", "group"); lb.setAttribute("aria-label", tt("km_src"));   /* Kartenauswahl direkt auf der Karte */
-        lb.innerHTML = [["farbe", "ly_bFarbe"], ["grau", "ly_bGrau"], ["luft", "ly_bLuft"], ["kataster", "ly_bKat"]].map(function (a) { return '<button type="button" class="btn ghost small" data-lyb="' + a[0] + '" aria-pressed="false">' + esc(tt(a[1])) + "</button>"; }).join(""); canvas.appendChild(lb);
+        lb.innerHTML = [["farbe", "ly_bFarbe"], ["grau", "ly_bGrau"], ["luft", "ly_bLuft"], ["luftstr", "ly_bLuftStr"], ["kataster", "ly_bKat"]].map(function (a) { return '<button type="button" class="btn ghost small" data-lyb="' + a[0] + '" aria-pressed="false">' + esc(tt(a[1])) + "</button>"; }).join(""); canvas.appendChild(lb);
         /* Phase E: eine Statuszeile wie in CAD (Fang · Koordinate/Massstab · Befehlszeile · Ansicht ▾ · Urheber), Ebenen in die Kopfleiste, Dock in der Höhe ziehbar */
         (function () {
           var vw2 = bottom.querySelector(".kmview"), mt = vw2 && vw2.querySelector(".kmmidtog"); if (mt) { mt.classList.add("lymidtog"); nav.appendChild(mt); }
@@ -946,6 +946,7 @@
       };
       var T = function (id, ext, o) { return L.tileLayer(WMTS + id + "/default/current/3857/{z}/{x}/{y}." + ext, Object.assign({ maxZoom: 22, maxNativeZoom: 18, zIndex: 1, attribution: "© swisstopo / geo.admin.ch" }, o || {})); };
       layer = base === "luft" ? L.layerGroup([T("ch.swisstopo.swissimage", "jpeg", { maxNativeZoom: 19 })])
+        : base === "luftstr" ? L.layerGroup([T("ch.swisstopo.swissimage", "jpeg", { maxNativeZoom: 19 }), flex("ch.swisstopo.amtliches-strassenverzeichnis", 1, "wms")])   /* Luftbild mit Strassen und Strassennamen (amtliches Strassenverzeichnis) */
         : base === "grau" ? L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")])
         : base === "leer" ? L.layerGroup([])   /* leere Basis: nur gewählte Katalog-Ebenen auf weissem Grund */
         : base === "av" ? L.layerGroup(avCfg().u ? [viewWms(avCfg().u, avCfg().l, { attr: "© OpenData AV" })] : [])
@@ -1016,8 +1017,8 @@
       var c = map.getCenter(), e = toLV95(c.lat, c.lng), res = 156543.03 * Math.cos(c.lat * Math.PI / 180) / Math.pow(2, map.getZoom()),
         R = [4000, 3750, 3500, 3250, 3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250, 1000, 750, 650, 500, 250, 100, 50, 20, 10, 5, 2.5, 2, 1.5, 1, 0.5], z = 0, d = 1e9;
       R.forEach(function (r, i) { var x = Math.abs(Math.log(r / res)); if (x < d) { d = x; z = i; } });
-      var bg = base === "luft" ? "ch.swisstopo.swissimage" : base === "grau" ? "ch.swisstopo.pixelkarte-grau" : base === "kataster" || base === "leer" || base === "av" ? "void" : "ch.swisstopo.pixelkarte-farbe";
-      return "https://map.geo.admin.ch/#/" + (embed ? "embed" : "map") + "?lang=" + (opt.lang || "de") + "&center=" + Math.round(e[0]) + "," + Math.round(e[1]) + "&z=" + z + "&bgLayer=" + bg + (base === "kataster" || ov.length ? "&layers=" + (base === "kataster" ? ["ch.kantone.cadastralwebmap-farbe"] : []).concat(ov.map(function (o) { return o.id; })).join(";") : "");
+      var bg = base === "luft" || base === "luftstr" ? "ch.swisstopo.swissimage" : base === "grau" ? "ch.swisstopo.pixelkarte-grau" : base === "kataster" || base === "leer" || base === "av" ? "void" : "ch.swisstopo.pixelkarte-farbe";
+      return "https://map.geo.admin.ch/#/" + (embed ? "embed" : "map") + "?lang=" + (opt.lang || "de") + "&center=" + Math.round(e[0]) + "," + Math.round(e[1]) + "&z=" + z + "&bgLayer=" + bg + (base === "kataster" || base === "luftstr" || ov.length ? "&layers=" + (base === "kataster" ? ["ch.kantone.cadastralwebmap-farbe"] : base === "luftstr" ? ["ch.swisstopo.amtliches-strassenverzeichnis"] : []).concat(ov.map(function (o) { return o.id; })).join(";") : "");
     }
     function openGeo() { window.open(geoUrl(false), "_blank", "noopener"); }
     /* immer auf den Bestand (alle Linien, Schächte, Sondagen) zoomen */
@@ -2602,7 +2603,7 @@
       var ob = exObjs(), tot = 0, inner = "";
       ob.forEach(function (g) { var it = g.it.filter(function (x) { return m(x.n + " " + x.s); }); tot += g.it.length; if (!g.it.length) return; inner += dt("o_" + g.k, g.t, g.it.length, it.map(function (x) { return '<button type="button" class="lyexi' + (sel && sel.id === x.id ? " on" : "") + '" data-exsel="' + esc(x.id) + '" aria-current="' + (sel && sel.id === x.id ? "true" : "false") + '"><span>' + esc(x.n) + "</span>" + (x.s ? "<small>" + esc(x.s) + "</small>" : "") + "</button>"; }).join("") || '<p class="hint">–</p>', g.k === "lines" || g.k === "pts"); });
       h += dt("draw", tt("ly_eDraw"), tot, inner || '<p class="hint">' + esc(tt("ly_eEmpty")) + "</p>", true);
-      var ly = '<p class="lyexl">' + esc(tt("ly_eBase")) + ": <b>" + esc(tt({ farbe: "ly_bFarbe", grau: "ly_bGrau", luft: "ly_bLuft", kataster: "ly_bKat" }[base] || "km_src")) + "</b></p>";
+      var ly = '<p class="lyexl">' + esc(tt("ly_eBase")) + ": <b>" + esc(tt({ farbe: "ly_bFarbe", grau: "ly_bGrau", luft: "ly_bLuft", luftstr: "ly_bLuftStr", kataster: "ly_bKat" }[base] || "km_src")) + "</b></p>";
       if (ov.length) ly += '<p class="lyexl">' + esc(tt("ly_eCat")) + "</p>" + ov.filter(function (o) { return m(o.label || o.id); }).map(function (o) { return '<p class="lyexs">◧ ' + esc(o.label || o.id) + "</p>"; }).join("");
       if (M.dxf && M.dxf.lay) { ly += '<p class="lyexl">DXF · ' + esc(M.dxf.name || "") + "</p>" + Object.keys(M.dxf.lay).filter(function (l) { return m(l + " " + dxfLbl(l)); }).map(function (l) { var L0 = M.dxf.lay[l], lb = dxfLbl(l); return '<label class="lyexs"><input type="checkbox" data-exdxf="' + esc(l) + '"' + (L0.on ? " checked" : "") + '> <span class="kmdxsw" style="background:' + esc(L0.c) + '" aria-hidden="true"></span>' + esc(lb || l) + "</label>"; }).join(""); }
       if (ovl && ovl.img) ly += '<p class="lyexl">' + esc(tt("ly_ePlan")) + "</p><p class=\"lyexs\">▤ " + esc(tt(ovl.conf ? "ly_ePlanOk" : "ly_ePlanNo")) + (ovl.gcp && ovl.gcp.length ? " · " + ovl.gcp.length + " " + esc(tt("ly_eGcp")) : "") + "</p>";

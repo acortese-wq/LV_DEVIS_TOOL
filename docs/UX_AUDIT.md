@@ -378,3 +378,9 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 - **Vorher:** bei 1024×768 Karte nur 506×276 px (18 % der Fläche), weil Werkzeuge, Eigenschaften und unterer Bereich gleichzeitig offen waren.
 - **Nachher:** zwischen 861 und 1100 px startet der untere Bereich eingeklappt; Reiter bleiben sichtbar, ein Klick (oder Strg+J) öffnet. Die eigene Wahl wird für schmale Bildschirme getrennt gemerkt; breite Bildschirme und Handy unverändert. Karte 506×496 px (32 %).
 - **Kostenwirkung:** keine. Test t84.
+
+## Kartenquelle «Luftbild + Strassen» (V105)
+- **Vorher:** vier Kartenquellen (Landeskarte, Grau, Luftbild, Parzellen); im Luftbild keine Strassennamen.
+- **Nachher:** fünfte Quelle «Luftbild + Strassen» = swisstopo SWISSIMAGE mit dem amtlichen Strassenverzeichnis (`ch.swisstopo.amtliches-strassenverzeichnis`: Strassenachsen und -namen) als Deckschicht. Gilt für Karte, Druck/Bericht-Hintergrund (eine WMS-Abfrage mit beiden Ebenen), Link zu map.geo.admin, Menü «Kartenquelle» und Exportdialog; Wahl gemerkt und im Projekt gespeichert. 4 Sprachen.
+- **Hinweis:** Der Kartendienst ist aus der Arbeitsumgebung nicht erreichbar; geprüft ist, dass die richtigen Ebenen angefragt werden. Die Strassennamen zeigt swisstopo erst in grösseren Massstäben. Der beschriftete Luftbild-Hintergrund von map.geo.admin.ch selbst ist ein Vektor-Kartenstil und lässt sich ohne zusätzliche Bibliothek nicht 1:1 übernehmen.
+- **Kostenwirkung:** keine. Test t85.
