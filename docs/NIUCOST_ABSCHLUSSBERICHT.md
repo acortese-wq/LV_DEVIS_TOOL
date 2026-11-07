@@ -1,6 +1,6 @@
 # NIUcost – Abschlussbericht Redesign «Engineering-Arbeitsplatz»
 
-App-Konzept und Urheber: **Alessandro Cortese** · Stand 07.11.2026 · Artefakt V103 · Branch `claude/dreamy-cray-x10m0g`
+App-Konzept und Urheber: **Alessandro Cortese** · Stand 07.11.2026 · Artefakt V103 · GitHub Pages live · Branch `claude/dreamy-cray-x10m0g`
 Grundlage: Masterprompt NIUCOST (06.11.2026), Plan und Phasen-Stand in `docs/NIUCOST_REDESIGN.md`, Vorher/Nachher je Schritt in `docs/UX_AUDIT.md`.
 
 ## 1. Ergebnis in Kürze
@@ -54,8 +54,12 @@ In der QS gefundene und behobene Fehler: Bereichsknopf «Auswertung» ohne `aria
 - **1024 px:** Karte nur 18 % der Fläche (Werkzeuge, Eigenschaften und Dock gleichzeitig). Abhilfe heute: Dock einklappen (Strg+J) oder Seitenleisten minimieren; ein automatisch eingeklapptes Dock unter 1100 px wäre der nächste Schritt.
 - **Tablet zweigeteilt** (Karte + Eigenschaften nebeneinander auf 768–1024 px hochkant) nicht umgesetzt; Tablet nutzt die Handy-Bedienung.
 - Aus dem Konzept (Phase C) noch nicht umgesetzt: Kontextmenü im Explorer (Umbenennen/Duplizieren/Löschen), Kosten-Delta nach «Übernehmen», Dock-Reiter «LV» und «Annahmen» im Modus Experte.
-- **Phase J – Veröffentlichung:** Claude-Artefakt ist aktualisiert. GitHub Pages: Live-Seite `acortese-wq.github.io/LV_DEVIS_TOOL` ist aus der Arbeitsumgebung nicht erreichbar, und welcher Branch Pages speist, ist offen (Repo hat nur `claude/dreamy-cray-x10m0g`, `layout-a`, `neutral`, keinen Pages-Workflow). Benötigt: Angabe des Pages-Branches; dann `index.html` dorthin übernehmen.
+- ~~Phase J~~ → erledigt, siehe Abschnitt 7.
 
 ## 6. Tests und Nachvollziehbarkeit
 - Neue Tests dieses Redesigns: `t78` (Referenz), `t79` (Arbeitsplatz), `t80` (Dock-Tabellen), `t81` (Modi/Befehlsleiste), `t82` (Handy/Tablet), `t83` (QS-Matrix). Angepasst: `t35` (Prüfstatus-Zyklus), `t65` (Layout-Umschalter, Handy).
 - Gesamtlauf `node tests/run.js` am Ende von Phase I: 63 Tests, alle ohne Fehler; Skill-Vergleich 0 Abweichungen.
+
+## 7. Phase J – Veröffentlichung (07.11.2026)
+- **Claude-Artefakt** aktualisiert (V103): https://claude.ai/artifact/F2BDoDDnQFxmsbmzGnwKxx
+- **GitHub Pages** veröffentlicht automatisch aus dem Hauptbranch `claude/dreamy-cray-x10m0g` (Workflow «pages build and deployment», Umgebung `github-pages`); jeder Push aktualisiert die Live-Seite https://acortese-wq.github.io/LV_DEVIS_TOOL/. Der Stand von Phase I (Commit `fb47f61`) wurde am 07.11.2026 erfolgreich ausgeliefert (Status «success»). Die Live-Seite selbst ist aus der Arbeitsumgebung nicht aufrufbar; geprüft wurde über die GitHub-Schnittstelle.
