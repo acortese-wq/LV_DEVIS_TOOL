@@ -385,14 +385,8 @@ Die Zeile «App-Konzept und Urheber: Alessandro Cortese · Fachliche Struktur un
 - **Hinweis:** Der Kartendienst ist aus der Arbeitsumgebung nicht erreichbar; geprüft ist, dass die richtigen Ebenen angefragt werden. Die Strassennamen zeigt swisstopo erst in grösseren Massstäben. Der beschriftete Luftbild-Hintergrund von map.geo.admin.ch selbst ist ein Vektor-Kartenstil und lässt sich ohne zusätzliche Bibliothek nicht 1:1 übernehmen.
 - **Kostenwirkung:** keine. Test t85.
 
-## Parzellen beim Zoomen lagestabil (V106)
-- **Vorher:** Die Parzellenebene (und der Hintergrund «AV») war ein einziges Bild für den ganzen Kartenausschnitt, das nach jedem Zoomen/Verschieben neu geladen und ersetzt wurde: Parzellenlinien sprangen, am Rand fehlte Bild, bei schnellem Zoomen blieb das alte, skalierte Bild stehen.
-- **Nachher:** Kachelebene (WMS in festem Kachelraster EPSG:3857, scharf auf Retina): jede Kachel liegt immer an ihrer Weltposition, beim Zoomen/Verschieben werden nur neue Kacheln nachgeladen. Gemessen mit Testkacheln: Abweichung 0 px über Zoomstufen 17–20, Verschieben und Mausrad. Bei wiederholten WMS-Fehlern wechselt die Ebene wie bisher automatisch auf WMTS.
-- **Hinweis:** Die Linien der Parzellen zeichnet der Kartendienst; je nach Massstab blendet er Linien oder Beschriftungen ein oder aus (das ist Dienst-seitig). Der echte Dienst ist aus der Arbeitsumgebung nicht erreichbar (geprüft mit Testkacheln).
+## Parzellen: ein Bild mit Rand statt Kacheln (V108)
+- **Verlauf:** V105 und früher luden nach jedem Zoomen/Verschieben ein neues Gesamtbild (Parzellenlinien «sprangen»). V106/V107 versuchten Kacheln – der Dienst «cadastralwebmap» (weitergereichter Dienst) liefert kleine Kacheln aber gegeneinander verschoben (Screenshot 07.11.2026: Kachelinhalte passen an den Nähten nicht zusammen). Kacheln sind damit nicht brauchbar und wurden wieder entfernt.
+- **Nachher:** wieder ein zusammenhängendes Bild, aber mit 50 % Rand rundum. Es wird nur neu geladen, wenn die Zoomstufe wechselt oder der Ausschnitt den geladenen Bereich verlässt. Verschieben innerhalb des Randes lässt die Parzellen unverändert (kein Springen, kein leerer Rand beim Ziehen). Bildgrösse auf 2600 px begrenzt. Lage Bild ↔ Karte exakt (≤ 1 px) bei Bildschirmskalierung 100/125/150/200 %; bei wiederholten Fehlern Wechsel auf WMTS wie bisher.
+- **Offen:** Beim Zoomen lädt der Dienst weiterhin ein neues Bild; zeichnet er dabei Linien leicht anders (Massstabs-Generalisierung des Dienstes), bleibt das ein Dienst-Effekt. Der echte Dienst ist aus der Arbeitsumgebung nicht erreichbar.
 - **Kostenwirkung:** keine. Test t86.
-
-## Parzellen: grosse Kacheln, keine Lücken bei Windows-Skalierung (V107)
-- **Rückmeldung:** Auf einem Windows-PC erschienen die neuen Parzellen-Kacheln mit Lücken/Versatz zwischen den Kacheln.
-- **Ursache:** Die Kachelebene halbierte bei Bildschirmskalierung über 100 % (Windows 125/150 %) automatisch die Kachelgrösse (128 px, «Retina»-Modus). Das ergab etwa viermal mehr, sehr kleine Kacheln, die einzeln nachluden (Lücken) und bei gebrochener Skalierung Nähte zeigen können.
-- **Nachher:** feste Kachelgrösse 512 px (CSS), unabhängig von der Skalierung; das Bild wird in höherer Auflösung (512–1024 px) angefordert und auf die Kachel skaliert. Statt rund 12 (100 %) bzw. ~48 (125–150 %) nun 4 Kacheln im Kartenausschnitt. Lagetreu geprüft bei Skalierung 100 / 125 / 150 / 200 % (0 px Abweichung, Test t86).
-- **Kostenwirkung:** keine.

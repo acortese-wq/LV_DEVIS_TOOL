@@ -6024,17 +6024,31 @@ var FIG = (function () {
   function fmt(v) { return (Math.round(v * 10) / 10).toLocaleString("de-CH", { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
 
   /* Ein einziges WMS-Bild pro Kartenausschnitt statt Kacheln: keine Nähte/Versätze an Kachelgrenzen, Beschriftung nur einmal (Parzellenplan, OpenData AV) */
-  /* WMS als Kachelebene (feste Weltkachel-Raster, EPSG:3857): bleibt beim Zoomen und Verschieben lagestabil, lädt nur neue Kacheln und
-     zeigt beim Zoomen sofort das vorherige Bild skaliert – statt eines Gesamtbildes, das nach jeder Bewegung neu geladen und ersetzt wurde (Linien «sprangen»). */
+  /* WMS als ein Bild über dem Kartenausschnitt (+50 % Rand). Der Dienst «cadastralwebmap» ist ein weitergereichter Dienst: als kleine Kacheln liefert er
+     gegeneinander verschobene Ausschnitte (Rückmeldung 07.11.2026) – darum ein zusammenhängendes Bild. Es wird nur neu geladen, wenn sich die Zoomstufe ändert
+     oder der Ausschnitt den geladenen Bereich verlässt; Verschieben innerhalb des Randes lässt die Parzellen unverändert (kein Springen, kein leerer Rand). */
   function viewWms(url, layers, o) {
-    /* grosse Kacheln (512 CSS-px, wenige Anfragen, keine Retina-Halbierung: bei Bildschirmskalierung 125/150 % (Windows) sonst viermal mehr, halb so grosse Kacheln mit Lücken/Nähten);
-       das Kartenbild wird in höherer Auflösung angefordert und auf die Kachel skaliert */
-    var bad = 0, px = Math.min(1024, 512 * Math.ceil(window.devicePixelRatio || 1));
-    var lay = L.tileLayer.wms(url, { layers: layers, styles: "", format: "image/png", transparent: true, version: "1.1.1", maxZoom: 22, tileSize: 512, detectRetina: false, zIndex: 2, updateWhenZooming: false, keepBuffer: 3, attribution: o && o.attr || "" });
-    lay.wmsParams.width = lay.wmsParams.height = px;
-    lay.on("tileload", function () { bad = 0; });
-    lay.on("tileerror", function () { if (++bad >= 4 && o && o.fail) { var f = o.fail; o.fail = null; f(); } });
-    return lay;
+    var V = L.Layer.extend({
+      onAdd: function (m) { this._m = m; this._t = 0; this._bad = 0; m.on("moveend", this._upd, this); this._upd(); },
+      onRemove: function (m) { m.off("moveend", this._upd, this); this._t++; if (this._im) { m.removeLayer(this._im); this._im = null; } },
+      _upd: function () {
+        var m = this._m, me = this, z = m.getZoom(), vb = m.getBounds();
+        if (this._im && this._z === z && this._ib && this._ib.contains(vb)) return;   /* Bild deckt den Ausschnitt noch ab */
+        var sw = L.CRS.EPSG3857.project(vb.getSouthWest()), ne = L.CRS.EPSG3857.project(vb.getNorthEast()), dx = (ne.x - sw.x) / 2, dy = (ne.y - sw.y) / 2;
+        sw = L.point(sw.x - dx, sw.y - dy); ne = L.point(ne.x + dx, ne.y + dy);
+        var sz = m.getSize(), k = Math.min(2, window.devicePixelRatio || 1), W = Math.round(sz.x * 2 * k), H = Math.round(sz.y * 2 * k), cap = 2600, f = Math.min(1, cap / Math.max(W, H)); W = Math.round(W * f); H = Math.round(H * f);
+        var ib = L.latLngBounds(L.CRS.EPSG3857.unproject(sw), L.CRS.EPSG3857.unproject(ne)), t = ++this._t;
+        var u = url + (url.indexOf("?") < 0 ? "?" : "&") + "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=" + encodeURIComponent(layers) + "&STYLES=&SRS=EPSG:3857&BBOX=" + [sw.x, sw.y, ne.x, ne.y].map(function (v) { return v.toFixed(2); }).join(",") + "&WIDTH=" + W + "&HEIGHT=" + H + "&FORMAT=image/png&TRANSPARENT=TRUE";
+        var img = new Image();
+        img.onload = function () {
+          if (t !== me._t || !me._m) return; me._bad = 0;
+          var ov = L.imageOverlay(u, ib, { pane: "tilePane", zIndex: 2, interactive: false, attribution: o && o.attr || "" }).addTo(me._m), old = me._im; me._im = ov; me._ib = ib; me._z = z; if (old) me._m.removeLayer(old);
+        };
+        img.onerror = function () { if (t === me._t && ++me._bad >= 2 && o && o.fail) { var f = o.fail; o.fail = null; f(); } };
+        img.src = u;
+      }
+    });
+    return new V();
   }
 
   /* ---------- Automatische Ausrichtung des Plans ohne Passpunkte ----------
