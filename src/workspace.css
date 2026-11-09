@@ -72,7 +72,7 @@
 .kmdlg.kmlya .kmheadb [data-k=apply]{min-height:32px}
 .kmdlg.kmlya .lylay select{min-height:30px;padding:3px 8px;font-size:13px}
 .kmdlg.kmlya .lybar{padding-top:4px;padding-bottom:4px}
-.kmdlg.kmlya .lydpan{max-height:none;height:var(--lydh,220px);overflow:auto}
+.kmdlg.kmlya .lydpan{max-height:none;height:max(120px,min(var(--lydh,220px),45vh,var(--lydm,45vh)));overflow:auto}   /* nie höher als 45 % des Fensters: sonst schrumpft die Karte (gespeicherte Höhe von einem grossen Bildschirm) */
 .kmdlg.kmlya .lydrag{height:6px;cursor:ns-resize;background:linear-gradient(var(--rule),var(--rule)) center/40px 2px no-repeat;touch-action:none}
 .kmdlg.kmlya .lydrag:hover,.kmdlg.kmlya .lydrag:focus-visible{background-color:var(--panel);outline:2px solid var(--focus);outline-offset:-2px}
 .kmdlg.kmlya .kmbottom{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;padding:3px 10px;min-height:34px;position:relative}
@@ -296,3 +296,5 @@
   .kmdlg.kmlya .lybl .btn{min-height:44px}
   .kmdlg.kmlya .lybtn{min-height:44px}
 }
+/* Karte darf in kleinen Fenstern mit ihrer Zelle schrumpfen (kein Überragen über den unteren Bereich) */
+@media (min-width:861px){.kmdlg.kmlya .kmmap,.kmdlg.kmlya .kmleft{min-height:0!important}}
