@@ -543,8 +543,9 @@ def zubFehlt(tab, c):
         if not (num(c.get("L"), 0) > 0):
             return out
         if not jt(c.get("warnband")): out.append("warn")
-        if c.get("rohrSystem") != "block" and (c.get("einzug") == "keine" or not jt(c.get("einzug"))): out.append("schnur")
-        if not jt(c.get("kalib")): out.append("kal")
+        offen = c.get("rohrSystem") in ("block", "laengs")   # Rohrblock / Längsverschluss (Retrofit um bestehende Kabel): Schnur einziehen und Kalibrieren nicht verlangt
+        if not offen and (c.get("einzug") == "keine" or not jt(c.get("einzug"))): out.append("schnur")
+        if not offen and not jt(c.get("kalib")): out.append("kal")
     elif tab == "rohr":
         neu = jt(c.get("verl")) and any(jt(g(x, "typ")) and num(g(x, "q"), 0) > 0 for x in (c.get("rohre") or []))
         if not neu:

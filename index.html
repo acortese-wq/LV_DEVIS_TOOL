@@ -4847,8 +4847,9 @@ var KVE = (function () {
     if (tab === "graben") {
       if (!(num(c.L, 0) > 0)) return out;
       if (!c.warnband) out.push("warn");
-      if (c.rohrSystem !== "block" && (c.einzug === "keine" || !c.einzug)) out.push("schnur");
-      if (!c.kalib) out.push("kal");
+      var offen = c.rohrSystem === "block" || c.rohrSystem === "laengs";   /* Rohrblock / Längsverschluss (Retrofit um bestehende Kabel): Schnur einziehen und Kalibrieren nicht verlangt */
+      if (!offen && (c.einzug === "keine" || !c.einzug)) out.push("schnur");
+      if (!offen && !c.kalib) out.push("kal");
     } else if (tab === "rohr") {
       var neu = c.verl && (c.rohre || []).some(function (x) { return x.typ && num(x.q, 0) > 0; });
       if (!neu) return out;
