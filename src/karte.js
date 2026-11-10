@@ -1402,6 +1402,7 @@
       if (!tip) tip = L.tooltip({ permanent: true, direction: "right", offset: [14, 0], className: "kmtip", opacity: 0.95 });
       tip.setLatLng(ll).setContent(esc(t)); if (!map.hasLayer(tip)) tip.addTo(map);
     }
+    if (opt.focusId) setTimeout(function () { try { if (findObj(opt.focusId)) exSelect(opt.focusId); } catch (e) { } }, 700);   /* aus dem Datensatz geöffnet: Objekt direkt gewählt */
     window.__KM = { ov: function () { return ovl; }, M: function () { return M; }, refresh: function () { refresh(); }, select: function (id) { select(id); }, map: function () { return map; }, ll: function (p) { return AD.ll(p); }, fit: function () { fitAll(); } };   /* nur für Tests */
     var MODES = { ruler: "mruler", geo: "mgeo", line: "mline", pt: "mpt", sond: "msond", cal: "mcal", edit: "medit", area: "marea", wl: "mwl", geb: "mgeb", text: "mtext", arrow: "marrow", sline: "msline", rect: "mrect" };
     function draw() {

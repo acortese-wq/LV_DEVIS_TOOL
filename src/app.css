@@ -708,3 +708,6 @@ tr.pst-ip .pst{background:#e7f0fb;border-color:#0a5aa8;color:#083f78}tr.pst-ip t
 .orphbox{margin:8px 0;padding:8px 12px;border:1px solid var(--warn,#c98a00);border-left-width:4px;border-radius:8px;background:var(--warnbg,#fdf4e3);color:var(--ink)}
 .orphbox p{margin:0 0 4px}.orphbox ul{margin:4px 0 6px;padding-left:4px;list-style:none}.orphbox li{margin:2px 0}.orphbox small{opacity:.8}
 .orphb{display:flex;gap:8px;flex-wrap:wrap}
+.kmtop{margin:0 0 12px;padding:10px 12px;border:1px solid var(--rule);border-radius:9px;background:var(--paper,#fff)}
+.kmtop .kmprev{margin:8px 0 0;max-width:520px}.kmtop .kmprev svg{width:100%;height:auto;display:block;border-radius:6px}
+.kmtop .kmmsg{margin:6px 0 0}

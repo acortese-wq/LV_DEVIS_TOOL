@@ -14,7 +14,7 @@ ok(/Lage .* m · schräg .* m · Ø 25 %, max\. 25 %/.test(t),'Schräglänge und
 ok(/Gefälle bis 25 %/.test(await pg.textContent('#kmChk')),'Warnung bei steilem Gelände');
 const L0=(await getS(pg)).recs.graben[0].L;
 await pg.click('[data-k=apply]'); await pg.waitForTimeout(600); let S=await getS(pg); const Lh=parseFloat(S.recs.graben[0].L); console.log('Lage-Länge',Lh);
-await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(600); await pg.click('#kmTabE');
+await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(1400); await pg.click('#kmTabE');   /* aus dem Datensatz geöffnet: Objekt wird nach ca. 0.7 s gewählt */
 ok((await pg.textContent('#kmHz')).includes('schräg'),'Profil bleibt nach erneutem Öffnen erhalten');
 await pg.check('[data-hz=mode]'); await pg.waitForTimeout(500); const lbl=await pg.locator('.kmlbl').allTextContents(); console.log(lbl.join('|')); ok(lbl.some(x=>/337[.,]7 m schräg/.test(x)),'Linienbeschriftung zeigt Schräglänge'); ok(/337[.,]7 m schräg/.test(await pg.locator('#kmObj').textContent()),'Objektliste zeigt Schräglänge'); await pg.click('[data-k=apply]'); await pg.waitForTimeout(600); S=await getS(pg); const Ls=parseFloat(S.recs.graben[0].L); console.log('Schräglänge',Ls);
 ok(Ls>Lh*1.02&&Ls<Lh*1.04,'Graben-Länge mit Schalter = Schräglänge ('+Ls+' vs '+Lh+')');
