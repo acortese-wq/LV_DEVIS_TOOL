@@ -13,7 +13,7 @@ function loadPw() {
 const { chromium } = loadPw();
 /* Layout A startet die App in der Karte. Die bestehenden Tests prüfen die klassische Seite: die Testhilfe setzt die Vorgabe
    window.__LVD_LAYOUT_DEFAULT='classic'. Eine gespeicherte Wahl (localStorage «lvd-layout») geht vor – so testet t65 Layout A. LVD_LAYOUT_A=1 schaltet die Vorgabe ab. */
-const LY_INIT = () => { window.__LVD_LAYOUT_DEFAULT = 'classic'; };   /* nur Vorgabe; der Speicher wird nicht angefasst (sonst können Stände beim Neuladen verloren gehen) */
+const LY_INIT = () => { window.__LVD_LAYOUT_DEFAULT = 'classic'; window.__LVD_RIBBON_DEFAULT = 'min'; };   /* Multifunktionsleiste in älteren Tests minimiert (gespeicherte Wahl «lvd-ribbon» geht vor; t90 prüft sie offen) */   /* nur Vorgabe; der Speicher wird nicht angefasst (sonst können Stände beim Neuladen verloren gehen) */
 if (!chromium.__lvdLy) {
   const launch0 = chromium.launch.bind(chromium); chromium.__lvdLy = 1;
   chromium.launch = async (...a) => {

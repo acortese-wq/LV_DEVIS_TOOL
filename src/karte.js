@@ -852,6 +852,56 @@
           lb.addEventListener("focusout", function () { setTimeout(function () { if (!bl.hidden && !lb.contains(document.activeElement)) bOpen(false, false); }, 200); });
           window.__LYBASE = { open: function () { bOpen(true); } };
         })();
+        (function () {   /* Multifunktionsleiste (Ribbon) wie in CAD/Civil-Programmen: Register mit Gruppen über der Zeichenfläche. Ergänzung – jeder Knopf löst den bestehenden
+                            Befehl aus (kein neuer Zustand, keine Funktion verschoben). Minimierbar (lvd-ribbon), nur ab 861 px. */
+          var T0 = "#kmToolsBody ", K = function (k) { return T0 + "[data-k=" + k + "]"; }, O = function (k) { return T0 + "[data-eop=" + k + "]"; }, D = function (t) { return "#lyT_" + t; };
+          var G = { medit: "✥", mline: "╱", mpt: "▣", mwl: "◫", mgeb: "⌂", route: "↝", msond: "◎", marea: "▱", mtext: "T", marrow: "➚", msline: "〰", mrect: "▭", mruler: "📏", undo: "↶", redo: "↷", end: "■", clear: "✕", dxfin: "⇪", save: "💾", apply: "✔" };
+          var TABS = [
+            ["start", [["rb_pSel", [K("medit")]], ["rb_pDraw", [K("mline"), K("mpt"), K("mgeb"), K("route")]], ["rb_pEdit", [K("undo"), K("redo")]], ["rb_pProj", [".kmheadb [data-k=save]", ".kmheadb [data-k=apply]"]]]],
+            ["draw", [["rb_pLine", [K("mline"), K("end"), K("route")]], ["rb_pObj", [K("mpt"), K("mwl"), K("mgeb"), K("msond"), K("marea")]]]],
+            ["mod", [["rb_pSel", [K("medit")]], ["rb_pVert", [O("pt"), O("line"), O("ins"), O("del"), O("seg"), O("split"), O("join")]], ["rb_pEdit", [K("undo"), K("redo"), K("clear")]]]],
+            ["ann", [["rb_pAnn", [K("mtext"), K("marrow"), K("msline"), K("mrect")]], ["rb_pMeas", [K("mruler")]]]],
+            ["ins", [["rb_pImp", [K("dxfin")]], ["rb_pLay", [".lynav .kmmidtog"]]]],
+            ["an", [["rb_pEval", [D("prof"), D("aus"), D("kost"), D("pos"), D("warn")]], ["rb_pProf", ["[data-pfb]"]]]],
+            ["out", [["rb_pRes", [".lynav [data-ly=res]", ".lynav [data-ly=rep]", ".lynav [data-ly=rec]", ".lynav [data-ly=proj]"]], ["rb_pProj", [".kmheadb [data-k=save]", ".kmheadb [data-k=apply]"]]]],
+            ["view", [["rb_pMap", [".lybtn", ".lysbtn"]], ["rb_pWin", [".nc-theme", ".lycmdk-b", "[data-hpk]"]]]]
+          ];
+          var rb = E("section", "lyrb"); rb.setAttribute("aria-label", tt("rb_label"));
+          var cur = "start", min = window.__LVD_RIBBON_DEFAULT === "min"; try { var sv = JSON.parse(localStorage.getItem("lvd-ribbon") || "null"); if (sv && typeof sv === "object") { if (TABS.some(function (t) { return t[0] === sv.t; })) cur = sv.t; min = !!sv.m; } } catch (e) { }
+          var tgt = function (s) { return dlg.querySelector(s); };
+          var labOf = function (b) { var a = b.getAttribute("aria-label"); if (a && !/[›_]/.test(a)) return a.replace(/\s*\(Strg\+K\)$/, ""); var t = ""; b.childNodes.forEach(function (n) { if (n.nodeType === 3) t += n.textContent; else if (n.nodeType === 1 && !n.hasAttribute("aria-hidden") && n.tagName !== "KBD" && n.tagName !== "svg") t += n.textContent; }); return t.replace(/\s*\(\d+\)\s*$/, "").replace(/\s+/g, " ").trim() || b.title || ""; };
+          var build = function () {
+            var h = '<div class="lyrb-t"><div class="lyrb-tl" role="tablist" aria-label="' + esc(tt("rb_label")) + '">' + TABS.map(function (t) { return '<button type="button" role="tab" id="lyRT_' + t[0] + '" aria-controls="lyRP_' + t[0] + '" aria-selected="' + (t[0] === cur ? "true" : "false") + '" tabindex="' + (t[0] === cur ? 0 : -1) + '" data-rbt="' + t[0] + '">' + esc(tt("rb_" + t[0])) + "</button>"; }).join("") + "</div>" +
+              '<button type="button" class="lyrb-min" data-rbmin aria-expanded="' + (min ? "false" : "true") + '" aria-label="' + esc(tt("rb_min")) + '" title="' + esc(tt("rb_min")) + ' (Strg+F1)">' + (min ? "▾" : "▴") + "</button></div>";
+            TABS.forEach(function (t) {
+              h += '<div class="lyrb-p" role="tabpanel" id="lyRP_' + t[0] + '" aria-labelledby="lyRT_' + t[0] + '"' + (t[0] === cur && !min ? "" : " hidden") + ">" + t[1].map(function (g) {
+                var bs = g[1].map(function (s) { var b = tgt(s); if (!b) return ""; var k = b.getAttribute("data-k") || "", ic = G[k] || ""; return '<button type="button" class="lyrb-b" data-rb="' + esc(s) + '"><span class="lyrb-i" aria-hidden="true">' + (ic || "•") + '</span><span class="lyrb-l">' + esc(labOf(b)) + "</span></button>"; }).join("");
+                return bs ? '<div class="lyrb-g" role="group" aria-label="' + esc(tt(g[0])) + '"><div class="lyrb-gb">' + bs + '</div><div class="lyrb-gt" aria-hidden="true">' + esc(tt(g[0])) + "</div></div>" : ""; }).join("") + "</div>";
+            });
+            rb.innerHTML = h; sync();
+          };
+          var sync = function () { rb.querySelectorAll("[data-rb]").forEach(function (x) { var b = tgt(x.getAttribute("data-rb")); if (!b) { x.disabled = true; return; } x.disabled = !!b.disabled; var p = b.getAttribute("aria-pressed"), s = b.getAttribute("aria-selected"); if (p != null) x.setAttribute("aria-pressed", p); else if (s != null) x.setAttribute("aria-pressed", s === "true" && !lyD.c ? "true" : "false"); }); };
+          var store = function () { try { localStorage.setItem("lvd-ribbon", JSON.stringify({ t: cur, m: min })); } catch (e) { } };
+          var show = function (t, focus) { cur = t; rb.querySelectorAll("[role=tab]").forEach(function (b) { var on = b.getAttribute("data-rbt") === t; b.setAttribute("aria-selected", on ? "true" : "false"); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus(); }); rb.querySelectorAll("[role=tabpanel]").forEach(function (p) { p.hidden = min || p.id !== "lyRP_" + t; }); store(); fit(); };
+          var setMin = function (m) { min = m; var mb = rb.querySelector("[data-rbmin]"); mb.setAttribute("aria-expanded", m ? "false" : "true"); mb.textContent = m ? "▾" : "▴"; rb.classList.toggle("min", m); show(cur); };
+          var fit = function () { if (window.__LYFIT) window.__LYFIT(); setTimeout(function () { try { map.invalidateSize({ animate: false }); } catch (e) { } }, 30); };
+          rb.addEventListener("click", function (e) {
+            var tb = e.target.closest("[data-rbt]"); if (tb) { var t = tb.getAttribute("data-rbt"); if (min) { min = false; setMin(false); } show(t); return; }
+            if (e.target.closest("[data-rbmin]")) { setMin(!min); return; }
+            var x = e.target.closest("[data-rb]"); if (!x || x.disabled) return; var s = x.getAttribute("data-rb"), b = tgt(s); if (!b) return;
+            if (/^#lyT_/.test(s)) { lyD.t = b.getAttribute("data-dt"); lyD.c = false; lyDock(); }   /* Auswertung: Reiter öffnen (nie einklappen) */
+            else b.click();
+            setTimeout(sync, 0); setTimeout(sync, 250);
+          });
+          rb.addEventListener("dblclick", function (e) { if (e.target.closest("[data-rbt]")) setMin(!min); });
+          rb.addEventListener("keydown", function (e) { var tb = e.target.closest && e.target.closest("[data-rbt]"); if (!tb) return; var i = TABS.map(function (t) { return t[0]; }).indexOf(tb.getAttribute("data-rbt")), n = e.key === "ArrowRight" ? i + 1 : e.key === "ArrowLeft" ? i - 1 : e.key === "Home" ? 0 : e.key === "End" ? TABS.length - 1 : -1; if (n < 0 && e.key !== "ArrowLeft") return; e.preventDefault(); n = (n + TABS.length) % TABS.length; show(TABS[n][0], true); });
+          dlg.addEventListener("click", function () { setTimeout(sync, 0); }); dlg.addEventListener("keyup", function () { setTimeout(sync, 0); });
+          dlg.addEventListener("keydown", function (e) { if ((e.ctrlKey || e.metaKey) && e.key === "F1") { e.preventDefault(); e.stopPropagation(); setMin(!min); } }, true);
+          grid.parentNode.insertBefore(rb, grid);
+          dlg.classList.add("ly-rb");
+          setTimeout(function () { build(); rb.classList.toggle("min", min); fit(); }, 0);
+          window.__LYRB = { show: show, min: setMin, sync: sync };
+        })();
         /* Phase E: eine Statuszeile wie in CAD (Fang · Koordinate/Massstab · Befehlszeile · Ansicht ▾ · Urheber), Ebenen in die Kopfleiste, Dock in der Höhe ziehbar */
         (function () {
           var vw2 = bottom.querySelector(".kmview"), mt = vw2 && vw2.querySelector(".kmmidtog"); if (mt) { mt.classList.add("lymidtog"); nav.appendChild(mt); }
@@ -866,7 +916,7 @@
           var DH = "lvd-dockh", h0 = 220; try { h0 = Math.max(120, Math.min(560, +localStorage.getItem(DH) || 220)); } catch (e) { }
           dlg.style.setProperty("--lydh", h0 + "px");
           /* Platz für den unteren Bereich = Fensterhöhe − Kopf − Kennzahlen − Fusszeile − Reiterleiste − mindestens 260 px Karte (Kopfleiste kann umbrechen) */
-          var fitDock = function () { try { var hh = dlg.clientHeight || window.innerHeight, used = 0; ["kmhead", "lybar", "kmbottom"].forEach(function (c) { var e = dlg.querySelector("." + c); if (e) used += e.offsetHeight; }); var tb = dlg.querySelector(".lydbar"); used += tb ? tb.offsetHeight : 48; dlg.style.setProperty("--lydm", Math.max(120, hh - used - 260) + "px"); } catch (e) { } };
+          var fitDock = function () { try { var hh = dlg.clientHeight || window.innerHeight, used = 0; ["kmhead", "lybar", "lyrb", "kmbottom"].forEach(function (c) { var e = dlg.querySelector("." + c); if (e) used += e.offsetHeight; }); var tb = dlg.querySelector(".lydbar"); used += tb ? tb.offsetHeight : 48; dlg.style.setProperty("--lydm", Math.max(120, hh - used - 260) + "px"); } catch (e) { } };
           fitDock(); window.addEventListener("resize", function () { fitDock(); setTimeout(function () { try { map.invalidateSize({ animate: false }); } catch (e) { } }, 30); });
           if (window.ResizeObserver) { var roF = new ResizeObserver(function () { fitDock(); }); ["kmhead", "lybar", "kmbottom"].forEach(function (c) { var e = dlg.querySelector("." + c); if (e) roF.observe(e); }); }
           window.__LYFIT = fitDock;
