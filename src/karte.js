@@ -944,7 +944,47 @@
             var id = b.getAttribute("data-exsel"); exSelect(id);
           });
           ex.addEventListener("dblclick", function (e) { var b = e.target.closest("[data-exsel]"); if (b) exZoom(b.getAttribute("data-exsel"), true); });
-          window.__LYEXP = { set: setLt };
+          /* Rechtsklick-Menü im Projektbaum (wie Civil 3D «Prospector»): Zeigen · Eigenschaften · Umbenennen · Duplizieren · Löschen; Gruppen: alle zeigen/auswählen */
+          var cm = E("div", "lyctx"); cm.id = "lyCtx"; cm.setAttribute("role", "menu"); cm.hidden = true; dlg.appendChild(cm); var cmFrom = null;
+          var cmHide = function (back) { if (cm.hidden) return; var fr = cmFrom; cm.hidden = true; cm.innerHTML = ""; cmFrom = null; if (back && fr) { var id = fr.getAttribute && (fr.getAttribute("data-exsel") || ""), t = id ? ex.querySelector('[data-exsel="' + id + '"]') : document.body.contains(fr) ? fr : null; if (t) try { t.focus(); } catch (e) { } } };
+          var backFocus = function () { setTimeout(function () { if (ex.contains(document.activeElement) || cm.contains(document.activeElement) || ex.hidden) return; var t = ex.querySelector("[data-exsel].on") || ex.querySelector("[data-exsel]"); if (t) t.focus(); }, 80); };
+          var cmShow = function (x, y, title, items, from) {
+            cmFrom = from || null; cm.innerHTML = ""; cm.setAttribute("aria-label", title); var h = document.createElement("div"); h.className = "lyctx-h"; h.setAttribute("role", "presentation"); h.textContent = title; cm.appendChild(h);
+            items.forEach(function (it) { if (it === "-") { var sp = document.createElement("div"); sp.className = "lyctx-s"; sp.setAttribute("role", "separator"); cm.appendChild(sp); return; }
+              var b = document.createElement("button"); b.type = "button"; b.setAttribute("role", "menuitem"); b.className = "lyctx-i" + (it.danger ? " danger" : ""); b.tabIndex = -1; b.innerHTML = '<span aria-hidden="true">' + (it.i || "") + "</span><span>" + esc(it.t) + "</span>" + (it.k ? "<kbd aria-hidden=\"true\">" + esc(it.k) + "</kbd>" : "");
+              b.addEventListener("click", function (e) { e.stopPropagation(); var f = it.fn; cmHide(false); setTimeout(function () { try { f(); } catch (er) { } backFocus(); }, 0); }); cm.appendChild(b); });
+            cm.hidden = false; var r = dlg.getBoundingClientRect(), w = cm.offsetWidth, hh = cm.offsetHeight; cm.style.left = Math.max(4, Math.min(r.width - w - 4, x - r.left)) + "px"; cm.style.top = Math.max(4, Math.min(r.height - hh - 4, y - r.top)) + "px";
+            var f0 = cm.querySelector("button"); if (f0) f0.focus();
+          };
+          var objItems = function (id) {
+            var o = byId0(id); if (!o) return [];
+            return [{ i: "⌖", t: tt("ly_xZoom"), fn: function () { exSelect(id); exZoom(id, true); } }, { i: "☰", t: tt("ly_xProps"), fn: function () { exSelect(id); var p = dlg.querySelector("#kmPanP"); if (p && window.__LYMOB && window.matchMedia("(max-width:860px)").matches) window.__LYMOB.show("side"); } }, "-",
+              { i: "✎", t: tt("ly_xRen"), k: "F2", fn: function () { exRen = id; exRender(); } }, { i: "⧉", t: tt("ly_xDup"), fn: function () { exSelect(id); copySel("off", 3, 3); } }, "-",
+              { i: "✕", t: tt("ly_xDel"), k: tt("ly_xDelK"), danger: true, fn: function () { sel = { id: id }; msel = {}; delSel(); } }];
+          };
+          var grpItems = function (gk) {
+            var arr = M[gk] || []; return [{ i: "⌖", t: tt("ly_xZoomAll"), fn: function () { var pts = []; arr.forEach(function (o) { (o.pts || (o.pt ? [o.pt] : [])).forEach(function (p) { pts.push(AD.ll(p)); }); }); if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.3), { maxZoom: 19, animate: false }); } },
+              { i: "▣", t: tt("ly_xSelAll"), fn: function () { sel = null; msel = {}; arr.forEach(function (o) { msel[o.id] = 1; }); refresh(); } }];
+          };
+          var openCm = function (b, x, y) {
+            if (b.hasAttribute("data-exsel")) { var id = b.getAttribute("data-exsel"), o = byId0(id); if (!o) return; if (!sel || sel.id !== id) exSelect(id); var lab = (b.querySelector("span") || b).textContent; cmShow(x, y, lab, objItems(id), b); return; }
+            var d = b.closest("details[data-exg]"); if (d) { var g = d.getAttribute("data-exg").replace(/^o_/, ""); if (M[g]) cmShow(x, y, (b.querySelector("span") || b).textContent, grpItems(g), b); }
+          };
+          ex.addEventListener("contextmenu", function (e) { var b = e.target.closest("[data-exsel],summary"); if (!b) return; e.preventDefault(); openCm(b, e.clientX, e.clientY); });
+          ex.addEventListener("keydown", function (e) {
+            var inp = e.target.closest && e.target.closest("[data-exren]");
+            if (inp) { if (e.key === "Enter") { e.preventDefault(); commitRen(inp, true); } else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); exRen = null; exRender(); var r0 = ex.querySelector('[data-exsel="' + inp.getAttribute("data-exren") + '"]'); if (r0) r0.focus(); } return; }
+            var b = e.target.closest && e.target.closest("[data-exsel],summary,.lyexi"); if (!b) return;
+            if ((e.key === "ContextMenu") || (e.key === "F10" && e.shiftKey)) { e.preventDefault(); var r = b.getBoundingClientRect(); openCm(b, r.left + 24, r.bottom - 4); return; }
+            if (e.key === "F2" && b.hasAttribute("data-exsel")) { e.preventDefault(); exRen = b.getAttribute("data-exsel"); exRender(); return; }
+            if (e.key === "Delete" && b.hasAttribute("data-exsel")) { e.preventDefault(); var id = b.getAttribute("data-exsel"); sel = { id: id }; msel = {}; delSel(); return; }
+            if (e.key === "ArrowDown" || e.key === "ArrowUp") { var all = [].slice.call(ex.querySelectorAll("[data-exsel],summary,[data-exgo]")).filter(function (n) { return n.offsetParent; }), i = all.indexOf(b); if (i < 0) return; e.preventDefault(); var nx = all[i + (e.key === "ArrowDown" ? 1 : -1)]; if (nx) nx.focus(); }
+          });
+          var commitRen = function (inp, back) { var id = inp.getAttribute("data-exren"), o = byId0(id); exRen = null; if (o) { var v = inp.value.trim().slice(0, 60); if ((o.nm || "") !== v) { snap(); if (v) o.nm = v; else delete o.nm; refresh(); } else exRender(); } else exRender(); if (back) { var r1 = ex.querySelector('[data-exsel="' + id + '"]'); if (r1) r1.focus(); } };
+          ex.addEventListener("focusout", function (e) { var inp = e.target.closest && e.target.closest("[data-exren]"); if (inp && exRen) setTimeout(function () { if (exRen && document.body.contains(inp) && document.activeElement !== inp) commitRen(inp, false); }, 0); });
+          cm.addEventListener("keydown", function (e) { var it = [].slice.call(cm.querySelectorAll("[role=menuitem]")), i = it.indexOf(document.activeElement); if (e.key === "ArrowDown") { e.preventDefault(); it[(i + 1) % it.length].focus(); } else if (e.key === "ArrowUp") { e.preventDefault(); it[(i - 1 + it.length) % it.length].focus(); } else if (e.key === "Home") { e.preventDefault(); it[0].focus(); } else if (e.key === "End") { e.preventDefault(); it[it.length - 1].focus(); } else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); cmHide(true); } else if (e.key === "Tab") { e.preventDefault(); cmHide(true); } });
+          dlg.addEventListener("pointerdown", function (e) { if (!cm.hidden && !cm.contains(e.target)) cmHide(false); }, true);
+          window.__LYEXP = { set: setLt, menu: function (id) { var b = ex.querySelector('[data-exsel="' + id + '"]'); if (b) { var r = b.getBoundingClientRect(); openCm(b, r.left + 24, r.bottom - 4); } } };
           setTimeout(function () { setLt(lt); }, 0);
         })();
         var pf = dlg.querySelector("#kmProf"); if (pf) { dock.querySelector("#lyP_prof").appendChild(pf); var pn = E("p", "hint lypfh", esc(tt("ly_profHint"))); pn.id = "lyPfH"; dock.querySelector("#lyP_prof").insertBefore(pn, pf); }
@@ -2634,8 +2674,8 @@
         return [Math.round((q[0] + mx * d / dot) * 100) / 100, Math.round((q[1] + my * d / dot) * 100) / 100];
       });
     }
-    function copySel(how) {
-      var ids = selIds(); if (!ids.length) return; var dx = parseFloat(String($("#kmMsX").value).replace(",", ".")), dy = parseFloat(String($("#kmMsY").value).replace(",", "."));
+    function copySel(how, ox, oy) {
+      var ids = selIds(); if (!ids.length) return; var dx = ox != null ? ox : parseFloat(String($("#kmMsX").value).replace(",", ".")), dy = oy != null ? oy : parseFloat(String($("#kmMsY").value).replace(",", "."));
       if (!isFinite(dx)) dx = 0; if (!isFinite(dy)) dy = 0; if (how === "par") { var fl = findObj(ids[0]); if (ids.length !== 1 || !fl || M.lines.indexOf(fl.o) < 0 || !dx) { toast(dlg, tt("ms_parNeed")); return; } }
       snap(); var made = {};
       ids.forEach(function (id) {
@@ -2676,7 +2716,7 @@
     function exObjs() {
       var o = [];
       [["lines", "km_lineN", "ly_eLines"], ["pts", "km_schN", "ly_ePts"], ["wl", "km_wlN", "ly_eWl"], ["geb", "km_gebN", "ly_eGeb"], ["sond", "km_sondN", "ly_eSond"], ["areas", "km_areaN", "ly_eAreas"]].forEach(function (g) {
-        o.push({ k: g[0], t: tt(g[2]), it: (M[g[0]] || []).map(function (x, i) { var nm = tt(g[1]).replace("{n}", i + 1), sub = g[0] === "lines" ? fmt(effLen(x.pts)) + " m" + (pipeList(cfgOf(x)).length ? " · " + pipeTxt(cfgOf(x)) : "") : g[0] === "pts" ? (x.typ || "") : ""; var rn = x.rid && opt.recName ? opt.recName(x.rid) : ""; return { id: x.id, n: nm + (rn ? " · " + rn : ""), s: sub }; }) });
+        o.push({ k: g[0], t: tt(g[2]), it: (M[g[0]] || []).map(function (x, i) { var nm = x.nm ? x.nm : tt(g[1]).replace("{n}", i + 1), sub = g[0] === "lines" ? fmt(effLen(x.pts)) + " m" + (pipeList(cfgOf(x)).length ? " · " + pipeTxt(cfgOf(x)) : "") : g[0] === "pts" ? (x.typ || "") : ""; var rn = x.rid && opt.recName ? opt.recName(x.rid) : ""; return { id: x.id, n: nm + (rn ? " · " + rn : ""), s: sub }; }) });
       });
       return o;
     }
@@ -2687,7 +2727,7 @@
       var h = "";
       h += dt("proj", tt("ly_eProj"), "", '<button type="button" class="lyexi" data-exgo="proj"><b>' + esc(LY.proj || tt("ly_noProj")) + "</b><small>" + esc(LY.ort || "") + "</small></button>", true);
       var ob = exObjs(), tot = 0, inner = "";
-      ob.forEach(function (g) { var it = g.it.filter(function (x) { return m(x.n + " " + x.s); }); tot += g.it.length; if (!g.it.length) return; inner += dt("o_" + g.k, g.t, g.it.length, it.map(function (x) { return '<button type="button" class="lyexi' + (sel && sel.id === x.id ? " on" : "") + '" data-exsel="' + esc(x.id) + '" aria-current="' + (sel && sel.id === x.id ? "true" : "false") + '"><span>' + esc(x.n) + "</span>" + (x.s ? "<small>" + esc(x.s) + "</small>" : "") + "</button>"; }).join("") || '<p class="hint">–</p>', g.k === "lines" || g.k === "pts"); });
+      ob.forEach(function (g) { var it = g.it.filter(function (x) { return m(x.n + " " + x.s); }); tot += g.it.length; if (!g.it.length) return; inner += dt("o_" + g.k, g.t, g.it.length, it.map(function (x) { if (exRen === x.id) return '<div class="lyexi lyexr"><input type="text" data-exren="' + esc(x.id) + '" value="' + esc((byId0(x.id) || {}).nm || "") + '" placeholder="' + esc(x.n) + '" aria-label="' + esc(tt("ly_xRenL")) + '" maxlength="60" autocomplete="off"></div>'; return '<button type="button" class="lyexi' + (sel && sel.id === x.id ? " on" : "") + '" data-exsel="' + esc(x.id) + '" aria-haspopup="menu" aria-current="' + (sel && sel.id === x.id ? "true" : "false") + '"><span>' + esc(x.n) + "</span>" + (x.s ? "<small>" + esc(x.s) + "</small>" : "") + "</button>"; }).join("") || '<p class="hint">–</p>', g.k === "lines" || g.k === "pts"); });
       h += dt("draw", tt("ly_eDraw"), tot, inner || '<p class="hint">' + esc(tt("ly_eEmpty")) + "</p>", true);
       var ly = '<p class="lyexl">' + esc(tt("ly_eBase")) + ": <b>" + esc(tt({ farbe: "ly_bFarbe", grau: "ly_bGrau", luft: "ly_bLuft", luftstr: "ly_bLuftStr", kataster: "ly_bKat" }[base] || "km_src")) + "</b></p>";
       if (ov.length) ly += '<p class="lyexl">' + esc(tt("ly_eCat")) + "</p>" + ov.filter(function (o) { return m(o.label || o.id); }).map(function (o) { return '<p class="lyexs">◧ ' + esc(o.label || o.id) + "</p>"; }).join("");
@@ -2695,10 +2735,11 @@
       if (ovl && ovl.img) ly += '<p class="lyexl">' + esc(tt("ly_ePlan")) + "</p><p class=\"lyexs\">▤ " + esc(tt(ovl.conf ? "ly_ePlanOk" : "ly_ePlanNo")) + (ovl.gcp && ovl.gcp.length ? " · " + ovl.gcp.length + " " + esc(tt("ly_eGcp")) : "") + "</p>";
       h += dt("lay", tt("ly_eLay"), "", ly, false);
       var rc = LY.recs ? LY.recs() : []; if (rc.length) h += dt("rec", tt("ly_eRec"), rc.reduce(function (a, r) { return a + r[1]; }, 0), rc.filter(function (r) { return m(r[2]); }).map(function (r) { return '<button type="button" class="lyexi" data-exgo="rec"><span>' + esc(r[2]) + '</span><small>' + r[1] + "</small></button>"; }).join(""), false);
-      T.innerHTML = h;
+      T.innerHTML = h; var ri = exRen && T.querySelector("[data-exren]"); if (ri) { ri.focus(); ri.select(); }
     }
+    var exRen = null, byId0 = function (id) { var f = findObj(id); return f ? f.o : null; };
     function exZoom(id, force) {
-      var o = findObj(id); if (!o) return; var pts = o.pts ? o.pts : o.pt ? [o.pt] : null; if (!pts || !pts.length) return;
+      var fo = findObj(id), o = fo && fo.o; if (!o) return; var pts = o.pts ? o.pts : o.pt ? [o.pt] : null; if (!pts || !pts.length) return;   /* findObj liefert {o, arr} */
       var b = L.latLngBounds(pts.map(AD.ll)); if (force || !map.getBounds().contains(b)) { if (pts.length > 1) map.fitBounds(b.pad(0.4), { maxZoom: 19, animate: false }); else map.setView(b.getCenter(), Math.max(map.getZoom(), 18), { animate: false }); }
     }
     function exSelect(id) { if (!findObj(id)) return; sel = { id: id }; msel = {}; exZoom(id, false); refresh(); if (typeof showProps === "function") try { showProps(id); } catch (e) { } }
