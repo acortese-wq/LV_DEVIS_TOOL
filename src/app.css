@@ -711,3 +711,5 @@ tr.pst-ip .pst{background:#e7f0fb;border-color:#0a5aa8;color:#083f78}tr.pst-ip t
 .kmtop{margin:0 0 12px;padding:10px 12px;border:1px solid var(--rule);border-radius:9px;background:var(--paper,#fff)}
 .kmtop .kmprev{margin:8px 0 0;max-width:520px}.kmtop .kmprev svg{width:100%;height:auto;display:block;border-radius:6px}
 .kmtop .kmmsg{margin:6px 0 0}
+.grrohr{margin:0 0 14px}.grcard{padding:8px 12px;margin:8px 0;border:1px solid var(--rule);border-radius:9px;background:var(--paper,#fff)}
+.grhead{margin-bottom:6px}.grcard .subrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:4px 0}.grtot{margin:6px 0 0}

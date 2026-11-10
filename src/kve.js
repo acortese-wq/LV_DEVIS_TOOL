@@ -293,6 +293,13 @@ var KVE = (function () {
     abzwK55: { lief: "151/423.303", ver: "151/451.303" }, abzwK100: { lief: "151/423.304", ver: "151/451.304" },
     abzwKk4: { lief: "151/423.305", ver: "151/451.305" }, abzwKk8: { lief: "151/423.306", ver: "151/451.306" },
     verbind4: { lief: "151/423.307", ver: "151/451.307" } };
+  /* Abzweiger/T-Stücke aus der Rohranlage-Maske (abzweigerR): gelten für alle Rohrsysteme ausser Längsverschluss (dort die Liste «abzweiger» im Graben) */
+  function abzweigerR(cx, c) {
+    (c.abzweigerR || []).forEach(function (a) {
+      var k = ABZW[a.art], q = num(a.n, 0);
+      if (k && q > 0) { cx.g("g_rohr"); cx.add(k.lief, q, { rule: "Anzahl = " + q + " St" }); cx.add(k.ver, q, { rule: "Anzahl = " + q + " St" }); }
+    });
+  }
   function laengsRohr(cx, c, L) {
     var R = LAENGS[String(c.dn2)] || LAENGS[100], n = Math.max(1, num(c.n2, 1)), m = L * n, mr = s2(L) + " m × " + n + " Rohr(e) = " + s2(m) + " m";
     cx.g("g_rohr");
@@ -542,6 +549,7 @@ var KVE = (function () {
     if (c.rohrSystem === "block") rohrblock(cx, c, L);
     else if (c.rohrSystem === "laengs") laengsRohr(cx, c, L);
     else rohr(cx, c, L);
+    if (c.rohrSystem !== "laengs") abzweigerR(cx, c);
     zubCheck(cx, "graben", c);
     if (!roh) { fremdleitungen(cx, c, L); boeschung(cx, c); }
 

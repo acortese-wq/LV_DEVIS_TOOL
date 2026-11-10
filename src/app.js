@@ -756,6 +756,36 @@
       else if (tab !== "rohr" && !pristine(tab, r)) out.push({ tab: tab, r: r, sure: false });   /* ältere Stände ohne Marker: möglicherweise von Hand angelegt */
     }); }); return out;
   }
+  /* Rohranlage: Rohre aus den Gräben anzeigen und dort ändern (gerechnet wird weiter im Graben, nichts doppelt); Abzweiger je Graben wählen */
+  function grabenRohrEl() {
+    var w = document.createElement("section"); w.className = "grrohr"; var G = S.recs.graben, tot = {};
+    var h = document.createElement("h3"); h.className = "sec"; h.textContent = tt("gr_title"); w.appendChild(h);
+    var p0 = document.createElement("p"); p0.className = "hint"; p0.textContent = tt("gr_hint"); w.appendChild(p0);
+    var used = G.filter(function (g) { return num(g.L, 0) > 0 || (g.uid && (S.karte.lines || []).some(function (l) { return l.rid === g.uid; })); });
+    if (!used.length) { var e = document.createElement("p"); e.className = "hint"; e.textContent = tt("gr_none"); w.appendChild(e); return w; }
+    used.forEach(function (g) {
+      var L = num(g.L, 0), sys = g.rohrSystem || "k55", card = document.createElement("div"); card.className = "grcard";
+      var sum = sys === "block" ? (g.bloecke || []).map(function (b) { return b.n + "×K" + b.dn; }).join(" + ") : sys === "laengs" ? g.n2 + "×DN" + g.dn2 + " " + tt("gr_laengs") : g.n + "×K" + g.dn;
+      var hd = document.createElement("div"); hd.className = "grhead"; hd.innerHTML = "<b>" + esc(g.name || tt("tab_graben")) + "</b> · " + esc(round1(L)) + " m · <span class=\"grsum\">" + esc(sum) + "</span>"; card.appendChild(hd);
+      if (sys !== "block" && sys !== "laengs") {
+        var row = document.createElement("div"); row.className = "subrow";
+        var sd = document.createElement("select"); sd.setAttribute("aria-label", tt("gr_dn")); ["55", "100", "120", "150"].forEach(function (d) { var o = document.createElement("option"); o.value = d; o.textContent = "K" + d; if (String(g.dn) === d) o.selected = true; sd.appendChild(o); });
+        var ni = document.createElement("input"); ni.type = "text"; ni.inputMode = "numeric"; ni.value = g.n; ni.style.width = "52px"; ni.setAttribute("aria-label", tt("gr_n"));
+        var sl = document.createElement("select"); sl.setAttribute("aria-label", tt("gr_len")); ["5", "10"].forEach(function (d) { var o = document.createElement("option"); o.value = d; o.textContent = d + " m"; if (String(g.len) === d) o.selected = true; sl.appendChild(o); });
+        var up = function () { g.dn = sd.value; g.n = ni.value; g.len = sl.value; g.rohrSystem = "k" + (sd.value === "55" ? "55" : "100"); save(); scheduleResult(); hd.querySelector(".grsum").textContent = (g.n || "") + "×K" + g.dn; };
+        sd.addEventListener("change", up); sl.addEventListener("change", up); ni.addEventListener("input", up);
+        var l1 = document.createElement("span"); l1.textContent = tt("gr_pipes"); row.appendChild(l1); row.appendChild(ni); row.appendChild(document.createTextNode("×")); row.appendChild(sd); row.appendChild(sl); card.appendChild(row);
+        tot[g.dn] = (tot[g.dn] || 0) + L * num(g.n, 1);
+      } else if (sys === "block") (g.bloecke || []).forEach(function (b) { tot[b.dn] = (tot[b.dn] || 0) + L * num(b.n, 1); }); else tot["L" + g.dn2] = (tot["L" + g.dn2] || 0) + L * num(g.n2, 1);
+      var tgt = sys === "laengs" ? g : { abzweiger: (g.abzweigerR = g.abzweigerR || []) }; if (sys === "laengs") tgt = { abzweiger: (g.abzweiger = g.abzweiger || []) };
+      card.appendChild(abzwListEl(tgt));
+      var go = document.createElement("button"); go.type = "button"; go.className = "btn ghost small"; go.textContent = tt("gr_go"); go.addEventListener("click", function () { S.tab = "graben"; S.idx.graben = G.indexOf(g); save(); renderForm(); renderResult(); }); card.appendChild(go);
+      w.appendChild(card);
+    });
+    var tl = Object.keys(tot).map(function (k) { return round1(tot[k]) + " m " + (k.charAt(0) === "L" ? "DN" + k.slice(1) + " " + tt("gr_laengs") : "K" + k); }).join(" · ");
+    if (tl) { var tp = document.createElement("p"); tp.className = "grtot"; tp.innerHTML = "<b>" + esc(tt("gr_total")) + ":</b> " + esc(tl); w.appendChild(tp); }
+    return w;
+  }
   function orphanEl() {
     var L = orphanList(); if (!L.length) return null;
     var d = document.createElement("div"); d.className = "orphbox"; d.setAttribute("role", "group"); d.setAttribute("aria-label", tt("ox_title"));
@@ -945,6 +975,7 @@
       '<br><span class="ctx" id="recName">' + esc(cfg.name) + '</span></span><button type="button" class="btn ghost small" data-rec="next" aria-label="' + esc(tt("ux_next")) + '" title="' + esc(tt("ux_next")) + '"' + (i >= list.length - 1 ? " disabled" : "") + ">▶</button>" +
       '<span class="sp"></span><button type="button" class="btn small" data-rec="new">' + esc(tt("recNew")) + '</button><button type="button" class="btn ghost small" data-rec="dup">' + esc(tt("recDup")) + '</button><button type="button" class="btn ghost small del" data-rec="del">' + esc(tt("recDel")) + "</button>";
     host.appendChild(nav); var oe = orphanEl(); if (oe) host.appendChild(oe);
+    if (S.tab === "rohr") host.appendChild(grabenRohrEl());
     if ((F[S.tab] || []).some(function (f) { return f.t === "trasse"; })) { var te = trasseEl(cfg); te.classList.add("kmtop"); host.appendChild(te); }   /* Karte/Vorschau des gewählten Datensatzes direkt oben */
     host.appendChild(recListEl(list, i)); host.appendChild(reqEl(S.tab, cfg));
     var fig = document.createElement("figure"); fig.className = "fig"; fig.innerHTML = '<div id="figsvg"></div>'; host.appendChild(fig);

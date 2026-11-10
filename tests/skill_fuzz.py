@@ -34,7 +34,7 @@ def graben(i):
             "rohrSystem": ch(["k55", "k55", "laengs", "block"]), "dn": ch(["55", "100", "120", "150"]), "len": ch(["5", "10"]), "n": ch(["1", "2", "4"]), "mix": ([{"dn": ch(["55", "100", "120", "150"]), "n": ch(["1", "2", "3", "5"])} for _ in range(R.randint(2, 3))] if R.random() < 0.4 else []), "muffenMode": ch(["auto", "manuell"]),
             "muffenN": ch(["0", "6"]), "b90": ch(["0", "2"]), "b45": ch(["0", "1"]), "schneiden": ch(["0", "3"]), "warnband": ch([True, False]), "kalib": ch([True, False]),
             "einzug": ch(["keine", "schnur", "draht"]), "dn2": ch(["100", "120", "150"]), "n2": ch(["1", "2"]),
-            "abzweiger": [{"art": ch(list(kve.ABZW)), "n": ch(["1", "2"])}] if R.random() < 0.5 else [],
+            "abzweiger": [{"art": ch(list(kve.ABZW)), "n": ch(["1", "2"])}] if R.random() < 0.5 else [], "abzweigerR": [{"art": ch(list(kve.ABZW)), "n": ch(["1", "2"])}] if R.random() < 0.3 else [],
             "bloecke": [{"dn": ch(["55", "100", "120"]), "n": ch(["1", "3", "5"]), "lagen": ch(["1", "2", "m"]), "len": ch(["5", "10"])} for _ in range(R.randint(1, 2))],
             "block": {"breite": ch(["0", "0.5"]), "hoehe": "0.3"}, "umhType": ch(["kies", "beton"]), "umhMat": ch(["betonkies", "sand", "kies48"]), "umhArea": ch(["0.035", "0.05"]), "umhMode": ch(["auto", "auto", "manuell"]), "bett": ch(["5", "10", ""]), "umh": ch(["5", "3", "10", ""]),
             "verf": ch(["aushub", "kies045", "kies016", "betonkies"]), "einfHand": ch([True, False]), "Lb": ch(["", f(0, 60, 1)]), "belag": belag(),

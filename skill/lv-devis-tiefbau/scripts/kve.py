@@ -442,6 +442,14 @@ ABZW = {"tstueck8": {"lief": "151/423.301", "ver": "151/451.301"}, "tstueck4": {
         "verbind4": {"lief": "151/423.307", "ver": "151/451.307"}}
 
 
+def abzweigerR(cx, c):
+    """Abzweiger/T-Stücke aus der Rohranlage-Maske (abzweigerR): alle Rohrsysteme ausser Längsverschluss."""
+    for a in (c.get("abzweigerR") or []):
+        k = ABZW.get(g(a, "art")); q = num(g(a, "n"), 0)
+        if k and q > 0:
+            cx.g("g_rohr"); cx.add(k["lief"], q, {"rule": "Anzahl = " + jstr(q) + " St"}); cx.add(k["ver"], q, {"rule": "Anzahl = " + jstr(q) + " St"})
+
+
 def laengsRohr(cx, c, L):
     R = LAENGS.get(jstr(c.get("dn2"))) or LAENGS["100"]; n = max(1, num(c.get("n2"), 1)); m = L * n
     mr = s2(L) + " m × " + jstr(n) + " Rohr(e) = " + s2(m) + " m"
@@ -754,6 +762,7 @@ def graben(c, LV, P=None):
     if blk: rohrblock(cx, c, L)
     elif c.get("rohrSystem") == "laengs": laengsRohr(cx, c, L)
     else: rohr(cx, c, L)
+    if c.get("rohrSystem") != "laengs": abzweigerR(cx, c)
     zubCheck(cx, "graben", c)
     if not roh:
         fremdleitungen(cx, c, L)
