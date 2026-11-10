@@ -676,6 +676,9 @@ def fremdleitungen(cx, c, L):
             cx.add(zk, zl, {"rule": "Eingabe = " + s2(zl) + " m"})
 
 
+BOESCH_N = {"b21": 2, "b11": 1}
+
+
 def boeschung(cx, c):
     bo = c.get("boeschung")
     if not jt(bo) or not jt(g(bo, "on")):
@@ -694,14 +697,24 @@ def graben(c, LV, P=None):
     cx = Ctx(LV)
     L = num(c.get("L"), 0); T_ = num(c.get("T"), 0.6); b = breite(cx, c)
     hk = HAND[c.get("hand")] if HAND.get(c.get("hand")) is not None else 0.10
-    V = L * b * T_; Vh = V * hk; Vm = V - Vh
     roh = jt(c.get("roh"))
+    # Geböschter Graben: Neigung n:1, Querschnitt = T × (b + T/n), obere Breite = b + 2·T/n (nur ohne Spriessung, nicht bei Rohplanie)
+    bn = (BOESCH_N.get(c.get("wand")) or 0) if (not roh and not jt(c.get("gesp"))) else 0
+    bo = b + 2 * T_ / bn if bn else b
+    V = L * T_ * (b + T_ / bn if bn else b); Vh = V * hk; Vm = V - Vh
     Lb = min(num(c.get("Lb"), L), L) if (not roh and _belagOn(c)) else 0
-    A = Lb * b; Schnitt = 2 * (Lb + b) if Lb > 0 else 0
+    A = Lb * bo; Schnitt = 2 * (Lb + bo) if Lb > 0 else 0
     if not (L > 0) or not (b > 0) or not (T_ > 0):
         return {"lines": [], "warn": cx.warn, "bal": []}
-    bi = belag(cx, {"mode": "none"} if roh else c.get("belag"), A, Schnitt, {"cut": "2 × (" + s2(Lb) + " + " + s2(b) + ") = " + s2(Schnitt) + " m", "area": s2(Lb) + " × " + s2(b) + " = " + s2(A) + " m²"}, b)
-    gs = (not roh) and jt(c.get("gesp")); vr = s2(L) + " × " + s2(b) + " × " + s2(T_) + " = " + s2(V) + " m³"
+    bi = belag(cx, {"mode": "none"} if roh else c.get("belag"), A, Schnitt, {"cut": "2 × (" + s2(Lb) + " + " + s2(bo) + ") = " + s2(Schnitt) + " m", "area": s2(Lb) + " × " + s2(bo) + " = " + s2(A) + " m²"}, bo)
+    gs = (not roh) and jt(c.get("gesp"))
+    vr = (s2(L) + " × " + s2(T_) + " × (" + s2(b) + " + " + s2(T_) + "/" + jstr(bn) + ") = " + s2(V) + " m³") if bn else (s2(L) + " × " + s2(b) + " × " + s2(T_) + " = " + s2(V) + " m³")
+    if bn:
+        cx.w("boeschV", "info", {"n": bn, "bo": r2(bo), "v": r2(V - L * b * T_)})
+    elif not roh and jt(c.get("gesp")) and BOESCH_N.get(c.get("wand")):
+        cx.w("boeschGesp", "amber", {})
+    elif not roh and not jt(c.get("gesp")) and T_ > 1.5:
+        cx.w("wandTief", "amber", {"T": T_})
     if roh:
         pass
     elif c.get("aushubArt") == "saug":
@@ -1363,9 +1376,12 @@ def calc(P, LV_=None):
     eig = r2(sum(l["total"] for l in allL if l["flag"] in ("erfasst", "ausserLV"))); lvz = r2(zw - eig)  # eigene Preise: kein LV-Rabatt, keine Stufe
     st = next(s for s in STAFFEL if lvz <= s["bis"]); idx = STAFFEL.index(st)
     mwSatz = num(P.get("mwst"), MWST * 100) / 100
-    rabatt = r2(lvz * st["pct"] / 100); nach = r2(zw - rabatt); inst = st["inst"] if lvz > 0 else 0; netto = r2(nach + inst); mw = r2(netto * mwSatz)
+    rabatt = r2(lvz * st["pct"] / 100); nach = r2(zw - rabatt); inst = st["inst"] if lvz > 0 else 0; netto = r2(nach + inst)
+    resP = max(0, num(P.get("reserve"), 0)); res = r2(netto * resP / 100); mw = r2((netto + res) * mwSatz)
     out["sum"] = {"zwischen": zw, "eigen": eig, "rabattBasis": lvz, "stufe": idx + 1, "pct": st["pct"], "rabatt": rabatt, "nachRabatt": nach, "inst": inst, "netto": netto, "mwst": mw, "mwSatz": mwSatz,
-                  "brutto": r2(netto + mw), "belag": r2(sum(l["total"] for l in allL if l.get("ks") == "Belag"))}
+                  "brutto": r2(netto + res + mw), "belag": r2(sum(l["total"] for l in allL if l.get("ks") == "Belag"))}
+    if resP > 0:
+        out["sum"]["reservePct"] = resP; out["sum"]["reserve"] = res; out["sum"]["nettoR"] = r2(netto + res)
     for e in out["elems"]:
         for w in e["warn"]:
             w.update({"el": e["name"], "tab": e["tab"], "idx": e["idx"]}); out["warn"].append(w)

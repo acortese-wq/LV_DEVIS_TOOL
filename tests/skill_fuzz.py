@@ -30,7 +30,7 @@ def free():
     return l
 def graben(i):
     return {"name": "G%d" % i, "L": tsd() if R.random() < 0.08 else f(0, 120, 1), "T": ch(["0.6", "0.8", "1.2", "1.6", "2.2"]), "bmode": ch(["min60", "begangen", "nicht_begangen", "manuell"]), "aussen": ch(["", f(0.1, 0.6)]),
-            "bman": f(0.3, 1.2), "aushubArt": ch(["normal", "normal", "saug"]), "saugH": f(0, 8, 1), "hand": ch(list(kve.HAND)), "gesp": ch([True, False]), "roh": ch([False, False, True]), "direkt": ch([True, False]),
+            "bman": f(0.3, 1.2), "aushubArt": ch(["normal", "normal", "saug"]), "saugH": f(0, 8, 1), "hand": ch(list(kve.HAND)), "gesp": ch([True, False]), "wand": ch(["senk", "senk", "b21", "b11"]), "roh": ch([False, False, True]), "direkt": ch([True, False]),
             "rohrSystem": ch(["k55", "k55", "laengs", "block"]), "dn": ch(["55", "100", "120", "150"]), "len": ch(["5", "10"]), "n": ch(["1", "2", "4"]), "mix": ([{"dn": ch(["55", "100", "120", "150"]), "n": ch(["1", "2", "3", "5"])} for _ in range(R.randint(2, 3))] if R.random() < 0.4 else []), "muffenMode": ch(["auto", "manuell"]),
             "muffenN": ch(["0", "6"]), "b90": ch(["0", "2"]), "b45": ch(["0", "1"]), "schneiden": ch(["0", "3"]), "warnband": ch([True, False]), "kalib": ch([True, False]),
             "einzug": ch(["keine", "schnur", "draht"]), "dn2": ch(["100", "120", "150"]), "n2": ch(["1", "2"]),
@@ -69,7 +69,7 @@ def rec(t, i):
                            "gl": ch([True, False]), "ph": [{"k": p[0], "on": ch([True, False])} for p in kve.PHDEF]}
 for i in range(N):
     inp = {"lang": ch(["de", "fr", "it"]), "kopf": {"projekt": "Fuzz %d" % i, "sap": "F%03d" % i, "belagLief": ch([True, False])}, "be": {"pct": ch(["", "2", "3.5"])},
-           "dichte": ch(["2.4", "2.3", ""]), "mwst": ch(["8.1", "7.7"]), "sond": {"m3": ch(["", "2"]), "einfHand": ch([True, False])}, "wasser": {"h": ch(["", "5"]), "sumpf": ch(["", "1"])},
+           "dichte": ch(["2.4", "2.3", ""]), "mwst": ch(["8.1", "7.7"]), "reserve": ch(["", "0", "10", "5.5"]), "sond": {"m3": ch(["", "2"]), "einfHand": ch([True, False])}, "wasser": {"h": ch(["", "5"]), "sumpf": ch(["", "1"])},
            "recs": {t: [rec(t, j) for j in range(R.randint(1, 2))] for t in R.sample(kve.TABS + ["hon"], R.randint(1, 6))}}
     p = os.path.join(out, "in_%03d.json" % i)
     json.dump(inp, open(p, "w"), ensure_ascii=False)

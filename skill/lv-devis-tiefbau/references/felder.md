@@ -18,6 +18,7 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 | `saugH` | Saugbagger Arbeitszeit (Stunden) | Zahl (Text) | `"0"` | aushubArt === "saug" |
 | `hand` | Aushub von Hand (Anteil) | `normal` Normal (10 %)<br>`eng` Eng / Fremdleitungen (30 %)<br>`sehr_eng` Sehr eng (50 %) | `"normal"` | aushubArt !== "saug" |
 | `gesp` | Wände gespriesst (Brettspriessung) | true/false | `false` |  |
+| `wand` | Grabenwände<br><i>Geböscht: mehr Aushub, Auffüllung und Belagsbreite (Querschnitt = Tiefe × (Sohlenbreite + Tiefe/n)). Über 1.50 m Tiefe braucht ein senkrechter Graben eine Spriessung.</i> | `senk` Senkrecht<br>`b21` Geböscht 2:1 (standfester Boden)<br>`b11` Geböscht 1:1 (rolliger Boden) | `"senk"` | !gesp && !roh |
 | `direkt` | Direktverlad und Abtransport möglich<br><i>Ohne Direktverlad wird das Aufladen ab Zwischenlager verrechnet.</i> | true/false | `false` |  |
 | `mods.ersch` | Erschwernis | true/false | `false` |  |
 | `ersch.klasse` | Abbauklasse | `keine` keine<br>`5` 5<br>`6` 6<br>`7` 7 | `"keine"` | mods.ersch |

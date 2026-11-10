@@ -484,6 +484,7 @@ var KVE = (function () {
   }
 
   /* Böschungsschutz (P): Fläche als Eingabe, da Böschungsgeometrie nicht herleitbar */
+  var BOESCH_N = { b21: 2, b11: 1 };   /* Suva/BauAV: 2:1 bei standfestem, 1:1 bei rolligem Material */
   function boeschung(cx, c) {
     if (!c.boeschung || !c.boeschung.on) return;
     var A = num(c.boeschung.flaeche, 0);
@@ -495,15 +496,21 @@ var KVE = (function () {
     var cx = new Ctx(LV);
     var L = num(c.L, 0), T = num(c.T, 0.6), b = breite(cx, c);
     var hk = HAND[c.hand] != null ? HAND[c.hand] : 0.10;
-    var V = L * b * T, Vh = V * hk, Vm = V - Vh;
     var roh = !!c.roh;   /* Rohplanie: Aushub, Belag, Spriessung, Verfüllung durch anderen Bauherrn; hier nur Leitungszone und Rohre */
+    /* Geböschter Graben (statt senkrechter Wände): Neigung n:1 (Höhe:Breite), Querschnitt = T × (b + T/n), obere Breite = b + 2·T/n.
+       Nur ohne Spriessung und nicht bei Rohplanie; Vorgabe senkrecht (bestehende Projekte unverändert). */
+    var bn = !roh && !c.gesp ? (BOESCH_N[c.wand] || 0) : 0, bo = bn ? b + 2 * T / bn : b;
+    var V = L * T * (bn ? b + T / bn : b), Vh = V * hk, Vm = V - Vh;
     var isBelagFlaeche = !roh && !!(c.belag && c.belag.mode && c.belag.mode !== "none");
     var Lb = isBelagFlaeche ? Math.min(num(c.Lb, L), L) : 0;
-    var A = Lb * b, Schnitt = Lb > 0 ? 2 * (Lb + b) : 0;
+    var A = Lb * bo, Schnitt = Lb > 0 ? 2 * (Lb + bo) : 0;
     if (!(L > 0) || !(b > 0) || !(T > 0)) return { lines: [], warn: cx.warn, bal: [] };
 
-    var bi = belag(cx, roh ? { mode: "none" } : c.belag, A, Schnitt, { cut: "2 × (" + s2(Lb) + " + " + s2(b) + ") = " + s2(Schnitt) + " m", area: s2(Lb) + " × " + s2(b) + " = " + s2(A) + " m²" }, b);
-    var g = !roh && !!c.gesp, vr = s2(L) + " × " + s2(b) + " × " + s2(T) + " = " + s2(V) + " m³";
+    var bi = belag(cx, roh ? { mode: "none" } : c.belag, A, Schnitt, { cut: "2 × (" + s2(Lb) + " + " + s2(bo) + ") = " + s2(Schnitt) + " m", area: s2(Lb) + " × " + s2(bo) + " = " + s2(A) + " m²" }, bo);
+    var g = !roh && !!c.gesp, vr = bn ? s2(L) + " × " + s2(T) + " × (" + s2(b) + " + " + s2(T) + "/" + bn + ") = " + s2(V) + " m³" : s2(L) + " × " + s2(b) + " × " + s2(T) + " = " + s2(V) + " m³";
+    if (bn) cx.w("boeschV", "info", { n: bn, bo: r2(bo), v: r2(V - L * b * T) });
+    else if (!roh && c.gesp && BOESCH_N[c.wand]) cx.w("boeschGesp", "amber", {});
+    else if (!roh && !c.gesp && T > 1.5) cx.w("wandTief", "amber", { T: T });
     if (roh) { /* kein Aushub */ }
     else if (c.aushubArt === "saug") saugbagger(cx, c, Vm, Vh);
     else aushubLines(cx, { m1: g ? "151/221.121" : "151/221.111", m2: g ? "151/221.122" : "151/221.112", h: g ? "151/221.221" : "151/221.211" }, T, Vm, Vh,
@@ -1022,10 +1029,12 @@ var KVE = (function () {
     var st = STAFFEL.filter(function (s) { return lvz <= s.bis; })[0];
     var idx = STAFFEL.indexOf(st);
     var mwSatz = num(P.mwst, MWST * 100) / 100;
-    var rabatt = r2(lvz * st.pct / 100), nach = r2(zw - rabatt), inst = lvz > 0 ? st.inst : 0, netto = r2(nach + inst), mw = r2(netto * mwSatz);
+    var rabatt = r2(lvz * st.pct / 100), nach = r2(zw - rabatt), inst = lvz > 0 ? st.inst : 0, netto = r2(nach + inst);
+    var resP = Math.max(0, num(P.reserve, 0)), res = r2(netto * resP / 100), mw = r2((netto + res) * mwSatz);   /* Reserve für Unvorhergesehenes: % vom Netto, vor MWST; Vorgabe 0 */
     out.sum = { zwischen: zw, eigen: eig, rabattBasis: lvz, stufe: idx + 1, pct: st.pct, rabatt: rabatt, nachRabatt: nach,
-                inst: inst, netto: netto, mwst: mw, mwSatz: mwSatz, brutto: r2(netto + mw),
+                inst: inst, netto: netto, mwst: mw, mwSatz: mwSatz, brutto: r2(netto + res + mw),
                 belag: r2(all.filter(function (l) { return l.ks === "Belag"; }).reduce(function (s, l) { return s + l.total; }, 0)) };
+    if (resP > 0) { out.sum.reservePct = resP; out.sum.reserve = res; out.sum.nettoR = r2(netto + res); }
     out.elems.forEach(function (e) { out.warn = out.warn.concat(e.warn.map(function (w) { w.el = e.name; w.tab = e.tab; w.idx = e.idx; return w; })); });
     out.vor.warn.forEach(function (w) { w.el = "—"; out.warn.push(w); });
     out.be.warn.forEach(function (w) { w.el = "—"; out.warn.push(w); });

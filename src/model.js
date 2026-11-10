@@ -31,7 +31,7 @@ var LVM = (function () {
   function newRec(tab, n, belagLief) {
     var nm = function (s) { return s + " " + n; }, r;
     switch (tab) {
-      case "graben": r = { name: nm("Leitungsgraben"), L: "", T: "0.60", bmode: "min60", aussen: "", bman: "0.60", hand: "normal", gesp: false, direkt: false, aushubArt: "normal", saugH: "0",
+      case "graben": r = { name: nm("Leitungsgraben"), L: "", T: "0.60", bmode: "min60", aussen: "", bman: "0.60", hand: "normal", gesp: false, wand: "senk", direkt: false, aushubArt: "normal", saugH: "0",
         rohrSystem: "k55", dn: "55", len: "10", n: "1", muffenMode: "auto", muffenN: "0", b90: "0", b45: "0", schneiden: "0", warnband: true, kalib: true, einzug: "schnur",
         dn2: "100", n2: "1", abzweiger: [], bloecke: [{ dn: "55", n: "1", lagen: "1", len: "10" }], block: { breite: "0.50", hoehe: "0.30" },
         umhType: "kies", umhMat: "betonkies", umhMode: "auto", bett: "5", umh: "5", umhArea: "0.035", verf: "aushub", einfHand: false, Lb: "", belag: mkBelag(null, belagLief),
@@ -55,7 +55,7 @@ var LVM = (function () {
     var recs = {}, idx = {};
     TABS.forEach(function (t) { recs[t] = [newRec(t, 1)]; idx[t] = 0; });
     return { v: 2, lang: "de", tab: "graben", kopf: { projekt: "", ort: "", bearb: "", datum: datum || "", rolle: "anv", devisNr: "", lieferant: "", vertrag: "", termin: "", belagLief: false, sap: "", bem: "" },
-      recs: recs, idx: idx, sond: { m3: "", einfHand: false }, wasser: { h: "", sumpf: "" }, be: { pct: "" }, dichte: "2.4", mwst: "8.1",
+      recs: recs, idx: idx, sond: { m3: "", einfHand: false }, wasser: { h: "", sumpf: "" }, be: { pct: "" }, dichte: "2.4", mwst: "8.1", reserve: "0", genau: "10",
       par: { deckG: "0.03", deckS: "0.035", deckK: "0.04", gehMin: "0.06", gehMax: "0.12", strMin: "0.09", strMax: "0.20", kanMin: "0.12", kanMax: "0.30" },
       D: { wl: { ts: [1.50, 1.00, 1.00], bo: [1.50, 1.00, 1.00], sg: [2.00, 1.20, 1.20], zs: [1.00, 0.80, 1.00] }, fund: { "CAB 1-3 L": [1.00, 0.60, 0.80], "C 50": [1.20, 0.70, 0.80] } },
       ui: { closed: {}, xo: {}, printDraw: true } };

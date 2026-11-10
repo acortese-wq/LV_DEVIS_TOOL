@@ -58,7 +58,7 @@ def deep_fill(dst, src):
             deep_fill(dst[k], v)
 
 
-for k in ("lang", "dichte", "mwst"):
+for k in ("lang", "dichte", "mwst", "reserve"):
     if inp.get(k) is not None:
         S[k] = norm(inp[k])
 for k in ("kopf", "sond", "wasser", "be", "par", "D"):
@@ -152,8 +152,9 @@ md += ["\n## " + WL[3] + " (CHF)", "| | CHF |", "|---|---:|",
        "| " + WL[4] + " | " + chf(sm["zwischen"]) + " |",
        "| " + WL[5] + " " + str(sm["stufe"]) + " (" + qs(sm["pct"]) + " %) | −" + chf(sm["rabatt"]) + " |",
        "| " + WL[6] + " | " + chf(sm["inst"]) + " |",
-       "| **" + WL[7] + "** | **" + chf(sm["netto"]) + "** |",
-       "| " + WL[8] + " " + "%.1f" % (sm["mwSatz"] * 100) + " % | " + chf(sm["mwst"]) + " |",
+       "| **" + WL[7] + "** | **" + chf(sm["netto"]) + "** |"] + \
+      (["| Reserve (" + qs(sm["reservePct"]) + " %) | " + chf(sm["reserve"]) + " |"] if sm.get("reserve") else []) + \
+      ["| " + WL[8] + " " + "%.1f" % (sm["mwSatz"] * 100) + " % | " + chf(sm["mwst"]) + " |",
        "| **" + WL[9] + "** | **" + chf(sm["brutto"]) + "** |"]
 if sm["belag"]:
     md.append("| " + WL[10] + " | " + chf(sm["belag"]) + " |")
@@ -254,8 +255,10 @@ if not opt.get("md-only"):
             K.append([(tt(key), 6), (val or "", 4)])
         K += [[], [(WL[3], 2), ("CHF", 2)]]
         for j, (lab, v) in enumerate([(WL[4], sm["zwischen"]), (WL[5] + " " + str(sm["stufe"]) + " (" + qs(sm["pct"]) + " %)", -sm["rabatt"]), (WL[6], sm["inst"]),
-                                      (WL[7], sm["netto"]), (WL[8] + " " + "%.1f" % (sm["mwSatz"] * 100) + " %", sm["mwst"]), (WL[9], sm["brutto"])]):
-            K.append([(lab, 4 if j in (3, 5) else 0), (v, 5 if j in (3, 5) else 3)])
+                                      (WL[7], sm["netto"])] + ([("Reserve (" + qs(sm["reservePct"]) + " %)", sm["reserve"])] if sm.get("reserve") else []) +
+                                     [(WL[8] + " " + "%.1f" % (sm["mwSatz"] * 100) + " %", sm["mwst"]), (WL[9], sm["brutto"])]):
+            fett = lab in (WL[7], WL[9])
+            K.append([(lab, 4 if fett else 0), (v, 5 if fett else 3)])
         for r, h in hon_ok:
             K += [[], [(str(r["name"]) + " (SIA 103-K)", 4), (h["net"], 3)]]
         if offen:

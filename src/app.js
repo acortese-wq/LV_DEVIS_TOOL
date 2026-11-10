@@ -119,7 +119,7 @@
       { id: "bman", t: "num", show: function (c) { return c.bmode === "manuell"; } },
       { id: "aushubArt", t: "sel", opts: ["normal", "saug"], struct: 1 }, { id: "saugH", t: "num", show: function (c) { return c.aushubArt === "saug"; } },
       { id: "hand", t: "sel", opts: ["normal", "eng", "sehr_eng"], show: function (c) { return c.aushubArt !== "saug"; } },
-      { id: "gesp", t: "chk" }, { id: "direkt", t: "chk", hint: "hint_direkt" }
+      { id: "gesp", t: "chk", struct: 1 }, { id: "wand", t: "sel", opts: ["senk", "b21", "b11"], hint: "hint_wand", show: function (c) { return !c.gesp && !c.roh; } }, { id: "direkt", t: "chk", hint: "hint_direkt" }
     ].concat(ERSCH_FIELDS, [
       { sec: "s_rohr" }, { id: "rohrSystem", t: "sel", opts: ["k55", "laengs", "block"], struct: 1, hint: "hint_rohrSystem" },
       { id: "dn", t: "sel", opts: ["55", "100", "120", "150"], show: isStd }, { id: "len", t: "sel", opts: ["5", "10"], show: isStd }, { id: "n", t: "num", show: isStd },
@@ -957,8 +957,8 @@
   }
   function parEl() {
     var w = document.createElement("div"); w.className = "elbody formbody";
-    var P = S.par, rows = [["dichte", S], ["mwst", S], ["deckG", P], ["deckS", P], ["deckK", P], ["gehMin", P], ["gehMax", P], ["strMin", P], ["strMax", P], ["kanMin", P], ["kanMax", P]];
-    var h = '<p class="hint">' + esc(tt("parH")) + '</p><table class="cost ptab"><tbody>' + rows.map(function (r) { return "<tr><td>" + esc(tt("p_" + r[0])) + '</td><td class="num"><input class="mini" data-p="' + r[0] + '" data-o="' + (r[1] === S ? "S" : "P") + '" aria-label="' + esc(tt("p_" + r[0])) + '" value="' + esc(r[1][r[0]]) + '"></td></tr>'; }).join("") + "</tbody></table>";
+    var P = S.par, rows = [["dichte", S], ["mwst", S], ["reserve", S], ["genau", S], ["deckG", P], ["deckS", P], ["deckK", P], ["gehMin", P], ["gehMax", P], ["strMin", P], ["strMax", P], ["kanMin", P], ["kanMax", P]];
+    var h = '<p class="hint">' + esc(tt("parH")) + '</p><table class="cost ptab"><tbody>' + rows.map(function (r) { return "<tr><td>" + esc(tt("p_" + r[0])) + '</td><td class="num"><input class="mini" data-p="' + r[0] + '" data-o="' + (r[1] === S ? "S" : "P") + '" aria-label="' + esc(tt("p_" + r[0])) + '" value="' + esc(r[1][r[0]] == null ? ({ reserve: "0", genau: "10" }[r[0]] || "") : r[1][r[0]]) + '"></td></tr>'; }).join("") + "</tbody></table>";
     h += "<h3>" + esc(tt("dimT")) + '</h3><table class="cost ptab"><tbody>';
     [["wl", function (k) { return tt("tab_werkloch") + " " + String(tt("f_" + k)).replace(/ \[.*\]/, ""); }], ["fund", function (k) { return tt("s_fund") + " " + k; }]].forEach(function (g) {
       Object.keys(S.D[g[0]]).forEach(function (k) { h += "<tr><td>" + esc(g[1](k)) + "</td>" + [0, 1, 2].map(function (i) { return '<td class="num"><input class="mini" data-d="' + g[0] + "|" + esc(k) + "|" + i + '" value="' + S.D[g[0]][k][i] + '" aria-label="' + esc(g[1](k)) + " " + "LBH"[i] + '"></td>'; }).join("") + "</tr>"; });
@@ -1232,9 +1232,12 @@
         (s.belag ? '<tr class="sub"><td>' + esc(tt("k_belagKS")) + '</td><td class="num">' + chf(s.belag) + "</td></tr>" : "") +
         "<tr><td>" + esc(fill(tt("k_rabatt"), { s: s.stufe, p: s.pct })) + (s.eigen ? " " + esc(fill(tt("k_rabattLV"), { b: chf(s.rabattBasis) })) : "") + '</td><td class="num">− ' + chf(s.rabatt) + "</td></tr><tr><td>" + esc(tt("k_nach")) + '</td><td class="num">' + chf(s.nachRabatt) + "</td></tr>" +
         "<tr><td>" + esc(tt("k_inst")) + '</td><td class="num">+ ' + chf(s.inst) + '</td></tr><tr class="sub"><td>' + esc(tt("k_netto")) + '</td><td class="num">' + chf(s.netto) + "</td></tr>" +
+        (s.reserve ? '<tr class="kres"><td>' + esc(fill(tt("k_reserve"), { p: s.reservePct })) + '</td><td class="num">+ ' + chf(s.reserve) + '</td></tr><tr class="sub"><td>' + esc(tt("k_nettoR")) + '</td><td class="num">' + chf(s.nettoR) + "</td></tr>" : "") +
         "<tr><td>" + esc(mwLab(s.mwSatz * 100)) + '</td><td class="num">' + chf(s.mwst) + '</td></tr><tr class="sum"><td>' + esc(tt("k_brutto")) + '</td><td class="num">' + chf(s.brutto) + "</td></tr>" +
-        (out.nOffen ? '<tr class="koffen"><td>⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + '</td><td class="num">' + esc(tt("k_offenV")) + "</td></tr>" : "") + "</tbody></table>";
+        (out.nOffen ? '<tr class="koffen"><td>⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + '</td><td class="num">' + esc(tt("k_offenV")) + "</td></tr>" : "") + "</tbody></table>" + kostNote(s);
   }
+  /* Genauigkeit des Kostenvoranschlags (Bandbreite auf Netto ohne Reserve; Vorgabe ±10 %) und Preisstand des LV – reine Anzeige */
+  function kostNote(s) { var g = num(S.genau, 10); return '<p class="hint kgenau" id="kGenau">' + (g > 0 ? esc(fill(tt("k_genau"), { g: g, a: chf(r2(s.netto * (1 - g / 100))), b: chf(r2(s.netto * (1 + g / 100))) })) + " · " : "") + esc(tt("k_preisstand")) + "</p>"; }
   function renderResult() {
     var out = KVE.calc(S, LV); lastOut = out;
     var lvHtml = "", html = "", stop = out.warn.some(function (w) { return w.sev === "stop"; }), amber = out.warn.some(function (w) { return w.sev === "amber"; });
@@ -1518,7 +1521,7 @@
     kv(tt("projekt"), k.projekt); kv(tt("sap"), k.sap); kv(tt("bem"), k.bem); kv(tt("ort"), k.ort); kv(tt("bearb"), k.bearb); kv(tt("datum"), k.datum); kv(tt("rolle"), tt("r_" + k.rolle));
     kv(tt("dv_nr"), k.devisNr); kv(tt("dv_lieferant"), k.lieferant); kv(tt("dv_vertrag"), k.vertrag); kv(tt("dv_termin"), k.termin); kv(tt("dv_belagLief"), k.belagLief ? tt("dv_ja") : tt("dv_nein")); kv(tt("x_lvver"), "V1.1 · 10.07.2026");
     K.push([]); K.push(hdr([tt("h_kosten"), "CHF"]));
-    var erfX = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst" || l.flag === "ausserLV") erfX.push(l); }); }); var extra = (erfX.length ? 1 : 0) + (out.nOffen ? 1 : 0);
+    var erfX = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst" || l.flag === "ausserLV") erfX.push(l); }); }); var resRow = out.sum.reserve ? 1 : 0, extra = (erfX.length ? 1 : 0) + (out.nOffen ? 1 : 0) + resRow;
     var c0 = K.length + 1, s1 = c0 + 13 + extra, s5 = s1 + 4, sm = out.sum, LB = erfX.length ? "(B" + c0 + "-B" + (c0 + 10) + ")" : "B" + c0;   /* Rabattbasis: ohne eigene Preise (Zeile nach dem Total) */
     var row = function (lab, v, f, st, ls) { K.push([{ v: lab, s: ls || XL.def }, { v: v, s: st || XL.num, f: f }]); };
     row(tt("k_zw"), sm.zwischen, sumRefs.length ? sumRefs.join("+") : "0");
@@ -1529,10 +1532,13 @@
     row(tt("k_inst"), sm.inst, "IF(" + LB + ">0,INDEX(C" + s1 + ":C" + s5 + ",B" + (c0 + 1) + "),0)");
     row(tt("k_netto"), sm.netto, "B" + (c0 + 4) + "+B" + (c0 + 5), XL.sum, XL.sumLbl);
     K.push([{ v: tt("x_mwstsatz") }, { v: r2(sm.mwSatz * 100), s: XL.pct }]);
-    row(mwLab(sm.mwSatz * 100), sm.mwst, "ROUND(B" + (c0 + 6) + "*B" + (c0 + 7) + "/100,2)");
-    row(tt("k_brutto"), sm.brutto, "B" + (c0 + 6) + "+B" + (c0 + 8), XL.sumFill, XL.sumLbl);
+    var rr = c0 + 10 + (erfX.length ? 1 : 0) + (out.nOffen ? 1 : 0);   /* Zeile der Reserve (nach dem Total, hinter «eigene Preise»/«offen») */
+    row(mwLab(sm.mwSatz * 100), sm.mwst, "ROUND(" + (resRow ? "(B" + (c0 + 6) + "+B" + rr + ")" : "B" + (c0 + 6)) + "*B" + (c0 + 7) + "/100,2)");
+    row(tt("k_brutto"), sm.brutto, "B" + (c0 + 6) + "+B" + (c0 + 8) + (resRow ? "+B" + rr : ""), XL.sumFill, XL.sumLbl);
     if (erfX.length) K.push([{ v: fill(tt("k_erf"), { n: erfX.length }), s: XL.warnA }, { v: sm.eigen, s: XL.numAmber }]);
-    if (out.nOffen) K.push([{ v: "⚠ " + fill(tt("k_offen"), { n: out.nOffen }), s: XL.stop }, { v: tt("k_offenV"), s: XL.stop }]);   /* Zeilen nach dem Total: Staffel-Verweise oben sind um «extra» verschoben */
+    if (out.nOffen) K.push([{ v: "⚠ " + fill(tt("k_offen"), { n: out.nOffen }), s: XL.stop }, { v: tt("k_offenV"), s: XL.stop }]);
+    if (resRow) row(fill(tt("k_reserve"), { p: sm.reservePct }) + " (" + tt("k_resIn") + ")", sm.reserve, "ROUND(B" + (c0 + 6) + "*" + sm.reservePct + "/100,2)");
+    /* Zeilen nach dem Total: Staffel-Verweise oben sind um «extra» verschoben */
     K.push([]); K.push([{ v: tt("x_staffel"), s: XL.bold }]); K.push(hdr([tt("x_bis"), tt("x_pct"), tt("x_inst")]));
     KVE.STAFFEL.forEach(function (t, i) { K.push([i < 4 ? { v: t.bis, s: XL.num } : { v: "> " + KVE.STAFFEL[3].bis, s: XL.def }, { v: t.pct, s: XL.pct }, { v: t.inst, s: XL.num }]); });
     var Z = [hdr([tt("c_pos"), tt("c_text"), tt("c_qty"), tt("c_unit"), tt("c_ep"), tt("c_tot")])], subs = [], curCh = null, first = 0, subTot = 0;

@@ -3832,6 +3832,21 @@ TS.en = {
     ly_xDelK: ["Entf", "Suppr", "Canc", "Del"],
     ly_xZoomAll: ["Alle auf Karte zeigen", "Tout afficher sur la carte", "Mostra tutto sulla mappa", "Zoom to all"],
     ly_xSelAll: ["Alle auswählen", "Tout sélectionner", "Seleziona tutto", "Select all"],
+    p_reserve: ["Reserve für Unvorhergesehenes [% vom Netto]", "Réserve pour imprévus [% du net]", "Riserva per imprevisti [% del netto]", "Contingency [% of net]"],
+    p_genau: ["Genauigkeit des Kostenvoranschlags [± %]", "Précision du devis [± %]", "Precisione del preventivo [± %]", "Accuracy of the estimate [± %]"],
+    k_reserve: ["Reserve für Unvorhergesehenes ({p} %)", "Réserve pour imprévus ({p} %)", "Riserva per imprevisti ({p} %)", "Contingency ({p} %)"],
+    k_nettoR: ["Netto inkl. Reserve", "Net avec réserve", "Netto con riserva", "Net incl. contingency"],
+    k_resIn: ["im Total enthalten", "comprise dans le total", "compresa nel totale", "included in the total"],
+    k_genau: ["Genauigkeit ±{g} %: CHF {a} bis {b} (netto, ohne Reserve)", "Précision ±{g} %: CHF {a} à {b} (net, sans réserve)", "Precisione ±{g} %: CHF {a} – {b} (netto, senza riserva)", "Accuracy ±{g} %: CHF {a} to {b} (net, excl. contingency)"],
+    k_preisstand: ["Preisstand LV 10.07.2026, ohne Teuerung", "Niveau des prix du descriptif 10.07.2026, sans renchérissement", "Livello dei prezzi del capitolato 10.07.2026, senza rincaro", "Price level of the bill 10 July 2026, excluding inflation"],
+    f_wand: ["Grabenwände", "Parois de la fouille", "Pareti dello scavo", "Trench walls"],
+    o_wand_senk: ["Senkrecht", "Verticales", "Verticali", "Vertical"],
+    o_wand_b21: ["Geböscht 2:1 (standfester Boden)", "Talutées 2:1 (terrain stable)", "A scarpata 2:1 (terreno stabile)", "Sloped 2:1 (stable ground)"],
+    o_wand_b11: ["Geböscht 1:1 (rolliger Boden)", "Talutées 1:1 (terrain meuble)", "A scarpata 1:1 (terreno sciolto)", "Sloped 1:1 (loose ground)"],
+    hint_wand: ["Geböscht: mehr Aushub, Auffüllung und Belagsbreite (Querschnitt = Tiefe × (Sohlenbreite + Tiefe/n)). Über 1.50 m Tiefe braucht ein senkrechter Graben eine Spriessung.", "Taluté: plus de fouille, de remblayage et de largeur de revêtement (section = profondeur × (largeur du fond + profondeur/n)). Au-delà de 1.50 m, une fouille verticale exige un étayage.", "A scarpata: più scavo, riempimento e larghezza della pavimentazione (sezione = profondità × (larghezza del fondo + profondità/n)). Oltre 1.50 m uno scavo verticale richiede la puntellatura.", "Sloped: more excavation, backfill and surfacing width (section = depth × (bottom width + depth/n)). Deeper than 1.50 m a vertical trench needs shoring."],
+    w_boeschV: ["Graben geböscht {n}:1: obere Breite {bo} m, Mehraushub {v} m³ gegenüber senkrechten Wänden (wirkt auf Aushub, Auffüllung und Belag).", "Fouille talutée {n}:1: largeur en tête {bo} m, fouille supplémentaire {v} m³ par rapport à des parois verticales (agit sur fouille, remblayage et revêtement).", "Scavo a scarpata {n}:1: larghezza in sommità {bo} m, scavo supplementare {v} m³ rispetto a pareti verticali (incide su scavo, riempimento e pavimentazione).", "Trench sloped {n}:1: top width {bo} m, extra excavation {v} m³ compared with vertical walls (affects excavation, backfill and surfacing)."],
+    w_boeschGesp: ["Böschung gewählt, aber Wände gespriesst: gerechnet wird mit senkrechten, gespriessten Wänden.", "Talus choisi, mais parois étayées: le calcul utilise des parois verticales étayées.", "Scarpata scelta, ma pareti puntellate: il calcolo usa pareti verticali puntellate.", "Slope selected but walls shored: calculated with vertical shored walls."],
+    w_wandTief: ["Graben {T} m tief mit senkrechten Wänden ohne Spriessung: über 1.50 m Tiefe Spriessung erfassen oder Böschung wählen (Suva, BauAV).", "Fouille de {T} m à parois verticales sans étayage: au-delà de 1.50 m, saisir un étayage ou choisir un talus (Suva, OTConst).", "Scavo profondo {T} m con pareti verticali senza puntellatura: oltre 1.50 m inserire la puntellatura o scegliere la scarpata (Suva, OLCostr).", "Trench {T} m deep with vertical walls and no shoring: deeper than 1.50 m add shoring or choose a slope (Suva, BauAV)."],
     ly_mode: ["Bedienmodus", "Mode d’utilisation", "Modalità d’uso", "User mode"],
     ly_mE: ["Einfach", "Simple", "Semplice", "Simple"],
     ly_mS: ["Standard", "Standard", "Standard", "Standard"],
@@ -5027,6 +5042,7 @@ var KVE = (function () {
   }
 
   /* Böschungsschutz (P): Fläche als Eingabe, da Böschungsgeometrie nicht herleitbar */
+  var BOESCH_N = { b21: 2, b11: 1 };   /* Suva/BauAV: 2:1 bei standfestem, 1:1 bei rolligem Material */
   function boeschung(cx, c) {
     if (!c.boeschung || !c.boeschung.on) return;
     var A = num(c.boeschung.flaeche, 0);
@@ -5038,15 +5054,21 @@ var KVE = (function () {
     var cx = new Ctx(LV);
     var L = num(c.L, 0), T = num(c.T, 0.6), b = breite(cx, c);
     var hk = HAND[c.hand] != null ? HAND[c.hand] : 0.10;
-    var V = L * b * T, Vh = V * hk, Vm = V - Vh;
     var roh = !!c.roh;   /* Rohplanie: Aushub, Belag, Spriessung, Verfüllung durch anderen Bauherrn; hier nur Leitungszone und Rohre */
+    /* Geböschter Graben (statt senkrechter Wände): Neigung n:1 (Höhe:Breite), Querschnitt = T × (b + T/n), obere Breite = b + 2·T/n.
+       Nur ohne Spriessung und nicht bei Rohplanie; Vorgabe senkrecht (bestehende Projekte unverändert). */
+    var bn = !roh && !c.gesp ? (BOESCH_N[c.wand] || 0) : 0, bo = bn ? b + 2 * T / bn : b;
+    var V = L * T * (bn ? b + T / bn : b), Vh = V * hk, Vm = V - Vh;
     var isBelagFlaeche = !roh && !!(c.belag && c.belag.mode && c.belag.mode !== "none");
     var Lb = isBelagFlaeche ? Math.min(num(c.Lb, L), L) : 0;
-    var A = Lb * b, Schnitt = Lb > 0 ? 2 * (Lb + b) : 0;
+    var A = Lb * bo, Schnitt = Lb > 0 ? 2 * (Lb + bo) : 0;
     if (!(L > 0) || !(b > 0) || !(T > 0)) return { lines: [], warn: cx.warn, bal: [] };
 
-    var bi = belag(cx, roh ? { mode: "none" } : c.belag, A, Schnitt, { cut: "2 × (" + s2(Lb) + " + " + s2(b) + ") = " + s2(Schnitt) + " m", area: s2(Lb) + " × " + s2(b) + " = " + s2(A) + " m²" }, b);
-    var g = !roh && !!c.gesp, vr = s2(L) + " × " + s2(b) + " × " + s2(T) + " = " + s2(V) + " m³";
+    var bi = belag(cx, roh ? { mode: "none" } : c.belag, A, Schnitt, { cut: "2 × (" + s2(Lb) + " + " + s2(bo) + ") = " + s2(Schnitt) + " m", area: s2(Lb) + " × " + s2(bo) + " = " + s2(A) + " m²" }, bo);
+    var g = !roh && !!c.gesp, vr = bn ? s2(L) + " × " + s2(T) + " × (" + s2(b) + " + " + s2(T) + "/" + bn + ") = " + s2(V) + " m³" : s2(L) + " × " + s2(b) + " × " + s2(T) + " = " + s2(V) + " m³";
+    if (bn) cx.w("boeschV", "info", { n: bn, bo: r2(bo), v: r2(V - L * b * T) });
+    else if (!roh && c.gesp && BOESCH_N[c.wand]) cx.w("boeschGesp", "amber", {});
+    else if (!roh && !c.gesp && T > 1.5) cx.w("wandTief", "amber", { T: T });
     if (roh) { /* kein Aushub */ }
     else if (c.aushubArt === "saug") saugbagger(cx, c, Vm, Vh);
     else aushubLines(cx, { m1: g ? "151/221.121" : "151/221.111", m2: g ? "151/221.122" : "151/221.112", h: g ? "151/221.221" : "151/221.211" }, T, Vm, Vh,
@@ -5565,10 +5587,12 @@ var KVE = (function () {
     var st = STAFFEL.filter(function (s) { return lvz <= s.bis; })[0];
     var idx = STAFFEL.indexOf(st);
     var mwSatz = num(P.mwst, MWST * 100) / 100;
-    var rabatt = r2(lvz * st.pct / 100), nach = r2(zw - rabatt), inst = lvz > 0 ? st.inst : 0, netto = r2(nach + inst), mw = r2(netto * mwSatz);
+    var rabatt = r2(lvz * st.pct / 100), nach = r2(zw - rabatt), inst = lvz > 0 ? st.inst : 0, netto = r2(nach + inst);
+    var resP = Math.max(0, num(P.reserve, 0)), res = r2(netto * resP / 100), mw = r2((netto + res) * mwSatz);   /* Reserve für Unvorhergesehenes: % vom Netto, vor MWST; Vorgabe 0 */
     out.sum = { zwischen: zw, eigen: eig, rabattBasis: lvz, stufe: idx + 1, pct: st.pct, rabatt: rabatt, nachRabatt: nach,
-                inst: inst, netto: netto, mwst: mw, mwSatz: mwSatz, brutto: r2(netto + mw),
+                inst: inst, netto: netto, mwst: mw, mwSatz: mwSatz, brutto: r2(netto + res + mw),
                 belag: r2(all.filter(function (l) { return l.ks === "Belag"; }).reduce(function (s, l) { return s + l.total; }, 0)) };
+    if (resP > 0) { out.sum.reservePct = resP; out.sum.reserve = res; out.sum.nettoR = r2(netto + res); }
     out.elems.forEach(function (e) { out.warn = out.warn.concat(e.warn.map(function (w) { w.el = e.name; w.tab = e.tab; w.idx = e.idx; return w; })); });
     out.vor.warn.forEach(function (w) { w.el = "—"; out.warn.push(w); });
     out.be.warn.forEach(function (w) { w.el = "—"; out.warn.push(w); });
@@ -5656,7 +5680,7 @@ var LVM = (function () {
   function newRec(tab, n, belagLief) {
     var nm = function (s) { return s + " " + n; }, r;
     switch (tab) {
-      case "graben": r = { name: nm("Leitungsgraben"), L: "", T: "0.60", bmode: "min60", aussen: "", bman: "0.60", hand: "normal", gesp: false, direkt: false, aushubArt: "normal", saugH: "0",
+      case "graben": r = { name: nm("Leitungsgraben"), L: "", T: "0.60", bmode: "min60", aussen: "", bman: "0.60", hand: "normal", gesp: false, wand: "senk", direkt: false, aushubArt: "normal", saugH: "0",
         rohrSystem: "k55", dn: "55", len: "10", n: "1", muffenMode: "auto", muffenN: "0", b90: "0", b45: "0", schneiden: "0", warnband: true, kalib: true, einzug: "schnur",
         dn2: "100", n2: "1", abzweiger: [], bloecke: [{ dn: "55", n: "1", lagen: "1", len: "10" }], block: { breite: "0.50", hoehe: "0.30" },
         umhType: "kies", umhMat: "betonkies", umhMode: "auto", bett: "5", umh: "5", umhArea: "0.035", verf: "aushub", einfHand: false, Lb: "", belag: mkBelag(null, belagLief),
@@ -5680,7 +5704,7 @@ var LVM = (function () {
     var recs = {}, idx = {};
     TABS.forEach(function (t) { recs[t] = [newRec(t, 1)]; idx[t] = 0; });
     return { v: 2, lang: "de", tab: "graben", kopf: { projekt: "", ort: "", bearb: "", datum: datum || "", rolle: "anv", devisNr: "", lieferant: "", vertrag: "", termin: "", belagLief: false, sap: "", bem: "" },
-      recs: recs, idx: idx, sond: { m3: "", einfHand: false }, wasser: { h: "", sumpf: "" }, be: { pct: "" }, dichte: "2.4", mwst: "8.1",
+      recs: recs, idx: idx, sond: { m3: "", einfHand: false }, wasser: { h: "", sumpf: "" }, be: { pct: "" }, dichte: "2.4", mwst: "8.1", reserve: "0", genau: "10",
       par: { deckG: "0.03", deckS: "0.035", deckK: "0.04", gehMin: "0.06", gehMax: "0.12", strMin: "0.09", strMax: "0.20", kanMin: "0.12", kanMax: "0.30" },
       D: { wl: { ts: [1.50, 1.00, 1.00], bo: [1.50, 1.00, 1.00], sg: [2.00, 1.20, 1.20], zs: [1.00, 0.80, 1.00] }, fund: { "CAB 1-3 L": [1.00, 0.60, 0.80], "C 50": [1.20, 0.70, 0.80] } },
       ui: { closed: {}, xo: {}, printDraw: true } };
@@ -9325,7 +9349,7 @@ var FIG = (function () {
       { id: "bman", t: "num", show: function (c) { return c.bmode === "manuell"; } },
       { id: "aushubArt", t: "sel", opts: ["normal", "saug"], struct: 1 }, { id: "saugH", t: "num", show: function (c) { return c.aushubArt === "saug"; } },
       { id: "hand", t: "sel", opts: ["normal", "eng", "sehr_eng"], show: function (c) { return c.aushubArt !== "saug"; } },
-      { id: "gesp", t: "chk" }, { id: "direkt", t: "chk", hint: "hint_direkt" }
+      { id: "gesp", t: "chk", struct: 1 }, { id: "wand", t: "sel", opts: ["senk", "b21", "b11"], hint: "hint_wand", show: function (c) { return !c.gesp && !c.roh; } }, { id: "direkt", t: "chk", hint: "hint_direkt" }
     ].concat(ERSCH_FIELDS, [
       { sec: "s_rohr" }, { id: "rohrSystem", t: "sel", opts: ["k55", "laengs", "block"], struct: 1, hint: "hint_rohrSystem" },
       { id: "dn", t: "sel", opts: ["55", "100", "120", "150"], show: isStd }, { id: "len", t: "sel", opts: ["5", "10"], show: isStd }, { id: "n", t: "num", show: isStd },
@@ -10163,8 +10187,8 @@ var FIG = (function () {
   }
   function parEl() {
     var w = document.createElement("div"); w.className = "elbody formbody";
-    var P = S.par, rows = [["dichte", S], ["mwst", S], ["deckG", P], ["deckS", P], ["deckK", P], ["gehMin", P], ["gehMax", P], ["strMin", P], ["strMax", P], ["kanMin", P], ["kanMax", P]];
-    var h = '<p class="hint">' + esc(tt("parH")) + '</p><table class="cost ptab"><tbody>' + rows.map(function (r) { return "<tr><td>" + esc(tt("p_" + r[0])) + '</td><td class="num"><input class="mini" data-p="' + r[0] + '" data-o="' + (r[1] === S ? "S" : "P") + '" aria-label="' + esc(tt("p_" + r[0])) + '" value="' + esc(r[1][r[0]]) + '"></td></tr>'; }).join("") + "</tbody></table>";
+    var P = S.par, rows = [["dichte", S], ["mwst", S], ["reserve", S], ["genau", S], ["deckG", P], ["deckS", P], ["deckK", P], ["gehMin", P], ["gehMax", P], ["strMin", P], ["strMax", P], ["kanMin", P], ["kanMax", P]];
+    var h = '<p class="hint">' + esc(tt("parH")) + '</p><table class="cost ptab"><tbody>' + rows.map(function (r) { return "<tr><td>" + esc(tt("p_" + r[0])) + '</td><td class="num"><input class="mini" data-p="' + r[0] + '" data-o="' + (r[1] === S ? "S" : "P") + '" aria-label="' + esc(tt("p_" + r[0])) + '" value="' + esc(r[1][r[0]] == null ? ({ reserve: "0", genau: "10" }[r[0]] || "") : r[1][r[0]]) + '"></td></tr>'; }).join("") + "</tbody></table>";
     h += "<h3>" + esc(tt("dimT")) + '</h3><table class="cost ptab"><tbody>';
     [["wl", function (k) { return tt("tab_werkloch") + " " + String(tt("f_" + k)).replace(/ \[.*\]/, ""); }], ["fund", function (k) { return tt("s_fund") + " " + k; }]].forEach(function (g) {
       Object.keys(S.D[g[0]]).forEach(function (k) { h += "<tr><td>" + esc(g[1](k)) + "</td>" + [0, 1, 2].map(function (i) { return '<td class="num"><input class="mini" data-d="' + g[0] + "|" + esc(k) + "|" + i + '" value="' + S.D[g[0]][k][i] + '" aria-label="' + esc(g[1](k)) + " " + "LBH"[i] + '"></td>'; }).join("") + "</tr>"; });
@@ -10438,9 +10462,12 @@ var FIG = (function () {
         (s.belag ? '<tr class="sub"><td>' + esc(tt("k_belagKS")) + '</td><td class="num">' + chf(s.belag) + "</td></tr>" : "") +
         "<tr><td>" + esc(fill(tt("k_rabatt"), { s: s.stufe, p: s.pct })) + (s.eigen ? " " + esc(fill(tt("k_rabattLV"), { b: chf(s.rabattBasis) })) : "") + '</td><td class="num">− ' + chf(s.rabatt) + "</td></tr><tr><td>" + esc(tt("k_nach")) + '</td><td class="num">' + chf(s.nachRabatt) + "</td></tr>" +
         "<tr><td>" + esc(tt("k_inst")) + '</td><td class="num">+ ' + chf(s.inst) + '</td></tr><tr class="sub"><td>' + esc(tt("k_netto")) + '</td><td class="num">' + chf(s.netto) + "</td></tr>" +
+        (s.reserve ? '<tr class="kres"><td>' + esc(fill(tt("k_reserve"), { p: s.reservePct })) + '</td><td class="num">+ ' + chf(s.reserve) + '</td></tr><tr class="sub"><td>' + esc(tt("k_nettoR")) + '</td><td class="num">' + chf(s.nettoR) + "</td></tr>" : "") +
         "<tr><td>" + esc(mwLab(s.mwSatz * 100)) + '</td><td class="num">' + chf(s.mwst) + '</td></tr><tr class="sum"><td>' + esc(tt("k_brutto")) + '</td><td class="num">' + chf(s.brutto) + "</td></tr>" +
-        (out.nOffen ? '<tr class="koffen"><td>⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + '</td><td class="num">' + esc(tt("k_offenV")) + "</td></tr>" : "") + "</tbody></table>";
+        (out.nOffen ? '<tr class="koffen"><td>⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + '</td><td class="num">' + esc(tt("k_offenV")) + "</td></tr>" : "") + "</tbody></table>" + kostNote(s);
   }
+  /* Genauigkeit des Kostenvoranschlags (Bandbreite auf Netto ohne Reserve; Vorgabe ±10 %) und Preisstand des LV – reine Anzeige */
+  function kostNote(s) { var g = num(S.genau, 10); return '<p class="hint kgenau" id="kGenau">' + (g > 0 ? esc(fill(tt("k_genau"), { g: g, a: chf(r2(s.netto * (1 - g / 100))), b: chf(r2(s.netto * (1 + g / 100))) })) + " · " : "") + esc(tt("k_preisstand")) + "</p>"; }
   function renderResult() {
     var out = KVE.calc(S, LV); lastOut = out;
     var lvHtml = "", html = "", stop = out.warn.some(function (w) { return w.sev === "stop"; }), amber = out.warn.some(function (w) { return w.sev === "amber"; });
@@ -10724,7 +10751,7 @@ var FIG = (function () {
     kv(tt("projekt"), k.projekt); kv(tt("sap"), k.sap); kv(tt("bem"), k.bem); kv(tt("ort"), k.ort); kv(tt("bearb"), k.bearb); kv(tt("datum"), k.datum); kv(tt("rolle"), tt("r_" + k.rolle));
     kv(tt("dv_nr"), k.devisNr); kv(tt("dv_lieferant"), k.lieferant); kv(tt("dv_vertrag"), k.vertrag); kv(tt("dv_termin"), k.termin); kv(tt("dv_belagLief"), k.belagLief ? tt("dv_ja") : tt("dv_nein")); kv(tt("x_lvver"), "V1.1 · 10.07.2026");
     K.push([]); K.push(hdr([tt("h_kosten"), "CHF"]));
-    var erfX = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst" || l.flag === "ausserLV") erfX.push(l); }); }); var extra = (erfX.length ? 1 : 0) + (out.nOffen ? 1 : 0);
+    var erfX = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst" || l.flag === "ausserLV") erfX.push(l); }); }); var resRow = out.sum.reserve ? 1 : 0, extra = (erfX.length ? 1 : 0) + (out.nOffen ? 1 : 0) + resRow;
     var c0 = K.length + 1, s1 = c0 + 13 + extra, s5 = s1 + 4, sm = out.sum, LB = erfX.length ? "(B" + c0 + "-B" + (c0 + 10) + ")" : "B" + c0;   /* Rabattbasis: ohne eigene Preise (Zeile nach dem Total) */
     var row = function (lab, v, f, st, ls) { K.push([{ v: lab, s: ls || XL.def }, { v: v, s: st || XL.num, f: f }]); };
     row(tt("k_zw"), sm.zwischen, sumRefs.length ? sumRefs.join("+") : "0");
@@ -10735,10 +10762,13 @@ var FIG = (function () {
     row(tt("k_inst"), sm.inst, "IF(" + LB + ">0,INDEX(C" + s1 + ":C" + s5 + ",B" + (c0 + 1) + "),0)");
     row(tt("k_netto"), sm.netto, "B" + (c0 + 4) + "+B" + (c0 + 5), XL.sum, XL.sumLbl);
     K.push([{ v: tt("x_mwstsatz") }, { v: r2(sm.mwSatz * 100), s: XL.pct }]);
-    row(mwLab(sm.mwSatz * 100), sm.mwst, "ROUND(B" + (c0 + 6) + "*B" + (c0 + 7) + "/100,2)");
-    row(tt("k_brutto"), sm.brutto, "B" + (c0 + 6) + "+B" + (c0 + 8), XL.sumFill, XL.sumLbl);
+    var rr = c0 + 10 + (erfX.length ? 1 : 0) + (out.nOffen ? 1 : 0);   /* Zeile der Reserve (nach dem Total, hinter «eigene Preise»/«offen») */
+    row(mwLab(sm.mwSatz * 100), sm.mwst, "ROUND(" + (resRow ? "(B" + (c0 + 6) + "+B" + rr + ")" : "B" + (c0 + 6)) + "*B" + (c0 + 7) + "/100,2)");
+    row(tt("k_brutto"), sm.brutto, "B" + (c0 + 6) + "+B" + (c0 + 8) + (resRow ? "+B" + rr : ""), XL.sumFill, XL.sumLbl);
     if (erfX.length) K.push([{ v: fill(tt("k_erf"), { n: erfX.length }), s: XL.warnA }, { v: sm.eigen, s: XL.numAmber }]);
-    if (out.nOffen) K.push([{ v: "⚠ " + fill(tt("k_offen"), { n: out.nOffen }), s: XL.stop }, { v: tt("k_offenV"), s: XL.stop }]);   /* Zeilen nach dem Total: Staffel-Verweise oben sind um «extra» verschoben */
+    if (out.nOffen) K.push([{ v: "⚠ " + fill(tt("k_offen"), { n: out.nOffen }), s: XL.stop }, { v: tt("k_offenV"), s: XL.stop }]);
+    if (resRow) row(fill(tt("k_reserve"), { p: sm.reservePct }) + " (" + tt("k_resIn") + ")", sm.reserve, "ROUND(B" + (c0 + 6) + "*" + sm.reservePct + "/100,2)");
+    /* Zeilen nach dem Total: Staffel-Verweise oben sind um «extra» verschoben */
     K.push([]); K.push([{ v: tt("x_staffel"), s: XL.bold }]); K.push(hdr([tt("x_bis"), tt("x_pct"), tt("x_inst")]));
     KVE.STAFFEL.forEach(function (t, i) { K.push([i < 4 ? { v: t.bis, s: XL.num } : { v: "> " + KVE.STAFFEL[3].bis, s: XL.def }, { v: t.pct, s: XL.pct }, { v: t.inst, s: XL.num }]); });
     var Z = [hdr([tt("c_pos"), tt("c_text"), tt("c_qty"), tt("c_unit"), tt("c_ep"), tt("c_tot")])], subs = [], curCh = null, first = 0, subTot = 0;
