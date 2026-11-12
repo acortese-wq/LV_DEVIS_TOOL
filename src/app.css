@@ -714,3 +714,8 @@ tr.pst-ip .pst{background:#e7f0fb;border-color:#0a5aa8;color:#083f78}tr.pst-ip t
 .kmtop .kmmsg{margin:6px 0 0}
 .grrohr{margin:0 0 14px}.grcard{padding:8px 12px;margin:8px 0;border:1px solid var(--rule);border-radius:9px;background:var(--paper,#fff)}
 .grhead{margin-bottom:6px}.grcard .subrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:4px 0}.grtot{margin:6px 0 0}
+
+/* Schachtzeichen massstäblich: Klickfläche = Zeichengrösse, Nummer als kleine Marke am Rand; Typ und Mass unter dem Zeichen */
+.kmsch.big{background:transparent;border:0}
+.kmsch.big span{position:absolute;left:0;top:0;width:auto;min-width:18px;height:18px;padding:0 4px;font-size:11px;border-width:1px;border-radius:9px;box-shadow:none}
+.kmshl{pointer-events:none}.kmshl span{position:absolute;left:0;transform:translateX(-50%);white-space:nowrap;font:600 10.5px "Segoe UI",sans-serif;color:#0a4f55;background:rgba(255,255,255,.85);padding:0 4px;border-radius:3px}

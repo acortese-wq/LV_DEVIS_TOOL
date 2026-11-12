@@ -517,3 +517,8 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 - **Wann:** neue Linien beim Beenden, bei jeder Änderung der Linieneigenschaften (nach einer Pause von 1.1 s, damit das Tippen nicht gestört wird; von Hand kleiner eingetragenes T wird wieder angehoben) und beim «In Datensätze übernehmen» für alle neuen/geänderten Linien. Bestehende, nicht angefasste Linien und alle bestehenden Datensätze bleiben unverändert. Ausnahmen: Überdeckung der Linie von Hand gesetzt, Bohrung/Luftleitung, Rohplanie.
 - **Hinweis:** «Grabentiefe auf … m angehoben …» mit «Rückgängig».
 - **Kostenwirkung:** Neue und geänderte Linien werden tiefer als bisher (Vorgabe war 0.60 m) und damit teurer (mehr Aushub, Verfüllung; ab 1.50 m Spriessung/OFFEN-Positionen). Rechenkern und Regressions-Referenz t78 unverändert; Test t110 (neu), t45 an den neuen Zahlenwert angepasst.
+
+## V128 – Schachtzeichen nach Bauart und Grabenband (12.11.2026)
+- Karte/Plan: jeder Schachttyp hat ein eigenes Zeichen in echter Grösse (KES 1.50 × 1.00 m = Rechteck in Leitungsrichtung, KES100 Quadrat, ES Rechteck mit Diagonalkreuz, KS Kreis, KS…U gestrichelt, PLS Rechteck mit Doppelrand, Sonstige Raute mit Länge/Breite). Mindestgrösse 14 px beim Herauszoomen; Nummer als kleines Schild am Rand.
+- Grabenband: links/rechts jeder Leitung gestrichelt grau, Breite wie im Kostenvoranschlag (`grabenBreite`), ab Zoomstufe 17, Schalter «Grabenband», Legende ergänzt.
+- Nur Darstellung: keine Kostenwirkung, Rechenkern unverändert, Test t111 (Gesamtlauf ohne Fehler).
