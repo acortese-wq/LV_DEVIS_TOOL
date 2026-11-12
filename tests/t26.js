@@ -25,7 +25,7 @@ await pg.addScriptTag({path:require('./lib/k.js').AXE}); const ax=await pg.evalu
 // Übernahme
 await pg.click('[data-k=apply]'); await pg.waitForTimeout(700);
 const S=await getS(pg); const g=S.recs.graben; console.log(JSON.stringify(g.map(x=>[x.belag.mode,x.belag.pflaster&&x.belag.pflaster.abbruchAlt,x.belag.pflaster&&x.belag.pflaster.abbruchArt])));
-ok(g.every(x=>x.belag.mode==='pflaster'&&x.belag.pflaster.abbruchAlt===true),'Pflästerung inkl. Abbruch im Datensatz');
+ok(g.every(x=>x.belag.mode==='pflaster'&&x.belag.pflaster.abbruchAlt===false),'Pflästerung ohne Abbruch im Datensatz (Vorgabe seit V116)');
 ok(S.recs.schacht.some(r=>r.belag.mode==='pflaster'&&r.belag.pflaster.abbruchAlt),'Schacht erbt Oberfläche Pflästerung');
 ok(S.recs.werkloch.some(r=>r.belag.mode==='pflaster'),'Werkloch erbt Oberfläche');
 ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|'));

@@ -18,7 +18,7 @@ await pg.click('[data-k=mline]'); await pg.click('[data-k=mline]'); await clk(45
 await pg.click('[data-k=apply]'); await pg.waitForTimeout(600); let S=await getS(pg); const L=S.karte.lines; console.log(JSON.stringify(L.map(l=>l.pts[0])),JSON.stringify(L[0].pts[1]));
 ok(L.length===2&&Math.hypot(L[1].pts[0][0]-L[0].pts[1][0],L[1].pts[0][1]-L[0].pts[1][1])<0.01,'Punktfang: Startpunkt = Endpunkt der ersten Linie');
 ok(L[0].cfg.rt['100']===2&&L[0].cfg.fl==='pflaster','Linie: 2×K100, Pflästerung');
-ok(S.recs.graben.every(g=>g.belag.mode==='pflaster'&&g.belag.pflaster.abbruchAlt),'Datensatz: Pflästerung inkl. Abbruch');
+ok(S.recs.graben.every(g=>g.belag.mode==='pflaster'&&!g.belag.pflaster.abbruchAlt),'Datensatz: Pflästerung ohne Abbruch (Vorgabe seit V116)');
 // Winkelraster
 await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(600); await pg.click('[data-sn=ortho]'); await pg.click('[data-sn=pt]');
 const bx2=await pg.locator('#kmMap').boundingBox(); await pg.click('[data-k=mline]'); await pg.mouse.click(bx2.x+200,bx2.y+100); await pg.waitForTimeout(300); await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).click().catch(()=>{}); await pg.mouse.click(bx2.x+400,bx2.y+160); await pg.waitForTimeout(300); await pg.click('[data-k=end]'); await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).click().catch(()=>{});

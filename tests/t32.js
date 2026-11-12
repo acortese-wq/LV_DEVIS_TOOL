@@ -10,8 +10,8 @@ await pg.locator('#kmCtx select').first().selectOption('KES175'); await item('Sc
 await rc(300,100); await item('Linie hier starten'); await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).click(); await pg.waitForTimeout(150);
 const clk=async(dx,dy)=>{await pg.mouse.click(bx.x+dx,bx.y+dy); await pg.waitForTimeout(150);}; await clk(420,100); await clk(560,100); await pg.click('[data-k=end]'); await pg.locator('#kmAsk button',{hasText:'Ohne Schacht'}).click(); await pg.waitForTimeout(200);
 // Rechtsklick auf Linie: teilen + Wiese
-await rc(490,100); ok((await pg.textContent('#kmCtx')).includes('Linie teilen')&&(await pg.textContent('#kmCtx')).includes('Abzweig ab hier')&&(await pg.textContent('#kmCtx')).includes('Eigenschaften'),'Menü am Objekt Linie');
-await item('Linie teilen'); await pg.locator('#kmCtx button',{hasText:'Wiese'}).click(); await pg.waitForTimeout(300);
+await rc(490,100); ok((await pg.textContent('#kmCtx')).includes('Oberfläche ab hier')&&(await pg.textContent('#kmCtx')).includes('Abzweig ab hier')&&(await pg.textContent('#kmCtx')).includes('Eigenschaften'),'Menü am Objekt Linie');
+await pg.locator('#kmCtx button',{hasText:'Oberfläche ab hier: Wiese'}).click(); await pg.waitForTimeout(300);
 let S1=await pg.evaluate(()=>0);
 // Rechtsklick auf Schacht: Eigenschaften
 await rc(120,100); await item('Eigenschaften'); ok(await pg.isVisible('#kmProps'),'Eigenschaften-Fenster am Objekt'); ok(await pg.locator('#kmProps select').count()>=2,'Felder im Fenster (Typ, Oberfläche …)');
