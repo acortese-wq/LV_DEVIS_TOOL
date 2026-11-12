@@ -14,6 +14,8 @@
   var num = KVE.num, r2 = KVE.r2;
   var S;
   var tt = function (k) { var d = T[S.lang] || T.de; return d[k] != null ? d[k] : (T.de[k] != null ? T.de[k] : k); };
+  /* Hinweise ohne «offenErfasst»: bepreiste (übernommene) Positionen sind nicht mehr offen und erscheinen nicht mehr als Hinweis; die Kennzeichnung «eigener Preis» bleibt bei den Positionen */
+  var wl = function (o) { return (o.warn || []).filter(function (w) { return w.id !== "offenErfasst"; }); };
   var fill = function (s, a) { return String(s).replace(/\{(\w+)\}/g, function (m, k) { return a && a[k] != null ? (typeof a[k] === "number" ? String(r2(a[k])) : a[k]) : m; }); };
   var today = function () { var d = new Date(); return ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." + d.getFullYear(); };
   var KEY = "lv-devis-tiefbau-v2";
@@ -637,14 +639,14 @@
   /* ---------- Layout A «Planungsfokus»: Kennzahlen und Dock-Inhalte (aus KVE.calc, gleiche Zahlen wie im Ergebnis) ---------- */
   function lyData(out) {
     var V = 0, n = 0; out.elems.forEach(function (e) { if (e.tab === "graben" && e.geo && e.geo.V > 0) V += e.geo.V; n += e.lines.length; }); n += out.vor.lines.length + out.be.lines.length;
-    var nStop = out.warn.filter(function (w) { return w.sev === "stop"; }).length, nAmb = out.warn.filter(function (w) { return w.sev === "amber"; }).length;
+    var nStop = wl(out).filter(function (w) { return w.sev === "stop"; }).length, nAmb = wl(out).filter(function (w) { return w.sev === "amber"; }).length;
     var st = n === 0 ? "empty" : nStop ? "stop" : nAmb || out.nOffen ? "amber" : "ok";
     LYOUT = out; var pos = out.summary.length ? dockPos(out) : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos0 = out.summary.length ? '<table class="lytab"><thead><tr><th scope="col">' + esc(tt("ly_cPos")) + '</th><th scope="col">' + esc(tt("ly_cText")) + '</th><th scope="col" class="num">' + esc(tt("ly_cQty")) + '</th><th scope="col">' + esc(tt("ly_cUnit")) + '</th><th scope="col" class="num">' + esc(tt("ly_cEp")) + '</th><th scope="col" class="num">' + esc(tt("ly_cTot")) + "</th></tr></thead><tbody>" +
       out.summary.map(function (l) { var off = l.flag === "offen", lv = /^\d{3}\//.test(l.key), tx = lv ? lvT(l.key) : off || l.flag === "erfasst" ? (l.text || openText(l)) : (l.text || "");
         return "<tr" + (off ? ' class="open"' : "") + "><td>" + esc(off ? tt("c_offenTag") : l.key) + "</td><td>" + esc(tx) + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(uT(l.unit || "")) + '</td><td class="num">' + (off ? "—" : chf(l.ep)) + '</td><td class="num">' + (off ? "—" : chf(l.total)) + "</td></tr>"; }).join("") + "</tbody></table>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>";
     var aus = out.elems.filter(function (e) { return e.bal && e.bal.length; }).map(function (e) {
       return '<div class="lyaus"><h3>' + esc(tt("tab_" + e.tab) + " · " + (e.name || "")) + '</h3><table class="lytab"><tbody>' + e.bal.filter(function (b) { return b.v; }).map(function (b) { return "<tr><td>" + esc(tt(b.id)) + '</td><td class="num">' + qf(r2(b.v)) + " " + esc(b.unit) + "</td></tr>"; }).join("") + "</tbody></table></div>"; }).join("") || '<p class="hint">' + esc(tt("ly_ausNone")) + "</p>";
-    var ws = out.warn.slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
+    var ws = wl(out).slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
     var oTk = {}; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.open && l.tk && l.tk !== "freiKeinEP") oTk[l.tk] = 1; }); });
     var ofd = ofDock(), warn = (out.nOffen ? '<p class="lyoff">⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + "</p>" : "") + (ws.length ? '<ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + esc(w.tab ? tt("tab_" + w.tab) + " · " + w.el : (w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + (oTk[w.id] ? ' <button type="button" class="btn ghost small" data-act="offen" data-ofk="' + esc(w.id) + '">' + esc(tt("of_btnHin")) + "</button>" : "") + "</li>"; }).join("") + "</ul>" : '<p class="hint">' + esc(tt("ly_warnNone")) + "</p>");
     return { V: r2(V), of: ofd.h, nOf: ofd.n, st: st, nPos: out.summary.length, nWarn: ws.filter(function (w) { return w.sev !== "info"; }).length + (out.nOffen ? 1 : 0), kost: n ? '<div class="lykost">' + '<div class="lykost-a">' + kostTable(out) + "</div>" + dockKostX(out) + "</div>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos: pos, aus: aus, warn: warn };
@@ -1113,7 +1115,7 @@
   /* Kostenleiste (immer sichtbar) und mobile Leiste: Netto, Total, Rabattstufe, OFFEN, Warnungen */
   function warnGo(w) { return w.tab ? '<a href="#" class="wgo" data-go="' + w.tab + ":" + w.idx + '">' + esc(tt("tab_" + w.tab) + " · " + w.el) + "</a>: " : ""; }
   function kpiRender(out, hon, n) {
-    var s = out.sum, nStop = out.warn.filter(function (w) { return w.sev === "stop"; }).length, nAmb = out.warn.filter(function (w) { return w.sev === "amber"; }).length;
+    var s = out.sum, nStop = wl(out).filter(function (w) { return w.sev === "stop"; }).length, nAmb = wl(out).filter(function (w) { return w.sev === "amber"; }).length;
     var hn = r2(hon.reduce(function (a, x) { return a + x[1].net; }, 0)), cell = function (lab, v, cls) { return '<div class="kc' + (cls ? " " + cls : "") + '"><span class="kl">' + esc(lab) + '</span><b class="kv">CHF ' + chf(v) + "</b></div>"; };
     var tags = '<span class="tag">' + esc(fill(tt("ux_stufe"), { s: s.stufe, p: s.pct })) + "</span>" +
       (out.nOffen ? '<button type="button" class="tag amber tagbtn" data-act="offen" title="' + esc(fill(tt("of_btn"), { n: out.nOffen })) + '">' + esc(fill(tt("ux_offen"), { n: out.nOffen })) + "</button>" : "") +
@@ -1299,15 +1301,15 @@
   function kostNote(s) { var g = num(S.genau, 10); return '<p class="hint kgenau" id="kGenau">' + (g > 0 ? esc(fill(tt("k_genau"), { g: g, a: chf(r2(s.netto * (1 - g / 100))), b: chf(r2(s.netto * (1 + g / 100))) })) + " · " : "") + esc(tt("k_preisstand")) + "</p>"; }
   function renderResult() {
     var out = KVE.calc(S, LV); lastOut = out;
-    var lvHtml = "", html = "", stop = out.warn.some(function (w) { return w.sev === "stop"; }), amber = out.warn.some(function (w) { return w.sev === "amber"; });
+    var lvHtml = "", html = "", stop = wl(out).some(function (w) { return w.sev === "stop"; }), amber = wl(out).some(function (w) { return w.sev === "amber"; });
     var n = 0; out.elems.forEach(function (e) { n += e.lines.length; }); n += out.vor.lines.length + out.be.lines.length;
     var st = n === 0 ? "empty" : stop ? "stop" : amber ? "amber" : "ok";
     html += '<div class="status no-summary ' + (st === "stop" ? "stop" : st === "amber" ? "amber" : "ok") + '"><p class="stitle">' + esc(tt("st_" + st)) + "</p>";
     if (st === "empty") html += '<p class="action">' + esc(tt("ux_emptyHint")) + "</p>";
     var erfL = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst") erfL.push(l); }); }); var sErf = r2(erfL.reduce(function (a, l) { return a + l.total; }, 0));
     if (out.nOffen || erfL.length) html += '<p class="offennote">' + (out.nOffen ? esc(fill(tt("x_nOffen"), { n: out.nOffen })) + " " : "") + (erfL.length ? esc(fill(tt("of_note_erf"), { n: erfL.length, s: chf(sErf) })) + " " : "") + '<button type="button" class="btn small no-print" data-act="offen">' + esc(fill(tt("of_btn"), { n: out.nOffen + erfL.length })) + "</button></p>";
-    var top = out.warn.filter(function (w) { return w.sev !== "info"; }).slice(0, 4);
-    if (top.length) html += "<ul>" + top.map(function (w) { return "<li>" + warnGo(w) + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul>" + (out.warn.length > top.length ? '<p><a href="#warns">' + esc(tt("ux_allWarn")) + " (" + out.warn.length + ")</a></p>" : "");
+    var top = wl(out).filter(function (w) { return w.sev !== "info"; }).slice(0, 4);
+    if (top.length) html += "<ul>" + top.map(function (w) { return "<li>" + warnGo(w) + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul>" + (wl(out).length > top.length ? '<p><a href="#warns">' + esc(tt("ux_allWarn")) + " (" + wl(out).length + ")</a></p>" : "");
     html += "</div>";
     if (n) {
       html += '<div class="no-summary"><h3>' + esc(tt("h_aufst")) + '</h3><div class="collrow no-print"><button type="button" class="btn ghost" data-act="collapse">' + esc(tt("btnCollapse")) + '</button><button type="button" class="btn ghost" data-act="expand">' + esc(tt("btnExpand")) + '</button><button type="button" class="btn ghost" data-act="rules" aria-pressed="' + !!S.ui.rules + '">' + (S.ui.rules ? "✓ " : "") + esc(tt("ux_rules")) + "</button></div>" + fbarHtml(out);
@@ -1352,7 +1354,7 @@
         '<tr class="sub"><td>' + esc(tt("hTot")) + '</td><td class="num">' + chf(hn) + "</td></tr><tr><td>" + esc(mwLab(num(S.mwst, 8.1))) + '</td><td class="num">' + chf(hm) + '</td></tr><tr><td>' + esc(tt("hTotI")) + '</td><td class="num">' + chf(r2(hn + hm)) + "</td></tr>" +
         '<tr class="sum"><td>' + esc(tt("gTot")) + '</td><td class="num">' + chf(r2(out.sum.brutto + hn + hm)) + "</td></tr></tbody></table>";
     }
-    var ws = out.warn.slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
+    var ws = wl(out).slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
     if (ws.length) html += '<div class="no-summary"><h3 id="warns" tabindex="-1">' + esc(tt("h_warn")) + '</h3><ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + (w.tab ? '<a href="#" data-go="' + w.tab + ":" + w.idx + '" title="' + esc(tt("ux_go")) + '">' + esc(tt("tab_" + w.tab) + " · " + w.el) + "</a>" : esc(w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul></div>";
     html += '<details class="ref no-summary"><summary>' + esc(tt("h_grund")) + "</summary><ul class='doclist' style='padding:6px 14px'>" + (T[S.lang] || T.de).g_list.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "<li>" + esc(tt("g_lvOnlyDE")) + "</li></ul></details>";
     html += '<div class="sigline print-only"><div>' + esc(tt("sigA")) + "</div><div>" + esc(tt("sigB")) + "</div></div>";
@@ -1397,16 +1399,18 @@
       if (p.v) { rec.oep = rec.oep || {}; rec.oep[r.key] = { ep: p.v, text: get(i, "text"), why: get(i, "why") }; n++; }
       else if (rec.oep && rec.oep[r.key]) { delete rec.oep[r.key]; if (!Object.keys(rec.oep).length) delete rec.oep; m++; }
     });
-    save(); renderForm(); renderResult(); undoToast(fill(tt("of_saved"), { n: n, m: m }), sn);
+    save(); renderForm(); renderResult(); if (window.__LYREF) window.__LYREF(); undoToast(fill(tt("of_saved"), { n: n, m: m }), sn);
   }
   /* Dock-Reiter «Offene Positionen» im Planungstool: Preisfeld, Vorschlag (Interpolation) und Betrag je offene Position, ohne Dialog */
   function ofDock() {
-    var R = offenRows(); if (!R.rows.length) return { h: '<p class="hint">' + esc(tt("of_none")) + "</p>", n: 0 };
+    var R0 = offenRows(), R = { rows: R0.rows.filter(function (r) { return !r.erf; }) }, nErf = R0.rows.length - R.rows.length;
+    var erfB = nErf ? '<p><button type="button" class="btn ghost small" data-act="offen">' + esc(fill(tt("of_erfB"), { n: nErf })) + "</button></p>" : "";
+    if (!R.rows.length) { ofDockRows = []; return { h: '<p class="hint">' + esc(tt("of_none")) + "</p>" + erfB, n: 0 }; }
     var h = '<p class="hint">' + esc(tt("of_dHint")) + '</p><div class="oftab"><table class="lytab ofdt"><thead><tr><th scope="col">' + esc(tt("of_c_pos")) + '</th><th scope="col" class="num">' + esc(tt("c_qty")) + '</th><th scope="col">' + esc(tt("of_c_ep")) + '</th><th scope="col">' + esc(tt("of_cVor")) + '</th><th scope="col" class="num">' + esc(tt("c_tot")) + "</th></tr></thead><tbody>" +
       R.rows.map(function (r, i) {
         var lab = r.el + " – " + r.txt, v = r.vor;
         return '<tr data-ofd="' + i + '"' + (r.erf ? ' class="erf"' : "") + '><td><span class="ofel">' + esc(r.el) + "</span>" + esc(r.txt) + '</td><td class="num">' + qf(r.qty) + " " + esc(r.unit) + '</td><td><input type="text" inputmode="decimal" data-of="' + i + '" data-f="ep" value="' + esc(r.ep) + '" placeholder="' + esc(v ? String(v.ep) : "") + '" aria-label="' + esc(tt("of_c_ep") + " (CHF/" + r.unit + ") – " + lab) + '"><input type="hidden" data-of="' + i + '" data-f="text" value="' + esc(r.text) + '"><input type="hidden" data-of="' + i + '" data-f="why" value="' + esc(r.why) + '"></td><td>' +
-          (v ? '<button type="button" class="btn ghost small" data-ofvor="' + i + '" data-vor="' + esc(String(v.ep)) + '" data-why="' + esc(v.why) + '" title="' + esc(v.why) + '">' + esc(fill(tt("of_vorBtn"), { p: chf(v.ep) })) + '</button><span class="ofsch">' + esc(tt("of_sch")) + "</span>" : "<span class=\"hint\">–</span>") + '</td><td class="num" data-ofs="' + i + '">' + (r.ep ? chf(r2(r.qty * +r.ep)) : "–") + "</td></tr>"; }).join("") + '</tbody></table></div><p><button type="button" class="btn small" data-ofdsave>' + esc(tt("of_save")) + "</button></p>";
+          (v ? '<button type="button" class="btn ghost small" data-ofvor="' + i + '" data-vor="' + esc(String(v.ep)) + '" data-why="' + esc(v.why) + '" title="' + esc(v.why) + '">' + esc(fill(tt("of_vorBtn"), { p: chf(v.ep) })) + '</button><span class="ofsch">' + esc(tt("of_sch")) + "</span>" : "<span class=\"hint\">–</span>") + '</td><td class="num" data-ofs="' + i + '">' + (r.ep ? chf(r2(r.qty * +r.ep)) : "–") + "</td></tr>"; }).join("") + '</tbody></table></div><p><button type="button" class="btn small" data-ofdsave>' + esc(tt("of_save")) + "</button></p>" + erfB;
     ofDockRows = R.rows; return { h: h, n: R.rows.length };
   }
   var ofDockRows = [];
@@ -1485,7 +1489,7 @@
     }
     if (o.kosten) { var kb = $("#result .kostblk"); if (kb) h += '<section class="rp-sec">' + kb.innerHTML + "</section>"; }
     if (o.annahmen) { var sn = $("#result table.sens"); if (sn) h += '<section class="rp-sec"><h2>' + esc(tt("h_annahmen")) + "</h2>" + sn.outerHTML + "</section>"; }
-    if (o.warn) { var ws = out.warn.filter(function (w) { return w.sev !== "info"; }); if (ws.length) h += '<section class="rp-sec"><h2>' + esc(tt("h_warn")) + '</h2><ul class="rp-warn">' + ws.map(function (w) { return "<li><b>" + esc(w.el ? w.el + ": " : "") + "</b>" + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul></section>"; }
+    if (o.warn) { var ws = wl(out).filter(function (w) { return w.sev !== "info"; }); if (ws.length) h += '<section class="rp-sec"><h2>' + esc(tt("h_warn")) + '</h2><ul class="rp-warn">' + ws.map(function (w) { return "<li><b>" + esc(w.el ? w.el + ": " : "") + "</b>" + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul></section>"; }
     h += '<p class="rp-foot">' + esc(tt("rp_foot")) + " · " + esc(today()) + "</p>";
     return h;
   }
@@ -1641,8 +1645,8 @@
       Z.push([{ v: tt("x_kontrolle"), s: XL.grey }, "", "", "", "", { v: r2(tot - sm.zwischen), s: XL.num, f: "F" + tr + "-" + qn(nm.k) + "!B" + c0 }]); }
     var B = []; out.elems.forEach(function (e) { if (!e.lines.length || !e.bal.length) return; B.push(fillRow(3, XL.elTitle, tt("tab_" + e.tab) + " · " + e.name)); e.bal.forEach(function (b) { B.push([{ v: tt(b.id) }, { v: r2(b.v), s: XL.num }, { v: b.unit }]); }); B.push([]); });
     var W = [hdr([tt("x_elem"), tt("x_sev"), tt("x_msg")])];
-    if (!out.warn.length) W.push([{ v: tt("st_ok"), s: XL.info }]);
-    out.warn.slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; }).forEach(function (w) { var st = w.sev === "stop" ? XL.stop : w.sev === "amber" ? XL.warnA : XL.info;
+    if (!wl(out).length) W.push([{ v: tt("st_ok"), s: XL.info }]);
+    wl(out).slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; }).forEach(function (w) { var st = w.sev === "stop" ? XL.stop : w.sev === "amber" ? XL.warnA : XL.info;
       W.push([{ v: (w.tab ? tt("tab_" + w.tab) + " · " : "") + (w.el || ""), s: st }, { v: tt("sev_" + w.sev), s: st }, { v: fill(tt("w_" + w.id), w.args), s: st }]); });
     var V = [hdr([tt("x_elem"), tt("x_sev")])], vlab = { ok: "v_ok", open: "v_open", na: "v_na", third: "v_third", nopos: "v_nopos" }, vst = { ok: XL.info, open: XL.warnA, na: XL.grey, third: XL.grey, nopos: XL.warnA };
     out.complete.forEach(function (it) { V.push([{ v: tt("c_" + it.id), s: vst[it.st] }, { v: tt(vlab[it.st]), s: vst[it.st] }]); });

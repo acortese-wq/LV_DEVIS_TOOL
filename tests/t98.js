@@ -25,6 +25,12 @@ const K = require('./lib/k.js'), { chromium, ok, mk } = K;
   const net2 = await pg.evaluate(() => KVE.calc(window.__LVD.S(), LV).sum.netto); ok(net2 > net1, 'nach «Speichern» ist die Position in der Summe (' + net1 + ' → ' + net2 + ')');
   const saved = await pg.evaluate(() => { const R = window.__LVD.S().recs; for (const t in R) for (const r of R[t]) if (r.oep) { const k = Object.keys(r.oep)[0]; return r.oep[k]; } return null; });
   ok(saved && saved.ep && /Schätzung/.test(saved.why + ' ' + saved.text), 'gespeichert als eigener Preis mit Begründung «Schätzung …» (' + (saved && saved.why || '').slice(0, 60) + '…)');
+  // Übernommener Preis: nicht mehr offen, kein Hinweis «mit eigenem Preis»
+  const nOpen0 = +(cnt.match(/\d+/) || [0])[0];
+  const after = await pg.evaluate(() => { const c = document.querySelector('[data-cnt=offen]').textContent, w = document.querySelector('#lyP_warn') ? document.querySelector('#lyP_warn').textContent : '', k = window.__LVD.tt('w_offenErfasst').replace(/^\{n\}\s*/, '').slice(0, 22); return { c: c, hin: w.includes(k), k: k, erfB: !!document.querySelector('#lyP_offen [data-act=offen]') }; });
+  ok(+(after.c.match(/\d+/) || [0])[0] === nOpen0 - 1, 'übernommene Position zählt nicht mehr als offen (' + cnt + ' → ' + after.c + ')');
+  ok(!after.hin, 'kein Hinweis «Position mit eigenem Preis» mehr bei den Hinweisen («' + after.k + '»)');
+  ok(after.erfB, 'Knopf «Erfasste Preise bearbeiten» im Reiter vorhanden');
   // ungültige Eingabe
   if (!(await pg.isVisible('#lyP_offen'))) { await pg.click('#lyT_offen'); await pg.waitForTimeout(300); }
   const has = await pg.$('#lyP_offen input[data-f=ep]'); if (has) { await pg.fill('#lyP_offen input[data-f=ep]', 'abc'); await pg.click('#lyP_offen [data-ofdsave]'); await pg.waitForTimeout(300); ok((await pg.getAttribute('#lyP_offen input[data-f=ep]', 'aria-invalid')) === 'true', 'ungültiger Preis wird markiert'); }

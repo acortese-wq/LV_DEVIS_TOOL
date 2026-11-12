@@ -3907,6 +3907,7 @@ TS.en = {
     of_sch: ["geschätzt", "estimé", "stimato", "estimated"],
     of_schT: ["Schätzung (Interpolation aus LV)", "Estimation (interpolation LV)", "Stima (interpolazione LV)", "Estimate (interpolated from LV)"],
     of_vorWhy: ["Schätzung für NPK {k}: Nachbarklasse {r} = {e} CHF, Stufe {s} je Klasse, Vorschlag {p} CHF/{u}; nie unter dem LV-Preis der Nachbarklasse. Vom Unternehmer zu bestätigen.", "Estimation pour NPK {k}: classe voisine {r} = {e} CHF, échelon {s} par classe, proposition {p} CHF/{u}; jamais sous le prix LV de la classe voisine. À confirmer par l'entreprise.", "Stima per NPK {k}: classe vicina {r} = {e} CHF, scatto {s} per classe, proposta {p} CHF/{u}; mai sotto il prezzo LV della classe vicina. Da confermare dall'impresa.", "Estimate for NPK {k}: neighbouring class {r} = {e} CHF, step {s} per class, suggestion {p} CHF/{u}; never below the LV price of the neighbouring class. To be confirmed by the contractor."],
+    of_erfB: ["Erfasste Preise bearbeiten ({n})", "Modifier les prix saisis ({n})", "Modifica i prezzi inseriti ({n})", "Edit entered prices ({n})"],
     of_btnHin: ["Preis erfassen", "Saisir le prix", "Inserire prezzo", "Enter price"],
     ly_tWarn: ["Hinweise", "Remarques", "Avvisi", "Notes"],
     ly_dCol: ["Einklappen", "Réduire", "Comprimi", "Collapse"],
@@ -4282,6 +4283,11 @@ TS.en = {
     km_cx_sond: ["Sondage setzen", "Placer un sondage", "Posare un sondaggio", "Place test pit"],
     km_cx_line: ["Linie hier starten", "Démarrer une ligne ici", "Iniziare una linea qui", "Start line here"],
     km_cx_area: ["Fläche hier beginnen", "Commencer une surface ici", "Iniziare una superficie qui", "Start area here"],
+    km_cx_copy: ["Kopieren ({n})", "Copier ({n})", "Copia ({n})", "Copy ({n})"],
+    km_cx_paste: ["Einfügen hier", "Coller ici", "Incolla qui", "Paste here"],
+    km_cx_del: ["Löschen ({n})", "Supprimer ({n})", "Elimina ({n})", "Delete ({n})"],
+    ms_clipN: ["{n} Objekt(e) kopiert – Rechtsklick › Einfügen hier (oder Strg+V)", "{n} objet(s) copié(s) – clic droit › Coller ici (ou Ctrl+V)", "{n} oggetto/i copiato/i – clic destro › Incolla qui (o Ctrl+V)", "{n} object(s) copied – right-click › Paste here (or Ctrl+V)"],
+    ms_pasted: ["{n} Objekt(e) eingefügt und gewählt – jetzt anpassen", "{n} objet(s) collé(s) et sélectionné(s)", "{n} oggetto/i incollato/i e selezionato/i", "{n} object(s) pasted and selected"],
     km_cx_props: ["Eigenschaften", "Propriétés", "Proprietà", "Properties"],
     km_cx_endNo: ["Am Linienende gibt es nichts zu ändern – Rechtsklick weiter vorne auf der Linie.", "Rien à changer à l’extrémité de la ligne – clic droit plus en amont.", "Nulla da cambiare all’estremità della linea – clic destro più avanti.", "Nothing to change at the end of the line – right-click further along it."],
     km_cx_split: ["Linie teilen / Oberfläche ab hier ändern", "Diviser la ligne / changer la surface dès ici", "Dividere la linea / cambiare superficie da qui", "Split line / change surface from here"],
@@ -7573,6 +7579,7 @@ var FIG = (function () {
       tip.setLatLng(ll).setContent(esc(t)); if (!map.hasLayer(tip)) tip.addTo(map);
     }
     if (opt.focusId) setTimeout(function () { try { if (findObj(opt.focusId)) exSelect(opt.focusId); } catch (e) { } }, 700);   /* aus dem Datensatz geöffnet: Objekt direkt gewählt */
+    window.__LYREF = function () { if (dlg.open) refresh(); };   /* Planungsfokus nach Änderungen ausserhalb der Karte (z. B. Preise erfasst) neu zeichnen */
     window.__KM = { ov: function () { return ovl; }, M: function () { return M; }, refresh: function () { refresh(); }, select: function (id) { select(id); }, map: function () { return map; }, ll: function (p) { return AD.ll(p); }, fit: function () { fitAll(); } };   /* nur für Tests */
     var MODES = { ruler: "mruler", geo: "mgeo", line: "mline", pt: "mpt", sond: "msond", cal: "mcal", edit: "medit", area: "marea", wl: "mwl", geb: "mgeb", text: "mtext", arrow: "marrow", sline: "msline", rect: "mrect" };
     function draw() {
@@ -7830,8 +7837,12 @@ var FIG = (function () {
       if (base === "viewer" || mode === "geo" || mode === "cal") return; askHide(); var ll = map.containerPointToLatLng(cp), c = AD.pt(ll), h = hitAt(cp), items = [], title, sub = plan ? "" : tt("km_cx_coord").replace("{e}", fmt0(c[0])).replace("{n}", fmt0(c[1]));
       if (h) {
         var o = h.o; title = h.k === "lines" ? tt("km_lineN").replace("{n}", M.lines.indexOf(o) + 1) : h.k === "pts" ? tt("km_schN").replace("{n}", M.pts.indexOf(o) + 1) : h.k === "wl" ? tt("km_wlN").replace("{n}", M.wl.indexOf(o) + 1) : h.k === "geb" ? tt("km_gebN").replace("{n}", M.geb.indexOf(o) + 1) : tt("km_sondN").replace("{n}", M.sond.indexOf(o) + 1);
-        sel = { id: o.id }; refresh();
+        if (!(msel[o.id] && Object.keys(msel).length > 1)) { sel = { id: o.id }; msel = {}; } refresh();   /* Rechtsklick in eine Mehrfachauswahl wirkt auf alle gewählten Objekte, sonst nur auf das getroffene */
+        var nSel = selIds().length;
         items.push({ t: tt("km_cx_props"), fn: function () { propsOpen(o, cp); } });
+        items.push({ t: tt("km_cx_copy").replace("{n}", nSel), fn: function () { clipCopy(); } });
+        if (clip) items.push({ t: tt("km_cx_paste"), fn: function () { clipPaste(c); } });
+        items.push({ t: tt("km_cx_del").replace("{n}", nSel), fn: function () { delSel(); } });
         if (h.k === "lines") {
           var cur0 = cfgOf(o).fl; FLS.filter(function (f) { return f !== cur0; }).forEach(function (f) { items.push({ t: tt("cx_surf").replace("{f}", tt("km_pal_" + f)), fn: function () { splitLine(o, h, f); } }); });   /* Belagswechsel direkt: «Oberfläche ab hier: Wiese» usw. */
           items.push({ t: tt("km_cx_branch"), fn: function () { startLineAt(h.q, { cfg: clone(cfgOf(o)), rohr: clone(o.rohr) }); } });
@@ -7845,6 +7856,10 @@ var FIG = (function () {
           { t: tt("km_cx_sond"), fn: function () { snap(); var q = { id: nid("s"), pt: c.slice(), name: "", l: "1.0", b: "1.0", t: "1.5" }; M.sond.push(q); sel = { id: q.id }; refresh(); } },
           { t: tt("km_cx_line"), fn: function () { var l = startLineAt(c); askStart(l, c); } },
           { t: tt("km_cx_area"), fn: function () { if (mode !== "area") $("[data-k=marea]").click(); ctxT = 0; addPt(ll); } });
+        var nSel2 = selIds().length;
+        if (nSel2) items.push({ t: tt("km_cx_copy").replace("{n}", nSel2), fn: function () { clipCopy(); } });
+        if (clip) items.push({ t: tt("km_cx_paste"), fn: function () { clipPaste(c); } });
+        if (nSel2) items.push({ t: tt("km_cx_del").replace("{n}", nSel2), fn: function () { delSel(); } });
         if (!plan) { items.push({ t: tt("km_sv_here"), ghost: 1, fn: function () { svOpen(c, null, false); } }); if (svKey()) items.push({ t: tt("km_sv_emb"), ghost: 1, fn: function () { svOpen(c, null, true); } }); }
       }
       ctxShow(cp, title, sub, items);
@@ -8840,6 +8855,25 @@ var FIG = (function () {
       var ids = selIds(); if (!ids.length) return; snap(); ids.forEach(function (id) { var f = findObj(id); if (!f) return; f.arr.splice(f.arr.indexOf(f.o), 1); if (cur === id) cur = null; if (curN === id) curN = null; if (curA === id) curA = null; });
       sel = null; msel = {}; refresh(); toast(dlg, tt("ms_deleted").replace("{n}", ids.length), tt("km_undoBtn"), function () { var b = $("[data-k=undo]"); if (b) b.click(); });
     }
+    /* Zwischenablage der Karte (Rechtsklick/Strg+C/Strg+V): Kopieren merkt die gewählten Objekte, Einfügen setzt sie am Klickpunkt ein (Verknüpfungen zu Datensätzen werden nicht mitkopiert, wie bei «Kopieren» der Mehrfachauswahl) */
+    var clip = null, CLIPN = ["lines", "pts", "sond", "notes", "areas", "wl", "geb"];
+    function clipCopy(ids) {
+      ids = ids || selIds(); if (!ids.length) return; var items = [], rx = Infinity, ry = Infinity;
+      ids.forEach(function (id) { var f = findObj(id); if (!f) return; var n = CLIPN.filter(function (k) { return M[k] === f.arr; })[0]; if (!n) return; var o = JSON.parse(JSON.stringify(f.o)); items.push({ n: n, o: o }); (o.pts || [o.pt]).forEach(function (q) { if (q) { rx = Math.min(rx, q[0]); ry = Math.min(ry, q[1]); } }); });
+      if (!items.length) return; clip = { items: items, ref: [rx, ry] };
+      toast(dlg, tt("ms_clipN").replace("{n}", items.length));
+    }
+    function clipPaste(c) {
+      if (!clip || !clip.items.length) return; var dx = c[0] - clip.ref[0], dy = c[1] - clip.ref[1], made = {}; snap();
+      clip.items.forEach(function (it) {
+        var o = JSON.parse(JSON.stringify(it.o)); o.id = nid(String(it.o.id).charAt(0));
+        ["s", "e", "from", "to", "pv", "nx", "sK", "eK", "gid", "lid", "abz", "route", "on", "hz"].forEach(function (k) { delete o[k]; }); if ("rid" in o) o.rid = null; if ("sid" in o) o.sid = null;
+        if (o.pts) o.pts = o.pts.map(function (q) { return [Math.round((q[0] + dx) * 100) / 100, Math.round((q[1] + dy) * 100) / 100]; });
+        else if (o.pt) o.pt = [Math.round((o.pt[0] + dx) * 100) / 100, Math.round((o.pt[1] + dy) * 100) / 100];
+        M[it.n].push(o); made[o.id] = 1;
+      });
+      sel = null; msel = made; refresh(); toast(dlg, tt("ms_pasted").replace("{n}", Object.keys(made).length), tt("km_undoBtn"), function () { var b = $("[data-k=undo]"); if (b) b.click(); });
+    }
     function offsetPoly(pts, d) {   /* Parallelversatz einer Linie: d > 0 = rechts in Zeichenrichtung, Gehrung an Knicken */
       var n = pts.length, seg = []; for (var i = 0; i < n - 1; i++) { var u = unitV(pts[i], pts[i + 1]); seg.push(u ? [u[1], -u[0]] : null); }
       return pts.map(function (q, i) {
@@ -9088,6 +9122,8 @@ var FIG = (function () {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); addPt(map.getCenter()); return; }
       }
       if (mode === "line" && !ed && !e.ctrlKey && !e.metaKey && !e.altKey && /^[1-4]$/.test(e.key)) { e.preventDefault(); switchSurface(FLS[+e.key - 1]); return; }
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && !ed && mode === "edit" && e.key.toLowerCase() === "c" && selIds().length) { e.preventDefault(); clipCopy(); return; }
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && !ed && mode === "edit" && e.key.toLowerCase() === "v" && clip) { e.preventDefault(); clipPaste(AD.pt(map.getCenter())); return; }
       if ((e.key === "Delete" || e.key === "Backspace") && !ed && mode === "edit" && selIds().length) { e.preventDefault(); delSel(); }
     });
     var fa0 = $("#kmFoldAll"); if (fa0) fa0.addEventListener("click", function () { var all = fa0.dataset.all === "1"; [].slice.call($("#kmObj").querySelectorAll(".kmrow")).forEach(function (r) { folded[r.getAttribute("data-rid")] = !all; }); rows(); });
@@ -9305,6 +9341,8 @@ var FIG = (function () {
   var num = KVE.num, r2 = KVE.r2;
   var S;
   var tt = function (k) { var d = T[S.lang] || T.de; return d[k] != null ? d[k] : (T.de[k] != null ? T.de[k] : k); };
+  /* Hinweise ohne «offenErfasst»: bepreiste (übernommene) Positionen sind nicht mehr offen und erscheinen nicht mehr als Hinweis; die Kennzeichnung «eigener Preis» bleibt bei den Positionen */
+  var wl = function (o) { return (o.warn || []).filter(function (w) { return w.id !== "offenErfasst"; }); };
   var fill = function (s, a) { return String(s).replace(/\{(\w+)\}/g, function (m, k) { return a && a[k] != null ? (typeof a[k] === "number" ? String(r2(a[k])) : a[k]) : m; }); };
   var today = function () { var d = new Date(); return ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." + d.getFullYear(); };
   var KEY = "lv-devis-tiefbau-v2";
@@ -9928,14 +9966,14 @@ var FIG = (function () {
   /* ---------- Layout A «Planungsfokus»: Kennzahlen und Dock-Inhalte (aus KVE.calc, gleiche Zahlen wie im Ergebnis) ---------- */
   function lyData(out) {
     var V = 0, n = 0; out.elems.forEach(function (e) { if (e.tab === "graben" && e.geo && e.geo.V > 0) V += e.geo.V; n += e.lines.length; }); n += out.vor.lines.length + out.be.lines.length;
-    var nStop = out.warn.filter(function (w) { return w.sev === "stop"; }).length, nAmb = out.warn.filter(function (w) { return w.sev === "amber"; }).length;
+    var nStop = wl(out).filter(function (w) { return w.sev === "stop"; }).length, nAmb = wl(out).filter(function (w) { return w.sev === "amber"; }).length;
     var st = n === 0 ? "empty" : nStop ? "stop" : nAmb || out.nOffen ? "amber" : "ok";
     LYOUT = out; var pos = out.summary.length ? dockPos(out) : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos0 = out.summary.length ? '<table class="lytab"><thead><tr><th scope="col">' + esc(tt("ly_cPos")) + '</th><th scope="col">' + esc(tt("ly_cText")) + '</th><th scope="col" class="num">' + esc(tt("ly_cQty")) + '</th><th scope="col">' + esc(tt("ly_cUnit")) + '</th><th scope="col" class="num">' + esc(tt("ly_cEp")) + '</th><th scope="col" class="num">' + esc(tt("ly_cTot")) + "</th></tr></thead><tbody>" +
       out.summary.map(function (l) { var off = l.flag === "offen", lv = /^\d{3}\//.test(l.key), tx = lv ? lvT(l.key) : off || l.flag === "erfasst" ? (l.text || openText(l)) : (l.text || "");
         return "<tr" + (off ? ' class="open"' : "") + "><td>" + esc(off ? tt("c_offenTag") : l.key) + "</td><td>" + esc(tx) + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(uT(l.unit || "")) + '</td><td class="num">' + (off ? "—" : chf(l.ep)) + '</td><td class="num">' + (off ? "—" : chf(l.total)) + "</td></tr>"; }).join("") + "</tbody></table>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>";
     var aus = out.elems.filter(function (e) { return e.bal && e.bal.length; }).map(function (e) {
       return '<div class="lyaus"><h3>' + esc(tt("tab_" + e.tab) + " · " + (e.name || "")) + '</h3><table class="lytab"><tbody>' + e.bal.filter(function (b) { return b.v; }).map(function (b) { return "<tr><td>" + esc(tt(b.id)) + '</td><td class="num">' + qf(r2(b.v)) + " " + esc(b.unit) + "</td></tr>"; }).join("") + "</tbody></table></div>"; }).join("") || '<p class="hint">' + esc(tt("ly_ausNone")) + "</p>";
-    var ws = out.warn.slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
+    var ws = wl(out).slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
     var oTk = {}; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.open && l.tk && l.tk !== "freiKeinEP") oTk[l.tk] = 1; }); });
     var ofd = ofDock(), warn = (out.nOffen ? '<p class="lyoff">⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + "</p>" : "") + (ws.length ? '<ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + esc(w.tab ? tt("tab_" + w.tab) + " · " + w.el : (w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + (oTk[w.id] ? ' <button type="button" class="btn ghost small" data-act="offen" data-ofk="' + esc(w.id) + '">' + esc(tt("of_btnHin")) + "</button>" : "") + "</li>"; }).join("") + "</ul>" : '<p class="hint">' + esc(tt("ly_warnNone")) + "</p>");
     return { V: r2(V), of: ofd.h, nOf: ofd.n, st: st, nPos: out.summary.length, nWarn: ws.filter(function (w) { return w.sev !== "info"; }).length + (out.nOffen ? 1 : 0), kost: n ? '<div class="lykost">' + '<div class="lykost-a">' + kostTable(out) + "</div>" + dockKostX(out) + "</div>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos: pos, aus: aus, warn: warn };
@@ -10404,7 +10442,7 @@ var FIG = (function () {
   /* Kostenleiste (immer sichtbar) und mobile Leiste: Netto, Total, Rabattstufe, OFFEN, Warnungen */
   function warnGo(w) { return w.tab ? '<a href="#" class="wgo" data-go="' + w.tab + ":" + w.idx + '">' + esc(tt("tab_" + w.tab) + " · " + w.el) + "</a>: " : ""; }
   function kpiRender(out, hon, n) {
-    var s = out.sum, nStop = out.warn.filter(function (w) { return w.sev === "stop"; }).length, nAmb = out.warn.filter(function (w) { return w.sev === "amber"; }).length;
+    var s = out.sum, nStop = wl(out).filter(function (w) { return w.sev === "stop"; }).length, nAmb = wl(out).filter(function (w) { return w.sev === "amber"; }).length;
     var hn = r2(hon.reduce(function (a, x) { return a + x[1].net; }, 0)), cell = function (lab, v, cls) { return '<div class="kc' + (cls ? " " + cls : "") + '"><span class="kl">' + esc(lab) + '</span><b class="kv">CHF ' + chf(v) + "</b></div>"; };
     var tags = '<span class="tag">' + esc(fill(tt("ux_stufe"), { s: s.stufe, p: s.pct })) + "</span>" +
       (out.nOffen ? '<button type="button" class="tag amber tagbtn" data-act="offen" title="' + esc(fill(tt("of_btn"), { n: out.nOffen })) + '">' + esc(fill(tt("ux_offen"), { n: out.nOffen })) + "</button>" : "") +
@@ -10590,15 +10628,15 @@ var FIG = (function () {
   function kostNote(s) { var g = num(S.genau, 10); return '<p class="hint kgenau" id="kGenau">' + (g > 0 ? esc(fill(tt("k_genau"), { g: g, a: chf(r2(s.netto * (1 - g / 100))), b: chf(r2(s.netto * (1 + g / 100))) })) + " · " : "") + esc(tt("k_preisstand")) + "</p>"; }
   function renderResult() {
     var out = KVE.calc(S, LV); lastOut = out;
-    var lvHtml = "", html = "", stop = out.warn.some(function (w) { return w.sev === "stop"; }), amber = out.warn.some(function (w) { return w.sev === "amber"; });
+    var lvHtml = "", html = "", stop = wl(out).some(function (w) { return w.sev === "stop"; }), amber = wl(out).some(function (w) { return w.sev === "amber"; });
     var n = 0; out.elems.forEach(function (e) { n += e.lines.length; }); n += out.vor.lines.length + out.be.lines.length;
     var st = n === 0 ? "empty" : stop ? "stop" : amber ? "amber" : "ok";
     html += '<div class="status no-summary ' + (st === "stop" ? "stop" : st === "amber" ? "amber" : "ok") + '"><p class="stitle">' + esc(tt("st_" + st)) + "</p>";
     if (st === "empty") html += '<p class="action">' + esc(tt("ux_emptyHint")) + "</p>";
     var erfL = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst") erfL.push(l); }); }); var sErf = r2(erfL.reduce(function (a, l) { return a + l.total; }, 0));
     if (out.nOffen || erfL.length) html += '<p class="offennote">' + (out.nOffen ? esc(fill(tt("x_nOffen"), { n: out.nOffen })) + " " : "") + (erfL.length ? esc(fill(tt("of_note_erf"), { n: erfL.length, s: chf(sErf) })) + " " : "") + '<button type="button" class="btn small no-print" data-act="offen">' + esc(fill(tt("of_btn"), { n: out.nOffen + erfL.length })) + "</button></p>";
-    var top = out.warn.filter(function (w) { return w.sev !== "info"; }).slice(0, 4);
-    if (top.length) html += "<ul>" + top.map(function (w) { return "<li>" + warnGo(w) + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul>" + (out.warn.length > top.length ? '<p><a href="#warns">' + esc(tt("ux_allWarn")) + " (" + out.warn.length + ")</a></p>" : "");
+    var top = wl(out).filter(function (w) { return w.sev !== "info"; }).slice(0, 4);
+    if (top.length) html += "<ul>" + top.map(function (w) { return "<li>" + warnGo(w) + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul>" + (wl(out).length > top.length ? '<p><a href="#warns">' + esc(tt("ux_allWarn")) + " (" + wl(out).length + ")</a></p>" : "");
     html += "</div>";
     if (n) {
       html += '<div class="no-summary"><h3>' + esc(tt("h_aufst")) + '</h3><div class="collrow no-print"><button type="button" class="btn ghost" data-act="collapse">' + esc(tt("btnCollapse")) + '</button><button type="button" class="btn ghost" data-act="expand">' + esc(tt("btnExpand")) + '</button><button type="button" class="btn ghost" data-act="rules" aria-pressed="' + !!S.ui.rules + '">' + (S.ui.rules ? "✓ " : "") + esc(tt("ux_rules")) + "</button></div>" + fbarHtml(out);
@@ -10643,7 +10681,7 @@ var FIG = (function () {
         '<tr class="sub"><td>' + esc(tt("hTot")) + '</td><td class="num">' + chf(hn) + "</td></tr><tr><td>" + esc(mwLab(num(S.mwst, 8.1))) + '</td><td class="num">' + chf(hm) + '</td></tr><tr><td>' + esc(tt("hTotI")) + '</td><td class="num">' + chf(r2(hn + hm)) + "</td></tr>" +
         '<tr class="sum"><td>' + esc(tt("gTot")) + '</td><td class="num">' + chf(r2(out.sum.brutto + hn + hm)) + "</td></tr></tbody></table>";
     }
-    var ws = out.warn.slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
+    var ws = wl(out).slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
     if (ws.length) html += '<div class="no-summary"><h3 id="warns" tabindex="-1">' + esc(tt("h_warn")) + '</h3><ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + (w.tab ? '<a href="#" data-go="' + w.tab + ":" + w.idx + '" title="' + esc(tt("ux_go")) + '">' + esc(tt("tab_" + w.tab) + " · " + w.el) + "</a>" : esc(w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul></div>";
     html += '<details class="ref no-summary"><summary>' + esc(tt("h_grund")) + "</summary><ul class='doclist' style='padding:6px 14px'>" + (T[S.lang] || T.de).g_list.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "<li>" + esc(tt("g_lvOnlyDE")) + "</li></ul></details>";
     html += '<div class="sigline print-only"><div>' + esc(tt("sigA")) + "</div><div>" + esc(tt("sigB")) + "</div></div>";
@@ -10688,16 +10726,18 @@ var FIG = (function () {
       if (p.v) { rec.oep = rec.oep || {}; rec.oep[r.key] = { ep: p.v, text: get(i, "text"), why: get(i, "why") }; n++; }
       else if (rec.oep && rec.oep[r.key]) { delete rec.oep[r.key]; if (!Object.keys(rec.oep).length) delete rec.oep; m++; }
     });
-    save(); renderForm(); renderResult(); undoToast(fill(tt("of_saved"), { n: n, m: m }), sn);
+    save(); renderForm(); renderResult(); if (window.__LYREF) window.__LYREF(); undoToast(fill(tt("of_saved"), { n: n, m: m }), sn);
   }
   /* Dock-Reiter «Offene Positionen» im Planungstool: Preisfeld, Vorschlag (Interpolation) und Betrag je offene Position, ohne Dialog */
   function ofDock() {
-    var R = offenRows(); if (!R.rows.length) return { h: '<p class="hint">' + esc(tt("of_none")) + "</p>", n: 0 };
+    var R0 = offenRows(), R = { rows: R0.rows.filter(function (r) { return !r.erf; }) }, nErf = R0.rows.length - R.rows.length;
+    var erfB = nErf ? '<p><button type="button" class="btn ghost small" data-act="offen">' + esc(fill(tt("of_erfB"), { n: nErf })) + "</button></p>" : "";
+    if (!R.rows.length) { ofDockRows = []; return { h: '<p class="hint">' + esc(tt("of_none")) + "</p>" + erfB, n: 0 }; }
     var h = '<p class="hint">' + esc(tt("of_dHint")) + '</p><div class="oftab"><table class="lytab ofdt"><thead><tr><th scope="col">' + esc(tt("of_c_pos")) + '</th><th scope="col" class="num">' + esc(tt("c_qty")) + '</th><th scope="col">' + esc(tt("of_c_ep")) + '</th><th scope="col">' + esc(tt("of_cVor")) + '</th><th scope="col" class="num">' + esc(tt("c_tot")) + "</th></tr></thead><tbody>" +
       R.rows.map(function (r, i) {
         var lab = r.el + " – " + r.txt, v = r.vor;
         return '<tr data-ofd="' + i + '"' + (r.erf ? ' class="erf"' : "") + '><td><span class="ofel">' + esc(r.el) + "</span>" + esc(r.txt) + '</td><td class="num">' + qf(r.qty) + " " + esc(r.unit) + '</td><td><input type="text" inputmode="decimal" data-of="' + i + '" data-f="ep" value="' + esc(r.ep) + '" placeholder="' + esc(v ? String(v.ep) : "") + '" aria-label="' + esc(tt("of_c_ep") + " (CHF/" + r.unit + ") – " + lab) + '"><input type="hidden" data-of="' + i + '" data-f="text" value="' + esc(r.text) + '"><input type="hidden" data-of="' + i + '" data-f="why" value="' + esc(r.why) + '"></td><td>' +
-          (v ? '<button type="button" class="btn ghost small" data-ofvor="' + i + '" data-vor="' + esc(String(v.ep)) + '" data-why="' + esc(v.why) + '" title="' + esc(v.why) + '">' + esc(fill(tt("of_vorBtn"), { p: chf(v.ep) })) + '</button><span class="ofsch">' + esc(tt("of_sch")) + "</span>" : "<span class=\"hint\">–</span>") + '</td><td class="num" data-ofs="' + i + '">' + (r.ep ? chf(r2(r.qty * +r.ep)) : "–") + "</td></tr>"; }).join("") + '</tbody></table></div><p><button type="button" class="btn small" data-ofdsave>' + esc(tt("of_save")) + "</button></p>";
+          (v ? '<button type="button" class="btn ghost small" data-ofvor="' + i + '" data-vor="' + esc(String(v.ep)) + '" data-why="' + esc(v.why) + '" title="' + esc(v.why) + '">' + esc(fill(tt("of_vorBtn"), { p: chf(v.ep) })) + '</button><span class="ofsch">' + esc(tt("of_sch")) + "</span>" : "<span class=\"hint\">–</span>") + '</td><td class="num" data-ofs="' + i + '">' + (r.ep ? chf(r2(r.qty * +r.ep)) : "–") + "</td></tr>"; }).join("") + '</tbody></table></div><p><button type="button" class="btn small" data-ofdsave>' + esc(tt("of_save")) + "</button></p>" + erfB;
     ofDockRows = R.rows; return { h: h, n: R.rows.length };
   }
   var ofDockRows = [];
@@ -10776,7 +10816,7 @@ var FIG = (function () {
     }
     if (o.kosten) { var kb = $("#result .kostblk"); if (kb) h += '<section class="rp-sec">' + kb.innerHTML + "</section>"; }
     if (o.annahmen) { var sn = $("#result table.sens"); if (sn) h += '<section class="rp-sec"><h2>' + esc(tt("h_annahmen")) + "</h2>" + sn.outerHTML + "</section>"; }
-    if (o.warn) { var ws = out.warn.filter(function (w) { return w.sev !== "info"; }); if (ws.length) h += '<section class="rp-sec"><h2>' + esc(tt("h_warn")) + '</h2><ul class="rp-warn">' + ws.map(function (w) { return "<li><b>" + esc(w.el ? w.el + ": " : "") + "</b>" + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul></section>"; }
+    if (o.warn) { var ws = wl(out).filter(function (w) { return w.sev !== "info"; }); if (ws.length) h += '<section class="rp-sec"><h2>' + esc(tt("h_warn")) + '</h2><ul class="rp-warn">' + ws.map(function (w) { return "<li><b>" + esc(w.el ? w.el + ": " : "") + "</b>" + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul></section>"; }
     h += '<p class="rp-foot">' + esc(tt("rp_foot")) + " · " + esc(today()) + "</p>";
     return h;
   }
@@ -10932,8 +10972,8 @@ var FIG = (function () {
       Z.push([{ v: tt("x_kontrolle"), s: XL.grey }, "", "", "", "", { v: r2(tot - sm.zwischen), s: XL.num, f: "F" + tr + "-" + qn(nm.k) + "!B" + c0 }]); }
     var B = []; out.elems.forEach(function (e) { if (!e.lines.length || !e.bal.length) return; B.push(fillRow(3, XL.elTitle, tt("tab_" + e.tab) + " · " + e.name)); e.bal.forEach(function (b) { B.push([{ v: tt(b.id) }, { v: r2(b.v), s: XL.num }, { v: b.unit }]); }); B.push([]); });
     var W = [hdr([tt("x_elem"), tt("x_sev"), tt("x_msg")])];
-    if (!out.warn.length) W.push([{ v: tt("st_ok"), s: XL.info }]);
-    out.warn.slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; }).forEach(function (w) { var st = w.sev === "stop" ? XL.stop : w.sev === "amber" ? XL.warnA : XL.info;
+    if (!wl(out).length) W.push([{ v: tt("st_ok"), s: XL.info }]);
+    wl(out).slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; }).forEach(function (w) { var st = w.sev === "stop" ? XL.stop : w.sev === "amber" ? XL.warnA : XL.info;
       W.push([{ v: (w.tab ? tt("tab_" + w.tab) + " · " : "") + (w.el || ""), s: st }, { v: tt("sev_" + w.sev), s: st }, { v: fill(tt("w_" + w.id), w.args), s: st }]); });
     var V = [hdr([tt("x_elem"), tt("x_sev")])], vlab = { ok: "v_ok", open: "v_open", na: "v_na", third: "v_third", nopos: "v_nopos" }, vst = { ok: XL.info, open: XL.warnA, na: XL.grey, third: XL.grey, nopos: XL.warnA };
     out.complete.forEach(function (it) { V.push([{ v: tt("c_" + it.id), s: vst[it.st] }, { v: tt(vlab[it.st]), s: vst[it.st] }]); });

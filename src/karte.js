@@ -1404,6 +1404,7 @@
       tip.setLatLng(ll).setContent(esc(t)); if (!map.hasLayer(tip)) tip.addTo(map);
     }
     if (opt.focusId) setTimeout(function () { try { if (findObj(opt.focusId)) exSelect(opt.focusId); } catch (e) { } }, 700);   /* aus dem Datensatz geöffnet: Objekt direkt gewählt */
+    window.__LYREF = function () { if (dlg.open) refresh(); };   /* Planungsfokus nach Änderungen ausserhalb der Karte (z. B. Preise erfasst) neu zeichnen */
     window.__KM = { ov: function () { return ovl; }, M: function () { return M; }, refresh: function () { refresh(); }, select: function (id) { select(id); }, map: function () { return map; }, ll: function (p) { return AD.ll(p); }, fit: function () { fitAll(); } };   /* nur für Tests */
     var MODES = { ruler: "mruler", geo: "mgeo", line: "mline", pt: "mpt", sond: "msond", cal: "mcal", edit: "medit", area: "marea", wl: "mwl", geb: "mgeb", text: "mtext", arrow: "marrow", sline: "msline", rect: "mrect" };
     function draw() {
@@ -1661,8 +1662,12 @@
       if (base === "viewer" || mode === "geo" || mode === "cal") return; askHide(); var ll = map.containerPointToLatLng(cp), c = AD.pt(ll), h = hitAt(cp), items = [], title, sub = plan ? "" : tt("km_cx_coord").replace("{e}", fmt0(c[0])).replace("{n}", fmt0(c[1]));
       if (h) {
         var o = h.o; title = h.k === "lines" ? tt("km_lineN").replace("{n}", M.lines.indexOf(o) + 1) : h.k === "pts" ? tt("km_schN").replace("{n}", M.pts.indexOf(o) + 1) : h.k === "wl" ? tt("km_wlN").replace("{n}", M.wl.indexOf(o) + 1) : h.k === "geb" ? tt("km_gebN").replace("{n}", M.geb.indexOf(o) + 1) : tt("km_sondN").replace("{n}", M.sond.indexOf(o) + 1);
-        sel = { id: o.id }; refresh();
+        if (!(msel[o.id] && Object.keys(msel).length > 1)) { sel = { id: o.id }; msel = {}; } refresh();   /* Rechtsklick in eine Mehrfachauswahl wirkt auf alle gewählten Objekte, sonst nur auf das getroffene */
+        var nSel = selIds().length;
         items.push({ t: tt("km_cx_props"), fn: function () { propsOpen(o, cp); } });
+        items.push({ t: tt("km_cx_copy").replace("{n}", nSel), fn: function () { clipCopy(); } });
+        if (clip) items.push({ t: tt("km_cx_paste"), fn: function () { clipPaste(c); } });
+        items.push({ t: tt("km_cx_del").replace("{n}", nSel), fn: function () { delSel(); } });
         if (h.k === "lines") {
           var cur0 = cfgOf(o).fl; FLS.filter(function (f) { return f !== cur0; }).forEach(function (f) { items.push({ t: tt("cx_surf").replace("{f}", tt("km_pal_" + f)), fn: function () { splitLine(o, h, f); } }); });   /* Belagswechsel direkt: «Oberfläche ab hier: Wiese» usw. */
           items.push({ t: tt("km_cx_branch"), fn: function () { startLineAt(h.q, { cfg: clone(cfgOf(o)), rohr: clone(o.rohr) }); } });
@@ -1676,6 +1681,10 @@
           { t: tt("km_cx_sond"), fn: function () { snap(); var q = { id: nid("s"), pt: c.slice(), name: "", l: "1.0", b: "1.0", t: "1.5" }; M.sond.push(q); sel = { id: q.id }; refresh(); } },
           { t: tt("km_cx_line"), fn: function () { var l = startLineAt(c); askStart(l, c); } },
           { t: tt("km_cx_area"), fn: function () { if (mode !== "area") $("[data-k=marea]").click(); ctxT = 0; addPt(ll); } });
+        var nSel2 = selIds().length;
+        if (nSel2) items.push({ t: tt("km_cx_copy").replace("{n}", nSel2), fn: function () { clipCopy(); } });
+        if (clip) items.push({ t: tt("km_cx_paste"), fn: function () { clipPaste(c); } });
+        if (nSel2) items.push({ t: tt("km_cx_del").replace("{n}", nSel2), fn: function () { delSel(); } });
         if (!plan) { items.push({ t: tt("km_sv_here"), ghost: 1, fn: function () { svOpen(c, null, false); } }); if (svKey()) items.push({ t: tt("km_sv_emb"), ghost: 1, fn: function () { svOpen(c, null, true); } }); }
       }
       ctxShow(cp, title, sub, items);
@@ -2671,6 +2680,25 @@
       var ids = selIds(); if (!ids.length) return; snap(); ids.forEach(function (id) { var f = findObj(id); if (!f) return; f.arr.splice(f.arr.indexOf(f.o), 1); if (cur === id) cur = null; if (curN === id) curN = null; if (curA === id) curA = null; });
       sel = null; msel = {}; refresh(); toast(dlg, tt("ms_deleted").replace("{n}", ids.length), tt("km_undoBtn"), function () { var b = $("[data-k=undo]"); if (b) b.click(); });
     }
+    /* Zwischenablage der Karte (Rechtsklick/Strg+C/Strg+V): Kopieren merkt die gewählten Objekte, Einfügen setzt sie am Klickpunkt ein (Verknüpfungen zu Datensätzen werden nicht mitkopiert, wie bei «Kopieren» der Mehrfachauswahl) */
+    var clip = null, CLIPN = ["lines", "pts", "sond", "notes", "areas", "wl", "geb"];
+    function clipCopy(ids) {
+      ids = ids || selIds(); if (!ids.length) return; var items = [], rx = Infinity, ry = Infinity;
+      ids.forEach(function (id) { var f = findObj(id); if (!f) return; var n = CLIPN.filter(function (k) { return M[k] === f.arr; })[0]; if (!n) return; var o = JSON.parse(JSON.stringify(f.o)); items.push({ n: n, o: o }); (o.pts || [o.pt]).forEach(function (q) { if (q) { rx = Math.min(rx, q[0]); ry = Math.min(ry, q[1]); } }); });
+      if (!items.length) return; clip = { items: items, ref: [rx, ry] };
+      toast(dlg, tt("ms_clipN").replace("{n}", items.length));
+    }
+    function clipPaste(c) {
+      if (!clip || !clip.items.length) return; var dx = c[0] - clip.ref[0], dy = c[1] - clip.ref[1], made = {}; snap();
+      clip.items.forEach(function (it) {
+        var o = JSON.parse(JSON.stringify(it.o)); o.id = nid(String(it.o.id).charAt(0));
+        ["s", "e", "from", "to", "pv", "nx", "sK", "eK", "gid", "lid", "abz", "route", "on", "hz"].forEach(function (k) { delete o[k]; }); if ("rid" in o) o.rid = null; if ("sid" in o) o.sid = null;
+        if (o.pts) o.pts = o.pts.map(function (q) { return [Math.round((q[0] + dx) * 100) / 100, Math.round((q[1] + dy) * 100) / 100]; });
+        else if (o.pt) o.pt = [Math.round((o.pt[0] + dx) * 100) / 100, Math.round((o.pt[1] + dy) * 100) / 100];
+        M[it.n].push(o); made[o.id] = 1;
+      });
+      sel = null; msel = made; refresh(); toast(dlg, tt("ms_pasted").replace("{n}", Object.keys(made).length), tt("km_undoBtn"), function () { var b = $("[data-k=undo]"); if (b) b.click(); });
+    }
     function offsetPoly(pts, d) {   /* Parallelversatz einer Linie: d > 0 = rechts in Zeichenrichtung, Gehrung an Knicken */
       var n = pts.length, seg = []; for (var i = 0; i < n - 1; i++) { var u = unitV(pts[i], pts[i + 1]); seg.push(u ? [u[1], -u[0]] : null); }
       return pts.map(function (q, i) {
@@ -2919,6 +2947,8 @@
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); addPt(map.getCenter()); return; }
       }
       if (mode === "line" && !ed && !e.ctrlKey && !e.metaKey && !e.altKey && /^[1-4]$/.test(e.key)) { e.preventDefault(); switchSurface(FLS[+e.key - 1]); return; }
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && !ed && mode === "edit" && e.key.toLowerCase() === "c" && selIds().length) { e.preventDefault(); clipCopy(); return; }
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && !ed && mode === "edit" && e.key.toLowerCase() === "v" && clip) { e.preventDefault(); clipPaste(AD.pt(map.getCenter())); return; }
       if ((e.key === "Delete" || e.key === "Backspace") && !ed && mode === "edit" && selIds().length) { e.preventDefault(); delSel(); }
     });
     var fa0 = $("#kmFoldAll"); if (fa0) fa0.addEventListener("click", function () { var all = fa0.dataset.all === "1"; [].slice.call($("#kmObj").querySelectorAll(".kmrow")).forEach(function (r) { folded[r.getAttribute("data-rid")] = !all; }); rows(); });
