@@ -327,11 +327,11 @@ Object.assign(T.de, {
  w_fundMin: "Fundationsschicht {d} mm: LV-Position erst ab 101 mm vorhanden. Einbau bis 100 mm OFFEN, kein eindeutiger Preis.",
  w_deckMasch: "Deckschicht maschinell: Dicke {d} mm ist im LV nicht als eigene Stufe vorhanden. Position OFFEN.",
  w_rohr5: "Rohrlänge 5 m gibt es im LV nur für DN/ID 55, nicht für DN/ID {dn}. Position OFFEN, keine Ersatzposition verwendet.",
- w_handTiefe: "Aushub von Hand über 1.50 m Tiefe ({T} m): keine LV-Position vorhanden. Position OFFEN.",
- w_masch2: "Maschinenaushub über 2.00 m Tiefe ({T} m): keine LV-Position vorhanden. Position OFFEN.",
- w_spries2: "Spriessung über 2.00 m Tiefe ({T} m): keine LV-Position vorhanden. Position OFFEN.",
+ w_handTiefe: "Aushub von Hand über 1.50 m Tiefe ({T} m): keine LV-Position vorhanden (NPK {npk}, Klasse {kl} m). Position OFFEN.",
+ w_masch2: "Maschinenaushub über 2.00 m Tiefe ({T} m): keine LV-Position vorhanden (NPK {npk}, Klasse {kl} m). Position OFFEN.",
+ w_spries2: "Spriessung über 2.00 m Tiefe ({T} m): keine LV-Position vorhanden (NPK {npk}, Klasse {kl} m). Position OFFEN.",
  w_freiKeinEP: "Freie Position «{t}» ohne Einheitspreis: kein eindeutiger TB-KOPA-Preis 2026. Position OFFEN, Rückfrage nötig.",
- w_spriesAnn: "Spriessung als durchgehende Brettspriessung angenommen (Fläche = 2 Wände × Länge × Tiefe). Art des Verbaus bitte prüfen."
+ w_spriesAnn: "Spriessung als durchgehende Brettspriessung angenommen (Fläche = 2 Wände × Länge × Tiefe). Art des Verbaus bitte prüfen. Bei Tiefe über 1.50 m mögliche Mehrleistungen als freie Position erfassen: erschwerter Aushub NPK 151/222–224, Leitungen im Profil 151/241–242, Wasserhaltung 151/131–132, Verbau 151/321–341."
 });
 Object.assign(T.fr, {
  c_offenTag: "OUVERT",
@@ -355,11 +355,11 @@ Object.assign(T.fr, {
  w_fundMin: "Fondation {d} mm: position LV dès 101 mm seulement. Pose jusqu'à 100 mm OUVERTE, aucun prix univoque.",
  w_deckMasch: "Couche de roulement à la machine: l'épaisseur {d} mm n'est pas un palier du LV. Position OUVERTE.",
  w_rohr5: "La longueur de 5 m n'existe au LV que pour DN/ID 55, pas pour DN/ID {dn}. Position OUVERTE, aucune position de remplacement utilisée.",
- w_handTiefe: "Fouille à la main au-delà de 1.50 m ({T} m): aucune position LV. Position OUVERTE.",
- w_masch2: "Fouille mécanique au-delà de 2.00 m ({T} m): aucune position LV. Position OUVERTE.",
- w_spries2: "Étayage au-delà de 2.00 m ({T} m): aucune position LV. Position OUVERTE.",
+ w_handTiefe: "Fouille à la main au-delà de 1.50 m ({T} m): aucune position LV (NPK {npk}, classe {kl} m). Position OUVERTE.",
+ w_masch2: "Fouille mécanique au-delà de 2.00 m ({T} m): aucune position LV (NPK {npk}, classe {kl} m). Position OUVERTE.",
+ w_spries2: "Étayage au-delà de 2.00 m ({T} m): aucune position LV (NPK {npk}, classe {kl} m). Position OUVERTE.",
  w_freiKeinEP: "Position libre «{t}» sans prix unitaire: aucun prix TB-KOPA 2026 univoque. Position OUVERTE, clarification nécessaire.",
- w_spriesAnn: "Étayage assumé comme étayage continu en planches (surface = 2 parois × longueur × profondeur). Vérifier le type d'étayage."
+ w_spriesAnn: "Étayage assumé comme étayage continu en planches (surface = 2 parois × longueur × profondeur). Vérifier le type d'étayage. Au-delà de 1.50 m, prestations supplémentaires possibles en position libre: fouille difficile NPK 151/222–224, conduites dans le profil 151/241–242, épuisement 151/131–132, blindage 151/321–341."
 });
 Object.assign(T.it, {
  c_offenTag: "APERTO",
@@ -383,11 +383,11 @@ Object.assign(T.it, {
  w_fundMin: "Fondazione {d} mm: posizione LV solo da 101 mm. Posa fino a 100 mm APERTA, nessun prezzo univoco.",
  w_deckMasch: "Strato di usura a macchina: lo spessore {d} mm non è un livello del LV. Posizione APERTA.",
  w_rohr5: "La lunghezza di 5 m esiste nel LV solo per DN/ID 55, non per DN/ID {dn}. Posizione APERTA, nessuna posizione sostitutiva usata.",
- w_handTiefe: "Scavo a mano oltre 1.50 m ({T} m): nessuna posizione LV. Posizione APERTA.",
- w_masch2: "Scavo meccanico oltre 2.00 m ({T} m): nessuna posizione LV. Posizione APERTA.",
- w_spries2: "Puntellatura oltre 2.00 m ({T} m): nessuna posizione LV. Posizione APERTA.",
+ w_handTiefe: "Scavo a mano oltre 1.50 m ({T} m): nessuna posizione LV (NPK {npk}, classe {kl} m). Posizione APERTA.",
+ w_masch2: "Scavo meccanico oltre 2.00 m ({T} m): nessuna posizione LV (NPK {npk}, classe {kl} m). Posizione APERTA.",
+ w_spries2: "Puntellatura oltre 2.00 m ({T} m): nessuna posizione LV (NPK {npk}, classe {kl} m). Posizione APERTA.",
  w_freiKeinEP: "Posizione libera «{t}» senza prezzo unitario: nessun prezzo TB-KOPA 2026 univoco. Posizione APERTA, chiarimento necessario.",
- w_spriesAnn: "Puntellatura assunta come puntellatura continua a tavole (superficie = 2 pareti × lunghezza × profondità). Verificare il tipo di armatura."
+ w_spriesAnn: "Puntellatura assunta come puntellatura continua a tavole (superficie = 2 pareti × lunghezza × profondità). Verificare il tipo di armatura. Oltre 1.50 m possibili prestazioni aggiuntive come posizione libera: scavo difficoltoso NPK 151/222–224, condotte nel profilo 151/241–242, aggottamento 151/131–132, armatura 151/321–341."
 });
 Object.assign(T.en, {
  c_offenTag: "OPEN",
@@ -411,11 +411,11 @@ Object.assign(T.en, {
  w_fundMin: "Sub-base {d} mm: LV item only from 101 mm. Installation up to 100 mm OPEN, no unambiguous price.",
  w_deckMasch: "Surface course by machine: thickness {d} mm is not a defined LV step. Item OPEN.",
  w_rohr5: "5 m duct length exists in the LV only for DN/ID 55, not for DN/ID {dn}. Item OPEN, no substitute item used.",
- w_handTiefe: "Hand excavation beyond 1.50 m ({T} m): no LV item. Item OPEN.",
- w_masch2: "Machine excavation beyond 2.00 m ({T} m): no LV item. Item OPEN.",
- w_spries2: "Shoring beyond 2.00 m ({T} m): no LV item. Item OPEN.",
+ w_handTiefe: "Hand excavation beyond 1.50 m ({T} m): no LV item (NPK {npk}, class {kl} m). Item OPEN.",
+ w_masch2: "Machine excavation beyond 2.00 m ({T} m): no LV item (NPK {npk}, class {kl} m). Item OPEN.",
+ w_spries2: "Shoring beyond 2.00 m ({T} m): no LV item (NPK {npk}, class {kl} m). Item OPEN.",
  w_freiKeinEP: "Free item «{t}» with no unit price: no unambiguous TB-KOPA 2026 price. Item OPEN, clarification needed.",
- w_spriesAnn: "Shoring assumed as continuous timber shoring (area = 2 walls × length × depth). Please verify the type of shoring."
+ w_spriesAnn: "Shoring assumed as continuous timber shoring (area = 2 walls × length × depth). Please verify the type of shoring. Beyond 1.50 m, possible extra items as a free item: difficult excavation NPK 151/222–224, utilities in the profile 151/241–242, dewatering 151/131–132, shoring 151/321–341."
 });
 
 /* ---- Ergänzungen A–Q: Humus, Erschwernis, Vorarbeiten, Fremdleitungen, Baustelle/Verkehr, Saugbagger,

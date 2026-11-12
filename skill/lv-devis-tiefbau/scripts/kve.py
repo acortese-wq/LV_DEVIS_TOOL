@@ -615,11 +615,18 @@ def breite(cx, c):
     return b
 
 
+def klNpk(key, T_):
+    """NPK-Tiefenklasse (NPK 151, Ausmass 022.600): das ganze Volumen gehört der Klasse, in die die Grabentiefe fällt."""
+    i = 1 if T_ <= 1.5 else 2 if T_ <= 2.0 else 3 if T_ <= 3.0 else 4
+    return {"npk": key[:-1] + str(i), "kl": "1.51–2.00" if i == 2 else "2.01–3.00" if i == 3 else ">3.00"}
+
+
 def aushubLines(cx, keys, T_, Vm, Vh, rm, rh):
     cx.g("g_aushub")
-    if T_ > 2.0: cx.off("masch2", Vm, "m³", {"T": T_}, {"rule": rm})
+    km = klNpk(keys["m1"], T_); kh = klNpk(keys["h"], T_)
+    if T_ > 2.0: cx.off("masch2", Vm, "m³", {"T": T_, "npk": km["npk"], "kl": km["kl"]}, {"rule": rm})
     else: cx.add(keys["m1"] if T_ <= 1.5 else keys["m2"], Vm, {"rule": rm})
-    if T_ > 1.5: cx.off("handTiefe", Vh, "m³", {"T": T_}, {"rule": rh})
+    if T_ > 1.5: cx.off("handTiefe", Vh, "m³", {"T": T_, "npk": kh["npk"], "kl": kh["kl"]}, {"rule": rh})
     else: cx.add(keys["h"], Vh, {"rule": rh})
 
 
@@ -735,7 +742,7 @@ def graben(c, LV, P=None):
     if gs:
         Fs = 2 * L * T_; fr = "2 Wände × " + s2(L) + " m × " + s2(T_) + " m = " + s2(Fs) + " m²"
         cx.g("g_spries")
-        if T_ > 2.0: cx.off("spries2", Fs, "m²", {"T": T_}, {"rule": fr})
+        if T_ > 2.0: cx.off("spries2", Fs, "m²", {"T": T_, "npk": klNpk("151/321.101", T_)["npk"], "kl": klNpk("151/321.101", T_)["kl"]}, {"rule": fr})
         else: cx.add("151/321.101" if T_ <= 1.5 else "151/321.102", Fs, {"rule": fr})
         cx.w("spriesAnn", "info", {})
     Ve = max(0, V - bi["Valt"]); blockA = 0; zq = None

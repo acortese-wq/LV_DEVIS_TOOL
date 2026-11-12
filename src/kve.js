@@ -426,10 +426,17 @@ var KVE = (function () {
   }
 
   /* Aushub (Maschine/Hand) mit Tiefenklassen; ausserhalb der LV-Klassen: OFFEN */
+  /* NPK-Tiefenklasse (NPK 151, Ausmass 022.600: das ganze Volumen gehört der Klasse, in die die Grabentiefe fällt; über 1.50 m immer die nächste Klasse).
+     Liefert den NPK-Code der Klasse (letzte Stelle = Klasse 1…4) und die Bezeichnung, damit OFFEN-Positionen beim Unternehmer gezielt erfragt werden können. */
+  function klNpk(key, T) {
+    var i = T <= 1.5 ? 1 : T <= 2.0 ? 2 : T <= 3.0 ? 3 : 4;
+    return { npk: key.slice(0, -1) + i, kl: i === 2 ? "1.51–2.00" : i === 3 ? "2.01–3.00" : ">3.00" };
+  }
   function aushubLines(cx, keys, T, Vm, Vh, rm, rh) {
     cx.g("g_aushub");
-    if (T > 2.0) cx.off("masch2", Vm, "m³", { T: T }, { rule: rm }); else cx.add(T <= 1.5 ? keys.m1 : keys.m2, Vm, { rule: rm });
-    if (T > 1.5) cx.off("handTiefe", Vh, "m³", { T: T }, { rule: rh }); else cx.add(keys.h, Vh, { rule: rh });
+    var km = klNpk(keys.m1, T), kh = klNpk(keys.h, T);
+    if (T > 2.0) cx.off("masch2", Vm, "m³", { T: T, npk: km.npk, kl: km.kl }, { rule: rm }); else cx.add(T <= 1.5 ? keys.m1 : keys.m2, Vm, { rule: rm });
+    if (T > 1.5) cx.off("handTiefe", Vh, "m³", { T: T, npk: kh.npk, kl: kh.kl }, { rule: rh }); else cx.add(keys.h, Vh, { rule: rh });
   }
 
   /* Saugbagger: ersetzt Maschinen-/Handaushub vollständig (151/227) */
@@ -526,7 +533,7 @@ var KVE = (function () {
     if (g) {
       var Fs = 2 * L * T, fr = "2 Wände × " + s2(L) + " m × " + s2(T) + " m = " + s2(Fs) + " m²";
       cx.g("g_spries");
-      if (T > 2.0) cx.off("spries2", Fs, "m²", { T: T }, { rule: fr }); else cx.add(T <= 1.5 ? "151/321.101" : "151/321.102", Fs, { rule: fr });
+      if (T > 2.0) cx.off("spries2", Fs, "m²", { T: T, npk: klNpk("151/321.101", T).npk, kl: klNpk("151/321.101", T).kl }, { rule: fr }); else cx.add(T <= 1.5 ? "151/321.101" : "151/321.102", Fs, { rule: fr });
       cx.w("spriesAnn", "info", {});
     }
 

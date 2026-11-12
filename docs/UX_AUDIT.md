@@ -446,3 +446,10 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 - Rechtsklick auf eine Linie: «Oberfläche ab hier: Wiese / Pflästerung / Belag / Rohplanie» direkt im Menü (kein Untermenü). Wechsel ab Klickpunkt bis Linienende; am Linienanfang wechselt die ganze Linie, am Ende erscheint ein Hinweis. Rückgängig wie gewohnt.
 - Neue Linien, Flächen und Pflästerungs-Teilstücke starten mit «ohne Abbruch». **Kostenwirkung:** neue Pflästerungs-Objekte enthalten keinen Abbruchposten «Betonstein» mehr, solange er nicht bewusst gewählt wird. Bestehende Projekte (Objekte ohne Angabe) bleiben unverändert «Abbruch Betonstein».
 - Test t96; Regression t78 und Skill-Vergleich unverändert.
+
+## V117 (12.11.2026) – NPK-Tiefenklassen für OFFEN-Positionen (Grundlage: NPK 151, V'2025, Originaltext)
+- **Regel NPK 022.600:** Bei nach Bereichen gestaffelten Positionen (z. B. Grabentiefe) gehört das **ganze** Volumen der Klasse, in die die Tiefe fällt; über 1.50 m gilt immer die nächste Klasse (1.80 m → «1.51 bis 2.00»). Der Kern rechnete schon so (ganze Handmenge OFFEN); neu nennt jede OFFEN-Position NPK-Code und Klasse: Handaushub 1.80 m → «NPK 151/221.212, Klasse 1.51–2.00 m», Maschine über 2.00 m (.113/.123), Spriessung über 2.00 m (151/321.103/.104).
+- **Warum OFFEN:** Das Swisscom-LV führt nur Hand bis 1.50 m (221.211/.221) und Maschine bis 2.00 m (221.111/.112/.121/.122); die NPK-Klassen 221.212, .213, .222, .223 usw. fehlen.
+- **Vorschläge:** Die Hinweise «senkrechte Wände ohne Spriessung» (wandTief) und «Spriessung angenommen» (spriesAnn) nennen mögliche Mehrleistungen als freie Position: erschwerter Aushub 151/222–224, Leitungen im Profil 151/241–242, Wasserhaltung 151/131–132, Verbau 151/321–341. Vier Sprachen.
+- **Kostenwirkung: keine.** Keine Position, keine Menge, keine Summe ändert sich (Test t78 und Skill-Vergleich unverändert, 0 Abweichungen); es ändern sich nur Texte und Argumente. Test t97. Kern in `kve.js` und `kve.py` identisch (`klNpk`).
+- Nicht übernommen: Teilmengen-Rechnung «nur Anteil über 1.50 m» (widerspricht NPK 022.600).
