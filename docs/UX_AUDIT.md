@@ -484,3 +484,8 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 - **Projektbericht:** Die erste Seite zeigt immer das Luftbild (swisstopo SWISSIMAGE) mit Leitungsführung, danach Situation (Karte) und Plan.
 - **Parzellenhinweis:** «Parzellen erst ab Zoomstufe 15» steht als Feld in der Karte (nicht klickbar) statt als Toast, der Klicks am unteren Kartenrand abfing.
 - Kostenwirkung: keine (Rechenkern unverändert, t78 identisch, Skill-Vergleich ohne Abweichungen). Tests t103 (neu); t12 und t52 klappen Zeilen vorher auf (Testhilfe `__KM.unfold`).
+
+## V123 (12.11.2026) – Geführtes Einpassen des PDF-Plans
+- **Schritt für Schritt, mit Angabe der Punkte:** Schrittleiste über der Karte (4 Schritte): 1 «Im PDF eine gut erkennbare Hausecke anklicken» → 2 «Auf dem Parzellenplan dieselbe Hausecke anklicken» → 3 «Im PDF eine zweite Hausecke (weit von der ersten entfernt)» → 4 «Auf dem Parzellenplan dieselbe zweite Hausecke». Fortschritt als Chips (✓ erledigt, aktueller Schritt hervorgehoben), Hinweistext in DE/FR/IT/EN; nach 4 Klicks ist der Plan ausgerichtet, optional weitere Punkte zur Verfeinerung.
+- **Weniger Klicks:** Das Einpassen startet von selbst, wenn der PDF-Plan nicht automatisch ausgerichtet werden kann; die Kartenquelle wechselt auf den Parzellenplan (Zoom mindestens Stufe 16); im PDF-Schritt ist der Plan gut sichtbar (Deckkraft ≥ 75 %), im Parzellenschritt abgeschwächt (≤ 30 %), damit Gebäudeecken des Parzellenplans erkennbar sind.
+- Rechenkern und Kosten unverändert. Test t104 (neu); t12, t29, t77 an den Selbststart angepasst (Klick nur, wenn der Modus nicht schon aktiv ist). «Mit Passpunkten verfeinern» ist jetzt idempotent.

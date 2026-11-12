@@ -1339,12 +1339,27 @@
       var pane = map.getPane("kmov"); if (!ovImg) { ovImg = document.createElement("img"); ovImg.alt = ""; ovImg.className = "kmovimg"; pane.appendChild(ovImg); }
       if (ovImg.getAttribute("data-k") !== ovl.img.slice(-40) + ovl.w) { ovImg.src = ovl.img; ovImg.setAttribute("data-k", ovl.img.slice(-40) + ovl.w); }
       var c = ovCorners(ovl).map(function (q) { return map.latLngToLayerPoint(toWGS(q[0], q[1])); }), w = ovl.w, h = ovl.h;
-      ovImg.style.width = w + "px"; ovImg.style.height = h + "px"; ovImg.style.opacity = ovl.op || 0.6;
+      ovImg.style.width = w + "px"; ovImg.style.height = h + "px"; ovImg.style.opacity = ovOpNow();
       ovImg.style.transform = "matrix(" + [(c[1].x - c[0].x) / w, (c[1].y - c[0].y) / w, (c[3].x - c[0].x) / h, (c[3].y - c[0].y) / h, c[0].x, c[0].y].join(",") + ")";
       if (!viewOnly) gcpDraw(); var R = $("#kmOvR"), S2 = $("#kmOvS"), O = $("#kmOvO"); if (document.activeElement !== R) R.value = Math.round(ovl.rot * 100) / 100; if (document.activeElement !== S2) S2.value = Math.round(ovl.mpp * 10000) / 10000; O.value = Math.round((ovl.op || 0.6) * 100);
     }
     /* Passpunkte: Ausgleich, Marker (ziehen, Pfeiltasten 1 cm / Umschalt 10 cm), Liste mit E/N und Restabweichung */
     var gcpLay = null, gcpKeep = false, gcpStay = false;   /* gcpStay: über «Passpunkt hinzufügen» gestartet → Modus bleibt bis «Fertig» */
+    /* Geführtes Einpassen: Hausecke im PDF, dieselbe Hausecke auf dem Parzellenplan (Schritt 1–4), danach optional weitere Punkte */
+    function gStepNo() { if (mode !== "geo" || !ovl) return 0; var g = ovl.gcp || gcp || []; if (!g.length) return 1; var last = g[g.length - 1]; if (!last.t) return g.length === 1 ? 2 : 4; return g.length === 1 ? 3 : 5; }
+    function ovOpNow() { var o = ovl.op || 0.6; if (mode !== "geo") return o; var n = gStepNo(); return n === 2 || n === 4 ? Math.min(o, 0.3) : Math.max(o, 0.75); }   /* PDF-Schritt: Plan gut sichtbar; Parzellenplan-Schritt: Plan abgeschwächt */
+    function useParcel() {   /* Einpassen immer auf dem Parzellenplan */
+      if (plan || !map) return; if (base !== "kataster" && base !== "av") { base = "kataster"; fillBase(); try { localStorage.setItem("lvd-km-base", "kataster"); } catch (e) { } setBase("kataster"); if (LY) lyBase(); }
+      if (map.getZoom() < PARZ_MINZ) map.setZoom(PARZ_MINZ + 1, { animate: false });
+    }
+    function gstepRender() {
+      var host = $("#kmMap"); if (!host) return; var n = gStepNo(), el = host.querySelector(".kmgstep");
+      if (!n) { if (el) { el.remove(); if (ovl && ovl.img) ovDraw(); } return; }
+      if (!el) { el = document.createElement("div"); el.className = "kmgstep"; el.setAttribute("role", "status"); el.setAttribute("aria-live", "polite"); host.appendChild(el); }
+      var chips = [1, 2, 3, 4].map(function (i) { var st = n > 4 || i < n ? "done" : i === n ? "now" : "todo"; return '<li class="' + st + '"><b>' + (st === "done" ? "✓" : i) + "</b> " + esc(tt("ov_st" + i)) + "</li>"; }).join("");
+      el.innerHTML = '<ol class="kmgchips">' + chips + '</ol><p class="kmgmsg"><span class="kmgwho">' + esc(tt(n === 2 || n === 4 ? "ov_stWhoK" : "ov_stWhoP")) + "</span> " + esc(tt("ov_g" + n)) + "</p>";
+      if (ovl && ovl.img) ovDraw();
+    }
     function gcpFit() {
       var P = (ovl && ovl.gcp || []).filter(function (g) { return g.t; }); if (P.length < 2) return; var f = ovFit(ovl, P); if (!f) return;
       ovl.mpp = f.mpp; ovl.rot = f.rot; ovl.E = f.E; ovl.N = f.N; ovl.conf = true; ovl.autoSrc = "gcp"; ovl.rms = P.length > 2 ? f.rms : null; P.forEach(function (g, i) { g.r = P.length > 2 ? f.res[i] : null; g.bad = false; }); lyEdited = true;
@@ -1472,6 +1487,7 @@
       $("[data-k=marea]").textContent = mode === "area" ? tt("km_areaOn") : tt("km_area"); $("[data-k=mline]").textContent = mode === "line" ? tt("km_drawOn") : tt("km_draw"); $("[data-k=mpt]").textContent = mode === "pt" ? tt("km_ptOn") : tt("km_pt"); $("[data-k=msond]").textContent = mode === "sond" ? tt("km_sondOn") : tt("km_sond");
       if (plan) $("[data-k=mcal]").textContent = mode === "cal" ? tt("pl_calOn") : tt("pl_cal");
       $("[data-k=end]").disabled = !(cur || curN || curA || (mode === "ruler" && rul.length)); $("[data-k=redo]").disabled = !redoSt.length; $("[data-k=undo]").disabled = !(undoSt.length || tmp.length); $("[data-k=clear]").disabled = !(rul.length || M.lines.length || M.pts.length || M.sond.length || M.notes.length || M.areas.length || M.wl.length || M.geb.length); $("[data-k=center]").disabled = !mode || mode === "edit";
+      gstepRender();
       $("#kmHelp").textContent = mode === "ruler" ? tt("km_helpRuler") : mode === "geo" ? tt(!gcp.length ? "ov_g1" : !gcp[gcp.length - 1].t ? (gcp.length === 1 ? "ov_g2" : "ov_g4") : gcp.length === 1 ? "ov_g3" : "ov_g5") : mode === "cal" ? tt("pl_helpCal") : mode === "edit" ? tt("km_helpEdit") : mode === "text" ? tt("km_helpText") : mode === "arrow" || mode === "rect" ? tt("km_helpTwo") : mode ? tt("km_helpOn") : plan && !cal.scale ? tt("pl_calNeed") : base === "av" && !avCfg().u ? tt("km_avHelp") : tt("km_helpOff");
       map.getContainer().style.cursor = mode && mode !== "edit" ? "crosshair" : "";
       var vw = base === "viewer"; dlg.querySelectorAll(".kmbar [data-k^=m],[data-k=center],[data-k=end],[data-k=fit]").forEach(function (b) { if (vw) b.disabled = true; else if (b.dataset.k !== "end" && b.dataset.k !== "center") b.disabled = false; });
@@ -2992,7 +3008,7 @@
       var k = b.getAttribute("data-k");
       if (/^m(ruler|line|pt|sond|text|arrow|sline|rect|area|wl|geb)$/.test(k) || k === "route") lastCmd = { k: k, t: String(b.getAttribute("aria-label") || b.getAttribute("title") || b.textContent).replace(/\s+/g, " ").trim().slice(0, 40) };
       if (k === "close") { if (LY) lyGo("proj"); else close(); }
-      else if (/^m(geo|ruler|line|pt|sond|cal|edit|text|arrow|sline|rect|area|wl|geb)$/.test(k)) { var m = k.slice(1); if (m === "geo") { ov0 = JSON.stringify(ovl); if (ovl && !gcpKeep && ovl.gcp && ovl.gcp.length) { var oG = JSON.stringify(ovl.gcp); ovl.gcp = []; ovl.rms = null; toast(dlg, tt("ov_gNew"), tt("km_undoBtn"), function () { if (ovl) { ovl.gcp = JSON.parse(oG); gcp = ovl.gcp; gcpPanel(); refresh(); } }); } gcp = ovl ? (ovl.gcp = ovl.gcp || []) : []; gcpStay = gcpKeep; gcpKeep = false; setTimeout(gcpPanel, 0); }   /* «Passpunkte setzen» = neue Ausrichtung; «Passpunkt hinzufügen» verfeinert */ if (m === "ruler") rul = []; hideTip(); if (mode === "line" || mode === "sline" || mode === "area") endLine(); tmp = []; calPts = []; if (plan) $("#kmCalF").hidden = true; mode = mode === m ? "" : m; refresh(); }
+      else if (/^m(geo|ruler|line|pt|sond|cal|edit|text|arrow|sline|rect|area|wl|geb)$/.test(k)) { var m = k.slice(1); if (m === "geo") { useParcel(); ov0 = JSON.stringify(ovl); if (ovl && !gcpKeep && ovl.gcp && ovl.gcp.length) { var oG = JSON.stringify(ovl.gcp); ovl.gcp = []; ovl.rms = null; toast(dlg, tt("ov_gNew"), tt("km_undoBtn"), function () { if (ovl) { ovl.gcp = JSON.parse(oG); gcp = ovl.gcp; gcpPanel(); refresh(); } }); } gcp = ovl ? (ovl.gcp = ovl.gcp || []) : []; gcpStay = gcpKeep; gcpKeep = false; setTimeout(gcpPanel, 0); }   /* «Passpunkte setzen» = neue Ausrichtung; «Passpunkt hinzufügen» verfeinert */ if (m === "ruler") rul = []; hideTip(); if (mode === "line" || mode === "sline" || mode === "area") endLine(); tmp = []; calPts = []; if (plan) $("#kmCalF").hidden = true; mode = mode === m ? "" : m; refresh(); }
       else if (k === "center") addPt(map.getCenter());
       else if (k === "end") endLine();
       else if (k === "sv") { var cc = map.getCenter(); svOpen(toLV95(cc.lat, cc.lng), null, true); }
@@ -3173,7 +3189,7 @@
         var run = ++autoRun, m0 = $("#kmOvMsg"), card = $("#kmOvAuto"), at = $("#kmOvAutoT"); card.hidden = true;
         var fin = function (res) {
           if (run !== autoRun || !ovl) return;
-          if (!res) { m0.textContent = tt("ov_autoNone"); m0.className = "hint"; return; }
+          if (!res) { m0.textContent = tt("ov_autoNone"); m0.className = "hint"; var gb0 = $("[data-k=mgeo]"); if (gb0 && !gb0.disabled && mode !== "geo" && ovl && !ovl.conf) gb0.click(); return; }   /* keine automatische Ausrichtung: geführtes Einpassen startet von selbst */
           ov0 = JSON.stringify(ovl); ovl.E = res.E; ovl.N = res.N; ovl.rot = 0; if (res.mpp) { ovl.mpp = res.mpp; ovl.auto = 0; } ovl.autoSrc = res.src; ovl.conf = false;
           fitAll(); refresh(); m0.textContent = ""; at.textContent = res.txt; card.hidden = false; $("[data-oa=ok]").focus();
         };
@@ -3207,7 +3223,7 @@
         var b = e.target.closest("[data-oa]"); if (!b || !ovl) return; var k = b.dataset.oa;
         if (k === "ok") { ovl.conf = true; $("#kmOvAuto").hidden = true; $("#kmOvMsg").textContent = tt("ov_confirmed"); $("#kmOvMsg").className = "hint"; }
         else if (k === "no") { try { var o0 = JSON.parse(ov0); if (o0) ovl = o0; else ovl = null; } catch (x) { } $("#kmOvAuto").hidden = true; ovDraw(); refresh(); }
-        else if (k === "ref") { $("#kmOvAuto").hidden = true; ovl.conf = false; $("[data-k=mgeo]").click(); }
+        else if (k === "ref") { $("#kmOvAuto").hidden = true; ovl.conf = false; if (mode !== "geo") $("[data-k=mgeo]").click(); else { refresh(); gstepRender(); } }
       });
       $("#kmOvF").addEventListener("change", function (e) {
         var file = e.target.files[0]; if (!file) return; ovMsg("pl_reading");

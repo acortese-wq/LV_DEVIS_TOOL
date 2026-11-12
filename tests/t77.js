@@ -15,7 +15,7 @@ const K = require('./lib/k.js'), { chromium, ok, mk, getS, AXE } = K;
   const S = [[0.15, 0.2], [0.85, 0.25], [0.8, 0.85], [0.2, 0.8]].map(q => [q[0] * o0.w, q[1] * o0.h]);
   const scr = q => pg.evaluate(q => { const m = window.__KM.map(), p = m.latLngToContainerPoint(window.__KM.ll(q)), r = document.querySelector('#kmMap').getBoundingClientRect(); return [r.left + p.x, r.top + p.y]; }, q);
   const fitTo = async pts => { await pg.evaluate(pts => { const m = window.__KM.map(); m.fitBounds(L.latLngBounds(pts.map(p => window.__KM.ll(p))).pad(0.3), { animate: false, paddingBottomRight: [60, 160], paddingTopLeft: [360, 80] }); }, pts); await pg.waitForTimeout(250); };
-  await pg.click('[data-k=mgeo]'); await pg.waitForTimeout(200);
+  if ((await pg.getAttribute('[data-k=mgeo]', 'aria-pressed')) !== 'true') await pg.click('[data-k=mgeo]'); await pg.waitForTimeout(200);   /* geführtes Einpassen startet nach dem Laden von selbst */
   for (let i = 0; i < 4; i++) {
     let o = await O(); const sp = px(o, S[i][0], S[i][1]), tp = px(T, S[i][0], S[i][1]);
     await fitTo([sp, tp]); let c = await scr(sp); await pg.mouse.click(c[0], c[1]); await pg.waitForTimeout(150);

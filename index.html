@@ -1702,6 +1702,14 @@ tr.pst-ip .pst{background:#e7f0fb;border-color:#0a5aa8;color:#083f78}tr.pst-ip t
 .kmdlg .kmmore2{margin:6px 0}.kmdlg .kmmore2>summary{cursor:pointer;font-weight:600;padding:4px 0}
 .kmdlg .kmparzhint{position:absolute;left:8px;bottom:26px;z-index:640;pointer-events:none;max-width:min(420px,70%);font-size:12px;line-height:1.3;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.92);color:#26343a;border:1px solid #8fa1ac}
 
+/* Geführtes Einpassen: Schrittanzeige über der Karte */
+.kmdlg .kmgstep{position:absolute;left:96px;right:150px;top:8px;z-index:660;pointer-events:none;background:rgba(255,255,255,.96);color:#1b2a2c;border:2px solid #0b6b72;border-radius:10px;padding:8px 12px;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.kmdlg .kmgchips{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:0 0 6px;padding:0}
+.kmdlg .kmgchips li{font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid #8fa1ac;background:#f1f5f6;color:#3a4b50}
+.kmdlg .kmgchips li.now{background:#0b6b72;color:#fff;border-color:#0b6b72;font-weight:700}
+.kmdlg .kmgchips li.done{background:#e3f1e8;border-color:#1f7a3a;color:#14572a}
+.kmdlg .kmgmsg{margin:0;font-size:14px;line-height:1.35}.kmdlg .kmgwho{font-weight:700;color:#0a4f55}
+
 </style>
 </head>
 <body>
@@ -4110,12 +4118,18 @@ TS.en = {
     ov_sp: ["1 % grösser", "1 % plus grand", "1 % più grande", "1 % larger"],
     ov_loaded: ["Plan eingesetzt (ungefähre Grösse). Bitte mit «Passpunkte setzen» ausrichten.", "Plan inséré (taille approximative). Aligner avec «Points de calage».", "Pianta inserita (dimensione approssimativa). Allineare con «Punti di appoggio».", "Plan inserted (approximate size). Please align with “Set control points”."],
     ov_loadedAuto: ["Plan eingesetzt, Massstab 1:{r} automatisch gesetzt. Lage und Drehung mit «Passpunkte setzen» ausrichten.", "Plan inséré, échelle 1:{r} fixée automatiquement. Aligner position et rotation avec «Points de calage».", "Pianta inserita, scala 1:{r} impostata automaticamente. Allineare posizione e rotazione con «Punti di appoggio».", "Plan inserted, scale 1:{r} set automatically. Align position and rotation with “Set control points”."],
-    ov_g1: ["Passpunkt 1: Punkt auf dem Plan anklicken (z. B. Gebäudeecke).", "Point de calage 1: cliquer un point du plan (p. ex. coin de bâtiment).", "Punto di appoggio 1: cliccare un punto sulla pianta (p. es. angolo edificio).", "Control point 1: click a point on the plan (e.g. building corner)."],
-    ov_g2: ["Passpunkt 1: jetzt die richtige Stelle auf der Karte anklicken.", "Point de calage 1: cliquer maintenant le bon endroit sur la carte.", "Punto di appoggio 1: ora cliccare il punto giusto sulla carta.", "Control point 1: now click the right spot on the map."],
-    ov_g3: ["Passpunkt 2: zweiten Punkt auf dem Plan anklicken (weit vom ersten entfernt).", "Point de calage 2: cliquer un second point du plan (éloigné du premier).", "Punto di appoggio 2: cliccare un secondo punto sulla pianta (lontano dal primo).", "Control point 2: click a second point on the plan (far from the first)."],
-    ov_g4: ["Passpunkt 2: jetzt die richtige Stelle auf der Karte anklicken.", "Point de calage 2: cliquer maintenant le bon endroit sur la carte.", "Punto di appoggio 2: ora cliccare il punto giusto sulla carta.", "Control point 2: now click the right spot on the map."],
+    ov_st1: ["PDF: 1. Hausecke", "PDF : 1er coin", "PDF: 1° spigolo", "PDF: 1st corner"],
+    ov_st2: ["Parzellenplan: dieselbe Ecke", "Plan cadastral : même coin", "Mappa catastale: stesso spigolo", "Parcel plan: same corner"],
+    ov_st3: ["PDF: 2. Hausecke", "PDF : 2e coin", "PDF: 2° spigolo", "PDF: 2nd corner"],
+    ov_st4: ["Parzellenplan: dieselbe Ecke", "Plan cadastral : même coin", "Mappa catastale: stesso spigolo", "Parcel plan: same corner"],
+    ov_stWhoP: ["Im PDF klicken:", "Cliquer dans le PDF :", "Cliccare nel PDF:", "Click in the PDF:"],
+    ov_stWhoK: ["Auf dem Parzellenplan klicken:", "Cliquer sur le plan cadastral :", "Cliccare sulla mappa catastale:", "Click on the parcel plan:"],
+    ov_g1: ["Schritt 1 von 4: Im PDF eine gut erkennbare Hausecke anklicken.", "Étape 1 sur 4 : cliquer dans le PDF sur un coin de bâtiment bien identifiable.", "Passo 1 di 4: nel PDF cliccare uno spigolo di edificio ben riconoscibile.", "Step 1 of 4: click a clearly recognisable building corner in the PDF."],
+    ov_g2: ["Schritt 2 von 4: Auf dem Parzellenplan dieselbe Hausecke anklicken.", "Étape 2 sur 4 : cliquer sur le plan cadastral le même coin de bâtiment.", "Passo 2 di 4: cliccare sulla mappa catastale lo stesso spigolo.", "Step 2 of 4: click the same building corner on the parcel plan."],
+    ov_g3: ["Schritt 3 von 4: Im PDF eine zweite Hausecke anklicken (weit von der ersten entfernt).", "Étape 3 sur 4 : cliquer dans le PDF un deuxième coin de bâtiment (loin du premier).", "Passo 3 di 4: nel PDF cliccare un secondo spigolo (lontano dal primo).", "Step 3 of 4: click a second building corner in the PDF (far from the first)."],
+    ov_g4: ["Schritt 4 von 4: Auf dem Parzellenplan dieselbe zweite Hausecke anklicken.", "Étape 4 sur 4 : cliquer sur le plan cadastral le même deuxième coin.", "Passo 4 di 4: cliccare sulla mappa catastale lo stesso secondo spigolo.", "Step 4 of 4: click the same second corner on the parcel plan."],
     ov_done: ["Plan ausgerichtet (Lage, Drehung, Massstab).", "Plan aligné (position, rotation, échelle).", "Pianta allineata (posizione, rotazione, scala).", "Plan aligned (position, rotation, scale)."],
-    ov_g5: ["Weiterer Passpunkt: Punkt auf dem Plan anklicken – oder «Fertig». Je mehr gut verteilte Punkte, desto genauer; Punkte lassen sich ziehen oder mit den Pfeiltasten verschieben (Umschalt = 10 cm).", "Point de calage suivant : cliquer un point du plan – ou « Terminé ». Plus il y a de points bien répartis, plus c’est précis ; les points se déplacent à la souris ou avec les flèches (Maj = 10 cm).", "Ulteriore punto di appoggio: cliccare un punto sulla pianta – oppure «Fine». Più punti ben distribuiti, maggiore precisione; i punti si spostano trascinandoli o con le frecce (Maiusc = 10 cm).", "Next control point: click a point on the plan – or “Done”. More well-spread points give higher accuracy; points can be dragged or moved with the arrow keys (Shift = 10 cm)."],
+    ov_g5: ["Plan ist ausgerichtet. Für mehr Genauigkeit optional einen weiteren Punkt setzen (zuerst im PDF, dann auf dem Parzellenplan) oder «Fertig».", "Plan aligné. Pour plus de précision, ajouter un point (d'abord dans le PDF, puis sur le plan cadastral) ou «Terminé».", "Piano allineato. Per più precisione aggiungere un punto (prima nel PDF, poi sulla mappa catastale) o «Fine».", "Plan aligned. For more accuracy optionally add a point (first in the PDF, then on the parcel plan) or «Done»."],
     ov_done2: ["Plan ausgerichtet. Für mehr Genauigkeit weitere Passpunkte setzen oder Punkte ziehen/mit Pfeiltasten feinjustieren.", "Plan aligné. Pour plus de précision, ajouter des points de calage ou ajuster les points (souris/flèches).", "Pianta allineata. Per maggiore precisione aggiungere punti di appoggio o regolare i punti (mouse/frecce).", "Plan aligned. For higher accuracy add more control points or fine-tune points (drag/arrow keys)."],
     ov_gS: ["Passpunkt {n} auf dem Plan (ziehen oder Pfeiltasten)", "Point de calage {n} sur le plan (glisser ou flèches)", "Punto di appoggio {n} sulla pianta (trascinare o frecce)", "Control point {n} on the plan (drag or arrow keys)"],
     ov_gT: ["Passpunkt {n} auf der Karte (ziehen oder Pfeiltasten)", "Point de calage {n} sur la carte (glisser ou flèches)", "Punto di appoggio {n} sulla carta (trascinare o frecce)", "Control point {n} on the map (drag or arrow keys)"],
@@ -7556,12 +7570,27 @@ var FIG = (function () {
       var pane = map.getPane("kmov"); if (!ovImg) { ovImg = document.createElement("img"); ovImg.alt = ""; ovImg.className = "kmovimg"; pane.appendChild(ovImg); }
       if (ovImg.getAttribute("data-k") !== ovl.img.slice(-40) + ovl.w) { ovImg.src = ovl.img; ovImg.setAttribute("data-k", ovl.img.slice(-40) + ovl.w); }
       var c = ovCorners(ovl).map(function (q) { return map.latLngToLayerPoint(toWGS(q[0], q[1])); }), w = ovl.w, h = ovl.h;
-      ovImg.style.width = w + "px"; ovImg.style.height = h + "px"; ovImg.style.opacity = ovl.op || 0.6;
+      ovImg.style.width = w + "px"; ovImg.style.height = h + "px"; ovImg.style.opacity = ovOpNow();
       ovImg.style.transform = "matrix(" + [(c[1].x - c[0].x) / w, (c[1].y - c[0].y) / w, (c[3].x - c[0].x) / h, (c[3].y - c[0].y) / h, c[0].x, c[0].y].join(",") + ")";
       if (!viewOnly) gcpDraw(); var R = $("#kmOvR"), S2 = $("#kmOvS"), O = $("#kmOvO"); if (document.activeElement !== R) R.value = Math.round(ovl.rot * 100) / 100; if (document.activeElement !== S2) S2.value = Math.round(ovl.mpp * 10000) / 10000; O.value = Math.round((ovl.op || 0.6) * 100);
     }
     /* Passpunkte: Ausgleich, Marker (ziehen, Pfeiltasten 1 cm / Umschalt 10 cm), Liste mit E/N und Restabweichung */
     var gcpLay = null, gcpKeep = false, gcpStay = false;   /* gcpStay: über «Passpunkt hinzufügen» gestartet → Modus bleibt bis «Fertig» */
+    /* Geführtes Einpassen: Hausecke im PDF, dieselbe Hausecke auf dem Parzellenplan (Schritt 1–4), danach optional weitere Punkte */
+    function gStepNo() { if (mode !== "geo" || !ovl) return 0; var g = ovl.gcp || gcp || []; if (!g.length) return 1; var last = g[g.length - 1]; if (!last.t) return g.length === 1 ? 2 : 4; return g.length === 1 ? 3 : 5; }
+    function ovOpNow() { var o = ovl.op || 0.6; if (mode !== "geo") return o; var n = gStepNo(); return n === 2 || n === 4 ? Math.min(o, 0.3) : Math.max(o, 0.75); }   /* PDF-Schritt: Plan gut sichtbar; Parzellenplan-Schritt: Plan abgeschwächt */
+    function useParcel() {   /* Einpassen immer auf dem Parzellenplan */
+      if (plan || !map) return; if (base !== "kataster" && base !== "av") { base = "kataster"; fillBase(); try { localStorage.setItem("lvd-km-base", "kataster"); } catch (e) { } setBase("kataster"); if (LY) lyBase(); }
+      if (map.getZoom() < PARZ_MINZ) map.setZoom(PARZ_MINZ + 1, { animate: false });
+    }
+    function gstepRender() {
+      var host = $("#kmMap"); if (!host) return; var n = gStepNo(), el = host.querySelector(".kmgstep");
+      if (!n) { if (el) { el.remove(); if (ovl && ovl.img) ovDraw(); } return; }
+      if (!el) { el = document.createElement("div"); el.className = "kmgstep"; el.setAttribute("role", "status"); el.setAttribute("aria-live", "polite"); host.appendChild(el); }
+      var chips = [1, 2, 3, 4].map(function (i) { var st = n > 4 || i < n ? "done" : i === n ? "now" : "todo"; return '<li class="' + st + '"><b>' + (st === "done" ? "✓" : i) + "</b> " + esc(tt("ov_st" + i)) + "</li>"; }).join("");
+      el.innerHTML = '<ol class="kmgchips">' + chips + '</ol><p class="kmgmsg"><span class="kmgwho">' + esc(tt(n === 2 || n === 4 ? "ov_stWhoK" : "ov_stWhoP")) + "</span> " + esc(tt("ov_g" + n)) + "</p>";
+      if (ovl && ovl.img) ovDraw();
+    }
     function gcpFit() {
       var P = (ovl && ovl.gcp || []).filter(function (g) { return g.t; }); if (P.length < 2) return; var f = ovFit(ovl, P); if (!f) return;
       ovl.mpp = f.mpp; ovl.rot = f.rot; ovl.E = f.E; ovl.N = f.N; ovl.conf = true; ovl.autoSrc = "gcp"; ovl.rms = P.length > 2 ? f.rms : null; P.forEach(function (g, i) { g.r = P.length > 2 ? f.res[i] : null; g.bad = false; }); lyEdited = true;
@@ -7689,6 +7718,7 @@ var FIG = (function () {
       $("[data-k=marea]").textContent = mode === "area" ? tt("km_areaOn") : tt("km_area"); $("[data-k=mline]").textContent = mode === "line" ? tt("km_drawOn") : tt("km_draw"); $("[data-k=mpt]").textContent = mode === "pt" ? tt("km_ptOn") : tt("km_pt"); $("[data-k=msond]").textContent = mode === "sond" ? tt("km_sondOn") : tt("km_sond");
       if (plan) $("[data-k=mcal]").textContent = mode === "cal" ? tt("pl_calOn") : tt("pl_cal");
       $("[data-k=end]").disabled = !(cur || curN || curA || (mode === "ruler" && rul.length)); $("[data-k=redo]").disabled = !redoSt.length; $("[data-k=undo]").disabled = !(undoSt.length || tmp.length); $("[data-k=clear]").disabled = !(rul.length || M.lines.length || M.pts.length || M.sond.length || M.notes.length || M.areas.length || M.wl.length || M.geb.length); $("[data-k=center]").disabled = !mode || mode === "edit";
+      gstepRender();
       $("#kmHelp").textContent = mode === "ruler" ? tt("km_helpRuler") : mode === "geo" ? tt(!gcp.length ? "ov_g1" : !gcp[gcp.length - 1].t ? (gcp.length === 1 ? "ov_g2" : "ov_g4") : gcp.length === 1 ? "ov_g3" : "ov_g5") : mode === "cal" ? tt("pl_helpCal") : mode === "edit" ? tt("km_helpEdit") : mode === "text" ? tt("km_helpText") : mode === "arrow" || mode === "rect" ? tt("km_helpTwo") : mode ? tt("km_helpOn") : plan && !cal.scale ? tt("pl_calNeed") : base === "av" && !avCfg().u ? tt("km_avHelp") : tt("km_helpOff");
       map.getContainer().style.cursor = mode && mode !== "edit" ? "crosshair" : "";
       var vw = base === "viewer"; dlg.querySelectorAll(".kmbar [data-k^=m],[data-k=center],[data-k=end],[data-k=fit]").forEach(function (b) { if (vw) b.disabled = true; else if (b.dataset.k !== "end" && b.dataset.k !== "center") b.disabled = false; });
@@ -9209,7 +9239,7 @@ var FIG = (function () {
       var k = b.getAttribute("data-k");
       if (/^m(ruler|line|pt|sond|text|arrow|sline|rect|area|wl|geb)$/.test(k) || k === "route") lastCmd = { k: k, t: String(b.getAttribute("aria-label") || b.getAttribute("title") || b.textContent).replace(/\s+/g, " ").trim().slice(0, 40) };
       if (k === "close") { if (LY) lyGo("proj"); else close(); }
-      else if (/^m(geo|ruler|line|pt|sond|cal|edit|text|arrow|sline|rect|area|wl|geb)$/.test(k)) { var m = k.slice(1); if (m === "geo") { ov0 = JSON.stringify(ovl); if (ovl && !gcpKeep && ovl.gcp && ovl.gcp.length) { var oG = JSON.stringify(ovl.gcp); ovl.gcp = []; ovl.rms = null; toast(dlg, tt("ov_gNew"), tt("km_undoBtn"), function () { if (ovl) { ovl.gcp = JSON.parse(oG); gcp = ovl.gcp; gcpPanel(); refresh(); } }); } gcp = ovl ? (ovl.gcp = ovl.gcp || []) : []; gcpStay = gcpKeep; gcpKeep = false; setTimeout(gcpPanel, 0); }   /* «Passpunkte setzen» = neue Ausrichtung; «Passpunkt hinzufügen» verfeinert */ if (m === "ruler") rul = []; hideTip(); if (mode === "line" || mode === "sline" || mode === "area") endLine(); tmp = []; calPts = []; if (plan) $("#kmCalF").hidden = true; mode = mode === m ? "" : m; refresh(); }
+      else if (/^m(geo|ruler|line|pt|sond|cal|edit|text|arrow|sline|rect|area|wl|geb)$/.test(k)) { var m = k.slice(1); if (m === "geo") { useParcel(); ov0 = JSON.stringify(ovl); if (ovl && !gcpKeep && ovl.gcp && ovl.gcp.length) { var oG = JSON.stringify(ovl.gcp); ovl.gcp = []; ovl.rms = null; toast(dlg, tt("ov_gNew"), tt("km_undoBtn"), function () { if (ovl) { ovl.gcp = JSON.parse(oG); gcp = ovl.gcp; gcpPanel(); refresh(); } }); } gcp = ovl ? (ovl.gcp = ovl.gcp || []) : []; gcpStay = gcpKeep; gcpKeep = false; setTimeout(gcpPanel, 0); }   /* «Passpunkte setzen» = neue Ausrichtung; «Passpunkt hinzufügen» verfeinert */ if (m === "ruler") rul = []; hideTip(); if (mode === "line" || mode === "sline" || mode === "area") endLine(); tmp = []; calPts = []; if (plan) $("#kmCalF").hidden = true; mode = mode === m ? "" : m; refresh(); }
       else if (k === "center") addPt(map.getCenter());
       else if (k === "end") endLine();
       else if (k === "sv") { var cc = map.getCenter(); svOpen(toLV95(cc.lat, cc.lng), null, true); }
@@ -9390,7 +9420,7 @@ var FIG = (function () {
         var run = ++autoRun, m0 = $("#kmOvMsg"), card = $("#kmOvAuto"), at = $("#kmOvAutoT"); card.hidden = true;
         var fin = function (res) {
           if (run !== autoRun || !ovl) return;
-          if (!res) { m0.textContent = tt("ov_autoNone"); m0.className = "hint"; return; }
+          if (!res) { m0.textContent = tt("ov_autoNone"); m0.className = "hint"; var gb0 = $("[data-k=mgeo]"); if (gb0 && !gb0.disabled && mode !== "geo" && ovl && !ovl.conf) gb0.click(); return; }   /* keine automatische Ausrichtung: geführtes Einpassen startet von selbst */
           ov0 = JSON.stringify(ovl); ovl.E = res.E; ovl.N = res.N; ovl.rot = 0; if (res.mpp) { ovl.mpp = res.mpp; ovl.auto = 0; } ovl.autoSrc = res.src; ovl.conf = false;
           fitAll(); refresh(); m0.textContent = ""; at.textContent = res.txt; card.hidden = false; $("[data-oa=ok]").focus();
         };
@@ -9424,7 +9454,7 @@ var FIG = (function () {
         var b = e.target.closest("[data-oa]"); if (!b || !ovl) return; var k = b.dataset.oa;
         if (k === "ok") { ovl.conf = true; $("#kmOvAuto").hidden = true; $("#kmOvMsg").textContent = tt("ov_confirmed"); $("#kmOvMsg").className = "hint"; }
         else if (k === "no") { try { var o0 = JSON.parse(ov0); if (o0) ovl = o0; else ovl = null; } catch (x) { } $("#kmOvAuto").hidden = true; ovDraw(); refresh(); }
-        else if (k === "ref") { $("#kmOvAuto").hidden = true; ovl.conf = false; $("[data-k=mgeo]").click(); }
+        else if (k === "ref") { $("#kmOvAuto").hidden = true; ovl.conf = false; if (mode !== "geo") $("[data-k=mgeo]").click(); else { refresh(); gstepRender(); } }
       });
       $("#kmOvF").addEventListener("change", function (e) {
         var file = e.target.files[0]; if (!file) return; ovMsg("pl_reading");

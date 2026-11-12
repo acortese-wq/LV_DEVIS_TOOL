@@ -1,0 +1,35 @@
+/* t104: Geführtes Einpassen des PDF-Plans – startet von selbst, wenn keine automatische Ausrichtung möglich ist; wechselt auf den Parzellenplan; Schrittanzeige «Hausecke im PDF → dieselbe Hausecke auf dem Parzellenplan» (4 Schritte), Plan im PDF-Schritt gut sichtbar, im Parzellenschritt abgeschwächt */
+const K = require('./lib/k.js'), { chromium, ok, mk } = K;
+(async () => {
+  const b = await chromium.launch(); const pg = await mk(b, 1600, 1000);
+  await pg.route('**/*', r => /wmts|wms\.geo|SearchServer|api3|cadastral/.test(r.request().url()) ? r.fulfill({ status: 204 }) : r.fallback());
+  await pg.fill('#f_graben_L', '1'); await pg.waitForTimeout(300);
+  await pg.click('#kmOpen'); await pg.waitForSelector('dialog[open]'); await pg.waitForTimeout(1000);
+  await K.openMid(pg).catch(() => {}); await pg.evaluate(() => { document.querySelector('#kmOvD').open = true; });
+  await pg.setInputFiles('#kmOvF', K.FX('plan.png')); await pg.waitForTimeout(2500);
+  const O = () => pg.evaluate(() => JSON.parse(JSON.stringify(window.__KM.ov(), (k, v) => k === 'img' ? undefined : v)));
+  const o0 = await O(); ok(o0 && o0.w > 0, 'Plan geladen (' + o0.w + '×' + o0.h + ' px)');
+  const step = () => pg.evaluate(() => { const e = document.querySelector('#kmMap .kmgstep'); return e ? { t: e.textContent, now: [...e.querySelectorAll('.kmgchips li.now')].map(x => x.textContent).join(''), done: e.querySelectorAll('.kmgchips li.done').length, op: +getComputedStyle(document.querySelector('.kmovimg')).opacity } : null; });
+  const pressed = await pg.getAttribute('[data-k=mgeo]', 'aria-pressed');
+  ok(pressed === 'true', 'Einpassen startet von selbst (keine automatische Ausrichtung möglich)');
+  const s1 = await step(); ok(s1 && /Schritt 1 von 4/.test(s1.t) && /Hausecke/.test(s1.t) && /PDF/.test(s1.t), 'Schritt 1: «' + (s1 && s1.t.replace(/\s+/g, ' ').slice(0, 130)) + '»');
+  ok(s1 && /PDF: 1\. Hausecke/.test(s1.now) && s1.done === 0, 'Schrittleiste: aktuell «' + (s1 && s1.now) + '»');
+  const lab = await pg.textContent('.lybtn .lybt').catch(() => ''); const bs = await pg.evaluate(() => localStorage.getItem('lvd-km-base')); ok(bs === 'kataster', 'Kartenquelle wechselt auf den Parzellenplan (' + bs + ')');
+  const T = { mpp: 0.05, rot: 12, E: o0.E + 3, N: o0.N - 2, w: o0.w, h: o0.h };
+  const px = (o, x, y) => { const ux = (x - o.w / 2) * o.mpp, uy = (o.h / 2 - y) * o.mpp, a = o.rot * Math.PI / 180; return [o.E + ux * Math.cos(a) - uy * Math.sin(a), o.N + ux * Math.sin(a) + uy * Math.cos(a)]; };
+  const S = [[0.15, 0.2], [0.85, 0.25]].map(q => [q[0] * o0.w, q[1] * o0.h]);
+  const scr = q => pg.evaluate(q => { const m = window.__KM.map(), p = m.latLngToContainerPoint(window.__KM.ll(q)), r = document.querySelector('#kmMap').getBoundingClientRect(); return [r.left + p.x, r.top + p.y]; }, q);
+  const fitTo = async pts => { await pg.evaluate(pts => { const m = window.__KM.map(); m.fitBounds(L.latLngBounds(pts.map(p => window.__KM.ll(p))).pad(0.3), { animate: false, paddingBottomRight: [60, 160], paddingTopLeft: [360, 80] }); }, pts); await pg.waitForTimeout(300); };
+  let o = await O(); let sp = px(o, S[0][0], S[0][1]), tp = px(T, S[0][0], S[0][1]);
+  await fitTo([sp, tp]); let c = await scr(sp); await pg.mouse.click(c[0], c[1]); await pg.waitForTimeout(300);
+  const s2 = await step(); ok(s2 && /Schritt 2 von 4/.test(s2.t) && /Parzellenplan/.test(s2.t) && s2.done === 1, 'Schritt 2: dieselbe Hausecke auf dem Parzellenplan, 1 Schritt erledigt');
+  ok(s2 && s1 && s2.op < s1.op && s2.op <= 0.35, 'Plan wird im Parzellenschritt abgeschwächt (' + (s1 && s1.op) + ' → ' + (s2 && s2.op) + ')');
+  c = await scr(tp); await pg.mouse.click(c[0], c[1]); await pg.waitForTimeout(300);
+  const s3 = await step(); ok(s3 && /Schritt 3 von 4/.test(s3.t) && /zweite/.test(s3.t) && s3.op > 0.7, 'Schritt 3: zweite Hausecke im PDF, Plan wieder gut sichtbar (' + (s3 && s3.op) + ')');
+  o = await O(); sp = px(o, S[1][0], S[1][1]); tp = px(T, S[1][0], S[1][1]); await fitTo([sp, tp]); c = await scr(sp); await pg.mouse.click(c[0], c[1]); await pg.waitForTimeout(300);
+  const s4 = await step(); ok(s4 && /Schritt 4 von 4/.test(s4.t) && s4.done === 3, 'Schritt 4: dieselbe zweite Hausecke auf dem Parzellenplan');
+  c = await scr(tp); await pg.mouse.click(c[0], c[1]); await pg.waitForTimeout(500);
+  o = await O(); ok(Math.abs(o.mpp - 0.05) < 0.005 && Math.abs(o.rot - 12) < 1.5, 'nach 4 Klicks ausgerichtet (Massstab ' + o.mpp.toFixed(4) + ', Drehung ' + o.rot.toFixed(2) + '°)');
+  ok((await step()) === null, 'Schrittanzeige verschwindet nach dem letzten Klick');
+  ok(pg.errs.length === 0, 'keine JS-Fehler ' + pg.errs.join('|')); await b.close();
+})();

@@ -24,12 +24,12 @@ const info=async()=>pg.evaluate(()=>({rot:document.getElementById('kmOvR').value
 const i0=await info(); console.log(' ',JSON.stringify(i0));
 bx=await pg.locator('#kmMap').boundingBox();
 // Passpunkte: Plan-Punkte (A,B) → Karte: gleiche Strecke, aber um 120px nach rechts verschoben und 2x so weit auseinander
-await pg.click('[data-k=mgeo]'); bx=await pg.locator('#kmMap').boundingBox(); const ax=bx.x+300, ay=bx.y+100, bx2=bx.x+400, by=bx.y+100;
+if((await pg.getAttribute('[data-k=mgeo]','aria-pressed'))!=='true') await pg.click('[data-k=mgeo]'); bx=await pg.locator('#kmMap').boundingBox(); const ax=bx.x+300, ay=bx.y+100, bx2=bx.x+400, by=bx.y+100;
 await pg.mouse.click(ax,ay); await pg.waitForTimeout(500); await pg.mouse.click(ax+120,ay); await pg.waitForTimeout(500); await pg.mouse.click(bx2,by); await pg.waitForTimeout(500); await pg.mouse.click(ax+120+200,by);
 await pg.waitForTimeout(300); const i1=await info(); console.log(' ',JSON.stringify(i1));
 ok(Math.abs(parseFloat(i1.mpp)/parseFloat(i0.mpp)-2)<0.05,'Massstab verdoppelt: '+i0.mpp+' → '+i1.mpp); ok(Math.abs(parseFloat(i1.rot))<1,'Drehung ≈ 0: '+i1.rot);
 // Drehung testen: B zielt schräg
-await pg.click('[data-k=mgeo]'); bx=await pg.locator('#kmMap').boundingBox(); const ax2=bx.x+300, ay2=bx.y+100, bx3=bx.x+400, by2=bx.y+100; await pg.mouse.click(ax2,ay2); await pg.mouse.click(ax2,ay2); await pg.mouse.click(bx3,by2); await pg.mouse.click(ax2+100,by2-100);
+if((await pg.getAttribute('[data-k=mgeo]','aria-pressed'))!=='true') await pg.click('[data-k=mgeo]'); bx=await pg.locator('#kmMap').boundingBox(); const ax2=bx.x+300, ay2=bx.y+100, bx3=bx.x+400, by2=bx.y+100; await pg.mouse.click(ax2,ay2); await pg.mouse.click(ax2,ay2); await pg.mouse.click(bx3,by2); await pg.mouse.click(ax2+100,by2-100);
 await pg.waitForTimeout(300); const i2=await info(); console.log(' ',JSON.stringify(i2)); ok(Math.abs(Math.abs(parseFloat(i2.rot))-45)<2,'Drehung ≈ ±45°: '+i2.rot);
 await pg.click('[data-ov=rl]'); const i3=await info(); ok(parseFloat(i3.rot)!==parseFloat(i2.rot),'Feinjustierung dreht');
 await pg.addScriptTag({path:require('./lib/k.js').AXE}); console.log(' axe',JSON.stringify(await pg.evaluate(()=>axe.run(document).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target)))));
