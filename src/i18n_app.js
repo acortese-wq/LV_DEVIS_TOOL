@@ -1103,6 +1103,7 @@
     km_stl_zoom: ["Beschriftung nach Zoom", "Étiquettes selon le zoom", "Etichette secondo lo zoom", "Labels by zoom"],
     km_stl_min: ["Ohne Beschriftung", "Sans étiquettes", "Senza etichette", "No labels"],
     km_more2: ["Weitere Eigenschaften ({n})", "Autres propriétés ({n})", "Altre proprietà ({n})", "More properties ({n})"],
+    km_depthUp: ["Grabentiefe auf {t} m angehoben: Mindestüberdeckung {c} m bei DN {dn} (T = Überdeckung + 5 cm Bettung + DN). Mit «Rückgängig» zurücknehmen.", "Profondeur de fouille relevée à {t} m : recouvrement minimal {c} m pour DN {dn} (T = recouvrement + 5 cm lit + DN). «Annuler» pour revenir.", "Profondità dello scavo portata a {t} m: copertura minima {c} m con DN {dn} (T = copertura + 5 cm letto + DN). «Annulla» per tornare indietro.", "Trench depth raised to {t} m: minimum cover {c} m at DN {dn} (T = cover + 5 cm bedding + DN). Use «Undo» to revert."],
     km_cx_copy: ["Kopieren ({n})", "Copier ({n})", "Copia ({n})", "Copy ({n})"],
     km_cx_paste: ["Einfügen hier", "Coller ici", "Incolla qui", "Paste here"],
     km_cx_del: ["Löschen ({n})", "Supprimer ({n})", "Elimina ({n})", "Delete ({n})"],

@@ -1876,7 +1876,7 @@
         sum.className = "kmsum" + (miss.length ? " warn" : ""); sum.textContent = (lineTxt(l, tt) || "–") + " · " + fmt(len) + " m" + (miss.length ? " · " + tt("km_lt_miss").replace("{x}", miss.join(", ")) : "") + (parseFloat(c.T || "0.6") > 1.0 && !c.gesp ? " · " + tt("km_lt_gespHint") : "");
         xs.innerHTML = !quick && pipeList(c).length && opt.xsec ? '<p class="kmxst">' + esc(tt("km_lt_xsec")) + "</p>" + opt.xsec(l, len) : "";
       }
-      function changed() { snap(); lineSync(l); lastCfg = JSON.parse(JSON.stringify(c)); draw(); costSoon(); paint(); if (quick) rows(); var q = $("#kmQuick"); if (q && !q.hidden && q.dataset.lid === l.id) { var ok = $("#kmQuickOk"); if (ok) ok.disabled = cfgMissing(c).length > 0; } }
+      function changed() { snap(); lineSync(l); lastCfg = JSON.parse(JSON.stringify(c)); draw(); costSoon(); paint(); depthSoon(l); if (quick) rows(); var q = $("#kmQuick"); if (q && !q.hidden && q.dataset.lid === l.id) { var ok = $("#kmQuickOk"); if (ok) ok.disabled = cfgMissing(c).length > 0; } }
       PIPES.forEach(function (p) {
         var w = document.createElement("span"); w.className = "kmpipe"; w.setAttribute("data-t", p[0]);
         var m = document.createElement("button"), pl = document.createElement("button"), t = document.createElement("span"), b = document.createElement("b");
@@ -2089,6 +2089,19 @@
     function pfNum(v) { var n = parseFloat(String(v).replace(",", ".")); return isFinite(n) ? n : null; }
     function lineDN(l) { var pl = pipeList(cfgOf(l)), dn = pl.length ? Math.max.apply(null, pl.map(function (e) { return e[0]; })) : parseInt(l.rohr && l.rohr.dn, 10); return dn > 0 ? dn : 55; }
     function coverDefault(l) { var T = pfNum(cfgOf(l).T); if (T == null) T = 0.6; return Math.max(0, T - 0.05 - lineDN(l) / 1000); }   /* Überdeckung bis Rohrscheitel = T − Bettung 5 cm − DN */
+    /* Mindest-Überdeckung automatisch einhalten: Grabentiefe T wird (nie gesenkt) auf T = Mindestüberdeckung + 5 cm Bettung + DN angehoben, aufgerundet auf 5 cm.
+       Mindestüberdeckung = Feld «Min. Überdeckung» im Höhenprofil, sonst 0.6 m. Ausnahmen: Überdeckung der Linie von Hand gesetzt, Bohrung/Luftleitung, Rohplanie. */
+    var touchedL = {}, depthTm = null;
+    function minCover() { var m = pfNum(PFC.min); return m != null && m > 0 ? m : 0.6; }
+    function needT(l) { var x = minCover() + 0.05 + lineDN(l) / 1000; return Math.round(Math.ceil(x / 0.05 - 1e-9) * 0.05 * 100) / 100; }
+    function ensureDepth(l, quiet) {
+      if (!l || l.pts.length < 2 || l.hzArt || (l.pfC != null && String(l.pfC).trim() !== "")) return false; var c = cfgOf(l); if (c.fl === "roh") return false;
+      var T = pfNum(c.T), need = needT(l); if (T != null && T >= need - 1e-9) return false;
+      snap(); c.T = need.toFixed(2); lineSync(l); lastCfg = JSON.parse(JSON.stringify(c));
+      if (!quiet) toast(dlg, tt("km_depthUp").replace("{t}", need.toFixed(2)).replace("{c}", String(minCover())).replace("{dn}", lineDN(l)), tt("km_undoBtn"), function () { var b = $("[data-k=undo]"); if (b) b.click(); });
+      return true;
+    }
+    function depthSoon(l) { touchedL[l.id] = 1; clearTimeout(depthTm); depthTm = setTimeout(function () { if (byId(M.lines, l.id) && ensureDepth(l)) { draw(); costSoon(); rows(); } }, 1100); }   /* erst nach einer Pause, damit das Tippen nicht gestört wird */
     function coverOf(l) { var o = pfNum(l.pfC); return o != null ? o : coverDefault(l); }
     function hAtP(P, d) { if (!P || !P.length) return null; if (d <= P[0][0]) return P[0][1]; for (var i = 1; i < P.length; i++) if (P[i][0] >= d) { var t = (d - P[i - 1][0]) / ((P[i][0] - P[i - 1][0]) || 1); return P[i - 1][1] + t * (P[i][1] - P[i - 1][1]); } return P[P.length - 1][1]; }
     function sliceP(P, d0, d1) {   /* Teilprofil [d0,d1], Stationen ab d0, Randpunkte interpoliert */
@@ -2802,7 +2815,7 @@
       var fa = curA && byId(M.areas, curA); if (fa && fa.pts.length < 3) M.areas.splice(M.areas.indexOf(fa), 1);
       if (askL) { var le = askL.pts[askL.pts.length - 1], tl = plan ? 0.6 : 0.08; M.lines.forEach(function (o) { if (o === askL || o.pts.length < 2) return; var cpE = map.latLngToContainerPoint(AD.ll(le)), h = segHit(cpE, o.pts); if (h && h.d <= 1.5 && AD.dist(le, o.pts[h.seg]) > tl && AD.dist(le, o.pts[h.seg + 1]) > tl) { o.pts.splice(h.seg + 1, 0, le.slice()); askL.to = o.id; } }); }   /* Endpunkt auf fremder Linie: Knoten (T-Anschluss) */
       if (askL) { var le2 = askL.pts[askL.pts.length - 1], gt = plan ? 0.6 : 0.3; M.geb.forEach(function (g) { if (AD.dist(le2, g.pt) <= gt) { askL.gid = g.id; g.lid = askL.id; } }); }
-      cur = null; curN = null; curA = null; tmp = []; hideTip(); refresh();
+      cur = null; curN = null; curA = null; tmp = []; hideTip(); if (askL && M.lines.indexOf(askL) >= 0) { touchedL[askL.id] = 1; ensureDepth(askL); } refresh();
       if (askL && M.lines.indexOf(askL) >= 0) { if (!(askL.to && !askL.abz && askTap(askL, "to"))) askEnd(askL); quickOpen(askL); }
     }
     function undo() {
@@ -3087,7 +3100,7 @@
       else if (k === "lbl") { showLbl = !showLbl; b.setAttribute("aria-pressed", showLbl ? "true" : "false"); draw(); }
       else if (k === "save") { doSave(); }
       else if (k === "apply") {
-        endLine();
+        endLine(); Object.keys(touchedL).forEach(function (id) { var tl = byId(M.lines, id); if (tl) ensureDepth(tl, true); });   /* neue/geänderte Linien: Mindestüberdeckung einhalten */
         if (plan && !cal.scale && (M.lines.length || M.areas.length)) { toast(dlg, tt("pl_calNeed")); return; }
         opt.onApply(M, cal, function (m) { return effLen(m); }, { area: area, perim: perim, base: base, overlay: ovl, planCleared: planCleared }); var lt = lyTarget; lyTarget = null; close(); if (LY && LY.after) LY.after(lt || "stay");
       }
