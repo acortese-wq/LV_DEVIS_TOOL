@@ -572,7 +572,7 @@
     var provOf = function (b) { return PROV.geoadmin.some(function (o) { return o[0] === b; }) ? "geoadmin" : "swisstopo"; };
     M.sond = M.sond || []; M.notes = M.notes || []; M.areas = M.areas || []; M.wl = M.wl || []; M.geb = M.geb || [];
     var LY = plan ? null : (opt.layoutA || null), lyEdited = false, lyTarget = null, lyD = { t: "kost", c: false };   /* Layout A «Planungsfokus» (Startbildschirm) */
-    if (LY) try { var ld0 = JSON.parse(localStorage.getItem("lvd-ly-dock") || "null"); if (ld0 && typeof ld0 === "object") { if (["prof", "aus", "kost", "pos", "warn"].indexOf(ld0.t) >= 0) lyD.t = ld0.t; lyD.c = !!ld0.c; } } catch (e) { }
+    if (LY) try { var ld0 = JSON.parse(localStorage.getItem("lvd-ly-dock") || "null"); if (ld0 && typeof ld0 === "object") { if (["prof", "aus", "kost", "pos", "offen", "warn"].indexOf(ld0.t) >= 0) lyD.t = ld0.t; lyD.c = !!ld0.c; } } catch (e) { }
     /* Schmale Bildschirme (861–1100 px): unterer Bereich startet eingeklappt, damit die Karte Platz hat; eigene Wahl dort gemerkt (lvd-ly-dockn), breite Bildschirme unverändert */
     var lyNq = window.matchMedia ? window.matchMedia("(min-width:861px) and (max-width:1100px)") : { matches: false }, lyWideC = lyD.c;
     var lyNarC = function () { try { var n = JSON.parse(localStorage.getItem("lvd-ly-dockn") || "null"); if (n && typeof n === "object") return !!n.c; } catch (e) { } return true; };
@@ -834,7 +834,7 @@
         var lay = E("div", "lylay"); lay.innerHTML = '<label class="lyk" for="lySel">' + esc(tt("ly_layout")) + '</label><select id="lySel">' + [["a", "ly_A"], ["b", "ly_B"], ["c", "ly_C"], ["d", "ly_D"], ["classic", "ly_cl"]].map(function (a) { var d = /^[bcd]$/.test(a[0]); return '<option value="' + a[0] + '"' + (a[0] === "a" ? " selected" : "") + (d ? " disabled" : "") + ">" + esc(tt(a[1])) + (d ? " – " + esc(tt("ly_soon")) : "") + "</option>"; }).join("") + "</select>"; head.insertBefore(lay, hb2);
         dlg.insertBefore(bar, head.nextSibling);
         bar.querySelector("#lyProj").textContent = LY.proj || tt("ly_noProj"); bar.querySelector("#lyOrt").textContent = LY.ort || "–";
-        var DT = [["prof", "ly_tProf"], ["aus", "ly_tAus"], ["kost", "ly_tKost"], ["pos", "ly_tPos"], ["warn", "ly_tWarn"]], dock = E("section", "lydock"); dock.setAttribute("aria-label", tt("ly_dock"));
+        var DT = [["prof", "ly_tProf"], ["aus", "ly_tAus"], ["kost", "ly_tKost"], ["pos", "ly_tPos"], ["offen", "ly_tOffen"], ["warn", "ly_tWarn"]], dock = E("section", "lydock"); dock.setAttribute("aria-label", tt("ly_dock"));
         dock.innerHTML = '<div class="lydbar"><div class="lydtabs" role="tablist" aria-label="' + esc(tt("ly_dock")) + '">' + DT.map(function (d) { return '<button type="button" role="tab" id="lyT_' + d[0] + '" aria-controls="lyP_' + d[0] + '" data-dt="' + d[0] + '">' + esc(tt(d[1])) + ' <span class="lycnt" data-cnt="' + d[0] + '"></span></button>'; }).join("") + "</div>" +
           '<button type="button" class="btn ghost small lydcol" data-dcol aria-expanded="true">' + esc(tt("ly_dCol")) + "</button></div>" +
           DT.map(function (d) { return '<div class="lydpan" role="tabpanel" id="lyP_' + d[0] + '" aria-labelledby="lyT_' + d[0] + '"' + (d[0] === "prof" ? "" : ' tabindex="0"') + " hidden>" + (d[0] === "prof" ? "" : '<p class="hint">' + esc(tt("km_loading")) + "</p>") + "</div>"; }).join("");
@@ -862,7 +862,7 @@
             ["mod", [["rb_pSel", [K("medit")]], ["rb_pVert", [O("pt"), O("line"), O("ins"), O("del"), O("seg"), O("split"), O("join")]], ["rb_pEdit", [K("undo"), K("redo"), K("clear")]]]],
             ["ann", [["rb_pAnn", [K("mtext"), K("marrow"), K("msline"), K("mrect")]], ["rb_pMeas", [K("mruler")]]]],
             ["ins", [["rb_pImp", [K("dxfin")]], ["rb_pLay", [".lynav .kmmidtog"]]]],
-            ["an", [["rb_pEval", [D("prof"), D("aus"), D("kost"), D("pos"), D("warn")]], ["rb_pProf", ["[data-pfb]"]]]],
+            ["an", [["rb_pEval", [D("prof"), D("aus"), D("kost"), D("pos"), D("offen"), D("warn")]], ["rb_pProf", ["[data-pfb]"]]]],
             ["out", [["rb_pRes", [".lynav [data-ly=res]", ".lynav [data-ly=rep]", ".lynav [data-ly=rec]", ".lynav [data-ly=proj]"]], ["rb_pProj", [".kmheadb [data-k=save]", ".kmheadb [data-k=apply]"]]]],
             ["view", [["rb_pMap", [".lybtn", ".lysbtn"]], ["rb_pWin", [".nc-theme", ".lycmdk-b", "[data-hpk]"]]]]
           ];
@@ -2714,7 +2714,7 @@
         kc(tt("ly_kNet"), v && v.n != null ? "CHF " + f0(v.n) : "–", "lymain") + kc(tt("ly_kBru"), v && v.b != null ? "CHF " + f0(v.b) : "–") +
         (v && v.st != null ? kc(tt("ly_kRab"), esc(tt("ly_kRabV").replace("{s}", v.st).replace("{p}", v.pct)), "lyx") : "") + (v && v.hon > 0 ? kc(tt("ly_kHon"), "CHF " + f0(v.hon), "lyx") : "") + (ly && ly.nWarn ? '<button type="button" class="lywarnb" data-lywarn>⚑ ' + esc(tt("ly_kWarn").replace("{n}", ly.nWarn)) + "</button>" : "") + (v && v.o ? '<span class="lyoffb">⚠ ' + esc(tt("km_costOff").replace("{n}", v.o)) + "</span>" : "");
       lyBase(); var st = $("#lySt"); if (st) { var sk = ly ? ly.st : "empty"; st.className = "lyst lyst-" + sk; st.textContent = tt("ly_st_" + sk); }
-      if (ly) { ["aus", "kost", "pos", "warn"].forEach(function (t) { var p = $("#lyP_" + t); if (p) p.innerHTML = ly[t]; }); var cp = dlg.querySelector('[data-cnt="pos"]'), cw = dlg.querySelector('[data-cnt="warn"]'); if (cp) cp.textContent = ly.nPos ? "(" + ly.nPos + ")" : ""; if (cw) cw.textContent = ly.nWarn ? "(" + ly.nWarn + ")" : ""; }
+      if (ly) { ["aus", "kost", "pos", "warn"].forEach(function (t) { var p = $("#lyP_" + t); if (p) p.innerHTML = ly[t]; }); (function () { var po = $("#lyP_offen"), ao = document.activeElement; if (po && !(ao && po.contains(ao) && ao.tagName === "INPUT")) po.innerHTML = ly.of; var co = dlg.querySelector('[data-cnt="offen"]'); if (co) co.textContent = ly.nOf ? "(" + ly.nOf + ")" : ""; })(); var cp = dlg.querySelector('[data-cnt="pos"]'), cw = dlg.querySelector('[data-cnt="warn"]'); if (cp) cp.textContent = ly.nPos ? "(" + ly.nPos + ")" : ""; if (cw) cw.textContent = ly.nWarn ? "(" + ly.nWarn + ")" : ""; }
     }
     /* ---------- Projektexplorer ---------- */
     function exObjs() {

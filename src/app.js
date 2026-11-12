@@ -645,8 +645,9 @@
     var aus = out.elems.filter(function (e) { return e.bal && e.bal.length; }).map(function (e) {
       return '<div class="lyaus"><h3>' + esc(tt("tab_" + e.tab) + " · " + (e.name || "")) + '</h3><table class="lytab"><tbody>' + e.bal.filter(function (b) { return b.v; }).map(function (b) { return "<tr><td>" + esc(tt(b.id)) + '</td><td class="num">' + qf(r2(b.v)) + " " + esc(b.unit) + "</td></tr>"; }).join("") + "</tbody></table></div>"; }).join("") || '<p class="hint">' + esc(tt("ly_ausNone")) + "</p>";
     var ws = out.warn.slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
-    var warn = (out.nOffen ? '<p class="lyoff">⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + "</p>" : "") + (ws.length ? '<ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + esc(w.tab ? tt("tab_" + w.tab) + " · " + w.el : (w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul>" : '<p class="hint">' + esc(tt("ly_warnNone")) + "</p>");
-    return { V: r2(V), st: st, nPos: out.summary.length, nWarn: ws.filter(function (w) { return w.sev !== "info"; }).length + (out.nOffen ? 1 : 0), kost: n ? '<div class="lykost">' + '<div class="lykost-a">' + kostTable(out) + "</div>" + dockKostX(out) + "</div>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos: pos, aus: aus, warn: warn };
+    var oTk = {}; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.open && l.tk && l.tk !== "freiKeinEP") oTk[l.tk] = 1; }); });
+    var ofd = ofDock(), warn = (out.nOffen ? '<p class="lyoff">⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + "</p>" : "") + (ws.length ? '<ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + esc(w.tab ? tt("tab_" + w.tab) + " · " + w.el : (w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + (oTk[w.id] ? ' <button type="button" class="btn ghost small" data-act="offen" data-ofk="' + esc(w.id) + '">' + esc(tt("of_btnHin")) + "</button>" : "") + "</li>"; }).join("") + "</ul>" : '<p class="hint">' + esc(tt("ly_warnNone")) + "</p>");
+    return { V: r2(V), of: ofd.h, nOf: ofd.n, st: st, nPos: out.summary.length, nWarn: ws.filter(function (w) { return w.sev !== "info"; }).length + (out.nOffen ? 1 : 0), kost: n ? '<div class="lykost">' + '<div class="lykost-a">' + kostTable(out) + "</div>" + dockKostX(out) + "</div>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos: pos, aus: aus, warn: warn };
   }
   var LYTABS = ["graben", "schacht", "belag", "werkloch", "geb"];
   function lyPref() { try { var v = localStorage.getItem("lvd-layout"); if (v) return v === "classic" ? "classic" : "a"; } catch (e) { } return window.__LVD_LAYOUT_DEFAULT === "classic" ? "classic" : "a"; }   /* gespeicherte Wahl, sonst Vorgabe (Tests: klassisch), sonst Layout A */
@@ -1365,23 +1366,54 @@
 
   /* ---------- Offene Positionen erfassen: eigener Einheitspreis je OFFEN-Zeile (ausserhalb LV); gespeichert im Datensatz unter oep (Rechenkern JS und Skill) ---------- */
   function epParse(v) { var t = String(v == null ? "" : v).replace(/['’\s]/g, "").replace(",", "."); if (!t) return { empty: true }; return /^\d+(\.\d+)?$/.test(t) && +t > 0 ? { v: t } : { bad: true }; }
+  /* Preisvorschlag (nur Vorschlag, nie automatisch in der Summe): Interpolation aus den LV-Preisen der Tiefenklassen derselben Serie.
+     Maschine/Spriessung: letzte LV-Klasse + Zuwachs je Klasse (nie unter dem letzten LV-Preis); Hand (nur 1 LV-Klasse): LV-Preis × Stufe der Maschinenserie gleicher Spriessungsart (mind. 1.0). Rechenkern bleibt ohne Schätzung. */
+  function ofVor(l) {
+    var a = l.args || {}, npk = a.npk; if (!npk || !/^\d{3}\/\d{3}\.\d{3}$/.test(npk)) return null;
+    var base = npk.slice(0, -1), i = +npk.slice(-1), ep = function (k) { return LV[k] && LV[k].ep > 0 ? LV[k].ep : 0; }, e1 = ep(base + "1"), e2 = ep(base + "2"), p, f = 1, st = 0, ref;
+    if (e1 && e2) { st = Math.max(0, e2 - e1); p = e2 + (i - 2) * st; ref = base + "2"; }
+    else if (e1) { var mb = base.replace(/\.2(\d)$/, ".1$1"), m1 = ep(mb + "1"), m2 = ep(mb + "2"); f = m1 && m2 ? Math.max(1, m2 / m1) : 1; p = e1 * Math.pow(f, i - 1); ref = base + "1"; }
+    else return null;
+    return { ep: r2(p), why: fill(tt("of_vorWhy"), { k: npk, r: ref, e: r2(e2 || e1), s: e1 && e2 ? r2(st) : r2(f) + "×", p: r2(p), u: l.unit }) };
+  }
   function offenRows() {
     var out = KVE.calc(S, LV), by = {}, rows = [], rest = 0;
     out.elems.forEach(function (e) {
       e.lines.forEach(function (l) {
         if (!(l.open || l.flag === "erfasst") || l.tk === "freiKeinEP") return;
         var key = l.tk + "|" + l.unit, id = e.tab + ":" + e.idx + ":" + key, rec = S.recs[e.tab][e.idx], v = (rec.oep || {})[key] || {};
-        if (!by[id]) { by[id] = { tab: e.tab, idx: e.idx, key: key, el: tt("tab_" + e.tab) + " · " + (e.name || ""), txt: openText(l), unit: l.unit, qty: 0, ep: v.ep || "", text: v.text || "", why: v.why || "", erf: l.flag === "erfasst" }; rows.push(by[id]); }
+        if (!by[id]) { by[id] = { tab: e.tab, idx: e.idx, key: key, el: tt("tab_" + e.tab) + " · " + (e.name || ""), txt: openText(l), unit: l.unit, qty: 0, ep: v.ep || "", text: v.text || "", why: v.why || "", erf: l.flag === "erfasst", tk: l.tk, vor: l.open ? ofVor(l) : null }; rows.push(by[id]); }
         by[id].qty = r2(by[id].qty + l.qty);
       });
     });
     out.vor.lines.concat(out.be.lines).forEach(function (l) { if (l.open) rest++; });
     return { rows: rows, rest: rest };
   }
+  /* Speichert die erfassten Preise (Dialog und Dock-Reiter «Offene Positionen»); get(i, feld) liefert den Eingabewert der Zeile i */
+  function ofApply(rows, get) {
+    var sn = snapState(), n = 0, m = 0;
+    rows.forEach(function (r, i) {
+      var p = epParse(get(i, "ep")), rec = S.recs[r.tab][r.idx];
+      if (p.v) { rec.oep = rec.oep || {}; rec.oep[r.key] = { ep: p.v, text: get(i, "text"), why: get(i, "why") }; n++; }
+      else if (rec.oep && rec.oep[r.key]) { delete rec.oep[r.key]; if (!Object.keys(rec.oep).length) delete rec.oep; m++; }
+    });
+    save(); renderForm(); renderResult(); undoToast(fill(tt("of_saved"), { n: n, m: m }), sn);
+  }
+  /* Dock-Reiter «Offene Positionen» im Planungstool: Preisfeld, Vorschlag (Interpolation) und Betrag je offene Position, ohne Dialog */
+  function ofDock() {
+    var R = offenRows(); if (!R.rows.length) return { h: '<p class="hint">' + esc(tt("of_none")) + "</p>", n: 0 };
+    var h = '<p class="hint">' + esc(tt("of_dHint")) + '</p><div class="oftab"><table class="lytab ofdt"><thead><tr><th scope="col">' + esc(tt("of_c_pos")) + '</th><th scope="col" class="num">' + esc(tt("c_qty")) + '</th><th scope="col">' + esc(tt("of_c_ep")) + '</th><th scope="col">' + esc(tt("of_cVor")) + '</th><th scope="col" class="num">' + esc(tt("c_tot")) + "</th></tr></thead><tbody>" +
+      R.rows.map(function (r, i) {
+        var lab = r.el + " – " + r.txt, v = r.vor;
+        return '<tr data-ofd="' + i + '"' + (r.erf ? ' class="erf"' : "") + '><td><span class="ofel">' + esc(r.el) + "</span>" + esc(r.txt) + '</td><td class="num">' + qf(r.qty) + " " + esc(r.unit) + '</td><td><input type="text" inputmode="decimal" data-of="' + i + '" data-f="ep" value="' + esc(r.ep) + '" placeholder="' + esc(v ? String(v.ep) : "") + '" aria-label="' + esc(tt("of_c_ep") + " (CHF/" + r.unit + ") – " + lab) + '"><input type="hidden" data-of="' + i + '" data-f="text" value="' + esc(r.text) + '"><input type="hidden" data-of="' + i + '" data-f="why" value="' + esc(r.why) + '"></td><td>' +
+          (v ? '<button type="button" class="btn ghost small" data-ofvor="' + i + '" data-vor="' + esc(String(v.ep)) + '" data-why="' + esc(v.why) + '" title="' + esc(v.why) + '">' + esc(fill(tt("of_vorBtn"), { p: chf(v.ep) })) + '</button><span class="ofsch">' + esc(tt("of_sch")) + "</span>" : "<span class=\"hint\">–</span>") + '</td><td class="num" data-ofs="' + i + '">' + (r.ep ? chf(r2(r.qty * +r.ep)) : "–") + "</td></tr>"; }).join("") + '</tbody></table></div><p><button type="button" class="btn small" data-ofdsave>' + esc(tt("of_save")) + "</button></p>";
+    ofDockRows = R.rows; return { h: h, n: R.rows.length };
+  }
+  var ofDockRows = [];
   function offenOpen(focusKey) {
     var d = document.getElementById("ofDlg"); if (d) d.remove(); var R = offenRows();
     d = document.createElement("dialog"); d.id = "ofDlg"; d.className = "rpdlg ofdlg"; d.setAttribute("aria-labelledby", "ofT");
-    var inp = function (i, k, v, lab, cls) { return '<input type="text" class="' + cls + '" data-of="' + i + '" data-f="' + k + '" value="' + esc(v) + '" aria-label="' + esc(lab) + '"' + (k === "ep" ? ' inputmode="decimal"' : "") + ">"; };
+    var inp = function (i, k, v, lab, cls) { return '<input type="text" class="' + cls + '" data-of="' + i + '" data-f="' + k + '" value="' + esc(v) + '" aria-label="' + esc(lab) + '"' + (k === "ep" ? ' inputmode="decimal"' + (R.rows[i] && R.rows[i].vor ? ' placeholder="' + esc(String(R.rows[i].vor.ep)) + '"' : "") : "") + ">"; };
     var body = R.rows.length ? '<div class="oftab"><table><thead><tr><th>' + esc(tt("of_c_pos")) + '</th><th class="num">' + esc(tt("c_qty")) + "</th><th>" + esc(tt("of_c_ep")) + "</th><th>" + esc(tt("of_c_text")) + "</th><th>" + esc(tt("of_why")) + '</th><th class="num">' + esc(tt("c_tot")) + "</th></tr></thead><tbody>" +
       R.rows.map(function (r, i) { var lab = r.el + " – " + r.txt; return '<tr data-ofrow="' + i + '"' + (r.erf ? ' class="erf"' : "") + '><td><span class="ofel">' + esc(r.el) + "</span>" + esc(r.txt) + '</td><td class="num">' + qf(r.qty) + " " + esc(r.unit) + "</td><td>" + inp(i, "ep", r.ep, tt("of_c_ep") + " (CHF/" + r.unit + "): " + lab, "ofep") + '<span class="ofu">CHF/' + esc(r.unit) + "</span></td><td>" + inp(i, "text", r.text, tt("of_c_text") + ": " + lab, "oftx") + "</td><td>" + inp(i, "why", r.why, tt("of_why") + ": " + lab, "oftx") + '</td><td class="num ofsum" data-ofs="' + i + '">' + (epParse(r.ep).v ? chf(r2(r.qty * +epParse(r.ep).v)) : "–") + "</td></tr>"; }).join("") + "</tbody></table></div>"
       : '<p class="hint">' + esc(tt("of_none")) + "</p>";
@@ -1393,16 +1425,10 @@
       if (!e.submitter || e.submitter.value !== "save") return;
       var bad = null; [].slice.call(d.querySelectorAll('[data-f="ep"]')).forEach(function (t) { if (!bad && epParse(t.value).bad) bad = t; });
       if (bad) { e.preventDefault(); var er = d.querySelector("#ofErr"); er.hidden = false; er.textContent = tt("of_bad"); bad.focus(); return; }
-      var sn = snapState(), n = 0, m = 0;
-      R.rows.forEach(function (r, i) {
-        var g = function (k) { var t = d.querySelector('[data-of="' + i + '"][data-f="' + k + '"]'); return t ? String(t.value).trim() : ""; }, p = epParse(g("ep")), rec = S.recs[r.tab][r.idx];
-        if (p.v) { rec.oep = rec.oep || {}; rec.oep[r.key] = { ep: p.v, text: g("text"), why: g("why") }; n++; }
-        else if (rec.oep && rec.oep[r.key]) { delete rec.oep[r.key]; if (!Object.keys(rec.oep).length) delete rec.oep; m++; }
-      });
-      save(); renderForm(); renderResult(); undoToast(fill(tt("of_saved"), { n: n, m: m }), sn);
+      ofApply(R.rows, function (i, k) { var t = d.querySelector('[data-of="' + i + '"][data-f="' + k + '"]'); return t ? String(t.value).trim() : ""; });
     });
     d.showModal();
-    var f = focusKey ? [].slice.call(d.querySelectorAll('tr[data-ofrow]')).filter(function (tr) { return R.rows[+tr.dataset.ofrow].key === focusKey; })[0] : null;
+    var f = focusKey ? [].slice.call(d.querySelectorAll('tr[data-ofrow]')).filter(function (tr) { var k = R.rows[+tr.dataset.ofrow].key; return k === focusKey || k.indexOf(focusKey + "|") === 0; })[0] : null;
     var fi = (f || d).querySelector('[data-f="ep"]'); if (fi) fi.focus();
   }
   /* ---------- Projektbericht (Druck/PDF): nach Abschnitten oder zusammengefasst mit Totalen ---------- */
@@ -1722,6 +1748,19 @@
       S.tab = ALLTABS[j]; save(); renderForm(); renderResult(); var b = $("#tabCur"); if (b) b.focus();
     });
     document.addEventListener("click", function (ev) { var o = ev.target.closest('[data-act="offen"]'); if (o) { ev.preventDefault(); offenOpen(o.getAttribute("data-ofk")); } });
+    /* Dock-Reiter «Offene Positionen»: Betrag live, Vorschlag übernehmen, speichern */
+    var ofDU = function (i) { var P = document.querySelector("#lyP_offen"); if (!P) return; var t = P.querySelector('[data-of="' + i + '"][data-f="ep"]'), c = P.querySelector('[data-ofs="' + i + '"]'), r = ofDockRows[i], p = epParse(t ? t.value : ""); if (t) t.setAttribute("aria-invalid", p.bad ? "true" : "false"); if (c && r) c.textContent = p.v ? chf(r2(r.qty * +p.v)) : "–"; };
+    document.addEventListener("input", function (ev) { var t = ev.target; if (t.closest && t.closest("#lyP_offen") && t.dataset && t.dataset.f === "ep") ofDU(+t.dataset.of); });
+    document.addEventListener("click", function (ev) {
+      var b = ev.target.closest && ev.target.closest("#lyP_offen [data-ofvor]");
+      if (b) { var i = +b.dataset.ofvor, P = document.querySelector("#lyP_offen"), t = P.querySelector('[data-of="' + i + '"][data-f="ep"]'), w = P.querySelector('[data-of="' + i + '"][data-f="why"]'), x = P.querySelector('[data-of="' + i + '"][data-f="text"]'); t.value = b.dataset.vor; w.value = b.dataset.why; if (!x.value) x.value = tt("of_schT"); ofDU(i); t.focus(); return; }
+      var sv = ev.target.closest && ev.target.closest("#lyP_offen [data-ofdsave]");
+      if (sv) {
+        var P2 = document.querySelector("#lyP_offen"), bad = null; [].slice.call(P2.querySelectorAll('[data-f="ep"]')).forEach(function (t) { if (!bad && epParse(t.value).bad) bad = t; });
+        if (bad) { bad.setAttribute("aria-invalid", "true"); bad.focus(); undoToast(tt("of_bad")); return; }
+        ofApply(ofDockRows, function (i, k) { var t = P2.querySelector('[data-of="' + i + '"][data-f="' + k + '"]'); return t ? String(t.value).trim() : ""; });
+      }
+    });
     document.addEventListener("click", function (ev) { var t = ev.target.closest("[data-lvtoggle]"); if (!t) return; S.ui.lvCol = S.ui.lvCol === false; save(); renderTabs(); renderResult(); });
     $("#tabs").addEventListener("click", function (ev) { var b = ev.target.closest("[data-tab]"); if (!b) return; S.tab = b.dataset.tab; save(); renderForm(); renderResult(); });
     $("#form").addEventListener("click", function (ev) {

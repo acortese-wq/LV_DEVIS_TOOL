@@ -341,3 +341,11 @@
 .kmdlg.kmlya .lyctx-s{height:1px;margin:3px 2px;background:var(--rule)}
 .kmdlg.kmlya .lyexr{padding:2px 6px}
 .kmdlg.kmlya .lyexr input{width:100%;min-height:30px;padding:3px 7px;font:inherit;font-size:13px;border:1px solid var(--nc-accent);border-radius:5px;background:var(--paper);color:var(--ink)}
+
+/* Dock-Reiter «Offene Positionen»: Preisfeld, Vorschlag, Betrag */
+.kmdlg.kmlya #lyP_offen{overflow:auto}
+.kmdlg.kmlya .ofdt input[type=text]{width:7.5em;min-height:32px;padding:3px 8px}
+.kmdlg.kmlya .ofdt .ofsch{display:inline-block;margin-left:6px;font-size:11.5px;font-weight:700;color:var(--amber)}
+.kmdlg.kmlya .ofdt .ofel{display:block;font-size:11.5px;color:var(--muted)}
+/* Knopf «Preis erfassen» in den Hinweisen: Farbe der Hinweiszeile übernehmen (helle Hinweisfläche auch im dunklen Thema) */
+.kmdlg.kmlya #lyP_warn .warns li .btn{color:inherit;background:transparent;border-color:currentColor;margin-left:6px}

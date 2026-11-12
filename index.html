@@ -1681,6 +1681,14 @@ tr.pst-ip .pst{background:#e7f0fb;border-color:#0a5aa8;color:#083f78}tr.pst-ip t
 .kmdlg.kmlya .lyexr{padding:2px 6px}
 .kmdlg.kmlya .lyexr input{width:100%;min-height:30px;padding:3px 7px;font:inherit;font-size:13px;border:1px solid var(--nc-accent);border-radius:5px;background:var(--paper);color:var(--ink)}
 
+/* Dock-Reiter «Offene Positionen»: Preisfeld, Vorschlag, Betrag */
+.kmdlg.kmlya #lyP_offen{overflow:auto}
+.kmdlg.kmlya .ofdt input[type=text]{width:7.5em;min-height:32px;padding:3px 8px}
+.kmdlg.kmlya .ofdt .ofsch{display:inline-block;margin-left:6px;font-size:11.5px;font-weight:700;color:var(--amber)}
+.kmdlg.kmlya .ofdt .ofel{display:block;font-size:11.5px;color:var(--muted)}
+/* Knopf «Preis erfassen» in den Hinweisen: Farbe der Hinweiszeile übernehmen (helle Hinweisfläche auch im dunklen Thema) */
+.kmdlg.kmlya #lyP_warn .warns li .btn{color:inherit;background:transparent;border-color:currentColor;margin-left:6px}
+
 </style>
 </head>
 <body>
@@ -3892,6 +3900,14 @@ TS.en = {
     ly_tAus: ["Ausmass", "Métré", "Computo", "Quantities"],
     ly_tKost: ["Kosten", "Coûts", "Costi", "Costs"],
     ly_tPos: ["Positionen", "Positions", "Posizioni", "Items"],
+    ly_tOffen: ["Offene Positionen", "Positions ouvertes", "Posizioni aperte", "Open items"],
+    of_dHint: ["Offene Positionen ohne LV-Preis: eigenen Preis eintragen oder den Vorschlag übernehmen (Interpolation aus den LV-Preisen der Tiefenklassen). Ein Vorschlag ist eine Schätzung und wird erst nach «Speichern» gerechnet; Unternehmerpreis bleibt massgebend.", "Positions ouvertes sans prix LV: saisir son propre prix ou reprendre la proposition (interpolation des prix LV des classes de profondeur). Une proposition est une estimation, calculée seulement après «Enregistrer»; le prix de l'entreprise fait foi.", "Posizioni aperte senza prezzo LV: inserire il proprio prezzo o accettare la proposta (interpolazione dai prezzi LV delle classi di profondità). Una proposta è una stima, calcolata solo dopo «Salva»; fa fede il prezzo dell'impresa.", "Open items without LV price: enter your own price or accept the suggestion (interpolated from the LV prices of the depth classes). A suggestion is an estimate and only counts after «Save»; the contractor's price prevails."],
+    of_cVor: ["Vorschlag", "Proposition", "Proposta", "Suggestion"],
+    of_vorBtn: ["Vorschlag {p}", "Proposition {p}", "Proposta {p}", "Suggestion {p}"],
+    of_sch: ["geschätzt", "estimé", "stimato", "estimated"],
+    of_schT: ["Schätzung (Interpolation aus LV)", "Estimation (interpolation LV)", "Stima (interpolazione LV)", "Estimate (interpolated from LV)"],
+    of_vorWhy: ["Schätzung für NPK {k}: Nachbarklasse {r} = {e} CHF, Stufe {s} je Klasse, Vorschlag {p} CHF/{u}; nie unter dem LV-Preis der Nachbarklasse. Vom Unternehmer zu bestätigen.", "Estimation pour NPK {k}: classe voisine {r} = {e} CHF, échelon {s} par classe, proposition {p} CHF/{u}; jamais sous le prix LV de la classe voisine. À confirmer par l'entreprise.", "Stima per NPK {k}: classe vicina {r} = {e} CHF, scatto {s} per classe, proposta {p} CHF/{u}; mai sotto il prezzo LV della classe vicina. Da confermare dall'impresa.", "Estimate for NPK {k}: neighbouring class {r} = {e} CHF, step {s} per class, suggestion {p} CHF/{u}; never below the LV price of the neighbouring class. To be confirmed by the contractor."],
+    of_btnHin: ["Preis erfassen", "Saisir le prix", "Inserire prezzo", "Enter price"],
     ly_tWarn: ["Hinweise", "Remarques", "Avvisi", "Notes"],
     ly_dCol: ["Einklappen", "Réduire", "Comprimi", "Collapse"],
     ly_dOpen: ["Aufklappen", "Déplier", "Espandi", "Expand"],
@@ -6725,7 +6741,7 @@ var FIG = (function () {
     var provOf = function (b) { return PROV.geoadmin.some(function (o) { return o[0] === b; }) ? "geoadmin" : "swisstopo"; };
     M.sond = M.sond || []; M.notes = M.notes || []; M.areas = M.areas || []; M.wl = M.wl || []; M.geb = M.geb || [];
     var LY = plan ? null : (opt.layoutA || null), lyEdited = false, lyTarget = null, lyD = { t: "kost", c: false };   /* Layout A «Planungsfokus» (Startbildschirm) */
-    if (LY) try { var ld0 = JSON.parse(localStorage.getItem("lvd-ly-dock") || "null"); if (ld0 && typeof ld0 === "object") { if (["prof", "aus", "kost", "pos", "warn"].indexOf(ld0.t) >= 0) lyD.t = ld0.t; lyD.c = !!ld0.c; } } catch (e) { }
+    if (LY) try { var ld0 = JSON.parse(localStorage.getItem("lvd-ly-dock") || "null"); if (ld0 && typeof ld0 === "object") { if (["prof", "aus", "kost", "pos", "offen", "warn"].indexOf(ld0.t) >= 0) lyD.t = ld0.t; lyD.c = !!ld0.c; } } catch (e) { }
     /* Schmale Bildschirme (861–1100 px): unterer Bereich startet eingeklappt, damit die Karte Platz hat; eigene Wahl dort gemerkt (lvd-ly-dockn), breite Bildschirme unverändert */
     var lyNq = window.matchMedia ? window.matchMedia("(min-width:861px) and (max-width:1100px)") : { matches: false }, lyWideC = lyD.c;
     var lyNarC = function () { try { var n = JSON.parse(localStorage.getItem("lvd-ly-dockn") || "null"); if (n && typeof n === "object") return !!n.c; } catch (e) { } return true; };
@@ -6987,7 +7003,7 @@ var FIG = (function () {
         var lay = E("div", "lylay"); lay.innerHTML = '<label class="lyk" for="lySel">' + esc(tt("ly_layout")) + '</label><select id="lySel">' + [["a", "ly_A"], ["b", "ly_B"], ["c", "ly_C"], ["d", "ly_D"], ["classic", "ly_cl"]].map(function (a) { var d = /^[bcd]$/.test(a[0]); return '<option value="' + a[0] + '"' + (a[0] === "a" ? " selected" : "") + (d ? " disabled" : "") + ">" + esc(tt(a[1])) + (d ? " – " + esc(tt("ly_soon")) : "") + "</option>"; }).join("") + "</select>"; head.insertBefore(lay, hb2);
         dlg.insertBefore(bar, head.nextSibling);
         bar.querySelector("#lyProj").textContent = LY.proj || tt("ly_noProj"); bar.querySelector("#lyOrt").textContent = LY.ort || "–";
-        var DT = [["prof", "ly_tProf"], ["aus", "ly_tAus"], ["kost", "ly_tKost"], ["pos", "ly_tPos"], ["warn", "ly_tWarn"]], dock = E("section", "lydock"); dock.setAttribute("aria-label", tt("ly_dock"));
+        var DT = [["prof", "ly_tProf"], ["aus", "ly_tAus"], ["kost", "ly_tKost"], ["pos", "ly_tPos"], ["offen", "ly_tOffen"], ["warn", "ly_tWarn"]], dock = E("section", "lydock"); dock.setAttribute("aria-label", tt("ly_dock"));
         dock.innerHTML = '<div class="lydbar"><div class="lydtabs" role="tablist" aria-label="' + esc(tt("ly_dock")) + '">' + DT.map(function (d) { return '<button type="button" role="tab" id="lyT_' + d[0] + '" aria-controls="lyP_' + d[0] + '" data-dt="' + d[0] + '">' + esc(tt(d[1])) + ' <span class="lycnt" data-cnt="' + d[0] + '"></span></button>'; }).join("") + "</div>" +
           '<button type="button" class="btn ghost small lydcol" data-dcol aria-expanded="true">' + esc(tt("ly_dCol")) + "</button></div>" +
           DT.map(function (d) { return '<div class="lydpan" role="tabpanel" id="lyP_' + d[0] + '" aria-labelledby="lyT_' + d[0] + '"' + (d[0] === "prof" ? "" : ' tabindex="0"') + " hidden>" + (d[0] === "prof" ? "" : '<p class="hint">' + esc(tt("km_loading")) + "</p>") + "</div>"; }).join("");
@@ -7015,7 +7031,7 @@ var FIG = (function () {
             ["mod", [["rb_pSel", [K("medit")]], ["rb_pVert", [O("pt"), O("line"), O("ins"), O("del"), O("seg"), O("split"), O("join")]], ["rb_pEdit", [K("undo"), K("redo"), K("clear")]]]],
             ["ann", [["rb_pAnn", [K("mtext"), K("marrow"), K("msline"), K("mrect")]], ["rb_pMeas", [K("mruler")]]]],
             ["ins", [["rb_pImp", [K("dxfin")]], ["rb_pLay", [".lynav .kmmidtog"]]]],
-            ["an", [["rb_pEval", [D("prof"), D("aus"), D("kost"), D("pos"), D("warn")]], ["rb_pProf", ["[data-pfb]"]]]],
+            ["an", [["rb_pEval", [D("prof"), D("aus"), D("kost"), D("pos"), D("offen"), D("warn")]], ["rb_pProf", ["[data-pfb]"]]]],
             ["out", [["rb_pRes", [".lynav [data-ly=res]", ".lynav [data-ly=rep]", ".lynav [data-ly=rec]", ".lynav [data-ly=proj]"]], ["rb_pProj", [".kmheadb [data-k=save]", ".kmheadb [data-k=apply]"]]]],
             ["view", [["rb_pMap", [".lybtn", ".lysbtn"]], ["rb_pWin", [".nc-theme", ".lycmdk-b", "[data-hpk]"]]]]
           ];
@@ -8867,7 +8883,7 @@ var FIG = (function () {
         kc(tt("ly_kNet"), v && v.n != null ? "CHF " + f0(v.n) : "–", "lymain") + kc(tt("ly_kBru"), v && v.b != null ? "CHF " + f0(v.b) : "–") +
         (v && v.st != null ? kc(tt("ly_kRab"), esc(tt("ly_kRabV").replace("{s}", v.st).replace("{p}", v.pct)), "lyx") : "") + (v && v.hon > 0 ? kc(tt("ly_kHon"), "CHF " + f0(v.hon), "lyx") : "") + (ly && ly.nWarn ? '<button type="button" class="lywarnb" data-lywarn>⚑ ' + esc(tt("ly_kWarn").replace("{n}", ly.nWarn)) + "</button>" : "") + (v && v.o ? '<span class="lyoffb">⚠ ' + esc(tt("km_costOff").replace("{n}", v.o)) + "</span>" : "");
       lyBase(); var st = $("#lySt"); if (st) { var sk = ly ? ly.st : "empty"; st.className = "lyst lyst-" + sk; st.textContent = tt("ly_st_" + sk); }
-      if (ly) { ["aus", "kost", "pos", "warn"].forEach(function (t) { var p = $("#lyP_" + t); if (p) p.innerHTML = ly[t]; }); var cp = dlg.querySelector('[data-cnt="pos"]'), cw = dlg.querySelector('[data-cnt="warn"]'); if (cp) cp.textContent = ly.nPos ? "(" + ly.nPos + ")" : ""; if (cw) cw.textContent = ly.nWarn ? "(" + ly.nWarn + ")" : ""; }
+      if (ly) { ["aus", "kost", "pos", "warn"].forEach(function (t) { var p = $("#lyP_" + t); if (p) p.innerHTML = ly[t]; }); (function () { var po = $("#lyP_offen"), ao = document.activeElement; if (po && !(ao && po.contains(ao) && ao.tagName === "INPUT")) po.innerHTML = ly.of; var co = dlg.querySelector('[data-cnt="offen"]'); if (co) co.textContent = ly.nOf ? "(" + ly.nOf + ")" : ""; })(); var cp = dlg.querySelector('[data-cnt="pos"]'), cw = dlg.querySelector('[data-cnt="warn"]'); if (cp) cp.textContent = ly.nPos ? "(" + ly.nPos + ")" : ""; if (cw) cw.textContent = ly.nWarn ? "(" + ly.nWarn + ")" : ""; }
     }
     /* ---------- Projektexplorer ---------- */
     function exObjs() {
@@ -9919,8 +9935,9 @@ var FIG = (function () {
     var aus = out.elems.filter(function (e) { return e.bal && e.bal.length; }).map(function (e) {
       return '<div class="lyaus"><h3>' + esc(tt("tab_" + e.tab) + " · " + (e.name || "")) + '</h3><table class="lytab"><tbody>' + e.bal.filter(function (b) { return b.v; }).map(function (b) { return "<tr><td>" + esc(tt(b.id)) + '</td><td class="num">' + qf(r2(b.v)) + " " + esc(b.unit) + "</td></tr>"; }).join("") + "</tbody></table></div>"; }).join("") || '<p class="hint">' + esc(tt("ly_ausNone")) + "</p>";
     var ws = out.warn.slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
-    var warn = (out.nOffen ? '<p class="lyoff">⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + "</p>" : "") + (ws.length ? '<ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + esc(w.tab ? tt("tab_" + w.tab) + " · " + w.el : (w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul>" : '<p class="hint">' + esc(tt("ly_warnNone")) + "</p>");
-    return { V: r2(V), st: st, nPos: out.summary.length, nWarn: ws.filter(function (w) { return w.sev !== "info"; }).length + (out.nOffen ? 1 : 0), kost: n ? '<div class="lykost">' + '<div class="lykost-a">' + kostTable(out) + "</div>" + dockKostX(out) + "</div>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos: pos, aus: aus, warn: warn };
+    var oTk = {}; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.open && l.tk && l.tk !== "freiKeinEP") oTk[l.tk] = 1; }); });
+    var ofd = ofDock(), warn = (out.nOffen ? '<p class="lyoff">⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + "</p>" : "") + (ws.length ? '<ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + esc(w.tab ? tt("tab_" + w.tab) + " · " + w.el : (w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + (oTk[w.id] ? ' <button type="button" class="btn ghost small" data-act="offen" data-ofk="' + esc(w.id) + '">' + esc(tt("of_btnHin")) + "</button>" : "") + "</li>"; }).join("") + "</ul>" : '<p class="hint">' + esc(tt("ly_warnNone")) + "</p>");
+    return { V: r2(V), of: ofd.h, nOf: ofd.n, st: st, nPos: out.summary.length, nWarn: ws.filter(function (w) { return w.sev !== "info"; }).length + (out.nOffen ? 1 : 0), kost: n ? '<div class="lykost">' + '<div class="lykost-a">' + kostTable(out) + "</div>" + dockKostX(out) + "</div>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos: pos, aus: aus, warn: warn };
   }
   var LYTABS = ["graben", "schacht", "belag", "werkloch", "geb"];
   function lyPref() { try { var v = localStorage.getItem("lvd-layout"); if (v) return v === "classic" ? "classic" : "a"; } catch (e) { } return window.__LVD_LAYOUT_DEFAULT === "classic" ? "classic" : "a"; }   /* gespeicherte Wahl, sonst Vorgabe (Tests: klassisch), sonst Layout A */
@@ -10639,23 +10656,54 @@ var FIG = (function () {
 
   /* ---------- Offene Positionen erfassen: eigener Einheitspreis je OFFEN-Zeile (ausserhalb LV); gespeichert im Datensatz unter oep (Rechenkern JS und Skill) ---------- */
   function epParse(v) { var t = String(v == null ? "" : v).replace(/['’\s]/g, "").replace(",", "."); if (!t) return { empty: true }; return /^\d+(\.\d+)?$/.test(t) && +t > 0 ? { v: t } : { bad: true }; }
+  /* Preisvorschlag (nur Vorschlag, nie automatisch in der Summe): Interpolation aus den LV-Preisen der Tiefenklassen derselben Serie.
+     Maschine/Spriessung: letzte LV-Klasse + Zuwachs je Klasse (nie unter dem letzten LV-Preis); Hand (nur 1 LV-Klasse): LV-Preis × Stufe der Maschinenserie gleicher Spriessungsart (mind. 1.0). Rechenkern bleibt ohne Schätzung. */
+  function ofVor(l) {
+    var a = l.args || {}, npk = a.npk; if (!npk || !/^\d{3}\/\d{3}\.\d{3}$/.test(npk)) return null;
+    var base = npk.slice(0, -1), i = +npk.slice(-1), ep = function (k) { return LV[k] && LV[k].ep > 0 ? LV[k].ep : 0; }, e1 = ep(base + "1"), e2 = ep(base + "2"), p, f = 1, st = 0, ref;
+    if (e1 && e2) { st = Math.max(0, e2 - e1); p = e2 + (i - 2) * st; ref = base + "2"; }
+    else if (e1) { var mb = base.replace(/\.2(\d)$/, ".1$1"), m1 = ep(mb + "1"), m2 = ep(mb + "2"); f = m1 && m2 ? Math.max(1, m2 / m1) : 1; p = e1 * Math.pow(f, i - 1); ref = base + "1"; }
+    else return null;
+    return { ep: r2(p), why: fill(tt("of_vorWhy"), { k: npk, r: ref, e: r2(e2 || e1), s: e1 && e2 ? r2(st) : r2(f) + "×", p: r2(p), u: l.unit }) };
+  }
   function offenRows() {
     var out = KVE.calc(S, LV), by = {}, rows = [], rest = 0;
     out.elems.forEach(function (e) {
       e.lines.forEach(function (l) {
         if (!(l.open || l.flag === "erfasst") || l.tk === "freiKeinEP") return;
         var key = l.tk + "|" + l.unit, id = e.tab + ":" + e.idx + ":" + key, rec = S.recs[e.tab][e.idx], v = (rec.oep || {})[key] || {};
-        if (!by[id]) { by[id] = { tab: e.tab, idx: e.idx, key: key, el: tt("tab_" + e.tab) + " · " + (e.name || ""), txt: openText(l), unit: l.unit, qty: 0, ep: v.ep || "", text: v.text || "", why: v.why || "", erf: l.flag === "erfasst" }; rows.push(by[id]); }
+        if (!by[id]) { by[id] = { tab: e.tab, idx: e.idx, key: key, el: tt("tab_" + e.tab) + " · " + (e.name || ""), txt: openText(l), unit: l.unit, qty: 0, ep: v.ep || "", text: v.text || "", why: v.why || "", erf: l.flag === "erfasst", tk: l.tk, vor: l.open ? ofVor(l) : null }; rows.push(by[id]); }
         by[id].qty = r2(by[id].qty + l.qty);
       });
     });
     out.vor.lines.concat(out.be.lines).forEach(function (l) { if (l.open) rest++; });
     return { rows: rows, rest: rest };
   }
+  /* Speichert die erfassten Preise (Dialog und Dock-Reiter «Offene Positionen»); get(i, feld) liefert den Eingabewert der Zeile i */
+  function ofApply(rows, get) {
+    var sn = snapState(), n = 0, m = 0;
+    rows.forEach(function (r, i) {
+      var p = epParse(get(i, "ep")), rec = S.recs[r.tab][r.idx];
+      if (p.v) { rec.oep = rec.oep || {}; rec.oep[r.key] = { ep: p.v, text: get(i, "text"), why: get(i, "why") }; n++; }
+      else if (rec.oep && rec.oep[r.key]) { delete rec.oep[r.key]; if (!Object.keys(rec.oep).length) delete rec.oep; m++; }
+    });
+    save(); renderForm(); renderResult(); undoToast(fill(tt("of_saved"), { n: n, m: m }), sn);
+  }
+  /* Dock-Reiter «Offene Positionen» im Planungstool: Preisfeld, Vorschlag (Interpolation) und Betrag je offene Position, ohne Dialog */
+  function ofDock() {
+    var R = offenRows(); if (!R.rows.length) return { h: '<p class="hint">' + esc(tt("of_none")) + "</p>", n: 0 };
+    var h = '<p class="hint">' + esc(tt("of_dHint")) + '</p><div class="oftab"><table class="lytab ofdt"><thead><tr><th scope="col">' + esc(tt("of_c_pos")) + '</th><th scope="col" class="num">' + esc(tt("c_qty")) + '</th><th scope="col">' + esc(tt("of_c_ep")) + '</th><th scope="col">' + esc(tt("of_cVor")) + '</th><th scope="col" class="num">' + esc(tt("c_tot")) + "</th></tr></thead><tbody>" +
+      R.rows.map(function (r, i) {
+        var lab = r.el + " – " + r.txt, v = r.vor;
+        return '<tr data-ofd="' + i + '"' + (r.erf ? ' class="erf"' : "") + '><td><span class="ofel">' + esc(r.el) + "</span>" + esc(r.txt) + '</td><td class="num">' + qf(r.qty) + " " + esc(r.unit) + '</td><td><input type="text" inputmode="decimal" data-of="' + i + '" data-f="ep" value="' + esc(r.ep) + '" placeholder="' + esc(v ? String(v.ep) : "") + '" aria-label="' + esc(tt("of_c_ep") + " (CHF/" + r.unit + ") – " + lab) + '"><input type="hidden" data-of="' + i + '" data-f="text" value="' + esc(r.text) + '"><input type="hidden" data-of="' + i + '" data-f="why" value="' + esc(r.why) + '"></td><td>' +
+          (v ? '<button type="button" class="btn ghost small" data-ofvor="' + i + '" data-vor="' + esc(String(v.ep)) + '" data-why="' + esc(v.why) + '" title="' + esc(v.why) + '">' + esc(fill(tt("of_vorBtn"), { p: chf(v.ep) })) + '</button><span class="ofsch">' + esc(tt("of_sch")) + "</span>" : "<span class=\"hint\">–</span>") + '</td><td class="num" data-ofs="' + i + '">' + (r.ep ? chf(r2(r.qty * +r.ep)) : "–") + "</td></tr>"; }).join("") + '</tbody></table></div><p><button type="button" class="btn small" data-ofdsave>' + esc(tt("of_save")) + "</button></p>";
+    ofDockRows = R.rows; return { h: h, n: R.rows.length };
+  }
+  var ofDockRows = [];
   function offenOpen(focusKey) {
     var d = document.getElementById("ofDlg"); if (d) d.remove(); var R = offenRows();
     d = document.createElement("dialog"); d.id = "ofDlg"; d.className = "rpdlg ofdlg"; d.setAttribute("aria-labelledby", "ofT");
-    var inp = function (i, k, v, lab, cls) { return '<input type="text" class="' + cls + '" data-of="' + i + '" data-f="' + k + '" value="' + esc(v) + '" aria-label="' + esc(lab) + '"' + (k === "ep" ? ' inputmode="decimal"' : "") + ">"; };
+    var inp = function (i, k, v, lab, cls) { return '<input type="text" class="' + cls + '" data-of="' + i + '" data-f="' + k + '" value="' + esc(v) + '" aria-label="' + esc(lab) + '"' + (k === "ep" ? ' inputmode="decimal"' + (R.rows[i] && R.rows[i].vor ? ' placeholder="' + esc(String(R.rows[i].vor.ep)) + '"' : "") : "") + ">"; };
     var body = R.rows.length ? '<div class="oftab"><table><thead><tr><th>' + esc(tt("of_c_pos")) + '</th><th class="num">' + esc(tt("c_qty")) + "</th><th>" + esc(tt("of_c_ep")) + "</th><th>" + esc(tt("of_c_text")) + "</th><th>" + esc(tt("of_why")) + '</th><th class="num">' + esc(tt("c_tot")) + "</th></tr></thead><tbody>" +
       R.rows.map(function (r, i) { var lab = r.el + " – " + r.txt; return '<tr data-ofrow="' + i + '"' + (r.erf ? ' class="erf"' : "") + '><td><span class="ofel">' + esc(r.el) + "</span>" + esc(r.txt) + '</td><td class="num">' + qf(r.qty) + " " + esc(r.unit) + "</td><td>" + inp(i, "ep", r.ep, tt("of_c_ep") + " (CHF/" + r.unit + "): " + lab, "ofep") + '<span class="ofu">CHF/' + esc(r.unit) + "</span></td><td>" + inp(i, "text", r.text, tt("of_c_text") + ": " + lab, "oftx") + "</td><td>" + inp(i, "why", r.why, tt("of_why") + ": " + lab, "oftx") + '</td><td class="num ofsum" data-ofs="' + i + '">' + (epParse(r.ep).v ? chf(r2(r.qty * +epParse(r.ep).v)) : "–") + "</td></tr>"; }).join("") + "</tbody></table></div>"
       : '<p class="hint">' + esc(tt("of_none")) + "</p>";
@@ -10667,16 +10715,10 @@ var FIG = (function () {
       if (!e.submitter || e.submitter.value !== "save") return;
       var bad = null; [].slice.call(d.querySelectorAll('[data-f="ep"]')).forEach(function (t) { if (!bad && epParse(t.value).bad) bad = t; });
       if (bad) { e.preventDefault(); var er = d.querySelector("#ofErr"); er.hidden = false; er.textContent = tt("of_bad"); bad.focus(); return; }
-      var sn = snapState(), n = 0, m = 0;
-      R.rows.forEach(function (r, i) {
-        var g = function (k) { var t = d.querySelector('[data-of="' + i + '"][data-f="' + k + '"]'); return t ? String(t.value).trim() : ""; }, p = epParse(g("ep")), rec = S.recs[r.tab][r.idx];
-        if (p.v) { rec.oep = rec.oep || {}; rec.oep[r.key] = { ep: p.v, text: g("text"), why: g("why") }; n++; }
-        else if (rec.oep && rec.oep[r.key]) { delete rec.oep[r.key]; if (!Object.keys(rec.oep).length) delete rec.oep; m++; }
-      });
-      save(); renderForm(); renderResult(); undoToast(fill(tt("of_saved"), { n: n, m: m }), sn);
+      ofApply(R.rows, function (i, k) { var t = d.querySelector('[data-of="' + i + '"][data-f="' + k + '"]'); return t ? String(t.value).trim() : ""; });
     });
     d.showModal();
-    var f = focusKey ? [].slice.call(d.querySelectorAll('tr[data-ofrow]')).filter(function (tr) { return R.rows[+tr.dataset.ofrow].key === focusKey; })[0] : null;
+    var f = focusKey ? [].slice.call(d.querySelectorAll('tr[data-ofrow]')).filter(function (tr) { var k = R.rows[+tr.dataset.ofrow].key; return k === focusKey || k.indexOf(focusKey + "|") === 0; })[0] : null;
     var fi = (f || d).querySelector('[data-f="ep"]'); if (fi) fi.focus();
   }
   /* ---------- Projektbericht (Druck/PDF): nach Abschnitten oder zusammengefasst mit Totalen ---------- */
@@ -10996,6 +11038,19 @@ var FIG = (function () {
       S.tab = ALLTABS[j]; save(); renderForm(); renderResult(); var b = $("#tabCur"); if (b) b.focus();
     });
     document.addEventListener("click", function (ev) { var o = ev.target.closest('[data-act="offen"]'); if (o) { ev.preventDefault(); offenOpen(o.getAttribute("data-ofk")); } });
+    /* Dock-Reiter «Offene Positionen»: Betrag live, Vorschlag übernehmen, speichern */
+    var ofDU = function (i) { var P = document.querySelector("#lyP_offen"); if (!P) return; var t = P.querySelector('[data-of="' + i + '"][data-f="ep"]'), c = P.querySelector('[data-ofs="' + i + '"]'), r = ofDockRows[i], p = epParse(t ? t.value : ""); if (t) t.setAttribute("aria-invalid", p.bad ? "true" : "false"); if (c && r) c.textContent = p.v ? chf(r2(r.qty * +p.v)) : "–"; };
+    document.addEventListener("input", function (ev) { var t = ev.target; if (t.closest && t.closest("#lyP_offen") && t.dataset && t.dataset.f === "ep") ofDU(+t.dataset.of); });
+    document.addEventListener("click", function (ev) {
+      var b = ev.target.closest && ev.target.closest("#lyP_offen [data-ofvor]");
+      if (b) { var i = +b.dataset.ofvor, P = document.querySelector("#lyP_offen"), t = P.querySelector('[data-of="' + i + '"][data-f="ep"]'), w = P.querySelector('[data-of="' + i + '"][data-f="why"]'), x = P.querySelector('[data-of="' + i + '"][data-f="text"]'); t.value = b.dataset.vor; w.value = b.dataset.why; if (!x.value) x.value = tt("of_schT"); ofDU(i); t.focus(); return; }
+      var sv = ev.target.closest && ev.target.closest("#lyP_offen [data-ofdsave]");
+      if (sv) {
+        var P2 = document.querySelector("#lyP_offen"), bad = null; [].slice.call(P2.querySelectorAll('[data-f="ep"]')).forEach(function (t) { if (!bad && epParse(t.value).bad) bad = t; });
+        if (bad) { bad.setAttribute("aria-invalid", "true"); bad.focus(); undoToast(tt("of_bad")); return; }
+        ofApply(ofDockRows, function (i, k) { var t = P2.querySelector('[data-of="' + i + '"][data-f="' + k + '"]'); return t ? String(t.value).trim() : ""; });
+      }
+    });
     document.addEventListener("click", function (ev) { var t = ev.target.closest("[data-lvtoggle]"); if (!t) return; S.ui.lvCol = S.ui.lvCol === false; save(); renderTabs(); renderResult(); });
     $("#tabs").addEventListener("click", function (ev) { var b = ev.target.closest("[data-tab]"); if (!b) return; S.tab = b.dataset.tab; save(); renderForm(); renderResult(); });
     $("#form").addEventListener("click", function (ev) {

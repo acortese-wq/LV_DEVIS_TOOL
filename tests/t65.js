@@ -19,7 +19,7 @@ const waitLy = async (pg, ms) => { for (let t = 0; t < (ms || 15000); t += 250) 
   ok((await pg.textContent('#lyProj')).includes('Dorfstrasse') && (await pg.textContent('#lyOrt')) === 'Musterdorf', 'Projekt und Gemeinde aus den Projektangaben');
   ok((await pg.textContent('#lySt')).length > 2, 'Status sichtbar: ' + await pg.textContent('#lySt'));
   ok(await pg.locator('.kmtools .kmtg').count() >= 3 && await pg.locator('.kmside').isVisible(), 'Werkzeuge links in Gruppen, Eigenschaften rechts');
-  ok(await pg.locator('[role=tab][data-dt]').count() === 5, 'Unten 5 Reiter: Höhenprofil, Ausmass, Kosten, Positionen, Hinweise');
+  ok(await pg.locator('[role=tab][data-dt]').count() === 6, 'Unten 6 Reiter: Höhenprofil, Ausmass, Kosten, Positionen, Offene Positionen, Hinweise');
   ok(await pg.locator('#lySel option[disabled]').count() === 3, 'Layout-Umschalter: B–D vorbereitet (deaktiviert)');
   // Dock-Inhalte
   await pg.click('#lyT_kost'); await pg.waitForTimeout(200); if (await pg.locator('#lyP_kost').isHidden()) { await pg.click('#lyT_kost'); await pg.waitForTimeout(200); }
