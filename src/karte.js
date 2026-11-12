@@ -582,7 +582,7 @@
       dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]) * (cal.scale || 0); } }
       : { ll: function (p) { return toWGS(p[0], p[1]); }, pt: function (ll) { return toLV95(ll.lat, ll.lng).map(function (v) { return Math.round(v * 100) / 100; }); },
         dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); } };
-    var lastCfg = { rt: {}, art: "kies", fl: "", T: "", B: "" }, wlT = "sg", lastTyp = null, folded = {}, lastSel = null;
+    var lastCfg = { rt: {}, art: "kies", fl: "", T: "", B: "", ab: "" }, wlT = "sg", lastTyp = null, folded = {}, lastSel = null;
     if (opt.defCfg) lastCfg = JSON.parse(JSON.stringify(opt.defCfg));
     var lineLen = function (pts) { var s = 0; for (var i = 1; i < pts.length; i++) s += AD.dist(pts[i - 1], pts[i]); return s; };
     var COL = [["#0d47c8", "km_cBlau"], ["#b8332a", "km_cRot"], ["#1a1c1e", "km_cSchwarz"], ["#b25e00", "km_cOrange"], ["#1c6b3f", "km_cGruen"]];
@@ -1607,7 +1607,7 @@
       askShow(AD.ll(c), tt("km_as_surfAsk"), FLS.filter(function (f) { return f !== cur0; }).map(function (f) {
         return { t: tt("km_lt_fl_" + f), fn: function () {
           snap(); var l2 = { id: nid("l"), pts: [c.slice()], rid: null, rohr: JSON.parse(JSON.stringify(l.rohr)), cfg: JSON.parse(JSON.stringify(cfgOf(l))) };
-          l2.cfg.fl = f; lastCfg = JSON.parse(JSON.stringify(l2.cfg)); lineSync(l2); M.lines.push(l2); cur = l2.id; sel = { id: l2.id }; mode = "line"; refresh();
+          l2.cfg.fl = f; if (f === "pflaster") l2.cfg.ab = ""; lastCfg = JSON.parse(JSON.stringify(l2.cfg)); lineSync(l2); M.lines.push(l2); cur = l2.id; sel = { id: l2.id }; mode = "line"; refresh();
           [].slice.call(dlg.querySelectorAll("[data-k^=m]")).forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.k === "mline" ? "true" : "false"); });
         } };
       }), 0);
@@ -1649,9 +1649,12 @@
       snap(); var l = { id: nid("l"), pts: [c.slice()], rid: null, rohr: clone(o.rohr || opt.defRohr), cfg: clone(o.cfg || lastCfg) }; if (o.s) l.s = o.s; lineSync(l); M.lines.push(l); cur = l.id; sel = { id: l.id }; refresh(); return l;
     }
     function splitLine(l, h, fl) {
-      var q = h.q, a = l.pts[h.seg], b = l.pts[h.seg + 1]; if (!q || (AD.dist(q, a) < 0.05 && h.seg === 0) || (AD.dist(q, b) < 0.05 && h.seg === l.pts.length - 2)) return;   /* an den Enden nichts zu teilen */
+      var q = h.q, a = l.pts[h.seg], b = l.pts[h.seg + 1];
+      if (!q) return;
+      if (AD.dist(q, a) < 0.05 && h.seg === 0) { snap(); cfgOf(l).fl = fl; if (fl === "pflaster") cfgOf(l).ab = ""; lastCfg = clone(cfgOf(l)); lineSync(l); sel = { id: l.id }; refresh(); return; }   /* am Linienanfang: ganze Linie */
+      if (AD.dist(q, b) < 0.05 && h.seg === l.pts.length - 2) { toast(dlg, tt("km_cx_endNo")); return; }   /* am Ende gibt es nichts zu ändern */
       snap(); var l2 = { id: nid("l"), pts: [q.slice()].concat(l.pts.slice(h.seg + 1)), rid: null, rohr: clone(l.rohr), cfg: clone(cfgOf(l)), e: l.e || null };
-      l.pts = l.pts.slice(0, h.seg + 1).concat([q.slice()]); l.e = null; l2.cfg.fl = fl; lastCfg = clone(l2.cfg); lineSync(l2); M.lines.splice(M.lines.indexOf(l) + 1, 0, l2); sel = { id: l2.id }; refresh();
+      l.pts = l.pts.slice(0, h.seg + 1).concat([q.slice()]); l.e = null; l2.cfg.fl = fl; if (fl === "pflaster") l2.cfg.ab = ""; lastCfg = clone(l2.cfg); lineSync(l2); M.lines.splice(M.lines.indexOf(l) + 1, 0, l2); sel = { id: l2.id }; refresh();
     }
     function ctxOpenAt(cp) {
       if (base === "viewer" || mode === "geo" || mode === "cal") return; askHide(); var ll = map.containerPointToLatLng(cp), c = AD.pt(ll), h = hitAt(cp), items = [], title, sub = plan ? "" : tt("km_cx_coord").replace("{e}", fmt0(c[0])).replace("{n}", fmt0(c[1]));
@@ -1660,7 +1663,7 @@
         sel = { id: o.id }; refresh();
         items.push({ t: tt("km_cx_props"), fn: function () { propsOpen(o, cp); } });
         if (h.k === "lines") {
-          items.push({ t: tt("km_cx_split"), fn: function () { var cur0 = cfgOf(o).fl; ctxShow(cp, tt("km_cx_splitAsk"), "", FLS.filter(function (f) { return f !== cur0; }).map(function (f) { return { t: tt("km_lt_fl_" + f), fn: function () { splitLine(o, h, f); } }; })); } });
+          var cur0 = cfgOf(o).fl; FLS.filter(function (f) { return f !== cur0; }).forEach(function (f) { items.push({ t: tt("cx_surf").replace("{f}", tt("km_pal_" + f)), fn: function () { splitLine(o, h, f); } }); });   /* Belagswechsel direkt: «Oberfläche ab hier: Wiese» usw. */
           items.push({ t: tt("km_cx_branch"), fn: function () { startLineAt(h.q, { cfg: clone(cfgOf(o)), rohr: clone(o.rohr) }); } });
         } else if (h.k === "pts") items.push({ t: tt("km_cx_conn"), fn: function () { var l = startLineAt(o.pt, { s: o.id }); } });
         if (!plan) { var sp = h.k === "lines" ? h.q : o.pt, sh = h.k === "lines" ? svBearing(o.pts[h.seg], o.pts[h.seg + 1]) : null; items.push({ t: tt("km_sv_here"), ghost: 1, fn: function () { svOpen(sp, sh, false); } }); if (svKey()) items.push({ t: tt("km_sv_emb"), ghost: 1, fn: function () { svOpen(sp, sh, true); } }); }
@@ -2513,9 +2516,9 @@
       if (!l || !l.pts.length) { markerSync(); palRender(); return; }
       if (cfgOf(l).fl === f) { palRender(); return; }
       snap();
-      if (l.pts.length === 1) { cfgOf(l).fl = f; lastCfg = JSON.parse(JSON.stringify(cfgOf(l))); lineSync(l); refresh(); return; }
+      if (l.pts.length === 1) { cfgOf(l).fl = f; if (f === "pflaster") cfgOf(l).ab = ""; lastCfg = JSON.parse(JSON.stringify(cfgOf(l))); lineSync(l); refresh(); return; }
       var c = l.pts[l.pts.length - 1].slice(), l2 = { id: nid("l"), pts: [c], rid: null, rohr: JSON.parse(JSON.stringify(l.rohr)), cfg: JSON.parse(JSON.stringify(cfgOf(l))), pv: l.id, sK: 1 };
-      l2.cfg.fl = f; lastCfg = JSON.parse(JSON.stringify(l2.cfg)); lineSync(l2); l.nx = l2.id; l.eK = 1; M.lines.push(l2); cur = l2.id; sel = { id: l2.id }; refresh();
+      l2.cfg.fl = f; if (f === "pflaster") l2.cfg.ab = ""; lastCfg = JSON.parse(JSON.stringify(l2.cfg)); lineSync(l2); l.nx = l2.id; l.eK = 1; M.lines.push(l2); cur = l2.id; sel = { id: l2.id }; refresh();
     }
     function palRender() {
       var h = $("#kmPal"); if (!h) return; var on = mode === "line"; h.hidden = !on; if (!on) return;
@@ -2620,7 +2623,7 @@
       }
       if (mode === "area") {
         snap(); var fa = curA && byId(M.areas, curA);
-        if (!fa) { fa = { id: nid("f"), pts: [], rid: null, belag: JSON.parse(JSON.stringify(opt.defBelag)), fl: ["pflaster", "wiese"].indexOf(lastCfg.fl) >= 0 ? lastCfg.fl : "", ab: "betonstein" }; M.areas.push(fa); curA = fa.id; sel = { id: fa.id }; }
+        if (!fa) { fa = { id: nid("f"), pts: [], rid: null, belag: JSON.parse(JSON.stringify(opt.defBelag)), fl: ["pflaster", "wiese"].indexOf(lastCfg.fl) >= 0 ? lastCfg.fl : "", ab: "" }; M.areas.push(fa); curA = fa.id; sel = { id: fa.id }; }
         fa.pts.push(c); refresh(); return;
       }
       if (mode === "sline") {

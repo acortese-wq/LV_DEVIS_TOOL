@@ -1059,6 +1059,7 @@
     km_cx_line: ["Linie hier starten", "Démarrer une ligne ici", "Iniziare una linea qui", "Start line here"],
     km_cx_area: ["Fläche hier beginnen", "Commencer une surface ici", "Iniziare una superficie qui", "Start area here"],
     km_cx_props: ["Eigenschaften", "Propriétés", "Proprietà", "Properties"],
+    km_cx_endNo: ["Am Linienende gibt es nichts zu ändern – Rechtsklick weiter vorne auf der Linie.", "Rien à changer à l’extrémité de la ligne – clic droit plus en amont.", "Nulla da cambiare all’estremità della linea – clic destro più avanti.", "Nothing to change at the end of the line – right-click further along it."],
     km_cx_split: ["Linie teilen / Oberfläche ab hier ändern", "Diviser la ligne / changer la surface dès ici", "Dividere la linea / cambiare superficie da qui", "Split line / change surface from here"],
     km_cx_splitAsk: ["Neue Oberfläche ab hier", "Nouvelle surface dès ici", "Nuova superficie da qui", "New surface from here"],
     km_cx_branch: ["Abzweig ab hier", "Branchement dès ici", "Derivazione da qui", "Branch from here"],

@@ -441,3 +441,8 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 - **Rechnung:** Die Rohre werden weiter **im Graben** gerechnet (nichts doppelt, keine Kostenverschiebung); die Rohranlage ändert dieselben Felder. Neu: Abzweiger aus der Rohranlage (`abzweigerR`) werden bei Rohren in Kies/Betonkies und beim Rohrblock bepreist (Liefern + Verlegen je Stück, LV 151/423 und 151/451). Kern in `kve.js` = `kve.py` (Fuzz mit `abzweigerR`, 300 Projekte, 0 Abweichungen). Die Regressions-Referenz bleibt unverändert, bestehende Projekte kosten gleich.
 - **Hinweis:** Gewünscht war ein «Verschieben» der Rohre in die Rohranlage; umgesetzt ist die sichere Variante «dort anzeigen und ändern», weil ein Verschieben der Positionen in den Rechenkern eingreift und die Kosten bestehender Projekte verändern könnte. Sag Bescheid, wenn die Rohre wirklich der Rohranlage gehören sollen.
 - **Kostenwirkung:** nur wenn Abzweiger in der Rohranlage gewählt werden. Test t95.
+
+## V116 (12.11.2026) – Belagswechsel per Rechtsklick, Pflästerung ohne Abbruch als Vorgabe
+- Rechtsklick auf eine Linie: «Oberfläche ab hier: Wiese / Pflästerung / Belag / Rohplanie» direkt im Menü (kein Untermenü). Wechsel ab Klickpunkt bis Linienende; am Linienanfang wechselt die ganze Linie, am Ende erscheint ein Hinweis. Rückgängig wie gewohnt.
+- Neue Linien, Flächen und Pflästerungs-Teilstücke starten mit «ohne Abbruch». **Kostenwirkung:** neue Pflästerungs-Objekte enthalten keinen Abbruchposten «Betonstein» mehr, solange er nicht bewusst gewählt wird. Bestehende Projekte (Objekte ohne Angabe) bleiben unverändert «Abbruch Betonstein».
+- Test t96; Regression t78 und Skill-Vergleich unverändert.
