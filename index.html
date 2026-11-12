@@ -7240,7 +7240,7 @@ var FIG = (function () {
           /* Platz für den unteren Bereich = Fensterhöhe − Kopf − Kennzahlen − Fusszeile − Reiterleiste − mindestens 260 px Karte (Kopfleiste kann umbrechen) */
           var fitDock = function () { try { var hh = dlg.clientHeight || window.innerHeight, used = 0; ["kmhead", "lybar", "lyrb", "kmbottom"].forEach(function (c) { var e = dlg.querySelector("." + c); if (e) used += e.offsetHeight; }); var tb = dlg.querySelector(".lydbar"); used += tb ? tb.offsetHeight : 48; dlg.style.setProperty("--lydm", Math.max(120, hh - used - 260) + "px");
             var tp = 0; if (window.matchMedia("(min-width:861px)").matches) ["kmhead", "lybar", "lyrb"].forEach(function (c) { var e = dlg.querySelector("." + c); if (e && e.offsetParent !== null) tp += e.offsetHeight; });   /* Höhe der Glas-Leisten: die Karte reicht darunter */
-            if (String(Math.round(tp)) + "px" !== dlg.style.getPropertyValue("--lytop")) { dlg.style.setProperty("--lytop", Math.round(tp) + "px"); setTimeout(function () { try { map.invalidateSize({ animate: false }); } catch (e) { } }, 30); } } catch (e) { } };
+            if (String(Math.round(tp)) + "px" !== dlg.style.getPropertyValue("--lytop")) { dlg.style.setProperty("--lytop", Math.round(tp) + "px"); setTimeout(function () { try { map.invalidateSize({ animate: false }); } catch (e) { } try { propsKeep(); } catch (e) { } }, 30); } } catch (e) { } };
           fitDock(); window.addEventListener("resize", function () { fitDock(); setTimeout(function () { try { map.invalidateSize({ animate: false }); } catch (e) { } }, 30); });
           if (window.ResizeObserver) { var roF = new ResizeObserver(function () { fitDock(); }); ["kmhead", "lybar", "lyrb", "kmbottom"].forEach(function (c) { var e = dlg.querySelector("." + c); if (e) roF.observe(e); }); }
           window.__LYFIT = fitDock;
@@ -7348,7 +7348,7 @@ var FIG = (function () {
           grid.classList.add("kmfloat"); var G = gr(), list = [], w = window.innerWidth; G = { left: G.left, top: G.top, width: G.width, height: Math.max(120, Math.min(G.height, bottom.getBoundingClientRect().top - G.top)) };
           P.forEach(function (p) {
             var s = S(p.k), el = p.el; el.classList.toggle("kmwf", !!s.fl); el.classList.toggle("kmwmin", !!s.min);
-            if (s.fl) { var ww = Math.max(200, Math.min(s.w || p.w, G.width - 16)), x = Math.max(0, Math.min(s.x == null ? 8 : s.x, G.width - 80)), y = Math.max(0, Math.min(s.y == null ? 8 : s.y, G.height - 40)); el.style.gridColumn = ""; el.style.left = x + "px"; el.style.top = y + "px"; el.style.width = ww + "px"; el.style.height = s.min || !s.h ? "" : Math.min(s.h, G.height - y - 4) + "px"; el.style.maxHeight = (G.height - y - 4) + "px"; if (!el.style.zIndex) el.style.zIndex = zTop; }
+            if (s.fl) { var ww = Math.max(200, Math.min(s.w || p.w, G.width - 16)), x = Math.max(0, Math.min(s.x == null ? 8 : s.x, G.width - ww)), y = Math.max(0, Math.min(s.y == null ? 8 : s.y, G.height - 56));   /* Fenster bleibt ganz im Zeichnungsbereich */ el.style.gridColumn = ""; el.style.left = x + "px"; el.style.top = y + "px"; el.style.width = ww + "px"; el.style.height = s.min || !s.h ? "" : Math.min(s.h, G.height - y - 4) + "px"; el.style.maxHeight = (G.height - y - 4) + "px"; if (!el.style.zIndex) el.style.zIndex = zTop; }
             else { el.style.left = el.style.top = el.style.width = el.style.height = ""; el.style.zIndex = ""; }
           });
           if (!S("tools").fl) list.push([tools, (LY ? (w >= 1500 ? 248 : w >= 1280 ? 224 : 188) : (w >= 1500 ? 196 : 172)) + "px"]);
@@ -7375,7 +7375,7 @@ var FIG = (function () {
           h.addEventListener("pointerdown", function (e) {
             if (e.button !== 0 || e.target.closest(".kmwbtn")) return; var sx = e.clientX, sy = e.clientY, moved = false, o = null, hist = [{ t: performance.now(), x: sx, y: sy }]; h.setPointerCapture && h.setPointerCapture(e.pointerId);
             if (pSp) { pSp.forEach(function (q) { q.stop(); }); pSp = null; var s0 = S(p.k); if (s0.fl) { s0.x = parseFloat(p.el.style.left) || s0.x; s0.y = parseFloat(p.el.style.top) || s0.y; } }   /* laufende Feder greifen: Panel bleibt in der Hand */
-            var lim = function () { var G = gr(); return { x: G.width - 80, y: G.height - 40 }; };
+            var lim = function () { var G = gr(); return { x: Math.max(0, G.width - (p.el.offsetWidth || 200)), y: G.height - 56 }; };
             function mv(ev) {
               var dx = ev.clientX - sx, dy = ev.clientY - sy; if (!moved && Math.hypot(dx, dy) < 5) return;
               if (!moved) { moved = true; undock(p); layout(); front(p); o = { x: S(p.k).x, y: S(p.k).y }; }
@@ -7875,8 +7875,8 @@ var FIG = (function () {
         b.addEventListener("click", function (e) { e.stopPropagation(); askHide(); it.fn(); }); a.appendChild(b);
       });
       var cp = map.latLngToContainerPoint(ll), mp = $("#kmMap"), ah = a.offsetHeight || 40 + items.length * 34, aw = a.offsetWidth || 250;   /* oberhalb des Punkts (verdeckt die weitere Zeichenrichtung nicht), sonst darunter */
-      if (mp.clientWidth >= 640) { a.style.left = (cp.x < mp.clientWidth / 2 ? mp.clientWidth - aw - 8 : 8) + mp.offsetLeft + "px"; a.style.top = 8 + mp.offsetTop + "px"; }   /* in der von der Klickstelle abgewandten oberen Ecke: verdeckt weder Punkt noch Zeichenrichtung */
-      else { var top = cp.y - ah - 10 >= 4 ? cp.y - ah - 10 : cp.y + 14; a.style.left = Math.max(4, Math.min(mp.clientWidth - aw - 4, cp.x - aw / 2)) + mp.offsetLeft + "px"; a.style.top = Math.max(4, Math.min(mp.clientHeight - ah - 4, top)) + mp.offsetTop + "px"; }   /* schmale Karte: am Punkt */
+      if (mp.clientWidth >= 640) { a.style.left = (cp.x < mp.clientWidth / 2 ? mp.clientWidth - aw - 8 : 8) + mp.offsetLeft + "px"; a.style.top = topPad() + 8 + mp.offsetTop + "px"; }   /* in der von der Klickstelle abgewandten oberen Ecke (unterhalb der Glas-Leisten): verdeckt weder Punkt noch Zeichenrichtung */
+      else { var top = cp.y - ah - 10 >= 4 ? cp.y - ah - 10 : cp.y + 14; a.style.left = Math.max(4, Math.min(mp.clientWidth - aw - 4, cp.x - aw / 2)) + mp.offsetLeft + "px"; a.style.top = Math.max(topPad() + 4, Math.min(mp.clientHeight - ah - 4, top)) + mp.offsetTop + "px"; }   /* schmale Karte: am Punkt */
     }
     function nearShaft(c, maxM, onlyExisting) {
       var best = null; M.pts.forEach(function (p) { if (onlyExisting && (!p.mode || p.mode === "neu")) return; var d = AD.dist(c, p.pt); if (isFinite(d) && d <= maxM && (!best || d < best.d)) best = { p: p, d: d }; }); return best;
@@ -8000,7 +8000,7 @@ var FIG = (function () {
         b.addEventListener("click", function (e) { e.stopPropagation(); ctxHide(); it.fn(); }); m.appendChild(b);
       });
       var mp = $("#kmMap"), aw = m.offsetWidth || 260, ah = m.offsetHeight || 40 + items.length * 34;
-      var lx = Math.max(4, Math.min(mp.clientWidth - aw - 4, cp.x + 6)), ty = Math.max(4, Math.min(mp.clientHeight - ah - 4, cp.y + 6));
+      var lx = Math.max(4, Math.min(mp.clientWidth - aw - 4, cp.x + 6)), ty = Math.max(topPad() + 4, Math.min(mp.clientHeight - ah - 4, cp.y + 6));
       m.style.left = lx + mp.offsetLeft + "px"; m.style.top = ty + mp.offsetTop + "px";
       m.style.transformOrigin = Math.round(cp.x - lx) + "px " + Math.round(cp.y - ty) + "px";   /* wächst aus dem Klickpunkt (räumliche Herkunft) */
       m.style.animation = "none"; void m.offsetWidth; m.style.animation = "";
@@ -8115,11 +8115,11 @@ var FIG = (function () {
       if (plan) return; if (!embed || !svKey()) { window.open(svUrl(c, hd, false), "_blank", "noopener"); return; }
       var w = $("#kmSv"); w.hidden = false; w.innerHTML = ""; var h = document.createElement("div"); h.className = "kmprops-h"; h.innerHTML = "<b>" + esc(tt("km_sv")) + "</b>"; var x = document.createElement("button"); x.type = "button"; x.className = "btn ghost small"; x.textContent = "×"; x.setAttribute("aria-label", tt("km_cx_close")); x.addEventListener("click", function () { w.hidden = true; w.innerHTML = ""; }); h.appendChild(x); w.appendChild(h);
       var f = document.createElement("iframe"); f.title = tt("km_sv"); f.width = "100%"; f.height = "240"; f.style.border = "0"; f.setAttribute("allowfullscreen", ""); f.setAttribute("referrerpolicy", "strict-origin-when-cross-origin"); f.src = svUrl(c, hd, true); w.appendChild(f);
-      w.setAttribute("aria-label", tt("km_sv")); w.style.right = "8px"; w.style.top = "8px"; w.style.left = "auto";
+      w.setAttribute("aria-label", tt("km_sv")); w.style.right = "8px"; w.style.top = (topPad() + 8) + "px"; w.style.left = "auto";
     }
     function propsOpen(o, cp) {
       var w = $("#kmProps"); if (!w) return; propsId = o.id; w.hidden = false; propsRender();
-      var mp = $("#kmMap"), px0 = Math.max(4, Math.min(mp.clientWidth - 330, cp.x + 10)), py0 = Math.max(4, Math.min(mp.clientHeight - 240, cp.y + 10)); w.style.left = px0 + mp.offsetLeft + "px"; w.style.top = py0 + mp.offsetTop + "px"; w.style.transformOrigin = Math.round(cp.x - px0) + "px " + Math.round(cp.y - py0) + "px"; w.style.animation = "none"; void w.offsetWidth; w.style.animation = "";
+      var mp = $("#kmMap"), tp0 = topPad() + 4, pw0 = w.offsetWidth || 320, avail = mp.clientHeight - tp0 - 4; w.style.maxHeight = Math.max(160, Math.min(avail, mp.clientHeight * 0.6)) + "px"; var ph0 = Math.min(w.offsetHeight || 240, avail), px0 = Math.max(4, Math.min(mp.clientWidth - pw0 - 4, cp.x + 10)), py0 = Math.max(tp0, Math.min(mp.clientHeight - ph0 - 4, cp.y + 10));   /* immer im sichtbaren Zeichnungsbereich, nahe der Maus */ w.style.left = px0 + mp.offsetLeft + "px"; w.style.top = py0 + mp.offsetTop + "px"; w.style.transformOrigin = Math.round(cp.x - px0) + "px " + Math.round(cp.y - py0) + "px"; w.style.animation = "none"; void w.offsetWidth; w.style.animation = "";
     }
     function propsRender() {
       var w = $("#kmProps"); if (!w || !propsId) return; var f = findObj(propsId), r = f && rowFn ? rowFn(f.o) : null;
@@ -8127,7 +8127,12 @@ var FIG = (function () {
       w.innerHTML = ""; var hd = document.createElement("div"); hd.className = "kmprops-h"; hd.innerHTML = "<b>" + esc(tt("km_cx_props")) + "</b>"; var x = document.createElement("button"); x.type = "button"; x.className = "btn ghost small"; x.textContent = "×"; x.setAttribute("aria-label", tt("km_cx_close")); x.addEventListener("click", propsClose); hd.appendChild(x);
       w.setAttribute("aria-label", tt("km_cx_props")); w.appendChild(hd); w.appendChild(r);
     }
-    function propsRefresh() { var w = $("#kmProps"); if (w && !w.hidden && propsId) { var a = document.activeElement; if (!(a && w.contains(a) && /INPUT|TEXTAREA/.test(a.tagName))) propsRender(); } }
+    function propsKeep() {   /* Eigenschaften-Fenster bleibt vollständig im sichtbaren Zeichnungsbereich (unter den Glas-Leisten, innerhalb der Karte) */
+      var w = $("#kmProps"), mp = $("#kmMap"); if (!w || w.hidden || !mp) return; var tp = topPad() + 4, top = parseFloat(w.style.top) - mp.offsetTop, left = parseFloat(w.style.left) - mp.offsetLeft; if (!isFinite(top) || !isFinite(left)) return;
+      w.style.maxHeight = Math.max(160, Math.min(mp.clientHeight - tp - 4, mp.clientHeight * 0.6)) + "px"; var h = w.offsetHeight, ww = w.offsetWidth;
+      w.style.top = Math.max(tp, Math.min(mp.clientHeight - h - 4, top)) + mp.offsetTop + "px"; w.style.left = Math.max(4, Math.min(mp.clientWidth - ww - 4, left)) + mp.offsetLeft + "px";
+    }
+    function propsRefresh() { var w = $("#kmProps"); if (w && !w.hidden && propsId) { var a = document.activeElement; if (!(a && w.contains(a) && /INPUT|TEXTAREA/.test(a.tagName))) { propsRender(); propsKeep(); } } }
     function propsClose() { var w = $("#kmProps"); propsId = null; if (w) { w.hidden = true; w.innerHTML = ""; } }
     var fmt0 = function (v) { return Math.round(v).toLocaleString("de-CH"); };
     (function () {

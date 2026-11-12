@@ -506,3 +506,8 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 - **Typografie:** Grosse Schrift (Titel, Kennzahlen) enger, kleine Schrift etwas weiter, straffere Zeilenhöhe in dichten Tabellen und Eigenschaften.
 - **Handlungsfreiheit:** «Neues Projekt» ohne Bestätigungsdialog, dafür «Rückgängig» (ganzes Projekt inkl. Projektkopf).
 - Bewusst ohne Haptik und Ton, ohne Systemschrift-Wechsel, ohne rem-Skalierung, ohne Reduzierte-Bewegung-Cross-Fade (nicht gewählt). Kosten unverändert (t78, Skill-Vergleich 0 Abweichungen). Tests t106 (Federn/Gesten), t107 (Glas-Leisten), t108 (Neues Projekt rückgängig); t56, t79, t90 an Wurf bzw. sichtbare Karte angepasst.
+
+## V126 (12.11.2026) – Fenster bleiben im sichtbaren Zeichnungsbereich
+- **Fehler:** Seit die Karte unter die Glas-Leisten reicht (V125), wurden Eigenschaften-Fenster, Kontextmenü, Fragefeld und Street-View-Fenster weiter ab dem Kartenrand positioniert und lagen oben hinter den Leisten.
+- **Behoben:** Alle diese Fenster werden nahe der Maus, aber ganz innerhalb des sichtbaren Zeichnungsbereichs platziert (unter den Leisten, innerhalb der Karte, oben/unten/rechts mit Rand); das Eigenschaften-Fenster wird bei Änderungen von Inhalt, Fenstergrösse oder Leistenhöhe nachgeführt (`propsKeep`). Schwebende Panels (Werkzeuge, Eigenschaften/Auswahl) bleiben beim Ziehen und Loslassen **ganz** im Zeichnungsbereich (vorher mindestens 80 px).
+- Test t109 (schlägt ohne die Korrektur fehl). Kosten unverändert.
