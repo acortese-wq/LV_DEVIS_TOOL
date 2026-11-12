@@ -34,7 +34,7 @@ const toA = async pg => { await pg.evaluate(() => localStorage.setItem('lvd-layo
   await pg.focus('.lydrag'); await pg.keyboard.press('ArrowUp'); await pg.keyboard.press('ArrowUp'); await pg.waitForTimeout(150);
   const h1 = await pg.evaluate(() => document.querySelector('.lydpan:not([hidden])').getBoundingClientRect().height);
   ok(Math.abs(h1 - h0 - 40) <= 2 && +(await pg.evaluate(() => localStorage.getItem('lvd-dockh'))) > 0, 'Dock-Höhe per Tastatur (+40 px: ' + Math.round(h0) + ' → ' + Math.round(h1) + '), gemerkt');
-  const gb = await pg.locator('.lydrag').boundingBox(); await pg.mouse.move(gb.x + gb.width / 2, gb.y + 3); await pg.mouse.down(); await pg.mouse.move(gb.x + gb.width / 2, gb.y + 63, { steps: 4 }); await pg.mouse.up(); await pg.waitForTimeout(150);
+  const gb = await pg.locator('.lydrag').boundingBox(); await pg.mouse.move(gb.x + gb.width / 2, gb.y + 3); await pg.mouse.down(); for (let i = 1; i <= 6; i++) { await pg.mouse.move(gb.x + gb.width / 2, gb.y + 3 + i * 10.5); await pg.waitForTimeout(60); } await pg.waitForTimeout(250); await pg.mouse.up(); await pg.waitForTimeout(900);
   const h2 = await pg.evaluate(() => document.querySelector('.lydpan:not([hidden])').getBoundingClientRect().height); ok(h2 < h1 - 40, 'Dock-Höhe per Ziehen (' + Math.round(h1) + ' → ' + Math.round(h2) + ')');
   await pg.keyboard.press('Control+j'); await pg.waitForTimeout(150); ok(await pg.locator('.lydpan:visible').count() === 0, 'Strg+J klappt das Dock ein'); await pg.keyboard.press('Control+j'); await pg.waitForTimeout(150); ok(await pg.locator('.lydpan:visible').count() === 1, 'Strg+J öffnet es wieder');
   // Kostenleiste

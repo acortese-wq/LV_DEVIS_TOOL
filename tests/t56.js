@@ -15,7 +15,7 @@ await pg.click('.kmmidtog'); await pg.click('.kmmid [data-w=pin]'); await pg.mou
 await pg.click('.kmmid [data-w=x]'); await pg.waitForTimeout(200);
 // verschieben mit der Maus
 const r0=await pg.locator('.kmside').boundingBox(); const h=await pg.locator('.kmside .kmgrab').boundingBox();
-await pg.mouse.move(h.x+30,h.y+10); await pg.mouse.down(); await pg.mouse.move(h.x-150,h.y+120,{steps:8}); await pg.mouse.up(); await pg.waitForTimeout(400);
+await pg.mouse.move(h.x+30,h.y+10); await pg.mouse.down(); await pg.mouse.move(h.x-150,h.y+120,{steps:8}); await pg.waitForTimeout(160); await pg.mouse.up(); await pg.waitForTimeout(400);
 const r1=await pg.locator('.kmside').boundingBox(); ok(Math.abs(r1.x-(r0.x-180))<8&&r1.y>r0.y+100,'Eigenschaften-Fenster per Maus verschoben ('+Math.round(r0.x)+'→'+Math.round(r1.x)+')');
 const m1=await pg.locator('#kmMap').boundingBox(); ok(m1.width>r0.x-200+r0.width-50,'Karte nutzt den frei gewordenen Platz ('+Math.round(m1.width)+' px)');
 // Tastatur

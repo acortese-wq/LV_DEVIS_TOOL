@@ -383,3 +383,41 @@
 @media (prefers-reduced-transparency:reduce){.kmdlg .kmgstep,.kmdlg .kmparzhint{background-color:#fff;-webkit-backdrop-filter:none;backdrop-filter:none}}
 @media (prefers-contrast:more){.kmdlg .kmgstep,.kmdlg .kmparzhint,.kmdlg .kmctx{border-color:#000}.btn:not(:disabled):active{transform:none}}
 @media (prefers-reduced-motion:reduce){.btn:not(:disabled):active,.lydtabs button:active,.lyrb button:active,.lynav button:active{transform:none}.kmctx,.kmprops,.kmgstep,.kmparzhint,.kmtoast{animation:none!important}}
+
+/* ===== Paket A (V125): Typografie nach Grösse, Material mit Tiefe, Materialisieren, weicher Themawechsel ===== */
+body{font-optical-sizing:auto;text-rendering:optimizeLegibility}
+h1,.lykpi b,.lyk-big{letter-spacing:-.02em}   /* grosse Schrift: enger */
+h1{line-height:1.12}
+h3{letter-spacing:-.008em;line-height:1.25}
+.hint,small,.lyk,.kmgl,.kmc>span,.lycnt,figcaption,sup,.kmparzhint,.kmgchips li{letter-spacing:.012em}   /* kleine Schrift: etwas weiter */
+.lytab td,.lytab th,.kmrow .kmc{line-height:1.35}   /* dichte Tabellen/Eigenschaften: straffere Zeilen */
+.kmdlg{--glass:rgba(255,255,255,.88);--glass-edge:rgba(255,255,255,.75)}
+.kmdlg.nc-dark{--glass:rgba(24,40,52,.84);--glass-edge:rgba(255,255,255,.14)}
+@supports (background:color-mix(in srgb,red,blue)){.kmdlg{--glass:color-mix(in srgb,var(--paper,#fff) 88%,transparent)}.kmdlg.nc-dark{--glass:color-mix(in srgb,var(--nc-surface,#18283a) 84%,transparent)}}
+.kmdlg.kmlya .kmctx,.kmdlg.kmlya .kmprops,.kmdlg.kmlya .lycmdk,.kmdlg.kmlya .lyspop{background:var(--glass);-webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);box-shadow:0 14px 36px rgba(0,0,0,.28),0 2px 6px rgba(0,0,0,.18),inset 0 1px 0 var(--glass-edge);border:1px solid var(--glass-edge)}   /* grosse Fläche = tieferer Schatten, helle Oberkante */
+.kmdlg.kmlya .kmctx.kmctx{color:inherit}
+.kmctx,.kmprops,.lycmdk,.kmgstep{animation-name:nc-mat}
+@keyframes nc-mat{from{opacity:0;transform:scale(.96);-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0)}to{opacity:1;transform:none}}   /* Materialisieren: Weichzeichner und Skalierung gemeinsam */
+.kmdlg.nc-fade,.kmdlg.nc-fade *{transition:background-color .26s ease,border-color .26s ease,color .26s ease,fill .26s ease!important}   /* Hell/Dunkel ohne Helligkeitssprung */
+@media (prefers-reduced-transparency:reduce){.kmdlg.kmlya .kmctx,.kmdlg.kmlya .kmprops,.kmdlg.kmlya .lycmdk,.kmdlg.kmlya .lyspop{background:var(--nc-surface,#fff);-webkit-backdrop-filter:none;backdrop-filter:none}}
+@media (prefers-reduced-motion:reduce){.kmdlg.nc-fade,.kmdlg.nc-fade *{transition:none!important}}
+
+/* ===== Paket C (V125): Glas-Leisten – die Karte reicht unter Kopfleiste, Kennzahlen und Ribbon (ab 861 px) ===== */
+.kmdlg{--glass-bar:rgba(255,255,255,.84)}.kmdlg.nc-dark{--glass-bar:rgba(16,32,43,.82)}
+@media (min-width:861px){
+  .kmdlg.kmlya[open]{--lytop:0px}
+  .kmdlg.kmlya .kmhead{z-index:46}.kmdlg.kmlya .lybar{z-index:44}.kmdlg.kmlya .lyrb{z-index:42}   /* Popovers der oberen Leisten liegen über den folgenden Leisten */
+  .kmdlg.kmlya .kmhead,.kmdlg.kmlya .lybar,.kmdlg.kmlya .lyrb{position:relative;background:var(--glass-bar);-webkit-backdrop-filter:blur(22px) saturate(1.6);backdrop-filter:blur(22px) saturate(1.6)}
+  .kmdlg.kmlya .lyrb{border-bottom-color:transparent}
+  .kmdlg.kmlya .lyrb::after{content:"";position:absolute;left:0;right:0;top:100%;height:16px;pointer-events:none;background:linear-gradient(to bottom,rgba(0,0,0,.22),transparent)}   /* Scroll-Kanten-Effekt statt harter Trennlinie */
+  .kmdlg.kmlya .kmgrid{position:relative;z-index:1}
+  .kmdlg.kmlya .kmgrid>.kmcanvas{margin-top:calc(-1 * var(--lytop))}
+  .kmdlg.kmlya .kmcanvas .leaflet-top{margin-top:var(--lytop)}
+  .kmdlg.kmlya .lybase{top:calc(var(--lytop) + 10px)}
+  .kmdlg.kmlya .kmgstep{top:calc(var(--lytop) + 8px)}
+}
+@media (prefers-reduced-transparency:reduce){.kmdlg.kmlya .kmhead,.kmdlg.kmlya .lybar,.kmdlg.kmlya .lyrb{background:var(--nc-surface,#fff);-webkit-backdrop-filter:none;backdrop-filter:none}}
+/* Handy-Sheets und Navigation: schweben durchscheinend über der Karte */
+@media (max-width:860px){
+  .kmdlg.kmlya.ly-ms-tools .kmgrid>.kmtools,.kmdlg.kmlya.ly-ms-mid .kmgrid>.kmmid,.kmdlg.kmlya.ly-ms-side .kmgrid>.kmside,.kmdlg.kmlya.ly-ms-dock .lydock,.kmdlg.kmlya.ly-ms-more .kmbottom,.kmdlg.kmlya .lymtab{background:var(--glass-bar);-webkit-backdrop-filter:blur(22px) saturate(1.6);backdrop-filter:blur(22px) saturate(1.6);box-shadow:0 -10px 30px rgba(0,0,0,.25),inset 0 1px 0 var(--glass-edge)}
+}

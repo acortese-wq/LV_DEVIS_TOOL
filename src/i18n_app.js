@@ -99,6 +99,7 @@
     recDup: ["Duplizieren", "Dupliquer", "Duplica", "Duplicate"], recDel: ["Löschen", "Supprimer", "Elimina", "Delete"],
     recEdit: ["bearbeiten", "modifier", "modifica", "edit"],
     confirmDel: ["Diesen Datensatz löschen?", "Supprimer cet enregistrement ?", "Eliminare questo record?", "Delete this record?"],
+    newDone: ["Neues Projekt angelegt. Das bisherige lässt sich mit «Rückgängig» wiederherstellen.", "Nouveau projet créé. L'ancien peut être restauré avec «Annuler».", "Nuovo progetto creato. Il precedente si ripristina con «Annulla».", "New project created. The previous one can be restored with «Undo»."],
     confirmNew: ["Alle Eingaben löschen und neu beginnen?", "Effacer toutes les saisies ?", "Cancellare tutti i dati?", "Clear all entries?"],
     btnNew: ["Neues Projekt", "Nouveau projet", "Nuovo progetto", "New project"],
     xT: ["Weitere LV-Positionen", "Autres positions LV", "Altre posizioni LV", "Further BoQ items"], xPos: ["Positionen", "positions", "posizioni", "items"], xCnt: ["erfasst", "saisies", "inserite", "entered"],

@@ -39,6 +39,28 @@
   /* WMS als ein Bild über dem Kartenausschnitt (+50 % Rand). Der Dienst «cadastralwebmap» ist ein weitergereichter Dienst: als kleine Kacheln liefert er
      gegeneinander verschobene Ausschnitte (Rückmeldung 07.11.2026) – darum ein zusammenhängendes Bild. Es wird nur neu geladen, wenn sich die Zoomstufe ändert
      oder der Ausschnitt den geladenen Bereich verlässt; Verschieben innerhalb des Randes lässt die Parzellen unverändert (kein Springen, kein leerer Rand). */
+  /* Feder nach Apple-Modell («Designing Fluid Interfaces»): Dämpfungsverhältnis + Ansprechzeit, übernimmt die Loslass-Geschwindigkeit, jederzeit unterbrechbar (stop() liefert den aktuellen Wert);
+     Projektion des Ruhepunkts aus der Geschwindigkeit und Gummiband am Rand. Bei «Bewegung reduzieren» springt der Wert direkt ans Ziel. */
+  var SPRING = (function () {
+    var reduce = function () { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; };
+    function run(o) {
+      var x = o.from, v = o.v || 0, to = o.to, rs = o.response || 0.35, k = Math.pow(2 * Math.PI / rs, 2), c = 4 * Math.PI * (o.damping == null ? 1 : o.damping) / rs, last = null, raf = 0, dead = false;
+      if (reduce() || !isFinite(x) || !isFinite(to)) { o.step(to); if (o.done) o.done(to); return { stop: function () { return to; } }; }
+      function tick(t) {
+        if (dead) return; if (last == null) last = t; var dt = Math.min(0.032, Math.max(0.001, (t - last) / 1000)); last = t;
+        var n = Math.max(1, Math.ceil(dt / 0.004)), h = dt / n;
+        for (var i = 0; i < n; i++) { v += (-k * (x - to) - c * v) * h; x += v * h; }
+        if (Math.abs(x - to) < 0.4 && Math.abs(v) < 8) { dead = true; o.step(to); if (o.done) o.done(to); return; }
+        o.step(x); raf = requestAnimationFrame(tick);
+      }
+      raf = requestAnimationFrame(tick);
+      return { stop: function () { dead = true; cancelAnimationFrame(raf); return x; } };
+    }
+    function project(v, d) { d = d || 0.998; return (v / 1000) * d / (1 - d); }   /* Ruhepunkt aus Geschwindigkeit (px/s), exponentielles Abklingen wie beim Scrollen */
+    function rubber(over, dim, k) { k = k || 0.55; var a = Math.abs(over); return (over < 0 ? -1 : 1) * (a * dim * k) / (dim + k * a); }
+    function vel(hist, key) { if (hist.length < 2) return 0; var a = hist[0], b = hist[hist.length - 1], dt = Math.max(16, b.t - a.t); if (performance.now() - b.t > 80) return 0; return (b[key] - a[key]) / dt * 1000; }   /* wer vor dem Loslassen anhält, wirft nicht */
+    return { run: run, project: project, rubber: rubber, vel: vel };
+  })();
   function viewWms(url, layers, o) {
     var V = L.Layer.extend({
       onAdd: function (m) { this._m = m; this._t = 0; this._bad = 0; this._cap = 2600; this._ever = false; m.on("moveend", this._soon, this); this._upd(); },
@@ -728,7 +750,7 @@
         lg.innerHTML = ["de", "fr", "it", "en"].map(function (c) { return '<button type="button" class="btn ghost small" data-lylang="' + c + '" aria-pressed="' + (c === (LY.lang || opt.lang) ? "true" : "false") + '" lang="' + c + '">' + c.toUpperCase() + "</button>"; }).join("");
         hb2.insertBefore(lg, hb2.firstChild);
         var tb = E("button", "btn ghost small nc-theme", dlg.classList.contains("nc-dark") ? "☀" : "☾"); tb.type = "button"; tb.setAttribute("data-nctheme", ""); tb.setAttribute("aria-pressed", dlg.classList.contains("nc-dark") ? "true" : "false"); tb.setAttribute("aria-label", tt("ly_themeD")); tb.title = tt("ly_themeD");
-        tb.addEventListener("click", function () { var d = !dlg.classList.contains("nc-dark"); dlg.classList.toggle("nc-dark", d); tb.textContent = d ? "☀" : "☾"; tb.setAttribute("aria-pressed", d ? "true" : "false"); try { localStorage.setItem("lvd-theme", d ? "dark" : "light"); } catch (e) { } });
+        tb.addEventListener("click", function () { var d = !dlg.classList.contains("nc-dark"); dlg.classList.add("nc-fade"); setTimeout(function () { dlg.classList.remove("nc-fade"); }, 320); dlg.classList.toggle("nc-dark", d); tb.textContent = d ? "☀" : "☾"; tb.setAttribute("aria-pressed", d ? "true" : "false"); try { localStorage.setItem("lvd-theme", d ? "dark" : "light"); } catch (e) { } });
         hb2.insertBefore(tb, lg.nextSibling);
         (function () {   /* Phase G: Bedienmodi Einfach/Standard/Experte (UI-Einstellung lvd-uimode, nicht im Projekt) + Befehlsleiste Strg+K */
           var md = "s"; try { md = localStorage.getItem("lvd-uimode") || "s"; } catch (e) { } if (["e", "s", "x"].indexOf(md) < 0) md = "s";
@@ -932,13 +954,35 @@
           var DH = "lvd-dockh", h0 = 220; try { h0 = Math.max(120, Math.min(560, +localStorage.getItem(DH) || 220)); } catch (e) { }
           dlg.style.setProperty("--lydh", h0 + "px");
           /* Platz für den unteren Bereich = Fensterhöhe − Kopf − Kennzahlen − Fusszeile − Reiterleiste − mindestens 260 px Karte (Kopfleiste kann umbrechen) */
-          var fitDock = function () { try { var hh = dlg.clientHeight || window.innerHeight, used = 0; ["kmhead", "lybar", "lyrb", "kmbottom"].forEach(function (c) { var e = dlg.querySelector("." + c); if (e) used += e.offsetHeight; }); var tb = dlg.querySelector(".lydbar"); used += tb ? tb.offsetHeight : 48; dlg.style.setProperty("--lydm", Math.max(120, hh - used - 260) + "px"); } catch (e) { } };
+          var fitDock = function () { try { var hh = dlg.clientHeight || window.innerHeight, used = 0; ["kmhead", "lybar", "lyrb", "kmbottom"].forEach(function (c) { var e = dlg.querySelector("." + c); if (e) used += e.offsetHeight; }); var tb = dlg.querySelector(".lydbar"); used += tb ? tb.offsetHeight : 48; dlg.style.setProperty("--lydm", Math.max(120, hh - used - 260) + "px");
+            var tp = 0; if (window.matchMedia("(min-width:861px)").matches) ["kmhead", "lybar", "lyrb"].forEach(function (c) { var e = dlg.querySelector("." + c); if (e && e.offsetParent !== null) tp += e.offsetHeight; });   /* Höhe der Glas-Leisten: die Karte reicht darunter */
+            if (String(Math.round(tp)) + "px" !== dlg.style.getPropertyValue("--lytop")) { dlg.style.setProperty("--lytop", Math.round(tp) + "px"); setTimeout(function () { try { map.invalidateSize({ animate: false }); } catch (e) { } }, 30); } } catch (e) { } };
           fitDock(); window.addEventListener("resize", function () { fitDock(); setTimeout(function () { try { map.invalidateSize({ animate: false }); } catch (e) { } }, 30); });
-          if (window.ResizeObserver) { var roF = new ResizeObserver(function () { fitDock(); }); ["kmhead", "lybar", "kmbottom"].forEach(function (c) { var e = dlg.querySelector("." + c); if (e) roF.observe(e); }); }
+          if (window.ResizeObserver) { var roF = new ResizeObserver(function () { fitDock(); }); ["kmhead", "lybar", "lyrb", "kmbottom"].forEach(function (c) { var e = dlg.querySelector("." + c); if (e) roF.observe(e); }); }
           window.__LYFIT = fitDock;
           var gr2 = E("div", "lydrag"); gr2.setAttribute("role", "separator"); gr2.setAttribute("aria-orientation", "horizontal"); gr2.setAttribute("tabindex", "0"); gr2.setAttribute("aria-label", tt("ly_dockH")); gr2.setAttribute("aria-valuemin", "120"); gr2.setAttribute("aria-valuemax", "560"); gr2.setAttribute("aria-valuenow", String(h0)); dock.insertBefore(gr2, dock.firstChild);
           var setH = function (h) { h = Math.round(Math.max(120, Math.min(Math.min(560, window.innerHeight * 0.45), h))); dlg.style.setProperty("--lydh", h + "px"); gr2.setAttribute("aria-valuenow", String(h)); try { localStorage.setItem(DH, String(h)); } catch (e) { } try { map.invalidateSize({ animate: false }); } catch (e) { } };
-          gr2.addEventListener("pointerdown", function (ev) { ev.preventDefault(); var y0 = ev.clientY, hh = parseFloat(getComputedStyle(dlg).getPropertyValue("--lydh")) || 220; gr2.setPointerCapture(ev.pointerId); var mv = function (e2) { setH(hh + (y0 - e2.clientY)); }, up = function () { gr2.removeEventListener("pointermove", mv); gr2.removeEventListener("pointerup", up); }; gr2.addEventListener("pointermove", mv); gr2.addEventListener("pointerup", up); });
+          var dockSp = null, MINH = 120, maxH = function () { return Math.min(560, window.innerHeight * 0.45); }, fr = 0;
+          var putH = function (h, last) { dlg.style.setProperty("--lydh", Math.round(h) + "px"); if (last || ++fr % 3 === 0) { try { map.invalidateSize({ animate: false }); } catch (e) { } } };
+          gr2.addEventListener("pointerdown", function (ev) {   /* Ziehen 1:1 am Zeiger, Gummiband am Rand, Loslassen mit Schwung rastet ein oder klappt ein; jederzeit unterbrechbar */
+            ev.preventDefault(); var cur = dockSp ? dockSp.stop() : (lyD.c ? MINH * 0.4 : parseFloat(getComputedStyle(dlg).getPropertyValue("--lydh")) || 220); dockSp = null;
+            var y0 = ev.clientY, h0 = cur, raw = cur, hist = [{ t: performance.now(), y: ev.clientY }]; gr2.setPointerCapture(ev.pointerId);
+            var mv = function (e2) {
+              raw = h0 + (y0 - e2.clientY); hist.push({ t: performance.now(), y: e2.clientY }); while (hist.length > 6) hist.shift();
+              var M = maxH(), v = raw > M ? M + SPRING.rubber(raw - M, 160) : raw < MINH ? MINH + SPRING.rubber(raw - MINH, 160) : raw;
+              if (lyD.c && raw > MINH * 0.5) { lyD.c = false; lyDock(); }   /* aus dem eingeklappten Zustand heraus ziehen */
+              putH(Math.max(40, v));
+            };
+            var up = function () {
+              gr2.removeEventListener("pointermove", mv); gr2.removeEventListener("pointerup", up); gr2.removeEventListener("pointercancel", up);
+              var vy = -SPRING.vel(hist, "y"), M = maxH(), shown = parseFloat(getComputedStyle(dlg).getPropertyValue("--lydh")) || raw, end = raw + SPRING.project(vy), snaps = [MINH, Math.round((MINH + M) / 2), Math.round(M)];
+              if (end < MINH * 0.55 && !lyD.c) { lyD.c = true; lyDock(); }   /* weit nach unten geworfen: einklappen */
+              var tgt = Math.abs(vy) < 150 ? Math.max(MINH, Math.min(M, raw)) : snaps.reduce(function (b, x) { return Math.abs(x - end) < Math.abs(b - end) ? x : b; }, snaps[0]);   /* langsam losgelassen: Höhe bleibt; Wurf: rastet am Ruhepunkt der Projektion ein */
+              if (lyD.c) tgt = MINH;
+              dockSp = SPRING.run({ from: shown, to: tgt, v: vy, response: 0.34, damping: Math.abs(vy) > 300 ? 0.8 : 1, step: function (x) { putH(x); }, done: function (x) { dockSp = null; var h = Math.round(tgt); dlg.style.setProperty("--lydh", h + "px"); gr2.setAttribute("aria-valuenow", String(h)); try { localStorage.setItem(DH, String(h)); } catch (e) { } putH(h, true); } });
+            };
+            gr2.addEventListener("pointermove", mv); gr2.addEventListener("pointerup", up); gr2.addEventListener("pointercancel", up);
+          });
           gr2.addEventListener("keydown", function (ev) { var hh = parseFloat(getComputedStyle(dlg).getPropertyValue("--lydh")) || 220, d = ev.key === "ArrowUp" ? 20 : ev.key === "ArrowDown" ? -20 : 0; if (d) { ev.preventDefault(); setH(hh + (ev.shiftKey ? d * 3 : d)); } });
         })();
         /* Projektexplorer (links, Reiter neben «Werkzeuge»): Projekt · Zeichnung · Layer · Datensätze – Klick wählt das Objekt (Karte + Eigenschaften) */
@@ -1043,14 +1087,26 @@
           bm.addEventListener("click", function () { var s = S(p.k); if (!s.fl) undock(p); s.min = !s.min; layout(); persist(); });
           bd.addEventListener("click", function () { var s = S(p.k); if (s.fl) { s.fl = false; s.min = false; } else undock(p); layout(); persist(); });
           p.el.addEventListener("pointerdown", function () { if (S(p.k).fl) front(p); });
+          var pSp = null;
           h.addEventListener("pointerdown", function (e) {
-            if (e.button !== 0 || e.target.closest(".kmwbtn")) return; var sx = e.clientX, sy = e.clientY, moved = false, o = null; h.setPointerCapture && h.setPointerCapture(e.pointerId);
+            if (e.button !== 0 || e.target.closest(".kmwbtn")) return; var sx = e.clientX, sy = e.clientY, moved = false, o = null, hist = [{ t: performance.now(), x: sx, y: sy }]; h.setPointerCapture && h.setPointerCapture(e.pointerId);
+            if (pSp) { pSp.forEach(function (q) { q.stop(); }); pSp = null; var s0 = S(p.k); if (s0.fl) { s0.x = parseFloat(p.el.style.left) || s0.x; s0.y = parseFloat(p.el.style.top) || s0.y; } }   /* laufende Feder greifen: Panel bleibt in der Hand */
+            var lim = function () { var G = gr(); return { x: G.width - 80, y: G.height - 40 }; };
             function mv(ev) {
               var dx = ev.clientX - sx, dy = ev.clientY - sy; if (!moved && Math.hypot(dx, dy) < 5) return;
               if (!moved) { moved = true; undock(p); layout(); front(p); o = { x: S(p.k).x, y: S(p.k).y }; }
-              var G = gr(), s = S(p.k); s.x = Math.max(0, Math.min(o.x + dx, G.width - 80)); s.y = Math.max(0, Math.min(o.y + dy, G.height - 40)); p.el.style.left = s.x + "px"; p.el.style.top = s.y + "px";
+              hist.push({ t: performance.now(), x: ev.clientX, y: ev.clientY }); while (hist.length > 6) hist.shift();
+              var L = lim(), s = S(p.k), nx = o.x + dx, ny = o.y + dy;
+              s.x = nx < 0 ? SPRING.rubber(nx, 140) : nx > L.x ? L.x + SPRING.rubber(nx - L.x, 140) : nx; s.y = ny < 0 ? SPRING.rubber(ny, 140) : ny > L.y ? L.y + SPRING.rubber(ny - L.y, 140) : ny;   /* Gummiband am Rand */
+              p.el.style.left = s.x + "px"; p.el.style.top = s.y + "px";
             }
-            function up() { h.removeEventListener("pointermove", mv); h.removeEventListener("pointerup", up); h.removeEventListener("pointercancel", up); if (moved) { layout(); persist(); } }
+            function up() {
+              h.removeEventListener("pointermove", mv); h.removeEventListener("pointerup", up); h.removeEventListener("pointercancel", up);
+              if (!moved) return; var s = S(p.k), L = lim(), vx = SPRING.vel(hist, "x"), vy = SPRING.vel(hist, "y"), clampTo = function (v, hi) { return Math.max(0, Math.min(hi, v)); };
+              var ex = clampTo(s.x + SPRING.project(vx, 0.99), L.x), ey = clampTo(s.y + SPRING.project(vy, 0.99), L.y), n = 2, fin = function () { if (--n > 0) return; pSp = null; layout(); persist(); };
+              pSp = [SPRING.run({ from: s.x, to: ex, v: vx, response: 0.4, damping: Math.abs(vx) > 300 ? 0.8 : 1, step: function (x) { s.x = x; p.el.style.left = x + "px"; }, done: function (x) { s.x = x; p.el.style.left = x + "px"; fin(); } }),
+                SPRING.run({ from: s.y, to: ey, v: vy, response: 0.4, damping: Math.abs(vy) > 300 ? 0.8 : 1, step: function (y) { s.y = y; p.el.style.top = y + "px"; }, done: function (y) { s.y = y; p.el.style.top = y + "px"; fin(); } })];   /* getrennte Federn für X und Y */
+            }
             h.addEventListener("pointermove", mv); h.addEventListener("pointerup", up); h.addEventListener("pointercancel", up);
           });
           g.addEventListener("keydown", function (e) {   /* Tastatur: Pfeiltasten verschieben, Umschalt = grosse Schritte, Enter = andocken/lösen */
@@ -1164,9 +1220,10 @@
     }
     function openGeo() { window.open(geoUrl(false), "_blank", "noopener"); }
     /* immer auf den Bestand (alle Linien, Schächte, Sondagen) zoomen */
+    function topPad() { var v = parseFloat(dlg.style.getPropertyValue("--lytop")); return isFinite(v) ? v : 0; }   /* Glas-Leisten verdecken den oberen Kartenrand */
     function fitAll() {
       var pts = []; M.lines.forEach(function (l) { l.pts.forEach(function (p) { pts.push(AD.ll(p)); }); }); M.pts.concat(M.sond, M.wl, M.geb).forEach(function (p) { pts.push(AD.ll(p.pt)); }); M.notes.concat(M.areas).forEach(function (n) { n.pts.forEach(function (p) { pts.push(AD.ll(p)); }); }); if (ovl) ovCorners(ovl).forEach(function (q) { pts.push(toWGS(q[0], q[1])); });
-      if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.3), { maxZoom: plan ? 3 : 19, animate: false });
+      if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.3), { maxZoom: plan ? 3 : 19, animate: false, paddingTopLeft: [0, topPad()] });
       else if (plan) map.fitBounds([[-opt.plan.h, 0], [0, opt.plan.w]], { animate: false });
     }
     function setBase(v) {
@@ -1659,7 +1716,10 @@
         b.addEventListener("click", function (e) { e.stopPropagation(); ctxHide(); it.fn(); }); m.appendChild(b);
       });
       var mp = $("#kmMap"), aw = m.offsetWidth || 260, ah = m.offsetHeight || 40 + items.length * 34;
-      m.style.left = Math.max(4, Math.min(mp.clientWidth - aw - 4, cp.x + 6)) + mp.offsetLeft + "px"; m.style.top = Math.max(4, Math.min(mp.clientHeight - ah - 4, cp.y + 6)) + mp.offsetTop + "px";
+      var lx = Math.max(4, Math.min(mp.clientWidth - aw - 4, cp.x + 6)), ty = Math.max(4, Math.min(mp.clientHeight - ah - 4, cp.y + 6));
+      m.style.left = lx + mp.offsetLeft + "px"; m.style.top = ty + mp.offsetTop + "px";
+      m.style.transformOrigin = Math.round(cp.x - lx) + "px " + Math.round(cp.y - ty) + "px";   /* wächst aus dem Klickpunkt (räumliche Herkunft) */
+      m.style.animation = "none"; void m.offsetWidth; m.style.animation = "";
       var f = m.querySelector("button"); if (f) f.focus();
     }
     function segHit(cp, pts) {   /* Linie unter dem Zeiger: nächster Abschnitt in Bildschirmpixeln, Fusspunkt als Kartenkoordinate */
@@ -1775,7 +1835,7 @@
     }
     function propsOpen(o, cp) {
       var w = $("#kmProps"); if (!w) return; propsId = o.id; w.hidden = false; propsRender();
-      var mp = $("#kmMap"); w.style.left = Math.max(4, Math.min(mp.clientWidth - 330, cp.x + 10)) + mp.offsetLeft + "px"; w.style.top = Math.max(4, Math.min(mp.clientHeight - 240, cp.y + 10)) + mp.offsetTop + "px";
+      var mp = $("#kmMap"), px0 = Math.max(4, Math.min(mp.clientWidth - 330, cp.x + 10)), py0 = Math.max(4, Math.min(mp.clientHeight - 240, cp.y + 10)); w.style.left = px0 + mp.offsetLeft + "px"; w.style.top = py0 + mp.offsetTop + "px"; w.style.transformOrigin = Math.round(cp.x - px0) + "px " + Math.round(cp.y - py0) + "px"; w.style.animation = "none"; void w.offsetWidth; w.style.animation = "";
     }
     function propsRender() {
       var w = $("#kmProps"); if (!w || !propsId) return; var f = findObj(propsId), r = f && rowFn ? rowFn(f.o) : null;
@@ -2807,7 +2867,7 @@
     }
     function show(id) {
       var f = findObj(id); if (!f) return; sel = { id: id }; var ps = f.o.pts || [f.o.pt];
-      if (ps.length > 1) map.fitBounds(L.latLngBounds(ps.map(AD.ll)).pad(0.3), { maxZoom: plan ? 3 : 19, animate: false });
+      if (ps.length > 1) map.fitBounds(L.latLngBounds(ps.map(AD.ll)).pad(0.3), { maxZoom: plan ? 3 : 19, animate: false, paddingTopLeft: [0, topPad()] });
       else map.setView(AD.ll(ps[0]), Math.max(map.getZoom(), plan ? 1 : 18), { animate: false });
       refresh();
     }

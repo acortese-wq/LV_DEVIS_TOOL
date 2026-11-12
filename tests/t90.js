@@ -37,10 +37,10 @@ const open = async pg => { for (let t = 0; t < 60 && !(await pg.locator('dialog.
   let ax = await axe(); ok(ax.length === 0, 'axe dunkel: ' + JSON.stringify(ax));
   await pg.click('.nc-theme'); await pg.waitForTimeout(200); ax = await axe(); ok(ax.length === 0, 'axe hell: ' + JSON.stringify(ax)); await pg.click('.nc-theme');
   // Minimieren
-  const mh1 = await pg.evaluate(() => document.querySelector('#kmMap').getBoundingClientRect().height);
+  const mh1 = await pg.evaluate(() => (document.querySelector('#kmMap').getBoundingClientRect().height - (parseFloat(document.querySelector('dialog.kmlya').style.getPropertyValue('--lytop')) || 0)));
   await pg.click('[data-rbmin]'); await pg.waitForTimeout(300);
-  const m = await pg.evaluate(() => ({ h: document.querySelector('.lyrb').getBoundingClientRect().height, mh: document.querySelector('#kmMap').getBoundingClientRect().height, s: JSON.parse(localStorage.getItem('lvd-ribbon')) }));
-  ok(m.h < 40 && m.mh > mh1 + 50 && m.s.m === true && await pg.locator('.lyrb [role=tab]').first().isVisible(), 'minimiert: nur Registerzeile (' + Math.round(m.h) + ' px), Karte ' + Math.round(mh1) + ' → ' + Math.round(m.mh) + ' px, gemerkt');
+  const m = await pg.evaluate(() => ({ h: document.querySelector('.lyrb').getBoundingClientRect().height, mh: (document.querySelector('#kmMap').getBoundingClientRect().height - (parseFloat(document.querySelector('dialog.kmlya').style.getPropertyValue('--lytop')) || 0)), s: JSON.parse(localStorage.getItem('lvd-ribbon')) }));
+  ok(m.h < 40 && m.mh > mh1 + 50 && m.s.m === true && await pg.locator('.lyrb [role=tab]').first().isVisible(), 'minimiert: nur Registerzeile (' + Math.round(m.h) + ' px), sichtbare Karte ' + Math.round(mh1) + ' → ' + Math.round(m.mh) + ' px, gemerkt');
   await pg.click('#lyRT_draw'); await pg.waitForTimeout(200); ok(await pg.locator('#lyRP_draw').isVisible(), 'Klick auf ein Register zeigt die Leiste wieder');
   await pg.keyboard.press('Control+F1'); await pg.waitForTimeout(200); ok(!(await pg.locator('#lyRP_draw').isVisible()), 'Strg+F1 minimiert');
   await pg.dblclick('#lyRT_draw'); await pg.waitForTimeout(250);

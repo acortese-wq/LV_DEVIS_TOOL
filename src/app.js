@@ -1855,7 +1855,10 @@
     $("#bXlsx").onclick = function () { download(fname("xlsx"), xlsxBytes(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); };
     $("#bSave").onclick = saveJson;
     $("#bLoad").onclick = function () { $("#fileIn").click(); };
-    $("#bNew").onclick = function () { if (confirm(tt("confirmNew"))) { var l = S.lang; S = defaults(); S.lang = l; heal(); save(); applyKopf(); applyLang(); } };
+    $("#bNew").onclick = function () {   /* Handlungsfreiheit: kein Bestätigungsdialog, dafür «Rückgängig» (stellt das ganze Projekt wieder her) */
+      var full = JSON.stringify(S), had = hasContent(), l = S.lang; S = defaults(); S.lang = l; heal(); save(); applyKopf(); applyLang();
+      if (had) KARTE.toast(document.body, tt("newDone"), tt("km_undoBtn"), function () { S = JSON.parse(full); heal(); save(); applyKopf(); applyLang(); renderForm(); renderResult(); });
+    };
     $("#fileIn").addEventListener("change", function () { if (this.files[0]) load(this.files[0]); this.value = ""; });
     applyKopf(); applyLang();
     function loadDemo() {   /* Held-Fall «Dorfstrasse mit Bachbrücke»: Rohranlage, Brücke (Luft), Hausanschluss, Gebäude; Höhenprofile gespeichert (läuft offline) */
