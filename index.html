@@ -1710,6 +1710,20 @@ tr.pst-ip .pst{background:#e7f0fb;border-color:#0a5aa8;color:#083f78}tr.pst-ip t
 .kmdlg .kmgchips li.done{background:#e3f1e8;border-color:#1f7a3a;color:#14572a}
 .kmdlg .kmgmsg{margin:0;font-size:14px;line-height:1.35}.kmdlg .kmgwho{font-weight:700;color:#0a4f55}
 
+/* ===== Bewegung und Material nach «Apple Design» (emilkowalski/skills): Reaktion beim Drücken, Federn statt fester Dauern, durchscheinende Flächen, Barrierefreiheit ===== */
+:root{--nc-spring:cubic-bezier(.22,1,.36,1);--nc-press:80ms}
+.btn:not(:disabled),.lydtabs button,.lyrb button,.lynav button{transition:transform .28s var(--nc-spring),background-color .16s,border-color .16s,box-shadow .16s}
+.btn:not(:disabled):active,.lydtabs button:active,.lyrb button:active,.lynav button:active{transform:scale(.97);transition-duration:var(--nc-press)}   /* Rückmeldung schon beim Drücken */
+.kmctx,.kmprops{transform-origin:top left;animation:nc-pop .22s var(--nc-spring)}
+.kmgstep,.kmparzhint,.kmtoast{animation:nc-rise .26s var(--nc-spring)}
+@keyframes nc-pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes nc-rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.kmdlg .kmgstep,.kmdlg .kmparzhint{background-color:rgba(255,255,255,.9);-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px)}   /* Material: Transluzenz, Text bleibt dunkel auf hellem Grund */
+.kmdlg .num,.kmdlg td.num,.lykpi b,.lyk b{font-variant-numeric:tabular-nums}
+@media (prefers-reduced-transparency:reduce){.kmdlg .kmgstep,.kmdlg .kmparzhint{background-color:#fff;-webkit-backdrop-filter:none;backdrop-filter:none}}
+@media (prefers-contrast:more){.kmdlg .kmgstep,.kmdlg .kmparzhint,.kmdlg .kmctx{border-color:#000}.btn:not(:disabled):active{transform:none}}
+@media (prefers-reduced-motion:reduce){.btn:not(:disabled):active,.lydtabs button:active,.lyrb button:active,.lynav button:active{transform:none}.kmctx,.kmprops,.kmgstep,.kmparzhint,.kmtoast{animation:none!important}}
+
 </style>
 </head>
 <body>

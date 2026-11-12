@@ -489,3 +489,12 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 - **Schritt für Schritt, mit Angabe der Punkte:** Schrittleiste über der Karte (4 Schritte): 1 «Im PDF eine gut erkennbare Hausecke anklicken» → 2 «Auf dem Parzellenplan dieselbe Hausecke anklicken» → 3 «Im PDF eine zweite Hausecke (weit von der ersten entfernt)» → 4 «Auf dem Parzellenplan dieselbe zweite Hausecke». Fortschritt als Chips (✓ erledigt, aktueller Schritt hervorgehoben), Hinweistext in DE/FR/IT/EN; nach 4 Klicks ist der Plan ausgerichtet, optional weitere Punkte zur Verfeinerung.
 - **Weniger Klicks:** Das Einpassen startet von selbst, wenn der PDF-Plan nicht automatisch ausgerichtet werden kann; die Kartenquelle wechselt auf den Parzellenplan (Zoom mindestens Stufe 16); im PDF-Schritt ist der Plan gut sichtbar (Deckkraft ≥ 75 %), im Parzellenschritt abgeschwächt (≤ 30 %), damit Gebäudeecken des Parzellenplans erkennbar sind.
 - Rechenkern und Kosten unverändert. Test t104 (neu); t12, t29, t77 an den Selbststart angepasst (Klick nur, wenn der Modus nicht schon aktiv ist). «Mit Passpunkten verfeinern» ist jetzt idempotent.
+
+## V124 (12.11.2026) – Bewegung und Material nach «Apple Design» (emilkowalski/skills, skills/apple-design/SKILL.md)
+- Quelle: öffentliches Repo emilkowalski/skills («Skills for Designers and Engineers»); der Skill beschreibt Reaktionszeit, Federn statt fester Dauern, Unterbrechbarkeit, Materialien, Barrierefreiheit und Typografie. Übernommen wurde, was zu NIUcost passt (nur Oberfläche, keine Rechenlogik).
+- **Reaktion beim Drücken:** Tasten (Dock-Reiter, Ribbon, Navigation, Knöpfe) skalieren beim Drücken sofort auf 97 %, Rückkehr mit Federkurve `cubic-bezier(.22,1,.36,1)`.
+- **Federn statt fester Dauern:** Kontextmenü und Eigenschaftenfeld erscheinen mit kurzem Einblenden (Skalierung von der Ursprungsecke), Hinweis- und Schrittfelder steigen leicht auf; alles unterbrechbar, nur `transform`/`opacity`.
+- **Material:** Schritt- und Parzellenhinweis auf der Karte durchscheinend mit Weichzeichner, Text bleibt dunkel auf hellem Grund (Kontrast unverändert, axe t83 grün).
+- **Barrierefreiheit:** «Bewegung reduzieren» schaltet Druck-Skalierung und Animationen ab; «Transparenz reduzieren» macht die Flächen deckend; «Kontrast erhöhen» verstärkt Rahmen.
+- **Typografie:** Tabellenziffern (`tabular-nums`) in Kennzahlen und Zahlenspalten.
+- Nicht übernommen (nicht passend): Wischgesten mit Momentum und Rubber-Banding, Haptik. Test t105; Kosten unverändert.
