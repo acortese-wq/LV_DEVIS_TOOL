@@ -349,3 +349,8 @@
 .kmdlg.kmlya .ofdt .ofel{display:block;font-size:11.5px;color:var(--muted)}
 /* Knopf «Preis erfassen» in den Hinweisen: Farbe der Hinweiszeile übernehmen (helle Hinweisfläche auch im dunklen Thema) */
 .kmdlg.kmlya #lyP_warn .warns li .btn{color:inherit;background:transparent;border-color:currentColor;margin-left:6px}
+
+/* Knopf «Auf Bestand zoomen» neben dem Zoomfeld */
+.kmdlg .leaflet-top.leaflet-left .kmfitc{clear:none;margin-left:6px}
+.kmdlg .kmfitc a{display:flex;align-items:center;justify-content:center;width:30px;height:30px;color:#26343a}
+.kmlya.nc-dark .kmfitc a{background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line)}

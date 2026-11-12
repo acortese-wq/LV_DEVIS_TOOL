@@ -15,7 +15,10 @@
   var S;
   var tt = function (k) { var d = T[S.lang] || T.de; return d[k] != null ? d[k] : (T.de[k] != null ? T.de[k] : k); };
   /* Hinweise ohne «offenErfasst»: bepreiste (übernommene) Positionen sind nicht mehr offen und erscheinen nicht mehr als Hinweis; die Kennzeichnung «eigener Preis» bleibt bei den Positionen */
-  var wl = function (o) { return (o.warn || []).filter(function (w) { return w.id !== "offenErfasst"; }); };
+  var wl = function (o) {
+    var sch = function (t) { var R = (typeof S !== "undefined" && S && S.recs) || {}; return Object.keys(R).some(function (k) { return (R[k] || []).some(function (r) { return (r.free || []).some(function (f) { return f.custom && f.text === t && /^Schätzung/.test(f.reason || ""); }); }); }); };
+    return (o.warn || []).filter(function (w) { return w.id !== "offenErfasst" && !(w.id === "freiAusserLV" && w.args && sch(w.args.t)); });
+  };
   var fill = function (s, a) { return String(s).replace(/\{(\w+)\}/g, function (m, k) { return a && a[k] != null ? (typeof a[k] === "number" ? String(r2(a[k])) : a[k]) : m; }); };
   var today = function () { var d = new Date(); return ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." + d.getFullYear(); };
   var KEY = "lv-devis-tiefbau-v2";
@@ -1371,20 +1374,39 @@
   /* Preisvorschlag (nur Vorschlag, nie automatisch in der Summe): Interpolation aus den LV-Preisen der Tiefenklassen derselben Serie.
      Maschine/Spriessung: letzte LV-Klasse + Zuwachs je Klasse (nie unter dem letzten LV-Preis); Hand (nur 1 LV-Klasse): LV-Preis × Stufe der Maschinenserie gleicher Spriessungsart (mind. 1.0). Rechenkern bleibt ohne Schätzung. */
   function ofVor(l) {
-    var a = l.args || {}, npk = a.npk; if (!npk || !/^\d{3}\/\d{3}\.\d{3}$/.test(npk)) return null;
+    var a = l.args || {}, npk = a.npk; if (!npk || !/^\d{3}\/\d{3}\.\d{3}$/.test(npk)) return ofVorGen(l);
     var base = npk.slice(0, -1), i = +npk.slice(-1), ep = function (k) { return LV[k] && LV[k].ep > 0 ? LV[k].ep : 0; }, e1 = ep(base + "1"), e2 = ep(base + "2"), p, f = 1, st = 0, ref;
     if (e1 && e2) { st = Math.max(0, e2 - e1); p = e2 + (i - 2) * st; ref = base + "2"; }
     else if (e1) { var mb = base.replace(/\.2(\d)$/, ".1$1"), m1 = ep(mb + "1"), m2 = ep(mb + "2"); f = m1 && m2 ? Math.max(1, m2 / m1) : 1; p = e1 * Math.pow(f, i - 1); ref = base + "1"; }
     else return null;
-    return { ep: r2(p), why: fill(tt("of_vorWhy"), { k: npk, r: ref, e: r2(e2 || e1), s: e1 && e2 ? r2(st) : r2(f) + "×", p: r2(p), u: l.unit }) };
+    return { ep: r2(p), conf: "h", why: fill(tt("of_vorWhy"), { k: npk, r: ref, e: r2(e2 || e1), s: e1 && e2 ? r2(st) : r2(f) + "×", p: r2(p), u: l.unit }) };
+  }
+  /* Allgemeiner Vorschlag für offene Positionen ohne Tiefenklasse und für freie Positionen ohne Preis: ähnlichste LV-Position gleicher Einheit (Textähnlichkeit, Dreibuchstaben-Vergleich);
+     Sicherheit «mittel» bei guter Übereinstimmung, sonst «niedrig» = Median der ähnlichsten LV-Positionen gleicher Einheit. Nur Vorschlag, nie automatisch in der Summe. */
+  var LVTRI = null;
+  function triSet(t) { var x = " " + String(t == null ? "" : t).toLowerCase().replace(/[^a-zäöüéèàçêâîôû0-9]+/g, " ") + " ", m = {}, n = 0; for (var i = 0; i < x.length - 2; i++) { var g = x.substr(i, 3); if (!m[g]) { m[g] = 1; n++; } } return { m: m, n: n }; }
+  function triSim(a, b) { if (!a.n || !b.n) return 0; var c = 0; for (var k in a.m) if (b.m[k]) c++; return c / Math.sqrt(a.n * b.n); }
+  function unN(u) { return String(u == null ? "" : u).toLowerCase().replace("³", "3").replace("²", "2").trim(); }
+  function lvIdx() { if (LVTRI) return LVTRI; LVTRI = []; Object.keys(LV).forEach(function (k) { var p = LV[k]; if (p && p.ep > 0) LVTRI.push({ k: k, u: unN(p.u), ep: p.ep, t: p.t || "", tri: triSet((p.c || "") + " " + (p.t || "")) }); }); return LVTRI; }
+  function ofVorGen(l) {
+    var q = (l.tk === "freiKeinEP" ? String((l.args && l.args.t) || l.text || "") : openText(l).replace(/keine LV-Position vorhanden|Position OFFEN|ausserhalb LV|nicht im LV/gi, " ")) + " " + Object.keys(l.args || {}).map(function (k) { return typeof l.args[k] === "string" || typeof l.args[k] === "number" ? l.args[k] : ""; }).join(" ");
+    var qt = triSet(q), un = unN(l.unit), same = [];
+    lvIdx().forEach(function (c) { if (c.u !== un) return; var sc = triSim(qt, c.tri); if (sc >= 0.12) same.push({ c: c, s: sc }); });
+    if (!same.length) return null; same.sort(function (a, b) { return b.s - a.s; });
+    var best = same[0];
+    if (best.s >= 0.30) return { ep: r2(best.c.ep), conf: "m", why: fill(tt("of_vorWhyM"), { r: best.c.k, x: best.c.t.slice(0, 70), e: r2(best.c.ep), u: l.unit }) };
+    var top = same.slice(0, 3).map(function (x) { return x.c.ep; }).sort(function (a, b) { return a - b; }), med = top[Math.floor(top.length / 2)];
+    return { ep: r2(med), conf: "n", why: fill(tt("of_vorWhyN"), { n: top.length, r: same[0].c.k, p: r2(med), u: l.unit }) };
   }
   function offenRows() {
-    var out = KVE.calc(S, LV), by = {}, rows = [], rest = 0;
+    var out = KVE.calc(S, LV), by = {}, rows = [], rest = 0, freeCnt = {};
     out.elems.forEach(function (e) {
       e.lines.forEach(function (l) {
-        if (!(l.open || l.flag === "erfasst") || l.tk === "freiKeinEP") return;
-        var key = l.tk + "|" + l.unit, id = e.tab + ":" + e.idx + ":" + key, rec = S.recs[e.tab][e.idx], v = (rec.oep || {})[key] || {};
-        if (!by[id]) { by[id] = { tab: e.tab, idx: e.idx, key: key, el: tt("tab_" + e.tab) + " · " + (e.name || ""), txt: openText(l), unit: l.unit, qty: 0, ep: v.ep || "", text: v.text || "", why: v.why || "", erf: l.flag === "erfasst", tk: l.tk, vor: l.open ? ofVor(l) : null }; rows.push(by[id]); }
+        if (!(l.open || l.flag === "erfasst")) return;
+        var fj = null, rec0 = S.recs[e.tab][e.idx];
+        if (l.tk === "freiKeinEP") { var fk = e.tab + ":" + e.idx, seen = 0, k0 = (freeCnt[fk] = freeCnt[fk] || 0); (rec0.free || []).some(function (f, j) { if (f.custom && !(num(f.ep, 0) > 0)) { if (seen === k0) { fj = j; return true; } seen++; } return false; }); freeCnt[fk]++; }
+        var key = fj != null ? "frei|" + fj : l.tk + "|" + l.unit, id = e.tab + ":" + e.idx + ":" + key, rec = rec0, v = (rec.oep || {})[key] || {};
+        if (!by[id]) { by[id] = { tab: e.tab, idx: e.idx, key: key, el: tt("tab_" + e.tab) + " · " + (e.name || ""), txt: fj != null ? String(l.args && l.args.t || l.text || "") : openText(l), fj: fj, unit: l.unit, qty: 0, ep: v.ep || "", text: v.text || "", why: v.why || "", erf: l.flag === "erfasst", tk: l.tk, vor: l.open ? ofVor(l) : null }; rows.push(by[id]); }
         by[id].qty = r2(by[id].qty + l.qty);
       });
     });
@@ -1396,6 +1418,7 @@
     var sn = snapState(), n = 0, m = 0;
     rows.forEach(function (r, i) {
       var p = epParse(get(i, "ep")), rec = S.recs[r.tab][r.idx];
+      if (r.fj != null) { var fr = (rec.free || [])[r.fj]; if (fr && p.v) { fr.ep = p.v; if (!fr.reason) fr.reason = get(i, "why"); n++; } return; }   /* freie Position: Preis und Grund ins Feld der freien Position */
       if (p.v) { rec.oep = rec.oep || {}; rec.oep[r.key] = { ep: p.v, text: get(i, "text"), why: get(i, "why") }; n++; }
       else if (rec.oep && rec.oep[r.key]) { delete rec.oep[r.key]; if (!Object.keys(rec.oep).length) delete rec.oep; m++; }
     });
@@ -1410,7 +1433,7 @@
       R.rows.map(function (r, i) {
         var lab = r.el + " – " + r.txt, v = r.vor;
         return '<tr data-ofd="' + i + '"' + (r.erf ? ' class="erf"' : "") + '><td><span class="ofel">' + esc(r.el) + "</span>" + esc(r.txt) + '</td><td class="num">' + qf(r.qty) + " " + esc(r.unit) + '</td><td><input type="text" inputmode="decimal" data-of="' + i + '" data-f="ep" value="' + esc(r.ep) + '" placeholder="' + esc(v ? String(v.ep) : "") + '" aria-label="' + esc(tt("of_c_ep") + " (CHF/" + r.unit + ") – " + lab) + '"><input type="hidden" data-of="' + i + '" data-f="text" value="' + esc(r.text) + '"><input type="hidden" data-of="' + i + '" data-f="why" value="' + esc(r.why) + '"></td><td>' +
-          (v ? '<button type="button" class="btn ghost small" data-ofvor="' + i + '" data-vor="' + esc(String(v.ep)) + '" data-why="' + esc(v.why) + '" title="' + esc(v.why) + '">' + esc(fill(tt("of_vorBtn"), { p: chf(v.ep) })) + '</button><span class="ofsch">' + esc(tt("of_sch")) + "</span>" : "<span class=\"hint\">–</span>") + '</td><td class="num" data-ofs="' + i + '">' + (r.ep ? chf(r2(r.qty * +r.ep)) : "–") + "</td></tr>"; }).join("") + '</tbody></table></div><p><button type="button" class="btn small" data-ofdsave>' + esc(tt("of_save")) + "</button></p>" + erfB;
+          (v ? '<button type="button" class="btn ghost small" data-ofvor="' + i + '" data-vor="' + esc(String(v.ep)) + '" data-why="' + esc(v.why) + '" title="' + esc(v.why) + '">' + esc(fill(tt("of_vorBtn"), { p: chf(v.ep), c: tt("of_cf_" + v.conf) })) + '</button><span class="ofsch">' + esc(tt("of_sch")) + "</span>" : "<span class=\"hint\">–</span>") + '</td><td class="num" data-ofs="' + i + '">' + (r.ep ? chf(r2(r.qty * +r.ep)) : "–") + "</td></tr>"; }).join("") + '</tbody></table></div><p><button type="button" class="btn small" data-ofdsave>' + esc(tt("of_save")) + "</button></p>" + erfB;
     ofDockRows = R.rows; return { h: h, n: R.rows.length };
   }
   var ofDockRows = [];

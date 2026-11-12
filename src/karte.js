@@ -41,22 +41,31 @@
      oder der Ausschnitt den geladenen Bereich verlässt; Verschieben innerhalb des Randes lässt die Parzellen unverändert (kein Springen, kein leerer Rand). */
   function viewWms(url, layers, o) {
     var V = L.Layer.extend({
-      onAdd: function (m) { this._m = m; this._t = 0; this._bad = 0; m.on("moveend", this._upd, this); this._upd(); },
-      onRemove: function (m) { m.off("moveend", this._upd, this); this._t++; if (this._im) { m.removeLayer(this._im); this._im = null; } },
+      onAdd: function (m) { this._m = m; this._t = 0; this._bad = 0; this._cap = 2600; this._ever = false; m.on("moveend", this._soon, this); this._upd(); },
+      onRemove: function (m) { m.off("moveend", this._soon, this); clearTimeout(this._d); this._t++; if (this._im) { m.removeLayer(this._im); this._im = null; } },
+      _soon: function () { var me = this; clearTimeout(this._d); this._d = setTimeout(function () { if (me._m) me._upd(); }, 140); },   /* Zoomschritte bündeln: ein Bild pro Ruhepause statt je Schritt */
       _upd: function () {
         var m = this._m, me = this, z = m.getZoom(), vb = m.getBounds();
+        if (o && o.minZoom && z < o.minZoom) { this._t++; if (this._im) { m.removeLayer(this._im); this._im = null; this._z = null; } if (o.gate) o.gate(false); return; }   /* zu weit weg: der Dienst liefert keine Parzellen, darunter bleibt die Landeskarte */
+        if (o && o.gate) o.gate(true);
         if (this._im && this._z === z && this._ib && this._ib.contains(vb)) return;   /* Bild deckt den Ausschnitt noch ab */
         var sw = L.CRS.EPSG3857.project(vb.getSouthWest()), ne = L.CRS.EPSG3857.project(vb.getNorthEast()), dx = (ne.x - sw.x) / 2, dy = (ne.y - sw.y) / 2;
         sw = L.point(sw.x - dx, sw.y - dy); ne = L.point(ne.x + dx, ne.y + dy);
-        var sz = m.getSize(), k = Math.min(2, window.devicePixelRatio || 1), W = Math.round(sz.x * 2 * k), H = Math.round(sz.y * 2 * k), cap = 2600, f = Math.min(1, cap / Math.max(W, H)); W = Math.round(W * f); H = Math.round(H * f);
+        var sz = m.getSize(), k = Math.min(2, window.devicePixelRatio || 1), W = Math.round(sz.x * 2 * k), H = Math.round(sz.y * 2 * k), cap = this._cap, f = Math.min(1, cap / Math.max(W, H)); W = Math.round(W * f); H = Math.round(H * f);
         var ib = L.latLngBounds(L.CRS.EPSG3857.unproject(sw), L.CRS.EPSG3857.unproject(ne)), t = ++this._t;
         var u = url + (url.indexOf("?") < 0 ? "?" : "&") + "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=" + encodeURIComponent(layers) + "&STYLES=&SRS=EPSG:3857&BBOX=" + [sw.x, sw.y, ne.x, ne.y].map(function (v) { return v.toFixed(2); }).join(",") + "&WIDTH=" + W + "&HEIGHT=" + H + "&FORMAT=image/png&TRANSPARENT=TRUE";
         var img = new Image();
         img.onload = function () {
-          if (t !== me._t || !me._m) return; me._bad = 0;
+          if (t !== me._t || !me._m) return; me._bad = 0; me._ever = true;
           var ov = L.imageOverlay(u, ib, { pane: "tilePane", zIndex: 2, interactive: false, attribution: o && o.attr || "" }).addTo(me._m), old = me._im; me._im = ov; me._ib = ib; me._z = z; if (old) me._m.removeLayer(old);
         };
-        img.onerror = function () { if (t === me._t && ++me._bad >= 2 && o && o.fail) { var f = o.fail; o.fail = null; f(); } };
+        /* Fehler beim Nachladen (Dienst überlastet, Bild zu gross): das bisherige Bild bleibt stehen, nach kurzer Pause mit kleinerem Bild nochmals versuchen; nur wenn nie ein Bild kam, auf die Ersatzebene wechseln */
+        img.onerror = function () {
+          if (t !== me._t || !me._m) return; me._bad++; me._cap = Math.max(900, Math.round(me._cap * 0.7));
+          if (!me._ever && me._bad >= 2 && o && o.fail) { var f = o.fail; o.fail = null; f(); return; }   /* Dienst hat nie geliefert: wie bisher auf die Ersatzebene */
+          if (me._bad >= 6) return;
+          setTimeout(function () { if (t === me._t && me._m) { me._z = null; me._upd(); } }, 500 * me._bad);
+        };
         img.src = u;
       }
     });
@@ -583,6 +592,7 @@
       dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]) * (cal.scale || 0); } }
       : { ll: function (p) { return toWGS(p[0], p[1]); }, pt: function (ll) { return toLV95(ll.lat, ll.lng).map(function (v) { return Math.round(v * 100) / 100; }); },
         dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); } };
+    var PARZ_MINZ = 15, parzGate = false;   /* Parzellenplan erst ab dieser Zoomstufe (weiter weg zeigt der Dienst nichts); darunter graue Landeskarte */
     var lastCfg = { rt: {}, art: "kies", fl: "", T: "", B: "", ab: "" }, wlT = "sg", lastTyp = null, folded = {}, lastSel = null;
     if (opt.defCfg) lastCfg = JSON.parse(JSON.stringify(opt.defCfg));
     var lineLen = function (pts) { var s = 0; for (var i = 1; i < pts.length; i++) s += AD.dist(pts[i - 1], pts[i]); return s; };
@@ -1077,7 +1087,7 @@
         : base === "grau" ? L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")])
         : base === "leer" ? L.layerGroup([])   /* leere Basis: nur gewählte Katalog-Ebenen auf weissem Grund */
         : base === "av" ? L.layerGroup(avCfg().u ? [viewWms(avCfg().u, avCfg().l, { attr: "© OpenData AV" })] : [])
-        : base === "kataster" ? (function () { var g = L.layerGroup(), v = viewWms(WMS, "ch.kantone.cadastralwebmap-farbe", { attr: "© geo.admin.ch", fail: function () { g.removeLayer(v); g.addLayer(flex("ch.kantone.cadastralwebmap-farbe", 1, "wmts")); } }); g.addLayer(v); return g; })()   /* nur der Parzellenplan, ohne Landeskarte dahinter */
+        : base === "kataster" ? (function () { var g = L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")]), v = viewWms(WMS, "ch.kantone.cadastralwebmap-farbe", { attr: "© geo.admin.ch", minZoom: PARZ_MINZ, gate: function (inR) { if (!inR && !parzGate) { parzGate = true; toast(dlg, tt("km_parzMin").replace("{z}", PARZ_MINZ)); } else if (inR) parzGate = false; }, fail: function () { g.removeLayer(v); g.addLayer(flex("ch.kantone.cadastralwebmap-farbe", 1, "wmts")); } }); g.addLayer(v); return g; })()   /* nur der Parzellenplan, ohne Landeskarte dahinter */
         : L.layerGroup([T("ch.swisstopo.pixelkarte-farbe", "jpeg")]);
       map.getContainer().style.background = base === "kataster" || base === "leer" || base === "av" ? "#fff" : "";
       layer.addTo(map);   /* Reihenfolge über zIndex: Basiskarte 1, Deckschichten 5/10 */
@@ -1863,7 +1873,8 @@
     }
     /* Einklappen je Objekt: Kopf mit Schalter, Kurzinfo im eingeklappten Zustand; neu gewähltes Objekt klappt auf */
     function foldRows(h) {
-      if (sel && sel.id !== lastSel) delete folded[sel.id]; lastSel = sel ? sel.id : null;
+      if (sel && sel.id !== lastSel) { [].slice.call(h.querySelectorAll(".kmrow")).forEach(function (r) { var k = r.getAttribute("data-rid"); if (k !== sel.id && !msel[k]) folded[k] = true; }); delete folded[sel.id]; }   /* nur das gewählte Element ist offen, die übrigen sind eingeklappt */
+      lastSel = sel ? sel.id : null;
       [].slice.call(h.querySelectorAll(".kmrow")).forEach(function (r) {
         var id = r.getAttribute("data-rid"), t = r.querySelector(".kmt"); if (!t) return;
         var body = document.createElement("div"); body.className = "kmbody"; body.id = "kmb" + id;
@@ -2824,6 +2835,14 @@
     } else {
       map = L.map($("#kmMap"), { center: [46.8, 8.23], zoom: 8, minZoom: 7, maxZoom: 22, doubleClickZoom: false, zoomAnimation: false, attributionControl: false }); L.control.attribution({ prefix: "Leaflet" }).addTo(map);
       var op0 = map.createPane("kmov"); op0.style.zIndex = 250; op0.style.pointerEvents = "none"; map.on("zoom move viewreset resize", function () { ovDraw(true); });   /* Kartenbewegung: Passpunkt-Marker bleiben (Fokus/Tastatur) */
+      /* «Auf Bestand zoomen»: Symbolknopf neben dem Zoomfeld (+/−) der Karte und des Plans */
+      (function () {
+        var C = L.Control.extend({ options: { position: "topleft" }, onAdd: function () {
+          var d = L.DomUtil.create("div", "leaflet-bar kmfitc"), a = L.DomUtil.create("a", "", d); a.href = "#"; a.setAttribute("role", "button"); a.title = tt("km_fit"); a.setAttribute("aria-label", tt("km_fit"));
+          a.innerHTML = '<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false"><path d="M2 7V2h5M13 2h5v5M18 13v5h-5M7 18H2v-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="6.5" y="6.5" width="7" height="7" rx="1" fill="currentColor"/></svg>';
+          L.DomEvent.disableClickPropagation(d); L.DomEvent.on(a, "click", function (e) { L.DomEvent.stop(e); fitAll(); }); return d; } });
+        new C().addTo(map);
+      })();
       ovGrp = L.layerGroup().addTo(map); grp = L.layerGroup().addTo(map); tiles(); drawOv(); selList(); dxfPanelEv(); dxfPanel();
       if (M.dxf) setTimeout(function () { var tg = $(".kmmidtog"); if (tg && tg.getAttribute("aria-expanded") !== "true") tg.click(); }, 0);   /* Projekt mit DXF: Layerliste sichtbar */
       $("#kmCat").addEventListener("toggle", function (e) { if (e.target.open) openCat(); });

@@ -1689,6 +1689,11 @@ tr.pst-ip .pst{background:#e7f0fb;border-color:#0a5aa8;color:#083f78}tr.pst-ip t
 /* Knopf «Preis erfassen» in den Hinweisen: Farbe der Hinweiszeile übernehmen (helle Hinweisfläche auch im dunklen Thema) */
 .kmdlg.kmlya #lyP_warn .warns li .btn{color:inherit;background:transparent;border-color:currentColor;margin-left:6px}
 
+/* Knopf «Auf Bestand zoomen» neben dem Zoomfeld */
+.kmdlg .leaflet-top.leaflet-left .kmfitc{clear:none;margin-left:6px}
+.kmdlg .kmfitc a{display:flex;align-items:center;justify-content:center;width:30px;height:30px;color:#26343a}
+.kmlya.nc-dark .kmfitc a{background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line)}
+
 </style>
 </head>
 <body>
@@ -3903,7 +3908,12 @@ TS.en = {
     ly_tOffen: ["Offene Positionen", "Positions ouvertes", "Posizioni aperte", "Open items"],
     of_dHint: ["Offene Positionen ohne LV-Preis: eigenen Preis eintragen oder den Vorschlag übernehmen (Interpolation aus den LV-Preisen der Tiefenklassen). Ein Vorschlag ist eine Schätzung und wird erst nach «Speichern» gerechnet; Unternehmerpreis bleibt massgebend.", "Positions ouvertes sans prix LV: saisir son propre prix ou reprendre la proposition (interpolation des prix LV des classes de profondeur). Une proposition est une estimation, calculée seulement après «Enregistrer»; le prix de l'entreprise fait foi.", "Posizioni aperte senza prezzo LV: inserire il proprio prezzo o accettare la proposta (interpolazione dai prezzi LV delle classi di profondità). Una proposta è una stima, calcolata solo dopo «Salva»; fa fede il prezzo dell'impresa.", "Open items without LV price: enter your own price or accept the suggestion (interpolated from the LV prices of the depth classes). A suggestion is an estimate and only counts after «Save»; the contractor's price prevails."],
     of_cVor: ["Vorschlag", "Proposition", "Proposta", "Suggestion"],
-    of_vorBtn: ["Vorschlag {p}", "Proposition {p}", "Proposta {p}", "Suggestion {p}"],
+    of_vorBtn: ["Vorschlag {p} · {c}", "Proposition {p} · {c}", "Proposta {p} · {c}", "Suggestion {p} · {c}"],
+    of_cf_h: ["Sicherheit hoch", "fiabilité élevée", "affidabilità alta", "confidence high"],
+    of_cf_m: ["Sicherheit mittel", "fiabilité moyenne", "affidabilità media", "confidence medium"],
+    of_cf_n: ["Sicherheit niedrig", "fiabilité faible", "affidabilità bassa", "confidence low"],
+    of_vorWhyM: ["Schätzung (mittel): ähnlichste LV-Position {r} «{x}» = {e} CHF/{u}; vom Unternehmer zu bestätigen.", "Estimation (moyenne): position LV la plus proche {r} «{x}» = {e} CHF/{u}; à confirmer par l'entreprise.", "Stima (media): posizione LV più simile {r} «{x}» = {e} CHF/{u}; da confermare dall'impresa.", "Estimate (medium): most similar LV item {r} «{x}» = {e} CHF/{u}; to be confirmed by the contractor."],
+    of_vorWhyN: ["Schätzung (niedrig): Median von {n} ähnlichen LV-Positionen (ähnlichste {r}) = {p} CHF/{u}; grobe Richtgrösse, vom Unternehmer zu bestätigen.", "Estimation (faible): médiane de {n} positions LV proches (la plus proche {r}) = {p} CHF/{u}; valeur indicative, à confirmer par l'entreprise.", "Stima (bassa): mediana di {n} posizioni LV simili (la più simile {r}) = {p} CHF/{u}; valore indicativo, da confermare dall'impresa.", "Estimate (low): median of {n} similar LV items (closest {r}) = {p} CHF/{u}; rough guide, to be confirmed by the contractor."],
     of_sch: ["geschätzt", "estimé", "stimato", "estimated"],
     of_schT: ["Schätzung (Interpolation aus LV)", "Estimation (interpolation LV)", "Stima (interpolazione LV)", "Estimate (interpolated from LV)"],
     of_vorWhy: ["Schätzung für NPK {k}: Nachbarklasse {r} = {e} CHF, Stufe {s} je Klasse, Vorschlag {p} CHF/{u}; nie unter dem LV-Preis der Nachbarklasse. Vom Unternehmer zu bestätigen.", "Estimation pour NPK {k}: classe voisine {r} = {e} CHF, échelon {s} par classe, proposition {p} CHF/{u}; jamais sous le prix LV de la classe voisine. À confirmer par l'entreprise.", "Stima per NPK {k}: classe vicina {r} = {e} CHF, scatto {s} per classe, proposta {p} CHF/{u}; mai sotto il prezzo LV della classe vicina. Da confermare dall'impresa.", "Estimate for NPK {k}: neighbouring class {r} = {e} CHF, step {s} per class, suggestion {p} CHF/{u}; never below the LV price of the neighbouring class. To be confirmed by the contractor."],
@@ -4283,6 +4293,7 @@ TS.en = {
     km_cx_sond: ["Sondage setzen", "Placer un sondage", "Posare un sondaggio", "Place test pit"],
     km_cx_line: ["Linie hier starten", "Démarrer une ligne ici", "Iniziare una linea qui", "Start line here"],
     km_cx_area: ["Fläche hier beginnen", "Commencer une surface ici", "Iniziare una superficie qui", "Start area here"],
+    km_parzMin: ["Parzellen zeigt der Dienst erst ab Zoomstufe {z}: näher heranzoomen (darunter graue Landeskarte).", "Les parcelles ne sont affichées qu'à partir du niveau de zoom {z}: zoomer (en dessous, carte nationale grise).", "Le particelle sono visibili solo dal livello di zoom {z}: ingrandire (sotto, carta nazionale grigia).", "Parcels are shown from zoom level {z}: zoom in (grey national map below)."],
     km_cx_copy: ["Kopieren ({n})", "Copier ({n})", "Copia ({n})", "Copy ({n})"],
     km_cx_paste: ["Einfügen hier", "Coller ici", "Incolla qui", "Paste here"],
     km_cx_del: ["Löschen ({n})", "Supprimer ({n})", "Elimina ({n})", "Delete ({n})"],
@@ -6216,22 +6227,31 @@ var FIG = (function () {
      oder der Ausschnitt den geladenen Bereich verlässt; Verschieben innerhalb des Randes lässt die Parzellen unverändert (kein Springen, kein leerer Rand). */
   function viewWms(url, layers, o) {
     var V = L.Layer.extend({
-      onAdd: function (m) { this._m = m; this._t = 0; this._bad = 0; m.on("moveend", this._upd, this); this._upd(); },
-      onRemove: function (m) { m.off("moveend", this._upd, this); this._t++; if (this._im) { m.removeLayer(this._im); this._im = null; } },
+      onAdd: function (m) { this._m = m; this._t = 0; this._bad = 0; this._cap = 2600; this._ever = false; m.on("moveend", this._soon, this); this._upd(); },
+      onRemove: function (m) { m.off("moveend", this._soon, this); clearTimeout(this._d); this._t++; if (this._im) { m.removeLayer(this._im); this._im = null; } },
+      _soon: function () { var me = this; clearTimeout(this._d); this._d = setTimeout(function () { if (me._m) me._upd(); }, 140); },   /* Zoomschritte bündeln: ein Bild pro Ruhepause statt je Schritt */
       _upd: function () {
         var m = this._m, me = this, z = m.getZoom(), vb = m.getBounds();
+        if (o && o.minZoom && z < o.minZoom) { this._t++; if (this._im) { m.removeLayer(this._im); this._im = null; this._z = null; } if (o.gate) o.gate(false); return; }   /* zu weit weg: der Dienst liefert keine Parzellen, darunter bleibt die Landeskarte */
+        if (o && o.gate) o.gate(true);
         if (this._im && this._z === z && this._ib && this._ib.contains(vb)) return;   /* Bild deckt den Ausschnitt noch ab */
         var sw = L.CRS.EPSG3857.project(vb.getSouthWest()), ne = L.CRS.EPSG3857.project(vb.getNorthEast()), dx = (ne.x - sw.x) / 2, dy = (ne.y - sw.y) / 2;
         sw = L.point(sw.x - dx, sw.y - dy); ne = L.point(ne.x + dx, ne.y + dy);
-        var sz = m.getSize(), k = Math.min(2, window.devicePixelRatio || 1), W = Math.round(sz.x * 2 * k), H = Math.round(sz.y * 2 * k), cap = 2600, f = Math.min(1, cap / Math.max(W, H)); W = Math.round(W * f); H = Math.round(H * f);
+        var sz = m.getSize(), k = Math.min(2, window.devicePixelRatio || 1), W = Math.round(sz.x * 2 * k), H = Math.round(sz.y * 2 * k), cap = this._cap, f = Math.min(1, cap / Math.max(W, H)); W = Math.round(W * f); H = Math.round(H * f);
         var ib = L.latLngBounds(L.CRS.EPSG3857.unproject(sw), L.CRS.EPSG3857.unproject(ne)), t = ++this._t;
         var u = url + (url.indexOf("?") < 0 ? "?" : "&") + "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=" + encodeURIComponent(layers) + "&STYLES=&SRS=EPSG:3857&BBOX=" + [sw.x, sw.y, ne.x, ne.y].map(function (v) { return v.toFixed(2); }).join(",") + "&WIDTH=" + W + "&HEIGHT=" + H + "&FORMAT=image/png&TRANSPARENT=TRUE";
         var img = new Image();
         img.onload = function () {
-          if (t !== me._t || !me._m) return; me._bad = 0;
+          if (t !== me._t || !me._m) return; me._bad = 0; me._ever = true;
           var ov = L.imageOverlay(u, ib, { pane: "tilePane", zIndex: 2, interactive: false, attribution: o && o.attr || "" }).addTo(me._m), old = me._im; me._im = ov; me._ib = ib; me._z = z; if (old) me._m.removeLayer(old);
         };
-        img.onerror = function () { if (t === me._t && ++me._bad >= 2 && o && o.fail) { var f = o.fail; o.fail = null; f(); } };
+        /* Fehler beim Nachladen (Dienst überlastet, Bild zu gross): das bisherige Bild bleibt stehen, nach kurzer Pause mit kleinerem Bild nochmals versuchen; nur wenn nie ein Bild kam, auf die Ersatzebene wechseln */
+        img.onerror = function () {
+          if (t !== me._t || !me._m) return; me._bad++; me._cap = Math.max(900, Math.round(me._cap * 0.7));
+          if (!me._ever && me._bad >= 2 && o && o.fail) { var f = o.fail; o.fail = null; f(); return; }   /* Dienst hat nie geliefert: wie bisher auf die Ersatzebene */
+          if (me._bad >= 6) return;
+          setTimeout(function () { if (t === me._t && me._m) { me._z = null; me._upd(); } }, 500 * me._bad);
+        };
         img.src = u;
       }
     });
@@ -6758,6 +6778,7 @@ var FIG = (function () {
       dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]) * (cal.scale || 0); } }
       : { ll: function (p) { return toWGS(p[0], p[1]); }, pt: function (ll) { return toLV95(ll.lat, ll.lng).map(function (v) { return Math.round(v * 100) / 100; }); },
         dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); } };
+    var PARZ_MINZ = 15, parzGate = false;   /* Parzellenplan erst ab dieser Zoomstufe (weiter weg zeigt der Dienst nichts); darunter graue Landeskarte */
     var lastCfg = { rt: {}, art: "kies", fl: "", T: "", B: "", ab: "" }, wlT = "sg", lastTyp = null, folded = {}, lastSel = null;
     if (opt.defCfg) lastCfg = JSON.parse(JSON.stringify(opt.defCfg));
     var lineLen = function (pts) { var s = 0; for (var i = 1; i < pts.length; i++) s += AD.dist(pts[i - 1], pts[i]); return s; };
@@ -7252,7 +7273,7 @@ var FIG = (function () {
         : base === "grau" ? L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")])
         : base === "leer" ? L.layerGroup([])   /* leere Basis: nur gewählte Katalog-Ebenen auf weissem Grund */
         : base === "av" ? L.layerGroup(avCfg().u ? [viewWms(avCfg().u, avCfg().l, { attr: "© OpenData AV" })] : [])
-        : base === "kataster" ? (function () { var g = L.layerGroup(), v = viewWms(WMS, "ch.kantone.cadastralwebmap-farbe", { attr: "© geo.admin.ch", fail: function () { g.removeLayer(v); g.addLayer(flex("ch.kantone.cadastralwebmap-farbe", 1, "wmts")); } }); g.addLayer(v); return g; })()   /* nur der Parzellenplan, ohne Landeskarte dahinter */
+        : base === "kataster" ? (function () { var g = L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")]), v = viewWms(WMS, "ch.kantone.cadastralwebmap-farbe", { attr: "© geo.admin.ch", minZoom: PARZ_MINZ, gate: function (inR) { if (!inR && !parzGate) { parzGate = true; toast(dlg, tt("km_parzMin").replace("{z}", PARZ_MINZ)); } else if (inR) parzGate = false; }, fail: function () { g.removeLayer(v); g.addLayer(flex("ch.kantone.cadastralwebmap-farbe", 1, "wmts")); } }); g.addLayer(v); return g; })()   /* nur der Parzellenplan, ohne Landeskarte dahinter */
         : L.layerGroup([T("ch.swisstopo.pixelkarte-farbe", "jpeg")]);
       map.getContainer().style.background = base === "kataster" || base === "leer" || base === "av" ? "#fff" : "";
       layer.addTo(map);   /* Reihenfolge über zIndex: Basiskarte 1, Deckschichten 5/10 */
@@ -8038,7 +8059,8 @@ var FIG = (function () {
     }
     /* Einklappen je Objekt: Kopf mit Schalter, Kurzinfo im eingeklappten Zustand; neu gewähltes Objekt klappt auf */
     function foldRows(h) {
-      if (sel && sel.id !== lastSel) delete folded[sel.id]; lastSel = sel ? sel.id : null;
+      if (sel && sel.id !== lastSel) { [].slice.call(h.querySelectorAll(".kmrow")).forEach(function (r) { var k = r.getAttribute("data-rid"); if (k !== sel.id && !msel[k]) folded[k] = true; }); delete folded[sel.id]; }   /* nur das gewählte Element ist offen, die übrigen sind eingeklappt */
+      lastSel = sel ? sel.id : null;
       [].slice.call(h.querySelectorAll(".kmrow")).forEach(function (r) {
         var id = r.getAttribute("data-rid"), t = r.querySelector(".kmt"); if (!t) return;
         var body = document.createElement("div"); body.className = "kmbody"; body.id = "kmb" + id;
@@ -8999,6 +9021,14 @@ var FIG = (function () {
     } else {
       map = L.map($("#kmMap"), { center: [46.8, 8.23], zoom: 8, minZoom: 7, maxZoom: 22, doubleClickZoom: false, zoomAnimation: false, attributionControl: false }); L.control.attribution({ prefix: "Leaflet" }).addTo(map);
       var op0 = map.createPane("kmov"); op0.style.zIndex = 250; op0.style.pointerEvents = "none"; map.on("zoom move viewreset resize", function () { ovDraw(true); });   /* Kartenbewegung: Passpunkt-Marker bleiben (Fokus/Tastatur) */
+      /* «Auf Bestand zoomen»: Symbolknopf neben dem Zoomfeld (+/−) der Karte und des Plans */
+      (function () {
+        var C = L.Control.extend({ options: { position: "topleft" }, onAdd: function () {
+          var d = L.DomUtil.create("div", "leaflet-bar kmfitc"), a = L.DomUtil.create("a", "", d); a.href = "#"; a.setAttribute("role", "button"); a.title = tt("km_fit"); a.setAttribute("aria-label", tt("km_fit"));
+          a.innerHTML = '<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false"><path d="M2 7V2h5M13 2h5v5M18 13v5h-5M7 18H2v-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="6.5" y="6.5" width="7" height="7" rx="1" fill="currentColor"/></svg>';
+          L.DomEvent.disableClickPropagation(d); L.DomEvent.on(a, "click", function (e) { L.DomEvent.stop(e); fitAll(); }); return d; } });
+        new C().addTo(map);
+      })();
       ovGrp = L.layerGroup().addTo(map); grp = L.layerGroup().addTo(map); tiles(); drawOv(); selList(); dxfPanelEv(); dxfPanel();
       if (M.dxf) setTimeout(function () { var tg = $(".kmmidtog"); if (tg && tg.getAttribute("aria-expanded") !== "true") tg.click(); }, 0);   /* Projekt mit DXF: Layerliste sichtbar */
       $("#kmCat").addEventListener("toggle", function (e) { if (e.target.open) openCat(); });
@@ -9342,7 +9372,10 @@ var FIG = (function () {
   var S;
   var tt = function (k) { var d = T[S.lang] || T.de; return d[k] != null ? d[k] : (T.de[k] != null ? T.de[k] : k); };
   /* Hinweise ohne «offenErfasst»: bepreiste (übernommene) Positionen sind nicht mehr offen und erscheinen nicht mehr als Hinweis; die Kennzeichnung «eigener Preis» bleibt bei den Positionen */
-  var wl = function (o) { return (o.warn || []).filter(function (w) { return w.id !== "offenErfasst"; }); };
+  var wl = function (o) {
+    var sch = function (t) { var R = (typeof S !== "undefined" && S && S.recs) || {}; return Object.keys(R).some(function (k) { return (R[k] || []).some(function (r) { return (r.free || []).some(function (f) { return f.custom && f.text === t && /^Schätzung/.test(f.reason || ""); }); }); }); };
+    return (o.warn || []).filter(function (w) { return w.id !== "offenErfasst" && !(w.id === "freiAusserLV" && w.args && sch(w.args.t)); });
+  };
   var fill = function (s, a) { return String(s).replace(/\{(\w+)\}/g, function (m, k) { return a && a[k] != null ? (typeof a[k] === "number" ? String(r2(a[k])) : a[k]) : m; }); };
   var today = function () { var d = new Date(); return ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." + d.getFullYear(); };
   var KEY = "lv-devis-tiefbau-v2";
@@ -10698,20 +10731,39 @@ var FIG = (function () {
   /* Preisvorschlag (nur Vorschlag, nie automatisch in der Summe): Interpolation aus den LV-Preisen der Tiefenklassen derselben Serie.
      Maschine/Spriessung: letzte LV-Klasse + Zuwachs je Klasse (nie unter dem letzten LV-Preis); Hand (nur 1 LV-Klasse): LV-Preis × Stufe der Maschinenserie gleicher Spriessungsart (mind. 1.0). Rechenkern bleibt ohne Schätzung. */
   function ofVor(l) {
-    var a = l.args || {}, npk = a.npk; if (!npk || !/^\d{3}\/\d{3}\.\d{3}$/.test(npk)) return null;
+    var a = l.args || {}, npk = a.npk; if (!npk || !/^\d{3}\/\d{3}\.\d{3}$/.test(npk)) return ofVorGen(l);
     var base = npk.slice(0, -1), i = +npk.slice(-1), ep = function (k) { return LV[k] && LV[k].ep > 0 ? LV[k].ep : 0; }, e1 = ep(base + "1"), e2 = ep(base + "2"), p, f = 1, st = 0, ref;
     if (e1 && e2) { st = Math.max(0, e2 - e1); p = e2 + (i - 2) * st; ref = base + "2"; }
     else if (e1) { var mb = base.replace(/\.2(\d)$/, ".1$1"), m1 = ep(mb + "1"), m2 = ep(mb + "2"); f = m1 && m2 ? Math.max(1, m2 / m1) : 1; p = e1 * Math.pow(f, i - 1); ref = base + "1"; }
     else return null;
-    return { ep: r2(p), why: fill(tt("of_vorWhy"), { k: npk, r: ref, e: r2(e2 || e1), s: e1 && e2 ? r2(st) : r2(f) + "×", p: r2(p), u: l.unit }) };
+    return { ep: r2(p), conf: "h", why: fill(tt("of_vorWhy"), { k: npk, r: ref, e: r2(e2 || e1), s: e1 && e2 ? r2(st) : r2(f) + "×", p: r2(p), u: l.unit }) };
+  }
+  /* Allgemeiner Vorschlag für offene Positionen ohne Tiefenklasse und für freie Positionen ohne Preis: ähnlichste LV-Position gleicher Einheit (Textähnlichkeit, Dreibuchstaben-Vergleich);
+     Sicherheit «mittel» bei guter Übereinstimmung, sonst «niedrig» = Median der ähnlichsten LV-Positionen gleicher Einheit. Nur Vorschlag, nie automatisch in der Summe. */
+  var LVTRI = null;
+  function triSet(t) { var x = " " + String(t == null ? "" : t).toLowerCase().replace(/[^a-zäöüéèàçêâîôû0-9]+/g, " ") + " ", m = {}, n = 0; for (var i = 0; i < x.length - 2; i++) { var g = x.substr(i, 3); if (!m[g]) { m[g] = 1; n++; } } return { m: m, n: n }; }
+  function triSim(a, b) { if (!a.n || !b.n) return 0; var c = 0; for (var k in a.m) if (b.m[k]) c++; return c / Math.sqrt(a.n * b.n); }
+  function unN(u) { return String(u == null ? "" : u).toLowerCase().replace("³", "3").replace("²", "2").trim(); }
+  function lvIdx() { if (LVTRI) return LVTRI; LVTRI = []; Object.keys(LV).forEach(function (k) { var p = LV[k]; if (p && p.ep > 0) LVTRI.push({ k: k, u: unN(p.u), ep: p.ep, t: p.t || "", tri: triSet((p.c || "") + " " + (p.t || "")) }); }); return LVTRI; }
+  function ofVorGen(l) {
+    var q = (l.tk === "freiKeinEP" ? String((l.args && l.args.t) || l.text || "") : openText(l).replace(/keine LV-Position vorhanden|Position OFFEN|ausserhalb LV|nicht im LV/gi, " ")) + " " + Object.keys(l.args || {}).map(function (k) { return typeof l.args[k] === "string" || typeof l.args[k] === "number" ? l.args[k] : ""; }).join(" ");
+    var qt = triSet(q), un = unN(l.unit), same = [];
+    lvIdx().forEach(function (c) { if (c.u !== un) return; var sc = triSim(qt, c.tri); if (sc >= 0.12) same.push({ c: c, s: sc }); });
+    if (!same.length) return null; same.sort(function (a, b) { return b.s - a.s; });
+    var best = same[0];
+    if (best.s >= 0.30) return { ep: r2(best.c.ep), conf: "m", why: fill(tt("of_vorWhyM"), { r: best.c.k, x: best.c.t.slice(0, 70), e: r2(best.c.ep), u: l.unit }) };
+    var top = same.slice(0, 3).map(function (x) { return x.c.ep; }).sort(function (a, b) { return a - b; }), med = top[Math.floor(top.length / 2)];
+    return { ep: r2(med), conf: "n", why: fill(tt("of_vorWhyN"), { n: top.length, r: same[0].c.k, p: r2(med), u: l.unit }) };
   }
   function offenRows() {
-    var out = KVE.calc(S, LV), by = {}, rows = [], rest = 0;
+    var out = KVE.calc(S, LV), by = {}, rows = [], rest = 0, freeCnt = {};
     out.elems.forEach(function (e) {
       e.lines.forEach(function (l) {
-        if (!(l.open || l.flag === "erfasst") || l.tk === "freiKeinEP") return;
-        var key = l.tk + "|" + l.unit, id = e.tab + ":" + e.idx + ":" + key, rec = S.recs[e.tab][e.idx], v = (rec.oep || {})[key] || {};
-        if (!by[id]) { by[id] = { tab: e.tab, idx: e.idx, key: key, el: tt("tab_" + e.tab) + " · " + (e.name || ""), txt: openText(l), unit: l.unit, qty: 0, ep: v.ep || "", text: v.text || "", why: v.why || "", erf: l.flag === "erfasst", tk: l.tk, vor: l.open ? ofVor(l) : null }; rows.push(by[id]); }
+        if (!(l.open || l.flag === "erfasst")) return;
+        var fj = null, rec0 = S.recs[e.tab][e.idx];
+        if (l.tk === "freiKeinEP") { var fk = e.tab + ":" + e.idx, seen = 0, k0 = (freeCnt[fk] = freeCnt[fk] || 0); (rec0.free || []).some(function (f, j) { if (f.custom && !(num(f.ep, 0) > 0)) { if (seen === k0) { fj = j; return true; } seen++; } return false; }); freeCnt[fk]++; }
+        var key = fj != null ? "frei|" + fj : l.tk + "|" + l.unit, id = e.tab + ":" + e.idx + ":" + key, rec = rec0, v = (rec.oep || {})[key] || {};
+        if (!by[id]) { by[id] = { tab: e.tab, idx: e.idx, key: key, el: tt("tab_" + e.tab) + " · " + (e.name || ""), txt: fj != null ? String(l.args && l.args.t || l.text || "") : openText(l), fj: fj, unit: l.unit, qty: 0, ep: v.ep || "", text: v.text || "", why: v.why || "", erf: l.flag === "erfasst", tk: l.tk, vor: l.open ? ofVor(l) : null }; rows.push(by[id]); }
         by[id].qty = r2(by[id].qty + l.qty);
       });
     });
@@ -10723,6 +10775,7 @@ var FIG = (function () {
     var sn = snapState(), n = 0, m = 0;
     rows.forEach(function (r, i) {
       var p = epParse(get(i, "ep")), rec = S.recs[r.tab][r.idx];
+      if (r.fj != null) { var fr = (rec.free || [])[r.fj]; if (fr && p.v) { fr.ep = p.v; if (!fr.reason) fr.reason = get(i, "why"); n++; } return; }   /* freie Position: Preis und Grund ins Feld der freien Position */
       if (p.v) { rec.oep = rec.oep || {}; rec.oep[r.key] = { ep: p.v, text: get(i, "text"), why: get(i, "why") }; n++; }
       else if (rec.oep && rec.oep[r.key]) { delete rec.oep[r.key]; if (!Object.keys(rec.oep).length) delete rec.oep; m++; }
     });
@@ -10737,7 +10790,7 @@ var FIG = (function () {
       R.rows.map(function (r, i) {
         var lab = r.el + " – " + r.txt, v = r.vor;
         return '<tr data-ofd="' + i + '"' + (r.erf ? ' class="erf"' : "") + '><td><span class="ofel">' + esc(r.el) + "</span>" + esc(r.txt) + '</td><td class="num">' + qf(r.qty) + " " + esc(r.unit) + '</td><td><input type="text" inputmode="decimal" data-of="' + i + '" data-f="ep" value="' + esc(r.ep) + '" placeholder="' + esc(v ? String(v.ep) : "") + '" aria-label="' + esc(tt("of_c_ep") + " (CHF/" + r.unit + ") – " + lab) + '"><input type="hidden" data-of="' + i + '" data-f="text" value="' + esc(r.text) + '"><input type="hidden" data-of="' + i + '" data-f="why" value="' + esc(r.why) + '"></td><td>' +
-          (v ? '<button type="button" class="btn ghost small" data-ofvor="' + i + '" data-vor="' + esc(String(v.ep)) + '" data-why="' + esc(v.why) + '" title="' + esc(v.why) + '">' + esc(fill(tt("of_vorBtn"), { p: chf(v.ep) })) + '</button><span class="ofsch">' + esc(tt("of_sch")) + "</span>" : "<span class=\"hint\">–</span>") + '</td><td class="num" data-ofs="' + i + '">' + (r.ep ? chf(r2(r.qty * +r.ep)) : "–") + "</td></tr>"; }).join("") + '</tbody></table></div><p><button type="button" class="btn small" data-ofdsave>' + esc(tt("of_save")) + "</button></p>" + erfB;
+          (v ? '<button type="button" class="btn ghost small" data-ofvor="' + i + '" data-vor="' + esc(String(v.ep)) + '" data-why="' + esc(v.why) + '" title="' + esc(v.why) + '">' + esc(fill(tt("of_vorBtn"), { p: chf(v.ep), c: tt("of_cf_" + v.conf) })) + '</button><span class="ofsch">' + esc(tt("of_sch")) + "</span>" : "<span class=\"hint\">–</span>") + '</td><td class="num" data-ofs="' + i + '">' + (r.ep ? chf(r2(r.qty * +r.ep)) : "–") + "</td></tr>"; }).join("") + '</tbody></table></div><p><button type="button" class="btn small" data-ofdsave>' + esc(tt("of_save")) + "</button></p>" + erfB;
     ofDockRows = R.rows; return { h: h, n: R.rows.length };
   }
   var ofDockRows = [];

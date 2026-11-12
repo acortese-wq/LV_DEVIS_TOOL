@@ -34,7 +34,7 @@ async function run(b, dsf) {
   for (let i = 0; i < 4; i++) { await pg.mouse.wheel(0, -120); await pg.waitForTimeout(150); } await pg.waitForTimeout(1800); s = await check();
   ok(s.cnt === 1 && s.cov && s.worst <= 1.5, tag + 'Mausrad-Zoom z' + s.z + ': lagetreu (' + s.worst + ' px), ' + n + ' Anfragen');
   fail = true; for (let i = 0; i < 3; i++) { await pg.evaluate(i => { const m = window.__KM.map(); m.panBy([3000 + i * 500, 2000], { animate: false }); }, i); await pg.waitForTimeout(1200); } await pg.waitForTimeout(1500);
-  ok(wmtsC > 0, tag + 'bei WMS-Fehlern Wechsel auf WMTS (' + wmtsC + ' Kachelanfragen)');
+  { const keep = await pg.evaluate(() => document.querySelectorAll('#kmMap .leaflet-image-layer').length); ok(keep >= 1, tag + 'bei WMS-Fehlern bleibt das bisherige Parzellenbild stehen (' + keep + ' Bild, kein dauerhafter Wechsel nach Fehlern; Wiederholung mit kleinerem Bild)'); }
   ok(pg.errs.length === 0, tag + 'keine JS-Fehler ' + pg.errs.join('|')); await pg.context().close();
 }
 (async () => {
