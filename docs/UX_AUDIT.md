@@ -460,3 +460,7 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 - **Kennzeichnung:** Gespeichert als bestehender «eigener Preis» (`oep`) mit Begründung «Schätzung für NPK …: Nachbarklasse …, Stufe …, Vorschlag … CHF; vom Unternehmer zu bestätigen» (Bericht, Excel, Kostenleiste wie bisher bei eigenen Preisen).
 - **Kostenwirkung:** Bestehende Projekte unverändert (Vorgabe leer; Test t78 identisch, Rechenkern nicht angefasst; die Schätzung steckt nur in der Oberfläche). Neu bepreiste Positionen erhöhen die Summe erst nach «Speichern».
 - Tests t98 (neu), t65 (6 Dock-Reiter), t83 (axe dunkel/hell). Kontrast der Hinweis-Knöpfe im dunklen Thema behoben.
+
+## V119 (12.11.2026) – Planungsfokus startet mit dem Parzellenplan
+- Ursache «Parzellen nicht sichtbar»: Der Planungsfokus startete mit der Landeskarte (ohne Parzellengrenzen), der Parzellenplan lag seit V87 hinter dem einzelnen Kartenknopf. Der Dienst liefert den Parzellenplan als undurchsichtiges Bild (weisser Grund), er lässt sich nicht über Landeskarte/Luftbild legen.
+- Neu: Ohne gespeicherte Wahl startet der Planungsfokus mit dem Parzellenplan; eine eigene Wahl (Landeskarte, Grau, Luftbild, Luftbild + Strassen) wird weiter gemerkt und geht vor. Klassische Seite, Berechnung und Kosten unverändert. Test t99; t65/t87 erwarten den neuen Start.

@@ -6741,6 +6741,7 @@ var FIG = (function () {
     var provOf = function (b) { return PROV.geoadmin.some(function (o) { return o[0] === b; }) ? "geoadmin" : "swisstopo"; };
     M.sond = M.sond || []; M.notes = M.notes || []; M.areas = M.areas || []; M.wl = M.wl || []; M.geb = M.geb || [];
     var LY = plan ? null : (opt.layoutA || null), lyEdited = false, lyTarget = null, lyD = { t: "kost", c: false };   /* Layout A «Planungsfokus» (Startbildschirm) */
+    if (LY) { var sbSet = false; try { sbSet = !!localStorage.getItem("lvd-km-base"); } catch (e) { } if (!sbSet) base = "kataster"; }   /* Planungsfokus startet mit dem Parzellenplan (V119); eigene Wahl geht vor */
     if (LY) try { var ld0 = JSON.parse(localStorage.getItem("lvd-ly-dock") || "null"); if (ld0 && typeof ld0 === "object") { if (["prof", "aus", "kost", "pos", "offen", "warn"].indexOf(ld0.t) >= 0) lyD.t = ld0.t; lyD.c = !!ld0.c; } } catch (e) { }
     /* Schmale Bildschirme (861–1100 px): unterer Bereich startet eingeklappt, damit die Karte Platz hat; eigene Wahl dort gemerkt (lvd-ly-dockn), breite Bildschirme unverändert */
     var lyNq = window.matchMedia ? window.matchMedia("(min-width:861px) and (max-width:1100px)") : { matches: false }, lyWideC = lyD.c;

@@ -11,7 +11,7 @@ const hit = (a, b) => a && b && a.l < b.r && a.r > b.l && a.t < b.b && a.b > b.t
   await pg.evaluate(() => { window.__LVD.loadDemo(); localStorage.setItem('lvd-layout', 'a'); }); await pg.waitForTimeout(1200); await pg.reload(); await open(pg);
   // Ausgangszustand: beides minimiert
   ok(!(await pg.locator('#kmQ').isVisible()) && await pg.locator('.lysbtn').isVisible() && await pg.getAttribute('.lysbtn', 'aria-expanded') === 'false', 'Suche minimiert (nur Symbol)');
-  ok(!(await pg.locator('.lybl').isVisible()) && /Landeskarte/.test(await pg.textContent('.lybtn')), 'Kartenauswahl minimiert, zeigt die aktive Karte: «' + (await pg.textContent('.lybtn')).trim() + '»');
+  ok(!(await pg.locator('.lybl').isVisible()) && /Parzellen/.test(await pg.textContent('.lybtn')), 'Kartenauswahl minimiert, zeigt die aktive Karte: «' + (await pg.textContent('.lybtn')).trim() + '»');
   const sb = await box(pg, '.lysbtn'), hd = await box(pg, '.kmhead'), nav = await box(pg, '.lynav'), kb = await box(pg, '.lycmdk-b');
   ok(sb && hd && sb.t >= hd.t && sb.b <= hd.b + 1 && Math.abs((sb.l + sb.r) / 2 - (hd.l + hd.r) / 2) < 0.2 * hd.w, 'Suche in der Kopfleiste, ungefähr in der Mitte (' + Math.round((sb.l + sb.r) / 2) + ' von ' + Math.round(hd.w) + ' px)');
   ok(!hit(sb, nav) && !hit(sb, kb), 'Suchsymbol überdeckt keine Kopfleisten-Knöpfe');

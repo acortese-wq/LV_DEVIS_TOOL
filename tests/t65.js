@@ -32,7 +32,7 @@ const waitLy = async (pg, ms) => { for (let t = 0; t < (ms || 15000); t += 250) 
   await pg.click('#lyT_prof'); await pg.waitForTimeout(200); ok(await pg.locator('.lydpan:visible').count() === 0, 'Reiter erneut klicken klappt das Dock ein');
   await pg.click('#lyT_kost'); await pg.waitForTimeout(200);
   // Kartenauswahl auf der Karte, Werkzeug-Symbole
-  ok(await pg.getAttribute('[data-lyb=farbe]', 'aria-pressed') === 'true', 'Kartenauswahl über der Karte zeigt die aktive Karte');
+  ok(await pg.getAttribute('[data-lyb=kataster]', 'aria-pressed') === 'true', 'Kartenauswahl über der Karte zeigt die aktive Karte');
   await pg.click('.lybtn'); await pg.click('[data-lyb=grau]'); await pg.waitForTimeout(300);
   ok(await pg.getAttribute('[data-lyb=grau]', 'aria-pressed') === 'true' && await pg.evaluate(() => localStorage.getItem('lvd-km-base')) === 'grau' && await pg.inputValue('#kmBase') === 'grau', 'Kartenauswahl «Grau» wirkt wie die Kartenquelle unten');
   await pg.click('.lybtn'); await pg.click('[data-lyb=farbe]'); await pg.waitForTimeout(300);
