@@ -27,7 +27,7 @@ const K = require('./lib/k.js'), { chromium, ok, mk } = K;
   await pg.evaluate(() => window.__KM.map().setZoom(17, { animate: false })); await pg.waitForTimeout(1500);
   ok((await imgs()) >= 1, 'Zoom 17: Parzellenbild vorhanden (' + (await imgs()) + ' Bild)');
   await pg.evaluate(() => window.__KM.map().setZoom(11, { animate: false })); await pg.waitForTimeout(1200);
-  const msg = await pg.evaluate(() => (document.querySelector('.kmtoast') || {}).textContent || '');
+  const msg = await pg.evaluate(() => (document.querySelector('.kmparzhint') || {}).textContent || '');
   ok((await imgs()) === 0 && /Zoomstufe 15/.test(msg), 'Zoom 11: kein leeres weisses Parzellenbild, Hinweis «' + msg.slice(0, 60) + '…»');
   await pg.evaluate(() => window.__KM.map().setZoom(17, { animate: false })); await pg.waitForTimeout(1500);
   ok((await imgs()) >= 1, 'wieder hineingezoomt: Parzellenbild ist wieder da');

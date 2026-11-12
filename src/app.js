@@ -1476,6 +1476,16 @@
   var RPW = 760, RPH = 900;   /* A4 hoch: 186 mm breit, ca. 220 mm hoch (Seitenverhältnis fest, nichts verzogen) */
   function rpGeo() { var g = situGeo(); g.areas = []; g.sond = []; g.wl = []; g.geb = []; g.extra = []; g.lab = { lines: S.karte.lines.map(function (l, i) { return "L" + (i + 1); }), pts: [] }; return g; }
   function rpCacheBg() { var K = S.karte; if (!K.lines.length && !K.pts.length && !K.notes.length) return; var g = rpGeo(), base = KARTE.ovBase(K.base); if (K.bgRp && K.bgRp.key === KARTE.bgKey(g, RPW, RPH, base)) return; KARTE.cacheBg(g, base, RPW, RPH, function (bg) { S.karte.bgRp = bg; save(); }); }
+  /* Deckblatt: erste Seite des Projektberichts zeigt immer das Luftbild (SWISSIMAGE) mit Leitungen und Schächten, danach folgen Situation (Karte) und Plan */
+  var CVW = 760, CVH = 470;
+  function rpCoverGeo() { var g = rpGeo(); g.lab = { lines: [], pts: [] }; return g; }
+  function rpCacheCover() { var K = S.karte; if (!K.lines.length && !K.pts.length && !K.notes.length) return; var g = rpCoverGeo(); if (K.bgCv && K.bgCv.key === KARTE.bgKey(g, CVW, CVH, "luft")) return; KARTE.cacheBg(g, "luft", CVW, CVH, function (bg) { S.karte.bgCv = bg; save(); }); }
+  function reportCover() {
+    var K = S.karte; if (!(K.lines.length || K.pts.length || K.notes.length)) return "";
+    var g = rpCoverGeo(), bg = K.bgCv && K.bgCv.key === KARTE.bgKey(g, CVW, CVH, "luft") ? K.bgCv.src : null;
+    var fig = KARTE.mapFigure(g, tt, { W: CVW, H: CVH, k: 1.7, pale: 0, base: "luft", bg: bg, labels: false, cls: "situfig rpcoverfig", cap: fill(tt("rp_coverCap"), { m: KARTE.fmt(KARTE.total(g.lines)) }) });
+    return fig ? '<section class="rp-sec rp-cover">' + fig.outerHTML + "</section>" : "";
+  }
   function reportMap() {
     var K = S.karte, P = S.plan, h = "", hasMap = K.lines.length || K.pts.length || K.notes.length;
     if (hasMap) {
@@ -1492,6 +1502,7 @@
     var out = KVE.calc(S, LV), k = S.kopf, h = "";
     h += "<h1>" + esc(tt("rp_title")) + "</h1>";
     if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb], ["datum", k.datum || today()]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
+    h += reportCover();
     if (o.situ) h += reportMap();
     if (o.mengen) {
       if (o.mode === "total") {
@@ -1536,7 +1547,7 @@
       var ims = [].slice.call(doc.querySelectorAll("image")).filter(function (im) { return !/^data:/.test(im.getAttribute("href") || ""); });   /* Kartenhintergrund noch nicht im Projekt: höchstens 5 s auf das Bild warten */
       Promise.all(ims.map(function (im) { return new Promise(function (r) { var t = setTimeout(r, 5000); im.addEventListener("load", function () { clearTimeout(t); r(); }); im.addEventListener("error", function () { clearTimeout(t); r(); }); }); })).then(function () { setTimeout(function () { window.print(); }, 50); });
     });
-    d.showModal(); rpCacheBg();
+    d.showModal(); rpCacheBg(); rpCacheCover();
   }
   /* ---------- Excel ---------- */
   var XL = XLSXW.ST;

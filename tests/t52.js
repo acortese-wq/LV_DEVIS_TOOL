@@ -39,5 +39,5 @@ m=await M(); ok(Math.hypot(m.lines[0].pts[ki][0]-m.lines[2].pts[0][0],m.lines[0]
 // Verbindung lösen
 await pg.mouse.click(bx.x+300,bx.y+345); await pg.waitForTimeout(300);
 const bt=pg.locator('#kmObj p.hint',{hasText:'Angeschlossen an Linie 2'}).locator('button'); ok(await bt.count()>=1,'Knopf «Verbindung lösen» vorhanden');
-await bt.first().click(); await pg.waitForTimeout(300); m=await M(); ok(!m.geb[0].lid&&!m.lines[1].gid,'Verbindung Hauseinführung–Leitung gelöst');
+await pg.evaluate(() => window.__KM.unfold()); await pg.waitForTimeout(200); await bt.first().click(); await pg.waitForTimeout(300); m=await M(); ok(!m.geb[0].lid&&!m.lines[1].gid,'Verbindung Hauseinführung–Leitung gelöst');
 ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|')); await b.close();})();

@@ -474,3 +474,13 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 - **Eigenschaften:** Bei neuer Auswahl ist nur das gewählte Element (bzw. die Mehrfachauswahl) aufgeklappt, alle übrigen eingeklappt; manuelles Aufklappen bleibt bis zur nächsten Auswahl.
 - **Auf Bestand zoomen:** Symbolknopf (Rahmenecken) neben dem Zoomfeld +/− in Karte und Plan.
 - **Preisvorschlag für alle offenen Positionen:** Mit Tiefenklasse wie V118 (Sicherheit hoch); sonst ähnlichste LV-Position gleicher Einheit per Textähnlichkeit (mittel) oder Median ähnlicher Positionen (niedrig); auch freie Positionen ohne Preis (Preis und Grund «Schätzung …» in der freien Position). Nur Vorschlag, Summe ändert sich erst nach «Speichern». Keine Vorschläge, wenn das LV keine Position gleicher Einheit kennt (z. B. Kernbohrung in cm). Rechenkern unverändert (t78 identisch). Tests t101, t102; t86 an das neue Verhalten angepasst.
+
+## V122 (12.11.2026) – Fünf Civil-3D-Muster und Luftbild auf Seite 1 des Berichts
+- **Eigenschaften mit Schnellzugriff:** Bei Schacht, Werkloch, Einführung u. a. sind die ersten 4 Felder offen, übrige unter «Weitere Eigenschaften (n)» (öffnet sich automatisch bei Fehlern); Linien behalten «Weitere Angaben».
+- **Auswahl wie in CAD:** Umschalt + Ziehen = Auswahlrechteck (links→rechts «Fenster», ganz innerhalb; rechts→links «Kreuzen», berührend); «Ähnliche auswählen» im Objektmenü (gleiche Oberfläche bzw. gleicher Schachttyp); Befehlsleiste Strg+K: «Auswählen: alle Linien/Schächte/… (n)» und «Linien mit Oberfläche …».
+- **Wiederholen:** Enter oder Leertaste auf der Karte wiederholt den letzten Werkzeugbefehl; Rechtsklick ins Leere und Befehlsleiste zeigen «Wiederholen: …».
+- **Griffe mit Kontextmenü:** Rechtsklick auf einen Stützpunkt: Punkt löschen · Punkt dahinter einfügen · Linie hier teilen · Abzweig ab hier (Doppelklick löscht weiterhin).
+- **Anzeige-Stile:** Auswahl «Anzeige» in der Werkzeugleiste: Standard · Beschriftung nach Zoom (ab Zoomstufe 17) · Ohne Beschriftung; Wahl wird gemerkt. Farben bleiben nach Oberfläche (Legende).
+- **Projektbericht:** Die erste Seite zeigt immer das Luftbild (swisstopo SWISSIMAGE) mit Leitungsführung, danach Situation (Karte) und Plan.
+- **Parzellenhinweis:** «Parzellen erst ab Zoomstufe 15» steht als Feld in der Karte (nicht klickbar) statt als Toast, der Klicks am unteren Kartenrand abfing.
+- Kostenwirkung: keine (Rechenkern unverändert, t78 identisch, Skill-Vergleich ohne Abweichungen). Tests t103 (neu); t12 und t52 klappen Zeilen vorher auf (Testhilfe `__KM.unfold`).

@@ -592,6 +592,8 @@
       dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]) * (cal.scale || 0); } }
       : { ll: function (p) { return toWGS(p[0], p[1]); }, pt: function (ll) { return toLV95(ll.lat, ll.lng).map(function (v) { return Math.round(v * 100) / 100; }); },
         dist: function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); } };
+    var lastCmd = null, stl = "std", LBL_Z = 17, lblWas = null; try { var stl0 = localStorage.getItem("lvd-km-style"); if (["std", "zoom", "min"].indexOf(stl0) >= 0) stl = stl0; } catch (e) { }   /* Anzeige-Stil: Beschriftung immer / nach Zoomstufe / aus */
+    function labelsOn() { return showLbl && stl !== "min" && (stl !== "zoom" || !map || map.getZoom() >= LBL_Z); }
     var PARZ_MINZ = 15, parzGate = false;   /* Parzellenplan erst ab dieser Zoomstufe (weiter weg zeigt der Dienst nichts); darunter graue Landeskarte */
     var lastCfg = { rt: {}, art: "kies", fl: "", T: "", B: "", ab: "" }, wlT = "sg", lastTyp = null, folded = {}, lastSel = null;
     if (opt.defCfg) lastCfg = JSON.parse(JSON.stringify(opt.defCfg));
@@ -640,6 +642,7 @@
       '<button type="button" class="btn ghost small" data-k="fit">' + esc(tt("km_fit")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="center">' + esc(tt("km_center")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="lbl" aria-pressed="true">' + esc(tt("km_lbl")) + "</button>" +
+      '<label class="kmbl" for="kmStl">' + esc(tt("km_stl")) + '</label><select id="kmStl">' + [["std", "km_stl_std"], ["zoom", "km_stl_zoom"], ["min", "km_stl_min"]].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join("") + "</select>" +
       (plan ? "" : '<button type="button" class="btn ghost small" data-k="sv">' + esc(tt("km_sv")) + '</button><button type="button" class="btn ghost small" data-k="svkey" title="' + esc(tt("km_sv_keyHint")) + '">' + esc(tt("km_sv_key")) + "</button>") +
       (plan ? "" : '<span class="kmseg" role="group" aria-label="' + esc(tt("km_prov")) + '"><button type="button" class="btn small" data-prov="swisstopo" aria-pressed="false">swisstopo</button><button type="button" class="btn small" data-prov="geoadmin" aria-pressed="false">geo.admin.ch</button></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase"></select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + '</button><span id="kmAv" hidden><input type="url" id="kmAvUrl" class="kmavin" aria-label="' + esc(tt("km_avUrl")) + '" placeholder="https://…/wms"><input type="text" id="kmAvLy" class="kmavin" aria-label="' + esc(tt("km_avLy")) + '" placeholder="' + esc(tt("km_avLy")) + '"><button type="button" class="btn small" id="kmAvGo">' + esc(tt("km_avGo")) + '</button></span><a class="btn ghost small" id="kmNetz" href="https://www.swisscom.ch/rida/online/geoportal/ng/index.html?login" target="_blank" rel="noopener noreferrer">' + esc(tt("km_netz")) + "</a>") + "</div></div>" +
       (plan ? '<form class="kmcalf" id="kmCalF" hidden><label for="kmCalM">' + esc(tt("pl_calAsk")) + '</label><input type="text" inputmode="decimal" id="kmCalM" class="numin"><button type="submit" class="btn small">' + esc(tt("pl_calSet")) + "</button></form>" : "") +
@@ -754,6 +757,8 @@
             dlg.querySelectorAll("[data-lylang]").forEach(function (b) { if (b.getAttribute("aria-pressed") !== "true") add("ly_cgCmd", tt("ly_lang") + ": " + b.textContent, function () { b.click(); }); });
             add("ly_cgCmd", tt("ly_dock") + " ⇅ (Strg+J)", function () { lyD.c = !lyD.c; lyDock(); });
             add("ly_cgCmd", tt("ly_keys"), function () { toast(dlg, tt("ly_keysL")); });
+            if (lastCmd) add("ly_cgCmd", tt("km_cx_rep").replace("{c}", lastCmd.t), repeatCmd);
+            selCmds().forEach(function (x) { add("ly_cgCmd", x.t, x.run); });
             exObjs().forEach(function (g) { g.it.forEach(function (x) { add("ly_cgObj", x.n, function () { if (window.__LYEXP) window.__LYEXP.set("e"); exSelect(x.id); }, x.s); }); });
             document.querySelectorAll("#lyPosB tr[data-dk]").forEach(function (tr) { var k = tr.getAttribute("data-dk"), c = tr.children; if (!c[2]) return; add("ly_cgPos", k + " " + c[2].textContent.slice(0, 70), function () { if (md === "e") setMode("s"); lyD.t = "pos"; lyD.c = false; lyDock(); var inp = document.querySelector('.lydock [data-dq="q"]'); if (inp) { inp.value = k; inp.dispatchEvent(new Event("input", { bubbles: true })); inp.focus(); } }, c[6] ? c[6].textContent : ""); });
             return L0;
@@ -769,7 +774,7 @@
             pal.querySelector(".lyk-n").textContent = tt("ly_cmdkN").replace("{n}", hit.length);
           };
           var closeP = function (back) { if (!pal || pal.hidden) return; pal.hidden = true; if (back && from && from.focus) try { from.focus(); } catch (e) { } };
-          var run = function (i) { var it = hit[i]; if (!it) return; closeP(false); setTimeout(function () { try { it.run(); } catch (e) { } }, 0); };
+          var run = function (i) { var it = hit[i]; if (!it) return; closeP(false); setTimeout(function () { try { it.run(); } catch (e) { } }, 0); if (it.g === "ly_cgTool") lastCmd = { fn: it.run, t: it.t.replace(/\s+/g, " ").slice(0, 40) }; };
           var openP = function () {
             if (!pal) { pal = E("div", "lycmdk"); pal.hidden = true; pal.setAttribute("role", "dialog"); pal.setAttribute("aria-modal", "true"); pal.setAttribute("aria-label", tt("ly_cmdk"));
               pal.innerHTML = '<div class="lyk-box"><input type="text" role="combobox" aria-expanded="true" aria-controls="lykL" aria-autocomplete="list" autocomplete="off" spellcheck="false" placeholder="' + esc(tt("ly_cmdkPh")) + '" aria-label="' + esc(tt("ly_cmdkPh")) + '"><ul id="lykL" role="listbox" aria-label="' + esc(tt("ly_cmdk")) + '"></ul><p class="lyk-f"><span class="lyk-n" role="status" aria-live="polite"></span> <span>↑↓ · Enter · Esc</span></p></div>';
@@ -1087,7 +1092,7 @@
         : base === "grau" ? L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")])
         : base === "leer" ? L.layerGroup([])   /* leere Basis: nur gewählte Katalog-Ebenen auf weissem Grund */
         : base === "av" ? L.layerGroup(avCfg().u ? [viewWms(avCfg().u, avCfg().l, { attr: "© OpenData AV" })] : [])
-        : base === "kataster" ? (function () { var g = L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")]), v = viewWms(WMS, "ch.kantone.cadastralwebmap-farbe", { attr: "© geo.admin.ch", minZoom: PARZ_MINZ, gate: function (inR) { if (!inR && !parzGate) { parzGate = true; toast(dlg, tt("km_parzMin").replace("{z}", PARZ_MINZ)); } else if (inR) parzGate = false; }, fail: function () { g.removeLayer(v); g.addLayer(flex("ch.kantone.cadastralwebmap-farbe", 1, "wmts")); } }); g.addLayer(v); return g; })()   /* nur der Parzellenplan, ohne Landeskarte dahinter */
+        : base === "kataster" ? (function () { var g = L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")]), v = viewWms(WMS, "ch.kantone.cadastralwebmap-farbe", { attr: "© geo.admin.ch", minZoom: PARZ_MINZ, gate: function (inR) { var c = $("#kmMap") && $("#kmMap").querySelector(".kmparzhint"); if (!inR) { if (!c && $("#kmMap")) { c = document.createElement("div"); c.className = "kmparzhint"; c.setAttribute("role", "status"); c.textContent = tt("km_parzMin").replace("{z}", PARZ_MINZ); $("#kmMap").appendChild(c); } } else if (c) c.remove(); },   /* Hinweis als Feld in der Karte (nicht klickbar), kein Toast über der Zeichenfläche */ fail: function () { g.removeLayer(v); g.addLayer(flex("ch.kantone.cadastralwebmap-farbe", 1, "wmts")); } }); g.addLayer(v); return g; })()   /* nur der Parzellenplan, ohne Landeskarte dahinter */
         : L.layerGroup([T("ch.swisstopo.pixelkarte-farbe", "jpeg")]);
       map.getContainer().style.background = base === "kataster" || base === "leer" || base === "av" ? "#fff" : "";
       layer.addTo(map);   /* Reihenfolge über zIndex: Basiskarte 1, Deckschichten 5/10 */
@@ -1269,7 +1274,8 @@
           }
           if (st && st.any) { c = linkMove(st, o, j, c); e.target.setLatLng(AD.ll(c)); } else o.pts[j] = c; updL(o); updTotal(); });
         m.on("dragend", function () { lastMove = Date.now(); sel = { id: o.id }; var jj = jt; jt = null; refresh(); showProps(o.id); if (jj) toast(dlg, tt("jn_ask"), tt("jn_do"), function () { finishJoin(joinLines(o, jj.o, 0.5)); }); });
-        m.on("dblclick contextmenu", function (e) { L.DomEvent.stop(e); if (poly && o.pts.length > minPts) { snap(); o.pts.splice(j, 1); refresh(); } });
+        m.on("dblclick", function (e) { L.DomEvent.stop(e); if (poly && o.pts.length > minPts) { snap(); o.pts.splice(j, 1); refresh(); } });
+        m.on("contextmenu", function (e) { L.DomEvent.stop(e); ctxT = Date.now(); vertexMenu(o, j, e); });
         m.on("click", function (e) {
           if (mode !== "edit" || Date.now() - lastMove < 250) return; L.DomEvent.stop(e);
           if (editOp === "del") { if (poly && o.pts.length > minPts) { snap(); o.pts.splice(j, 1); sel = { id: o.id }; msel = {}; refresh(); showProps(o.id); } else toast(dlg, tt("eo_delMin").replace("{n}", minPts)); }
@@ -1415,7 +1421,7 @@
     }
     if (opt.focusId) setTimeout(function () { try { if (findObj(opt.focusId)) exSelect(opt.focusId); } catch (e) { } }, 700);   /* aus dem Datensatz geöffnet: Objekt direkt gewählt */
     window.__LYREF = function () { if (dlg.open) refresh(); };   /* Planungsfokus nach Änderungen ausserhalb der Karte (z. B. Preise erfasst) neu zeichnen */
-    window.__KM = { ov: function () { return ovl; }, M: function () { return M; }, refresh: function () { refresh(); }, select: function (id) { select(id); }, map: function () { return map; }, ll: function (p) { return AD.ll(p); }, fit: function () { fitAll(); } };   /* nur für Tests */
+    window.__KM = { unfold: function () { folded = {}; rows(); [].slice.call(document.querySelectorAll("#kmObj .kmmore2")).forEach(function (d) { d.open = true; }); }, ov: function () { return ovl; }, M: function () { return M; }, refresh: function () { refresh(); }, select: function (id) { select(id); }, map: function () { return map; }, ll: function (p) { return AD.ll(p); }, fit: function () { fitAll(); } };   /* nur für Tests */
     var MODES = { ruler: "mruler", geo: "mgeo", line: "mline", pt: "mpt", sond: "msond", cal: "mcal", edit: "medit", area: "marea", wl: "mwl", geb: "mgeb", text: "mtext", arrow: "marrow", sline: "msline", rect: "mrect" };
     function draw() {
       grp.clearLayers(); layers = {}; var edit = mode === "edit";
@@ -1447,7 +1453,7 @@
         });
       };
       pm(M.pts, "kmsch", ""); pm(M.sond, "kmsond", "S"); pm(M.wl, "kmwl", "W"); pm(M.geb, "kmgeb", "G");
-      if (showLbl && opt.labels) {   /* Beschriftung: Linie mit Name, Länge und Rohranlage; Schächte, Sondagen, Werklöcher, Einführungen, Flächen mit Name */
+      if (labelsOn() && opt.labels) {   /* Beschriftung: Linie mit Name, Länge und Rohranlage; Schächte, Sondagen, Werklöcher, Einführungen, Flächen mit Name */
         var lb = opt.labels(M, { len: effLen, slope: function (pts) { return SLOPE && !!slopeHz(pts, M.lines); }, area: area }), put = function (ll, t, cls, ang) { if (t) L.marker(ll, { interactive: false, keyboard: false, zIndexOffset: -500, icon: L.divIcon({ className: "kmlbl " + cls, html: "<span" + (ang != null ? ' style="--a:' + ang + 'deg"' : "") + ">" + esc(t) + "</span>", iconSize: [0, 0] }) }).addTo(grp); };
         M.lines.forEach(function (l, i) { if (l.pts.length < 2) return; var bj = 1, bd = -1; for (var j = 1; j < l.pts.length; j++) { var dd = AD.dist(l.pts[j - 1], l.pts[j]) || Math.hypot(l.pts[j][0] - l.pts[j - 1][0], l.pts[j][1] - l.pts[j - 1][1]); if (dd > bd) { bd = dd; bj = j; } }
           var pa = map.latLngToLayerPoint(AD.ll(l.pts[bj - 1])), pb = map.latLngToLayerPoint(AD.ll(l.pts[bj])), an = Math.atan2(pb.y - pa.y, pb.x - pa.x) * 180 / Math.PI; if (an > 90) an -= 180; if (an < -90) an += 180;   /* Beschriftung in Leitungsrichtung, nie auf dem Kopf */
@@ -1668,6 +1674,43 @@
       snap(); var l2 = { id: nid("l"), pts: [q.slice()].concat(l.pts.slice(h.seg + 1)), rid: null, rohr: clone(l.rohr), cfg: clone(cfgOf(l)), e: l.e || null };
       l.pts = l.pts.slice(0, h.seg + 1).concat([q.slice()]); l.e = null; l2.cfg.fl = fl; if (fl === "pflaster") l2.cfg.ab = ""; lastCfg = clone(l2.cfg); lineSync(l2); M.lines.splice(M.lines.indexOf(l) + 1, 0, l2); sel = { id: l2.id }; refresh();
     }
+    /* Auswahl wie in CAD: Fenster (ganz innerhalb) und Kreuzen (berührt); Ähnliche auswählen; Auswahlbefehle für die Befehlsleiste */
+    function segInRect(a, b, R) {   /* Liang-Barsky */
+      var dx = b[0] - a[0], dy = b[1] - a[1], t0 = 0, t1 = 1, P = [-dx, dx, -dy, dy], Q = [a[0] - R.x0, R.x1 - a[0], a[1] - R.y0, R.y1 - a[1]];
+      for (var i = 0; i < 4; i++) { if (P[i] === 0) { if (Q[i] < 0) return false; } else { var t = Q[i] / P[i]; if (P[i] < 0) { if (t > t1) return false; if (t > t0) t0 = t; } else { if (t < t0) return false; if (t < t1) t1 = t; } } }
+      return true;
+    }
+    function boxSelect(p1, p2, cross) {
+      var a = AD.pt(map.containerPointToLatLng(p1)), b = AD.pt(map.containerPointToLatLng(p2)), R = { x0: Math.min(a[0], b[0]), x1: Math.max(a[0], b[0]), y0: Math.min(a[1], b[1]), y1: Math.max(a[1], b[1]) };
+      var inR = function (q) { return q[0] >= R.x0 && q[0] <= R.x1 && q[1] >= R.y0 && q[1] <= R.y1; }, made = {};
+      [M.lines, M.areas, M.notes].forEach(function (arr) { (arr || []).forEach(function (o) { var ps = o.pts || []; if (!ps.length) return; var hit = cross ? ps.some(inR) || ps.some(function (q, i) { return i > 0 && segInRect(ps[i - 1], q, R); }) : ps.every(inR); if (hit) made[o.id] = 1; }); });
+      [M.pts, M.sond, M.wl, M.geb].forEach(function (arr) { (arr || []).forEach(function (o) { if (o.pt && inR(o.pt)) made[o.id] = 1; }); });
+      sel = null; msel = made; refresh(); var n = Object.keys(made).length; toast(dlg, tt("km_sel_n").replace("{n}", n) + (n ? "" : " – " + tt("km_sel_none")));
+    }
+    function selectSimilar(o) {
+      var f = findObj(o.id); if (!f) return; var made = {}, isL = f.arr === M.lines, isS = f.arr === M.pts;
+      f.arr.forEach(function (x) { if (isL ? cfgOf(x).fl === cfgOf(o).fl : isS ? x.typ === o.typ : true) made[x.id] = 1; });
+      sel = null; msel = made; refresh(); toast(dlg, tt("km_sel_n").replace("{n}", Object.keys(made).length));
+    }
+    function selCmds() {
+      var out = [], pick = function (t, arr, pred) { var made = {}, n = 0; arr.forEach(function (x) { if (!pred || pred(x)) { made[x.id] = 1; n++; } }); return { n: n, run: function () { sel = null; msel = made; refresh(); toast(dlg, tt("km_sel_n").replace("{n}", n)); } }; };
+      [["lines", M.lines], ["pts", M.pts], ["wl", M.wl], ["geb", M.geb], ["sond", M.sond], ["areas", M.areas]].forEach(function (a) { var r = pick(a[0], a[1] || []); if (r.n) out.push({ t: tt("km_sel_all").replace("{k}", tt("km_k_" + a[0])).replace("{n}", r.n), run: r.run }); });
+      FLS.forEach(function (fl) { var r = pick("l", M.lines, function (x) { return cfgOf(x).fl === fl; }); if (r.n) out.push({ t: tt("km_sel_fl").replace("{f}", tt("km_pal_" + fl)).replace("{n}", r.n), run: r.run }); });
+      return out;
+    }
+    function repeatCmd() {
+      if (!lastCmd) { toast(dlg, tt("km_rep_none")); return; }
+      if (lastCmd.fn) { lastCmd.fn(); return; } var b = $("[data-k=" + lastCmd.k + "]"); if (b && !b.disabled) b.click();
+    }
+    /* Rechtsklick auf einen Stützpunkt (Griff): Menü statt sofortigem Löschen; Doppelklick löscht weiterhin */
+    function vertexMenu(o, j, e) {
+      var n = o.pts.length, isL = M.lines.indexOf(o) >= 0, poly = !isL, minP = isL ? 2 : 3, items = [], q = o.pts[j], cp = map.mouseEventToContainerPoint(e.originalEvent || e);
+      if (n > minP) items.push({ t: tt("km_cx_vdel"), fn: function () { snap(); o.pts.splice(j, 1); sel = { id: o.id }; refresh(); } });
+      if (j < n - 1 || poly) items.push({ t: tt("km_cx_vins"), fn: function () { var nx = o.pts[(j + 1) % n]; snap(); o.pts.splice(j + 1, 0, [Math.round((q[0] + nx[0]) / 2 * 100) / 100, Math.round((q[1] + nx[1]) / 2 * 100) / 100]); sel = { id: o.id }; refresh(); } });
+      if (isL && j > 0 && j < n - 1) items.push({ t: tt("km_cx_vsplit"), fn: function () { snap(); var l2 = { id: nid("l"), pts: o.pts.slice(j).map(function (x) { return x.slice(); }), rid: null, rohr: clone(o.rohr), cfg: clone(cfgOf(o)), e: o.e || null }; o.pts = o.pts.slice(0, j + 1); o.e = null; lineSync(l2); M.lines.splice(M.lines.indexOf(o) + 1, 0, l2); sel = { id: l2.id }; refresh(); } });
+      if (isL) items.push({ t: tt("km_cx_branch"), fn: function () { startLineAt(q, { cfg: clone(cfgOf(o)), rohr: clone(o.rohr) }); } });
+      ctxShow(cp, tt("km_cx_vtitle").replace("{n}", j + 1), "", items);
+    }
     function ctxOpenAt(cp) {
       if (base === "viewer" || mode === "geo" || mode === "cal") return; askHide(); var ll = map.containerPointToLatLng(cp), c = AD.pt(ll), h = hitAt(cp), items = [], title, sub = plan ? "" : tt("km_cx_coord").replace("{e}", fmt0(c[0])).replace("{n}", fmt0(c[1]));
       if (h) {
@@ -1677,6 +1720,7 @@
         items.push({ t: tt("km_cx_props"), fn: function () { propsOpen(o, cp); } });
         items.push({ t: tt("km_cx_copy").replace("{n}", nSel), fn: function () { clipCopy(); } });
         if (clip) items.push({ t: tt("km_cx_paste"), fn: function () { clipPaste(c); } });
+        items.push({ t: tt("km_cx_sim"), fn: function () { selectSimilar(o); } });
         items.push({ t: tt("km_cx_del").replace("{n}", nSel), fn: function () { delSel(); } });
         if (h.k === "lines") {
           var cur0 = cfgOf(o).fl; FLS.filter(function (f) { return f !== cur0; }).forEach(function (f) { items.push({ t: tt("cx_surf").replace("{f}", tt("km_pal_" + f)), fn: function () { splitLine(o, h, f); } }); });   /* Belagswechsel direkt: «Oberfläche ab hier: Wiese» usw. */
@@ -1684,7 +1728,7 @@
         } else if (h.k === "pts") items.push({ t: tt("km_cx_conn"), fn: function () { var l = startLineAt(o.pt, { s: o.id }); } });
         if (!plan) { var sp = h.k === "lines" ? h.q : o.pt, sh = h.k === "lines" ? svBearing(o.pts[h.seg], o.pts[h.seg + 1]) : null; items.push({ t: tt("km_sv_here"), ghost: 1, fn: function () { svOpen(sp, sh, false); } }); if (svKey()) items.push({ t: tt("km_sv_emb"), ghost: 1, fn: function () { svOpen(sp, sh, true); } }); }
       } else {
-        title = tt("km_cx_title"); var lc = cur && byId(M.lines, cur); if (lc && mode === "line") FLS.filter(function (f) { return f !== cfgOf(lc).fl; }).forEach(function (f) { items.push({ t: tt("cx_surf").replace("{f}", tt("km_pal_" + f)), fn: function () { switchSurface(f); } }); });
+        title = tt("km_cx_title"); if (lastCmd) items.push({ t: tt("km_cx_rep").replace("{c}", lastCmd.t), fn: repeatCmd }); var lc = cur && byId(M.lines, cur); if (lc && mode === "line") FLS.filter(function (f) { return f !== cfgOf(lc).fl; }).forEach(function (f) { items.push({ t: tt("cx_surf").replace("{f}", tt("km_pal_" + f)), fn: function () { switchSurface(f); } }); });
         items.push({ typ: 1 }, { t: tt("km_cx_sch"), fn: function () { snap(); placeShaft(c); refresh(); } }, { wlt: 1 },
           { t: tt("km_cx_wl"), fn: function () { snap(); var q = { id: nid("w"), pt: c.slice(), sid: null, wt: wlT, name: "", fl: lastCfg.fl || "" }; M.wl.push(q); sel = { id: q.id }; refresh(); } },
           { t: tt("km_cx_geb"), fn: function () { snap(); var gs = gebSnap(cp), q = { id: nid("g"), pt: (gs ? gs.c : c).slice(), sid: null, cm: opt.defGeb.cm, abd: opt.defGeb.abd, name: "", on: gs && gs.line ? gs.line.id : undefined }; M.geb.push(q); sel = { id: q.id }; refresh(); } },
@@ -1728,7 +1772,7 @@
     var fmt0 = function (v) { return Math.round(v).toLocaleString("de-CH"); };
     (function () {
       var mp = $("#kmMap"), tm = null, p0 = null;
-      mp.addEventListener("contextmenu", function (e) { e.preventDefault(); if (Date.now() - ctxT < 300) return; ctxT = Date.now(); ctxOpenAt(map.mouseEventToContainerPoint(e)); });
+      mp.addEventListener("contextmenu", function (e) { e.preventDefault(); if (e.target.closest && e.target.closest(".kmv")) return; if (Date.now() - ctxT < 300) return;   /* Griff: eigenes Menü (vertexMenu) */ ctxT = Date.now(); ctxOpenAt(map.mouseEventToContainerPoint(e)); });
       mp.addEventListener("pointerdown", function (e) { if (e.pointerType === "mouse") return; p0 = { x: e.clientX, y: e.clientY }; clearTimeout(tm); tm = setTimeout(function () { ctxT = Date.now(); ctxOpenAt(map.mouseEventToContainerPoint(e)); }, 650); });
       ["pointermove", "pointerup", "pointercancel"].forEach(function (n) { mp.addEventListener(n, function (e) { if (n === "pointermove" && p0 && Math.hypot(e.clientX - p0.x, e.clientY - p0.y) < 10) return; clearTimeout(tm); }); });
       dlg.addEventListener("pointerdown", function (e) { var m = $("#kmCtx"); if (m && !m.hidden && !m.contains(e.target)) ctxHide(); });
@@ -1873,6 +1917,12 @@
     }
     /* Einklappen je Objekt: Kopf mit Schalter, Kurzinfo im eingeklappten Zustand; neu gewähltes Objekt klappt auf */
     function foldRows(h) {
+      [].slice.call(h.querySelectorAll(".kmrow")).forEach(function (r) {   /* Schnellzugriff: die ersten 4 Felder offen, übrige unter «Weitere Eigenschaften» (Linien haben ihren eigenen Aufbau mit «Weitere Angaben») */
+        if (r.querySelector(".kmled") || r.querySelector(".kmmore2")) return;
+        var cs = [].slice.call(r.children).filter(function (c) { return c.classList && c.classList.contains("kmc"); }); if (cs.length <= 5) return;
+        var dt = document.createElement("details"), sm = document.createElement("summary"); dt.className = "kmmore2"; sm.textContent = tt("km_more2").replace("{n}", cs.length - 4); dt.appendChild(sm);
+        r.insertBefore(dt, cs[4]); cs.slice(4).forEach(function (c) { dt.appendChild(c); }); if (dt.querySelector('[aria-invalid="true"]')) dt.open = true;
+      });
       if (sel && sel.id !== lastSel) { [].slice.call(h.querySelectorAll(".kmrow")).forEach(function (r) { var k = r.getAttribute("data-rid"); if (k !== sel.id && !msel[k]) folded[k] = true; }); delete folded[sel.id]; }   /* nur das gewählte Element ist offen, die übrigen sind eingeklappt */
       lastSel = sel ? sel.id : null;
       [].slice.call(h.querySelectorAll(".kmrow")).forEach(function (r) {
@@ -2835,6 +2885,25 @@
     } else {
       map = L.map($("#kmMap"), { center: [46.8, 8.23], zoom: 8, minZoom: 7, maxZoom: 22, doubleClickZoom: false, zoomAnimation: false, attributionControl: false }); L.control.attribution({ prefix: "Leaflet" }).addTo(map);
       var op0 = map.createPane("kmov"); op0.style.zIndex = 250; op0.style.pointerEvents = "none"; map.on("zoom move viewreset resize", function () { ovDraw(true); });   /* Kartenbewegung: Passpunkt-Marker bleiben (Fokus/Tastatur) */
+      (function () {   /* Anzeige-Stil und Fenster-/Kreuzauswahl */
+        lblWas = labelsOn(); var ss = $("#kmStl"); if (ss) { ss.value = stl; ss.addEventListener("change", function () { stl = ss.value; try { localStorage.setItem("lvd-km-style", stl); } catch (e) { } lblWas = labelsOn(); draw(); }); }
+        map.on("zoomend", function () { if (stl === "zoom") { var on = labelsOn(); if (on !== lblWas) { lblWas = on; draw(); } } });
+        if (map.boxZoom) map.boxZoom.disable();   /* Umschalt+Ziehen = Auswahlrechteck (statt Zoomfenster): links→rechts Fenster, rechts→links Kreuzen */
+        var mc = map.getContainer(), bxEl = null, b0 = null;
+        mc.addEventListener("mousedown", function (e) {
+          if (e.button !== 0 || !e.shiftKey || (mode && mode !== "edit") || e.target.closest(".leaflet-control,.leaflet-marker-icon")) return;
+          var r = mc.getBoundingClientRect(); b0 = { x: e.clientX - r.left, y: e.clientY - r.top, moved: false }; map.dragging.disable();
+        }, true);
+        document.addEventListener("mousemove", function (e) {
+          if (!b0) return; var r = mc.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; if (!b0.moved && Math.hypot(x - b0.x, y - b0.y) < 6) return; b0.moved = true;
+          if (!bxEl) { bxEl = document.createElement("div"); bxEl.className = "kmbox"; mc.appendChild(bxEl); }
+          bxEl.className = "kmbox " + (x < b0.x ? "cross" : "win"); bxEl.style.left = Math.min(x, b0.x) + "px"; bxEl.style.top = Math.min(y, b0.y) + "px"; bxEl.style.width = Math.abs(x - b0.x) + "px"; bxEl.style.height = Math.abs(y - b0.y) + "px";
+        });
+        document.addEventListener("mouseup", function (e) {
+          if (!b0) return; var st = b0, r = mc.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; b0 = null; map.dragging.enable(); if (bxEl) { bxEl.remove(); bxEl = null; }
+          if (st.moved) boxSelect(L.point(st.x, st.y), L.point(x, y), x < st.x);
+        });
+      })();
       /* «Auf Bestand zoomen»: Symbolknopf neben dem Zoomfeld (+/−) der Karte und des Plans */
       (function () {
         var C = L.Control.extend({ options: { position: "topleft" }, onAdd: function () {
@@ -2921,6 +2990,7 @@
       if (b.dataset.n) { var nn = b.dataset.n.split("|"); return nudge(nn[0], nn[1]); }
       if (b.dataset.z) return show(b.dataset.z); if (b.dataset.d) return del(b.dataset.d);
       var k = b.getAttribute("data-k");
+      if (/^m(ruler|line|pt|sond|text|arrow|sline|rect|area|wl|geb)$/.test(k) || k === "route") lastCmd = { k: k, t: String(b.getAttribute("aria-label") || b.getAttribute("title") || b.textContent).replace(/\s+/g, " ").trim().slice(0, 40) };
       if (k === "close") { if (LY) lyGo("proj"); else close(); }
       else if (/^m(geo|ruler|line|pt|sond|cal|edit|text|arrow|sline|rect|area|wl|geb)$/.test(k)) { var m = k.slice(1); if (m === "geo") { ov0 = JSON.stringify(ovl); if (ovl && !gcpKeep && ovl.gcp && ovl.gcp.length) { var oG = JSON.stringify(ovl.gcp); ovl.gcp = []; ovl.rms = null; toast(dlg, tt("ov_gNew"), tt("km_undoBtn"), function () { if (ovl) { ovl.gcp = JSON.parse(oG); gcp = ovl.gcp; gcpPanel(); refresh(); } }); } gcp = ovl ? (ovl.gcp = ovl.gcp || []) : []; gcpStay = gcpKeep; gcpKeep = false; setTimeout(gcpPanel, 0); }   /* «Passpunkte setzen» = neue Ausrichtung; «Passpunkt hinzufügen» verfeinert */ if (m === "ruler") rul = []; hideTip(); if (mode === "line" || mode === "sline" || mode === "area") endLine(); tmp = []; calPts = []; if (plan) $("#kmCalF").hidden = true; mode = mode === m ? "" : m; refresh(); }
       else if (k === "center") addPt(map.getCenter());
@@ -2965,6 +3035,7 @@
         if (e.key === "Enter" && e.shiftKey) { e.preventDefault(); endLine(); return; }
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); addPt(map.getCenter()); return; }
       }
+      if (t.id === "kmMap" && (!mode || mode === "edit") && !ed && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); repeatCmd(); return; }   /* wie AutoCAD: Enter/Leertaste wiederholt den letzten Befehl */
       if (mode === "line" && !ed && !e.ctrlKey && !e.metaKey && !e.altKey && /^[1-4]$/.test(e.key)) { e.preventDefault(); switchSurface(FLS[+e.key - 1]); return; }
       if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && !ed && mode === "edit" && e.key.toLowerCase() === "c" && selIds().length) { e.preventDefault(); clipCopy(); return; }
       if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && !ed && mode === "edit" && e.key.toLowerCase() === "v" && clip) { e.preventDefault(); clipPaste(AD.pt(map.getCenter())); return; }

@@ -667,6 +667,7 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 /* Projektbericht: Situationskarte auf eigener Querseite (A4 quer) */
 .rp .rp-map{break-before:page;break-after:page}
 .rp .rpmapfig{margin:0 0 4pt;border:0}body .rp .rpmapfig svg{width:100%!important;height:auto!important;max-height:none!important;aspect-ratio:760/900;display:block;border:0.5pt solid #8fa1ac}
+.rp .rp-cover{break-after:page;margin-top:10pt}.rp .rpcoverfig{margin:0 0 4pt;border:0}body .rp .rpcoverfig svg{width:100%!important;height:auto!important;max-height:none!important;aspect-ratio:760/470;display:block;border:0.5pt solid #8fa1ac}.rp .rpcoverfig figcaption{font-size:8pt;color:#333;margin-top:2pt}
 .rp .rpmapfig figcaption{font-size:8pt;color:#333;margin-top:2pt}
 .rp .rp-maptab{font-size:8.5pt}.rp .rp-maptab .rpnr{font-weight:700;white-space:nowrap;width:3em}
 /* Speicherfehler über der Kartenerfassung (Statuszeile der Hauptseite ist dort verdeckt) */
