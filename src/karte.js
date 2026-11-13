@@ -1657,7 +1657,7 @@
     function placeShaft(c, silent) {
       var p = newShaft(c, "neu"), cp = map.latLngToContainerPoint(AD.ll(c)), did = null;
       M.lines.slice().forEach(function (l) {
-        if (l.pts.length < 2 || did === "x") return; var h = segHit(cp, l.pts); if (!h || h.d > 10) return;
+        if (l.pts.length < 2 || did === "x") return; var h = segHit(cp, l.pts); if (!h || h.d > 20) return;   /* Fangbereich 20 px: Schacht darf neben der Linie angeklickt werden und rastet auf ihr ein */
         var n = l.pts.length, a = map.latLngToContainerPoint(AD.ll(l.pts[0])), z = map.latLngToContainerPoint(AD.ll(l.pts[n - 1]));
         if (Math.hypot(a.x - cp.x, a.y - cp.y) <= 12) { if (!l.s) { l.s = p.id; p.pt = l.pts[0].slice(); } return; }
         if (Math.hypot(z.x - cp.x, z.y - cp.y) <= 12) { if (!l.e) { l.e = p.id; p.pt = l.pts[n - 1].slice(); } return; }
@@ -1669,6 +1669,7 @@
         l.e = p.id; l.to = null; l2.s = p.id; M.lines.splice(M.lines.indexOf(l) + 1, 0, l2); did = l2;
         if (hzP0) { l.hz = hzStats(l, sliceP(hzP0, 0, hzD0)); l2.hz = hzStats(l2, sliceP(hzP0, hzD0, hzL0)); }
       });
+      if (!did && !silent && !M.lines.some(function (l) { return l.s === p.id || l.e === p.id; })) { var nearL = M.lines.some(function (l) { var h = l.pts.length > 1 && segHit(cp, l.pts); return h && h.d <= 80; }); if (nearL) toast(dlg, tt("km_shLoose")); }   /* Prüfhinweis: Schacht liegt nahe einer Leitung, ist aber nicht verbunden */
       if (did && did !== "x" && !silent) askShow(AD.ll(c), tt("km_sp_title"), [{ t: tt("km_sp_ok"), fn: function () { } }], 0, false, did);
       return p;
     }

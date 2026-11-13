@@ -4398,6 +4398,7 @@ TS.en = {
     km_stl_min: ["Ohne Beschriftung", "Sans étiquettes", "Senza etichette", "No labels"],
     km_more2: ["Weitere Eigenschaften ({n})", "Autres propriétés ({n})", "Altre proprietà ({n})", "More properties ({n})"],
     km_depthUp: ["Grabentiefe auf {t} m angehoben: Mindestüberdeckung {c} m bei DN {dn} (T = Überdeckung + 5 cm Bettung + DN). Mit «Rückgängig» zurücknehmen.", "Profondeur de fouille relevée à {t} m : recouvrement minimal {c} m pour DN {dn} (T = recouvrement + 5 cm lit + DN). «Annuler» pour revenir.", "Profondità dello scavo portata a {t} m: copertura minima {c} m con DN {dn} (T = copertura + 5 cm letto + DN). «Annulla» per tornare indietro.", "Trench depth raised to {t} m: minimum cover {c} m at DN {dn} (T = cover + 5 cm bedding + DN). Use «Undo» to revert."],
+    km_shLoose: ["Schacht nicht mit der Leitung verbunden – direkt auf die Linie klicken (Fangbereich 20 px).", "Chambre non reliée à la conduite – cliquer directement sur la ligne (zone d'accrochage 20 px).", "Pozzetto non collegato alla condotta – cliccare direttamente sulla linea (area di aggancio 20 px).", "Shaft not connected to the line – click directly on the line (snap range 20 px)."],
     km_pit: ["Aushublinien", "Lignes de fouille", "Linee di scavo", "Excavation lines"],
     km_pitT: ["Aushubgruben um Schächte, Werklöcher und Sondagen gestrichelt grau ein-/ausblenden (ab Zoomstufe 17)", "Afficher/masquer les fouilles autour des chambres, fosses de travail et sondages (dès le zoom 17)", "Mostra/nascondi gli scavi attorno a pozzetti, buche di lavoro e sondaggi (dallo zoom 17)", "Show/hide excavation pits around shafts, work pits and trial pits (from zoom 17)"],
     km_band: ["Grabenband", "Bande de fouille", "Banda di scavo", "Trench band"],
@@ -7953,7 +7954,7 @@ var FIG = (function () {
     function placeShaft(c, silent) {
       var p = newShaft(c, "neu"), cp = map.latLngToContainerPoint(AD.ll(c)), did = null;
       M.lines.slice().forEach(function (l) {
-        if (l.pts.length < 2 || did === "x") return; var h = segHit(cp, l.pts); if (!h || h.d > 10) return;
+        if (l.pts.length < 2 || did === "x") return; var h = segHit(cp, l.pts); if (!h || h.d > 20) return;   /* Fangbereich 20 px: Schacht darf neben der Linie angeklickt werden und rastet auf ihr ein */
         var n = l.pts.length, a = map.latLngToContainerPoint(AD.ll(l.pts[0])), z = map.latLngToContainerPoint(AD.ll(l.pts[n - 1]));
         if (Math.hypot(a.x - cp.x, a.y - cp.y) <= 12) { if (!l.s) { l.s = p.id; p.pt = l.pts[0].slice(); } return; }
         if (Math.hypot(z.x - cp.x, z.y - cp.y) <= 12) { if (!l.e) { l.e = p.id; p.pt = l.pts[n - 1].slice(); } return; }
@@ -7965,6 +7966,7 @@ var FIG = (function () {
         l.e = p.id; l.to = null; l2.s = p.id; M.lines.splice(M.lines.indexOf(l) + 1, 0, l2); did = l2;
         if (hzP0) { l.hz = hzStats(l, sliceP(hzP0, 0, hzD0)); l2.hz = hzStats(l2, sliceP(hzP0, hzD0, hzL0)); }
       });
+      if (!did && !silent && !M.lines.some(function (l) { return l.s === p.id || l.e === p.id; })) { var nearL = M.lines.some(function (l) { var h = l.pts.length > 1 && segHit(cp, l.pts); return h && h.d <= 80; }); if (nearL) toast(dlg, tt("km_shLoose")); }   /* Prüfhinweis: Schacht liegt nahe einer Leitung, ist aber nicht verbunden */
       if (did && did !== "x" && !silent) askShow(AD.ll(c), tt("km_sp_title"), [{ t: tt("km_sp_ok"), fn: function () { } }], 0, false, did);
       return p;
     }

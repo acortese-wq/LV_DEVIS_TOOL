@@ -529,3 +529,6 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 
 ## V130 – Schalter «Aushublinien» (13.11.2026)
 - Eigener Schalter in der Kartenleiste (`lvd-km-pit`), getrennt vom «Grabenband» (`lvd-km-band`); Legende folgt beiden. Nur Darstellung, keine Kostenwirkung; Test t111.
+
+## V131 – Schacht auf Leitung setzen (13.11.2026)
+- Fangbereich beim Setzen eines Schachts auf eine Leitung von 10 auf 20 px erweitert (Schacht rastet auf der Linie ein, Linie wird geteilt, beide Hälften am Schacht). Liegt der Schacht nur nahe (≤ 80 px) einer Leitung und wurde nicht verbunden, erscheint ein Hinweis. Test t112. Keine Kostenwirkung.
