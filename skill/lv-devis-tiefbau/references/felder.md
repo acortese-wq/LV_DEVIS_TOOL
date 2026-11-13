@@ -127,6 +127,14 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 | `deckelRichtung` | Richtung | `hoeher` Höhersetzen<br>`tiefer` Tiefersetzen | `"hoeher"` | modus === "deckel" |
 | `deckelFormat` | Format | `rund` Rund (⌀ 400–800 mm)<br>`rechteckig` Rechteckig (bis 2.40 × 1.40 m) | `"rund"` | modus === "deckel" |
 | `deckelN` | Anzahl | Zahl (Text) | `"0"` | modus === "deckel" |
+| `grube` | Grube, Aushub und Oberfläche mitrechnen<br><i>Rechnet Belag/Wiese/Pflästerung, Aushub und Verfüllung der Grube um Deckel bzw. Anschluss (Oberfläche wie im Reiter «Oberfläche»).</i> | true/false | `true` | modus === "deckel" // modus === "anschluss" |
+| `dkL` | Deckelgrube Länge (m) | Zahl (Text) | `"1.00"` | modus === "deckel" && grube === true |
+| `dkB` | Deckelgrube Breite (m) | Zahl (Text) | `"1.00"` | modus === "deckel" && grube === true |
+| `dkT` | Deckelgrube Tiefe (m) | Zahl (Text) | `"0.60"` | modus === "deckel" && grube === true |
+| `anL` | Anschlussgrube Länge (m) | Zahl (Text) | `"1.50"` | modus === "anschluss" && grube === true |
+| `anB` | Anschlussgrube Breite (m) | Zahl (Text) | `"1.00"` | modus === "anschluss" && grube === true |
+| `anT` | Anschlussgrube Tiefe (m, leer = Schachttiefe + 0.10) | Zahl (Text) | `""` | modus === "anschluss" && grube === true |
+| `roh` | Aushub und Oberfläche durch Bauherr (entfällt hier)<br><i>Bauherr oder Dritte erledigen Aushub, Verfüllung und Oberfläche: diese Positionen entfallen im Angebot.</i> | true/false | `false` | modus !== "ersatz" |
 | `einbauort` | Einbauort / Strassentyp<br><i>Steuert, welcher Schachttyp und welche Rahmen/Deckel hier üblich sind (Auswahlschema Schachtbau und Abdeckungen, 27.03.2026).</i> | `HLS` Hochleistungsstrasse HLS  ·  ≥ 80 km/h<br>`HVS` Hauptverkehrsstrasse HVS  ·  ≥ 60 km/h<br>`VS50` Verbindungsstrasse VS, ≥ 50 km/h  ·  ≥ 50 km/h<br>`VS49` Verbindungsstrasse VS, < 50 km/h  ·  < 50 km/h<br>`SS` Sammelstrasse SS  ·  ≤ 50 km/h<br>`ESS` Erschliessungsstrasse ES  ·  ≤ 50 km/h<br>`GEH` Gehweg / Trottoir / Vorplatz<br>`WIES` Wiesland / Parzelle | `"SS"` | modus !== "deckel" && modus !== "anschluss" |
 | `typ` | Schachttyp<br><i>Aussenmasse und Arbeitsraum sind Standardvorschläge (überschreibbar über den Arbeitsraum).</i> | `KS80U` KS Kontrollschacht DN 800, überdeckt (Tiefe bis 0.50 m)<br>`KS80H` KS Kontrollschacht DN 800, hochgezogen (Tiefe bis 1.00 m)<br>`KES100` KES 1.00 × 1.00 × 1.35 m<br>`KES150` KES 1.50 × 1.00 × 1.35 m<br>`KES175` KES 1.50 × 1.00 × 1.75 m<br>`ES300` ES 3.00 × 1.50 × 2.00 m<br>`PLS1` Umbau Plattenschacht 1.00 × 1.00 × 1.00 m<br>`PLS2` Umbau Plattenschacht 1.00 × 1.50 × 1.30 m<br>`PLS3` Umbau Plattenschacht 1.00 × 2.00 × 1.30 m | `"KES150"` | modus !== "deckel" |
 | `n` | Anzahl Schächte | Zahl (Text) | `"0"` | modus !== "deckel" && modus !== "anschluss" |

@@ -532,3 +532,10 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 
 ## V131 – Schacht auf Leitung setzen (13.11.2026)
 - Fangbereich beim Setzen eines Schachts auf eine Leitung von 10 auf 20 px erweitert (Schacht rastet auf der Linie ein, Linie wird geteilt, beide Hälften am Schacht). Liegt der Schacht nur nahe (≤ 80 px) einer Leitung und wurde nicht verbunden, erscheint ein Hinweis. Test t112. Keine Kostenwirkung.
+
+## V132 – Schacht: Deckel/Anschluss/Oberfläche mit Kostenfolge, Drehen (13.11.2026)
+- **Rechenkern (JS + Python identisch):** «nur Deckel» und «bestehender Anschluss» rechnen bei `grube = true` die Grube mit Belag/Wiese/Pflästerung, Aushub, Verfüllung (Deckelgrube 1.00 × 1.00 × 0.60 m je Deckel; Anschlussgrube 1.50 × 1.00 m, Tiefe Schachttiefe + 0.10 m, je Schacht). `roh = true` («Aushub durch Bauherr»): Aushub, Erschwernis, Verfüllung und Belag entfallen (auch beim neuen Schacht). Datensätze ohne das Feld `grube` bleiben unverändert (Golden t78 identisch, Skill 0 Abweichungen).
+- **Karte → Datensatz:** Schächte im Modus Deckel/Anschluss setzen `grube` (auch bei älteren Datensätzen = Kostenfolge neu), Oberfläche «roh» setzt `roh`; Anschluss übernimmt die Schachtzahl als Anzahl Gruben.
+- **Kostenvorschau:** jede Eingabe in den Objekt-Eigenschaften löst die Vorschau aus (bisher fehlten Modus, Deckelart, Oberfläche, Werkloch-/Sondagemasse u. a.). Test t114.
+- **Drehen:** Standard bleibt «längere Seite in Leitungsrichtung» (ohne Anschluss: nächste Leitung); Feld «Drehung (°)» und Knopf «↻ 90°».
+- **Kostenwirkung:** ja – bei bestehenden Projekten mit Schächten im Modus Deckel/Anschluss aus der Karte steigen die Kosten (Grube, Belag, Aushub). Tests t113, t114.

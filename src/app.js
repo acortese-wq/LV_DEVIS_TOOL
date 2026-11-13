@@ -157,6 +157,10 @@
       { id: "deckelRichtung", t: "sel", opts: ["hoeher", "tiefer"], show: function (c) { return c.modus === "deckel"; } },
       { id: "deckelFormat", t: "sel", opts: ["rund", "rechteckig"], show: function (c) { return c.modus === "deckel"; } },
       { id: "deckelN", t: "num", show: function (c) { return c.modus === "deckel"; } },
+      { id: "grube", t: "chk", show: function (c) { return c.modus === "deckel" || c.modus === "anschluss"; }, hint: "hint_grube" },
+      { id: "dkL", t: "num", half: 1, show: function (c) { return c.modus === "deckel" && c.grube === true; } }, { id: "dkB", t: "num", half: 1, show: function (c) { return c.modus === "deckel" && c.grube === true; } }, { id: "dkT", t: "num", half: 1, show: function (c) { return c.modus === "deckel" && c.grube === true; } },
+      { id: "anL", t: "num", half: 1, show: function (c) { return c.modus === "anschluss" && c.grube === true; } }, { id: "anB", t: "num", half: 1, show: function (c) { return c.modus === "anschluss" && c.grube === true; } }, { id: "anT", t: "num", half: 1, show: function (c) { return c.modus === "anschluss" && c.grube === true; } },
+      { id: "roh", t: "chk", hint: "hint_rohS", show: function (c) { return c.modus !== "ersatz"; } },
       { id: "einbauort", t: "sel", opts: ["HLS", "HVS", "VS50", "VS49", "SS", "ESS", "GEH", "WIES"], hint: "hint_einbauort", struct: 1, show: notDeckel, locHint: 1 },
       { id: "typ", t: "sel", opts: ["KS80U", "KS80H", "KES100", "KES150", "KES175", "ES300", "PLS1", "PLS2", "PLS3"], hint: "hint_typ", struct: 1, show: function (c) { return c.modus !== "deckel"; } },
       { id: "n", t: "num", show: notDeckel, labKey: "f_sn" }, { id: "alt", t: "sel", opts: ["guss", "beton", "flaeche"], show: function (c) { return c.modus === "ersatz"; } }
@@ -711,9 +715,10 @@
         else if (L.length === 1 && pristine("schacht", L[0]) && !used[ensureUid(L[0])]) r = L[0];
         else { r = newRec("schacht", L.length + 1); L.push(r); st.sn++; }
       }
-      used[ensureUid(r)] = 1; r.fromMap = 1; p.sid = r.uid; st.s++; r.typ = p.typ; if (p.name) r.name = p.name; if (p.fl) setSurface(r, p.fl);
+      used[ensureUid(r)] = 1; r.fromMap = 1; p.sid = r.uid; st.s++; r.typ = p.typ; if (p.name) r.name = p.name; if (p.fl) { setSurface(r, p.fl); r.roh = p.fl === "roh"; }
       var md = p.mode || "neu"; if (md === "anschluss" || md === "deckel") r.modus = md; else if (r.modus === "anschluss" || r.modus === "deckel") r.modus = "neu";
       if (md === "deckel") { r.deckelRichtung = p.dr || "hoeher"; r.deckelFormat = p.df || "rund"; }
+      if ((md === "deckel" || md === "anschluss") && r.grube === undefined) { r.grube = true; r.dkL = r.dkL || "1.00"; r.dkB = r.dkB || "1.00"; r.dkT = r.dkT || "0.60"; r.anL = r.anL || "1.50"; r.anB = r.anB || "1.00"; }   /* ältere Datensätze: Grube, Aushub und Oberfläche ab jetzt mitrechnen */
     });
     (M.areas || []).forEach(function (f) {
       var Bl = S.recs.belag, r = recByUid("belag", f.rid), A = fns.area(f.pts), P = fns.perim(f.pts);
@@ -827,7 +832,7 @@
         else if (r.anMap) { r.an80 = ""; r.an150 = ""; r.anMap = false; }
       }
       if (r.modus === "deckel") { /* nur Deckel */ }
-      else if (r.modus === "anschluss") { /* Anschlüsse siehe oben */ }
+      else if (r.modus === "anschluss") { if (k) r.n = String(k); }   /* Anschlüsse siehe oben; Anzahl Schächte = Anzahl Anschlussgruben */
       else if (k) r.n = String(k);
     });
     var WL = (S.karte.wl || []).concat(S.plan.wl || []), W = S.recs.werkloch, rw = null;

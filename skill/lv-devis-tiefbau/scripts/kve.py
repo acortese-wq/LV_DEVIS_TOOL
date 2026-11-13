@@ -915,6 +915,8 @@ def schacht(c, LV, P=None):
         cx.g("g_bauwerk")
         dk = DECKEL_KEY["tiefer" if c.get("deckelRichtung") == "tiefer" else "hoeher"]["rechteckig" if c.get("deckelFormat") == "rechteckig" else "rund"]
         cx.add(dk, n0, {"rule": "Anzahl = " + jstr(n0) + " St"})
+        if c.get("grube") is True and not c.get("roh"):
+            grube(cx, c, [{"n": n0, "l": num(c.get("dkL"), 1), "b": num(c.get("dkB"), 1), "t": num(c.get("dkT"), 0.6)}], 0, None)
         schachtOpts(cx, c)
         return {"lines": cx.lines, "warn": cx.warn, "bal": cx.bal, "geo": {}}
     if c.get("modus") == "anschluss":
@@ -927,6 +929,8 @@ def schacht(c, LV, P=None):
                 if a > 0: cx.add(anKey(kd, dn), a, {"rule": "Anschlüsse bestehender Schacht DN " + dn + " = " + jstr(a) + " St"})
         else:
             cx.add(anKey(kd, c.get("anDN")), ak, {"rule": "Anschlüsse bestehender Schacht = " + jstr(ak) + " St"})
+        if c.get("grube") is True and not c.get("roh"):
+            grube(cx, c, [{"n": max(1, num(c.get("n"), 1)), "l": num(c.get("anL"), 1.5), "b": num(c.get("anB"), 1), "t": num(c.get("anT"), 0) if num(c.get("anT"), 0) > 0 else (SA["ho"] + 0.10 if SA else 1.5)}], 0, None)
         return {"lines": cx.lines, "warn": cx.warn, "bal": cx.bal, "geo": {}}
     S = SCHACHT.get(c.get("typ")); n = max(0, num(c.get("n"), 1))
     if not S or not (n > 0):
@@ -942,7 +946,8 @@ def schacht(c, LV, P=None):
     a = num(c.get("arbeit"), 0.5); hk = HAND[c.get("hand")] if HAND.get(c.get("hand")) is not None else 0.10
     Gl = S["lo"] + 2 * a; Gb = S["bo"] + 2 * a; Gt = S["ho"] + 0.10
     Vg = Gl * Gb * Gt * n; Vb = S["lo"] * S["bo"] * S["ho"] * n
-    A = Gl * Gb * n if _belagOn(c) else 0; Schnitt = 2 * (Gl + Gb) * n if A > 0 else 0
+    roh = c.get("roh") is True
+    A = Gl * Gb * n if (not roh and _belagOn(c)) else 0; Schnitt = 2 * (Gl + Gb) * n if A > 0 else 0
     nx = (" × " + jstr(n)) if n > 1 else ""
     gr = s2(Gl) + " × " + s2(Gb) + " × " + s2(Gt) + nx + " = " + s2(Vg) + " m³"
     cx.g("g_bauwerk")
@@ -957,9 +962,10 @@ def schacht(c, LV, P=None):
     pl = num(c.get("platten"), 0)
     if pl > 0:
         cx.g("g_abbruch"); cx.add("117/228.201", pl, {"rule": "Anzahl = " + jstr(pl) + " St"})
-    aushubLines(cx, {"m1": "151/231.111", "m2": "151/231.112", "h": "151/231.211"}, Gt, Vg * (1 - hk), Vg * hk,
-                gr + " × " + s2((1 - hk) * 100) + " % = " + s2(Vg * (1 - hk)) + " m³", gr + " × " + s2(hk * 100) + " % = " + s2(Vg * hk) + " m³")
-    erschwernis(cx, c.get("ersch"), Gt, Vg * (1 - hk), Vg * hk, ERSCH_KEYS["grube_m"], ERSCH_KEYS["grube_h"])
+    if not roh:
+        aushubLines(cx, {"m1": "151/231.111", "m2": "151/231.112", "h": "151/231.211"}, Gt, Vg * (1 - hk), Vg * hk,
+                    gr + " × " + s2((1 - hk) * 100) + " % = " + s2(Vg * (1 - hk)) + " m³", gr + " × " + s2(hk * 100) + " % = " + s2(Vg * hk) + " m³")
+        erschwernis(cx, c.get("ersch"), Gt, Vg * (1 - hk), Vg * hk, ERSCH_KEYS["grube_m"], ERSCH_KEYS["grube_h"])
     bt = num(c.get("beton"), 0) * n
     if bt > 0:
         cx.g("g_deponie")
@@ -967,7 +973,7 @@ def schacht(c, LV, P=None):
         cx.add("151/252.221", bt, {"rule": r}); cx.add("151/262.121", bt, {"rule": r})
     Ve = max(0, Vg - bi["Valt"]); Vv = max(0, Vg - Vb - bi["Vneu"])
     vvr = "Grube " + s2(Vg) + " − Bauwerk " + s2(Vb) + " − Belag/Fundation " + s2(bi["Vneu"]) + " = " + s2(Vv) + " m³"
-    vrs = verfuellung(cx, Ve, Vv, c, c.get("direkt") is not False, vvr)
+    vrs = {"R": 0, "fremd": 0, "Vs": 0} if roh else verfuellung(cx, Ve, Vv, c, c.get("direkt") is not False, vvr)
     rows = abdeckung(cx, c, S, n)
     schachtOpts(cx, c)
     for i, u, v in [("b_Vg", "m³", Vg), ("b_Vbelag", "m³", bi["Valt"]), ("b_Ve", "m³", Ve), ("b_Vb", "m³", Vb), ("b_Vneu", "m³", bi["Vneu"]), ("b_Vv", "m³", Vv),

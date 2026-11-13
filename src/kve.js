@@ -663,6 +663,7 @@ var KVE = (function () {
       cx.g("g_bauwerk");
       var dk = DECKEL_KEY[c.deckelRichtung === "tiefer" ? "tiefer" : "hoeher"][c.deckelFormat === "rechteckig" ? "rechteckig" : "rund"];
       cx.add(dk, n0, { rule: "Anzahl = " + n0 + " St" });
+      if (c.grube === true && !c.roh) grube(cx, c, [{ n: n0, l: num(c.dkL, 1), b: num(c.dkB, 1), t: num(c.dkT, 0.6) }], 0);   /* Deckelgrube: Belag/Wiese/Pflästerung, Aushub, Verfüllung; entfällt bei «Aushub durch Bauherr» */
       schachtOpts(cx, c);
       return { lines: cx.lines, warn: cx.warn, bal: cx.bal, geo: {} };
     }
@@ -672,6 +673,7 @@ var KVE = (function () {
       cx.g("g_bauwerk");
       if (b80 > 0 || b150 > 0) [[b80, "80"], [b150, "150"]].forEach(function (a) { if (a[0] > 0) cx.add(anKey(kd, a[1]), a[0], { rule: "Anschlüsse bestehender Schacht DN " + a[1] + " = " + a[0] + " St" }); });
       else cx.add(anKey(kd, c.anDN), ak, { rule: "Anschlüsse bestehender Schacht = " + ak + " St" });
+      if (c.grube === true && !c.roh) grube(cx, c, [{ n: Math.max(1, num(c.n, 1)), l: num(c.anL, 1.5), b: num(c.anB, 1), t: num(c.anT, 0) > 0 ? num(c.anT, 0) : (SA ? SA.ho + 0.10 : 1.5) }], 0);   /* Anschlussgrube */
       return { lines: cx.lines, warn: cx.warn, bal: cx.bal, geo: {} };
     }
     var S = SCHACHT[c.typ], n = Math.max(0, num(c.n, 1));
@@ -688,7 +690,7 @@ var KVE = (function () {
     var a = num(c.arbeit, 0.5), hk = HAND[c.hand] != null ? HAND[c.hand] : 0.10;
     var Gl = S.lo + 2 * a, Gb = S.bo + 2 * a, Gt = S.ho + 0.10;
     var Vg = Gl * Gb * Gt * n, Vb = S.lo * S.bo * S.ho * n;
-    var A = c.belag && c.belag.mode && c.belag.mode !== "none" ? Gl * Gb * n : 0, Schnitt = A > 0 ? 2 * (Gl + Gb) * n : 0;
+    var roh = c.roh === true, A = !roh && c.belag && c.belag.mode && c.belag.mode !== "none" ? Gl * Gb * n : 0, Schnitt = A > 0 ? 2 * (Gl + Gb) * n : 0;
     var gr = s2(Gl) + " × " + s2(Gb) + " × " + s2(Gt) + (n > 1 ? " × " + n : "") + " = " + s2(Vg) + " m³";
 
     cx.g("g_bauwerk");
@@ -702,9 +704,11 @@ var KVE = (function () {
     var bi = belag(cx, c.belag, A, Schnitt, { cut: "2 × (" + s2(Gl) + " + " + s2(Gb) + ")" + (n > 1 ? " × " + n : "") + " = " + s2(Schnitt) + " m", area: s2(Gl) + " × " + s2(Gb) + (n > 1 ? " × " + n : "") + " = " + s2(A) + " m²" }, Gl);
     var pl = num(c.platten, 0);
     if (pl > 0) { cx.g("g_abbruch"); cx.add("117/228.201", pl, { rule: "Anzahl = " + pl + " St" }); }
+    if (!roh) {   /* «Aushub durch Bauherr»: Aushub und Erschwernis entfallen */
     aushubLines(cx, { m1: "151/231.111", m2: "151/231.112", h: "151/231.211" }, Gt, Vg * (1 - hk), Vg * hk,
       gr + " × " + s2((1 - hk) * 100) + " % = " + s2(Vg * (1 - hk)) + " m³", gr + " × " + s2(hk * 100) + " % = " + s2(Vg * hk) + " m³");
     erschwernis(cx, c.ersch, Gt, Vg * (1 - hk), Vg * hk, ERSCH_KEYS.grube_m, ERSCH_KEYS.grube_h);
+    }
     var bt = num(c.beton, 0) * n;
     if (bt > 0) {
       cx.g("g_deponie");
@@ -713,7 +717,7 @@ var KVE = (function () {
     }
     var Ve = Math.max(0, Vg - bi.Valt), Vv = Math.max(0, Vg - Vb - bi.Vneu);
     var vvr = "Grube " + s2(Vg) + " − Bauwerk " + s2(Vb) + " − Belag/Fundation " + s2(bi.Vneu) + " = " + s2(Vv) + " m³";
-    var vrs = verfuellung(cx, Ve, Vv, c, c.direkt !== false, vvr);
+    var vrs = roh ? { R: 0, fremd: 0, Vs: 0 } : verfuellung(cx, Ve, Vv, c, c.direkt !== false, vvr);
     var rows = abdeckung(cx, c, S, n);
     schachtOpts(cx, c);
     cx.b("b_Vg", "m³", Vg); cx.b("b_Vbelag", "m³", bi.Valt); cx.b("b_Ve", "m³", Ve);

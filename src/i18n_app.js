@@ -1109,6 +1109,8 @@
     km_pitT: ["Aushubgruben um Schächte, Werklöcher und Sondagen gestrichelt grau ein-/ausblenden (ab Zoomstufe 17)", "Afficher/masquer les fouilles autour des chambres, fosses de travail et sondages (dès le zoom 17)", "Mostra/nascondi gli scavi attorno a pozzetti, buche di lavoro e sondaggi (dallo zoom 17)", "Show/hide excavation pits around shafts, work pits and trial pits (from zoom 17)"],
     km_band: ["Grabenband", "Bande de fouille", "Banda di scavo", "Trench band"],
     km_bandT: ["Graben links und rechts der Leitung gestrichelt grau (Breite wie im Kostenvoranschlag, ab Zoomstufe 17)", "Fouille à gauche et à droite de la conduite et fouilles autour des chambres, fosses de travail et sondages, en pointillés gris (dimensions selon le devis, dès le zoom 17)", "Scavo a sinistra e destra della condotta e scavi attorno a pozzetti, buche di lavoro e sondaggi, tratteggiato grigio (misure come nel preventivo, dallo zoom 17)", "Trench left and right of the line plus excavation pits around shafts, work pits and trial pits, dashed grey (dimensions as in the cost estimate, from zoom 17)"],
+    km_rot: ["Drehung (°)", "Rotation (°)", "Rotazione (°)", "Rotation (°)"],
+    km_rot90: ["Schacht um 90° drehen", "Tourner la chambre de 90°", "Ruotare il pozzetto di 90°", "Rotate shaft by 90°"],
     km_shL: ["Länge (m)", "Longueur (m)", "Lunghezza (m)", "Length (m)"],
     km_shW: ["Breite (m)", "Largeur (m)", "Larghezza (m)", "Width (m)"],
     km_cx_copy: ["Kopieren ({n})", "Copier ({n})", "Copia ({n})", "Copy ({n})"],
