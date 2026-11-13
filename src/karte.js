@@ -665,6 +665,7 @@
       '<button type="button" class="btn ghost small" data-k="center">' + esc(tt("km_center")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="lbl" aria-pressed="true">' + esc(tt("km_lbl")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="band" aria-pressed="true" title="' + esc(tt("km_bandT")) + '">' + esc(tt("km_band")) + "</button>" +
+      '<button type="button" class="btn ghost small" data-k="pit" aria-pressed="true" title="' + esc(tt("km_pitT")) + '">' + esc(tt("km_pit")) + "</button>" +
       '<label class="kmbl" for="kmStl">' + esc(tt("km_stl")) + '</label><select id="kmStl">' + [["std", "km_stl_std"], ["zoom", "km_stl_zoom"], ["min", "km_stl_min"]].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join("") + "</select>" +
       (plan ? "" : '<button type="button" class="btn ghost small" data-k="sv">' + esc(tt("km_sv")) + '</button><button type="button" class="btn ghost small" data-k="svkey" title="' + esc(tt("km_sv_keyHint")) + '">' + esc(tt("km_sv_key")) + "</button>") +
       (plan ? "" : '<span class="kmseg" role="group" aria-label="' + esc(tt("km_prov")) + '"><button type="button" class="btn small" data-prov="swisstopo" aria-pressed="false">swisstopo</button><button type="button" class="btn small" data-prov="geoadmin" aria-pressed="false">geo.admin.ch</button></span><label class="kmbl" for="kmBase">' + esc(tt("km_src")) + '</label><select id="kmBase"></select><button type="button" class="btn ghost small" data-k="geo">' + esc(tt("km_geo")) + '</button><span id="kmAv" hidden><input type="url" id="kmAvUrl" class="kmavin" aria-label="' + esc(tt("km_avUrl")) + '" placeholder="https://…/wms"><input type="text" id="kmAvLy" class="kmavin" aria-label="' + esc(tt("km_avLy")) + '" placeholder="' + esc(tt("km_avLy")) + '"><button type="button" class="btn small" id="kmAvGo">' + esc(tt("km_avGo")) + '</button></span><a class="btn ghost small" id="kmNetz" href="https://www.swisscom.ch/rida/online/geoportal/ng/index.html?login" target="_blank" rel="noopener noreferrer">' + esc(tt("km_netz")) + "</a>") + "</div></div>" +
@@ -1498,7 +1499,7 @@
     var MODES = { ruler: "mruler", geo: "mgeo", line: "mline", pt: "mpt", sond: "msond", cal: "mcal", edit: "medit", area: "marea", wl: "mwl", geb: "mgeb", text: "mtext", arrow: "marrow", sline: "msline", rect: "mrect" };
     /* Schachtzeichen: Form nach Bauart (KES/ES Rechteck, ES mit Kreuz, KS Kreis, KS80U gestrichelt, PLS Doppelrand, Sonstige Raute), massstäblich in Leitungsrichtung (Mindestgrösse 14 px);
        Grabenband: gestrichelt grau links/rechts der Leitung, Breite wie im Kostenvoranschlag (KVE.grabenBreite), ab Zoomstufe 17 */
-    var BAND_ON = true; try { BAND_ON = localStorage.getItem("lvd-km-band") !== "0"; } catch (e) { }
+    var BAND_ON = true, PIT_ON = true; try { BAND_ON = localStorage.getItem("lvd-km-band") !== "0"; PIT_ON = localStorage.getItem("lvd-km-pit") !== "0"; } catch (e) { }
     function kU() { return plan ? (cal && cal.scale ? 1 / cal.scale : 0) : 1; }   /* Karteneinheiten je Meter */
     function mppNow() { var z = map.getZoom(); if (plan) return (cal && cal.scale ? cal.scale : 0) / Math.pow(2, z); return 156543.03 * Math.cos(map.getCenter().lat * Math.PI / 180) / Math.pow(2, z); }
     function shaftSpec(p) {
@@ -1543,7 +1544,7 @@
     function nearDir(pt) { var best = null, bd = 1e18; M.lines.forEach(function (l) { for (var i = 0; i + 1 < l.pts.length; i++) { var a = l.pts[i], b = l.pts[i + 1], u = unitV(a, b); if (!u) continue; var dx = pt[0] - a[0], dy = pt[1] - a[1], t = Math.max(0, Math.min(AD.dist(a, b), dx * u[0] + dy * u[1])), d = Math.hypot(dx - u[0] * t, dy - u[1] * t); if (d < bd) { bd = d; best = u; } } }); return best || [1, 0]; }
     function pitRect(c, u, l, w) { var k = kU(), v = [-u[1], u[0]], hl = l / 2 * k, hw = w / 2 * k, P = function (a, b) { return [c[0] + u[0] * a + v[0] * b, c[1] + u[1] * a + v[1] * b]; }; return [P(hl, hw), P(hl, -hw), P(-hl, -hw), P(-hl, hw)]; }
     function pitDraw() {
-      if (!BAND_ON || map.getZoom() < (plan ? -99 : 17) || !kU()) return;
+      if (!PIT_ON || map.getZoom() < (plan ? -99 : 17) || !kU()) return;
       var add = function (poly) { L.polygon(poly.map(AD.ll), { color: "#6f7f87", weight: 1.3, dashArray: "6 5", opacity: 0.95, fill: false, interactive: false, pit: true }).addTo(grp); };
       M.pts.forEach(function (p) { var sp = shaftSpec(p), a = 2 * PIT_AR.sch; add(pitRect(p.pt, shaftDir(p), sp.l + a, sp.w + a)); });
       M.wl.forEach(function (q) { var d = WL_D[q.wt] || WL_D.ts, a = 2 * PIT_AR.wl; add(pitRect(q.pt, nearDir(q.pt), d[0] + a, d[1] + a)); });
@@ -2653,7 +2654,7 @@
       var e = $("#kmLeg"); if (!e) return; var sf = {}; M.lines.forEach(function (l) { if (l.pts.length > 1) sf[cfgOf(l).fl || ""] = 1; });
       var ks = Object.keys(sf).filter(function (k) { return k; }), ty = {}; M.pts.forEach(function (p) { if (p.typ) ty[p.typ] = shaftSpec(p); }); var tk = Object.keys(ty); e.hidden = !(ks.length || tk.length);
       var shl = tk.map(function (id) { var sp = ty[id], sh = sp.sh === "circle" ? '<circle cx="11" cy="8" r="6"' : sp.sh === "diamond" ? '<polygon points="11,2 19,8 11,14 3,8"' : '<rect x="3" y="3" width="16" height="10"'; return '<span class="kmlg1"><svg width="22" height="16" aria-hidden="true">' + sh + ' fill="#fff" stroke="#0a4f55" stroke-width="1.6"' + (sp.dash ? ' stroke-dasharray="3 2"' : "") + "/>" + (sp.cross ? '<line x1="3" y1="3" x2="19" y2="13" stroke="#0a4f55"/><line x1="19" y1="3" x2="3" y2="13" stroke="#0a4f55"/>' : "") + "</svg> " + esc(id + (id === "OTHER" ? "" : " " + sp.l.toFixed(2) + "×" + sp.w.toFixed(2))) + "</span>"; }).join("");
-      var bnd = BAND_ON && (M.lines.length || M.pts.length || M.wl.length || M.sond.length) ? '<span class="kmlg1"><svg width="34" height="10" aria-hidden="true"><line x1="2" y1="2" x2="32" y2="2" stroke="#6f7f87" stroke-width="1.3" stroke-dasharray="6 5"/><line x1="2" y1="8" x2="32" y2="8" stroke="#6f7f87" stroke-width="1.3" stroke-dasharray="6 5"/></svg> ' + esc(tt("km_band")) + "</span>" : "";
+      var bnd = (BAND_ON && M.lines.length) || (PIT_ON && (M.pts.length || M.wl.length || M.sond.length)) ? '<span class="kmlg1"><svg width="34" height="10" aria-hidden="true"><line x1="2" y1="2" x2="32" y2="2" stroke="#6f7f87" stroke-width="1.3" stroke-dasharray="6 5"/><line x1="2" y1="8" x2="32" y2="8" stroke="#6f7f87" stroke-width="1.3" stroke-dasharray="6 5"/></svg> ' + esc(tt("km_band")) + "</span>" : "";
       e.innerHTML = shl + bnd + ks.map(function (k) { var st = LSTY[k]; return '<span class="kmlg1"><svg width="34" height="8" aria-hidden="true"><line x1="2" y1="4" x2="32" y2="4" stroke="' + st[0] + '" stroke-width="3"' + (st[1] ? ' stroke-dasharray="' + st[1] + '"' : "") + (st[1] === "1 7" ? ' stroke-linecap="round"' : "") + "/></svg> " + esc(tt("km_s_" + k)) + "</span>"; }).join("");
     }
     function sumRender() {
@@ -3038,7 +3039,7 @@
       var op0 = map.createPane("kmov"); op0.style.zIndex = 250; op0.style.pointerEvents = "none"; map.on("zoom move viewreset resize", function () { ovDraw(true); });   /* Kartenbewegung: Passpunkt-Marker bleiben (Fokus/Tastatur) */
       (function () {   /* Anzeige-Stil und Fenster-/Kreuzauswahl */
         lblWas = labelsOn(); var ss = $("#kmStl"); if (ss) { ss.value = stl; ss.addEventListener("change", function () { stl = ss.value; try { localStorage.setItem("lvd-km-style", stl); } catch (e) { } lblWas = labelsOn(); draw(); }); }
-        var zT = null; map.on("zoomend", function () { clearTimeout(zT); zT = setTimeout(function () { if (M.pts.length || (BAND_ON && (M.lines.length || M.wl.length || M.sond.length))) draw(); }, 80); });   /* Schachtzeichen (Mindestgrösse) und Grabenband zoomabhängig */
+        var zT = null; map.on("zoomend", function () { clearTimeout(zT); zT = setTimeout(function () { if (M.pts.length || (BAND_ON && M.lines.length) || (PIT_ON && (M.wl.length || M.sond.length))) draw(); }, 80); });   /* Schachtzeichen (Mindestgrösse) und Grabenband zoomabhängig */
         map.on("zoomend", function () { if (stl === "zoom") { var on = labelsOn(); if (on !== lblWas) { lblWas = on; draw(); } } });
         if (map.boxZoom) map.boxZoom.disable();   /* Umschalt+Ziehen = Auswahlrechteck (statt Zoomfenster): links→rechts Fenster, rechts→links Kreuzen */
         var mc = map.getContainer(), bxEl = null, b0 = null;
@@ -3155,6 +3156,7 @@
       else if (k === "dxfin") { var dfi = $("#kmDxfF"); if (dfi) { dfi.value = ""; dfi.click(); } }
       else if (k === "fit") fitAll();
       else if (k === "max") { var on = !dlg.classList.contains("kmmax"); dlg.classList.toggle("kmmax", on); b.setAttribute("aria-pressed", on ? "true" : "false"); try { localStorage.setItem("lvd-km-max", on ? "1" : "0"); } catch (x) { } setTimeout(function () { map.invalidateSize({ animate: false }); ovDraw(); }, 50); }
+      else if (k === "pit") { PIT_ON = !PIT_ON; try { localStorage.setItem("lvd-km-pit", PIT_ON ? "1" : "0"); } catch (x) { } b.setAttribute("aria-pressed", PIT_ON ? "true" : "false"); draw(); legend(); }
       else if (k === "band") { BAND_ON = !BAND_ON; try { localStorage.setItem("lvd-km-band", BAND_ON ? "1" : "0"); } catch (x) { } b.setAttribute("aria-pressed", BAND_ON ? "true" : "false"); draw(); legend(); }
       else if (k === "lbl") { showLbl = !showLbl; b.setAttribute("aria-pressed", showLbl ? "true" : "false"); draw(); }
       else if (k === "save") { doSave(); }

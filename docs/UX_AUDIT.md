@@ -526,3 +526,6 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 ## V129 – Aushubgruben um Schächte, Werklöcher, Sondagen (13.11.2026)
 - Gestrichelt grau (wie Grabenband, gleicher Schalter, ab Zoom 17, Karte/Plan/Legende): Schacht = Bauwerksmass + 2 × 0.50 m Arbeitsraum, Werkloch = Datensatzmass (TS/BO 1.50×1.00, SG 2.00×1.20, ZS 1.00×0.80) + 2 × 0.30 m, Sondage 1.00 × 1.00 m.
 - Nur Darstellung, keine Kostenwirkung; Test t111.
+
+## V130 – Schalter «Aushublinien» (13.11.2026)
+- Eigener Schalter in der Kartenleiste (`lvd-km-pit`), getrennt vom «Grabenband» (`lvd-km-band`); Legende folgt beiden. Nur Darstellung, keine Kostenwirkung; Test t111.
