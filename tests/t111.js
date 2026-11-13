@@ -29,6 +29,8 @@ const K = require('./lib/k.js'), { chromium, ok, mk } = K;
   await zoomTo(15); ok((await pg.evaluate(() => window.__KM.bandCount())) === 0, 'Grabenband bei Zoomstufe 15 nicht gezeichnet');
   await zoomTo(18); const bc = await pg.evaluate(() => window.__KM.bandCount()); ok(bc === 2 * nl, 'Grabenband ab Zoomstufe 17: je Linie links und rechts (' + bc + ' = 2 × ' + nl + ')');
   await pg.click('[data-k=band]'); await pg.waitForTimeout(300); ok((await pg.evaluate(() => window.__KM.bandCount())) === 0, 'Schalter «Grabenband» blendet das Band aus'); await pg.click('[data-k=band]'); await pg.waitForTimeout(300);
+  await zoomTo(18); const nPts = await pg.evaluate(() => { const M = window.__KM.M(); return M.pts.length + M.wl.length + M.sond.length; }); const pc = await pg.evaluate(() => window.__KM.pitCount()); ok(pc === nPts && pc > 0, 'Aushubgrube grau um jeden Schacht, jedes Werkloch und jede Sondage (' + pc + ' = ' + nPts + ')');
+  await zoomTo(15); ok((await pg.evaluate(() => window.__KM.pitCount())) === 0, 'Aushubgruben bei Zoomstufe 15 nicht gezeichnet'); await zoomTo(18);
   const leg = await pg.evaluate(() => (document.querySelector('#kmLeg') || {}).textContent || ''); ok(/KES150|OTHER|Grabenband/.test(leg), 'Legende nennt Schachtzeichen und Grabenband (' + leg.replace(/\s+/g, ' ').slice(0, 60) + ')');
   ok(pg.errs.length === 0, 'keine JS-Fehler ' + pg.errs.join('|')); await b.close();
 })();

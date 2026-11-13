@@ -522,3 +522,7 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 - Karte/Plan: jeder Schachttyp hat ein eigenes Zeichen in echter Grösse (KES 1.50 × 1.00 m = Rechteck in Leitungsrichtung, KES100 Quadrat, ES Rechteck mit Diagonalkreuz, KS Kreis, KS…U gestrichelt, PLS Rechteck mit Doppelrand, Sonstige Raute mit Länge/Breite). Mindestgrösse 14 px beim Herauszoomen; Nummer als kleines Schild am Rand.
 - Grabenband: links/rechts jeder Leitung gestrichelt grau, Breite wie im Kostenvoranschlag (`grabenBreite`), ab Zoomstufe 17, Schalter «Grabenband», Legende ergänzt.
 - Nur Darstellung: keine Kostenwirkung, Rechenkern unverändert, Test t111 (Gesamtlauf ohne Fehler).
+
+## V129 – Aushubgruben um Schächte, Werklöcher, Sondagen (13.11.2026)
+- Gestrichelt grau (wie Grabenband, gleicher Schalter, ab Zoom 17, Karte/Plan/Legende): Schacht = Bauwerksmass + 2 × 0.50 m Arbeitsraum, Werkloch = Datensatzmass (TS/BO 1.50×1.00, SG 2.00×1.20, ZS 1.00×0.80) + 2 × 0.30 m, Sondage 1.00 × 1.00 m.
+- Nur Darstellung, keine Kostenwirkung; Test t111.
