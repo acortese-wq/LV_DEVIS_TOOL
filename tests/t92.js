@@ -33,7 +33,7 @@ const q = (o, re) => o.summary.filter(l => re.test(l.key)).reduce((a, l) => a + 
   await pg.evaluate(() => window.__LVD.loadDemo()); await pg.waitForTimeout(1000);
   const kg = await pg.textContent('#kGenau'), n0 = await pg.evaluate(() => KVE.calc(window.__LVD.S(), LV).sum);
   const f = v => v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, "'");
-  ok(kg.includes('Genauigkeit ±10 %') && kg.includes(f(Math.round(n0.netto * 90) / 100)) && kg.includes(f(Math.round(n0.netto * 110) / 100)) && kg.includes('Preisstand LV 10.07.2026, ohne Teuerung'), 'Ergebnis zeigt «' + kg.trim() + '»');
+  const gv = (kg.match(/CHF ([\d']+\.\d\d) bis ([\d']+\.\d\d)/) || []).slice(1).map(v => parseFloat(v.replace(/'/g, ''))); ok(kg.includes('Genauigkeit ±10 %') && gv.length === 2 && Math.abs(gv[0] - n0.netto * 0.9) < 0.011 && Math.abs(gv[1] - n0.netto * 1.1) < 0.011 && kg.includes('Preisstand LV 10.07.2026, ohne Teuerung'), 'Ergebnis zeigt «' + kg.trim() + '»');
   ok(!(await pg.locator('.cost .kres').count()), 'ohne Reserve keine Reserve-Zeile');
   await pg.evaluate(() => { const S = JSON.parse(localStorage.getItem('lv-devis-tiefbau-v2')); S.reserve = '10'; S.recs.graben[0].wand = 'b21'; S.recs.graben[0].gesp = false; S.tab = 'graben'; S.idx.graben = 0; localStorage.setItem('lv-devis-tiefbau-v2', JSON.stringify(S)); }); await pg.reload(); await pg.waitForTimeout(1200);
   const n1 = await pg.evaluate(() => KVE.calc(window.__LVD.S(), LV).sum), ct = await pg.evaluate(() => document.querySelector('#kGenau').previousElementSibling.textContent);
