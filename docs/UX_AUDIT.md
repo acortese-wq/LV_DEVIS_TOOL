@@ -545,3 +545,6 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 - **Bestand:** leere Felder bestehender Projekte werden beim ersten Laden einmalig gefüllt (Flag `defV`); ausgefüllte Werte, auch 0, und bewusst geleerte Felder bleiben.
 - **Kostenwirkung:** ja – jedes neue/bestehende Projekt mit leeren Feldern steigt um 4 % der Zwischensumme (+ Rabatt-/MWST-Folgen); Kernel-Golden (64 Projekte) identisch, da dort die Felder fehlen; Test t78 prüft die Beispielprojekt-Oberfläche ohne diese Vorgaben, Test t115 die Vorgaben.
 - **Sondage:** Aushubgrube = eingegebene Länge × Breite + 2 × 0.30 m (wie Werkloch); Test t111.
+
+## V134 – Schalter «Grabenband»/«Aushublinien» im Ribbon (13.11.2026)
+- Ribbon-Register «Ansicht», neue Gruppe «Darstellung»: Beschriftung, Grabenband, Aushublinien (Spiegel der Kartenleisten-Schalter). Reine Darstellung, keine Kostenwirkung. Test t116; t83 nutzt `noBE`.

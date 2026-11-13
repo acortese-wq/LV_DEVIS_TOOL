@@ -619,6 +619,7 @@
     rb_pAnn: ["Beschriftung", "Annotation", "Annotazione", "Annotation"],
     rb_pMeas: ["Messen", "Mesurer", "Misura", "Measure"],
     rb_pImp: ["Import", "Import", "Importa", "Import"],
+    rb_pShow: ["Darstellung", "Affichage", "Visualizzazione", "Display"],
     rb_pLay: ["Ebenen", "Calques", "Livelli", "Layers"],
     rb_pEval: ["Auswertung", "Analyse", "Analisi", "Evaluation"],
     rb_pProf: ["Profil", "Profil", "Profilo", "Profile"],

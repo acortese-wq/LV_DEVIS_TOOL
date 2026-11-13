@@ -10,7 +10,7 @@ const SIZES = [[1920, 1080], [1440, 900], [1280, 800], [1024, 768], [768, 1024],
   for (const theme of ['dark', 'light']) {
     const pg = await mk(b, 1440, 900);
     await pg.route('**/*', r => /wmts|wms\.geo|api3|SearchServer/.test(r.request().url()) ? r.fulfill({ status: 204 }) : r.fallback());
-    await pg.evaluate(t => { window.__LVD.loadDemo(); localStorage.setItem('lvd-layout', 'a'); localStorage.setItem('lvd-theme', t); }, theme); await pg.waitForTimeout(1200);
+    await pg.evaluate(t => { window.__LVD.loadDemo(); localStorage.setItem('lvd-layout', 'a'); localStorage.setItem('lvd-theme', t); }, theme); await pg.waitForTimeout(1200); await K.noBE(pg);
     await pg.reload(); for (let t = 0; t < 60 && !(await pg.locator('dialog.kmlya[open]').count()); t++) await pg.waitForTimeout(250); await pg.waitForTimeout(1500);
     await pg.addScriptTag({ path: AXE });
     for (const [w, h] of SIZES) {
