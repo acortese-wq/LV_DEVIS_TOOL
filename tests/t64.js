@@ -3,7 +3,7 @@ const { chromium, ok, mk, getS, AXE, tmp } = require('./lib/k.js');
 const { execFileSync } = require('child_process'), fs = require('fs');
 (async () => {
   const b = await chromium.launch(); const pg = await mk(b, 1400, 1000);
-  await pg.evaluate(() => { window.print = () => { window.__printed = (window.__printed || 0) + 1; }; window.__LVD.loadDemo(); }); await pg.waitForTimeout(1500);
+  await pg.evaluate(() => { window.print = () => { window.__printed = (window.__printed || 0) + 1; }; window.__LVD.loadDemo(); }); await pg.waitForTimeout(1500); await require('./lib/k.js').noBE(pg);
   const out0 = await pg.evaluate(() => ({ n: window.__OUT.nOffen, zw: window.__OUT.sum.zwischen, netto: window.__OUT.sum.netto }));
   ok(out0.n > 0, 'Beispielprojekt hat offene Positionen (' + out0.n + ')');
   ok(new RegExp('Nicht im Total: ' + out0.n + ' offene').test(await pg.textContent('#result .kostblk')), 'Kostentabelle nennt die offenen Positionen direkt unter dem Total');

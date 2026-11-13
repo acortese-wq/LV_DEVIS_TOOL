@@ -72,4 +72,6 @@ async function midRight(pg) {
   await pg.evaluate(() => { if (!window.__KMWIN) return; const s = window.__KMWIN.state(), g = document.querySelector('.kmgrid').getBoundingClientRect(); s.mid = Object.assign(s.mid || {}, { fl: true, x: Math.max(0, g.width - 320), y: 8, w: 300 }); window.__KMWIN.layout(); });
   await pg.waitForTimeout(200);
 }
-module.exports = { chromium, fs, ok, mk, getS, setS, FULL, dataUrl, fails, png, AXE, V, FX, tmp, ROOT, INDEX, openMid, midRight };
+/* Vorgaben 1 % Baustelleneinrichtung / 3 % Regie ausklammern, wenn ein Test exakte Summen der Referenz prüft */
+const noBE = async pg => { await pg.evaluate(() => { const S = window.__LVD.S(); S.be = { pct: '', regie: '' }; S.defV = 1; try { localStorage.setItem('lv-devis-tiefbau-v2', JSON.stringify(S)); } catch (e) { } window.__LVD.renderResult(); }); await pg.waitForTimeout(300); };
+module.exports = { noBE, chromium, fs, ok, mk, getS, setS, FULL, dataUrl, fails, png, AXE, V, FX, tmp, ROOT, INDEX, openMid, midRight };

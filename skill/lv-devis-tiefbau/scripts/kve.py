@@ -1311,6 +1311,10 @@ def baustelle(P, LV, baseSum):
         betrag = r2(baseSum * pct / 100); p = LV["113/111.002"]
         cx.lines.append({"key": "113/111.002", "unit": p["u"], "ep": betrag, "qty": 1, "total": betrag, "grp": "g_be", "text": lvT("113/111.002"), "ctx": lvC("113/111.002"),
                          "rule": jstr(pct) + " % × " + s2(baseSum) + " = " + s2(betrag), "flag": ""})
+    rg = num(B.get("regie"), 0)
+    if rg > 0:
+        rb = r2(baseSum * rg / 100)
+        cx.lines.append({"key": "Pauschal", "unit": "gl", "ep": rb, "qty": 1, "total": rb, "grp": "g_be", "text": "Regiearbeiten (" + jstr(rg) + " %)", "ctx": "", "rule": jstr(rg) + " % × " + s2(baseSum) + " = " + s2(rb), "flag": ""})
     return {"lines": cx.lines, "warn": cx.warn, "bal": []}
 
 

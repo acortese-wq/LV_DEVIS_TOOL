@@ -980,6 +980,11 @@ var KVE = (function () {
       cx.lines.push({ key: "113/111.002", unit: p.u, ep: betrag, qty: 1, total: betrag, grp: "g_be", text: lvT("113/111.002"), ctx: lvC("113/111.002"),
         rule: pct + " % × " + s2(baseSum) + " = " + s2(betrag), flag: "" });
     }
+    var rg = num(B.regie, 0);   /* Regiearbeiten (Reserve für Stundenlohnarbeiten) in % derselben Zwischensumme */
+    if (rg > 0) {
+      var rb = r2(baseSum * rg / 100);
+      cx.lines.push({ key: "Pauschal", unit: "gl", ep: rb, qty: 1, total: rb, grp: "g_be", text: "Regiearbeiten (" + rg + " %)", ctx: "", rule: rg + " % × " + s2(baseSum) + " = " + s2(rb), flag: "" });
+    }
     return { lines: cx.lines, warn: cx.warn, bal: [] };
   }
 

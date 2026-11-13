@@ -539,3 +539,9 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 - **Kostenvorschau:** jede Eingabe in den Objekt-Eigenschaften löst die Vorschau aus (bisher fehlten Modus, Deckelart, Oberfläche, Werkloch-/Sondagemasse u. a.). Test t114.
 - **Drehen:** Standard bleibt «längere Seite in Leitungsrichtung» (ohne Anschluss: nächste Leitung); Feld «Drehung (°)» und Knopf «↻ 90°».
 - **Kostenwirkung:** ja – bei bestehenden Projekten mit Schächten im Modus Deckel/Anschluss aus der Karte steigen die Kosten (Grube, Belag, Aushub). Tests t113, t114.
+
+## V133 – Vorgaben Baustelle/Regie/Honorar, Sondagegrube (13.11.2026)
+- **Vorgaben (neue Projekte):** Baustelleneinrichtung 1 % (NPK 113/111.002, % der Zwischensumme), **Regiearbeiten 3 %** (neue Zeile im Kapitel Baustelleneinrichtung, gleiche Basis, Feld «Regiearbeiten» im Reiter Allgemein; Rechenkern JS + Python), Ingenieurhonorar Stundenansatz 145 CHF/h und Nebenkosten 3 %.
+- **Bestand:** leere Felder bestehender Projekte werden beim ersten Laden einmalig gefüllt (Flag `defV`); ausgefüllte Werte, auch 0, und bewusst geleerte Felder bleiben.
+- **Kostenwirkung:** ja – jedes neue/bestehende Projekt mit leeren Feldern steigt um 4 % der Zwischensumme (+ Rabatt-/MWST-Folgen); Kernel-Golden (64 Projekte) identisch, da dort die Felder fehlen; Test t78 prüft die Beispielprojekt-Oberfläche ohne diese Vorgaben, Test t115 die Vorgaben.
+- **Sondage:** Aushubgrube = eingegebene Länge × Breite + 2 × 0.30 m (wie Werkloch); Test t111.

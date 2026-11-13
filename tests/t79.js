@@ -7,7 +7,7 @@ const toA = async pg => { await pg.evaluate(() => localStorage.setItem('lvd-layo
 (async () => {
   const b = await chromium.launch(); const pg = await mk(b, 1440, 900);
   await pg.route('**/*', r => /wmts|wms\.geo|api3|SearchServer/.test(r.request().url()) ? r.fulfill({ status: 204 }) : r.fallback());
-  await pg.evaluate(() => window.__LVD.loadDemo()); await pg.waitForTimeout(800); await toA(pg);
+  await pg.evaluate(() => window.__LVD.loadDemo()); await pg.waitForTimeout(800); await require('./lib/k.js').noBE(pg); await toA(pg);
   ok(await pg.evaluate(() => document.querySelector('dialog.kmlya').classList.contains('nc-dark')), 'Arbeitsplatz startet im dunklen Engineering-Thema');
   const bg = await pg.evaluate(() => getComputedStyle(document.querySelector('dialog.kmlya')).backgroundColor);
   ok(bg === 'rgb(13, 26, 35)', 'Thema aus Tokens (Hintergrund ' + bg + ')');

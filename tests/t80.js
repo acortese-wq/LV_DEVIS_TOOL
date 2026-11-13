@@ -7,7 +7,7 @@ const num = s => +String(s).replace(/[^\d.\-]/g, '');
 (async () => {
   const b = await chromium.launch(); const pg = await mk(b, 1440, 900);
   await pg.route('**/*', r => /wmts|wms\.geo|api3|SearchServer/.test(r.request().url()) ? r.fulfill({ status: 204 }) : r.fallback());
-  await pg.evaluate(() => window.__LVD.loadDemo()); await pg.waitForTimeout(800); await toA(pg);
+  await pg.evaluate(() => window.__LVD.loadDemo()); await pg.waitForTimeout(800); await require('./lib/k.js').noBE(pg); await toA(pg);
   const sum0 = await pg.evaluate(() => JSON.stringify(KVE.calc(window.__LVD.S(), LV).sum));
   await pg.click('#lyT_pos'); await pg.waitForTimeout(300);
   const rowsN = () => pg.locator('#lyPosB tr').count();

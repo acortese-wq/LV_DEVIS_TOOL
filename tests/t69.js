@@ -3,6 +3,7 @@ const { chromium, ok, mk, getS, tmp } = require('./lib/k.js');
 const { execFileSync } = require('child_process'), fs = require('fs');
 (async () => {
   const b = await chromium.launch(); const pg = await mk(b, 1400, 1000);
+  await require('./lib/k.js').noBE(pg);
   // Kern: Zahlen
   const n = await pg.evaluate(() => ["1'200", "1 200", "1’200.5", "12,5", "1'200,5"].map(v => KVE.num(v)));
   ok(JSON.stringify(n) === JSON.stringify([1200, 1200, 1200.5, 12.5, 1200.5]), 'KVE.num: 1\'200 → 1200, 1 200 → 1200, 1’200.5, 12,5, 1\'200,5: ' + JSON.stringify(n));

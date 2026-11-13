@@ -9,7 +9,7 @@ const fs = require('fs'), path = require('path'), { kernel, result, H } = requir
   const tot = G.cases.reduce((a, c) => a + c.out.summary.length, 0); ok(tot > 1000, tot + ' Positionen verglichen');
   const b = await K.chromium.launch(), pg = await K.mk(b, 1280, 900);
   await pg.evaluate(() => window.__LVD.loadDemo()); await pg.waitForTimeout(1200);
-  const ui = await pg.evaluate(() => JSON.parse(JSON.stringify(window.__OUT.sum))), g0 = G.cases[0].out.sum;
+  const ui = await pg.evaluate(() => { const c = JSON.parse(JSON.stringify(window.__LVD.S())); c.be = { pct: '', regie: '' }; return JSON.parse(JSON.stringify(KVE.calc(c, LV).sum)); }), g0 = G.cases[0].out.sum;
   ok(JSON.stringify(ui) === JSON.stringify(g0), 'Oberfläche (Beispielprojekt) = Referenz: netto ' + ui.netto + ' / brutto ' + ui.brutto);
   ok(pg.errs.length === 0, 'keine JS-Fehler ' + pg.errs.join('|')); await b.close();
 })();

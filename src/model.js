@@ -46,7 +46,7 @@ var LVM = (function () {
       case "geb": r = { name: nm("Gebäudeeinführung"), n: "", cm: "", abd: "hauff" }; break;
       case "belag": r = { name: nm("Belagsarbeiten"), indiv: false, bk: "gehweg", d: "0.08", B: "", L: "", wi: "B" }; break;
       case "allg": r = { name: nm("Allgemein"), km: "", ak: "" }; break;
-      case "hon": r = { name: nm("Ingenieurhonorar"), src: "lv", B: "", n: "1.0", r: "1.0", h: "", nk: "", gl: false, ph: PHDEF.map(function (p) { return { k: p[0], on: p[3] }; }) }; break;
+      case "hon": r = { name: nm("Ingenieurhonorar"), src: "lv", B: "", n: "1.0", r: "1.0", h: "145", nk: "3", gl: false, ph: PHDEF.map(function (p) { return { k: p[0], on: p[3] }; }) }; break;
     }
     r.x = {}; r.free = [];
     return r;
@@ -55,7 +55,7 @@ var LVM = (function () {
     var recs = {}, idx = {};
     TABS.forEach(function (t) { recs[t] = [newRec(t, 1)]; idx[t] = 0; });
     return { v: 2, lang: "de", tab: "graben", kopf: { projekt: "", ort: "", bearb: "", datum: datum || "", rolle: "anv", devisNr: "", lieferant: "", vertrag: "", termin: "", belagLief: false, sap: "", bem: "" },
-      recs: recs, idx: idx, sond: { m3: "", einfHand: false }, wasser: { h: "", sumpf: "" }, be: { pct: "" }, dichte: "2.4", mwst: "8.1", reserve: "0", genau: "10",
+      recs: recs, idx: idx, sond: { m3: "", einfHand: false }, wasser: { h: "", sumpf: "" }, be: { pct: "1", regie: "3" }, dichte: "2.4", mwst: "8.1", reserve: "0", genau: "10",
       par: { deckG: "0.03", deckS: "0.035", deckK: "0.04", gehMin: "0.06", gehMax: "0.12", strMin: "0.09", strMax: "0.20", kanMin: "0.12", kanMax: "0.30" },
       D: { wl: { ts: [1.50, 1.00, 1.00], bo: [1.50, 1.00, 1.00], sg: [2.00, 1.20, 1.20], zs: [1.00, 0.80, 1.00] }, fund: { "CAB 1-3 L": [1.00, 0.60, 0.80], "C 50": [1.20, 0.70, 0.80] } },
       ui: { closed: {}, xo: {}, printDraw: true } };

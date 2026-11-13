@@ -340,7 +340,8 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 | `(global) wasser.h` | Wasserhaltung (Pumpenstunden) | Zahl (Text) | `""` |  |
 | `(global) wasser.sumpf` | Pumpensümpfe (Anzahl) | Zahl (Text) | `""` |  |
 | **Baustelleneinrichtung (projektweit)** | | | | |
-| `(global) be.pct` | Baustelleneinrichtung (% der Zwischensumme)<br><i>Wird auf die Zwischensumme ohne Baustelleneinrichtung berechnet. Weitere Positionen (Übergänge, Lichtsignal, Verkehrsdienst, Leitbaken, Baustellenleuchten) über die freie Positionssuche hinzufügen – sie erscheinen automatisch hier.</i> | Zahl (Text) | `""` |  |
+| `(global) be.pct` | Baustelleneinrichtung (% der Zwischensumme)<br><i>Wird auf die Zwischensumme ohne Baustelleneinrichtung berechnet. Weitere Positionen (Übergänge, Lichtsignal, Verkehrsdienst, Leitbaken, Baustellenleuchten) über die freie Positionssuche hinzufügen – sie erscheinen automatisch hier.</i> | Zahl (Text) | `"1"` |  |
+| `(global) be.regie` | Regiearbeiten (% der Zwischensumme)<br><i>Reserve für Stundenlohnarbeiten (NPK 111): Prozentsatz der Zwischensumme ohne Baustelle, erscheint als eigene Zeile im Kapitel Baustelleneinrichtung.</i> | Zahl (Text) | `"3"` |  |
 | **Pauschalen (dieser Datensatz)** | | | | |
 | `name` | Bezeichnung | text | `"Allgemein 1"` |  |
 | `km` | Kleinmaterial [CHF] | Zahl (Text) | `""` |  |
@@ -359,5 +360,5 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 | **Teilphasen SIA 103 / Leistungsanteil q (SIA 103-K Art. 7.7, fest)** | | | | |
 | `gl` | Gesamtleitung inkl. Oberbauleitung (+10 % von q)<br><i>SIA 103-K Art. 7.7.6: in der Regel nach Aufwand, zirka 10 % der Leistungsanteile q.</i> | true/false | `false` |  |
 | **Auftragsbezogen zu vereinbaren** | | | | |
-| `h` | h Stundenansatz [CHF/h] | Zahl (Text) | `""` |  |
-| `nk` | Nebenkosten [% Honorar] | Zahl (Text) | `""` |  |
+| `h` | h Stundenansatz [CHF/h] | Zahl (Text) | `"145"` |  |
+| `nk` | Nebenkosten [% Honorar] | Zahl (Text) | `"3"` |  |

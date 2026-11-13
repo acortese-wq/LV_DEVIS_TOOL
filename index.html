@@ -2552,7 +2552,7 @@ Object.assign(T.de, {
  h_vorarbeiten: "Vorarbeiten (Sondierung, Wasserhaltung)", h_be: "Baustelleneinrichtung",
  g_vorarbeiten: "Vorarbeiten", g_be: "Baustelleneinrichtung", g_ersch: "Erschwerter Aushub", g_fremd: "Fremdleitungen", g_boesch: "Böschungsschutz", s_fremd: "Fremdleitungen und Böschung",
  f_sond_m3: "Sondieraushub (m³)", f_sond_einfHand: "Wiedereinfüllen von Hand", f_wasser_h: "Wasserhaltung (Pumpenstunden)", f_wasser_sumpf: "Pumpensümpfe (Anzahl)",
- f_be_pct: "Baustelleneinrichtung (% der Zwischensumme)", f_be_fussN: "Fussgängersteg (Anzahl)", f_be_fahrzN: "Fahrzeugsteg bis 3.5 t (Anzahl)",
+ f_be_pct: "Baustelleneinrichtung (% der Zwischensumme)", f_be_regie: "Regiearbeiten (% der Zwischensumme)", hint_regie: "Reserve für Stundenlohnarbeiten (NPK 111): Prozentsatz der Zwischensumme ohne Baustelle, erscheint als eigene Zeile im Kapitel Baustelleneinrichtung.", f_be_fussN: "Fussgängersteg (Anzahl)", f_be_fahrzN: "Fahrzeugsteg bis 3.5 t (Anzahl)",
  f_be_lichtsignalN: "Lichtsignalanlage (Anzahl)", f_be_lichtsignalMt: "davon Vorhalten (Anlagen × Monate)",
  f_be_verkH: "Verkehrsdienst von Hand (Stunden)", f_be_leitbakenN: "Leitbaken (Anzahl)", f_be_leitbakenMt: "davon Vorhalten (Baken × Monate)",
  f_be_leuchtenN: "Baustellenleuchten (Anzahl)", f_be_leuchtenMt: "davon Vorhalten (Leuchten × Monate)",
@@ -2606,7 +2606,7 @@ Object.assign(T.fr, {
  h_vorarbeiten: "Travaux préparatoires (sondages, épuisement d'eau)", h_be: "Installation de chantier",
  g_vorarbeiten: "Travaux préparatoires", g_be: "Installation de chantier", g_ersch: "Fouille difficile", g_fremd: "Conduites tierces", g_boesch: "Protection des talus", s_fremd: "Conduites tierces et talus",
  f_sond_m3: "Fouille de sondage (m³)", f_sond_einfHand: "Remblayage à la main", f_wasser_h: "Épuisement d'eau (heures de pompe)", f_wasser_sumpf: "Puisards (nombre)",
- f_be_pct: "Installation de chantier (% du sous-total)", f_be_fussN: "Passerelle piétons (nombre)", f_be_fahrzN: "Passerelle véhicules jusqu'à 3.5 t (nombre)",
+ f_be_pct: "Installation de chantier (% du sous-total)", f_be_regie: "Travaux en régie (% du sous-total)", hint_regie: "Réserve pour travaux en régie (CAN 111) : pourcentage du sous-total hors chantier, ligne séparée dans le chapitre installation de chantier.", f_be_fussN: "Passerelle piétons (nombre)", f_be_fahrzN: "Passerelle véhicules jusqu'à 3.5 t (nombre)",
  f_be_lichtsignalN: "Installation de signaux lumineux (nombre)", f_be_lichtsignalMt: "dont maintien (installations × mois)",
  f_be_verkH: "Service de circulation à la main (heures)", f_be_leitbakenN: "Balises (nombre)", f_be_leitbakenMt: "dont maintien (balises × mois)",
  f_be_leuchtenN: "Lampes de chantier (nombre)", f_be_leuchtenMt: "dont maintien (lampes × mois)",
@@ -2660,7 +2660,7 @@ Object.assign(T.it, {
  h_vorarbeiten: "Lavori preliminari (sondaggi, aggottamento acqua)", h_be: "Allestimento cantiere",
  g_vorarbeiten: "Lavori preliminari", g_be: "Allestimento cantiere", g_ersch: "Scavo difficoltoso", g_fremd: "Condotte di terzi", g_boesch: "Protezione scarpate", s_fremd: "Condotte di terzi e scarpate",
  f_sond_m3: "Scavo di sondaggio (m³)", f_sond_einfHand: "Riempimento a mano", f_wasser_h: "Aggottamento acqua (ore pompa)", f_wasser_sumpf: "Pozzetti di pompaggio (numero)",
- f_be_pct: "Allestimento cantiere (% della somma parziale)", f_be_fussN: "Passerella pedonale (numero)", f_be_fahrzN: "Passerella veicoli fino a 3.5 t (numero)",
+ f_be_pct: "Allestimento cantiere (% della somma parziale)", f_be_regie: "Lavori in economia (% della somma parziale)", hint_regie: "Riserva per lavori in economia (CAN 111): percentuale della somma parziale senza cantiere, riga separata nel capitolo allestimento cantiere.", f_be_fussN: "Passerella pedonale (numero)", f_be_fahrzN: "Passerella veicoli fino a 3.5 t (numero)",
  f_be_lichtsignalN: "Impianto semaforico (numero)", f_be_lichtsignalMt: "di cui mantenimento (impianti × mesi)",
  f_be_verkH: "Servizio del traffico a mano (ore)", f_be_leitbakenN: "Delineatori (numero)", f_be_leitbakenMt: "di cui mantenimento (delineatori × mesi)",
  f_be_leuchtenN: "Lampade di cantiere (numero)", f_be_leuchtenMt: "di cui mantenimento (lampade × mesi)",
@@ -2714,7 +2714,7 @@ Object.assign(T.en, {
  h_vorarbeiten: "Preliminary works (test pits, dewatering)", h_be: "Site setup",
  g_vorarbeiten: "Preliminary works", g_be: "Site setup", g_ersch: "Difficult excavation", g_fremd: "Third-party lines", g_boesch: "Slope protection", s_fremd: "Third-party lines and slope",
  f_sond_m3: "Test-pit excavation (m³)", f_sond_einfHand: "Backfill by hand", f_wasser_h: "Dewatering (pump hours)", f_wasser_sumpf: "Sumps (number)",
- f_be_pct: "Site setup (% of subtotal)", f_be_fussN: "Pedestrian bridge (count)", f_be_fahrzN: "Vehicle bridge up to 3.5 t (count)",
+ f_be_pct: "Site setup (% of subtotal)", f_be_regie: "Daywork (% of subtotal)", hint_regie: "Reserve for daywork (NPK 111): percentage of the subtotal without site setup, shown as its own line in the site setup chapter.", f_be_fussN: "Pedestrian bridge (count)", f_be_fahrzN: "Vehicle bridge up to 3.5 t (count)",
  f_be_lichtsignalN: "Traffic light system (count)", f_be_lichtsignalMt: "of which standing time (systems × months)",
  f_be_verkH: "Manual traffic control (hours)", f_be_leitbakenN: "Traffic cones (count)", f_be_leitbakenMt: "of which standing time (cones × months)",
  f_be_leuchtenN: "Site lights (count)", f_be_leuchtenMt: "of which standing time (lights × months)",
@@ -5709,6 +5709,11 @@ var KVE = (function () {
       cx.lines.push({ key: "113/111.002", unit: p.u, ep: betrag, qty: 1, total: betrag, grp: "g_be", text: lvT("113/111.002"), ctx: lvC("113/111.002"),
         rule: pct + " % × " + s2(baseSum) + " = " + s2(betrag), flag: "" });
     }
+    var rg = num(B.regie, 0);   /* Regiearbeiten (Reserve für Stundenlohnarbeiten) in % derselben Zwischensumme */
+    if (rg > 0) {
+      var rb = r2(baseSum * rg / 100);
+      cx.lines.push({ key: "Pauschal", unit: "gl", ep: rb, qty: 1, total: rb, grp: "g_be", text: "Regiearbeiten (" + rg + " %)", ctx: "", rule: rg + " % × " + s2(baseSum) + " = " + s2(rb), flag: "" });
+    }
     return { lines: cx.lines, warn: cx.warn, bal: [] };
   }
 
@@ -5885,7 +5890,7 @@ var LVM = (function () {
       case "geb": r = { name: nm("Gebäudeeinführung"), n: "", cm: "", abd: "hauff" }; break;
       case "belag": r = { name: nm("Belagsarbeiten"), indiv: false, bk: "gehweg", d: "0.08", B: "", L: "", wi: "B" }; break;
       case "allg": r = { name: nm("Allgemein"), km: "", ak: "" }; break;
-      case "hon": r = { name: nm("Ingenieurhonorar"), src: "lv", B: "", n: "1.0", r: "1.0", h: "", nk: "", gl: false, ph: PHDEF.map(function (p) { return { k: p[0], on: p[3] }; }) }; break;
+      case "hon": r = { name: nm("Ingenieurhonorar"), src: "lv", B: "", n: "1.0", r: "1.0", h: "145", nk: "3", gl: false, ph: PHDEF.map(function (p) { return { k: p[0], on: p[3] }; }) }; break;
     }
     r.x = {}; r.free = [];
     return r;
@@ -5894,7 +5899,7 @@ var LVM = (function () {
     var recs = {}, idx = {};
     TABS.forEach(function (t) { recs[t] = [newRec(t, 1)]; idx[t] = 0; });
     return { v: 2, lang: "de", tab: "graben", kopf: { projekt: "", ort: "", bearb: "", datum: datum || "", rolle: "anv", devisNr: "", lieferant: "", vertrag: "", termin: "", belagLief: false, sap: "", bem: "" },
-      recs: recs, idx: idx, sond: { m3: "", einfHand: false }, wasser: { h: "", sumpf: "" }, be: { pct: "" }, dichte: "2.4", mwst: "8.1", reserve: "0", genau: "10",
+      recs: recs, idx: idx, sond: { m3: "", einfHand: false }, wasser: { h: "", sumpf: "" }, be: { pct: "1", regie: "3" }, dichte: "2.4", mwst: "8.1", reserve: "0", genau: "10",
       par: { deckG: "0.03", deckS: "0.035", deckK: "0.04", gehMin: "0.06", gehMax: "0.12", strMin: "0.09", strMax: "0.20", kanMin: "0.12", kanMax: "0.30" },
       D: { wl: { ts: [1.50, 1.00, 1.00], bo: [1.50, 1.00, 1.00], sg: [2.00, 1.20, 1.20], zs: [1.00, 0.80, 1.00] }, fund: { "CAB 1-3 L": [1.00, 0.60, 0.80], "C 50": [1.20, 0.70, 0.80] } },
       ui: { closed: {}, xo: {}, printDraw: true } };
@@ -7798,7 +7803,7 @@ var FIG = (function () {
     }
     if (opt.focusId) setTimeout(function () { try { if (findObj(opt.focusId)) exSelect(opt.focusId); } catch (e) { } }, 700);   /* aus dem Datensatz geöffnet: Objekt direkt gewählt */
     window.__LYREF = function () { if (dlg.open) refresh(); };   /* Planungsfokus nach Änderungen ausserhalb der Karte (z. B. Preise erfasst) neu zeichnen */
-    window.__KM = { shaftInfo: function (id) { var p = byId(M.pts, id), g = p && shaftGeom(p); return g ? { poly: g.poly, extra: g.extra.length, sp: g.sp, px: g.px, ew: p.pt[0], ns: p.pt[1] } : null; }, bandCount: function () { return grp.getLayers().filter(function (x) { return x.options && x.options.dashArray === "6 5" && !x.options.pit; }).length; }, pitCount: function () { return grp.getLayers().filter(function (x) { return x.options && x.options.pit; }).length; }, unfold: function () { folded = {}; rows(); [].slice.call(document.querySelectorAll("#kmObj .kmmore2")).forEach(function (d) { d.open = true; }); }, ov: function () { return ovl; }, M: function () { return M; }, refresh: function () { refresh(); }, select: function (id) { select(id); }, map: function () { return map; }, ll: function (p) { return AD.ll(p); }, fit: function () { fitAll(); } };   /* nur für Tests */
+    window.__KM = { shaftInfo: function (id) { var p = byId(M.pts, id), g = p && shaftGeom(p); return g ? { poly: g.poly, extra: g.extra.length, sp: g.sp, px: g.px, ew: p.pt[0], ns: p.pt[1] } : null; }, bandCount: function () { return grp.getLayers().filter(function (x) { return x.options && x.options.dashArray === "6 5" && !x.options.pit; }).length; }, pits: function () { return lastPits; }, pitCount: function () { return grp.getLayers().filter(function (x) { return x.options && x.options.pit; }).length; }, unfold: function () { folded = {}; rows(); [].slice.call(document.querySelectorAll("#kmObj .kmmore2")).forEach(function (d) { d.open = true; }); }, ov: function () { return ovl; }, M: function () { return M; }, refresh: function () { refresh(); }, select: function (id) { select(id); }, map: function () { return map; }, ll: function (p) { return AD.ll(p); }, fit: function () { fitAll(); } };   /* nur für Tests */
     var MODES = { ruler: "mruler", geo: "mgeo", line: "mline", pt: "mpt", sond: "msond", cal: "mcal", edit: "medit", area: "marea", wl: "mwl", geb: "mgeb", text: "mtext", arrow: "marrow", sline: "msline", rect: "mrect" };
     /* Schachtzeichen: Form nach Bauart (KES/ES Rechteck, ES mit Kreuz, KS Kreis, KS80U gestrichelt, PLS Doppelrand, Sonstige Raute), massstäblich in Leitungsrichtung (Mindestgrösse 14 px);
        Grabenband: gestrichelt grau links/rechts der Leitung, Breite wie im Kostenvoranschlag (KVE.grabenBreite), ab Zoomstufe 17 */
@@ -7846,16 +7851,18 @@ var FIG = (function () {
         [d, -d].forEach(function (off) { L.polyline(offsetPoly(l.pts, off).map(AD.ll), { color: "#6f7f87", weight: 1.3, dashArray: "6 5", opacity: 0.95, interactive: false }).addTo(grp); });
       });
     }
-    /* Aushubgrube (grau gestrichelt) um Schächte (Bauwerksmass + 2 × Arbeitsraum 0.50 m), Werklöcher (Datensatzmass + 2 × 0.30 m) und Sondagen (1.00 × 1.00 m); gleicher Schalter wie das Grabenband */
+    /* Aushubgrube (grau gestrichelt) um Schächte (Bauwerksmass + 2 × Arbeitsraum 0.50 m), Werklöcher (Datensatzmass + 2 × 0.30 m) und Sondagen (eingegebene Länge × Breite + 2 × 0.30 m); gleicher Schalter wie das Grabenband */
     var PIT_AR = { sch: 0.5, wl: 0.3 }, WL_D = { ts: [1.5, 1], bo: [1.5, 1], sg: [2, 1.2], zs: [1, 0.8] };
     function nearDir(pt) { var best = null, bd = 1e18; M.lines.forEach(function (l) { for (var i = 0; i + 1 < l.pts.length; i++) { var a = l.pts[i], b = l.pts[i + 1], u = unitV(a, b); if (!u) continue; var dx = pt[0] - a[0], dy = pt[1] - a[1], t = Math.max(0, Math.min(AD.dist(a, b), dx * u[0] + dy * u[1])), d = Math.hypot(dx - u[0] * t, dy - u[1] * t); if (d < bd) { bd = d; best = u; } } }); return best || [1, 0]; }
     function pitRect(c, u, l, w) { var k = kU(), v = [-u[1], u[0]], hl = l / 2 * k, hw = w / 2 * k, P = function (a, b) { return [c[0] + u[0] * a + v[0] * b, c[1] + u[1] * a + v[1] * b]; }; return [P(hl, hw), P(hl, -hw), P(-hl, -hw), P(-hl, hw)]; }
+    var lastPits = [];
     function pitDraw() {
+      lastPits = [];
       if (!PIT_ON || map.getZoom() < (plan ? -99 : 17) || !kU()) return;
-      var add = function (poly) { L.polygon(poly.map(AD.ll), { color: "#6f7f87", weight: 1.3, dashArray: "6 5", opacity: 0.95, fill: false, interactive: false, pit: true }).addTo(grp); };
+      var add = function (poly) { lastPits.push(poly); L.polygon(poly.map(AD.ll), { color: "#6f7f87", weight: 1.3, dashArray: "6 5", opacity: 0.95, fill: false, interactive: false, pit: true }).addTo(grp); };
       M.pts.forEach(function (p) { var sp = shaftSpec(p), a = 2 * PIT_AR.sch; add(pitRect(p.pt, shaftDir(p), sp.l + a, sp.w + a)); });
       M.wl.forEach(function (q) { var d = WL_D[q.wt] || WL_D.ts, a = 2 * PIT_AR.wl; add(pitRect(q.pt, nearDir(q.pt), d[0] + a, d[1] + a)); });
-      M.sond.forEach(function (q) { add(pitRect(q.pt, [1, 0], 1, 1)); });
+      M.sond.forEach(function (q) { var sl = parseFloat(String(q.l == null ? "" : q.l).replace(",", ".")), sb = parseFloat(String(q.b == null ? "" : q.b).replace(",", ".")), a = 2 * PIT_AR.wl; add(pitRect(q.pt, [1, 0], (sl > 0 ? sl : 1) + a, (sb > 0 ? sb : 1) + a)); });   /* Länge/Breite der Sondage + Arbeitsraum wie Werkloch */
     }
     function draw() {
       grp.clearLayers(); layers = {}; var edit = mode === "edit"; bandDraw(); pitDraw();
@@ -9747,7 +9754,9 @@ var FIG = (function () {
   function deepFill(dst, src) { Object.keys(src).forEach(function (k) { if (dst[k] == null) dst[k] = JSON.parse(JSON.stringify(src[k])); else if (typeof src[k] === "object" && !Array.isArray(src[k]) && typeof dst[k] === "object") deepFill(dst[k], src[k]); }); }
   function heal() {
     var d = defaults();
-    deepFill(S, d); if (!S.pruef || typeof S.pruef !== "object" || Array.isArray(S.pruef)) S.pruef = {};
+    deepFill(S, d);
+    if (!S.defV) { S.defV = 1; if (S.be) { if (S.be.pct === "") S.be.pct = "1"; if (S.be.regie === "" || S.be.regie == null) S.be.regie = "3"; } ((S.recs || {}).hon || []).forEach(function (r) { if (r.h === "") r.h = "145"; if (r.nk === "") r.nk = "3"; }); }   /* Vorgaben 1 % Baustelleneinrichtung, 3 % Regie, Honorar 145 CHF/h und 3 % Nebenkosten: einmalig in leere Felder bestehender Projekte */
+    if (!S.pruef || typeof S.pruef !== "object" || Array.isArray(S.pruef)) S.pruef = {};
     TABS.forEach(function (t) {
       if (!Array.isArray(S.recs[t]) || !S.recs[t].length) { S.recs[t] = [newRec(t, 1)]; S.idx[t] = 0; }
       var nr = newRec(t, 1); S.recs[t].forEach(function (r) { deepFill(r, nr); });
@@ -9905,7 +9914,7 @@ var FIG = (function () {
       { id: "B", t: "num", half: 1, show: function (c) { return String(c.indiv) !== "true"; } }, { id: "L", t: "num", half: 1, labKey: "f_Lbel", show: function (c) { return String(c.indiv) !== "true"; } },
       { id: "wi", t: "sel", opts: function (c) { return ["strasse", "kanton"].indexOf(c.bk) >= 0 ? ["A", "A1", "B", "C", "C1", "C2"] : ["A", "A1", "B"]; }, struct: 1, show: function (c) { return String(c.indiv) !== "true"; } }],
     allg: [{ sec: "s_vor" }, { id: "sond.m3", t: "num", glob: 1 }, { id: "sond.einfHand", t: "chk", glob: 1 }, { id: "wasser.h", t: "num", glob: 1, half: 1 }, { id: "wasser.sumpf", t: "num", glob: 1, half: 1 },
-      { sec: "s_be" }, { id: "be.pct", t: "num", glob: 1, hint: "hint_bepct", beHint: 1 },
+      { sec: "s_be" }, { id: "be.pct", t: "num", glob: 1, hint: "hint_bepct", beHint: 1 }, { id: "be.regie", t: "num", glob: 1, hint: "hint_regie" },
       { sec: "s_pausch" }, { id: "name", t: "text" }, { id: "km", t: "num", half: 1 }, { id: "ak", t: "num", half: 1 }],
     rohr: [{ sec: "s_rohrTab" }, { id: "name", t: "text" }, { id: "verl", t: "chk" }, { t: "rohrLists" },
       { id: "erd", t: "num", half: 1 }, { id: "warn", t: "num", half: 1 }, { id: "schnur", t: "num", half: 1 }, { id: "kal", t: "num", half: 1 }, { id: "kalDN", t: "sel", opts: ["55", "100", "120", "150"] }, { t: "zub" }],
@@ -11422,7 +11431,7 @@ var FIG = (function () {
   function fname(ext) { return "LV-Devis_" + ((S.kopf.sap || S.kopf.projekt || "Projekt").replace(/[^\w\-]+/g, "_")) + "." + ext; }
   function hasContent() {   /* gibt es etwas, das beim Laden verloren ginge? */
     var K = S.karte || {}, k = S.kopf || {};
-    var o = KVE.calc(S, LV), n = o.vor.lines.length + o.be.lines.length; o.elems.forEach(function (e) { n += e.lines.length; });
+    var o = KVE.calc(S, LV), n = o.vor.lines.length + o.be.lines.filter(function (l) { return l.total; }).length; o.elems.forEach(function (e) { n += e.lines.length; });
     return !!(n || k.projekt || k.ort || k.sap || (K.lines || []).length || (K.pts || []).length || (K.notes || []).length || (S.plan && S.plan.img));
   }
   function saveJson() { var c = JSON.parse(JSON.stringify(S)); delete c.ui; download(fname("json"), JSON.stringify({ v: 2, tool: "LV-Devis Tiefbau", lv: "V1.1 10.07.2026", data: c }, null, 1), "application/json"); }

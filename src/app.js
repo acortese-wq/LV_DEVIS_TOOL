@@ -37,7 +37,9 @@
   function deepFill(dst, src) { Object.keys(src).forEach(function (k) { if (dst[k] == null) dst[k] = JSON.parse(JSON.stringify(src[k])); else if (typeof src[k] === "object" && !Array.isArray(src[k]) && typeof dst[k] === "object") deepFill(dst[k], src[k]); }); }
   function heal() {
     var d = defaults();
-    deepFill(S, d); if (!S.pruef || typeof S.pruef !== "object" || Array.isArray(S.pruef)) S.pruef = {};
+    deepFill(S, d);
+    if (!S.defV) { S.defV = 1; if (S.be) { if (S.be.pct === "") S.be.pct = "1"; if (S.be.regie === "" || S.be.regie == null) S.be.regie = "3"; } ((S.recs || {}).hon || []).forEach(function (r) { if (r.h === "") r.h = "145"; if (r.nk === "") r.nk = "3"; }); }   /* Vorgaben 1 % Baustelleneinrichtung, 3 % Regie, Honorar 145 CHF/h und 3 % Nebenkosten: einmalig in leere Felder bestehender Projekte */
+    if (!S.pruef || typeof S.pruef !== "object" || Array.isArray(S.pruef)) S.pruef = {};
     TABS.forEach(function (t) {
       if (!Array.isArray(S.recs[t]) || !S.recs[t].length) { S.recs[t] = [newRec(t, 1)]; S.idx[t] = 0; }
       var nr = newRec(t, 1); S.recs[t].forEach(function (r) { deepFill(r, nr); });
@@ -195,7 +197,7 @@
       { id: "B", t: "num", half: 1, show: function (c) { return String(c.indiv) !== "true"; } }, { id: "L", t: "num", half: 1, labKey: "f_Lbel", show: function (c) { return String(c.indiv) !== "true"; } },
       { id: "wi", t: "sel", opts: function (c) { return ["strasse", "kanton"].indexOf(c.bk) >= 0 ? ["A", "A1", "B", "C", "C1", "C2"] : ["A", "A1", "B"]; }, struct: 1, show: function (c) { return String(c.indiv) !== "true"; } }],
     allg: [{ sec: "s_vor" }, { id: "sond.m3", t: "num", glob: 1 }, { id: "sond.einfHand", t: "chk", glob: 1 }, { id: "wasser.h", t: "num", glob: 1, half: 1 }, { id: "wasser.sumpf", t: "num", glob: 1, half: 1 },
-      { sec: "s_be" }, { id: "be.pct", t: "num", glob: 1, hint: "hint_bepct", beHint: 1 },
+      { sec: "s_be" }, { id: "be.pct", t: "num", glob: 1, hint: "hint_bepct", beHint: 1 }, { id: "be.regie", t: "num", glob: 1, hint: "hint_regie" },
       { sec: "s_pausch" }, { id: "name", t: "text" }, { id: "km", t: "num", half: 1 }, { id: "ak", t: "num", half: 1 }],
     rohr: [{ sec: "s_rohrTab" }, { id: "name", t: "text" }, { id: "verl", t: "chk" }, { t: "rohrLists" },
       { id: "erd", t: "num", half: 1 }, { id: "warn", t: "num", half: 1 }, { id: "schnur", t: "num", half: 1 }, { id: "kal", t: "num", half: 1 }, { id: "kalDN", t: "sel", opts: ["55", "100", "120", "150"] }, { t: "zub" }],
@@ -1712,7 +1714,7 @@
   function fname(ext) { return "LV-Devis_" + ((S.kopf.sap || S.kopf.projekt || "Projekt").replace(/[^\w\-]+/g, "_")) + "." + ext; }
   function hasContent() {   /* gibt es etwas, das beim Laden verloren ginge? */
     var K = S.karte || {}, k = S.kopf || {};
-    var o = KVE.calc(S, LV), n = o.vor.lines.length + o.be.lines.length; o.elems.forEach(function (e) { n += e.lines.length; });
+    var o = KVE.calc(S, LV), n = o.vor.lines.length + o.be.lines.filter(function (l) { return l.total; }).length; o.elems.forEach(function (e) { n += e.lines.length; });
     return !!(n || k.projekt || k.ort || k.sap || (K.lines || []).length || (K.pts || []).length || (K.notes || []).length || (S.plan && S.plan.img));
   }
   function saveJson() { var c = JSON.parse(JSON.stringify(S)); delete c.ui; download(fname("json"), JSON.stringify({ v: 2, tool: "LV-Devis Tiefbau", lv: "V1.1 10.07.2026", data: c }, null, 1), "application/json"); }

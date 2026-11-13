@@ -1495,7 +1495,7 @@
     }
     if (opt.focusId) setTimeout(function () { try { if (findObj(opt.focusId)) exSelect(opt.focusId); } catch (e) { } }, 700);   /* aus dem Datensatz geöffnet: Objekt direkt gewählt */
     window.__LYREF = function () { if (dlg.open) refresh(); };   /* Planungsfokus nach Änderungen ausserhalb der Karte (z. B. Preise erfasst) neu zeichnen */
-    window.__KM = { shaftInfo: function (id) { var p = byId(M.pts, id), g = p && shaftGeom(p); return g ? { poly: g.poly, extra: g.extra.length, sp: g.sp, px: g.px, ew: p.pt[0], ns: p.pt[1] } : null; }, bandCount: function () { return grp.getLayers().filter(function (x) { return x.options && x.options.dashArray === "6 5" && !x.options.pit; }).length; }, pitCount: function () { return grp.getLayers().filter(function (x) { return x.options && x.options.pit; }).length; }, unfold: function () { folded = {}; rows(); [].slice.call(document.querySelectorAll("#kmObj .kmmore2")).forEach(function (d) { d.open = true; }); }, ov: function () { return ovl; }, M: function () { return M; }, refresh: function () { refresh(); }, select: function (id) { select(id); }, map: function () { return map; }, ll: function (p) { return AD.ll(p); }, fit: function () { fitAll(); } };   /* nur für Tests */
+    window.__KM = { shaftInfo: function (id) { var p = byId(M.pts, id), g = p && shaftGeom(p); return g ? { poly: g.poly, extra: g.extra.length, sp: g.sp, px: g.px, ew: p.pt[0], ns: p.pt[1] } : null; }, bandCount: function () { return grp.getLayers().filter(function (x) { return x.options && x.options.dashArray === "6 5" && !x.options.pit; }).length; }, pits: function () { return lastPits; }, pitCount: function () { return grp.getLayers().filter(function (x) { return x.options && x.options.pit; }).length; }, unfold: function () { folded = {}; rows(); [].slice.call(document.querySelectorAll("#kmObj .kmmore2")).forEach(function (d) { d.open = true; }); }, ov: function () { return ovl; }, M: function () { return M; }, refresh: function () { refresh(); }, select: function (id) { select(id); }, map: function () { return map; }, ll: function (p) { return AD.ll(p); }, fit: function () { fitAll(); } };   /* nur für Tests */
     var MODES = { ruler: "mruler", geo: "mgeo", line: "mline", pt: "mpt", sond: "msond", cal: "mcal", edit: "medit", area: "marea", wl: "mwl", geb: "mgeb", text: "mtext", arrow: "marrow", sline: "msline", rect: "mrect" };
     /* Schachtzeichen: Form nach Bauart (KES/ES Rechteck, ES mit Kreuz, KS Kreis, KS80U gestrichelt, PLS Doppelrand, Sonstige Raute), massstäblich in Leitungsrichtung (Mindestgrösse 14 px);
        Grabenband: gestrichelt grau links/rechts der Leitung, Breite wie im Kostenvoranschlag (KVE.grabenBreite), ab Zoomstufe 17 */
@@ -1543,16 +1543,18 @@
         [d, -d].forEach(function (off) { L.polyline(offsetPoly(l.pts, off).map(AD.ll), { color: "#6f7f87", weight: 1.3, dashArray: "6 5", opacity: 0.95, interactive: false }).addTo(grp); });
       });
     }
-    /* Aushubgrube (grau gestrichelt) um Schächte (Bauwerksmass + 2 × Arbeitsraum 0.50 m), Werklöcher (Datensatzmass + 2 × 0.30 m) und Sondagen (1.00 × 1.00 m); gleicher Schalter wie das Grabenband */
+    /* Aushubgrube (grau gestrichelt) um Schächte (Bauwerksmass + 2 × Arbeitsraum 0.50 m), Werklöcher (Datensatzmass + 2 × 0.30 m) und Sondagen (eingegebene Länge × Breite + 2 × 0.30 m); gleicher Schalter wie das Grabenband */
     var PIT_AR = { sch: 0.5, wl: 0.3 }, WL_D = { ts: [1.5, 1], bo: [1.5, 1], sg: [2, 1.2], zs: [1, 0.8] };
     function nearDir(pt) { var best = null, bd = 1e18; M.lines.forEach(function (l) { for (var i = 0; i + 1 < l.pts.length; i++) { var a = l.pts[i], b = l.pts[i + 1], u = unitV(a, b); if (!u) continue; var dx = pt[0] - a[0], dy = pt[1] - a[1], t = Math.max(0, Math.min(AD.dist(a, b), dx * u[0] + dy * u[1])), d = Math.hypot(dx - u[0] * t, dy - u[1] * t); if (d < bd) { bd = d; best = u; } } }); return best || [1, 0]; }
     function pitRect(c, u, l, w) { var k = kU(), v = [-u[1], u[0]], hl = l / 2 * k, hw = w / 2 * k, P = function (a, b) { return [c[0] + u[0] * a + v[0] * b, c[1] + u[1] * a + v[1] * b]; }; return [P(hl, hw), P(hl, -hw), P(-hl, -hw), P(-hl, hw)]; }
+    var lastPits = [];
     function pitDraw() {
+      lastPits = [];
       if (!PIT_ON || map.getZoom() < (plan ? -99 : 17) || !kU()) return;
-      var add = function (poly) { L.polygon(poly.map(AD.ll), { color: "#6f7f87", weight: 1.3, dashArray: "6 5", opacity: 0.95, fill: false, interactive: false, pit: true }).addTo(grp); };
+      var add = function (poly) { lastPits.push(poly); L.polygon(poly.map(AD.ll), { color: "#6f7f87", weight: 1.3, dashArray: "6 5", opacity: 0.95, fill: false, interactive: false, pit: true }).addTo(grp); };
       M.pts.forEach(function (p) { var sp = shaftSpec(p), a = 2 * PIT_AR.sch; add(pitRect(p.pt, shaftDir(p), sp.l + a, sp.w + a)); });
       M.wl.forEach(function (q) { var d = WL_D[q.wt] || WL_D.ts, a = 2 * PIT_AR.wl; add(pitRect(q.pt, nearDir(q.pt), d[0] + a, d[1] + a)); });
-      M.sond.forEach(function (q) { add(pitRect(q.pt, [1, 0], 1, 1)); });
+      M.sond.forEach(function (q) { var sl = parseFloat(String(q.l == null ? "" : q.l).replace(",", ".")), sb = parseFloat(String(q.b == null ? "" : q.b).replace(",", ".")), a = 2 * PIT_AR.wl; add(pitRect(q.pt, [1, 0], (sl > 0 ? sl : 1) + a, (sb > 0 ? sb : 1) + a)); });   /* Länge/Breite der Sondage + Arbeitsraum wie Werkloch */
     }
     function draw() {
       grp.clearLayers(); layers = {}; var edit = mode === "edit"; bandDraw(); pitDraw();
