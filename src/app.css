@@ -719,3 +719,19 @@ tr.pst-ip .pst{background:#e7f0fb;border-color:#0a5aa8;color:#083f78}tr.pst-ip t
 .kmsch.big{background:transparent;border:0}
 .kmsch.big span{position:absolute;left:0;top:0;width:auto;min-width:18px;height:18px;padding:0 4px;font-size:11px;border-width:1px;border-radius:9px;box-shadow:none}
 .kmshl{pointer-events:none}.kmshl span{position:absolute;left:0;transform:translateX(-50%);white-space:nowrap;font:600 10.5px "Segoe UI",sans-serif;color:#0a4f55;background:rgba(255,255,255,.85);padding:0 4px;border-radius:3px}
+
+/* 3D-Ansicht (swisstopo), nur Computer */
+.v3dlg{width:min(1400px,94vw);height:min(86vh,900px);max-width:none;padding:0;border:1px solid var(--line,#d6e0e1);border-radius:14px;background:var(--card,#fff);color:var(--ink,#12292c)}
+.v3dlg[open]{display:flex;flex-direction:column}
+.v3dlg::backdrop{background:rgba(5,25,28,.55)}
+.v3h{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;flex-wrap:wrap;border-bottom:1px solid var(--line,#d6e0e1)}
+.v3h h2{margin:0;font-size:1.05rem}
+.v3ctl{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:.85rem}
+.v3ctl label{display:inline-flex;gap:6px;align-items:center}
+.v3m{flex:1;min-height:0;position:relative;background:#0d1a1c}
+.v3m .cesium-viewer,.v3m .cesium-viewer-cesiumWidgetContainer,.v3m .cesium-widget{height:100%}
+.v3s{margin:0;padding:4px 14px;font-size:.8rem;min-height:1.6em}
+.v3c{margin:0;padding:2px 14px 8px;font-size:.72rem;color:var(--mut,#4d6468)}
+@media (max-width:860px),(pointer:coarse){[data-k=v3d]{display:none!important}}
+.rp-3d figure{margin:0}.rp-3d img{width:100%;height:auto;display:block;border:1px solid #bcc8ca}.rp-3d figcaption{font-size:.8em;color:#4d6468;margin-top:4px}
+@media print{.rp-3d{break-inside:avoid}}

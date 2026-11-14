@@ -665,6 +665,7 @@
       '<button type="button" class="btn ghost small" data-k="center">' + esc(tt("km_center")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="lbl" aria-pressed="true">' + esc(tt("km_lbl")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="band" aria-pressed="true" title="' + esc(tt("km_bandT")) + '">' + esc(tt("km_band")) + "</button>" +
+      (plan || !(window.V3D && V3D.desktop()) ? "" : '<button type="button" class="btn ghost small" data-k="v3d" title="' + esc(tt("km_3dT")) + '">' + esc(tt("km_3d")) + "</button>") +
       '<button type="button" class="btn ghost small" data-k="pit" aria-pressed="true" title="' + esc(tt("km_pitT")) + '">' + esc(tt("km_pit")) + "</button>" +
       '<label class="kmbl" for="kmStl">' + esc(tt("km_stl")) + '</label><select id="kmStl">' + [["std", "km_stl_std"], ["zoom", "km_stl_zoom"], ["min", "km_stl_min"]].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join("") + "</select>" +
       (plan ? "" : '<button type="button" class="btn ghost small" data-k="sv">' + esc(tt("km_sv")) + '</button><button type="button" class="btn ghost small" data-k="svkey" title="' + esc(tt("km_sv_keyHint")) + '">' + esc(tt("km_sv_key")) + "</button>") +
@@ -904,7 +905,7 @@
             ["ins", [["rb_pImp", [K("dxfin")]], ["rb_pLay", [".lynav .kmmidtog"]]]],
             ["an", [["rb_pEval", [D("prof"), D("aus"), D("kost"), D("pos"), D("offen"), D("warn")]], ["rb_pProf", ["[data-pfb]"]]]],
             ["out", [["rb_pRes", [".lynav [data-ly=res]", ".lynav [data-ly=rep]", ".lynav [data-ly=rec]", ".lynav [data-ly=proj]"]], ["rb_pProj", [".kmheadb [data-k=save]", ".kmheadb [data-k=apply]"]]]],
-            ["view", [["rb_pMap", [".lybtn", ".lysbtn"]], ["rb_pShow", ["[data-k=lbl]", "[data-k=band]", "[data-k=pit]"]], ["rb_pWin", [".nc-theme", ".lycmdk-b", "[data-hpk]"]]]]
+            ["view", [["rb_pMap", [".lybtn", ".lysbtn"]], ["rb_pShow", ["[data-k=lbl]", "[data-k=band]", "[data-k=pit]", "[data-k=v3d]"]], ["rb_pWin", [".nc-theme", ".lycmdk-b", "[data-hpk]"]]]]
           ];
           var rb = E("section", "lyrb"); rb.setAttribute("aria-label", tt("rb_label"));
           var cur = "start", min = window.__LVD_RIBBON_DEFAULT === "min"; try { var sv = JSON.parse(localStorage.getItem("lvd-ribbon") || "null"); if (sv && typeof sv === "object") { if (TABS.some(function (t) { return t[0] === sv.t; })) cur = sv.t; min = !!sv.m; } } catch (e) { }
@@ -1548,13 +1549,24 @@
     function nearDir(pt) { var best = null, bd = 1e18; M.lines.forEach(function (l) { for (var i = 0; i + 1 < l.pts.length; i++) { var a = l.pts[i], b = l.pts[i + 1], u = unitV(a, b); if (!u) continue; var dx = pt[0] - a[0], dy = pt[1] - a[1], t = Math.max(0, Math.min(AD.dist(a, b), dx * u[0] + dy * u[1])), d = Math.hypot(dx - u[0] * t, dy - u[1] * t); if (d < bd) { bd = d; best = u; } } }); return best || [1, 0]; }
     function pitRect(c, u, l, w) { var k = kU(), v = [-u[1], u[0]], hl = l / 2 * k, hw = w / 2 * k, P = function (a, b) { return [c[0] + u[0] * a + v[0] * b, c[1] + u[1] * a + v[1] * b]; }; return [P(hl, hw), P(hl, -hw), P(-hl, -hw), P(-hl, hw)]; }
     var lastPits = [];
+    function pitPolys() {   /* Aushubgruben (Karteneinheiten) unabhängig von Zoom und Schalter */
+      var out = [];
+      M.pts.forEach(function (p) { var sp = shaftSpec(p), a = 2 * PIT_AR.sch; out.push(pitRect(p.pt, shaftDir(p), sp.l + a, sp.w + a)); });
+      M.wl.forEach(function (q) { var d = WL_D[q.wt] || WL_D.ts, a = 2 * PIT_AR.wl; out.push(pitRect(q.pt, nearDir(q.pt), d[0] + a, d[1] + a)); });
+      M.sond.forEach(function (q) { var sl = parseFloat(String(q.l == null ? "" : q.l).replace(",", ".")), sb = parseFloat(String(q.b == null ? "" : q.b).replace(",", ".")), a = 2 * PIT_AR.wl; out.push(pitRect(q.pt, [1, 0], (sl > 0 ? sl : 1) + a, (sb > 0 ? sb : 1) + a)); });   /* Länge/Breite der Sondage + Arbeitsraum wie Werkloch */
+      return out;
+    }
     function pitDraw() {
       lastPits = [];
       if (!PIT_ON || map.getZoom() < (plan ? -99 : 17) || !kU()) return;
-      var add = function (poly) { lastPits.push(poly); L.polygon(poly.map(AD.ll), { color: "#6f7f87", weight: 1.3, dashArray: "6 5", opacity: 0.95, fill: false, interactive: false, pit: true }).addTo(grp); };
-      M.pts.forEach(function (p) { var sp = shaftSpec(p), a = 2 * PIT_AR.sch; add(pitRect(p.pt, shaftDir(p), sp.l + a, sp.w + a)); });
-      M.wl.forEach(function (q) { var d = WL_D[q.wt] || WL_D.ts, a = 2 * PIT_AR.wl; add(pitRect(q.pt, nearDir(q.pt), d[0] + a, d[1] + a)); });
-      M.sond.forEach(function (q) { var sl = parseFloat(String(q.l == null ? "" : q.l).replace(",", ".")), sb = parseFloat(String(q.b == null ? "" : q.b).replace(",", ".")), a = 2 * PIT_AR.wl; add(pitRect(q.pt, [1, 0], (sl > 0 ? sl : 1) + a, (sb > 0 ? sb : 1) + a)); });   /* Länge/Breite der Sondage + Arbeitsraum wie Werkloch */
+      pitPolys().forEach(function (poly) { lastPits.push(poly); L.polygon(poly.map(AD.ll), { color: "#6f7f87", weight: 1.3, dashArray: "6 5", opacity: 0.95, fill: false, interactive: false, pit: true }).addTo(grp); });
+    }
+    function v3dOpen() {   /* 3D-Ansicht (swisstopo, nur Computer): Projekt in WGS84 an die 3D-Szene geben */
+      if (plan || !window.V3D) return; var w = function (p) { return toWGS(p[0], p[1]); };
+      V3D.open({ tt: tt, data: { lines: M.lines.filter(function (l) { return l.pts.length > 1; }).map(function (l) { return l.pts.map(w); }), areas: M.areas.filter(function (f) { return f.pts.length > 2; }).map(function (f) { return f.pts.map(w); }),
+        pts: M.pts.map(function (p, i) { return { p: w(p.pt), l: String(i + 1) }; }), wl: M.wl.map(function (q, i) { return { p: w(q.pt), l: "W" + (i + 1) }; }), sond: M.sond.map(function (q, i) { return { p: w(q.pt), l: "S" + (i + 1) }; }),
+        pits: pitPolys().map(function (a) { return a.map(w); }) },
+        onImage: function (u, m) { if (opt.on3d) opt.on3d(u, m); toast(dlg, tt("v3_imgDone")); }, onClose: function () { var b = $("[data-k=v3d]"); if (b) b.focus(); } });
     }
     function draw() {
       grp.clearLayers(); layers = {}; var edit = mode === "edit"; bandDraw(); pitDraw();
@@ -3168,6 +3180,7 @@
       else if (k === "dxfin") { var dfi = $("#kmDxfF"); if (dfi) { dfi.value = ""; dfi.click(); } }
       else if (k === "fit") fitAll();
       else if (k === "max") { var on = !dlg.classList.contains("kmmax"); dlg.classList.toggle("kmmax", on); b.setAttribute("aria-pressed", on ? "true" : "false"); try { localStorage.setItem("lvd-km-max", on ? "1" : "0"); } catch (x) { } setTimeout(function () { map.invalidateSize({ animate: false }); ovDraw(); }, 50); }
+      else if (k === "v3d") { v3dOpen(); }
       else if (k === "pit") { PIT_ON = !PIT_ON; try { localStorage.setItem("lvd-km-pit", PIT_ON ? "1" : "0"); } catch (x) { } b.setAttribute("aria-pressed", PIT_ON ? "true" : "false"); draw(); legend(); }
       else if (k === "band") { BAND_ON = !BAND_ON; try { localStorage.setItem("lvd-km-band", BAND_ON ? "1" : "0"); } catch (x) { } b.setAttribute("aria-pressed", BAND_ON ? "true" : "false"); draw(); legend(); }
       else if (k === "lbl") { showLbl = !showLbl; b.setAttribute("aria-pressed", showLbl ? "true" : "false"); draw(); }

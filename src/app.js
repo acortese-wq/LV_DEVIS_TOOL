@@ -860,7 +860,7 @@
           var u0 = ensureUid(cfg); cfg.trasse.forEach(function (pts, i) { S.karte.lines.push({ id: "m" + i + u0, pts: pts, rid: i === 0 ? u0 : null, rohr: { sys: cfg.rohrSystem, dn: cfg.dn, len: cfg.len, n: cfg.n } }); }); delete cfg.trasse;
         }
         var g = tab === "graben" && cfg;
-        KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, cost: costPreview(cfg, tab), model: ex.keep && ex.keep.model ? ex.keep.model : JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), view: ex.keep ? ex.keep.view : null, edited: !!(ex.keep && ex.keep.edited), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
+        KARTE.open({ kind: "map", on3d: function (u, m) { S.v3d = { img: u, at: Date.now(), ex: m.ex }; save(); }, tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, cost: costPreview(cfg, tab), model: ex.keep && ex.keep.model ? ex.keep.model : JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), view: ex.keep ? ex.keep.view : null, edited: !!(ex.keep && ex.keep.edited), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" && cfg ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" && cfg ? cfg.cm : "", abd: tab === "geb" && cfg ? cfg.abd : "hauff" }, defBelag: tab === "belag" && cfg ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
           onClose: function () { if (ex.layoutA) return; var o = $(ex.focus || "#kmOpen"); if (o) o.focus(); },
@@ -1513,6 +1513,7 @@
     if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb], ["datum", k.datum || today()]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
     h += reportCover();
     if (o.situ) h += reportMap();
+    if (o.v3d !== false && S.v3d && S.v3d.img) h += '<section class="rp-sec rp-3d"><h2>' + esc(tt("v3_title")) + '</h2><figure><img src="' + S.v3d.img + '" alt="' + esc(tt("v3_title")) + '"><figcaption>' + esc(fill(tt("rp_3dCap"), { x: S.v3d.ex || 1 })) + "</figcaption></figure></section>";
     if (o.mengen) {
       if (o.mode === "total") {
         var rows = reportTotals(out);
@@ -1538,13 +1539,13 @@
   }
   function reportOpen() {
     var d = document.getElementById("reportDlg"); if (d) d.remove();
-    var R = S.ui.report = Object.assign({ mode: "abschnitte", kopf: true, situ: true, mengen: true, pos: true, kosten: true, annahmen: true, warn: true }, S.ui.report || {});
+    var R = S.ui.report = Object.assign({ mode: "abschnitte", kopf: true, situ: true, v3d: true, mengen: true, pos: true, kosten: true, annahmen: true, warn: true }, S.ui.report || {});
     d = document.createElement("dialog"); d.id = "reportDlg"; d.className = "rpdlg"; d.setAttribute("aria-labelledby", "rpT");
     var cb = function (k, lab) { return '<label class="rp-cb"><input type="checkbox" data-rp="' + k + '"' + (R[k] ? " checked" : "") + "> " + esc(tt(lab)) + "</label>"; };
     d.innerHTML = '<form method="dialog"><h2 id="rpT">' + esc(tt("rp_title")) + '</h2><fieldset class="rp-fs"><legend>' + esc(tt("rp_gl")) + "</legend>" +
       '<label class="rp-cb"><input type="radio" name="rpm" value="abschnitte"' + (R.mode !== "total" ? " checked" : "") + "> <b>" + esc(tt("rp_m_abs")) + "</b><span class=\"rp-sub\">" + esc(tt("rp_m_abs_s")) + "</span></label>" +
       '<label class="rp-cb"><input type="radio" name="rpm" value="total"' + (R.mode === "total" ? " checked" : "") + "> <b>" + esc(tt("rp_m_tot")) + "</b><span class=\"rp-sub\">" + esc(tt("rp_m_tot_s")) + "</span></label></fieldset>" +
-      '<fieldset class="rp-fs"><legend>' + esc(tt("rp_inh")) + "</legend>" + cb("kopf", "rp_i_kopf") + cb("situ", "rp_i_situ") + cb("mengen", "rp_i_mengen") + cb("pos", "rp_i_pos") + cb("kosten", "rp_i_kosten") + cb("annahmen", "rp_i_ann") + cb("warn", "rp_i_warn") + "</fieldset>" +
+      '<fieldset class="rp-fs"><legend>' + esc(tt("rp_inh")) + "</legend>" + cb("kopf", "rp_i_kopf") + cb("situ", "rp_i_situ") + (S.v3d && S.v3d.img ? cb("v3d", "rp_i_3d") : "") + cb("mengen", "rp_i_mengen") + cb("pos", "rp_i_pos") + cb("kosten", "rp_i_kosten") + cb("annahmen", "rp_i_ann") + cb("warn", "rp_i_warn") + "</fieldset>" +
       '<p class="hint">' + esc(tt("rp_hint")) + '</p><div class="kmbar"><button type="submit" class="btn" value="print" id="rpGo">' + esc(tt("rp_go")) + '</button> <button type="submit" class="btn ghost" value="x">' + esc(tt("rp_close")) + "</button></div></form>";
     document.body.appendChild(d);
     d.addEventListener("close", function () { d.remove(); });

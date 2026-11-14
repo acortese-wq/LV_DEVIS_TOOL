@@ -1343,6 +1343,22 @@ tr.pst-ip .pst{background:#e7f0fb;border-color:#0a5aa8;color:#083f78}tr.pst-ip t
 .kmsch.big span{position:absolute;left:0;top:0;width:auto;min-width:18px;height:18px;padding:0 4px;font-size:11px;border-width:1px;border-radius:9px;box-shadow:none}
 .kmshl{pointer-events:none}.kmshl span{position:absolute;left:0;transform:translateX(-50%);white-space:nowrap;font:600 10.5px "Segoe UI",sans-serif;color:#0a4f55;background:rgba(255,255,255,.85);padding:0 4px;border-radius:3px}
 
+/* 3D-Ansicht (swisstopo), nur Computer */
+.v3dlg{width:min(1400px,94vw);height:min(86vh,900px);max-width:none;padding:0;border:1px solid var(--line,#d6e0e1);border-radius:14px;background:var(--card,#fff);color:var(--ink,#12292c)}
+.v3dlg[open]{display:flex;flex-direction:column}
+.v3dlg::backdrop{background:rgba(5,25,28,.55)}
+.v3h{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;flex-wrap:wrap;border-bottom:1px solid var(--line,#d6e0e1)}
+.v3h h2{margin:0;font-size:1.05rem}
+.v3ctl{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:.85rem}
+.v3ctl label{display:inline-flex;gap:6px;align-items:center}
+.v3m{flex:1;min-height:0;position:relative;background:#0d1a1c}
+.v3m .cesium-viewer,.v3m .cesium-viewer-cesiumWidgetContainer,.v3m .cesium-widget{height:100%}
+.v3s{margin:0;padding:4px 14px;font-size:.8rem;min-height:1.6em}
+.v3c{margin:0;padding:2px 14px 8px;font-size:.72rem;color:var(--mut,#4d6468)}
+@media (max-width:860px),(pointer:coarse){[data-k=v3d]{display:none!important}}
+.rp-3d figure{margin:0}.rp-3d img{width:100%;height:auto;display:block;border:1px solid #bcc8ca}.rp-3d figcaption{font-size:.8em;color:#4d6468;margin-top:4px}
+@media print{.rp-3d{break-inside:avoid}}
+
 /* ===== Engineering-Arbeitsplatz (Layout A) – Thema «dunkel», Struktur Phase E. Gilt nur im Arbeitsplatz; Druck/Bericht/Excel bleiben hell. ===== */
 .kmdlg.kmlya.nc-dark{
   --nc-bg:#0d1a23; --nc-surface:#10202b; --nc-panel:#17303d; --nc-raised:#1f3b49;
@@ -4411,6 +4427,26 @@ s_vor: ["Vorarbeiten (projektweit)", "Travaux préparatoires (projet)", "Lavori 
     km_lt_bauA: ["Alleinbau", "Seul", "Da soli", "Alone"],
     km_lt_bauK: ["Kooperation", "Coopération", "Cooperazione", "Cooperation"],
     km_lt_schutz: ["Schutz eigener Kabel (m)", "Protection câbles (m)", "Protezione cavi (m)", "Cable protection (m)"],
+    km_3d: ["3D", "3D", "3D", "3D"],
+    km_3dT: ["3D-Ansicht mit swisstopo-Gelände und Luftbild (nur Computer)", "Vue 3D avec terrain et orthophoto swisstopo (ordinateur uniquement)", "Vista 3D con terreno e ortofoto swisstopo (solo computer)", "3D view with swisstopo terrain and aerial image (computer only)"],
+    v3_title: ["3D-Ansicht (swisstopo)", "Vue 3D (swisstopo)", "Vista 3D (swisstopo)", "3D view (swisstopo)"],
+    v3_ex: ["Überhöhung", "Exagération", "Esagerazione", "Exaggeration"],
+    v3_obj: ["Leitungen und Schächte", "Conduites et chambres", "Condotte e pozzetti", "Lines and shafts"],
+    v3_pit: ["Aushubgruben", "Fouilles", "Scavi", "Excavation pits"],
+    v3_bld: ["Gebäude (3D)", "Bâtiments (3D)", "Edifici (3D)", "Buildings (3D)"],
+    v3_img: ["Ansicht für Bericht übernehmen", "Reprendre la vue pour le rapport", "Usa la vista per il rapporto", "Use view for report"],
+    v3_imgDone: ["3D-Ansicht für den Projektbericht gespeichert.", "Vue 3D enregistrée pour le rapport.", "Vista 3D salvata per il rapporto.", "3D view saved for the report."],
+    v3_close: ["Schliessen", "Fermer", "Chiudi", "Close"],
+    v3_cred: ["© swisstopo · Gelände (swissALTI3D) und Luftbild (SWISSIMAGE). Leitungen und Schächte aus dem Projekt, nur zur Veranschaulichung.", "© swisstopo · terrain (swissALTI3D) et orthophoto (SWISSIMAGE). Conduites et chambres du projet, pour illustration uniquement.", "© swisstopo · terreno (swissALTI3D) e ortofoto (SWISSIMAGE). Condotte e pozzetti del progetto, solo a titolo illustrativo.", "© swisstopo · terrain (swissALTI3D) and aerial image (SWISSIMAGE). Project lines and shafts, for illustration only."],
+    v3_loading: ["3D-Ansicht wird geladen …", "Chargement de la vue 3D …", "Caricamento della vista 3D …", "Loading 3D view …"],
+    v3_err: ["3D-Ansicht konnte nicht geladen werden (Internetverbindung prüfen).", "La vue 3D n'a pas pu être chargée (vérifier la connexion).", "Impossibile caricare la vista 3D (controllare la connessione).", "3D view could not be loaded (check the connection)."],
+    v3_nogl: ["Dieser Browser unterstützt WebGL nicht – die 3D-Ansicht ist nicht verfügbar.", "Ce navigateur ne prend pas en charge WebGL – la vue 3D n'est pas disponible.", "Questo browser non supporta WebGL – la vista 3D non è disponibile.", "This browser does not support WebGL – the 3D view is not available."],
+    v3_file: ["Die 3D-Ansicht läuft nur in der Online-Version, nicht in einer lokal geöffneten Datei.", "La vue 3D ne fonctionne que dans la version en ligne, pas dans un fichier ouvert localement.", "La vista 3D funziona solo nella versione online, non in un file aperto localmente.", "The 3D view only works in the online version, not in a locally opened file."],
+    v3_empty: ["Noch keine Leitungen oder Schächte im Projekt.", "Pas encore de conduites ou de chambres dans le projet.", "Nessuna condotta o pozzetto nel progetto.", "No lines or shafts in the project yet."],
+    v3_noTerrain: ["Geländemodell nicht erreichbar: Ansicht auf flacher Fläche.", "Modèle de terrain inaccessible : vue sur surface plane.", "Modello del terreno non raggiungibile: vista su superficie piana.", "Terrain model unreachable: flat surface shown."],
+    v3_noBld: ["3D-Gebäude nicht erreichbar.", "Bâtiments 3D inaccessibles.", "Edifici 3D non raggiungibili.", "3D buildings unreachable."],
+    rp_i_3d: ["3D-Ansicht (falls gespeichert)", "Vue 3D (si enregistrée)", "Vista 3D (se salvata)", "3D view (if saved)"],
+    rp_3dCap: ["3D-Ansicht · © swisstopo · Überhöhung {x}× · nur zur Veranschaulichung", "Vue 3D · © swisstopo · exagération {x}× · pour illustration uniquement", "Vista 3D · © swisstopo · esagerazione {x}× · solo a titolo illustrativo", "3D view · © swisstopo · exaggeration {x}× · for illustration only"],
     km_rot: ["Drehung (°)", "Rotation (°)", "Rotazione (°)", "Rotation (°)"],
     km_rot90: ["Schacht um 90° drehen", "Tourner la chambre de 90°", "Ruotare il pozzetto di 90°", "Rotate shaft by 90°"],
     km_shL: ["Länge (m)", "Longueur (m)", "Lunghezza (m)", "Length (m)"],
@@ -5914,7 +5950,7 @@ var LVM = (function () {
     var recs = {}, idx = {};
     TABS.forEach(function (t) { recs[t] = [newRec(t, 1)]; idx[t] = 0; });
     return { v: 2, lang: "de", tab: "graben", kopf: { projekt: "", ort: "", bearb: "", datum: datum || "", rolle: "anv", devisNr: "", lieferant: "", vertrag: "", termin: "", belagLief: false, sap: "", bem: "" },
-      recs: recs, idx: idx, sond: { m3: "", einfHand: false }, wasser: { h: "", sumpf: "" }, be: { pct: "1", regie: "3" }, dichte: "2.4", bau: "allein", mwst: "8.1", reserve: "0", genau: "10",
+      recs: recs, idx: idx, sond: { m3: "", einfHand: false }, wasser: { h: "", sumpf: "" }, be: { pct: "1", regie: "3" }, dichte: "2.4", bau: "allein", v3d: null, mwst: "8.1", reserve: "0", genau: "10",
       par: { deckG: "0.03", deckS: "0.035", deckK: "0.04", gehMin: "0.06", gehMax: "0.12", strMin: "0.09", strMax: "0.20", kanMin: "0.12", kanMax: "0.30" },
       D: { wl: { ts: [1.50, 1.00, 1.00], bo: [1.50, 1.00, 1.00], sg: [2.00, 1.20, 1.20], zs: [1.00, 0.80, 1.00] }, fund: { "CAB 1-3 L": [1.00, 0.60, 0.80], "C 50": [1.20, 0.70, 0.80] } },
       ui: { closed: {}, xo: {}, printDraw: true } };
@@ -6988,6 +7024,7 @@ var FIG = (function () {
       '<button type="button" class="btn ghost small" data-k="center">' + esc(tt("km_center")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="lbl" aria-pressed="true">' + esc(tt("km_lbl")) + "</button>" +
       '<button type="button" class="btn ghost small" data-k="band" aria-pressed="true" title="' + esc(tt("km_bandT")) + '">' + esc(tt("km_band")) + "</button>" +
+      (plan || !(window.V3D && V3D.desktop()) ? "" : '<button type="button" class="btn ghost small" data-k="v3d" title="' + esc(tt("km_3dT")) + '">' + esc(tt("km_3d")) + "</button>") +
       '<button type="button" class="btn ghost small" data-k="pit" aria-pressed="true" title="' + esc(tt("km_pitT")) + '">' + esc(tt("km_pit")) + "</button>" +
       '<label class="kmbl" for="kmStl">' + esc(tt("km_stl")) + '</label><select id="kmStl">' + [["std", "km_stl_std"], ["zoom", "km_stl_zoom"], ["min", "km_stl_min"]].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join("") + "</select>" +
       (plan ? "" : '<button type="button" class="btn ghost small" data-k="sv">' + esc(tt("km_sv")) + '</button><button type="button" class="btn ghost small" data-k="svkey" title="' + esc(tt("km_sv_keyHint")) + '">' + esc(tt("km_sv_key")) + "</button>") +
@@ -7227,7 +7264,7 @@ var FIG = (function () {
             ["ins", [["rb_pImp", [K("dxfin")]], ["rb_pLay", [".lynav .kmmidtog"]]]],
             ["an", [["rb_pEval", [D("prof"), D("aus"), D("kost"), D("pos"), D("offen"), D("warn")]], ["rb_pProf", ["[data-pfb]"]]]],
             ["out", [["rb_pRes", [".lynav [data-ly=res]", ".lynav [data-ly=rep]", ".lynav [data-ly=rec]", ".lynav [data-ly=proj]"]], ["rb_pProj", [".kmheadb [data-k=save]", ".kmheadb [data-k=apply]"]]]],
-            ["view", [["rb_pMap", [".lybtn", ".lysbtn"]], ["rb_pShow", ["[data-k=lbl]", "[data-k=band]", "[data-k=pit]"]], ["rb_pWin", [".nc-theme", ".lycmdk-b", "[data-hpk]"]]]]
+            ["view", [["rb_pMap", [".lybtn", ".lysbtn"]], ["rb_pShow", ["[data-k=lbl]", "[data-k=band]", "[data-k=pit]", "[data-k=v3d]"]], ["rb_pWin", [".nc-theme", ".lycmdk-b", "[data-hpk]"]]]]
           ];
           var rb = E("section", "lyrb"); rb.setAttribute("aria-label", tt("rb_label"));
           var cur = "start", min = window.__LVD_RIBBON_DEFAULT === "min"; try { var sv = JSON.parse(localStorage.getItem("lvd-ribbon") || "null"); if (sv && typeof sv === "object") { if (TABS.some(function (t) { return t[0] === sv.t; })) cur = sv.t; min = !!sv.m; } } catch (e) { }
@@ -7871,13 +7908,24 @@ var FIG = (function () {
     function nearDir(pt) { var best = null, bd = 1e18; M.lines.forEach(function (l) { for (var i = 0; i + 1 < l.pts.length; i++) { var a = l.pts[i], b = l.pts[i + 1], u = unitV(a, b); if (!u) continue; var dx = pt[0] - a[0], dy = pt[1] - a[1], t = Math.max(0, Math.min(AD.dist(a, b), dx * u[0] + dy * u[1])), d = Math.hypot(dx - u[0] * t, dy - u[1] * t); if (d < bd) { bd = d; best = u; } } }); return best || [1, 0]; }
     function pitRect(c, u, l, w) { var k = kU(), v = [-u[1], u[0]], hl = l / 2 * k, hw = w / 2 * k, P = function (a, b) { return [c[0] + u[0] * a + v[0] * b, c[1] + u[1] * a + v[1] * b]; }; return [P(hl, hw), P(hl, -hw), P(-hl, -hw), P(-hl, hw)]; }
     var lastPits = [];
+    function pitPolys() {   /* Aushubgruben (Karteneinheiten) unabhängig von Zoom und Schalter */
+      var out = [];
+      M.pts.forEach(function (p) { var sp = shaftSpec(p), a = 2 * PIT_AR.sch; out.push(pitRect(p.pt, shaftDir(p), sp.l + a, sp.w + a)); });
+      M.wl.forEach(function (q) { var d = WL_D[q.wt] || WL_D.ts, a = 2 * PIT_AR.wl; out.push(pitRect(q.pt, nearDir(q.pt), d[0] + a, d[1] + a)); });
+      M.sond.forEach(function (q) { var sl = parseFloat(String(q.l == null ? "" : q.l).replace(",", ".")), sb = parseFloat(String(q.b == null ? "" : q.b).replace(",", ".")), a = 2 * PIT_AR.wl; out.push(pitRect(q.pt, [1, 0], (sl > 0 ? sl : 1) + a, (sb > 0 ? sb : 1) + a)); });   /* Länge/Breite der Sondage + Arbeitsraum wie Werkloch */
+      return out;
+    }
     function pitDraw() {
       lastPits = [];
       if (!PIT_ON || map.getZoom() < (plan ? -99 : 17) || !kU()) return;
-      var add = function (poly) { lastPits.push(poly); L.polygon(poly.map(AD.ll), { color: "#6f7f87", weight: 1.3, dashArray: "6 5", opacity: 0.95, fill: false, interactive: false, pit: true }).addTo(grp); };
-      M.pts.forEach(function (p) { var sp = shaftSpec(p), a = 2 * PIT_AR.sch; add(pitRect(p.pt, shaftDir(p), sp.l + a, sp.w + a)); });
-      M.wl.forEach(function (q) { var d = WL_D[q.wt] || WL_D.ts, a = 2 * PIT_AR.wl; add(pitRect(q.pt, nearDir(q.pt), d[0] + a, d[1] + a)); });
-      M.sond.forEach(function (q) { var sl = parseFloat(String(q.l == null ? "" : q.l).replace(",", ".")), sb = parseFloat(String(q.b == null ? "" : q.b).replace(",", ".")), a = 2 * PIT_AR.wl; add(pitRect(q.pt, [1, 0], (sl > 0 ? sl : 1) + a, (sb > 0 ? sb : 1) + a)); });   /* Länge/Breite der Sondage + Arbeitsraum wie Werkloch */
+      pitPolys().forEach(function (poly) { lastPits.push(poly); L.polygon(poly.map(AD.ll), { color: "#6f7f87", weight: 1.3, dashArray: "6 5", opacity: 0.95, fill: false, interactive: false, pit: true }).addTo(grp); });
+    }
+    function v3dOpen() {   /* 3D-Ansicht (swisstopo, nur Computer): Projekt in WGS84 an die 3D-Szene geben */
+      if (plan || !window.V3D) return; var w = function (p) { return toWGS(p[0], p[1]); };
+      V3D.open({ tt: tt, data: { lines: M.lines.filter(function (l) { return l.pts.length > 1; }).map(function (l) { return l.pts.map(w); }), areas: M.areas.filter(function (f) { return f.pts.length > 2; }).map(function (f) { return f.pts.map(w); }),
+        pts: M.pts.map(function (p, i) { return { p: w(p.pt), l: String(i + 1) }; }), wl: M.wl.map(function (q, i) { return { p: w(q.pt), l: "W" + (i + 1) }; }), sond: M.sond.map(function (q, i) { return { p: w(q.pt), l: "S" + (i + 1) }; }),
+        pits: pitPolys().map(function (a) { return a.map(w); }) },
+        onImage: function (u, m) { if (opt.on3d) opt.on3d(u, m); toast(dlg, tt("v3_imgDone")); }, onClose: function () { var b = $("[data-k=v3d]"); if (b) b.focus(); } });
     }
     function draw() {
       grp.clearLayers(); layers = {}; var edit = mode === "edit"; bandDraw(); pitDraw();
@@ -9491,6 +9539,7 @@ var FIG = (function () {
       else if (k === "dxfin") { var dfi = $("#kmDxfF"); if (dfi) { dfi.value = ""; dfi.click(); } }
       else if (k === "fit") fitAll();
       else if (k === "max") { var on = !dlg.classList.contains("kmmax"); dlg.classList.toggle("kmmax", on); b.setAttribute("aria-pressed", on ? "true" : "false"); try { localStorage.setItem("lvd-km-max", on ? "1" : "0"); } catch (x) { } setTimeout(function () { map.invalidateSize({ animate: false }); ovDraw(); }, 50); }
+      else if (k === "v3d") { v3dOpen(); }
       else if (k === "pit") { PIT_ON = !PIT_ON; try { localStorage.setItem("lvd-km-pit", PIT_ON ? "1" : "0"); } catch (x) { } b.setAttribute("aria-pressed", PIT_ON ? "true" : "false"); draw(); legend(); }
       else if (k === "band") { BAND_ON = !BAND_ON; try { localStorage.setItem("lvd-km-band", BAND_ON ? "1" : "0"); } catch (x) { } b.setAttribute("aria-pressed", BAND_ON ? "true" : "false"); draw(); legend(); }
       else if (k === "lbl") { showLbl = !showLbl; b.setAttribute("aria-pressed", showLbl ? "true" : "false"); draw(); }
@@ -9728,6 +9777,96 @@ var FIG = (function () {
   }
 
   window.KARTE = { lineSlopeS: lineSlopeS, slopeLen: slopeLen, slopeOn: slopeOn, slopeHz: slopeHz, connOf: connOf, connTxt: connTxt, ovBase: ovBase, cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
+})();
+
+</script>
+<script id="v3d">
+/* 3D-Ansicht (swisstopo): Gelände und Luftbild als 3D-Szene (CesiumJS), Leitungen, Schächte, Werklöcher, Sondagen, Flächen und Aushubgruben des Projekts als Überlagerung auf dem Gelände.
+   Nur am Computer (kein Handy). Die Bibliothek wird erst beim Öffnen nachgeladen. Bild für den Projektbericht: «Ansicht übernehmen».
+   Daten (WGS84, [Breite, Länge]): { lines:[[ll]], pts:[{p:ll, l:text}], wl:[{p,l}], sond:[{p,l}], areas:[[ll]], pits:[[ll]] } */
+(function () {
+  "use strict";
+  var VER = "1.120.0", BASE = "https://cdn.jsdelivr.net/npm/cesium@" + VER + "/Build/Cesium/";
+  var TERRAIN = "https://3d.geo.admin.ch/1.0.0/ch.swisstopo.terrain.3d/default/20200520/4326/";
+  var BUILDINGS = "https://3d.geo.admin.ch/ch.swisstopo.swissbuildings3d.3d/v1/tileset.json";
+  var IMAGERY = "https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.swissimage/default/current/3857/{z}/{x}/{y}.jpeg";
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function desktop() { try { return window.matchMedia("(min-width: 861px)").matches && !window.matchMedia("(pointer: coarse)").matches; } catch (e) { return true; } }
+  function webgl() { try { var c = document.createElement("canvas"); return !!(c.getContext("webgl2") || c.getContext("webgl")); } catch (e) { return false; } }
+  function load(ok, bad) {
+    if (window.Cesium) { ok(); return; }
+    var base = window.__LVD_CESIUM_BASE || BASE; window.CESIUM_BASE_URL = base;
+    var l = document.createElement("link"); l.rel = "stylesheet"; l.href = base + "Widgets/widgets.css"; document.head.appendChild(l);
+    var s = document.createElement("script"); s.src = base + "Cesium.js"; s.onload = function () { window.Cesium ? ok() : bad(); }; s.onerror = bad; document.head.appendChild(s);
+  }
+  function bearing(a, b) { var dy = b[0] - a[0], dx = (b[1] - a[1]) * Math.cos(a[0] * Math.PI / 180); return Math.atan2(dx, dy); }
+  function open(o) {
+    var tt = o.tt, d0 = o.data || {}, all = [];
+    ["lines", "areas", "pits"].forEach(function (k) { (d0[k] || []).forEach(function (a) { a.forEach(function (p) { all.push(p); }); }); });
+    ["pts", "wl", "sond"].forEach(function (k) { (d0[k] || []).forEach(function (q) { all.push(q.p); }); });
+    var old = document.getElementById("v3dDlg"); if (old) old.remove();
+    var d = document.createElement("dialog"); d.id = "v3dDlg"; d.className = "v3dlg"; d.setAttribute("aria-labelledby", "v3T");
+    d.innerHTML = '<div class="v3h"><h2 id="v3T">' + esc(tt("v3_title")) + '</h2><div class="v3ctl">' +
+      '<label>' + esc(tt("v3_ex")) + ' <select id="v3Ex"><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="3">3×</option></select></label>' +
+      '<label><input type="checkbox" id="v3Obj" checked> ' + esc(tt("v3_obj")) + '</label><label><input type="checkbox" id="v3Pit" checked> ' + esc(tt("v3_pit")) + '</label><label><input type="checkbox" id="v3Bld"> ' + esc(tt("v3_bld")) + '</label>' +
+      '<button type="button" class="btn small" id="v3Img">' + esc(tt("v3_img")) + '</button><button type="button" class="btn ghost small" id="v3X">' + esc(tt("v3_close")) + '</button></div></div>' +
+      '<div class="v3m" id="v3Map"></div><p class="v3s" id="v3S" role="status"></p><p class="v3c">' + esc(tt("v3_cred")) + '</p>';
+    document.body.appendChild(d);
+    var st = function (m) { var e = d.querySelector("#v3S"); if (e) e.textContent = m || ""; }, viewer = null, gone = false;
+    function close() { if (gone) return; gone = true; try { if (viewer) viewer.destroy(); } catch (e) { } viewer = null; d.remove(); if (o.onClose) o.onClose(); }
+    d.addEventListener("close", close); d.querySelector("#v3X").addEventListener("click", function () { d.close(); });
+    d.showModal();
+    if (!all.length) { st(tt("v3_empty")); return { close: close }; }
+    if (!webgl()) { st(tt("v3_nogl")); return { close: close }; }
+    if (!window.Cesium && location.protocol === "file:") { st(tt("v3_file")); return { close: close }; }   /* als lokale Datei geöffnet laufen die Arbeitsprozesse der 3D-Bibliothek nicht */
+    st(tt("v3_loading"));
+    load(function () { if (gone) return; try { build(); } catch (e) { st(tt("v3_err") + " " + (e && e.message || "")); } }, function () { st(tt("v3_err")); });
+    function build() {
+      var C = window.Cesium; try { C.Ion.defaultAccessToken = ""; } catch (e) { }
+      viewer = new C.Viewer(d.querySelector("#v3Map"), { baseLayer: false, baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false, navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false, infoBox: false, selectionIndicator: false, contextOptions: { webgl: { preserveDrawingBuffer: true } } });
+      var v = viewer; v.scene.globe.depthTestAgainstTerrain = true; v.scene.globe.baseColor = C.Color.fromCssColorString("#5b6b5e");
+      v.imageryLayers.addImageryProvider(new C.UrlTemplateImageryProvider({ url: IMAGERY, tilingScheme: new C.WebMercatorTilingScheme(), maximumLevel: 19, credit: "© swisstopo" }));
+      var tp = null;
+      var tUrl = window.__LVD_TERRAIN || TERRAIN, noT = function () { if (gone) return; look(); st(tt("v3_noTerrain")); };
+      /* Vorprüfung: Antwortet der Geländedienst nicht mit einer gültigen Beschreibung (layer.json), bleibt die Ansicht auf flacher Fläche – sonst würde der Globus leer */
+      (function () { var ac = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ac) ac.abort(); }, 8000);
+        fetch(tUrl + "layer.json", ac ? { signal: ac.signal } : {}).then(function (r) { clearTimeout(tm); if (!r.ok) throw new Error("terrain"); return r.json(); }).then(function (j) { if (!j || !j.tiles) throw new Error("terrain"); return C.CesiumTerrainProvider.fromUrl(tUrl); })
+          .then(function (t) { if (gone) return; tp = t; v.terrainProvider = t; look(); }).catch(function () { clearTimeout(tm); noT(); }); })();
+      var c3 = function (a) { var f = []; a.forEach(function (p) { f.push(p[1], p[0]); }); return C.Cartesian3.fromDegreesArray(f); };
+      var dsO = new C.CustomDataSource("obj"), dsP = new C.CustomDataSource("pit"); v.dataSources.add(dsO); v.dataSources.add(dsP);
+      (d0.areas || []).forEach(function (a) { if (a.length > 2) dsO.entities.add({ polygon: { hierarchy: c3(a), material: C.Color.fromCssColorString("#f28c00").withAlpha(0.35), outline: false } }); });
+      (d0.lines || []).forEach(function (a) { if (a.length < 2) return; var pos = c3(a);
+        dsO.entities.add({ polyline: { positions: pos, width: 9, material: C.Color.WHITE.withAlpha(0.9), clampToGround: true } });
+        dsO.entities.add({ polyline: { positions: pos, width: 5, material: C.Color.fromCssColorString("#0b6b72"), clampToGround: true } }); });
+      (d0.pits || []).forEach(function (a) { var q = a.slice(); q.push(a[0]); dsP.entities.add({ polyline: { positions: c3(q), width: 2.5, material: new C.PolylineDashMaterialProperty({ color: C.Color.fromCssColorString("#d9e2e4"), dashLength: 10 }), clampToGround: true } }); });
+      [["pts", "#f28c00"], ["wl", "#7b3fa0"], ["sond", "#8a5b00"]].forEach(function (k) { (d0[k[0]] || []).forEach(function (q) {
+        dsO.entities.add({ position: C.Cartesian3.fromDegrees(q.p[1], q.p[0]), point: { pixelSize: 12, color: C.Color.fromCssColorString(k[1]), outlineColor: C.Color.WHITE, outlineWidth: 2, heightReference: C.HeightReference.CLAMP_TO_GROUND, disableDepthTestDistance: Number.POSITIVE_INFINITY },
+          label: { text: q.l || "", font: "600 13px sans-serif", fillColor: C.Color.WHITE, outlineColor: C.Color.fromCssColorString("#0a4f55"), outlineWidth: 4, style: C.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new C.Cartesian2(0, -18), heightReference: C.HeightReference.CLAMP_TO_GROUND, disableDepthTestDistance: Number.POSITIVE_INFINITY } }); }); });
+      function look() {
+        var la = 0, lo = 0; all.forEach(function (p) { la += p[0]; lo += p[1]; }); la /= all.length; lo /= all.length;
+        var mx = 0; all.forEach(function (p) { mx = Math.max(mx, Math.hypot((p[0] - la) * 111320, (p[1] - lo) * 111320 * Math.cos(la * Math.PI / 180))); });
+        var hd = (d0.lines || []).filter(function (a) { return a.length > 1; })[0], head = hd ? bearing(hd[0], hd[hd.length - 1]) : 0;
+        var cg = [C.Cartographic.fromDegrees(lo, la)];
+        var go = function (h) { if (gone) return; v.camera.lookAt(C.Cartesian3.fromDegrees(lo, la, h || 0), new C.HeadingPitchRange(head, C.Math.toRadians(-32), Math.max(120, mx * 3.2))); v.camera.lookAtTransform(C.Matrix4.IDENTITY); st(""); };
+        if (tp && C.sampleTerrainMostDetailed) C.sampleTerrainMostDetailed(tp, cg).then(function (r) { go(r[0].height); }, function () { go(0); }); else go(0);
+      }
+      d.querySelector("#v3Ex").addEventListener("change", function (e) { try { v.scene.verticalExaggeration = parseFloat(e.target.value) || 1; } catch (x) { } });
+      d.querySelector("#v3Obj").addEventListener("change", function (e) { dsO.show = e.target.checked; });
+      d.querySelector("#v3Pit").addEventListener("change", function (e) { dsP.show = e.target.checked; });
+      var bld = null; d.querySelector("#v3Bld").addEventListener("change", function (e) {
+        if (!e.target.checked) { if (bld) bld.show = false; return; }
+        if (bld) { bld.show = true; return; }
+        st(tt("v3_loading")); C.Cesium3DTileset.fromUrl(window.__LVD_BUILDINGS || BUILDINGS).then(function (t) { if (gone) return; bld = t; v.scene.primitives.add(t); st(""); }).catch(function () { st(tt("v3_noBld")); e.target.checked = false; });
+      });
+      d.querySelector("#v3Img").addEventListener("click", function () {
+        try { v.render(); var cv = v.scene.canvas, W = Math.min(1400, cv.width), H = Math.round(W * cv.height / cv.width), c2 = document.createElement("canvas"); c2.width = W; c2.height = H; c2.getContext("2d").drawImage(cv, 0, 0, W, H);
+          var url = c2.toDataURL("image/jpeg", 0.85); if (o.onImage) o.onImage(url, { ex: parseFloat(d.querySelector("#v3Ex").value) || 1, w: W, h: H }); st(tt("v3_imgDone")); } catch (e) { st(tt("v3_err") + " " + (e && e.message || "")); }
+      });
+      o.viewer = v; window.__V3D_VIEWER = v;   /* Testzugriff */
+    }
+    return { close: close };
+  }
+  window.V3D = { open: open, desktop: desktop, webgl: webgl, VER: VER };
 })();
 
 </script>
@@ -10594,7 +10733,7 @@ var FIG = (function () {
           var u0 = ensureUid(cfg); cfg.trasse.forEach(function (pts, i) { S.karte.lines.push({ id: "m" + i + u0, pts: pts, rid: i === 0 ? u0 : null, rohr: { sys: cfg.rohrSystem, dn: cfg.dn, len: cfg.len, n: cfg.n } }); }); delete cfg.trasse;
         }
         var g = tab === "graben" && cfg;
-        KARTE.open({ kind: "map", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, cost: costPreview(cfg, tab), model: ex.keep && ex.keep.model ? ex.keep.model : JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), view: ex.keep ? ex.keep.view : null, edited: !!(ex.keep && ex.keep.edited), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
+        KARTE.open({ kind: "map", on3d: function (u, m) { S.v3d = { img: u, at: Date.now(), ex: m.ex }; save(); }, tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, cost: costPreview(cfg, tab), model: ex.keep && ex.keep.model ? ex.keep.model : JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), view: ex.keep ? ex.keep.view : null, edited: !!(ex.keep && ex.keep.edited), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" && cfg ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" && cfg ? cfg.cm : "", abd: tab === "geb" && cfg ? cfg.abd : "hauff" }, defBelag: tab === "belag" && cfg ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
           onClose: function () { if (ex.layoutA) return; var o = $(ex.focus || "#kmOpen"); if (o) o.focus(); },
@@ -11247,6 +11386,7 @@ var FIG = (function () {
     if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb], ["datum", k.datum || today()]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
     h += reportCover();
     if (o.situ) h += reportMap();
+    if (o.v3d !== false && S.v3d && S.v3d.img) h += '<section class="rp-sec rp-3d"><h2>' + esc(tt("v3_title")) + '</h2><figure><img src="' + S.v3d.img + '" alt="' + esc(tt("v3_title")) + '"><figcaption>' + esc(fill(tt("rp_3dCap"), { x: S.v3d.ex || 1 })) + "</figcaption></figure></section>";
     if (o.mengen) {
       if (o.mode === "total") {
         var rows = reportTotals(out);
@@ -11272,13 +11412,13 @@ var FIG = (function () {
   }
   function reportOpen() {
     var d = document.getElementById("reportDlg"); if (d) d.remove();
-    var R = S.ui.report = Object.assign({ mode: "abschnitte", kopf: true, situ: true, mengen: true, pos: true, kosten: true, annahmen: true, warn: true }, S.ui.report || {});
+    var R = S.ui.report = Object.assign({ mode: "abschnitte", kopf: true, situ: true, v3d: true, mengen: true, pos: true, kosten: true, annahmen: true, warn: true }, S.ui.report || {});
     d = document.createElement("dialog"); d.id = "reportDlg"; d.className = "rpdlg"; d.setAttribute("aria-labelledby", "rpT");
     var cb = function (k, lab) { return '<label class="rp-cb"><input type="checkbox" data-rp="' + k + '"' + (R[k] ? " checked" : "") + "> " + esc(tt(lab)) + "</label>"; };
     d.innerHTML = '<form method="dialog"><h2 id="rpT">' + esc(tt("rp_title")) + '</h2><fieldset class="rp-fs"><legend>' + esc(tt("rp_gl")) + "</legend>" +
       '<label class="rp-cb"><input type="radio" name="rpm" value="abschnitte"' + (R.mode !== "total" ? " checked" : "") + "> <b>" + esc(tt("rp_m_abs")) + "</b><span class=\"rp-sub\">" + esc(tt("rp_m_abs_s")) + "</span></label>" +
       '<label class="rp-cb"><input type="radio" name="rpm" value="total"' + (R.mode === "total" ? " checked" : "") + "> <b>" + esc(tt("rp_m_tot")) + "</b><span class=\"rp-sub\">" + esc(tt("rp_m_tot_s")) + "</span></label></fieldset>" +
-      '<fieldset class="rp-fs"><legend>' + esc(tt("rp_inh")) + "</legend>" + cb("kopf", "rp_i_kopf") + cb("situ", "rp_i_situ") + cb("mengen", "rp_i_mengen") + cb("pos", "rp_i_pos") + cb("kosten", "rp_i_kosten") + cb("annahmen", "rp_i_ann") + cb("warn", "rp_i_warn") + "</fieldset>" +
+      '<fieldset class="rp-fs"><legend>' + esc(tt("rp_inh")) + "</legend>" + cb("kopf", "rp_i_kopf") + cb("situ", "rp_i_situ") + (S.v3d && S.v3d.img ? cb("v3d", "rp_i_3d") : "") + cb("mengen", "rp_i_mengen") + cb("pos", "rp_i_pos") + cb("kosten", "rp_i_kosten") + cb("annahmen", "rp_i_ann") + cb("warn", "rp_i_warn") + "</fieldset>" +
       '<p class="hint">' + esc(tt("rp_hint")) + '</p><div class="kmbar"><button type="submit" class="btn" value="print" id="rpGo">' + esc(tt("rp_go")) + '</button> <button type="submit" class="btn ghost" value="x">' + esc(tt("rp_close")) + "</button></div></form>";
     document.body.appendChild(d);
     d.addEventListener("close", function () { d.remove(); });
