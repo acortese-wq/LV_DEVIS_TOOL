@@ -68,9 +68,9 @@ def rec(t, i):
     if t == "hon": return {"name": "Hon", "src": ch(["lv", "man"]), "B": ch(["", "250000"]), "n": ch(["1.0", "0.9", "1.2"]), "r": ch(["1.0", "1.1"]), "h": ch(["", "140"]), "nk": ch(["", "3"]),
                            "gl": ch([True, False]), "ph": [{"k": p[0], "on": ch([True, False])} for p in kve.PHDEF]}
 for i in range(N):
-    inp = {"lang": ch(["de", "fr", "it"]), "kopf": {"projekt": "Fuzz %d" % i, "sap": "F%03d" % i, "belagLief": ch([True, False])}, "be": {"pct": ch(["", "2", "3.5"])},
+    inp = {"lang": ch(["de", "fr", "it"]), "kopf": {"projekt": "Fuzz %d" % i, "sap": "F%03d" % i, "belagLief": ch([True, False])}, "be": {"pct": ch(["", "2", "3.5"]), "regie": ch(["", "3", "5"])}, "bau": ch(["allein", "allein", "koop"]),
            "dichte": ch(["2.4", "2.3", ""]), "mwst": ch(["8.1", "7.7"]), "reserve": ch(["", "0", "10", "5.5"]), "sond": {"m3": ch(["", "2"]), "einfHand": ch([True, False])}, "wasser": {"h": ch(["", "5"]), "sumpf": ch(["", "1"])},
-           "recs": {t: [rec(t, j) for j in range(R.randint(1, 2))] for t in R.sample(kve.TABS + ["hon"], R.randint(1, 6))}}
+           "recs": {t: [dict(rec(t, j), bau=ch(["proj", "proj", "allein", "koop"]), **({"schutzL": ch(["", "12", "30"])} if t == "graben" else {})) for j in range(R.randint(1, 2))] for t in R.sample(kve.TABS + ["hon"], R.randint(1, 6))}}
     p = os.path.join(out, "in_%03d.json" % i)
     json.dump(inp, open(p, "w"), ensure_ascii=False)
     subprocess.run([sys.executable, os.path.join(H, "skill/lv-devis-tiefbau/scripts/rechne.py"), p, "--json-only", "--out", out], check=True, stdout=subprocess.DEVNULL)

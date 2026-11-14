@@ -120,7 +120,7 @@
   var curShape = function (c) { return kindOf(c) === "KS" ? "rund" : c.shape; };
   var COVERS = Object.keys(LV).filter(function (k) { return k.indexOf("151/632.1") === 0; }).sort();
   var F = {
-    graben: [{ sec: "s_graben" }, { id: "name", t: "text" }, { id: "L", t: "num" }, { t: "trasse" }, { id: "T", t: "num" },
+    graben: [{ sec: "s_graben" }, { id: "name", t: "text" }, { id: "L", t: "num" }, { t: "trasse" }, { id: "bau", t: "sel", opts: ["proj", "allein", "koop"], hint: "hint_bau" }, { id: "schutzL", t: "num" }, { id: "T", t: "num" },
       { id: "bmode", t: "sel", opts: ["min60", "begangen", "nicht_begangen", "manuell"], struct: 1, hint: "hint_breite" },
       { id: "aussen", t: "num", show: function (c) { return c.bmode === "begangen" || c.bmode === "nicht_begangen"; } },
       { id: "bman", t: "num", show: function (c) { return c.bmode === "manuell"; } },
@@ -155,7 +155,7 @@
       { id: "zores.zustand", t: "sel", opts: ["abrechen", "betrieb", "nicht"], show: function (c) { return c.mods.fremd && c.zores.on; } },
       { id: "zores.len", t: "num", show: function (c) { return c.mods.fremd && c.zores.on; } },
       { id: "mods.boesch", t: "chip" }, { id: "boeschung.flaeche", t: "num", show: function (c) { return c.mods.boesch; } }, { id: "boeschung.geneigt", t: "chk", show: function (c) { return c.mods.boesch; } }]),
-    schacht: [{ sec: "s_schacht" }, { id: "name", t: "text" }, { t: "trasse" }, { id: "modus", t: "sel", opts: ["neu", "ersatz", "deckel", "anschluss"], struct: 1 },
+    schacht: [{ sec: "s_schacht" }, { id: "name", t: "text" }, { t: "trasse" }, { id: "bau", t: "sel", opts: ["proj", "allein", "koop"], hint: "hint_bau" }, { id: "modus", t: "sel", opts: ["neu", "ersatz", "deckel", "anschluss"], struct: 1 },
       { id: "deckelRichtung", t: "sel", opts: ["hoeher", "tiefer"], show: function (c) { return c.modus === "deckel"; } },
       { id: "deckelFormat", t: "sel", opts: ["rund", "rechteckig"], show: function (c) { return c.modus === "deckel"; } },
       { id: "deckelN", t: "num", show: function (c) { return c.modus === "deckel"; } },
@@ -184,11 +184,11 @@
       { sec: "s_opts" }, { t: "opts" }, { sec: "s_freigabe", show: notDeckel },
       { id: "deviate", t: "chk", show: notDeckel }, { id: "reason", t: "text", show: notDeckel }, { id: "approver", t: "text", show: notDeckel }, { id: "journal", t: "chk", show: notDeckel },
       { t: "printDraw", show: notDeckel }])),
-    werkloch: [{ sec: "s_wl" }, { id: "name", t: "text" }, { t: "trasse" }, { id: "ts", t: "num", half: 1 }, { id: "bo", t: "num", half: 1 }, { id: "sg", t: "num", half: 1 }, { id: "zs", t: "num", half: 1 },
+    werkloch: [{ sec: "s_wl" }, { id: "name", t: "text" }, { t: "trasse" }, { id: "bau", t: "sel", opts: ["proj", "allein", "koop"], hint: "hint_bau" }, { id: "ts", t: "num", half: 1 }, { id: "bo", t: "num", half: 1 }, { id: "sg", t: "num", half: 1 }, { id: "zs", t: "num", half: 1 },
       { sec: "s_indWL" }, { id: "iL", t: "num", half: 1 }, { id: "iB", t: "num", half: 1 }, { id: "iT", t: "num", half: 1 },
       { sec: "s_psauf" }, { id: "p0", t: "num", half: 1 }, { id: "p1", t: "num", half: 1 }, { id: "p2", t: "num", half: 1 }, { id: "p3", t: "num", half: 1 },
       { sec: "s_graben" }].concat(PIT_FIELDS, ERSCH_FIELDS, [{ sec: "s_zone" }], VERF_FIELDS, [{ sec: "s_belag" }], BELAG_FIELDS),
-    fund: [{ sec: "s_fund" }, { id: "name", t: "text" }, { id: "vk", t: "sel", opts: [""].concat(KVE.VK) }, { id: "kvs", t: "sel", opts: [""].concat(KVE.KVS) }]
+    fund: [{ sec: "s_fund" }, { id: "name", t: "text" }, { id: "bau", t: "sel", opts: ["proj", "allein", "koop"], hint: "hint_bau" }, { id: "vk", t: "sel", opts: [""].concat(KVE.VK) }, { id: "kvs", t: "sel", opts: [""].concat(KVE.KVS) }]
       .concat(PIT_FIELDS, ERSCH_FIELDS, [{ sec: "s_zone" }], VERF_FIELDS, [{ sec: "s_belag" }], BELAG_FIELDS),
     geb: [{ sec: "s_geb" }, { id: "name", t: "text" }, { t: "trasse" }, { id: "n", t: "num", labKey: "f_gn" }, { id: "cm", t: "num" }, { id: "abd", t: "sel", opts: ["keine", "kissen", "hauff"] }],
     belag: [{ sec: "s_wi" }, { id: "name", t: "text" }, { t: "trasse" }, { id: "indiv", t: "sel", opts: ["false", "true"], struct: 1, hint: "ksHint" },
@@ -196,7 +196,7 @@
       { id: "d", t: "num", show: function (c) { return String(c.indiv) !== "true"; }, rangeHint: 1 },
       { id: "B", t: "num", half: 1, show: function (c) { return String(c.indiv) !== "true"; } }, { id: "L", t: "num", half: 1, labKey: "f_Lbel", show: function (c) { return String(c.indiv) !== "true"; } },
       { id: "wi", t: "sel", opts: function (c) { return ["strasse", "kanton"].indexOf(c.bk) >= 0 ? ["A", "A1", "B", "C", "C1", "C2"] : ["A", "A1", "B"]; }, struct: 1, show: function (c) { return String(c.indiv) !== "true"; } }],
-    allg: [{ sec: "s_vor" }, { id: "sond.m3", t: "num", glob: 1 }, { id: "sond.einfHand", t: "chk", glob: 1 }, { id: "wasser.h", t: "num", glob: 1, half: 1 }, { id: "wasser.sumpf", t: "num", glob: 1, half: 1 },
+    allg: [{ sec: "s_bau" }, { id: "bau", t: "sel", opts: ["allein", "koop"], glob: 1, struct: 1, hint: "hint_bau" }, { sec: "s_vor" }, { id: "sond.m3", t: "num", glob: 1 }, { id: "sond.einfHand", t: "chk", glob: 1 }, { id: "wasser.h", t: "num", glob: 1, half: 1 }, { id: "wasser.sumpf", t: "num", glob: 1, half: 1 },
       { sec: "s_be" }, { id: "be.pct", t: "num", glob: 1, hint: "hint_bepct", beHint: 1 }, { id: "be.regie", t: "num", glob: 1, hint: "hint_regie" },
       { sec: "s_pausch" }, { id: "name", t: "text" }, { id: "km", t: "num", half: 1 }, { id: "ak", t: "num", half: 1 }],
     rohr: [{ sec: "s_rohrTab" }, { id: "name", t: "text" }, { id: "verl", t: "chk" }, { t: "rohrLists" },
@@ -619,6 +619,8 @@
       r.roh = c.fl === "roh"; if (!r.belag) r.belag = newRec("graben", 1).belag;
       setSurface(r, c.fl, c.ab);
     }
+    if (c.bau && c.bau !== "proj") r.bau = c.bau; else if (c.bau === "proj") r.bau = "proj";
+    if (c.schutz !== undefined) r.schutzL = String(c.schutz || "");
     if (c.fl && c.fl !== "roh") r.gesp = !!c.gesp;   /* ohne Aushub (Rohplanie) keine Spriessung */
     if (KVE.num(c.kr, 0) > 0) r.kreuz = { on: true, n: String(c.kr), len: (r.kreuz && r.kreuz.len) || "1.00", richtung: (r.kreuz && r.kreuz.richtung) || "quer" }; else if (c.kr === "0") r.kreuz = Object.assign({}, r.kreuz || {}, { on: false });
     if (c.art !== "beton" && c.art !== "laengs") { if (c.b90 !== "") r.b90 = String(KVE.num(c.b90, 0)); if (c.b45 !== "") r.b45 = String(KVE.num(c.b45, 0)); }
@@ -1050,7 +1052,7 @@
   }
 
   /* ---------- Ergebnis ---------- */
-  var ORDER = ["g_bauwerk", "g_belag", "g_deponieBelag", "g_abbruch", "g_aushub", "g_ersch", "g_spries", "g_zone", "g_rohr", "g_verf", "g_deponie", "g_belagNeu", "g_abdeckung", "g_fremd", "g_boesch", "g_zus", "g_weitere", "g_pausch", "g_vorarbeiten", "g_be", "g_frei"];
+  var ORDER = ["g_bauwerk", "g_belag", "g_deponieBelag", "g_abbruch", "g_aushub", "g_ersch", "g_spries", "g_zone", "g_rohr", "g_verf", "g_deponie", "g_belagNeu", "g_abdeckung", "g_fremd", "g_schutz", "g_boesch", "g_zus", "g_weitere", "g_pausch", "g_vorarbeiten", "g_be", "g_frei"];
   function openText(l) { return fill(tt("w_" + l.tk), l.args); }
   function mwLab(pct) { return String(tt("k_mwst")).replace(/\s*[\d.,]+\s*%\s*$/, "") + " " + qf(r2(pct)) + " %"; }   /* MWST-Bezeichnung mit dem tatsächlichen Satz (statt fix 8.1 %) */
   function ofBtn(l, lab) { return l.tk && l.tk !== "freiKeinEP" ? '<p class="ofrow no-print"><button type="button" class="btn ghost small" data-act="offen" data-ofk="' + esc(l.tk + "|" + l.unit) + '">' + esc(tt(lab)) + "</button></p>" : ""; }

@@ -10,6 +10,8 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 | **Graben und Aushub** | | | | |
 | `name` | Bezeichnung | text | `"Leitungsgraben 1"` |  |
 | `L` | Länge Graben (m) | Zahl (Text) | `""` |  |
+| `bau` | Bauart (Alleinbau / Kooperation)<br><i>Alleinbau: Aushub, Spriessung, Wasserhaltung, Verfüllung und Belag zahlen wir. Kooperation: der Bauherr übernimmt diese bis Rohplanum; wir rechnen Leitungszone, Rohre, Bauwerke, Erschwernisse durch Fremdleitungen und den Schutz eigener Leitungen. Verkehrs- und Baustellensicherung über die Baustelleneinrichtung bzw. freie Positionen.</i> | `proj` Wie Projekt<br>`allein` Alleinbau: alles zu unseren Lasten<br>`koop` Kooperation: Bauherr bis Rohplanum | `"proj"` |  |
+| `schutzL` | Schutz eigener Kabel (m, Umpacken in Längsverschlussrohr) | Zahl (Text) | `""` |  |
 | `T` | Tiefe (m) | Zahl (Text) | `"0.60"` |  |
 | `bmode` | Grabenbreite<br><i>Grundlage: VSE-Branchenempfehlung 1103d, Ziff. 3.3.1, und BauAV Art. 55.</i> | `min60` Mindestbreite 0.60 m (Tiefe über 1.00 m)<br>`begangen` Tiefe bis 1.00 m, begangen: Aussenmass + 0.40 m<br>`nicht_begangen` Tiefe bis 1.00 m, nicht begangen: Aussenmass + Verdämmung<br>`manuell` Manuell | `"min60"` |  |
 | `aussen` | Aussenmass Rohr/Rohrblock (m) | Zahl (Text) | `""` | bmode === "begangen" // bmode === "nicht_begangen" |
@@ -123,6 +125,7 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 |---|---|---|---|---|
 | **Schacht und Grube** | | | | |
 | `name` | Bezeichnung | text | `"Schacht 1"` |  |
+| `bau` | Bauart (Alleinbau / Kooperation)<br><i>Alleinbau: Aushub, Spriessung, Wasserhaltung, Verfüllung und Belag zahlen wir. Kooperation: der Bauherr übernimmt diese bis Rohplanum; wir rechnen Leitungszone, Rohre, Bauwerke, Erschwernisse durch Fremdleitungen und den Schutz eigener Leitungen. Verkehrs- und Baustellensicherung über die Baustelleneinrichtung bzw. freie Positionen.</i> | `proj` Wie Projekt<br>`allein` Alleinbau: alles zu unseren Lasten<br>`koop` Kooperation: Bauherr bis Rohplanum | `"proj"` |  |
 | `modus` | Modus | `neu` Neuer Schacht<br>`ersatz` Abdeckung ersetzen<br>`deckel` Bestehenden Schacht anpassen (Deckel)<br>`anschluss` Bestehender Schacht: Anschlüsse | `"neu"` |  |
 | `deckelRichtung` | Richtung | `hoeher` Höhersetzen<br>`tiefer` Tiefersetzen | `"hoeher"` | modus === "deckel" |
 | `deckelFormat` | Format | `rund` Rund (⌀ 400–800 mm)<br>`rechteckig` Rechteckig (bis 2.40 × 1.40 m) | `"rund"` | modus === "deckel" |
@@ -205,6 +208,7 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 |---|---|---|---|---|
 | **Werklöcher (Masse unter Annahmen)** | | | | |
 | `name` | Bezeichnung | text | `"Werklöcher 1"` |  |
+| `bau` | Bauart (Alleinbau / Kooperation)<br><i>Alleinbau: Aushub, Spriessung, Wasserhaltung, Verfüllung und Belag zahlen wir. Kooperation: der Bauherr übernimmt diese bis Rohplanum; wir rechnen Leitungszone, Rohre, Bauwerke, Erschwernisse durch Fremdleitungen und den Schutz eigener Leitungen. Verkehrs- und Baustellensicherung über die Baustelleneinrichtung bzw. freie Positionen.</i> | `proj` Wie Projekt<br>`allein` Alleinbau: alles zu unseren Lasten<br>`koop` Kooperation: Bauherr bis Rohplanum | `"proj"` |  |
 | `ts` | T-Stück [St] | Zahl (Text) | `""` |  |
 | `bo` | Bogen [St] | Zahl (Text) | `""` |  |
 | `sg` | Spleissgrube [St] | Zahl (Text) | `""` |  |
@@ -265,6 +269,7 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 |---|---|---|---|---|
 | **Fundament und Gehäuse** | | | | |
 | `name` | Bezeichnung | text | `"Fundament 1"` |  |
+| `bau` | Bauart (Alleinbau / Kooperation)<br><i>Alleinbau: Aushub, Spriessung, Wasserhaltung, Verfüllung und Belag zahlen wir. Kooperation: der Bauherr übernimmt diese bis Rohplanum; wir rechnen Leitungszone, Rohre, Bauwerke, Erschwernisse durch Fremdleitungen und den Schutz eigener Leitungen. Verkehrs- und Baustellensicherung über die Baustelleneinrichtung bzw. freie Positionen.</i> | `proj` Wie Projekt<br>`allein` Alleinbau: alles zu unseren Lasten<br>`koop` Kooperation: Bauherr bis Rohplanum | `"proj"` |  |
 | `vk` | VK Neubau | `` — keine —<br>`CAB 1-3 L` CAB 1-3 L | `""` |  |
 | `kvs` | KVS Neubau | `` — keine —<br>`C 50` C 50 | `""` |  |
 | `arbeit` | Arbeitsraum je Seite (m) | `0.30` 0.30<br>`0.50` 0.50<br>`0.75` 0.75 | `"0.30"` |  |
@@ -334,6 +339,8 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 
 | Feld | Bezeichnung | Typ / Werte | Vorgabe | sichtbar wenn |
 |---|---|---|---|---|
+| **Alleinbau oder Kooperation (projektweit)** | | | | |
+| `(global) bau` | Bauart (Alleinbau / Kooperation)<br><i>Alleinbau: Aushub, Spriessung, Wasserhaltung, Verfüllung und Belag zahlen wir. Kooperation: der Bauherr übernimmt diese bis Rohplanum; wir rechnen Leitungszone, Rohre, Bauwerke, Erschwernisse durch Fremdleitungen und den Schutz eigener Leitungen. Verkehrs- und Baustellensicherung über die Baustelleneinrichtung bzw. freie Positionen.</i> | `allein` Alleinbau: alles zu unseren Lasten<br>`koop` Kooperation: Bauherr bis Rohplanum | `"allein"` |  |
 | **Vorarbeiten (projektweit)** | | | | |
 | `(global) sond.m3` | Sondieraushub (m³) | Zahl (Text) | `""` |  |
 | `(global) sond.einfHand` | Wiedereinfüllen von Hand | true/false | `false` |  |

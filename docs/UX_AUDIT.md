@@ -548,3 +548,9 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 
 ## V134 – Schalter «Grabenband»/«Aushublinien» im Ribbon (13.11.2026)
 - Ribbon-Register «Ansicht», neue Gruppe «Darstellung»: Beschriftung, Grabenband, Aushublinien (Spiegel der Kartenleisten-Schalter). Reine Darstellung, keine Kostenwirkung. Test t116; t83 nutzt `noBE`.
+
+## V135 – Alleinbau / Kooperation, Schutz eigener Leitungen (14.11.2026)
+- **Schalter «Bauart»** projektweit (Reiter Allgemein, `S.bau`, Vorgabe «Alleinbau» = bisheriges Verhalten) und je Objekt übersteuerbar (Graben, Schacht, Werkloch, Fundament: «Wie Projekt / Alleinbau / Kooperation»; in der Karte je Linie unter «Weitere Angaben»).
+- **Kooperation** (Rechenkern JS + Python identisch): Bauherr übernimmt Aushub, Spriessung, Wasserhaltung, Verfüllung bis Rohplanum und Belag (wie «Aushub durch Bauherr»). Bei uns bleiben Leitungszone, Rohre, Bauwerke (Schacht, Fundament, Werkloch-Bauteile), **Erschwernisse durch Fremdleitungen** (151/241, 242, 244) und der **Schutz eigener Kabel**. Verkehrs-/Baustellensicherung bleibt bei uns (Baustelleneinrichtung bzw. freie Positionen), nicht automatisch gerechnet. Hinweis «Kooperation» in der Hinweisliste.
+- **Schutz eigener Kabel** je Graben/Linie (m): 151/442.308 + 151/451.308 (Umpacken unter Betrieb stehender Kabel in Längsverschlussrohr inkl. allen notwendigen Schutzmassnahmen, Liefern + Verlegen), in beiden Bauarten.
+- **Kostenwirkung:** nur bei Wahl «Kooperation» bzw. Eingabe von Schutzlänge; Bestand unverändert (Vorgabe Alleinbau, Golden t78 identisch, Skill 0 Abweichungen inkl. Fuzz mit Bauart und Schutz). Tests t117 (Kern), t118 (Oberfläche).

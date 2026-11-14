@@ -558,7 +558,10 @@ var KVE = (function () {
     else rohr(cx, c, L);
     if (c.rohrSystem !== "laengs") abzweigerR(cx, c);
     zubCheck(cx, "graben", c);
-    if (!roh) { fremdleitungen(cx, c, L); boeschung(cx, c); }
+    if (!roh || c.koop) fremdleitungen(cx, c, L);   /* Erschwernisse durch Fremdleitungen bleiben auch bei Kooperation bei uns */
+    if (!roh) boeschung(cx, c);
+    var sl = num(c.schutzL, 0);   /* Schutz eigener, unter Betrieb stehender Kabel: umpacken in Längsverschlussrohr inkl. Schutzmassnahmen (Liefern + Verlegen) */
+    if (sl > 0) { cx.g("g_schutz"); cx.add("151/442.308", sl, { rule: "Eingabe = " + s2(sl) + " m" }); cx.add("151/451.308", sl, { rule: "Eingabe = " + s2(sl) + " m" }); }
 
     cx.b("b_V", "m³", V); cx.b("b_Vbelag", "m³", bi.Valt); cx.b("b_Ve", "m³", Ve);
     cx.b("b_Vu", "m³", Vu); if (Vz !== Vu) cx.b("b_Vz", "m³", Vz); cx.b("b_Vneu", "m³", bi.Vneu); cx.b("b_Vv", "m³", Vv);
@@ -810,7 +813,7 @@ var KVE = (function () {
       if (q > 0) parts.push({ n: q, l: num(d[0]) + 2 * ar, b: num(d[1]) + 2 * ar, t: num(d[2]) }); });
     var iB = num(c.iB, 0), iT = num(c.iT, 0), iL = num(c.iL, 0);
     if (iB > 0 && iT > 0 && iL > 0) parts.push({ n: 1, l: iL, b: iB, t: iT });
-    var g = grube(cx, c, parts, 0, P);
+    var g = c.roh ? null : grube(cx, c, parts, 0, P);
     PS_AUF.forEach(function (s, i) { var q = num(c["p" + i], 0); if (q > 0) { cx.g("g_bauwerk"); cx.off("psAuf", q, "St", { t: s }, { rule: eing(q, "St") }); } });
     return res(cx, g || {});
   }
@@ -822,7 +825,7 @@ var KVE = (function () {
       parts.push({ n: 1, l: d[0] + 2 * ar, b: d[1] + 2 * ar, t: d[2] }); Vb += d[0] * d[1] * d[2];
       cx.g("g_bauwerk"); cx.off("fundament", 1, "St", { t: x[1] + " " + typ }, { rule: s2(d[0]) + " × " + s2(d[1]) + " × " + s2(d[2]) + " m" });
     });
-    var g = grube(cx, c, parts, Vb, P);
+    var g = c.roh ? null : grube(cx, c, parts, Vb, P);
     return res(cx, g || {});
   }
   function geb(c, LV) {
@@ -966,7 +969,7 @@ var KVE = (function () {
       cx.add("151/121.001", m3, { rule: "Eingabe = " + s2(m3) + " m³" });
       cx.add(s.einfHand ? "151/122.002" : "151/122.001", m3, { rule: "= Sondieraushub " + s2(m3) + " m³" });
     }
-    var w = P.wasser || {}, h = num(w.h, 0), sump = num(w.sumpf, 0);
+    var w = P.wasser || {}, h = P.bau === "koop" ? 0 : num(w.h, 0), sump = P.bau === "koop" ? 0 : num(w.sumpf, 0);   /* Kooperation: Wasserhaltung beim Bauherrn */
     if (h > 0) cx.add("151/131.111", h, { rule: "Eingabe = " + h + " h" });
     if (sump > 0) cx.add("151/132.101", sump, { rule: "Eingabe = " + sump + " St" });
     return { lines: cx.lines, warn: cx.warn, bal: [] };
@@ -1008,6 +1011,9 @@ var KVE = (function () {
   var FN = { graben: graben, rohr: rohrTab, schacht: schacht, werkloch: werkloch, fund: fund, geb: geb, belag: belagTab, allg: allg };
   function calcRec(tab, e, LV, P) {
     var r;
+    /* Alleinbau / Kooperation: bei Kooperation übernimmt der Bauherr Aushub, Spriessung, Wasserhaltung, Verfüllung bis Rohplanum und Belag (wie «Aushub durch Bauherr»);
+       Erschwernisse durch Fremdleitungen und der Schutz eigener Leitungen bleiben bei uns. Je Objekt übersteuerbar (e.bau = "allein" | "koop"; sonst gilt das Projekt). */
+    if (["graben", "schacht", "werkloch", "fund"].indexOf(tab) >= 0 && (e.bau === "koop" || (e.bau !== "allein" && (P || {}).bau === "koop"))) { var ek = {}; for (var kk in e) ek[kk] = e[kk]; ek.roh = true; ek.koop = true; e = ek; }
     try { r = FN[tab](e, LV, P); } catch (err) { r = { lines: [], warn: [{ id: "rechenfehler", sev: "stop", args: { m: err.message } }], bal: [] }; }
     if (!r.bal) r.bal = [];
     var cx = new Ctx(LV); cx.lines = r.lines; cx.warn = r.warn;
@@ -1061,6 +1067,7 @@ var KVE = (function () {
     if (resP > 0) { out.sum.reservePct = resP; out.sum.reserve = res; out.sum.nettoR = r2(netto + res); }
     out.elems.forEach(function (e) { out.warn = out.warn.concat(e.warn.map(function (w) { w.el = e.name; w.tab = e.tab; w.idx = e.idx; return w; })); });
     out.vor.warn.forEach(function (w) { w.el = "—"; out.warn.push(w); });
+    if (P.bau === "koop") out.warn.push({ id: "koop", sev: "info", args: {}, el: "—" });
     out.be.warn.forEach(function (w) { w.el = "—"; out.warn.push(w); });
     out.complete = completeness(P, all);
     return out;

@@ -1956,10 +1956,12 @@
       g.appendChild(cell(tt("km_lt_B"), inp(tt("km_lt_B"), c.B, "kmn", function (v) { c.B = v.replace(",", ".").trim(); changed(); })));
       var abc = cell(tt("km_lt_ab"), sel1(tt("km_lt_ab"), [["betonstein", tt("km_ab_betonstein")], ["platten", tt("km_ab_platten")], ["natur", tt("km_ab_natur")], ["", tt("km_ab_none")]], c.ab, function (v) { c.ab = v; changed(); }));
       g.appendChild(abc); host.appendChild(g);
-      var dt = document.createElement("details"); dt.className = "kmmore"; dt.open = !!(c.gesp || c.kr || c.b90 || c.b45);
+      var dt = document.createElement("details"); dt.className = "kmmore"; dt.open = !!(c.gesp || c.kr || c.b90 || c.b45 || c.schutz || (c.bau && c.bau !== "proj"));
       var dsum = document.createElement("summary"); dsum.textContent = tt("km_lt_more2"); dt.appendChild(dsum);
       var dg = document.createElement("div"); dg.className = "kmlg";
       dg.appendChild(cell(tt("km_lt_gesp"), sel1(tt("km_lt_gesp"), [["0", tt("km_no")], ["1", tt("km_yes")]], c.gesp ? "1" : "0", function (v) { c.gesp = v === "1"; changed(); })));
+      dg.appendChild(cell(tt("km_lt_bau"), sel1(tt("km_lt_bau"), [["proj", tt("km_lt_bauP")], ["allein", tt("km_lt_bauA")], ["koop", tt("km_lt_bauK")]], c.bau || "proj", function (v) { c.bau = v; changed(); })));
+      dg.appendChild(cell(tt("km_lt_schutz"), inp(tt("km_lt_schutz"), c.schutz || "", "kmn", function (v) { c.schutz = v.replace(/[^0-9.,]/g, "").replace(",", "."); changed(); })));
       [["kr", "km_lt_kr"], ["b90", "km_lt_b90"], ["b45", "km_lt_b45"]].forEach(function (f) { dg.appendChild(cell(tt(f[1]), inp(tt(f[1]), c[f[0]], "kmn", function (v) { c[f[0]] = v.replace(/[^0-9]/g, ""); changed(); }))); });
       dt.appendChild(dg); host.appendChild(dt); host.appendChild(sum); host.appendChild(xs); paint();
     }

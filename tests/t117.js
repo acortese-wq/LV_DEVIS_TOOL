@@ -1,0 +1,30 @@
+/* t117: Alleinbau / Kooperation – bei Kooperation übernimmt der Bauherr Aushub, Spriessung, Wasserhaltung, Verfüllung bis Rohplanum und Belag;
+   Erschwernisse durch Fremdleitungen und Schutz eigener Leitungen bleiben bei uns; Schalter pro Projekt, je Objekt übersteuerbar (Rechenkern ohne Browser) */
+const fs = require('fs'), path = require('path'), { kernel, result, H } = require('./lib/regress.js'), K = require('./lib/k.js'), { ok } = K;
+const C = kernel(), G = JSON.parse(fs.readFileSync(path.join(H, 'tests/fixtures/golden.json')));
+const run = (bau, mut) => {
+  const st = JSON.parse(JSON.stringify(G.cases[0].st)); st.bau = bau; st.be = { pct: '', regie: '' }; st.wasser = { h: '5', sumpf: '1' };
+  for (const t of ['graben', 'schacht', 'werkloch', 'fund', 'geb', 'belag', 'rohr']) st.recs[t] = [];
+  const g = C.LVM.newRec('graben', 1); g.L = '50'; g.T = '1.2'; g.kreuz = { on: true, n: '2', len: '1.5', richtung: 'quer' }; g.mods.fremd = true;
+  const s = C.LVM.newRec('schacht', 1); s.typ = 'KES150'; s.n = '2'; s.modus = 'neu';
+  const w = C.LVM.newRec('werkloch', 1); w.ts = '2';
+  mut && mut({ g, s, w, st });
+  st.recs.graben = [g]; st.recs.schacht = [s]; st.recs.werkloch = [w];
+  const r = result(C, st); const keys = r.summary.map(l => l[0]); return { n: r.sum.netto, keys, warn: r.warn };
+};
+const has = (r, p) => r.keys.some(k => k.startsWith(p));
+const A = run('allein'), Kp = run('koop');
+ok(Kp.n < A.n, 'Kooperation ist günstiger als Alleinbau (' + A.n + ' → ' + Kp.n + ')');
+ok(has(A, '151/221') && !has(Kp, '151/221'), 'Aushub Graben (151/221) entfällt bei Kooperation');
+ok(has(A, '151/231') && !has(Kp, '151/231'), 'Aushub Schacht und Werkloch (151/231) entfällt bei Kooperation');
+ok(has(A, '151/131') && !has(Kp, '151/131'), 'Wasserhaltung (151/131) entfällt bei Kooperation');
+ok(has(Kp, '151/241') && has(Kp, '151/242'), 'Erschwernisse durch Fremdleitungen (Kreuzung) bleiben bei Kooperation gerechnet');
+ok(has(Kp, '151/412') || has(Kp, '151/431') || has(Kp, '151/415'), 'Rohre bleiben gerechnet');
+ok(Kp.warn.includes('koop') && !A.warn.includes('koop'), 'Hinweis «Kooperation» nur bei Kooperation');
+const S1 = run('allein', o => { o.g.schutzL = '40'; }), S2 = run('koop', o => { o.g.schutzL = '40'; });
+ok(has(S1, '151/442.308') && has(S1, '151/451.308') && S1.n > A.n, 'Schutz eigener Kabel (40 m) wird gerechnet (' + A.n + ' → ' + S1.n + ')');
+ok(has(S2, '151/442.308') && has(S2, '151/451.308') && S2.n > Kp.n, 'Schutz eigener Kabel bleibt bei Kooperation bei uns (' + Kp.n + ' → ' + S2.n + ')');
+const O = run('koop', o => { o.g.bau = 'allein'; });
+ok(has(O, '151/221') && !has(O, '151/231'), 'Je Objekt übersteuerbar: Graben «Alleinbau» rechnet Aushub, Schacht/Werkloch folgen der Kooperation');
+const O2 = run('allein', o => { o.g.bau = 'koop'; });
+ok(!has(O2, '151/221') && has(O2, '151/231'), 'Graben «Kooperation» im Alleinbau-Projekt: nur dieser Graben ohne Aushub');

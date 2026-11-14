@@ -31,18 +31,18 @@ var LVM = (function () {
   function newRec(tab, n, belagLief) {
     var nm = function (s) { return s + " " + n; }, r;
     switch (tab) {
-      case "graben": r = { name: nm("Leitungsgraben"), L: "", T: "0.60", bmode: "min60", aussen: "", bman: "0.60", hand: "normal", gesp: false, wand: "senk", direkt: false, aushubArt: "normal", saugH: "0",
+      case "graben": r = { name: nm("Leitungsgraben"), bau: "proj", schutzL: "", L: "", T: "0.60", bmode: "min60", aussen: "", bman: "0.60", hand: "normal", gesp: false, wand: "senk", direkt: false, aushubArt: "normal", saugH: "0",
         rohrSystem: "k55", dn: "55", len: "10", n: "1", muffenMode: "auto", muffenN: "0", b90: "0", b45: "0", schneiden: "0", warnband: true, kalib: true, einzug: "schnur",
         dn2: "100", n2: "1", abzweiger: [], bloecke: [{ dn: "55", n: "1", lagen: "1", len: "10" }], block: { breite: "0.50", hoehe: "0.30" },
         umhType: "kies", umhMat: "betonkies", umhMode: "auto", bett: "5", umh: "5", umhArea: "0.035", verf: "aushub", einfHand: false, Lb: "", belag: mkBelag(null, belagLief),
         mods: { ersch: false, fremd: false, boesch: false }, ersch: ERSCH0(), kreuz: { on: true, n: "1", len: "1.00", richtung: "quer" }, zores: { on: false, len: "0", zustand: "abrechen" },
         boeschung: { on: true, flaeche: "", geneigt: false }, zubV: {}, uF: "", uP: "", uL: "", aB: "", aW: "", aS: "", aR: "" }; break;
-      case "schacht": r = { name: nm("Schacht"), modus: "neu", einbauort: "SS", typ: "KES150", n: "0", arbeit: "0.50", hand: "normal", direkt: true, beton: "0", platten: "0", anschl: "0", anDN: "80",
+      case "schacht": r = { name: nm("Schacht"), bau: "proj", modus: "neu", einbauort: "SS", typ: "KES150", n: "0", arbeit: "0.50", hand: "normal", direkt: true, beton: "0", platten: "0", anschl: "0", anDN: "80",
         rahmen: "", deckel: "", verf: "kies045", einfHand: true, belag: mkBelag(null, belagLief), mods: { ersch: false }, ersch: ERSCH0(), deckelRichtung: "hoeher", deckelFormat: "rund", deckelN: "0", grube: true, dkL: "1.00", dkB: "1.00", dkT: "0.60", anL: "1.50", anB: "1.00", anT: "", roh: false,
         shape: "eckig", sys: "nivo", deckelFormat2: "90", deckelSockel: "ohne", spare: "0", alt: "guss", opts: {}, deviate: false, reason: "", approver: "", journal: false }; break;
       case "rohr": r = { name: nm("Rohranlage"), verl: true, rohre: [{ typ: "K55", q: "" }], schn: [{ typ: "K55", q: "" }], boe: [{ typ: "", q: "" }], muf: [{ typ: "", q: "" }], erd: "", warn: "", schnur: "", kal: "", kalDN: "55", zubV: {} }; break;
-      case "werkloch": r = { name: nm("Werklöcher"), ts: "", bo: "", sg: "", zs: "", iB: "", iT: "", iL: "", p0: "", p1: "", p2: "", p3: "", arbeit: "0.30", hand: "normal", direkt: false, verf: "aushub", einfHand: false, belag: mkBelag(null, belagLief), mods: { ersch: false }, ersch: ERSCH0() }; break;
-      case "fund": r = { name: nm("Fundament"), vk: "", kvs: "", arbeit: "0.30", hand: "normal", direkt: false, verf: "kies045", einfHand: false, belag: mkBelag("none", belagLief), mods: { ersch: false }, ersch: ERSCH0() }; break;
+      case "werkloch": r = { name: nm("Werklöcher"), bau: "proj", ts: "", bo: "", sg: "", zs: "", iB: "", iT: "", iL: "", p0: "", p1: "", p2: "", p3: "", arbeit: "0.30", hand: "normal", direkt: false, verf: "aushub", einfHand: false, belag: mkBelag(null, belagLief), mods: { ersch: false }, ersch: ERSCH0() }; break;
+      case "fund": r = { name: nm("Fundament"), bau: "proj", vk: "", kvs: "", arbeit: "0.30", hand: "normal", direkt: false, verf: "kies045", einfHand: false, belag: mkBelag("none", belagLief), mods: { ersch: false }, ersch: ERSCH0() }; break;
       case "geb": r = { name: nm("Gebäudeeinführung"), n: "", cm: "", abd: "hauff" }; break;
       case "belag": r = { name: nm("Belagsarbeiten"), indiv: false, bk: "gehweg", d: "0.08", B: "", L: "", wi: "B" }; break;
       case "allg": r = { name: nm("Allgemein"), km: "", ak: "" }; break;
@@ -55,7 +55,7 @@ var LVM = (function () {
     var recs = {}, idx = {};
     TABS.forEach(function (t) { recs[t] = [newRec(t, 1)]; idx[t] = 0; });
     return { v: 2, lang: "de", tab: "graben", kopf: { projekt: "", ort: "", bearb: "", datum: datum || "", rolle: "anv", devisNr: "", lieferant: "", vertrag: "", termin: "", belagLief: false, sap: "", bem: "" },
-      recs: recs, idx: idx, sond: { m3: "", einfHand: false }, wasser: { h: "", sumpf: "" }, be: { pct: "1", regie: "3" }, dichte: "2.4", mwst: "8.1", reserve: "0", genau: "10",
+      recs: recs, idx: idx, sond: { m3: "", einfHand: false }, wasser: { h: "", sumpf: "" }, be: { pct: "1", regie: "3" }, dichte: "2.4", bau: "allein", mwst: "8.1", reserve: "0", genau: "10",
       par: { deckG: "0.03", deckS: "0.035", deckK: "0.04", gehMin: "0.06", gehMax: "0.12", strMin: "0.09", strMax: "0.20", kanMin: "0.12", kanMax: "0.30" },
       D: { wl: { ts: [1.50, 1.00, 1.00], bo: [1.50, 1.00, 1.00], sg: [2.00, 1.20, 1.20], zs: [1.00, 0.80, 1.00] }, fund: { "CAB 1-3 L": [1.00, 0.60, 0.80], "C 50": [1.20, 0.70, 0.80] } },
       ui: { closed: {}, xo: {}, printDraw: true } };

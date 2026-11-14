@@ -771,9 +771,13 @@ def graben(c, LV, P=None):
     else: rohr(cx, c, L)
     if c.get("rohrSystem") != "laengs": abzweigerR(cx, c)
     zubCheck(cx, "graben", c)
-    if not roh:
+    if (not roh) or c.get("koop"):
         fremdleitungen(cx, c, L)
+    if not roh:
         boeschung(cx, c)
+    sl = num(c.get("schutzL"), 0)
+    if sl > 0:
+        cx.g("g_schutz"); cx.add("151/442.308", sl, {"rule": "Eingabe = " + s2(sl) + " m"}); cx.add("151/451.308", sl, {"rule": "Eingabe = " + s2(sl) + " m"})
     if Vz != Vu:
         cx.b("b_Vz", "m³", Vz)
     for i, u, v in [("b_V", "m³", V), ("b_Vbelag", "m³", bi["Valt"]), ("b_Ve", "m³", Ve), ("b_Vu", "m³", Vu), ("b_Vneu", "m³", bi["Vneu"]), ("b_Vv", "m³", Vv),
@@ -1091,7 +1095,7 @@ def werkloch(c, LV, P):
     iB = num(c.get("iB"), 0); iT = num(c.get("iT"), 0); iL = num(c.get("iL"), 0)
     if iB > 0 and iT > 0 and iL > 0:
         parts.append({"n": 1, "l": iL, "b": iB, "t": iT})
-    gg = grube(cx, c, parts, 0, P)
+    gg = None if c.get("roh") else grube(cx, c, parts, 0, P)
     for i, s in enumerate(PS_AUF):
         q = num(c.get("p" + str(i)), 0)
         if q > 0:
@@ -1111,7 +1115,7 @@ def fund(c, LV, P):
         d = [num(x) for x in Df[typ]]
         parts.append({"n": 1, "l": d[0] + 2 * ar, "b": d[1] + 2 * ar, "t": d[2]}); Vb += d[0] * d[1] * d[2]
         cx.g("g_bauwerk"); cx.off("fundament", 1, "St", {"t": lab + " " + typ}, {"rule": s2(d[0]) + " × " + s2(d[1]) + " × " + s2(d[2]) + " m"})
-    gg = grube(cx, c, parts, Vb, P)
+    gg = None if c.get("roh") else grube(cx, c, parts, Vb, P)
     return res(cx, gg or {})
 
 
@@ -1297,7 +1301,7 @@ def vorarbeiten(P, LV):
     if m3 > 0:
         cx.add("151/121.001", m3, {"rule": "Eingabe = " + s2(m3) + " m³"})
         cx.add("151/122.002" if jt(s.get("einfHand")) else "151/122.001", m3, {"rule": "= Sondieraushub " + s2(m3) + " m³"})
-    w = P.get("wasser") or {}; h = num(w.get("h"), 0); sump = num(w.get("sumpf"), 0)
+    w = P.get("wasser") or {}; koop = P.get("bau") == "koop"; h = 0 if koop else num(w.get("h"), 0); sump = 0 if koop else num(w.get("sumpf"), 0)
     if h > 0: cx.add("151/131.111", h, {"rule": "Eingabe = " + jstr(h) + " h"})
     if sump > 0: cx.add("151/132.101", sump, {"rule": "Eingabe = " + jstr(sump) + " St"})
     return {"lines": cx.lines, "warn": cx.warn, "bal": []}
@@ -1349,6 +1353,10 @@ FN = {"graben": graben, "rohr": rohrTab, "schacht": schacht, "werkloch": werkloc
 
 
 def calcRec(tab, e, LV_, P):
+    # Alleinbau / Kooperation: bei Kooperation übernimmt der Bauherr Aushub, Spriessung, Wasserhaltung, Verfüllung bis Rohplanum und Belag;
+    # Erschwernisse durch Fremdleitungen und Schutz eigener Leitungen bleiben bei uns. Je Objekt übersteuerbar (e["bau"] = "allein" | "koop").
+    if tab in ("graben", "schacht", "werkloch", "fund") and (e.get("bau") == "koop" or (e.get("bau") != "allein" and (P or {}).get("bau") == "koop")):
+        e = dict(e); e["roh"] = True; e["koop"] = True
     try:
         r = FN[tab](e, LV_, P)
     except Exception as err:  # wie im HTML-Tool: Rechenfehler als Warnung, nicht Abbruch
@@ -1413,6 +1421,8 @@ def calc(P, LV_=None):
             w.update({"el": e["name"], "tab": e["tab"], "idx": e["idx"]}); out["warn"].append(w)
     for w in out["vor"]["warn"] + out["be"]["warn"]:
         w["el"] = "—"; out["warn"].append(w)
+    if P.get("bau") == "koop":
+        out["warn"].append({"id": "koop", "sev": "info", "args": {}, "el": "—"})
     out["complete"] = completeness(P, allL)
     return out
 
