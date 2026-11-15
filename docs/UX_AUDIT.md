@@ -562,3 +562,6 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 
 ## V137 – 3D: Geländedienst-Adresse und schwebende Gebäude (15.11.2026)
 - Befund aus der Praxis: Gelände flach, 3D-Gebäude schweben. Ursache vermutet: veraltete Adresse des swisstopo-Geländedienstes. Jetzt zuerst `https://3d.geo.admin.ch/ch.swisstopo.terrain.3d/v1/` (layer.json), danach der ältere Pfad; je Adresse Vorprüfung. Gebäude lassen sich nur mit geladenem Gelände einschalten (sonst Meldung), damit nichts in der Luft schwebt. Die neue Adresse stammt aus der swisstopo-Dokumentation (Suchergebnis), nicht live geprüft.
+
+## V138 – 3D: Höhenkorrektur Gebäude, Diagnosezeile (15.11.2026)
+- Feld «Höhenkorrektur Gebäude» (m, ±150) verschiebt die 3D-Gebäude senkrecht (Ausgleich eines möglichen Höhenunterschieds zwischen Gebäudemodell und Gelände). Diagnosezeile im Fenster nennt, von welcher Adresse das Gelände geladen wurde bzw. dass es nicht geladen ist. Reine Darstellung. Test t119.

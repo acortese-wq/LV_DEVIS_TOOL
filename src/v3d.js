@@ -25,9 +25,9 @@
     var d = document.createElement("dialog"); d.id = "v3dDlg"; d.className = "v3dlg"; d.setAttribute("aria-labelledby", "v3T");
     d.innerHTML = '<div class="v3h"><h2 id="v3T">' + esc(tt("v3_title")) + '</h2><div class="v3ctl">' +
       '<label>' + esc(tt("v3_ex")) + ' <select id="v3Ex"><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="3">3×</option></select></label>' +
-      '<label><input type="checkbox" id="v3Obj" checked> ' + esc(tt("v3_obj")) + '</label><label><input type="checkbox" id="v3Pit" checked> ' + esc(tt("v3_pit")) + '</label><label><input type="checkbox" id="v3Bld"> ' + esc(tt("v3_bld")) + '</label>' +
+      '<label><input type="checkbox" id="v3Obj" checked> ' + esc(tt("v3_obj")) + '</label><label><input type="checkbox" id="v3Pit" checked> ' + esc(tt("v3_pit")) + '</label><label><input type="checkbox" id="v3Bld"> ' + esc(tt("v3_bld")) + '</label><label>' + esc(tt("v3_bOff")) + ' <input type="number" id="v3Off" value="0" step="5" min="-150" max="150" style="width:5em"> m</label>' +
       '<button type="button" class="btn small" id="v3Img">' + esc(tt("v3_img")) + '</button><button type="button" class="btn ghost small" id="v3X">' + esc(tt("v3_close")) + '</button></div></div>' +
-      '<div class="v3m" id="v3Map"></div><p class="v3s" id="v3S" role="status"></p><p class="v3c">' + esc(tt("v3_cred")) + '</p>';
+      '<div class="v3m" id="v3Map"></div><p class="v3s" id="v3S" role="status"></p><p class="v3c" id="v3I"></p><p class="v3c">' + esc(tt("v3_cred")) + '</p>';
     document.body.appendChild(d);
     var st = function (m) { var e = d.querySelector("#v3S"); if (e) e.textContent = m || ""; }, viewer = null, gone = false;
     function close() { if (gone) return; gone = true; try { if (viewer) viewer.destroy(); } catch (e) { } viewer = null; d.remove(); if (o.onClose) o.onClose(); }
@@ -44,13 +44,13 @@
       var v = viewer; v.scene.globe.depthTestAgainstTerrain = true; v.scene.globe.baseColor = C.Color.fromCssColorString("#5b6b5e");
       v.imageryLayers.addImageryProvider(new C.UrlTemplateImageryProvider({ url: IMAGERY, tilingScheme: new C.WebMercatorTilingScheme(), maximumLevel: 19, credit: "© swisstopo" }));
       var tp = null;
-      var cand = window.__LVD_TERRAIN ? [window.__LVD_TERRAIN] : TERRAIN, tOk = false, noT = function () { if (gone) return; look(); st(tt("v3_noTerrain")); };
+      var cand = window.__LVD_TERRAIN ? [window.__LVD_TERRAIN] : TERRAIN, tOk = false, noT = function () { if (gone) return; look(); st(tt("v3_noTerrain")); info(tt("v3_iNoT")); }, info = function (m) { var e = d.querySelector("#v3I"); if (e) e.textContent = m; };
       /* Vorprüfung je Adresse: Nur ein Dienst mit gültiger Beschreibung (layer.json) wird eingebunden; sonst bliebe der Globus leer bzw. flach */
       function tryT(k) {
         if (k >= cand.length) { noT(); return; }
         var ac = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ac) ac.abort(); }, 8000);
         fetch(cand[k] + "layer.json", ac ? { signal: ac.signal } : {}).then(function (r) { clearTimeout(tm); if (!r.ok) throw new Error("terrain"); return r.json(); }).then(function (j) { if (!j || !j.tiles) throw new Error("terrain"); return C.CesiumTerrainProvider.fromUrl(cand[k]); })
-          .then(function (t) { if (gone) return; tp = t; tOk = true; v.terrainProvider = t; look(); }).catch(function () { clearTimeout(tm); tryT(k + 1); });
+          .then(function (t) { if (gone) return; tp = t; tOk = true; v.terrainProvider = t; look(); info(tt("v3_iT") + " " + cand[k]); }).catch(function () { clearTimeout(tm); tryT(k + 1); });
       }
       tryT(0);
       var c3 = function (a) { var f = []; a.forEach(function (p) { f.push(p[1], p[0]); }); return C.Cartesian3.fromDegreesArray(f); };
@@ -74,11 +74,13 @@
       d.querySelector("#v3Ex").addEventListener("change", function (e) { try { v.scene.verticalExaggeration = parseFloat(e.target.value) || 1; } catch (x) { } });
       d.querySelector("#v3Obj").addEventListener("change", function (e) { dsO.show = e.target.checked; });
       d.querySelector("#v3Pit").addEventListener("change", function (e) { dsP.show = e.target.checked; });
-      var bld = null; d.querySelector("#v3Bld").addEventListener("change", function (e) {
+      var bld = null, offB = function () { if (!bld) return; var off = parseFloat(d.querySelector("#v3Off").value) || 0, c = bld.boundingSphere && bld.boundingSphere.center; if (!c) return; var n = C.Cartesian3.normalize(c, new C.Cartesian3()); bld.modelMatrix = C.Matrix4.fromTranslation(C.Cartesian3.multiplyByScalar(n, off, new C.Cartesian3())); };
+      d.querySelector("#v3Off").addEventListener("change", offB);
+      d.querySelector("#v3Bld").addEventListener("change", function (e) {
         if (!e.target.checked) { if (bld) bld.show = false; return; }
         if (!tOk) { st(tt("v3_bldNoT")); e.target.checked = false; return; }   /* ohne Gelände würden die Gebäude in der Luft schweben */
         if (bld) { bld.show = true; return; }
-        st(tt("v3_loading")); C.Cesium3DTileset.fromUrl(window.__LVD_BUILDINGS || BUILDINGS).then(function (t) { if (gone) return; bld = t; v.scene.primitives.add(t); st(""); }).catch(function () { st(tt("v3_noBld")); e.target.checked = false; });
+        st(tt("v3_loading")); C.Cesium3DTileset.fromUrl(window.__LVD_BUILDINGS || BUILDINGS).then(function (t) { if (gone) return; bld = t; v.scene.primitives.add(t); offB(); st(""); }).catch(function () { st(tt("v3_noBld")); e.target.checked = false; });
       });
       d.querySelector("#v3Img").addEventListener("click", function () {
         try { v.render(); var cv = v.scene.canvas, W = Math.min(1400, cv.width), H = Math.round(W * cv.height / cv.width), c2 = document.createElement("canvas"); c2.width = W; c2.height = H; c2.getContext("2d").drawImage(cv, 0, 0, W, H);
