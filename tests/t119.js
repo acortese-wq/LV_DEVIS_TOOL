@@ -8,7 +8,7 @@ const STUB = () => {
   window.__stub = calls;
   window.Cesium = {
     Ion: {}, Color: { fromCssColorString: col0, WHITE: col }, Cartesian3: { fromDegreesArray: a => a, fromDegrees: (x, y, z) => [x, y, z] }, Cartesian2: function () { }, Cartographic: { fromDegrees: (x, y) => ({ x, y, height: 500 }) },
-    UrlTemplateImageryProvider: function () { calls.imagery++; }, WebMercatorTilingScheme: function () { }, CesiumTerrainProvider: { fromUrl: () => { calls.terrain++; return Promise.reject(new Error('offline')); } },
+    UrlTemplateImageryProvider: function () { calls.imagery++; }, WebMercatorTilingScheme: function () { }, CesiumTerrainProvider: { fromUrl: () => { calls.terrain++; return Promise.resolve({}); } },
     PolylineDashMaterialProperty: function () { this.dash = true; }, HeightReference: { CLAMP_TO_GROUND: 1 }, LabelStyle: { FILL_AND_OUTLINE: 2 }, HeadingPitchRange: function () { }, Math: { toRadians: x => x }, Matrix4: { IDENTITY: 1 },
     CustomDataSource: DS, sampleTerrainMostDetailed: () => Promise.resolve([{ height: 800 }]), Cesium3DTileset: { fromUrl: () => Promise.reject(new Error('offline')) },
     Viewer: function (el) {

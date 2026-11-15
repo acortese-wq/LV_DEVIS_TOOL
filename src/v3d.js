@@ -4,7 +4,7 @@
 (function () {
   "use strict";
   var VER = "1.120.0", BASE = "https://cdn.jsdelivr.net/npm/cesium@" + VER + "/Build/Cesium/";
-  var TERRAIN = "https://3d.geo.admin.ch/1.0.0/ch.swisstopo.terrain.3d/default/20200520/4326/";
+  var TERRAIN = ["https://3d.geo.admin.ch/ch.swisstopo.terrain.3d/v1/", "https://3d.geo.admin.ch/1.0.0/ch.swisstopo.terrain.3d/default/20200520/4326/"];   /* aktueller Dienst (layer.json), danach älterer Pfad */
   var BUILDINGS = "https://3d.geo.admin.ch/ch.swisstopo.swissbuildings3d.3d/v1/tileset.json";
   var IMAGERY = "https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.swissimage/default/current/3857/{z}/{x}/{y}.jpeg";
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -44,11 +44,15 @@
       var v = viewer; v.scene.globe.depthTestAgainstTerrain = true; v.scene.globe.baseColor = C.Color.fromCssColorString("#5b6b5e");
       v.imageryLayers.addImageryProvider(new C.UrlTemplateImageryProvider({ url: IMAGERY, tilingScheme: new C.WebMercatorTilingScheme(), maximumLevel: 19, credit: "© swisstopo" }));
       var tp = null;
-      var tUrl = window.__LVD_TERRAIN || TERRAIN, noT = function () { if (gone) return; look(); st(tt("v3_noTerrain")); };
-      /* Vorprüfung: Antwortet der Geländedienst nicht mit einer gültigen Beschreibung (layer.json), bleibt die Ansicht auf flacher Fläche – sonst würde der Globus leer */
-      (function () { var ac = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ac) ac.abort(); }, 8000);
-        fetch(tUrl + "layer.json", ac ? { signal: ac.signal } : {}).then(function (r) { clearTimeout(tm); if (!r.ok) throw new Error("terrain"); return r.json(); }).then(function (j) { if (!j || !j.tiles) throw new Error("terrain"); return C.CesiumTerrainProvider.fromUrl(tUrl); })
-          .then(function (t) { if (gone) return; tp = t; v.terrainProvider = t; look(); }).catch(function () { clearTimeout(tm); noT(); }); })();
+      var cand = window.__LVD_TERRAIN ? [window.__LVD_TERRAIN] : TERRAIN, tOk = false, noT = function () { if (gone) return; look(); st(tt("v3_noTerrain")); };
+      /* Vorprüfung je Adresse: Nur ein Dienst mit gültiger Beschreibung (layer.json) wird eingebunden; sonst bliebe der Globus leer bzw. flach */
+      function tryT(k) {
+        if (k >= cand.length) { noT(); return; }
+        var ac = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ac) ac.abort(); }, 8000);
+        fetch(cand[k] + "layer.json", ac ? { signal: ac.signal } : {}).then(function (r) { clearTimeout(tm); if (!r.ok) throw new Error("terrain"); return r.json(); }).then(function (j) { if (!j || !j.tiles) throw new Error("terrain"); return C.CesiumTerrainProvider.fromUrl(cand[k]); })
+          .then(function (t) { if (gone) return; tp = t; tOk = true; v.terrainProvider = t; look(); }).catch(function () { clearTimeout(tm); tryT(k + 1); });
+      }
+      tryT(0);
       var c3 = function (a) { var f = []; a.forEach(function (p) { f.push(p[1], p[0]); }); return C.Cartesian3.fromDegreesArray(f); };
       var dsO = new C.CustomDataSource("obj"), dsP = new C.CustomDataSource("pit"); v.dataSources.add(dsO); v.dataSources.add(dsP);
       (d0.areas || []).forEach(function (a) { if (a.length > 2) dsO.entities.add({ polygon: { hierarchy: c3(a), material: C.Color.fromCssColorString("#f28c00").withAlpha(0.35), outline: false } }); });
@@ -72,6 +76,7 @@
       d.querySelector("#v3Pit").addEventListener("change", function (e) { dsP.show = e.target.checked; });
       var bld = null; d.querySelector("#v3Bld").addEventListener("change", function (e) {
         if (!e.target.checked) { if (bld) bld.show = false; return; }
+        if (!tOk) { st(tt("v3_bldNoT")); e.target.checked = false; return; }   /* ohne Gelände würden die Gebäude in der Luft schweben */
         if (bld) { bld.show = true; return; }
         st(tt("v3_loading")); C.Cesium3DTileset.fromUrl(window.__LVD_BUILDINGS || BUILDINGS).then(function (t) { if (gone) return; bld = t; v.scene.primitives.add(t); st(""); }).catch(function () { st(tt("v3_noBld")); e.target.checked = false; });
       });
