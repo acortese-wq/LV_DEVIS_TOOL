@@ -565,3 +565,6 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 
 ## V138 – 3D: Höhenkorrektur Gebäude, Diagnosezeile (15.11.2026)
 - Feld «Höhenkorrektur Gebäude» (m, ±150) verschiebt die 3D-Gebäude senkrecht (Ausgleich eines möglichen Höhenunterschieds zwischen Gebäudemodell und Gelände). Diagnosezeile im Fenster nennt, von welcher Adresse das Gelände geladen wurde bzw. dass es nicht geladen ist. Reine Darstellung. Test t119.
+
+## V139 – Startfehler sichtbar (16.11.2026)
+- Bei einem Fehler während des Starts (z. B. Edge-Browser zeigt leere Seite) erscheint oben eine rote Meldung mit Fehlertext und Browserkennung zum Weitergeben, statt einer leeren Seite. Harmlose Browser-Meldungen (ResizeObserver, fremde «Script error») werden ausgeblendet.

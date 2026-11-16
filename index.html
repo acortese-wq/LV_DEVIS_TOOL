@@ -1786,6 +1786,10 @@ h3{letter-spacing:-.008em;line-height:1.25}
 </style>
 </head>
 <body>
+<script>/* Startfehler sichtbar machen (statt leerer Seite): Meldung mit Fehlertext zum Weitergeben */
+(function () { var n = 0; function show(t) { if (n++ > 2) return; try { var d = document.getElementById("startErr"); if (!d) { d = document.createElement("div"); d.id = "startErr"; d.setAttribute("role", "alert"); d.style.cssText = "position:fixed;left:8px;right:8px;top:8px;z-index:2147483647;background:#fff4f4;color:#7a1010;border:2px solid #b42318;border-radius:10px;padding:10px 14px;font:14px/1.45 system-ui,sans-serif;max-height:40vh;overflow:auto"; d.innerHTML = "<b>Die Anwendung konnte nicht vollständig starten.</b> Bitte Seite hart neu laden (Strg+Shift+R) oder im privaten Fenster öffnen. Fehler zum Weitergeben:<pre style=\"white-space:pre-wrap;margin:6px 0 0;user-select:all\"></pre>"; (document.body || document.documentElement).appendChild(d); } d.querySelector("pre").textContent += t + "\n"; } catch (e) { } }
+  window.addEventListener("error", function (e) { if (/ResizeObserver|^Script error\.?$/.test(e.message || "")) return; show((e.message || "Fehler") + (e.filename ? " @ " + String(e.filename).split("/").pop() + ":" + (e.lineno || "") + ":" + (e.colno || "") : "") + " | " + navigator.userAgent.slice(0, 80)); });
+  window.addEventListener("unhandledrejection", function (e) { show("Promise: " + (e.reason && (e.reason.message || e.reason)) + " | " + navigator.userAgent.slice(0, 80)); }); })();</script>
 <a class="skip no-print" href="#result" id="skipRes"></a>
 <div class="sheet">
   <header class="plankopf">
@@ -1870,7 +1874,7 @@ h3{letter-spacing:-.008em;line-height:1.25}
 </div>
 <div id="lb" role="dialog" aria-modal="true" aria-label="Zeichnung"><button type="button" class="lbclose" id="lbClose">×</button><img alt=""></div>
 <div id="expiry" role="alertdialog" aria-modal="true" aria-labelledby="expT" hidden><div class="expbox"><h2 id="expT"></h2><p id="expP"></p><p class="sub" id="expS"></p><p class="meta">LV-Devis Tiefbau · App-Konzept und Urheber: Alessandro Cortese</p></div></div>
-<script>var BUILD = "2026-11-15", EXPIRES = "", RECIPIENT = "";
+<script>var BUILD = "2026-11-16", EXPIRES = "", RECIPIENT = "";
 /* Ablaufdatum (nur gesetzt bei Weitergabe-Version): nach Ablauf öffnet sich das Tool nicht mehr. Die Prüfung merkt sich das späteste gesehene Datum, damit Zurückstellen der Uhr nicht hilft. */
 (function () {
   if (!EXPIRES) return;
