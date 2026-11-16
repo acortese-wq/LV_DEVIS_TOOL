@@ -34,7 +34,7 @@
   var mkBelag = function (mode) { return LVM.mkBelag(mode, S && S.kopf && S.kopf.belagLief); };
   var newRec = function (tab, n) { return LVM.newRec(tab, n, S && S.kopf && S.kopf.belagLief); };
   var defaults = function () { return LVM.defaults(TABS, today()); };
-  function deepFill(dst, src) { Object.keys(src).forEach(function (k) { if (dst[k] == null) dst[k] = JSON.parse(JSON.stringify(src[k])); else if (typeof src[k] === "object" && !Array.isArray(src[k]) && typeof dst[k] === "object") deepFill(dst[k], src[k]); }); }
+  function deepFill(dst, src) { if (!src || !dst) return; Object.keys(src).forEach(function (k) { if (dst[k] == null) dst[k] = JSON.parse(JSON.stringify(src[k])); else if (src[k] && typeof src[k] === "object" && !Array.isArray(src[k]) && typeof dst[k] === "object") deepFill(dst[k], src[k]); }); }   /* src[k] = null (z. B. v3d) darf nie rekursiv durchlaufen werden */
   function heal() {
     var d = defaults();
     deepFill(S, d);

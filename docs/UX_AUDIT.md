@@ -568,3 +568,7 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 
 ## V139 – Startfehler sichtbar (16.11.2026)
 - Bei einem Fehler während des Starts (z. B. Edge-Browser zeigt leere Seite) erscheint oben eine rote Meldung mit Fehlertext und Browserkennung zum Weitergeben, statt einer leeren Seite. Harmlose Browser-Meldungen (ResizeObserver, fremde «Script error») werden ausgeblendet.
+
+## V140 – Startabsturz mit gespeicherter 3D-Ansicht, Route-Fenster unter den Leisten (16.11.2026)
+- **Fehler behoben (seit V136):** Mit gespeicherter 3D-Ansicht im Projekt (`S.v3d`) brach der Start mit «Cannot convert undefined or null to object» ab (`deepFill` lief über die Vorgabe `v3d: null`). Betraf Browser/Adressen, in denen eine 3D-Ansicht für den Bericht übernommen wurde (Edge auf GitHub Pages). Test t120 (reproduziert den Fehler mit altem Code).
+- **Route «Von/Nach» verdeckt:** Im Planungsfokus lag das Fenster unter den Glas-Leisten (top 8 px statt unter `--lytop`). Jetzt beginnen Route, Palette und Auswahlleiste unter den Leisten. Test t121 prüft alle Werkzeuge in drei Fenstergrössen.

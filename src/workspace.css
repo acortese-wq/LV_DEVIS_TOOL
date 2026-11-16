@@ -415,6 +415,9 @@ h3{letter-spacing:-.008em;line-height:1.25}
   .kmdlg.kmlya .kmcanvas .leaflet-top{margin-top:var(--lytop)}
   .kmdlg.kmlya .lybase{top:calc(var(--lytop) + 10px)}
   .kmdlg.kmlya .kmgstep{top:calc(var(--lytop) + 8px)}
+  /* Schwebende Fenster auf der Karte (Route Von/Nach, Palette, Auswahlleiste …) beginnen unter den Glas-Leisten, sonst sind sie verdeckt und nicht bedienbar */
+  .kmdlg.kmlya .kmroute,.kmdlg.kmlya .kmpal,.kmdlg.kmlya .kmmsb{top:calc(var(--lytop) + 8px)}
+  .kmdlg.kmlya .kmroute{max-height:calc(100% - var(--lytop) - 16px)}
 }
 @media (prefers-reduced-transparency:reduce){.kmdlg.kmlya .kmhead,.kmdlg.kmlya .lybar,.kmdlg.kmlya .lyrb{background:var(--nc-surface,#fff);-webkit-backdrop-filter:none;backdrop-filter:none}}
 /* Handy-Sheets und Navigation: schweben durchscheinend über der Karte */
