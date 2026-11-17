@@ -766,3 +766,8 @@ footer .impr{display:block;margin-top:6px}
 .tabsbar button:active,.tabsbar [role=tab]:active,.langs button:active,.lymtab button:active{transform:scale(.97);transition-duration:var(--nc-press,100ms)}
 @media (prefers-reduced-motion:reduce){.tabsbar button:active,.tabsbar [role=tab]:active,.langs button:active,.lymtab button:active{transform:none}}
 html:not(.lvready) .sheet{visibility:hidden}   /* Seite erst nach dem ersten Füllen der Texte zeigen: kein Layout-Sprung beim Start */
+/* V143: Abzweiger (Y) und Bogen-Beschriftung auf der Karte */
+.kmsch.kmabz span{width:22px;height:22px;border-radius:50%;background:#fff;color:#0a4f55;box-shadow:0 0 0 2px #0a4f55;font-size:11px}
+.kmsch.kmabz.on span{color:#b8332a;box-shadow:0 0 0 2px #b8332a}
+.kmbend{pointer-events:none}
+.kmbend span{position:absolute;left:6px;top:-22px;white-space:nowrap;background:rgba(255,255,255,.92);color:#0a4f55;border:1px solid #0b6b72;border-radius:4px;padding:0 4px;font:700 11px/16px "Segoe UI",sans-serif}

@@ -349,9 +349,9 @@
   /* Anzeige: Einheiten und Zubehör-Bezeichnungen in der gewählten Sprache (Schlüssel und Rechenkern bleiben deutsch) */
   var UNITS = { fr: { St: "p", "Stück": "p", Pauschal: "forfait" }, it: { St: "pz", "Stück": "pz", Pauschal: "forfait" }, en: { St: "pcs", "Stück": "pcs", Pauschal: "lump sum" } };
   function uT(u) { var m = UNITS[S.lang]; return m && m[u] != null ? m[u] : (u == null ? "" : u); }
-  var ZW = { fr: [["Flexibler Rohrbogen", "Coude flexible"], ["Endmuffen", "Manchons d'extrémité"], ["(Lieferung ohne LV)", "(fourniture hors LV)"], ["Halbschalenabzweiger", "Dérivation demi-coquille"], ["Doppelsteckmuffen", "Manchons doubles"], ["Reparaturmuffen", "Manchons de réparation"], ["Verbindungsstück", "Raccord"], [" Ausgängen", " sorties"], [" mit ", " avec "], [" auf ", " sur "]],
-    it: [["Flexibler Rohrbogen", "Curva flessibile"], ["Endmuffen", "Manicotti terminali"], ["(Lieferung ohne LV)", "(fornitura fuori LV)"], ["Halbschalenabzweiger", "Derivazione a semiguscio"], ["Doppelsteckmuffen", "Manicotti doppi"], ["Reparaturmuffen", "Manicotti di riparazione"], ["Verbindungsstück", "Raccordo"], [" Ausgängen", " uscite"], [" mit ", " con "], [" auf ", " su "]],
-    en: [["Flexibler Rohrbogen", "Flexible bend"], ["Endmuffen", "End sockets"], ["(Lieferung ohne LV)", "(supply not in LV)"], ["Halbschalenabzweiger", "Half-shell branch"], ["Doppelsteckmuffen", "Double socket couplings"], ["Reparaturmuffen", "Repair couplings"], ["Verbindungsstück", "Connector"], [" Ausgängen", " outlets"], [" mit ", " with "], [" auf ", " onto "]] };
+  var ZW = { fr: [["Abzweiger ohne LV-Position", "Dérivation hors position LV"], ["Flexibler Rohrbogen", "Coude flexible"], ["Endmuffen", "Manchons d'extrémité"], ["(Lieferung ohne LV)", "(fourniture hors LV)"], ["Halbschalenabzweiger", "Dérivation demi-coquille"], ["Doppelsteckmuffen", "Manchons doubles"], ["Reparaturmuffen", "Manchons de réparation"], ["Verbindungsstück", "Raccord"], [" Ausgängen", " sorties"], [" mit ", " avec "], [" auf ", " sur "]],
+    it: [["Abzweiger ohne LV-Position", "Derivazione senza posizione LV"], ["Flexibler Rohrbogen", "Curva flessibile"], ["Endmuffen", "Manicotti terminali"], ["(Lieferung ohne LV)", "(fornitura fuori LV)"], ["Halbschalenabzweiger", "Derivazione a semiguscio"], ["Doppelsteckmuffen", "Manicotti doppi"], ["Reparaturmuffen", "Manicotti di riparazione"], ["Verbindungsstück", "Raccordo"], [" Ausgängen", " uscite"], [" mit ", " con "], [" auf ", " su "]],
+    en: [["Abzweiger ohne LV-Position", "Branch without LV item"], ["Flexibler Rohrbogen", "Flexible bend"], ["Endmuffen", "End sockets"], ["(Lieferung ohne LV)", "(supply not in LV)"], ["Halbschalenabzweiger", "Half-shell branch"], ["Doppelsteckmuffen", "Double socket couplings"], ["Reparaturmuffen", "Repair couplings"], ["Verbindungsstück", "Connector"], [" Ausgängen", " outlets"], [" mit ", " with "], [" auf ", " onto "]] };
   function zT(k) { var r = String(k); (ZW[S.lang] || []).forEach(function (w) { r = r.split(w[0]).join(w[1]); }); return r; }
   function listEl(cfg, key, cat, labKey, unit) {
     var wrap = document.createElement("div"); wrap.className = "sublist";
@@ -702,6 +702,18 @@
       return out;
     };
   }
+  /* Abzweiger der Karte/des Plans (V143): je abgehendes Rohr ein Formstück, zusammengefasst in einer Rohranlage «Abzweiger (Karte)» */
+  function abzApply(M, src) {
+    var AZ = (M.pts || []).filter(function (p) { return p.mode === "abz"; }), agg = {}, R = S.recs.rohr;
+    AZ.forEach(function (p) { KARTE.abzInfo(M, p).items.forEach(function (it) { agg[it.typ] = (agg[it.typ] || 0) + it.n; }); });
+    var x = R.filter(function (r) { return r.abzMap && (r.abzSrc || "karte") === src; })[0];
+    if (!AZ.length) { if (x) R.splice(R.indexOf(x), 1); return; }
+    if (!x) { x = newRec("rohr", R.length + 1); x.abzMap = true; x.abzSrc = src; R.push(x); }
+    ensureUid(x); x.fromMap = 1; AZ.forEach(function (p) { p.rid2 = x.uid; });
+    x.name = tt(src === "plan" ? "abz_recP" : "abz_rec"); x.verl = true; x.rohre = [{ typ: "", q: "" }]; x.schn = [{ typ: "", q: "" }]; x.muf = [{ typ: "", q: "" }];
+    x.boe = Object.keys(agg).sort().map(function (k) { return { typ: k, q: String(agg[k]) }; }); if (!x.boe.length) x.boe = [{ typ: "", q: "" }];
+    x.erd = ""; x.warn = ""; x.schnur = ""; x.kal = ""; x.zubV = { warn: true };
+  }
   function karteApply(M, cfg, lenFn, fns) {
     var st = { g: 0, gn: 0, s: 0, sn: 0, o: 0, f: 0, fn: 0, w: 0, wn: 0, e: 0, en: 0, x: 0, z: 0 }, used = {}, G = S.recs.graben;
     var links = function (src) { var o = { graben: {}, schacht: {}, belag: {}, geb: {} }; (src.lines || []).forEach(function (l) { if (l.rid && l.pts && l.pts.length > 1) o.graben[l.rid] = 1; }); (src.pts || []).forEach(function (p) { if (p.sid) o.schacht[p.sid] = 1; }); (src.areas || []).forEach(function (f) { if (f.rid && f.pts && f.pts.length > 2) o.belag[f.rid] = 1; }); (src.geb || []).forEach(function (p) { if (p.sid) o.geb[p.sid] = 1; }); return o; };
@@ -724,6 +736,7 @@
       if (l.cfg) { applyCfg(l, r, KVE.num(r.L, 0)); st.xn = (st.xn || 0) + lineExtras(l, r, KVE.num(r.L, 0)); }
     });
     M.pts.forEach(function (p) {
+      if (p.mode === "abz") { p.sid = null; return; }   /* Abzweiger: kein Schachtbauwerk, Kosten über die Rohranlage «Abzweiger» */
       var r = recByUid("schacht", p.sid), L = S.recs.schacht;
       if (!r) {
         if (S.tab === "schacht" && !used[ensureUid(cfg)] && !M.pts.some(function (x) { return x !== p && x.sid === cfg.uid; })) r = cfg;
@@ -735,6 +748,7 @@
       if (md === "deckel") { r.deckelRichtung = p.dr || "hoeher"; r.deckelFormat = p.df || "rund"; }
       if ((md === "deckel" || md === "anschluss") && r.grube === undefined) { r.grube = true; r.dkL = r.dkL || "1.00"; r.dkB = r.dkB || "1.00"; r.dkT = r.dkT || "0.60"; r.anL = r.anL || "1.50"; r.anB = r.anB || "1.00"; }   /* ältere Datensätze: Grube, Aushub und Oberfläche ab jetzt mitrechnen */
     });
+    abzApply(M, fns.src || "karte");
     (M.areas || []).forEach(function (f) {
       var Bl = S.recs.belag, r = recByUid("belag", f.rid), A = fns.area(f.pts), P = fns.perim(f.pts);
       if (!(A > 0.01)) { st.z++; return; }   /* Fläche ohne Ausdehnung (Punkte auf einer Linie): kein Datensatz */
@@ -773,7 +787,7 @@
     return st;
   }
   /* Datensätze ohne Objekt in Karte/Plan: aus der Karte entstanden (fromMap), Objekt später gelöscht → Datensatz zählt weiter in den Kosten. Liste für «Bereinigen». */
-  function refUids() { var r = {}; [S.karte, S.plan].forEach(function (src) { (src.lines || []).forEach(function (l) { if (l.rid) r[l.rid] = 1; if (l.rid2) r[l.rid2] = 1; }); (src.pts || []).forEach(function (p) { if (p.sid) r[p.sid] = 1; }); (src.areas || []).forEach(function (f) { if (f.rid) r[f.rid] = 1; }); (src.geb || []).forEach(function (p) { if (p.sid) r[p.sid] = 1; }); }); return r; }
+  function refUids() { var r = {}; [S.karte, S.plan].forEach(function (src) { (src.lines || []).forEach(function (l) { if (l.rid) r[l.rid] = 1; if (l.rid2) r[l.rid2] = 1; }); (src.pts || []).forEach(function (p) { if (p.sid) r[p.sid] = 1; if (p.rid2 && p.mode === "abz") r[p.rid2] = 1; }); (src.areas || []).forEach(function (f) { if (f.rid) r[f.rid] = 1; }); (src.geb || []).forEach(function (p) { if (p.sid) r[p.sid] = 1; }); }); return r; }
   function orphanList() {
     var ref = refUids(), out = []; if (!(S.karte && S.plan)) return out;
     ["graben", "schacht", "belag", "geb", "rohr"].forEach(function (tab) { (S.recs[tab] || []).forEach(function (r) {
@@ -871,7 +885,7 @@
           var u0 = ensureUid(cfg); cfg.trasse.forEach(function (pts, i) { S.karte.lines.push({ id: "m" + i + u0, pts: pts, rid: i === 0 ? u0 : null, rohr: { sys: cfg.rohrSystem, dn: cfg.dn, len: cfg.len, n: cfg.n } }); }); delete cfg.trasse;
         }
         var g = tab === "graben" && cfg;
-        KARTE.open({ kind: "map", on3d: function (u, m) { S.v3d = { img: u, at: Date.now(), ex: m.ex }; save(); }, tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, cost: costPreview(cfg, tab), model: ex.keep && ex.keep.model ? ex.keep.model : JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), view: ex.keep ? ex.keep.view : null, edited: !!(ex.keep && ex.keep.edited), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
+        KARTE.open({ kind: "map", zT: zT, on3d: function (u, m) { S.v3d = { img: u, at: Date.now(), ex: m.ex }; save(); }, tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, cost: costPreview(cfg, tab), model: ex.keep && ex.keep.model ? ex.keep.model : JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), view: ex.keep ? ex.keep.view : null, edited: !!(ex.keep && ex.keep.edited), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" && cfg ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" && cfg ? cfg.cm : "", abd: tab === "geb" && cfg ? cfg.abd : "hauff" }, defBelag: tab === "belag" && cfg ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
           onClose: function () { if (ex.layoutA) return; var o = $(ex.focus || "#kmOpen"); if (o) o.focus(); },
@@ -978,7 +992,7 @@
         msg.className = "hint kmmsg"; msg.textContent = tt("km_loading");
         KARTE.load().then(function () {
           msg.textContent = "";
-          KARTE.open({ kind: "plan", tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, plan: { img: P.img, w: P.w, h: P.h, cal: P.cal }, model: { lines: JSON.parse(JSON.stringify(P.lines)), pts: JSON.parse(JSON.stringify(P.pts)), sond: JSON.parse(JSON.stringify(P.sond)), notes: JSON.parse(JSON.stringify(P.notes || [])), areas: JSON.parse(JSON.stringify(P.areas || [])), wl: JSON.parse(JSON.stringify(P.wl || [])), geb: JSON.parse(JSON.stringify(P.geb || [])) },
+          KARTE.open({ kind: "plan", zT: zT, tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, plan: { img: P.img, w: P.w, h: P.h, cal: P.cal }, model: { lines: JSON.parse(JSON.stringify(P.lines)), pts: JSON.parse(JSON.stringify(P.pts)), sond: JSON.parse(JSON.stringify(P.sond)), notes: JSON.parse(JSON.stringify(P.notes || [])), areas: JSON.parse(JSON.stringify(P.areas || [])), wl: JSON.parse(JSON.stringify(P.wl || [])), geb: JSON.parse(JSON.stringify(P.geb || [])) },
             defRohr: { sys: "k55", dn: "55", len: "10", n: "1" }, defTyp: "KES150", defGeb: { cm: "", abd: "hauff" }, defBelag: { bk: "gehweg", d: "0.08", wi: "B" }, recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
             onClose: function () { var o = $("#plOpen"); if (o) o.focus(); },
             onSave: function (M, cal) { S.plan.areas = M.areas || []; S.plan.wl = M.wl || []; S.plan.geb = M.geb || []; S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; save(); },
@@ -1173,14 +1187,14 @@
     head.querySelector("#situTog").addEventListener("click", function () { S.ui.situOpen = !S.ui.situOpen; save(); situRender(); });
     var st = $("#result .status"); if (st) st.insertAdjacentElement("afterend", sec); else $("#result").insertBefore(sec, $("#result").firstChild);
   }
-  function situGeo() { var K = S.karte; return { pm: K.pts.map(function (p) { return p.mode || ""; }), lfl: K.lines.map(function (l) { return (l.cfg || {}).fl || ""; }), lines: K.lines.map(function (l) { return l.pts; }), pts: K.pts.map(function (p) { return p.pt; }), areas: (K.areas || []).map(function (a) { return a.pts; }), sond: K.sond.map(function (p) { return p.pt; }), wl: (K.wl || []).map(function (p) { return p.pt; }), geb: (K.geb || []).map(function (p) { return p.pt; }), notes: K.notes, extra: KARTE.ovCorners(ovResolve(K.overlay)) }; }
+  function situGeo() { var K = S.karte; return { bd: KARTE.bendGeo(K), pm: K.pts.map(function (p) { return p.mode || ""; }), lfl: K.lines.map(function (l) { return (l.cfg || {}).fl || ""; }), lines: K.lines.map(function (l) { return l.pts; }), pts: K.pts.map(function (p) { return p.pt; }), areas: (K.areas || []).map(function (a) { return a.pts; }), sond: K.sond.map(function (p) { return p.pt; }), wl: (K.wl || []).map(function (p) { return p.pt; }), geb: (K.geb || []).map(function (p) { return p.pt; }), notes: K.notes, extra: KARTE.ovCorners(ovResolve(K.overlay)) }; }
   /* Beschriftungen: Linie = Name · Länge · Rohranlage; Schacht = Name · Typ; Sondage, Werkloch, Gebäudeeinführung, Fläche */
   function mkLabels(M, fns) {
     var rn = function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); };
     var SYS = { k55: "K55", laengs: tt("o_rohrSystem_laengs").split(" (")[0], block: tt("o_rohrSystem_block").split(" (")[0] };
     return {
       lines: (M.lines || []).map(function (l, i) { var s2 = (rn(l.rid) || tt("km_lineN").replace("{n}", i + 1)) + " · " + KARTE.fmt(fns.len(l.pts)) + " m" + (fns.slope && fns.slope(l.pts) ? " " + tt("hz_sfx") : ""); var lt = l.cfg ? KARTE.lineTxt(l, tt) : ""; if (lt) s2 += " · " + lt; else if (l.rohr) s2 += " · " + (l.rohr.sys === "block" ? SYS.block : SYS[l.rohr.sys] + " DN" + l.rohr.dn + " ×" + (l.rohr.n || "1")); return s2; }),
-      pts: (M.pts || []).map(function (p, i) { return (p.name || rn(p.sid) || tt("km_schN").replace("{n}", i + 1)) + " · " + p.typ + (p.mode === "anschluss" ? " · " + tt("km_pm_anss") : p.mode === "deckel" ? " · " + tt("km_pm_dks") : ""); }),
+      pts: (M.pts || []).map(function (p, i) { if (p.mode === "abz") return p.name || tt("km_abzN").replace("{n}", (M.pts || []).filter(function (x) { return x.mode === "abz"; }).indexOf(p) + 1); return (p.name || rn(p.sid) || tt("km_schN").replace("{n}", i + 1)) + " · " + p.typ + (p.mode === "anschluss" ? " · " + tt("km_pm_anss") : p.mode === "deckel" ? " · " + tt("km_pm_dks") : ""); }),
       sond: (M.sond || []).map(function (p, i) { return (p.name || "S" + (i + 1)) + " · " + p.l + "×" + p.b + "×" + p.t + " m"; }),
       wl: (M.wl || []).map(function (p, i) { return (p.name || "W" + (i + 1)) + " · " + tt("km_wl" + p.wt); }),
       geb: (M.geb || []).map(function (p, i) { return (p.name || rn(p.sid) || "G" + (i + 1)) + (p.cm ? " · " + p.cm + " cm" : ""); }),

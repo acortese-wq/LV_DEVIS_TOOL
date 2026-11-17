@@ -1033,7 +1033,7 @@ BOE = {"K55, 90°, R = 0.60 m": {"l": "151/421.221", "v": "151/441.121"}, "K55, 
        "Halbschalenabzweiger, K55": {"l": "151/423.303", "v": "151/451.303"}, "Halbschalenabzweiger, K100 auf K55": {"l": "151/423.304", "v": "151/451.304"},
        "Halbschalenabzweiger, KK4 auf K55": {"l": "151/423.305", "v": "151/451.305"}, "Halbschalenabzweiger, KK8 auf K55": {"l": "151/423.306", "v": "151/451.306"},
        "T-KK4 mit 2 K55 Ausgängen": {"l": "151/423.302", "v": "151/451.302"}, "T-KK8 mit 2 K55 Ausgängen": {"l": "151/423.301", "v": "151/451.301"},
-       "Verbindungsstück KK4": {"l": "151/423.307", "v": "151/451.307"}}
+       "Verbindungsstück KK4": {"l": "151/423.307", "v": "151/451.307"}, "Abzweiger ohne LV-Position": {"l": None, "v": None}}
 MUF = {"Doppelsteckmuffen K55": {"l": "151/421.511", "v": "151/442.111"}, "Doppelsteckmuffen K100": {"l": "151/421.514", "v": "151/442.114"},
        "Doppelsteckmuffen K120": {"l": "151/421.515", "v": "151/442.115"}, "Doppelsteckmuffen K100 mit LV": {"l": "151/421.562", "v": "151/442.162"},
        "Doppelsteckmuffen K120 mit LV": {"l": "151/421.563", "v": "151/442.163"}, "Reparaturmuffen K100 106/100 mm": {"l": "151/421.313", "v": "151/442.114"},
