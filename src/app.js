@@ -349,9 +349,9 @@
   /* Anzeige: Einheiten und Zubehör-Bezeichnungen in der gewählten Sprache (Schlüssel und Rechenkern bleiben deutsch) */
   var UNITS = { fr: { St: "p", "Stück": "p", Pauschal: "forfait" }, it: { St: "pz", "Stück": "pz", Pauschal: "forfait" }, en: { St: "pcs", "Stück": "pcs", Pauschal: "lump sum" } };
   function uT(u) { var m = UNITS[S.lang]; return m && m[u] != null ? m[u] : (u == null ? "" : u); }
-  var ZW = { fr: [["Halbschalenabzweiger", "Dérivation demi-coquille"], ["Doppelsteckmuffen", "Manchons doubles"], ["Reparaturmuffen", "Manchons de réparation"], ["Verbindungsstück", "Raccord"], [" Ausgängen", " sorties"], [" mit ", " avec "], [" auf ", " sur "]],
-    it: [["Halbschalenabzweiger", "Derivazione a semiguscio"], ["Doppelsteckmuffen", "Manicotti doppi"], ["Reparaturmuffen", "Manicotti di riparazione"], ["Verbindungsstück", "Raccordo"], [" Ausgängen", " uscite"], [" mit ", " con "], [" auf ", " su "]],
-    en: [["Halbschalenabzweiger", "Half-shell branch"], ["Doppelsteckmuffen", "Double socket couplings"], ["Reparaturmuffen", "Repair couplings"], ["Verbindungsstück", "Connector"], [" Ausgängen", " outlets"], [" mit ", " with "], [" auf ", " onto "]] };
+  var ZW = { fr: [["Flexibler Rohrbogen", "Coude flexible"], ["Endmuffen", "Manchons d'extrémité"], ["(Lieferung ohne LV)", "(fourniture hors LV)"], ["Halbschalenabzweiger", "Dérivation demi-coquille"], ["Doppelsteckmuffen", "Manchons doubles"], ["Reparaturmuffen", "Manchons de réparation"], ["Verbindungsstück", "Raccord"], [" Ausgängen", " sorties"], [" mit ", " avec "], [" auf ", " sur "]],
+    it: [["Flexibler Rohrbogen", "Curva flessibile"], ["Endmuffen", "Manicotti terminali"], ["(Lieferung ohne LV)", "(fornitura fuori LV)"], ["Halbschalenabzweiger", "Derivazione a semiguscio"], ["Doppelsteckmuffen", "Manicotti doppi"], ["Reparaturmuffen", "Manicotti di riparazione"], ["Verbindungsstück", "Raccordo"], [" Ausgängen", " uscite"], [" mit ", " con "], [" auf ", " su "]],
+    en: [["Flexibler Rohrbogen", "Flexible bend"], ["Endmuffen", "End sockets"], ["(Lieferung ohne LV)", "(supply not in LV)"], ["Halbschalenabzweiger", "Half-shell branch"], ["Doppelsteckmuffen", "Double socket couplings"], ["Reparaturmuffen", "Repair couplings"], ["Verbindungsstück", "Connector"], [" Ausgängen", " outlets"], [" mit ", " with "], [" auf ", " onto "]] };
   function zT(k) { var r = String(k); (ZW[S.lang] || []).forEach(function (w) { r = r.split(w[0]).join(w[1]); }); return r; }
   function listEl(cfg, key, cat, labKey, unit) {
     var wrap = document.createElement("div"); wrap.className = "sublist";
@@ -603,7 +603,10 @@
   /* Belagsfläche -> Breite B und Länge L, so dass B × L = Fläche und 2 × (B + L) = Umfang (sonst Quadrat); Rechenkern unverändert */
   function solveBL(A, P) { var h = P / 2, d = h * h - 4 * A; if (d >= 0) { var r = Math.sqrt(d); return [(h + r) / 2, (h - r) / 2]; } var q = Math.sqrt(A); return [q, q]; }
   /* Leitungskonfiguration der Linie (Rohre, Verlegeart, Oberfläche, Tiefe/Breite) in den Graben-Datensatz übertragen; nur gesetzte Angaben */
-  var ROHTYP = { 55: "K55", 100: "K100 PEHD", 120: "K120 PEHD", 150: "K150 PEHD" }, MUFTYP = { 55: "Doppelsteckmuffen K55", 100: "Doppelsteckmuffen K100", 120: "Doppelsteckmuffen K120" };
+  var ROHTYP = { 55: "K55", 100: "K100 PEHD", 120: "K120 PEHD", 150: "K150 PEHD" }, MUFTYP = { 55: "Doppelsteckmuffen K55", 100: "Doppelsteckmuffen K100", 120: "Doppelsteckmuffen K120", 150: "Doppelsteckmuffen K150" };
+  function lineSrc(l) { return (S.karte && (S.karte.lines || []).indexOf(l) >= 0) ? S.karte : (S.plan || S.karte); }
+  var BOE90 = { 55: "K55, 90°, R = 0.60 m", 100: "K100, 90°, R = 1.00 m", 120: "K120, 90°, R = 1.20 m", 150: "K150, 90°, R = 1.50 m" },
+      BOE45 = { 55: "K55, 45°, R = 0.60 m", 100: "K100, 45°, R = 1.00 m", 120: "K120, 45°, R = 1.20 m", 150: "K150, 45°, R = 1.50 m" };
   function applyCfg(l, r, L) {
     var c = KARTE.cfgOf(l), ent = KARTE.pipeList(c); KARTE.lineSync(l);
     if (c.T && KVE.num(c.T, 0) > 0) r.T = String(c.T);
@@ -624,7 +627,11 @@
     if (c.schutz !== undefined) r.schutzL = String(c.schutz || "");
     if (c.fl && c.fl !== "roh") r.gesp = !!c.gesp;   /* ohne Aushub (Rohplanie) keine Spriessung */
     if (KVE.num(c.kr, 0) > 0) r.kreuz = { on: true, n: String(c.kr), len: (r.kreuz && r.kreuz.len) || "1.00", richtung: (r.kreuz && r.kreuz.richtung) || "quer" }; else if (c.kr === "0") r.kreuz = Object.assign({}, r.kreuz || {}, { on: false });
-    if (c.art !== "beton" && c.art !== "laengs") { if (c.b90 !== "") r.b90 = String(KVE.num(c.b90, 0)); if (c.b45 !== "") r.b45 = String(KVE.num(c.b45, 0)); }
+    if (c.art !== "beton" && c.art !== "laengs") {   /* Bögen: Eingabe an der Linie geht vor; sonst Vorschlag aus den Knicken × Anzahl Rohre (V143), solange im Datensatz nicht von Hand geändert */
+      var bk = KARTE.bendsOf(l, lineSrc(l)), bn = ent.length ? ent[0][1] : 1;
+      ["b90", "b45"].forEach(function (k) { if (c[k] !== "") { r[k] = String(KVE.num(c[k], 0)); delete r[k + "a"]; return; }
+        var a = String(bk[k] * bn); if (r[k] == null || r[k] === "" || String(r[k]) === "0" || String(r[k]) === String(r[k + "a"])) { r[k] = a; r[k + "a"] = a; } });
+    }
   }
   /* Oberfläche in einen Datensatz übertragen; Pflästerung: Abbruch der bestehenden Pflästerung gemäss Auswahl */
   function setSurface(r, fl, ab) {
@@ -640,6 +647,9 @@
     ensureUid(x); x.fromMap = 1; l.rid2 = x.uid; x.name = r.name + " – " + ent.map(function (e) { return e[1] + "×K" + e[0]; }).join(" + ");
     x.verl = true; x.rohre = ent.map(function (e) { return { typ: ROHTYP[e[0]], q: round1(L * e[1]) }; });
     x.muf = ent.filter(function (e) { return MUFTYP[e[0]]; }).map(function (e) { return { typ: MUFTYP[e[0]], q: String(e[1] * Math.ceil(L / 5 - 1e-9)) }; }); if (!x.muf.length) x.muf = [{ typ: "", q: "" }];
+    var bk = KARTE.bendsOf(l, lineSrc(l)); x.boe = [];   /* Bögen der weiteren Rohrtypen aus der Linienführung (V143) */
+    ent.forEach(function (e) { if (bk.b90 && BOE90[e[0]]) x.boe.push({ typ: BOE90[e[0]], q: String(bk.b90 * e[1]) }); if (bk.b45 && BOE45[e[0]]) x.boe.push({ typ: BOE45[e[0]], q: String(bk.b45 * e[1]) }); });
+    if (!x.boe.length) x.boe = [{ typ: "", q: "" }];
     var m = ent.reduce(function (a, e) { return a + L * e[1]; }, 0); x.schnur = round1(m); x.kal = round1(m); x.kalDN = String(ent[0][0]); x.zubV = { warn: true };   /* Warnband liegt im Graben */
     return 1;
   }
@@ -1053,7 +1063,7 @@
   }
 
   /* ---------- Ergebnis ---------- */
-  var ORDER = ["g_bauwerk", "g_belag", "g_deponieBelag", "g_abbruch", "g_aushub", "g_ersch", "g_spries", "g_zone", "g_rohr", "g_verf", "g_deponie", "g_belagNeu", "g_abdeckung", "g_fremd", "g_schutz", "g_boesch", "g_zus", "g_weitere", "g_pausch", "g_vorarbeiten", "g_be", "g_frei"];
+  var ORDER = ["g_bauwerk", "g_belag", "g_deponieBelag", "g_abbruch", "g_aushub", "g_ersch", "g_spries", "g_zone", "g_rohr", "g_verf", "g_zwl", "g_deponie", "g_belagNeu", "g_abdeckung", "g_fremd", "g_schutz", "g_boesch", "g_zus", "g_weitere", "g_pausch", "g_vorarbeiten", "g_be", "g_frei"];
   function openText(l) { return fill(tt("w_" + l.tk), l.args); }
   function mwLab(pct) { return String(tt("k_mwst")).replace(/\s*[\d.,]+\s*%\s*$/, "") + " " + qf(r2(pct)) + " %"; }   /* MWST-Bezeichnung mit dem tatsächlichen Satz (statt fix 8.1 %) */
   function ofBtn(l, lab) { return l.tk && l.tk !== "freiKeinEP" ? '<p class="ofrow no-print"><button type="button" class="btn ghost small" data-act="offen" data-ofk="' + esc(l.tk + "|" + l.unit) + '">' + esc(tt(lab)) + "</button></p>" : ""; }

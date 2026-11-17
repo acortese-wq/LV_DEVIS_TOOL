@@ -565,6 +565,21 @@
     c.ab = c.ab == null ? "betonstein" : String(c.ab); c.gesp = !!c.gesp;   /* ab: Abbruch bestehende Pflästerung ("" = keiner) */
     ["kr", "b90", "b45"].forEach(function (k) { c[k] = c[k] == null ? "" : String(c[k]); }); return c;
   }
+  /* V143: Bögen aus der Linienführung – Knickwinkel je Zwischenpunkt (ohne Punkte an Schacht, Werkloch, Hauseinführung, Sondage):
+     ab 30° ein 45°-Bogen, ab 67.5° ein 90°-Bogen, ab 112.5° 90° + 45°, ab 157.5° zwei 90°-Bögen; Anzahl je Rohr */
+  function bendsOf(l, M) {
+    var P = (l && l.pts) || [], o = [], r = { b90: 0, b45: 0 };
+    if (M) ["pts", "wl", "geb", "sond"].forEach(function (k) { (M[k] || []).forEach(function (q) { if (q && q.pt) o.push(q.pt); }); });
+    for (var i = 1; i < P.length - 1; i++) {
+      var a = P[i - 1], b = P[i], c = P[i + 1];
+      if (o.some(function (q) { return Math.hypot(q[0] - b[0], q[1] - b[1]) < 0.5; })) continue;
+      var ux = b[0] - a[0], uy = b[1] - a[1], vx = c[0] - b[0], vy = c[1] - b[1], lu = Math.hypot(ux, uy), lv = Math.hypot(vx, vy);
+      if (lu < 0.05 || lv < 0.05) continue;
+      var d = Math.acos(Math.max(-1, Math.min(1, (ux * vx + uy * vy) / (lu * lv)))) * 180 / Math.PI;
+      if (d >= 157.5) r.b90 += 2; else if (d >= 112.5) { r.b90++; r.b45++; } else if (d >= 67.5) r.b90++; else if (d >= 30) r.b45++;
+    }
+    return r;
+  }
   function pipeList(c) {   /* [[dn, n], …] absteigend nach Anzahl, dann Durchmesser: erster Eintrag = Haupttyp */
     return Object.keys(c.rt || {}).map(function (k) { return [parseInt(k, 10), Math.max(0, parseInt(c.rt[k], 10) || 0)]; }).filter(function (e) { return e[1] > 0; })
       .sort(function (a, b) { return b[1] - a[1] || b[0] - a[0]; });
@@ -1976,7 +1991,9 @@
       dg.appendChild(cell(tt("km_lt_gesp"), sel1(tt("km_lt_gesp"), [["0", tt("km_no")], ["1", tt("km_yes")]], c.gesp ? "1" : "0", function (v) { c.gesp = v === "1"; changed(); })));
       dg.appendChild(cell(tt("km_lt_bau"), sel1(tt("km_lt_bau"), [["proj", tt("km_lt_bauP")], ["allein", tt("km_lt_bauA")], ["koop", tt("km_lt_bauK")]], c.bau || "proj", function (v) { c.bau = v; changed(); })));
       dg.appendChild(cell(tt("km_lt_schutz"), inp(tt("km_lt_schutz"), c.schutz || "", "kmn", function (v) { c.schutz = v.replace(/[^0-9.,]/g, "").replace(",", "."); changed(); })));
-      [["kr", "km_lt_kr"], ["b90", "km_lt_b90"], ["b45", "km_lt_b45"]].forEach(function (f) { dg.appendChild(cell(tt(f[1]), inp(tt(f[1]), c[f[0]], "kmn", function (v) { c[f[0]] = v.replace(/[^0-9]/g, ""); changed(); }))); });
+      var bk = bendsOf(l, M), bn = (pipeList(c)[0] || [0, 1])[1];   /* Vorschlag aus der Linienführung, leeres Feld = automatisch */
+      [["kr", "km_lt_kr"], ["b90", "km_lt_b90"], ["b45", "km_lt_b45"]].forEach(function (f) { var n = inp(tt(f[1]), c[f[0]], "kmn", function (v) { c[f[0]] = v.replace(/[^0-9]/g, ""); changed(); });
+        if (f[0] !== "kr" && c.art !== "beton" && c.art !== "laengs") { n.placeholder = tt("km_lt_auto") + " " + bk[f[0]] * bn; n.title = tt("km_lt_autoT"); } dg.appendChild(cell(tt(f[1]), n)); });
       dt.appendChild(dg); host.appendChild(dt); host.appendChild(sum); host.appendChild(xs); paint();
     }
     function quickOpen(l) {
@@ -3419,5 +3436,5 @@
     if (!plan && opt.autoPlan && !ovl && opt.planImg && opt.planImg.img) { $("#kmOvPlan").click(); } (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
-  window.KARTE = { lineSlopeS: lineSlopeS, slopeLen: slopeLen, slopeOn: slopeOn, slopeHz: slopeHz, connOf: connOf, connTxt: connTxt, ovBase: ovBase, cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
+  window.KARTE = { bendsOf: bendsOf, lineSlopeS: lineSlopeS, slopeLen: slopeLen, slopeOn: slopeOn, slopeHz: slopeHz, connOf: connOf, connTxt: connTxt, ovBase: ovBase, cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
 })();

@@ -386,6 +386,14 @@ def verfuellung(cx, Ve, Vv, c, direkt, vrule):
             cx.add("151/273.203", Vs, {"rule": sr})
         cx.add("151/252.213", Vs, {"rule": sr})
         cx.add("151/262.113", Vs, {"rule": sr})
+    # V143: Belagsfläche (Asphalt, Pflästerung) – kein seitliches Lager; wiederverwendeter Aushub ins Zwischenlager (bis 100 m) und zurück
+    bl = c.get("belag") or {}
+    if R > 0.005 and isinstance(bl, dict) and bl.get("mode") in ("bit", "pflaster"):
+        zr = "wiederverwendet " + s2(R) + " m³ (Belagsfläche, Zwischenlager bis 100 m)"
+        cx.g("g_zwl")
+        cx.add("151/252.111", R, {"rule": zr})
+        cx.add("151/273.203", R, {"rule": zr})
+        cx.add("151/761.111", R, {"rule": zr})
     return {"R": R, "fremd": fremd, "Vs": Vs}
 
 
@@ -1019,17 +1027,17 @@ def zusaetze(cx, c):
 ROH = {"K55": {"l": "151/412.111", "v": "151/431.001", "s": "151/482.101"}, "KW50": {"l": None, "v": "151/431.001", "s": "151/482.101"},
        "K100 PEHD": {"l": "151/412.214", "v": "151/431.002", "s": "151/482.101"}, "K120 PEHD": {"l": "151/412.215", "v": "151/431.003", "s": "151/482.102"},
        "K150 PEHD": {"l": "151/412.216", "v": "151/431.003", "s": "151/482.102"}, "K100 mit LV": {"l": "151/415.102", "v": "151/433.002", "s": "151/482.101"},
-       "K120 mit LV": {"l": "151/415.103", "v": "151/433.003", "s": "151/482.102"}, "K150 mit LV": {"l": "151/415.104", "v": "151/433.003", "s": "151/482.102"}}
-BOE = {"K55, 90°, R = 0.60 m": {"l": "151/421.121", "v": "151/441.111"}, "K55, 90°, R = 1.00 m": {"l": None, "v": "151/441.111"},
-       "K100, 90°, R = 1.00 m": {"l": "151/421.124", "v": "151/441.114"}, "K120, 90°, R = 1.20 m": {"l": "151/421.125", "v": "151/441.115"},
-       "K150, 90°, R = 1.50 m": {"l": "151/421.126", "v": "151/441.116"},
+       "K120 mit LV": {"l": "151/415.103", "v": "151/433.003", "s": "151/482.102"}, "K150 mit LV": {"l": "151/415.104", "v": "151/433.003", "s": "151/482.102"},
+       "K100 PEHD 5 m": {"l": "151/412.113", "v": "151/431.002", "s": "151/482.101"}}
+BOE = {"K55, 90°, R = 0.60 m": {"l": "151/421.221", "v": "151/441.121"}, "K55, 90°, R = 1.00 m": {"l": None, "v": "151/441.121"}, "K100, 90°, R = 1.00 m": {"l": "151/421.224", "v": "151/441.124"}, "K120, 90°, R = 1.20 m": {"l": "151/421.225", "v": "151/441.125"}, "K150, 90°, R = 1.50 m": {"l": "151/421.226", "v": "151/441.126"}, "K55, 45°, R = 0.60 m": {"l": "151/421.121", "v": "151/441.111"}, "K100, 45°, R = 1.00 m": {"l": "151/421.124", "v": "151/441.114"}, "K120, 45°, R = 1.20 m": {"l": "151/421.125", "v": "151/441.115"}, "K150, 45°, R = 1.50 m": {"l": "151/421.126", "v": "151/441.116"}, "K80, 90° (Lieferung ohne LV)": {"l": None, "v": "151/441.123"}, "Flexibler Rohrbogen K100": {"l": "151/421.313", "v": "151/441.204"}, "Flexibler Rohrbogen K120": {"l": "151/421.314", "v": "151/441.205"}, "Flexibler Rohrbogen K150": {"l": "151/421.315", "v": "151/441.206"}, "Flexibler Rohrbogen K100 mit LV": {"l": "151/421.422", "v": "151/441.302"}, "Flexibler Rohrbogen K120 mit LV": {"l": "151/421.423", "v": "151/441.303"}, "Flexibler Rohrbogen K150 mit LV": {"l": "151/421.424", "v": "151/441.304"},
        "Halbschalenabzweiger, K55": {"l": "151/423.303", "v": "151/451.303"}, "Halbschalenabzweiger, K100 auf K55": {"l": "151/423.304", "v": "151/451.304"},
        "Halbschalenabzweiger, KK4 auf K55": {"l": "151/423.305", "v": "151/451.305"}, "Halbschalenabzweiger, KK8 auf K55": {"l": "151/423.306", "v": "151/451.306"},
        "T-KK4 mit 2 K55 Ausgängen": {"l": "151/423.302", "v": "151/451.302"}, "T-KK8 mit 2 K55 Ausgängen": {"l": "151/423.301", "v": "151/451.301"},
        "Verbindungsstück KK4": {"l": "151/423.307", "v": "151/451.307"}}
 MUF = {"Doppelsteckmuffen K55": {"l": "151/421.511", "v": "151/442.111"}, "Doppelsteckmuffen K100": {"l": "151/421.514", "v": "151/442.114"},
        "Doppelsteckmuffen K120": {"l": "151/421.515", "v": "151/442.115"}, "Doppelsteckmuffen K100 mit LV": {"l": "151/421.562", "v": "151/442.162"},
-       "Doppelsteckmuffen K120 mit LV": {"l": "151/421.563", "v": "151/442.163"}, "Reparaturmuffen K100 106/100 mm": {"l": "151/421.313", "v": "151/442.114"}}
+       "Doppelsteckmuffen K120 mit LV": {"l": "151/421.563", "v": "151/442.163"}, "Reparaturmuffen K100 106/100 mm": {"l": "151/421.313", "v": "151/442.114"},
+       "Doppelsteckmuffen K150": {"l": "151/421.516", "v": "151/442.116"}, "Doppelsteckmuffen K150 mit LV": {"l": "151/421.564", "v": "151/442.164"}, "Endmuffen K55": {"l": "151/421.521", "v": "151/442.121"}, "Endmuffen K100": {"l": "151/421.524", "v": "151/442.124"}, "Endmuffen K120": {"l": "151/421.525", "v": "151/442.125"}, "Endmuffen K150": {"l": "151/421.526", "v": "151/442.126"}}
 KAL = {"55": "151/485.004", "100": "151/485.001", "120": "151/485.002", "150": "151/485.003"}
 
 
@@ -1377,6 +1385,34 @@ def calcRec(tab, e, LV_, P):
     return r
 
 
+# V143: Abfuhr in die Deponie – Fahrzeug nach Projektmenge (Volumen fest): bis 5 m³ Mulde 151/255.2xx, sonst Lastwagen 151/252.2xx
+MULDE_MAX = 5
+LKW2MULDE = {"151/252.211": "151/255.211", "151/252.213": "151/255.213", "151/252.221": "151/255.221"}
+MULDE2LKW = {v: k for k, v in LKW2MULDE.items()}
+
+
+def fahrzeug(lists, LV_):
+    tot = 0
+    for ls in lists:
+        for l in ls:
+            if l["key"] in LKW2MULDE or l["key"] in MULDE2LKW:
+                tot += l["qty"]
+    tot = r2(tot); mu = tot > 0 and tot <= MULDE_MAX + 1e-9
+    for ls in lists:
+        for l in ls:
+            lkw = l["key"] if l["key"] in LKW2MULDE else MULDE2LKW.get(l["key"])
+            if not lkw:
+                continue
+            if not mu and l.get("rule0") is None:
+                continue
+            k = LKW2MULDE[lkw] if mu else lkw
+            if l.get("rule0") is None:
+                l["rule0"] = l["rule"]
+            l["key"] = k; l["ep"] = LV_[k]["ep"]; l["total"] = r2(l["qty"] * l["ep"]); l["text"] = lvT(k); l["ctx"] = lvC(k)
+            l["rule"] = l["rule0"] + ((" · Mulde: Abfuhr Projekt " + s2(tot) + " m³ ≤ " + str(MULDE_MAX) + " m³") if mu else "")
+    return mu
+
+
 def calc(P, LV_=None):
     LV_ = LV_ or LV
     d = num(P.get("dichte"), ASPHALT_T)
@@ -1388,6 +1424,9 @@ def calc(P, LV_=None):
             r.update({"name": e.get("name"), "type": tab, "tab": tab, "idx": i, "id": tab + "_" + str(i)})
             out["elems"].append(r)
     out["vor"] = vorarbeiten(P, LV_)
+    fahrzeug([e["lines"] for e in out["elems"]] + [out["vor"]["lines"]], LV_)
+    for e in out["elems"]:
+        e["sum"] = r2(sum(l["total"] for l in e["lines"]))
     out["vor"]["sum"] = r2(sum(l["total"] for l in out["vor"]["lines"]))
     baseSum = sum(e["sum"] for e in out["elems"]) + out["vor"]["sum"]
     out["be"] = baustelle(P, LV_, r2(baseSum))

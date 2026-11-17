@@ -1047,6 +1047,8 @@ s_vor: ["Vorarbeiten (projektweit)", "Travaux préparatoires (projet)", "Lavori 
     km_lt_kr: ["Kreuzungen (Anzahl)", "Croisements (nombre)", "Incroci (numero)", "Crossings (number)"],
     km_lt_b90: ["Bögen 90° (Anzahl)", "Coudes 90° (nombre)", "Curve 90° (numero)", "90° bends (number)"],
     km_lt_b45: ["Bögen 45° (Anzahl)", "Coudes 45° (nombre)", "Curve 45° (numero)", "45° bends (number)"],
+    km_lt_auto: ["auto:", "auto :", "auto:", "auto:"],
+    km_lt_autoT: ["Leer lassen = automatisch aus den Knicken der Linie (ab 30° 45°-Bogen, ab 67.5° 90°-Bogen) × Anzahl Rohre. Eine Zahl übersteuert den Vorschlag.", "Laisser vide = automatique d'après les angles du tracé (dès 30° coude 45°, dès 67,5° coude 90°) × nombre de tubes. Un nombre remplace la proposition.", "Lasciare vuoto = automatico dagli angoli del tracciato (da 30° curva 45°, da 67,5° curva 90°) × numero di tubi. Un numero sostituisce la proposta.", "Leave empty = automatic from the line's angles (from 30° a 45° bend, from 67.5° a 90° bend) × number of ducts. A number overrides the suggestion."],
     km_lt_gespHint: ["Tiefe über 1.0 m: Spriessung prüfen", "Profondeur > 1.0 m : vérifier le blindage", "Profondità > 1.0 m: verificare la puntellatura", "Depth over 1.0 m: check shoring"],
     km_no: ["nein", "non", "no", "no"],
     km_yes: ["ja", "oui", "sì", "yes"],
