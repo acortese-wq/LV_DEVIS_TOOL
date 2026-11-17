@@ -611,3 +611,7 @@ Grundlage: Abdeckungsprüfung NPK 151 (2000 Zufallsprojekte): 213 von 347 Positi
   - Kosten in einer Rohranlage «Abzweiger (Karte)» bzw. «(Plan)», bei jeder Übernahme neu gebildet; Bögen am Abzweiger zählen nicht.
   - **Bögen beschriftet:** Schild «Anzahl × Winkel» am Knick (Anzahl = Rohre der Linie), Schalter «Bögen» in der Kartenleiste (`lvd-km-bend`, Vorgabe ein), auch im Export-/Berichtsbild.
   - Kostenwirkung: nur bei gesetzten Abzweigern (neue Formstückpositionen). Tests: t125 (neu).
+- **Nachtrag V143 – Belag-Nachschnitt** (Entscheid Benutzer: Graben und Gruben mit Asphalt, 10 cm einstellbar, ganze Belagsstärke, gilt sofort für alle Projekte):
+  - Neuer Projektparameter «Belag-Nachschnitt je Seite» (`par.ns`, Vorgabe 0.10 m; ältere Projekte ohne Wert rechnen ebenfalls mit 0.10 m), je Datensatz übersteuerbar (Feld «Nachschnitt je Seite», leer = Projekt, 0 = keiner).
+  - Gerechnet bei Asphalt im Leitungsgraben, in Schachtgruben, Werklöchern und Fundamenten: **zweiter Schnitt** am erweiterten Umfang (117/223.12x), **Abbruch, Abfuhr/Gebühr und Neueinbau** (Trag-, Deckschicht, Haftvermittler) auf der erweiterten Fläche (L + 2·ns) × (b + 2·ns); **Nähte, Anschlüsse, Randabschluss** nur am äusseren Rand; Fundation und Massenbilanz (Verfüllung) weiterhin nur Grabenfläche. Wiese und Pflästerung ohne Nachschnitt. Sondagen haben keinen Belagsteil (unverändert).
+  - **Kostenwirkung:** Beispielprojekt netto 80'883.12 → 88'575.56 (+7'692.44, +9.5 %); Regressions-Referenz bewusst neu erzeugt (29 von 64 Projekten geändert, bis +9.5 %). Test t126 (neu).

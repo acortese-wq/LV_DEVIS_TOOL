@@ -56,17 +56,29 @@ var KVE = (function () {
   Ctx.prototype.b = function (id, unit, v) { this.bal.push({ id: id, unit: unit, v: v }); };
 
   /* ---------- Belag (Abbruch + Neuaufbau) ---------- */
-  function belag(cx, B, A, Schnitt, rs, b) {
+  /* V143: Nachschnitt Asphalt – Grabenrand vor dem Einbau je Seite um ns (Vorgabe 0.10 m, Projektparameter «ns», je Datensatz «ns») zurückschneiden:
+     zweiter Schnitt am erweiterten Umfang, Abbruch/Abfuhr/Neueinbau auf der erweiterten Fläche; Nähte am äusseren Rand; Massenbilanz und Fundation nur Grabenfläche */
+  function nsOf(c, P) { var v = c && c.ns != null && String(c.ns).trim() !== "" ? num(c.ns, 0) : num(((P || {}).par || {}).ns, 0.10); return v > 0 ? Math.min(v, 1) : 0; }
+  function belag(cx, B, A, Schnitt, rs, b, nso) {
     var info = { Valt: 0, Vneu: 0 };
     if (!B || !(A > 0)) return info;
-    if (B.mode === "bit") return belagBit(cx, B, A, Schnitt, rs);
+    if (B.mode === "bit") {
+      var ns = nso && nso.ns > 0 ? nso.ns : 0, nR = nso && nso.nR > 0 ? nso.nR : 1;
+      if (ns > 0 && Schnitt > 0) {
+        var cut2 = Schnitt + 8 * ns * nR, A2 = A + ns * Schnitt + 4 * ns * ns * nR;
+        return belagBit(cx, B, A2, Schnitt + cut2, { cut: rs.cut + " + Nachschnitt " + s2(ns) + " m je Seite " + s2(cut2) + " m = " + s2(Schnitt + cut2) + " m",
+          area: rs.area + " + Nachschnitt " + s2(ns) + " m je Seite = " + s2(A2) + " m²" }, { A0: A, naht: cut2, rn: "Umfang nach Nachschnitt = " + s2(cut2) + " m" });
+      }
+      return belagBit(cx, B, A, Schnitt, rs);
+    }
     if (B.mode === "humus") return belagHumus(cx, B, A, b);
     if (B.mode === "pflaster") return belagPflaster(cx, B, A, Schnitt, rs, b);
     return info;
   }
 
-  function belagBit(cx, B, A, Schnitt, rs) {
+  function belagBit(cx, B, A, Schnitt, rs, o) {
     var info = { Valt: 0, Vneu: 0 };
+    o = o || {}; var A0 = o.A0 != null ? o.A0 : A, Naht = o.naht != null ? o.naht : Schnitt, rn = o.rn || rs.cut;
     var d = num(B.d, 150), i = -1;
     if (d >= 51 && d <= 100) i = 0; else if (d > 100 && d <= 150) i = 1; else if (d > 150 && d <= 200) i = 2;
     cx.g("g_belag");
@@ -77,8 +89,8 @@ var KVE = (function () {
       cx.add(["117/223.122", "117/223.123", "117/223.124"][i], Schnitt, { rule: rs.cut });
       cx.add(["117/223.212", "117/223.213", "117/223.214"][i], A, { rule: rs.area });
     }
-    info.Valt = A * d / 1000;
-    var Mt = info.Valt * dens, mr = s2(A) + " m² × " + d + " mm × " + dens + " t/m³ = " + s2(Mt) + " t";
+    info.Valt = A0 * d / 1000;
+    var Mt = A * d / 1000 * dens, mr = s2(A) + " m² × " + d + " mm × " + dens + " t/m³ = " + s2(Mt) + " t";
     cx.g("g_deponieBelag");
     if (B.pak === "gt250") {
       cx.add("117/721.251", Mt, { rule: mr });
@@ -116,11 +128,11 @@ var KVE = (function () {
       if (!dkOk) cx.off(dkMass ? "deckMasch" : "deckMax", mDk, "t", { d: dD }, { rule: rDk }); else cx.add(dkKey, mDk, { rule: rDk });
       if (B.naehte) {
         var dg = dT + dD;
-        if (dg > 130) cx.off("naehteMax", Schnitt, "m", { d: dg }, { rule: rs.cut });
-        else cx.add(dg <= 40 ? "223/423.211" : dg <= 80 ? "223/423.212" : "223/423.213", Schnitt, { rule: rs.cut });
+        if (dg > 130) cx.off("naehteMax", Naht, "m", { d: dg }, { rule: rn });
+        else cx.add(dg <= 40 ? "223/423.211" : dg <= 80 ? "223/423.212" : "223/423.213", Naht, { rule: rn });
       }
       if (dF > 0) {
-        var Vf = A * dF / 1000, rF = s2(A) + " m² × " + dF + " mm = " + s2(Vf) + " m³";
+        var Vf = A0 * dF / 1000, rF = s2(A0) + " m² × " + dF + " mm = " + s2(Vf) + " m³";
         cx.add("223/271.113", Vf, { rule: rF });
         if (dF < 101) cx.off("fundMin", Vf, "m³", { d: dF }, { rule: rF });
         else cx.add(dF <= 200 ? "223/272.112" : "223/272.113", Vf, { rule: rF });
@@ -128,9 +140,9 @@ var KVE = (function () {
       /* M: Anschlussflächen und Deckschichtränder – aus vorhandener Geometrie ableitbar, ohne Zusatzeingabe */
       var dg = dT + dD, ak;
       if (dg <= 40) ak = "223/424.111"; else if (dg <= 80) ak = "223/424.112"; else if (dg <= 130) ak = "223/424.113"; else ak = null;
-      if (ak) cx.add(ak, Schnitt, { rule: rs.cut }); else cx.off("anschlussMax", Schnitt, "m", { d: dg }, { rule: rs.cut });
-      cx.add("223/571.101", Schnitt, { rule: rs.cut });
-      info.Vneu = A * (dT + dD + dF) / 1000;
+      if (ak) cx.add(ak, Naht, { rule: rn }); else cx.off("anschlussMax", Naht, "m", { d: dg }, { rule: rn });
+      cx.add("223/571.101", Naht, { rule: rn });
+      info.Vneu = A0 * (dT + dD + dF) / 1000;
       if (Math.abs(dT + dD + dF - d) > 0.5) cx.w("dickeAbw", "info", { neu: dT + dD + dF, alt: d });
     } else {
       info.Vneu = info.Valt;               // Belagseinbau durch Dritte: Raum bleibt in der Bilanz
@@ -514,7 +526,7 @@ var KVE = (function () {
   }
 
   /* ---------- Element: Leitungsgraben ---------- */
-  function graben(c, LV) {
+  function graben(c, LV, P) {
     var cx = new Ctx(LV);
     var L = num(c.L, 0), T = num(c.T, 0.6), b = breite(cx, c);
     var hk = HAND[c.hand] != null ? HAND[c.hand] : 0.10;
@@ -528,7 +540,7 @@ var KVE = (function () {
     var A = Lb * bo, Schnitt = Lb > 0 ? 2 * (Lb + bo) : 0;
     if (!(L > 0) || !(b > 0) || !(T > 0)) return { lines: [], warn: cx.warn, bal: [] };
 
-    var bi = belag(cx, roh ? { mode: "none" } : c.belag, A, Schnitt, { cut: "2 × (" + s2(Lb) + " + " + s2(bo) + ") = " + s2(Schnitt) + " m", area: s2(Lb) + " × " + s2(bo) + " = " + s2(A) + " m²" }, bo);
+    var bi = belag(cx, roh ? { mode: "none" } : c.belag, A, Schnitt, { cut: "2 × (" + s2(Lb) + " + " + s2(bo) + ") = " + s2(Schnitt) + " m", area: s2(Lb) + " × " + s2(bo) + " = " + s2(A) + " m²" }, bo, { ns: nsOf(c, P), nR: 1 });
     var g = !roh && !!c.gesp, vr = bn ? s2(L) + " × " + s2(T) + " × (" + s2(b) + " + " + s2(T) + "/" + bn + ") = " + s2(V) + " m³" : s2(L) + " × " + s2(b) + " × " + s2(T) + " = " + s2(V) + " m³";
     if (bn) cx.w("boeschV", "info", { n: bn, bo: r2(bo), v: r2(V - L * b * T) });
     else if (!roh && c.gesp && BOESCH_N[c.wand]) cx.w("boeschGesp", "amber", {});
@@ -666,7 +678,7 @@ var KVE = (function () {
   var DECKEL_KEY = { hoeher: { rund: "151/633.001", rechteckig: "151/633.002" }, tiefer: { rund: "151/634.001", rechteckig: "151/634.002" } };
   var ALT_KEY = { guss: "117/228.301", beton: "117/228.302", flaeche: "117/228.303" };
   function anKey(kind, dn) { return kind === "KS" ? (String(dn) === "150" ? "151/672.202" : "151/672.201") : (String(dn) === "150" ? "151/672.302" : "151/672.301"); }
-  function schacht(c, LV) {
+  function schacht(c, LV, P) {
     var cx = new Ctx(LV);
     if (c.modus === "deckel") {
       var n0 = Math.max(0, num(c.deckelN, 1));
@@ -712,7 +724,7 @@ var KVE = (function () {
     } else if (an > 0) {
       cx.add(anKey(S.kind, c.anDN), an * n, { rule: an + " × " + n + " = " + (an * n) + " St" });
     }
-    var bi = belag(cx, c.belag, A, Schnitt, { cut: "2 × (" + s2(Gl) + " + " + s2(Gb) + ")" + (n > 1 ? " × " + n : "") + " = " + s2(Schnitt) + " m", area: s2(Gl) + " × " + s2(Gb) + (n > 1 ? " × " + n : "") + " = " + s2(A) + " m²" }, Gl);
+    var bi = belag(cx, c.belag, A, Schnitt, { cut: "2 × (" + s2(Gl) + " + " + s2(Gb) + ")" + (n > 1 ? " × " + n : "") + " = " + s2(Schnitt) + " m", area: s2(Gl) + " × " + s2(Gb) + (n > 1 ? " × " + n : "") + " = " + s2(A) + " m²" }, Gl, { ns: nsOf(c, P), nR: n });
     var pl = num(c.platten, 0);
     if (pl > 0) { cx.g("g_abbruch"); cx.add("117/228.201", pl, { rule: "Anzahl = " + pl + " St" }); }
     if (!roh) {   /* «Aushub durch Bauherr»: Aushub und Erschwernis entfallen */
@@ -799,12 +811,12 @@ var KVE = (function () {
   /* Grube mit Arbeitsraum (Werkloch, Fundament): Aushub, Erschwernis, Verfüllung, Belag */
   function grube(cx, c, parts, Vb, P) {
     var Vg = 0, A = 0, per = 0, Gt = 0, txt = [], bmin = 99;
-    parts.forEach(function (g) { Vg += g.l * g.b * g.t * g.n; A += g.l * g.b * g.n; per += 2 * (g.l + g.b) * g.n; Gt = Math.max(Gt, g.t); bmin = Math.min(bmin, g.b);
+    var nR = 0; parts.forEach(function (g) { nR += g.n; Vg += g.l * g.b * g.t * g.n; A += g.l * g.b * g.n; per += 2 * (g.l + g.b) * g.n; Gt = Math.max(Gt, g.t); bmin = Math.min(bmin, g.b);
       txt.push((g.n > 1 ? g.n + " × " : "") + s2(g.l) + " × " + s2(g.b) + " × " + s2(g.t)); });
     if (!(Vg > 0)) return null;
     var hk = HAND[c.hand] != null ? HAND[c.hand] : 0.10, gr = txt.join(" + ") + " = " + s2(Vg) + " m³";
     var bel = c.belag && c.belag.mode && c.belag.mode !== "none";
-    var bi = belag(cx, c.belag, bel ? A : 0, bel ? per : 0, { cut: "Umfang Grube = " + s2(per) + " m", area: "Fläche Grube = " + s2(A) + " m²" }, bmin);
+    var bi = belag(cx, c.belag, bel ? A : 0, bel ? per : 0, { cut: "Umfang Grube = " + s2(per) + " m", area: "Fläche Grube = " + s2(A) + " m²" }, bmin, { ns: nsOf(c, P), nR: nR });
     aushubLines(cx, { m1: "151/231.111", m2: "151/231.112", h: "151/231.211" }, Gt, Vg * (1 - hk), Vg * hk,
       gr + " × " + s2((1 - hk) * 100) + " % = " + s2(Vg * (1 - hk)) + " m³", gr + " × " + s2(hk * 100) + " % = " + s2(Vg * hk) + " m³");
     erschwernis(cx, c.ersch, Gt, Vg * (1 - hk), Vg * hk, ERSCH_KEYS.grube_m, ERSCH_KEYS.grube_h);

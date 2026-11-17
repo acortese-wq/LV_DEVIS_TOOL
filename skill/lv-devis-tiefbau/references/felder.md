@@ -59,6 +59,7 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 | `belag.mode` | Belag Bestand | `none` Kein Belag (Grünfläche)<br>`bit` Bituminöser Belag<br>`humus` Humus/Wiesland<br>`pflaster` Pflästerung/Platten | `"bit"` |  |
 | `Lb` | Länge mit Belag (m, leer = ganze Länge) | Zahl (Text) | `""` | belag.mode !== "none" |
 | `belag.d` | Belagsdicke Bestand (mm) | Zahl (Text) | `"130"` | belag.mode === "bit" |
+| `ns` | Nachschnitt je Seite (m, leer = Projektvorgabe)<br><i>Asphalt: Grabenrand vor dem Einbau je Seite zurückschneiden (Vorgabe 0.10 m in den Parametern). Gerechnet: zweiter Schnitt am erweiterten Umfang, Abbruch, Abfuhr und Neueinbau auf der erweiterten Fläche, Nähte am äusseren Rand. 0 = kein Nachschnitt.</i> | Zahl (Text) | `""` | belag.mode === "bit" |
 | `belag.pak` | PAK-Gehalt Ausbauasphalt | `le250` bis 250 mg/kg (Deponie Typ B)<br>`gt250` über 250 mg/kg (Deponie Typ E) | `"le250"` | belag.mode === "bit" |
 | `belag.einbau` | Belagseinbau | `dritte` Durch Dritte (nicht im KV)<br>`typN` Typ N, von Hand einbauen | `"typN"` | belag.mode === "bit" |
 | `belag.typ` | Belagstyp | `N` Typ N (Strassenbelag)<br>`L` Typ L (Vorplätze, Zufahrten) | `"N"` | belag.mode === "bit" && belag.einbau === "typN" |
@@ -170,6 +171,7 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 | **Belag** | | | | |
 | `belag.mode` | Belag Bestand | `none` Kein Belag (Grünfläche)<br>`bit` Bituminöser Belag<br>`humus` Humus/Wiesland<br>`pflaster` Pflästerung/Platten | `"bit"` | modus === "neu" |
 | `belag.d` | Belagsdicke Bestand (mm) | Zahl (Text) | `"130"` | modus === "neu" && belag.mode === "bit" |
+| `ns` | Nachschnitt je Seite (m, leer = Projektvorgabe)<br><i>Asphalt: Grabenrand vor dem Einbau je Seite zurückschneiden (Vorgabe 0.10 m in den Parametern). Gerechnet: zweiter Schnitt am erweiterten Umfang, Abbruch, Abfuhr und Neueinbau auf der erweiterten Fläche, Nähte am äusseren Rand. 0 = kein Nachschnitt.</i> | Zahl (Text) | `""` | modus === "neu" && belag.mode === "bit" |
 | `belag.pak` | PAK-Gehalt Ausbauasphalt | `le250` bis 250 mg/kg (Deponie Typ B)<br>`gt250` über 250 mg/kg (Deponie Typ E) | `"le250"` | modus === "neu" && belag.mode === "bit" |
 | `belag.einbau` | Belagseinbau | `dritte` Durch Dritte (nicht im KV)<br>`typN` Typ N, von Hand einbauen | `"typN"` | modus === "neu" && belag.mode === "bit" |
 | `belag.typ` | Belagstyp | `N` Typ N (Strassenbelag)<br>`L` Typ L (Vorplätze, Zufahrten) | `"N"` | modus === "neu" && belag.mode === "bit" && belag.einbau === "typN" |
@@ -237,6 +239,7 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 | **Belag** | | | | |
 | `belag.mode` | Belag Bestand | `none` Kein Belag (Grünfläche)<br>`bit` Bituminöser Belag<br>`humus` Humus/Wiesland<br>`pflaster` Pflästerung/Platten | `"bit"` |  |
 | `belag.d` | Belagsdicke Bestand (mm) | Zahl (Text) | `"130"` | belag.mode === "bit" |
+| `ns` | Nachschnitt je Seite (m, leer = Projektvorgabe)<br><i>Asphalt: Grabenrand vor dem Einbau je Seite zurückschneiden (Vorgabe 0.10 m in den Parametern). Gerechnet: zweiter Schnitt am erweiterten Umfang, Abbruch, Abfuhr und Neueinbau auf der erweiterten Fläche, Nähte am äusseren Rand. 0 = kein Nachschnitt.</i> | Zahl (Text) | `""` | belag.mode === "bit" |
 | `belag.pak` | PAK-Gehalt Ausbauasphalt | `le250` bis 250 mg/kg (Deponie Typ B)<br>`gt250` über 250 mg/kg (Deponie Typ E) | `"le250"` | belag.mode === "bit" |
 | `belag.einbau` | Belagseinbau | `dritte` Durch Dritte (nicht im KV)<br>`typN` Typ N, von Hand einbauen | `"typN"` | belag.mode === "bit" |
 | `belag.typ` | Belagstyp | `N` Typ N (Strassenbelag)<br>`L` Typ L (Vorplätze, Zufahrten) | `"N"` | belag.mode === "bit" && belag.einbau === "typN" |
@@ -286,6 +289,7 @@ Zusätzlich hat jeder Datensatz `x` (weitere LV-Positionen `{"151/xxx.xxx": "Men
 | **Belag** | | | | |
 | `belag.mode` | Belag Bestand | `none` Kein Belag (Grünfläche)<br>`bit` Bituminöser Belag<br>`humus` Humus/Wiesland<br>`pflaster` Pflästerung/Platten | `"none"` |  |
 | `belag.d` | Belagsdicke Bestand (mm) | Zahl (Text) | `"130"` | belag.mode === "bit" |
+| `ns` | Nachschnitt je Seite (m, leer = Projektvorgabe)<br><i>Asphalt: Grabenrand vor dem Einbau je Seite zurückschneiden (Vorgabe 0.10 m in den Parametern). Gerechnet: zweiter Schnitt am erweiterten Umfang, Abbruch, Abfuhr und Neueinbau auf der erweiterten Fläche, Nähte am äusseren Rand. 0 = kein Nachschnitt.</i> | Zahl (Text) | `""` | belag.mode === "bit" |
 | `belag.pak` | PAK-Gehalt Ausbauasphalt | `le250` bis 250 mg/kg (Deponie Typ B)<br>`gt250` über 250 mg/kg (Deponie Typ E) | `"le250"` | belag.mode === "bit" |
 | `belag.einbau` | Belagseinbau | `dritte` Durch Dritte (nicht im KV)<br>`typN` Typ N, von Hand einbauen | `"typN"` | belag.mode === "bit" |
 | `belag.typ` | Belagstyp | `N` Typ N (Strassenbelag)<br>`L` Typ L (Vorplätze, Zufahrten) | `"N"` | belag.mode === "bit" && belag.einbau === "typN" |

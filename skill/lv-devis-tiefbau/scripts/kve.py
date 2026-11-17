@@ -172,11 +172,24 @@ class Ctx:
 
 
 # ---------- Belag ----------
-def belag(cx, B, A, Schnitt, rs, b):
+# V143: Nachschnitt Asphalt (je Seite ns, Vorgabe 0.10 m; Projektparameter «ns», je Datensatz «ns»)
+def nsOf(c, P):
+    cv = (c or {}).get("ns")
+    v = num(cv, 0) if (cv is not None and str(cv).strip() != "") else num(((P or {}).get("par") or {}).get("ns"), 0.10)
+    return min(v, 1) if v > 0 else 0
+
+
+def belag(cx, B, A, Schnitt, rs, b, nso=None):
     info = {"Valt": 0, "Vneu": 0}
     if not jt(B) or not (A > 0):
         return info
     if B.get("mode") == "bit":
+        ns = nso["ns"] if (nso and nso.get("ns", 0) > 0) else 0
+        nR = nso["nR"] if (nso and nso.get("nR", 0) > 0) else 1
+        if ns > 0 and Schnitt > 0:
+            cut2 = Schnitt + 8 * ns * nR; A2 = A + ns * Schnitt + 4 * ns * ns * nR
+            return belagBit(cx, B, A2, Schnitt + cut2, {"cut": rs["cut"] + " + Nachschnitt " + s2(ns) + " m je Seite " + s2(cut2) + " m = " + s2(Schnitt + cut2) + " m",
+                            "area": rs["area"] + " + Nachschnitt " + s2(ns) + " m je Seite = " + s2(A2) + " m²"}, {"A0": A, "naht": cut2, "rn": "Umfang nach Nachschnitt = " + s2(cut2) + " m"})
         return belagBit(cx, B, A, Schnitt, rs)
     if B.get("mode") == "humus":
         return belagHumus(cx, B, A, b)
@@ -185,8 +198,9 @@ def belag(cx, B, A, Schnitt, rs, b):
     return info
 
 
-def belagBit(cx, B, A, Schnitt, rs):
+def belagBit(cx, B, A, Schnitt, rs, o=None):
     info = {"Valt": 0, "Vneu": 0}
+    o = o or {}; A0 = o["A0"] if o.get("A0") is not None else A; Naht = o["naht"] if o.get("naht") is not None else Schnitt; rn = o.get("rn") or rs["cut"]
     dens = _dens["v"]
     d = num(B.get("d"), 150); i = -1
     if 51 <= d <= 100: i = 0
@@ -199,8 +213,8 @@ def belagBit(cx, B, A, Schnitt, rs):
     else:
         cx.add(["117/223.122", "117/223.123", "117/223.124"][i], Schnitt, {"rule": rs["cut"]})
         cx.add(["117/223.212", "117/223.213", "117/223.214"][i], A, {"rule": rs["area"]})
-    info["Valt"] = A * d / 1000
-    Mt = info["Valt"] * dens
+    info["Valt"] = A0 * d / 1000
+    Mt = A * d / 1000 * dens
     mr = s2(A) + " m² × " + jstr(d) + " mm × " + jstr(dens) + " t/m³ = " + s2(Mt) + " t"
     cx.g("g_deponieBelag")
     if B.get("pak") == "gt250":
@@ -244,11 +258,11 @@ def belagBit(cx, B, A, Schnitt, rs):
         if jt(B.get("naehte")):
             dg = dT + dD
             if dg > 130:
-                cx.off("naehteMax", Schnitt, "m", {"d": dg}, {"rule": rs["cut"]})
+                cx.off("naehteMax", Naht, "m", {"d": dg}, {"rule": rn})
             else:
-                cx.add("223/423.211" if dg <= 40 else "223/423.212" if dg <= 80 else "223/423.213", Schnitt, {"rule": rs["cut"]})
+                cx.add("223/423.211" if dg <= 40 else "223/423.212" if dg <= 80 else "223/423.213", Naht, {"rule": rn})
         if dF > 0:
-            Vf = A * dF / 1000; rF = s2(A) + " m² × " + jstr(dF) + " mm = " + s2(Vf) + " m³"
+            Vf = A0 * dF / 1000; rF = s2(A0) + " m² × " + jstr(dF) + " mm = " + s2(Vf) + " m³"
             cx.add("223/271.113", Vf, {"rule": rF})
             if dF < 101:
                 cx.off("fundMin", Vf, "m³", {"d": dF}, {"rule": rF})
@@ -260,11 +274,11 @@ def belagBit(cx, B, A, Schnitt, rs):
         elif dg <= 130: ak = "223/424.113"
         else: ak = None
         if ak:
-            cx.add(ak, Schnitt, {"rule": rs["cut"]})
+            cx.add(ak, Naht, {"rule": rn})
         else:
-            cx.off("anschlussMax", Schnitt, "m", {"d": dg}, {"rule": rs["cut"]})
-        cx.add("223/571.101", Schnitt, {"rule": rs["cut"]})
-        info["Vneu"] = A * (dT + dD + dF) / 1000
+            cx.off("anschlussMax", Naht, "m", {"d": dg}, {"rule": rn})
+        cx.add("223/571.101", Naht, {"rule": rn})
+        info["Vneu"] = A0 * (dT + dD + dF) / 1000
         if abs(dT + dD + dF - d) > 0.5:
             cx.w("dickeAbw", "info", {"neu": dT + dD + dF, "alt": d})
     else:
@@ -729,7 +743,7 @@ def graben(c, LV, P=None):
     A = Lb * bo; Schnitt = 2 * (Lb + bo) if Lb > 0 else 0
     if not (L > 0) or not (b > 0) or not (T_ > 0):
         return {"lines": [], "warn": cx.warn, "bal": []}
-    bi = belag(cx, {"mode": "none"} if roh else c.get("belag"), A, Schnitt, {"cut": "2 × (" + s2(Lb) + " + " + s2(bo) + ") = " + s2(Schnitt) + " m", "area": s2(Lb) + " × " + s2(bo) + " = " + s2(A) + " m²"}, bo)
+    bi = belag(cx, {"mode": "none"} if roh else c.get("belag"), A, Schnitt, {"cut": "2 × (" + s2(Lb) + " + " + s2(bo) + ") = " + s2(Schnitt) + " m", "area": s2(Lb) + " × " + s2(bo) + " = " + s2(A) + " m²"}, bo, {"ns": nsOf(c, P), "nR": 1})
     gs = (not roh) and jt(c.get("gesp"))
     vr = (s2(L) + " × " + s2(T_) + " × (" + s2(b) + " + " + s2(T_) + "/" + jstr(bn) + ") = " + s2(V) + " m³") if bn else (s2(L) + " × " + s2(b) + " × " + s2(T_) + " = " + s2(V) + " m³")
     if bn:
@@ -970,7 +984,7 @@ def schacht(c, LV, P=None):
             if a > 0: cx.add(anKey(S["kind"], dn), a * n, {"rule": "DN " + dn + ": " + jstr(a) + " × " + jstr(n) + " = " + jstr(a * n) + " St"})
     elif an > 0:
         cx.add(anKey(S["kind"], c.get("anDN")), an * n, {"rule": jstr(an) + " × " + jstr(n) + " = " + jstr(an * n) + " St"})
-    bi = belag(cx, c.get("belag"), A, Schnitt, {"cut": "2 × (" + s2(Gl) + " + " + s2(Gb) + ")" + nx + " = " + s2(Schnitt) + " m", "area": s2(Gl) + " × " + s2(Gb) + nx + " = " + s2(A) + " m²"}, Gl)
+    bi = belag(cx, c.get("belag"), A, Schnitt, {"cut": "2 × (" + s2(Gl) + " + " + s2(Gb) + ")" + nx + " = " + s2(Schnitt) + " m", "area": s2(Gl) + " × " + s2(Gb) + nx + " = " + s2(A) + " m²"}, Gl, {"ns": nsOf(c, P), "nR": n})
     pl = num(c.get("platten"), 0)
     if pl > 0:
         cx.g("g_abbruch"); cx.add("117/228.201", pl, {"rule": "Anzahl = " + jstr(pl) + " St"})
@@ -1070,15 +1084,16 @@ def rohrTab(c, LV, P=None):
 
 
 def grube(cx, c, parts, Vb, P):
-    Vg = 0; A = 0; per = 0; Gt = 0; txt = []; bmin = 99
+    Vg = 0; A = 0; per = 0; Gt = 0; txt = []; bmin = 99; nR = 0
     for p in parts:
+        nR += p["n"]
         Vg += p["l"] * p["b"] * p["t"] * p["n"]; A += p["l"] * p["b"] * p["n"]; per += 2 * (p["l"] + p["b"]) * p["n"]; Gt = max(Gt, p["t"]); bmin = min(bmin, p["b"])
         txt.append(((jstr(p["n"]) + " × ") if p["n"] > 1 else "") + s2(p["l"]) + " × " + s2(p["b"]) + " × " + s2(p["t"]))
     if not (Vg > 0):
         return None
     hk = HAND[c.get("hand")] if HAND.get(c.get("hand")) is not None else 0.10; gr = " + ".join(txt) + " = " + s2(Vg) + " m³"
     bel = _belagOn(c)
-    bi = belag(cx, c.get("belag"), A if bel else 0, per if bel else 0, {"cut": "Umfang Grube = " + s2(per) + " m", "area": "Fläche Grube = " + s2(A) + " m²"}, bmin)
+    bi = belag(cx, c.get("belag"), A if bel else 0, per if bel else 0, {"cut": "Umfang Grube = " + s2(per) + " m", "area": "Fläche Grube = " + s2(A) + " m²"}, bmin, {"ns": nsOf(c, P), "nR": nR})
     aushubLines(cx, {"m1": "151/231.111", "m2": "151/231.112", "h": "151/231.211"}, Gt, Vg * (1 - hk), Vg * hk,
                 gr + " × " + s2((1 - hk) * 100) + " % = " + s2(Vg * (1 - hk)) + " m³", gr + " × " + s2(hk * 100) + " % = " + s2(Vg * hk) + " m³")
     erschwernis(cx, c.get("ersch"), Gt, Vg * (1 - hk), Vg * hk, ERSCH_KEYS["grube_m"], ERSCH_KEYS["grube_h"])

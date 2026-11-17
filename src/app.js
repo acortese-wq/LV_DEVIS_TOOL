@@ -87,7 +87,7 @@
   var isHumusAbtrag = function (c) { return isHumus(c) && c.belag.humus.art !== "rasenziegel"; }, isPfl = function (c) { return c.belag.mode === "pflaster"; };
   var BELAG_FIELDS = [
     { id: "belag.mode", t: "sel", opts: ["none", "bit", "humus", "pflaster"], struct: 1 },
-    { id: "belag.d", t: "num", show: isBit }, { id: "belag.pak", t: "sel", opts: ["le250", "gt250"], show: isBit },
+    { id: "belag.d", t: "num", show: isBit }, { id: "ns", t: "num", show: isBit, hint: "hint_ns" }, { id: "belag.pak", t: "sel", opts: ["le250", "gt250"], show: isBit },
     { id: "belag.einbau", t: "sel", opts: ["dritte", "typN"], show: isBit, struct: 1 }, { id: "belag.typ", t: "sel", opts: ["N", "L"], show: isTyp, struct: 1 },
     { id: "belag.trag", t: "sel", opts: ["T16", "T22"], show: isTypN }, { id: "belag.dTrag", t: "num", show: isTyp },
     { id: "belag.deck", t: "sel", opts: function (c) { return c.belag.typ === "L" ? ["AC4L", "AC8L"] : ["AC8", "AC11"]; }, show: isTyp, struct: 1 },
@@ -1055,7 +1055,7 @@
   }
   function parEl() {
     var w = document.createElement("div"); w.className = "elbody formbody";
-    var P = S.par, rows = [["dichte", S], ["mwst", S], ["reserve", S], ["genau", S], ["deckG", P], ["deckS", P], ["deckK", P], ["gehMin", P], ["gehMax", P], ["strMin", P], ["strMax", P], ["kanMin", P], ["kanMax", P]];
+    var P = S.par, rows = [["dichte", S], ["mwst", S], ["reserve", S], ["genau", S], ["ns", P], ["deckG", P], ["deckS", P], ["deckK", P], ["gehMin", P], ["gehMax", P], ["strMin", P], ["strMax", P], ["kanMin", P], ["kanMax", P]];
     var h = '<p class="hint">' + esc(tt("parH")) + '</p><table class="cost ptab"><tbody>' + rows.map(function (r) { return "<tr><td>" + esc(tt("p_" + r[0])) + '</td><td class="num"><input class="mini" data-p="' + r[0] + '" data-o="' + (r[1] === S ? "S" : "P") + '" aria-label="' + esc(tt("p_" + r[0])) + '" value="' + esc(r[1][r[0]] == null ? ({ reserve: "0", genau: "10" }[r[0]] || "") : r[1][r[0]]) + '"></td></tr>'; }).join("") + "</tbody></table>";
     h += "<h3>" + esc(tt("dimT")) + '</h3><table class="cost ptab"><tbody>';
     [["wl", function (k) { return tt("tab_werkloch") + " " + String(tt("f_" + k)).replace(/ \[.*\]/, ""); }], ["fund", function (k) { return tt("s_fund") + " " + k; }]].forEach(function (g) {
