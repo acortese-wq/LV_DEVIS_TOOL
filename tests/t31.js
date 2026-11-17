@@ -11,8 +11,9 @@ await clk(280,200); await pg.click('[data-k=end]'); await pg.waitForTimeout(300)
 const t=await pg.textContent('#kmAsk'); ok(['Neuer Schacht hier','bestehenden Schacht','Oberfläche wechselt','Nur Deckel','Ohne Schacht'].every(x=>t.includes(x)),'Ende: alle Optionen');
 await ask('Anschluss an bestehenden Schacht');
 // Linie 2 startet am bestehenden Schacht (Vorschlag)
-await clk(280,203); const t2=await pg.textContent('#kmAsk'); ok(/entfernt, vorgeschlagen/.test(t2),'Start: nahen Schacht vorgeschlagen: '+t2.replace(/\s+/g,' ').slice(0,120));
-await ask('Anschluss an bestehenden Schacht'); await clk(280,330); await pg.click('[data-k=end]'); await pg.waitForTimeout(300);
+await clk(280,203); const vis2=await pg.isVisible('#kmAsk'), t2=vis2?await pg.textContent('#kmAsk'):'', auto2=await pg.evaluate(()=>{const M=window.__KM.M(), l=M.lines[M.lines.length-1]; return !!(l&&l.s);});
+ok((vis2&&/entfernt, vorgeschlagen/.test(t2))||auto2,'Start am bestehenden Schacht: vorgeschlagen oder (Punktfang genau auf dem Schacht) direkt verbunden: '+(auto2?'verbunden':t2.replace(/\s+/g,' ').slice(0,120)));
+if(!auto2) await ask('Anschluss an bestehenden Schacht'); await clk(280,330); await pg.click('[data-k=end]'); await pg.waitForTimeout(300);
 await ask('Oberfläche wechselt'); await pg.locator('#kmAsk button',{hasText:'Wiese'}).click(); await pg.waitForTimeout(200);
 await clk(400,380); await pg.click('[data-k=end]'); await pg.waitForTimeout(300);
 await ask('Nur Deckel');
