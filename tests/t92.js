@@ -3,7 +3,7 @@
 const K = require('./lib/k.js'), { chromium, ok, mk } = K, R = require('./lib/regress.js'), fs = require('fs'), path = require('path'), vm = require('vm');
 const C = R.kernel(), G = JSON.parse(fs.readFileSync(path.join(K.ROOT, 'tests/fixtures/golden.json')));
 const base = G.cases.find(c => c.st.recs.graben && c.st.recs.graben.length).st;
-function calc(mod, top) { const st = JSON.parse(JSON.stringify(base)); Object.assign(st, top || {}); const g = Object.assign({}, st.recs.graben[0], { L: '100', T: '1.20', bmode: 'min60', gesp: false, roh: false, aushubArt: 'normal', hand: 'normal', rohrSystem: 'k55', dn: '55', n: '2', Lb: '' }, mod); g.belag = Object.assign({}, st.recs.graben[0].belag); st.recs.graben = [g];
+function calc(mod, top) { const st = JSON.parse(JSON.stringify(base)); Object.assign(st, top || {}); const g = Object.assign({}, st.recs.graben[0], { ns: '0', L: '100', T: '1.20', bmode: 'min60', gesp: false, roh: false, aushubArt: 'normal', hand: 'normal', rohrSystem: 'k55', dn: '55', n: '2', Lb: '' }, mod); g.belag = Object.assign({}, st.recs.graben[0].belag); st.recs.graben = [g];
   ['rohr', 'schacht', 'werkloch', 'fund', 'geb', 'belag', 'allg', 'hon'].forEach(t => { if (st.recs[t]) st.recs[t] = []; }); C.ST = st; return vm.runInContext('KVE.calc(ST, LV)', C); }
 const q = (o, re) => o.summary.filter(l => re.test(l.key)).reduce((a, l) => a + l.qty, 0), near = (a, b, e) => Math.abs(a - b) <= (e || 0.02);
 (async () => {

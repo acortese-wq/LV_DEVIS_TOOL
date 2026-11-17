@@ -12,7 +12,7 @@ const num = s => +String(s).replace(/[^\d.\-]/g, '');
   await pg.click('#lyT_pos'); await pg.waitForTimeout(300);
   const rowsN = () => pg.locator('#lyPosB tr').count();
   const n0 = await rowsN(), tot = G.cases[0].out.summary.length;
-  ok(n0 === tot && /62/.test(await pg.textContent('#lyT_pos')), 'Positionen im Dock: alle ' + n0 + ' Zeilen (Referenz ' + tot + ')');
+  ok(n0 === tot && new RegExp('\\(' + tot + '\\)').test(await pg.textContent('#lyT_pos')), 'Positionen im Dock: alle ' + n0 + ' Zeilen (Referenz ' + tot + ')');
   ok(new RegExp(n0 + '\\D+' + tot).test(await pg.textContent('#lyPCnt')), 'Zähler «' + (await pg.textContent('#lyPCnt')) + '»');
   // Suche
   await pg.fill('[data-dq=q]', '151/4'); await pg.waitForTimeout(200);

@@ -35,6 +35,17 @@ const K = require('./lib/k.js'), { chromium, ok, mk } = K;
   await pg.evaluate(() => document.querySelector('[data-k=bend]').click()); await pg.waitForTimeout(300);
   ok(await pg.locator('.kmbend').count() === 0, 'Schalter «Bögen» blendet die Schilder aus');
   await pg.evaluate(() => document.querySelector('[data-k=bend]').click()); await pg.waitForTimeout(300);
+  // Knopf «Abzweiger setzen» in der Werkzeugspalte
+  await pg.evaluate(() => { const K = window.__KM, M = K.M(); M.lines.push({ id: 'k2', pts: [[2759100, 1191300], [2759160, 1191300]], rid: null, rohr: { sys: 'k55', dn: '55', len: '10', n: '1' }, cfg: { rt: { 55: 1 }, art: 'kies', fl: 'belag', T: '', B: '' } }); K.refresh(); K.map().setView(K.ll([2759130, 1191300]), 19, { animate: false }); });
+  await pg.waitForTimeout(400); const nb0 = await pg.evaluate(() => window.__KM.M().pts.filter(x => x.mode === 'abz').length);
+  ok(await pg.locator('[data-k=mabz]').count() === 1, 'Werkzeugspalte: Knopf «Abzweiger setzen»');
+  await pg.evaluate(() => document.querySelector('[data-k=mabz]').click()); await pg.waitForTimeout(200);
+  const xy = async (x, y) => pg.evaluate(([x, y]) => { const K = window.__KM, q = K.map().latLngToContainerPoint(K.ll([x, y])), r = document.querySelector('#kmMap').getBoundingClientRect(); return [r.left + q.x, r.top + q.y]; }, [x, y]);
+  let q = await xy(2759120, 1191312); await pg.mouse.click(q[0], q[1]); await pg.waitForTimeout(400);
+  ok((await pg.evaluate(() => window.__KM.M().pts.filter(x => x.mode === 'abz').length)) === nb0, 'neben der Leitung: kein Abzweiger, Hinweis');
+  q = await xy(2759130, 1191300); await pg.mouse.click(q[0], q[1]); await pg.waitForTimeout(500);
+  ok((await pg.evaluate(() => window.__KM.M().pts.filter(x => x.mode === 'abz').length)) === nb0 + 1 && (await pg.evaluate(() => window.__KM.M().lines.filter(l => l.id === 'k2' || /^l/.test(l.id)).length)) >= 2, 'auf der Leitung: Abzweiger gesetzt, Leitung geteilt');
+  await pg.evaluate(() => document.querySelector('[data-k=medit]') && document.querySelector('[data-k=medit]').click()); await pg.waitForTimeout(200);
   // Übernahme in die Datensätze
   await pg.evaluate(() => document.querySelector('[data-k=apply]').click()); await pg.waitForTimeout(1500);
   const R = await pg.evaluate(() => { const S = window.__LVD.S(), x = (S.recs.rohr || []).find(r => r.abzMap); const o = KVE.calc(S, LV), lines = o.summary.map(l => l.key);

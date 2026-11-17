@@ -1032,9 +1032,10 @@ var KVE = (function () {
   /* V143: Abfuhr in die Deponie – Fahrzeug nach Projektmenge (Volumen fest): bis 5 m³ Mulde 151/255.2xx, sonst Lastwagen 151/252.2xx */
   var MULDE_MAX = 5, LKW2MULDE = { "151/252.211": "151/255.211", "151/252.213": "151/255.213", "151/252.221": "151/255.221" }, MULDE2LKW = {};
   Object.keys(LKW2MULDE).forEach(function (k) { MULDE2LKW[LKW2MULDE[k]] = k; });
-  function fahrzeug(lists, LV) {
+  function depQ(ls) { var t = 0; ls.forEach(function (l) { if (LKW2MULDE[l.key] || MULDE2LKW[l.key]) t += l.qty; }); return t; }
+  function fahrzeug(lists, LV, tot0) {
     var tot = 0;
-    lists.forEach(function (ls) { ls.forEach(function (l) { if (LKW2MULDE[l.key] || MULDE2LKW[l.key]) tot += l.qty; }); });
+    if (tot0 != null) tot = tot0; else lists.forEach(function (ls) { tot += depQ(ls); });
     tot = r2(tot); var mu = tot > 0 && tot <= MULDE_MAX + 1e-9;
     lists.forEach(function (ls) { ls.forEach(function (l) {
       var lkw = LKW2MULDE[l.key] ? l.key : MULDE2LKW[l.key]; if (!lkw) return;
@@ -1043,7 +1044,7 @@ var KVE = (function () {
       l.key = k; l.ep = LV[k].ep; l.total = r2(l.qty * l.ep); l.text = lvT(k); l.ctx = lvC(k);
       l.rule = l.rule0 + (mu ? " · Mulde: Abfuhr Projekt " + s2(tot) + " m³ ≤ " + MULDE_MAX + " m³" : "");
     }); });
-    return mu;
+    return { mu: mu, tot: tot };
   }
   function sumL(ls) { return r2(ls.reduce(function (s, l) { return s + l.total; }, 0)); }
 
@@ -1075,7 +1076,7 @@ var KVE = (function () {
     });
     out.free = { lines: [], warn: [], sum: 0 };
     out.vor = vorarbeiten(P, LV);
-    fahrzeug(out.elems.map(function (e) { return e.lines; }).concat([out.vor.lines]), LV);
+    var fz = fahrzeug(out.elems.map(function (e) { return e.lines; }).concat([out.vor.lines]), LV); out.mulde = fz.mu; out.depTot = fz.tot;
     out.elems.forEach(function (e) { e.sum = sumL(e.lines); });
     out.vor.sum = r2(out.vor.lines.reduce(function (s, l) { return s + l.total; }, 0));
     var baseSum = out.elems.reduce(function (s, e) { return s + e.sum; }, 0) + out.vor.sum;
@@ -1121,9 +1122,14 @@ var KVE = (function () {
     /* Annahme eines einzelnen Datensatzes: nur dieses Element neu rechnen, Zwischensumme wie in calc() (gleiche Summenfolge, Baustelleneinrichtung neu) – statt das ganze Projekt */
     var deltaRec = function (tab, i, mut) {
       var e = JSON.parse(JSON.stringify(P.recs[tab][i])); mut(e);
-      var r = calcRec(tab, e, LV, P), cl = function (ls) { return ls.map(function (l) { return Object.assign({}, l); }); };
-      var k = base.elems.map(function (x) { return { lines: cl(x.tab === tab && x.idx === i ? r.lines : x.lines) }; }), vl = cl(base.vor.lines);
-      fahrzeug(k.map(function (x) { return x.lines; }).concat([vl]), LV); k.forEach(function (x) { x.sum = sumL(x.lines); });
+      var r = calcRec(tab, e, LV, P), cl = function (ls) { return ls.map(function (l) { return Object.assign({}, l); }); }, k, vl;
+      var e0 = base.elems.filter(function (x) { return x.tab === tab && x.idx === i; })[0], tot = r2(base.depTot - (e0 ? depQ(e0.lines) : 0) + depQ(r.lines)), mu = tot > 0 && tot <= MULDE_MAX + 1e-9;
+      if (mu === base.mulde) {   /* Fahrzeug unverändert: nur den geänderten Datensatz anpassen (schnell) */
+        fahrzeug([r.lines], LV, tot); r.sum = sumL(r.lines); k = base.elems.map(function (x) { return x.tab === tab && x.idx === i ? r : x; }); vl = base.vor.lines;
+      } else {
+        k = base.elems.map(function (x) { return { lines: cl(x.tab === tab && x.idx === i ? r.lines : x.lines) }; }); vl = cl(base.vor.lines);
+        fahrzeug(k.map(function (x) { return x.lines; }).concat([vl]), LV); k.forEach(function (x) { x.sum = sumL(x.lines); });
+      }
       var bs = k.reduce(function (s, x) { return s + x.sum; }, 0) + sumL(vl), beN = baustelle(P, LV, r2(bs)), z = 0;
       var add = function (ls) { for (var j = 0; j < ls.length; j++) z += ls[j].total; };   /* gleiche Reihenfolge wie calc(): Elemente, Vorarbeiten, Baustelleneinrichtung */
       k.forEach(function (x) { add(x.lines); }); add(vl); add(beN.lines);

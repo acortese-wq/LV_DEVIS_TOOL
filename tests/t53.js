@@ -16,7 +16,7 @@ await mv(104,203); const lab=await pg.locator('.kmsnap.pt i').first().textConten
 // Abzweig in der Mitte -> Rückfrage
 await clk(300,200); await none(); await pg.waitForTimeout(200);
 await mv(300,260); 
-const ask=await pg.locator('#kmAsk').textContent().catch(()=>''); ok(/entnehmen/.test(ask)&&/T-Stück/.test(ask),'Rückfrage: Rohr entnehmen oder T-Stück ('+ask.slice(0,80)+')');
+const ask=await pg.locator('#kmAsk').textContent().catch(()=>''); ok(/entnehmen/.test(ask)&&/Abzweiger setzen/.test(ask),'Rückfrage: Rohr entnehmen oder Abzweiger setzen ('+ask.slice(0,80)+')');
 await pg.locator('#kmAsk button',{hasText:'1×K55 entnehmen'}).click(); await pg.waitForTimeout(300);
 await clk(300,330); await pg.click('[data-k=end]'); await none(); await pg.waitForTimeout(300);
 let m=await KM(); const l0=m.lines[0], l1=m.lines[1], br=m.lines.find(l=>l.abz);
