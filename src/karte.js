@@ -1368,7 +1368,7 @@
     function handles(o, poly, minPts, closed) {
       var oSel = isOn(o.id), pobj = oSel ? [] : M.pts.concat(M.wl, M.geb, M.sond);   /* nicht gewählte Objekte: kein Griff über einem Schacht/Werkloch/Hauseinführung, damit diese anklick- und ziehbar bleiben */
       o.pts.forEach(function (q, j) {
-        if (pobj.some(function (p) { return AD.dist(p.pt, q) <= 0.3; })) return;
+        if (pobj.some(function (p) { return AD.dist(p.pt, q) <= 0.3 || (M.pts.indexOf(p) >= 0 && inFoot(p, q)) || (M.wl.indexOf(p) >= 0 && inFoot(p, q, true)); })) return;   /* auch innerhalb des Schacht-/Werklochumrisses */
         var m = vmark(AD.ll(q), "kmv", 14), st = null, isL = M.lines.indexOf(o) >= 0, jt = null;
         m.on("dragstart", function () { snap(); if (isL) st = linkStart(o, j); });
         m.on("drag", function (e) { var c = AD.pt(e.target.getLatLng());
@@ -1411,10 +1411,17 @@
           if (gl) { [["to", gl.pts.length - 1], ["from", 0]].forEach(function (a) { var bl = gl[a[0]] && byId(M.lines, gl[a[0]]), pj = bl && projPoly(bl.pts, gl.pts[a[1]]); if (bl && (!pj || pj.d > 0.05)) { delete gl[a[0]]; if (a[0] === "from") delete gl.baseDir; } }); } });
       }
       var gb = null;
-      m.on("dragstart", function () { snap(); if (key === "pt" && M.pts.indexOf(o) >= 0) ptAuto(o); var ids = selIds(); gb = null; if (!isG && key === "pt" && ids.length > 1 && ids.indexOf(o.id) >= 0) gb = { s: o.pt.slice(), a: ids.filter(function (i) { return i !== o.id; }).map(findObj).filter(Boolean).map(function (x) { return { o: x.o, pts: x.o.pts ? x.o.pts.map(function (p) { return p.slice(); }) : null, pt: x.o.pt ? x.o.pt.slice() : null }; }) }; });
+      var wlA = null, lnkN = 0;
+      m.on("dragstart", function () { snap(); wlA = null; var nA = 0;
+        if (key === "pt" && M.pts.indexOf(o) >= 0) nA = ptAuto(o);
+        else if (key === "pt" && M.wl.indexOf(o) >= 0) { var wr = wlLinks(o); wlA = wr.a; nA = wr.ch; }
+        lnkN = nA;
+        var ids = selIds(); gb = null; if (!isG && key === "pt" && ids.length > 1 && ids.indexOf(o.id) >= 0) gb = { s: o.pt.slice(), a: ids.filter(function (i) { return i !== o.id; }).map(findObj).filter(Boolean).map(function (x) { return { o: x.o, pts: x.o.pts ? x.o.pts.map(function (p) { return p.slice(); }) : null, pt: x.o.pt ? x.o.pt.slice() : null }; }) }; });
       if (!isG) m.on("drag", function (e) { o[key] = AD.pt(e.target.getLatLng());
-        if (gb) { var gx = o.pt[0] - gb.s[0], gy = o.pt[1] - gb.s[1]; gb.a.forEach(function (b) { if (b.pts) b.o.pts = b.pts.map(function (p) { return [p[0] + gx, p[1] + gy]; }); if (b.pt) b.o.pt = [b.pt[0] + gx, b.pt[1] + gy]; if (layers[b.o.id] && layers[b.o.id].upd) layers[b.o.id].upd(); }); M.pts.forEach(function (sp) { if (sp !== o && !gb.a.some(function (b) { return b.o === sp; })) return; M.lines.forEach(function (l) { if (l.s === sp.id) l.pts[0] = sp.pt.slice(); if (l.e === sp.id) l.pts[l.pts.length - 1] = sp.pt.slice(); }); }); } if (key === "pt" && M.pts.indexOf(o) >= 0) M.lines.forEach(function (l) { if (l.s === o.id) l.pts[0] = o.pt.slice(); if (l.e === o.id) l.pts[l.pts.length - 1] = o.pt.slice(); }); });
-      m.on("dragend", function () { lastMove = Date.now(); sel = { id: o.id }; refresh(); showProps(o.id); });
+        if (gb) { var gx = o.pt[0] - gb.s[0], gy = o.pt[1] - gb.s[1]; gb.a.forEach(function (b) { if (b.pts) b.o.pts = b.pts.map(function (p) { return [p[0] + gx, p[1] + gy]; }); if (b.pt) b.o.pt = [b.pt[0] + gx, b.pt[1] + gy]; if (layers[b.o.id] && layers[b.o.id].upd) layers[b.o.id].upd(); }); M.pts.forEach(function (sp) { if (sp !== o && !gb.a.some(function (b) { return b.o === sp; })) return; M.lines.forEach(function (l) { if (l.s === sp.id) l.pts[0] = sp.pt.slice(); if (l.e === sp.id) l.pts[l.pts.length - 1] = sp.pt.slice(); }); }); } if (key === "pt" && M.pts.indexOf(o) >= 0) M.lines.forEach(function (l) { if (l.s === o.id) l.pts[0] = o.pt.slice(); if (l.e === o.id) l.pts[l.pts.length - 1] = o.pt.slice(); updL(l); });
+        if (wlA) wlA.forEach(function (x) { x.l.pts[x.k] = o.pt.slice(); updL(x.l); }); });
+      m.on("dragend", function () { lastMove = Date.now(); sel = { id: o.id }; refresh(); showProps(o.id);
+        if (lnkN) { window.__KM_LNK = lnkN; toast(dlg, tt("km_lnk_done").replace("{n}", lnkN), tt("km_undoBtn"), function () { var ub = $("[data-k=undo]"); if (ub) ub.click(); }); lnkN = 0; } });
     }
     function noteLayers(n, edit, on) {
       var col = n.color || "#0b6b72", L0 = [], upd;
@@ -2962,12 +2969,41 @@
     /* Gebäudeeinführung ↔ Leitung verknüpfen (V143): Anfang ODER Ende einer Leitung auf der Einführung (0.3 m, Plan 0.6) – auch nachträglich,
        damit die Leitung beim Verschieben der Einführung mitgeht */
     /* Linienenden auf einem Schacht/Abzweiger fest anhängen (V143): beim Zeichnen und – für ältere Stände – beim Verschieben des Punkts */
+    /* Fangbereich eines Punkts (V143): Schacht = gezeichneter Umriss (Typ, Drehung) + 30 cm, Werkloch = Werklochmass + 30 cm, Abzweiger = 30 cm */
+    function inFoot(p, c, isWl) {
+      var k = kU() || 1, m = 0.30, dx = c[0] - p.pt[0], dy = c[1] - p.pt[1];
+      if (!isWl && p.mode === "abz") return Math.hypot(dx, dy) <= m * k;
+      var l, w, u; if (isWl) { var wd = WL_D[p.wt] || WL_D.ts; l = wd[0]; w = wd[1]; u = nearDir(p.pt); } else { var sp = shaftSpec(p); l = sp.l; w = sp.w; u = shaftDir(p); }
+      if (!u) u = [1, 0]; var a = Math.abs(dx * u[0] + dy * u[1]), b = Math.abs(-dx * u[1] + dy * u[0]);
+      return a <= (l / 2 + m) * k && b <= (w / 2 + m) * k;
+    }
+    /* Schacht/Abzweiger: Linienenden im Fangbereich fest anhängen (Ende in die Schachtmitte), durchlaufende Linien am Schacht teilen; Rückgabe: Anzahl angehängter Linien */
     function ptAuto(p) {
-      var tol = plan ? 0.5 : 0.15, n = 0;
-      M.lines.forEach(function (l) { var k = l.pts.length; if (k < 2) return;
-        if (!l.s && AD.dist(l.pts[0], p.pt) <= tol) { l.s = p.id; l.pts[0] = p.pt.slice(); delete l.from; n++; }
-        if (!l.e && AD.dist(l.pts[k - 1], p.pt) <= tol) { l.e = p.id; l.pts[k - 1] = p.pt.slice(); delete l.to; n++; } });
+      var n = 0;
+      M.lines.slice().forEach(function (l) { var k = l.pts.length; if (k < 2) return;
+        if (!l.s && l.e !== p.id && inFoot(p, l.pts[0])) { l.s = p.id; l.pts[0] = p.pt.slice(); delete l.from; delete l.hz; n++; }
+        k = l.pts.length; if (!l.e && l.s !== p.id && inFoot(p, l.pts[k - 1])) { l.e = p.id; l.pts[k - 1] = p.pt.slice(); delete l.to; delete l.hz; n++; }
+        if (l.s === p.id || l.e === p.id || inFoot(p, l.pts[0]) || inFoot(p, l.pts[l.pts.length - 1])) return;
+        var pr = projPoly(l.pts, p.pt); if (!pr || !inFoot(p, pr.q)) return;
+        var pos = p.pt.slice(), idx = pr.seg + 1, l2 = { id: nid("l"), pts: [pos.slice()].concat(l.pts.slice(idx)), rid: null, rohr: clone(l.rohr), cfg: clone(cfgOf(l)), e: l.e || null, to: l.to || null, hzArt: l.hzArt, hzF: l.hzF };
+        l.pts = l.pts.slice(0, idx).concat([pos]); l.e = p.id; l.to = null; l2.s = p.id; delete l.hz;
+        if (l.gid) { var g = byId(M.geb, l.gid); if (g && AD.dist(g.pt, l2.pts[l2.pts.length - 1]) < AD.dist(g.pt, l.pts[0])) { l2.gid = l.gid; g.lid = l2.id; delete l.gid; } }
+        M.lines.splice(M.lines.indexOf(l) + 1, 0, l2); n += 2;
+      });
       return n;
+    }
+    /* Werkloch: Linienenden im Fangbereich und durchlaufende Linien (Stützpunkt in der Werklochmitte) gehen beim Verschieben mit */
+    function wlLinks(q) {
+      var out = [], ch = 0;
+      M.lines.forEach(function (l) { var k = l.pts.length; if (k < 2) return;
+        [0, k - 1].forEach(function (j) { if (inFoot(q, l.pts[j], true)) { if (AD.dist(l.pts[j], q.pt) > 0.005) { l.pts[j] = q.pt.slice(); ch++; } out.push({ l: l, k: j }); } });
+        if (out.some(function (x) { return x.l === l; })) return;
+        var vi = -1; l.pts.forEach(function (v, i) { if (i && i < k - 1 && AD.dist(v, q.pt) <= 0.005) vi = i; });
+        if (vi >= 0) { out.push({ l: l, k: vi }); return; }
+        var pr = projPoly(l.pts, q.pt); if (!pr || !inFoot(q, pr.q, true)) return;
+        l.pts.splice(pr.seg + 1, 0, q.pt.slice()); delete l.hz; ch++; out.push({ l: l, k: pr.seg + 1 });
+      });
+      return { a: out, ch: ch };
     }
     function ptAt(c) { var tol = plan ? 0.05 : 0.02, b = null;   /* genau auf dem Punkt (Punktfang); daneben bleibt die Rückfrage mit Vorschlag */ M.pts.forEach(function (p) { var d = AD.dist(p.pt, c); if (isFinite(d) && d <= tol && (!b || d < b.d)) b = { p: p, d: d }; }); return b && b.p; }
     function gebAuto(g) {

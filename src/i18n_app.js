@@ -1049,6 +1049,7 @@ s_vor: ["Vorarbeiten (projektweit)", "Travaux préparatoires (projet)", "Lavori 
     km_lt_kr: ["Kreuzungen (Anzahl)", "Croisements (nombre)", "Incroci (numero)", "Crossings (number)"],
     km_lt_b90: ["Bögen 90° (Anzahl)", "Coudes 90° (nombre)", "Curve 90° (numero)", "90° bends (number)"],
     km_lt_b45: ["Bögen 45° (Anzahl)", "Coudes 45° (nombre)", "Curve 45° (numero)", "45° bends (number)"],
+    km_lnk_done: ["{n} Linie(n) angehängt – gehen beim Verschieben mit (Ende in der Mitte)", "{n} ligne(s) rattachée(s) – suivent le déplacement (extrémité au centre)", "{n} linea/e agganciata/e – seguono lo spostamento (estremità al centro)", "{n} line(s) attached – move along (end at the centre)"],
     km_abzB: ["Abzweiger setzen", "Poser une dérivation", "Posare derivazione", "Place branch"],
     km_abzOn: ["Abzweiger setzen aktiv", "Pose de dérivation active", "Posa derivazione attiva", "Placing branches"],
     km_abzT: ["Abzweiger (T/Y) auf eine Leitung setzen: teilt sie wie ein Schacht, ohne Aushub; Formstück je abgehendes Rohr automatisch", "Poser une dérivation (T/Y) sur une conduite : la divise comme une chambre, sans fouille ; pièce par tube dérivé automatique", "Posare una derivazione (T/Y) su una condotta: la divide come un pozzetto, senza scavo; raccordo per tubo derivato automatico", "Place a branch (T/Y) on a line: splits it like a shaft, no excavation; one fitting per branch duct automatically"],
