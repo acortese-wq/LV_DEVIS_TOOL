@@ -772,3 +772,7 @@ html:not(.lvready) .sheet{visibility:hidden}   /* Seite erst nach dem ersten Fü
 .kmbend{pointer-events:none}
 .kmbend span{position:absolute;left:6px;top:-22px;white-space:nowrap;background:rgba(255,255,255,.92);color:#0a4f55;border:1px solid #0b6b72;border-radius:4px;padding:0 4px;font:700 11px/16px "Segoe UI",sans-serif}
 .kmask .kmask-i{margin:0;font-size:max(12px,var(--fsmin,0px));line-height:1.35;color:inherit;flex:1 1 100%}
+/* V143: Bodenbedeckung im Höhenprofil */
+.pfbd.belag{fill:#7d8b92}.pfbd.wiese{fill:#8cc63f}.pfbd.geb{fill:#c0392b}.pfbd.wald{fill:#2e7d32}.pfbd.wasser{fill:#3d8fd6}.pfbd.bahn{fill:#b59a5a}
+.pflg1.bdb::before,.pflg1.bdw::before,.pflg1.bdg::before{height:8px;border-top:0}.pflg1.bdb::before{background:#7d8b92}.pflg1.bdw::before{background:#8cc63f}.pflg1.bdg::before{background:#c0392b}
+.pflgs{color:inherit;opacity:1}

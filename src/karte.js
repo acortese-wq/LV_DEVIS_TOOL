@@ -423,13 +423,14 @@
   }
 
   /* Vorschau Plan (SVG über dem Plan-JPEG); lab = Beschriftungen (optional) */
-  /* V143: Oberfläche aus der amtlichen Vermessung – Farbe der Bodenbedeckung im Dienst «cadastralwebmap» (geo.admin.ch):
-     grau/weiss = befestigt (Strasse, Trottoir, Platz) → Asphalt; grün = humusiert (Garten, Wiese, Acker) → Wiese; übrige (Gebäude, Gewässer) = unbekannt */
+  /* V143: Oberfläche aus der amtlichen Vermessung – Flächenfarben der offiziellen Legende «CadastralWebMap» (cadastre.ch, Stand 26.04.2012):
+     Strasse/Weg/übrige befestigte/Trottoir hellgrau → Belag; Gebäude rosa; Gewässer hellblau; Bahn beige; geschlossener Wald hellgrün;
+     humusierte Flächen (Garten, Wiese, Acker) sind unbemalt (durchsichtig/weiss) → Wiese. Linien und Schrift (dunkel) werden übersprungen. */
+  var AV_PAL = [["belag", 224, 224, 224], ["geb", 255, 192, 192], ["wasser", 153, 204, 255], ["bahn", 239, 230, 200], ["wald", 163, 239, 163]];
   function avCls(r, g, b, a) {
-    if (a < 100) return null; var mx = Math.max(r, g, b), mn = Math.min(r, g, b); if (mx < 110) return null;   /* durchsichtig (keine Vermessung) oder dunkel (Grenzen, Schrift) */
-    var sa = (mx - mn) / mx; if (sa < 0.10) return "belag";
-    var h = mx === r ? ((g - b) / (mx - mn)) % 6 : mx === g ? (b - r) / (mx - mn) + 2 : (r - g) / (mx - mn) + 4; h *= 60; if (h < 0) h += 360;
-    return h >= 50 && h <= 170 ? "wiese" : "x";
+    if (a < 100 || (r > 247 && g > 247 && b > 247)) return "wiese";   /* unbemalt = humusiert */
+    var best = null, bd = 1e9; AV_PAL.forEach(function (p) { var d = Math.hypot(r - p[1], g - p[2], b - p[3]); if (d < bd) { bd = d; best = p[0]; } });
+    return bd <= 34 ? best : null;   /* Grenzlinien, Schrift, Kantenpixel: keine Stimme */
   }
   /* Abschnitte einer Linie aus einem Bild (Pixel = RGBA, Ursprung oben links, res m/px): [{a, b, fl}] in Metern ab Linienanfang; Stücke < 1 m gehen zum Nachbarn */
   function avRuns(pts, img, box, res) {
@@ -437,9 +438,9 @@
     var cls = function (x, y) { var px = Math.round((x - box[0]) / res), py = Math.round((box[3] - y) / res); if (px < 0 || py < 0 || px >= W || py >= H) return null; var i = (py * W + px) * 4; return avCls(D[i], D[i + 1], D[i + 2], D[i + 3]); };
     for (var i = 0; i + 1 < pts.length; i++) {
       var a = pts[i], b = pts[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]); if (!(L > 0)) continue; var ux = (b[0] - a[0]) / L, uy = (b[1] - a[1]) / L;
-      for (var t = (i ? 0.25 : 0); t < L; t += 0.5) { var x = a[0] + ux * t, y = a[1] + uy * t, v = { belag: 0, wiese: 0, x: 0 };
+      for (var t = (i ? 0.25 : 0); t < L; t += 0.5) { var x = a[0] + ux * t, y = a[1] + uy * t, v = { belag: 0, wiese: 0, geb: 0, wald: 0, wasser: 0, bahn: 0 };
         [-0.3, -0.15, 0, 0.15, 0.3].forEach(function (o) { var c = cls(x - uy * o, y + ux * o); if (c) v[c]++; });
-        var best = null; ["belag", "wiese", "x"].forEach(function (k) { if (v[k] && (!best || v[k] > v[best])) best = k; }); smp.push({ d: d0 + t, c: best }); }
+        var best = null; ["belag", "wiese", "geb", "wald", "wasser", "bahn"].forEach(function (k) { if (v[k] && (!best || v[k] > v[best])) best = k; }); smp.push({ d: d0 + t, c: best }); }
       d0 += L;
     }
     if (!smp.some(function (q) { return q.c; })) return [];
@@ -1910,6 +1911,20 @@
       return fetch(u, { mode: "cors" }).then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.blob(); }).then(function (bl) { return createImageBitmap(bl); }).then(function (bm) {
         var c = document.createElement("canvas"); c.width = W; c.height = H; var g = c.getContext("2d"); g.drawImage(bm, 0, 0, W, H); return avRuns(l.pts, g.getImageData(0, 0, W, H), bb, res); });
     }
+    /* Zwischenspeicher je Linie (l.av = { sig, r }), Gebäudeprüfung (V143) */
+    function avLab(c) { return c === "belag" || c === "wiese" ? tt("km_pal_" + c) : tt("av_" + c); }
+    function avSig(l) { return l.pts.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(";"); }
+    function avOf(l) { return l.av && l.av.sig === avSig(l) ? l.av.r : null; }
+    var avBusy = {};
+    function avGet(l) { if (plan || l.pts.length < 2) return Promise.resolve(null); var c = avOf(l); if (c) return Promise.resolve(c); var sg = avSig(l); if (avBusy[sg]) return avBusy[sg];
+      return (avBusy[sg] = avFetch(l).then(function (r) { delete avBusy[sg]; l.av = { sig: sg, r: r }; return r; }, function () { delete avBusy[sg]; return null; })); }
+    function avGebOf(l) {   /* Länge durch Gebäude; ausgenommen ein Linienende mit Gebäudeeinführung (Hausanschluss) */
+      var r = avOf(l); if (!r) return 0; var L = lineLen(l.pts), m = 0;
+      var gAt = function (q) { return M.geb.some(function (g) { return g.lid === l.id || AD.dist(g.pt, q) <= 3; }); };
+      r.forEach(function (x) { if (x.fl !== "geb") return; if ((x.a <= 0.05 && gAt(l.pts[0])) || (x.b >= L - 0.05 && gAt(l.pts[l.pts.length - 1]))) return; m += x.b - x.a; });
+      return m;
+    }
+    function avCheck(l) { avGet(l).then(function (r) { if (r && dlg.open) { rcRender(); if (PF.on) pfRender(); } }); }
     function lenAt(pts, d) { var acc = 0; for (var i = 0; i + 1 < pts.length; i++) { var a = pts[i], b = pts[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]); if (acc + L >= d - 1e-9) { var t = L ? (d - acc) / L : 0; return { seg: i, q: [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t] }; } acc += L; } return null; }
     function avFl() {
       if (plan) { toast(dlg, tt("av_planNo")); return; }
@@ -1918,9 +1933,10 @@
       var man = L0.filter(function (l) { var c = cfgOf(l); return c.fl && c.flSrc === "hand"; }), todo = L0.filter(function (l) { return man.indexOf(l) < 0; });
       if (!todo.length) { toast(dlg, tt("av_allMan").replace("{n}", man.length)); return; }
       toast(dlg, tt("av_busy"));
-      Promise.all(todo.map(function (l) { return avFetch(l).then(function (r) { return { l: l, r: r }; }, function () { return { l: l, err: 1 }; }); })).then(function (R) {
-        var ok = R.filter(function (x) { return !x.err && x.r.length; }), err = R.filter(function (x) { return x.err; }).length, tot = { belag: 0, wiese: 0, x: 0 }, info = [];
-        ok.forEach(function (x) { x.r.forEach(function (q) { tot[q.fl] += q.b - q.a; }); info.push({ info: 1, t: tt("km_lineN").replace("{n}", M.lines.indexOf(x.l) + 1) + ": " + x.r.map(function (q) { return fmt(q.b - q.a) + " m " + (q.fl === "x" ? tt("av_unk") : tt("km_pal_" + q.fl)); }).join(" → ") }); });
+      Promise.all(todo.map(function (l) { return avGet(l).then(function (r) { return r ? { l: l, r: r } : { l: l, err: 1 }; }); })).then(function (R) {
+        var ok = R.filter(function (x) { return !x.err && x.r.length; }), err = R.filter(function (x) { return x.err; }).length, tot = { belag: 0, wiese: 0, geb: 0, wald: 0, wasser: 0, bahn: 0 }, info = [];
+        ok.forEach(function (x) { x.r.forEach(function (q) { tot[q.fl] += q.b - q.a; }); info.push({ info: 1, t: tt("km_lineN").replace("{n}", M.lines.indexOf(x.l) + 1) + ": " + x.r.map(function (q) { return fmt(q.b - q.a) + " m " + (q.fl === "geb" ? "⛔ " : "") + avLab(q.fl); }).join(" → ") }); });
+        rcRender();
         if (man.length) info.push({ info: 1, t: tt("av_man").replace("{n}", man.length) });
         if (err) info.push({ info: 1, t: tt("av_err").replace("{n}", err) });
         if (!ok.length) { toast(dlg, err ? tt("av_err").replace("{n}", err) : tt("av_noData")); return; }
@@ -1934,8 +1950,8 @@
         for (var r = runs.length - 1; r >= 1; r--) { var p = lenAt(l.pts, runs[r].a); if (!p) continue; var idx = -1;
           l.pts.forEach(function (q, k) { if (idx < 0 && k > 0 && k < l.pts.length - 1 && AD.dist(q, p.q) <= 0.05) idx = k; });
           if (idx < 0) { l.pts.splice(p.seg + 1, 0, p.q.slice()); idx = p.seg + 1; }
-          var l2 = splitAtIdx(l, idx); if (!l2) continue; nS++; if (runs[r].fl !== "x") { l2.cfg.fl = runs[r].fl; l2.cfg.flSrc = "av"; if (runs[r].fl === "pflaster") l2.cfg.ab = ""; } else { l2.cfg.fl = ""; delete l2.cfg.flSrc; } lineSync(l2); }
-        var c0 = cfgOf(l); if (runs[0].fl !== "x") { c0.fl = runs[0].fl; c0.flSrc = "av"; } lineSync(l); nL++; });
+          var l2 = splitAtIdx(l, idx); if (!l2) continue; nS++; if (runs[r].fl === "belag" || runs[r].fl === "wiese") { l2.cfg.fl = runs[r].fl; l2.cfg.flSrc = "av"; if (runs[r].fl === "pflaster") l2.cfg.ab = ""; } else { l2.cfg.fl = ""; delete l2.cfg.flSrc; } lineSync(l2); }
+        var c0 = cfgOf(l); if (runs[0].fl === "belag" || runs[0].fl === "wiese") { c0.fl = runs[0].fl; c0.flSrc = "av"; } lineSync(l); nL++; });
       refresh(); costSoon(); toast(dlg, tt("av_done").replace("{n}", nL).replace("{s}", nS), tt("km_undoBtn"), function () { var ub = $("[data-k=undo]"); if (ub) ub.click(); });
     }
     function splitLine(l, h, fl) {
@@ -2386,7 +2402,7 @@
       var ok = D0.pcs.filter(function (pc) { return pc.h; }); var svg;
       if (!ok.length) svg = '<p class="none kmpfnone">' + esc(tt("pf_none")) + "</p>";
       else {
-        var W = Math.max(320, Math.round(($("#kmPfSvg") ? $("#kmPfSvg").getBoundingClientRect().width : 0) || (host.clientWidth ? host.clientWidth - 330 : 640))), H = 190, ml = 46, mr = 12, mt = 10, mb = 24, hs = [];
+        var W = Math.max(320, Math.round(($("#kmPfSvg") ? $("#kmPfSvg").getBoundingClientRect().width : 0) || (host.clientWidth ? host.clientWidth - 330 : 640))), H = 204, ml = 46, mr = 12, mt = 10, mb = 38, hs = [];
         D0.pcs.forEach(function (pc) { if (pc.h) { pc.h.P.forEach(function (q) { hs.push(q[1]); if (!pc.l.hzArt) hs.push(q[1] - (coverOf(pc.l) + lineDN(pc.l) / 2000) * (PFC.ex ? 10 : 1)); }); var l = pc.l; if (l.hzArt && l.hzArt !== "g") { var a0 = parseFloat(l.hzH0), a1 = parseFloat(l.hzH1); if (isFinite(a0)) hs.push(a0); if (isFinite(a1)) hs.push(a1); } } });
         var hmin = Math.min.apply(null, hs), hmax = Math.max.apply(null, hs), pad = Math.max(1, (hmax - hmin) * .12); hmin -= pad; hmax += pad;
         var sx = (W - ml - mr) / (D0.total || 1), sy = (H - mt - mb) / (hmax - hmin), X = function (s) { return ml + s * sx; }, Y = function (h) { return mt + (hmax - h) * sy; };
@@ -2396,6 +2412,10 @@
         for (var xv = 0; xv <= D0.total + 1e-6; xv += xs) o += '<line class="pfg" x1="' + X(xv) + '" y1="' + mt + '" x2="' + X(xv) + '" y2="' + (H - mb) + '"/><text class="pfx" x="' + X(xv) + '" y="' + (H - 8) + '" text-anchor="middle">' + Math.round(xv) + "</text>";
         for (var yv = Math.ceil(hmin / ys) * ys; yv <= hmax; yv += ys) o += '<line class="pfg" x1="' + ml + '" y1="' + Y(yv) + '" x2="' + (W - mr) + '" y2="' + Y(yv) + '"/><text class="pfx" x="' + (ml - 4) + '" y="' + (Y(yv) + 4) + '" text-anchor="end">' + Math.round(yv) + "</text>";
         o += '<text class="pfx" x="' + (W - mr) + '" y="' + (H - 1) + '" text-anchor="end">m</text><text class="pfx" x="2" y="' + (mt + 4) + '">m ü. M.</text>';
+        var bdy = H - mb + 3, bdAny = false;   /* Bodenbedeckung (amtliche Vermessung) als Band unter dem Profil */
+        D0.pcs.forEach(function (pc) { var r = plan ? null : avOf(pc.l); if (!r) { if (!plan) avCheck(pc.l); return; } bdAny = true;
+          r.forEach(function (x) { o += '<rect class="pfbd ' + x.fl + '" x="' + X(pc.off + x.a).toFixed(1) + '" y="' + bdy + '" width="' + Math.max(0.5, (x.b - x.a) * sx).toFixed(1) + '" height="9"><title>' + esc(fmt(x.b - x.a) + " m " + avLab(x.fl)) + "</title></rect>"; }); });
+        if (bdAny) o += '<text class="pfx" x="' + (ml - 4) + '" y="' + (bdy + 8) + '" text-anchor="end">' + esc(tt("pf_bd")) + "</text>";
         D0.pcs.forEach(function (pc) {
           if (!pc.h) { var ym = (H - mb + mt) / 2; o += '<line class="pfn" x1="' + X(pc.off) + '" y1="' + ym + '" x2="' + X(pc.off + pc.L) + '" y2="' + ym + '"/>'; return; }
           var P = pc.h.P, pts = P.map(function (q) { return X(pc.off + q[0]).toFixed(1) + "," + Y(q[1]).toFixed(1); }).join(" "), l = pc.l, art = l.hzArt || "g";
@@ -2412,7 +2432,7 @@
           nodes.forEach(function (nd) { var p = nd[0], s = nd[1], hh = hAtP((pc.h || {}).P, s - pc.off) , nx = D0.pcs[i + 1]; if (hh == null && nx && nx.h) hh = hAtP(nx.h.P, 0); var y = hh != null ? Y(hh) : (H - mb + mt) / 2, nr = M.pts.indexOf(p) + 1;
             o += '<g class="pfm' + (nd[2] ? "" : " pffix") + '" data-p="' + p.id + '" transform="translate(' + X(s).toFixed(1) + ' 0)"' + (nd[2] ? ' tabindex="0" role="button" aria-label="' + esc(tt("pf_sch").replace("{n}", nr).replace("{s}", f1(s)) + (nd[2] ? " – " + tt("pf_key") : "")) + '"' : "") + '><line class="pfv" x1="0" y1="' + mt + '" x2="0" y2="' + (H - mb) + '"/><rect x="-8" y="' + (y - 8).toFixed(1) + '" width="16" height="16" rx="3"/><text x="0" y="' + (y + 4).toFixed(1) + '" text-anchor="middle">' + nr + "</text></g>"; });
         });
-        o += '<line class="pfcur" id="kmPfCur" x1="0" y1="' + mt + '" x2="0" y2="' + (H - mb) + '" hidden/></svg><div class="pftip" id="kmPfTip" aria-hidden="true">&nbsp;</div><div class="pflg"><span class="pflg1 g">' + esc(tt("pf_lg_t")) + '</span> <span class="pflg1 r">' + esc(tt("pf_lg_r")) + (PFC.ex ? " (" + esc(tt("pf_ex")) + ")" : "") + '</span> <span class="pflg1 a">' + esc(tt("pf_lg_a")) + '</span></div>';
+        o += '<line class="pfcur" id="kmPfCur" x1="0" y1="' + mt + '" x2="0" y2="' + (H - mb) + '" hidden/></svg><div class="pftip" id="kmPfTip" aria-hidden="true">&nbsp;</div><div class="pflg"><span class="pflg1 g">' + esc(tt("pf_lg_t")) + '</span> <span class="pflg1 r">' + esc(tt("pf_lg_r")) + (PFC.ex ? " (" + esc(tt("pf_ex")) + ")" : "") + '</span> <span class="pflg1 a">' + esc(tt("pf_lg_a")) + '</span>' + (plan ? "" : ' <span class="pflg1 bdb">' + esc(tt("km_pal_belag")) + '</span> <span class="pflg1 bdw">' + esc(tt("km_pal_wiese")) + '</span> <span class="pflg1 bdg">' + esc(tt("av_geb")) + '</span> <span class="pflgs">(' + esc(tt("pf_bdSrc")) + ")</span>") + '</div>';
         svg = o;
       }
       host.innerHTML = '<div class="kmpfmain">' + svg + '</div><div class="kmpfin">' + ctl + '<table class="kmpft"><tbody>' + rows + "</tbody></table></div></div>";
@@ -2528,6 +2548,7 @@
           if (worst > 15) it.push([p.id, "y", tt("rc_ksgerade").replace("{n}", n).replace("{a}", Math.round(worst))]);
         }
       });
+      M.lines.forEach(function (l, i) { var gm = l.pts.length > 1 ? avGebOf(l) : 0; if (gm >= 0.5) it.push([l.id, "r", tt("rc_gebLine").replace("{n}", i + 1).replace("{m}", f1(gm))]); });   /* Leitung durch ein Gebäude (amtliche Vermessung) */
       M.geb.forEach(function (g, i) {
         var dm = Infinity; M.pts.forEach(function (p) { dm = Math.min(dm, AD.dist(p.pt, g.pt)); });
         if (!M.pts.length) it.push([g.id, "y", tt("rc_geb_none").replace("{n}", i + 1)]); else if (dm > 250) it.push([g.id, "y", tt("rc_geb_far").replace("{n}", i + 1).replace("{d}", f1(dm))]);
@@ -3088,7 +3109,7 @@
       if (askL) { var le = askL.pts[askL.pts.length - 1], tl = plan ? 0.6 : 0.08; M.lines.forEach(function (o) { if (o === askL || o.pts.length < 2) return; var cpE = map.latLngToContainerPoint(AD.ll(le)), h = segHit(cpE, o.pts); if (h && h.d <= 1.5 && AD.dist(le, o.pts[h.seg]) > tl && AD.dist(le, o.pts[h.seg + 1]) > tl) { o.pts.splice(h.seg + 1, 0, le.slice()); askL.to = o.id; } }); }   /* Endpunkt auf fremder Linie: Knoten (T-Anschluss) */
       var autoE = false; if (askL && !askL.e) { var pe = ptAt(askL.pts[askL.pts.length - 1]); if (pe) { askL.e = pe.id; askL.pts[askL.pts.length - 1] = pe.pt.slice(); delete askL.to; autoE = true; } }
       if (askL) { var le2 = askL.pts[askL.pts.length - 1], ls2 = askL.pts[0], gt = plan ? 0.6 : 0.3; M.geb.forEach(function (g) { if (!(g.lid && byId(M.lines, g.lid)) && (AD.dist(le2, g.pt) <= gt || AD.dist(ls2, g.pt) <= gt)) { askL.gid = g.id; g.lid = askL.id; } }); }
-      cur = null; curN = null; curA = null; tmp = []; hideTip(); if (askL && M.lines.indexOf(askL) >= 0) { touchedL[askL.id] = 1; ensureDepth(askL); } refresh();
+      cur = null; curN = null; curA = null; tmp = []; hideTip(); if (askL && M.lines.indexOf(askL) >= 0) { touchedL[askL.id] = 1; ensureDepth(askL); if (!plan) avCheck(askL); } refresh();
       if (askL && M.lines.indexOf(askL) >= 0) { if (!autoE && !(askL.to && !askL.abz && askTap(askL, "to"))) askEnd(askL); quickOpen(askL); }
     }
     function undo() {
