@@ -8544,6 +8544,7 @@ var FIG = (function () {
     function linkStart(o, j, noSlide) {
       var P0 = o.pts[j].slice(), pr = [], gs = [], slide = null;
       linkedLines(o).forEach(function (l2) { l2.pts.forEach(function (q, k) { if (AD.dist(q, P0) <= LKTOL) pr.push({ l: l2, k: k }); }); });
+      if (j === 0 || j === o.pts.length - 1) M.geb.forEach(function (g) { if (!(g.lid && byId(M.lines, g.lid)) && AD.dist(g.pt, P0) <= LKTOL) gebAuto(g); });   /* ältere Stände: Verknüpfung nachholen */
       M.geb.forEach(function (g) { if ((g.lid === o.id || o.gid === g.id) && AD.dist(g.pt, P0) <= LKTOL) gs.push(g); });
       var br = !noSlide && ((j === 0 && o.from && byId(M.lines, o.from)) || (j === o.pts.length - 1 && o.to && byId(M.lines, o.to)));
       if (br) { var it = pr.filter(function (x) { return x.l === br; })[0];
@@ -8592,7 +8593,7 @@ var FIG = (function () {
     function dragPt(m, o, key) {
       var isG = key === "pt" && M.geb.indexOf(o) >= 0, gl = null, gk = -1, gst = null;
       if (isG) {
-        m.on("dragstart", function () { gl = byId(M.lines, o.lid) || null; gk = -1; gst = null; if (gl) { var best = 1e9; gl.pts.forEach(function (q, k) { var d = AD.dist(q, o.pt); if (d < best) { best = d; gk = k; } }); if (best > 0.3) gl = null; else { gst = linkStart(gl, gk, true); var bb = [gl.from && byId(M.lines, gl.from), gl.to && byId(M.lines, gl.to)]; gst.pr = gst.pr.filter(function (x) { return bb.indexOf(x.l) < 0; }); gst.any = !!(gst.pr.length || gst.gs.length); } } });
+        m.on("dragstart", function () { gl = gebAuto(o) || null; gk = -1; gst = null; if (gl) { var best = 1e9; gl.pts.forEach(function (q, k) { var d = AD.dist(q, o.pt); if (d < best) { best = d; gk = k; } }); if (best > 0.3) gl = null; else { gst = linkStart(gl, gk, true); var bb = [gl.from && byId(M.lines, gl.from), gl.to && byId(M.lines, gl.to)]; gst.pr = gst.pr.filter(function (x) { return bb.indexOf(x.l) < 0; }); gst.any = !!(gst.pr.length || gst.gs.length); } } });
         m.on("drag", function (e) {
           var ll = e.target.getLatLng(), gs = gebSnap(map.latLngToContainerPoint(ll), o.lid), c = gs ? gs.c.slice() : AD.pt(ll);
           if (gs) e.target.setLatLng(AD.ll(c)); o.pt = c; if (gs && gs.line) o.on = gs.line.id; else delete o.on; gebMark(gs);
@@ -9121,7 +9122,7 @@ var FIG = (function () {
         title = tt("km_cx_title"); if (lastCmd) items.push({ t: tt("km_cx_rep").replace("{c}", lastCmd.t), fn: repeatCmd }); var lc = cur && byId(M.lines, cur); if (lc && mode === "line") FLS.filter(function (f) { return f !== cfgOf(lc).fl; }).forEach(function (f) { items.push({ t: tt("cx_surf").replace("{f}", tt("km_pal_" + f)), fn: function () { switchSurface(f); } }); });
         items.push({ typ: 1 }, { t: tt("km_cx_sch"), fn: function () { snap(); placeShaft(c); refresh(); } }, { wlt: 1 },
           { t: tt("km_cx_wl"), fn: function () { snap(); var q = { id: nid("w"), pt: c.slice(), sid: null, wt: wlT, name: "", fl: lastCfg.fl || "" }; M.wl.push(q); sel = { id: q.id }; refresh(); } },
-          { t: tt("km_cx_geb"), fn: function () { snap(); var gs = gebSnap(cp), q = { id: nid("g"), pt: (gs ? gs.c : c).slice(), sid: null, cm: opt.defGeb.cm, abd: opt.defGeb.abd, name: "", on: gs && gs.line ? gs.line.id : undefined }; M.geb.push(q); sel = { id: q.id }; refresh(); } },
+          { t: tt("km_cx_geb"), fn: function () { snap(); var gs = gebSnap(cp), q = { id: nid("g"), pt: (gs ? gs.c : c).slice(), sid: null, cm: opt.defGeb.cm, abd: opt.defGeb.abd, name: "", on: gs && gs.line ? gs.line.id : undefined }; M.geb.push(q); gebAuto(q); sel = { id: q.id }; refresh(); } },
           { t: tt("km_cx_sond"), fn: function () { snap(); var q = { id: nid("s"), pt: c.slice(), name: "", l: "1.0", b: "1.0", t: "1.5" }; M.sond.push(q); sel = { id: q.id }; refresh(); } },
           { t: tt("km_cx_line"), fn: function () { var l = startLineAt(c); askStart(l, c); } },
           { t: tt("km_cx_area"), fn: function () { if (mode !== "area") $("[data-k=marea]").click(); ctxT = 0; addPt(ll); } });
@@ -10120,7 +10121,7 @@ var FIG = (function () {
       if (mode === "arrow" || mode === "rect") { tmp.push(c); if (tmp.length === 2) { newNote(mode, tmp); tmp = []; } refresh(); return; }
       if (mode === "wl" || mode === "geb") {
         snap(); var q = mode === "wl" ? { id: nid("w"), pt: c, sid: null, wt: wlT, name: "", fl: lastCfg.fl || "" } : { id: nid("g"), pt: c, sid: null, cm: opt.defGeb.cm, abd: opt.defGeb.abd, name: "", on: si && si.line ? si.line.id : undefined };
-        (mode === "wl" ? M.wl : M.geb).push(q); sel = { id: q.id }; refresh(); return;
+        (mode === "wl" ? M.wl : M.geb).push(q); if (mode === "geb") gebAuto(q); sel = { id: q.id }; refresh(); return;
       }
       if (mode === "area") {
         snap(); var fa = curA && byId(M.areas, curA);
@@ -10150,12 +10151,22 @@ var FIG = (function () {
       }
       refresh(); if (startL) askStart(startL, c); else if (tapL) askTap(tapL, "from");
     }
+    /* Gebäudeeinführung ↔ Leitung verknüpfen (V143): Anfang ODER Ende einer Leitung auf der Einführung (0.3 m, Plan 0.6) – auch nachträglich,
+       damit die Leitung beim Verschieben der Einführung mitgeht */
+    function gebAuto(g) {
+      var tol = plan ? 0.6 : 0.3, best = null, cl = g.lid && byId(M.lines, g.lid);
+      if (cl && cl.pts.some(function (q) { return AD.dist(q, g.pt) <= tol; })) return cl;
+      if (cl && cl.gid === g.id) delete cl.gid;
+      M.lines.forEach(function (l) { if (l.pts.length < 2 || (l.gid && l.gid !== g.id && byId(M.geb, l.gid))) return; [0, l.pts.length - 1].forEach(function (k) { var d = AD.dist(l.pts[k], g.pt); if (isFinite(d) && d <= tol && (!best || d < best.d)) best = { l: l, d: d }; }); });
+      if (!best) { delete g.lid; return null; }
+      best.l.gid = g.id; g.lid = best.l.id; return best.l;
+    }
     function endLine() {
       var l = cur && byId(M.lines, cur), askL = l && l.pts.length > 1 ? l : null; if (l && l.pts.length < 2) M.lines.splice(M.lines.indexOf(l), 1);
       var n = curN && byId(M.notes, curN); if (n && n.pts.length < 2) M.notes.splice(M.notes.indexOf(n), 1);
       var fa = curA && byId(M.areas, curA); if (fa && fa.pts.length < 3) M.areas.splice(M.areas.indexOf(fa), 1);
       if (askL) { var le = askL.pts[askL.pts.length - 1], tl = plan ? 0.6 : 0.08; M.lines.forEach(function (o) { if (o === askL || o.pts.length < 2) return; var cpE = map.latLngToContainerPoint(AD.ll(le)), h = segHit(cpE, o.pts); if (h && h.d <= 1.5 && AD.dist(le, o.pts[h.seg]) > tl && AD.dist(le, o.pts[h.seg + 1]) > tl) { o.pts.splice(h.seg + 1, 0, le.slice()); askL.to = o.id; } }); }   /* Endpunkt auf fremder Linie: Knoten (T-Anschluss) */
-      if (askL) { var le2 = askL.pts[askL.pts.length - 1], gt = plan ? 0.6 : 0.3; M.geb.forEach(function (g) { if (AD.dist(le2, g.pt) <= gt) { askL.gid = g.id; g.lid = askL.id; } }); }
+      if (askL) { var le2 = askL.pts[askL.pts.length - 1], ls2 = askL.pts[0], gt = plan ? 0.6 : 0.3; M.geb.forEach(function (g) { if (!(g.lid && byId(M.lines, g.lid)) && (AD.dist(le2, g.pt) <= gt || AD.dist(ls2, g.pt) <= gt)) { askL.gid = g.id; g.lid = askL.id; } }); }
       cur = null; curN = null; curA = null; tmp = []; hideTip(); if (askL && M.lines.indexOf(askL) >= 0) { touchedL[askL.id] = 1; ensureDepth(askL); } refresh();
       if (askL && M.lines.indexOf(askL) >= 0) { if (!(askL.to && !askL.abz && askTap(askL, "to"))) askEnd(askL); quickOpen(askL); }
     }
