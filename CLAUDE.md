@@ -9,6 +9,7 @@ Produktname: **NIUcost – Kostenrechner Tiefbau** (Logo als SVG in `src/shell.h
 - Texte DE/FR/IT/EN: `src/i18n_app.js` (neue Keys immer in allen 4 Sprachen), `src/i18n_kv.js`. Assistent: Inhalte deutsch in `src/chat.js`/`src/chat_flows2.js`, Übersetzungen bausteinweise in `src/chat_i18n.js` (Schlüssel = deutscher Textbaustein → [FR, IT, EN]); neue Assistententexte dort ergänzen, Test `t76` findet deutsche Reste.
 - Fremdbibliotheken: Leaflet 1.9.4 eingebettet aus `vendor/leaflet/` (build.py); pdf.js (jsDelivr, pdfjs-dist 3.11.174) und Cesium 1.120.0 (jsDelivr) mit SRI-Prüfsummen – bei Versionswechsel Prüfsummen neu berechnen. Sprache per Adresse `?lang=fr|it|en`. Vorschaubild `og-bild.png`, `sitemap.xml` im Wurzelordner (GitHub Pages).
 - LV-Daten: `src/data/lv.js` (generiert, 599 Positionen). Zustand: `localStorage`, Sicherung als JSON.
+- Skill «apple-design» (Emil Kowalski, emilkowalski/skills) liegt unter `.claude/skills/apple-design/` und wird von Claude Code in diesem Projekt automatisch angeboten (Bewegung, Material, Typografie im Apple-Stil; Audit in `docs/APPLE_AUDIT.md`).
 - Skill für Claude-KI: `skill/lv-devis-tiefbau/` (Python-Portierung des Rechenkerns, `scripts/kve.py`). Neu erzeugen: `node tools/build_skill.mjs`.
 
 ## Redesign «Engineering-Arbeitsplatz» (Masterprompt 06.11.2026)

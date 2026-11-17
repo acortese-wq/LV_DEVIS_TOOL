@@ -1,6 +1,6 @@
 # NIUcost – Audit nach «Apple Design» (acht Prinzipien) · Stand 12.11.2026
 
-Grundlage: `skills/apple-design/SKILL.md` (Quelle: emilkowalski/skills, siehe `skills/apple-design/QUELLE.md`). Bewertung: ● gut · ◐ teilweise · ○ offen. Konzept und Urheber: Alessandro Cortese.
+Grundlage: `.claude/skills/apple-design/SKILL.md` (Quelle: emilkowalski/skills, siehe `.claude/skills/apple-design/QUELLE.md`). Bewertung: ● gut · ◐ teilweise · ○ offen. Konzept und Urheber: Alessandro Cortese.
 
 | # | Prinzip | Stand | Befund und Massnahme |
 |---|---|---|---|
