@@ -7286,14 +7286,15 @@ var FIG = (function () {
         var img = new Image();
         img.onload = function () {
           if (t !== me._t || !me._m) return; me._bad = 0; me._ever = true;
-          var ov = L.imageOverlay(u, ib, { pane: "tilePane", zIndex: 2, interactive: false, attribution: o && o.attr || "" }).addTo(me._m), old = me._im; me._im = ov; me._ib = ib; me._z = z; if (old) me._m.removeLayer(old);
+          var ov = L.imageOverlay(u, ib, { pane: "tilePane", zIndex: o && o.zIndex || 2, opacity: o && o.opacity != null ? o.opacity : 1, interactive: false, attribution: o && o.attr || "" }).addTo(me._m), old = me._im; me._im = ov; me._ib = ib; me._z = z; if (old) me._m.removeLayer(old);
+          if (me._failed) { me._failed = false; if (o && o.ok) o.ok(); }   /* Dienst liefert wieder: Ersatzkacheln weg, zurück zum zusammenhängenden Bild */
         };
         /* Fehler beim Nachladen (Dienst überlastet, Bild zu gross): das bisherige Bild bleibt stehen, nach kurzer Pause mit kleinerem Bild nochmals versuchen; nur wenn nie ein Bild kam, auf die Ersatzebene wechseln */
         img.onerror = function () {
           if (t !== me._t || !me._m) return; me._bad++; me._cap = Math.max(900, Math.round(me._cap * 0.7));
-          if (!me._ever && me._bad >= 2 && o && o.fail) { var f = o.fail; o.fail = null; f(); return; }   /* Dienst hat nie geliefert: wie bisher auf die Ersatzebene */
-          if (me._bad >= 6) return;
-          setTimeout(function () { if (t === me._t && me._m) { me._z = null; me._upd(); } }, 500 * me._bad);
+          if (!me._ever && me._bad >= 2 && o && o.fail && !me._failed) { me._failed = true; o.fail(); }   /* Dienst hat (noch) nicht geliefert: vorübergehend Ersatzkacheln, im Hintergrund weiter versuchen (V143: Kacheln haben Versatz) */
+          if (me._bad >= 6 && !me._failed) return;
+          setTimeout(function () { if (t === me._t && me._m) { me._z = null; me._upd(); } }, me._failed ? 15000 : 500 * me._bad);
         };
         img.src = u;
       }
@@ -8428,7 +8429,7 @@ var FIG = (function () {
         : base === "grau" ? L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")])
         : base === "leer" ? L.layerGroup([])   /* leere Basis: nur gewählte Katalog-Ebenen auf weissem Grund */
         : base === "av" ? L.layerGroup(avCfg().u ? [viewWms(avCfg().u, avCfg().l, { attr: "© OpenData AV" })] : [])
-        : base === "kataster" ? (function () { var g = L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")]), v = viewWms(WMS, "ch.kantone.cadastralwebmap-farbe", { attr: "© geo.admin.ch", minZoom: PARZ_MINZ, gate: function (inR) { var c = $("#kmMap") && $("#kmMap").querySelector(".kmparzhint"); if (!inR) { if (!c && $("#kmMap")) { c = document.createElement("div"); c.className = "kmparzhint"; c.setAttribute("role", "status"); c.textContent = tt("km_parzMin").replace("{z}", PARZ_MINZ); $("#kmMap").appendChild(c); } } else if (c) c.remove(); },   /* Hinweis als Feld in der Karte (nicht klickbar), kein Toast über der Zeichenfläche */ fail: function () { g.removeLayer(v); g.addLayer(flex("ch.kantone.cadastralwebmap-farbe", 1, "wmts")); } }); g.addLayer(v); return g; })()   /* nur der Parzellenplan, ohne Landeskarte dahinter */
+        : base === "kataster" ? (function () { var g = L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")]), v = viewWms(WMS, "ch.kantone.cadastralwebmap-farbe", { attr: "© geo.admin.ch", minZoom: PARZ_MINZ, gate: function (inR) { var c = $("#kmMap") && $("#kmMap").querySelector(".kmparzhint"); if (!inR) { if (!c && $("#kmMap")) { c = document.createElement("div"); c.className = "kmparzhint"; c.setAttribute("role", "status"); c.textContent = tt("km_parzMin").replace("{z}", PARZ_MINZ); $("#kmMap").appendChild(c); } } else if (c) c.remove(); },   /* Hinweis als Feld in der Karte (nicht klickbar), kein Toast über der Zeichenfläche */ fail: function () { if (!g._fb) { g._fb = flex("ch.kantone.cadastralwebmap-farbe", 1, "wmts"); g.addLayer(g._fb); } }, ok: function () { if (g._fb) { g.removeLayer(g._fb); g._fb = null; } } }); g.addLayer(v); return g; })()   /* nur der Parzellenplan, ohne Landeskarte dahinter */
         : L.layerGroup([T("ch.swisstopo.pixelkarte-farbe", "jpeg")]);
       map.getContainer().style.background = base === "kataster" || base === "leer" || base === "av" ? "#fff" : "";
       layer.addTo(map);   /* Reihenfolge über zIndex: Basiskarte 1, Deckschichten 5/10 */
@@ -8440,6 +8441,7 @@ var FIG = (function () {
     function saveOv() { try { localStorage.setItem(CATKEY, JSON.stringify(ov)); } catch (e) { } }
     function ovLayer(o) {
       var op = { maxZoom: 22, maxNativeZoom: 18, opacity: o.op, zIndex: 10, attribution: "© geo.admin.ch" };
+      if (/cadastralwebmap/.test(String(o.srv || o.id || ""))) return viewWms(WMS, o.srv || o.id, { attr: "© geo.admin.ch", opacity: o.op, zIndex: 10, minZoom: PARZ_MINZ });   /* Parzellen nie als Kacheln (Versatz zwischen Kacheln) */
       return o.type === "wms" ? L.tileLayer.wms("https://wms.geo.admin.ch/", { layers: o.srv, format: "image/png", transparent: true, maxZoom: 22, opacity: o.op, zIndex: 10, attribution: "© geo.admin.ch" })
         : L.tileLayer(WMTS + o.srv + "/default/current/3857/{z}/{x}/{y}." + o.fmt, op);
     }
