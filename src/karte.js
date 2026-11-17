@@ -1411,7 +1411,7 @@
           if (gl) { [["to", gl.pts.length - 1], ["from", 0]].forEach(function (a) { var bl = gl[a[0]] && byId(M.lines, gl[a[0]]), pj = bl && projPoly(bl.pts, gl.pts[a[1]]); if (bl && (!pj || pj.d > 0.05)) { delete gl[a[0]]; if (a[0] === "from") delete gl.baseDir; } }); } });
       }
       var gb = null;
-      m.on("dragstart", function () { snap(); var ids = selIds(); gb = null; if (!isG && key === "pt" && ids.length > 1 && ids.indexOf(o.id) >= 0) gb = { s: o.pt.slice(), a: ids.filter(function (i) { return i !== o.id; }).map(findObj).filter(Boolean).map(function (x) { return { o: x.o, pts: x.o.pts ? x.o.pts.map(function (p) { return p.slice(); }) : null, pt: x.o.pt ? x.o.pt.slice() : null }; }) }; });
+      m.on("dragstart", function () { snap(); if (key === "pt" && M.pts.indexOf(o) >= 0) ptAuto(o); var ids = selIds(); gb = null; if (!isG && key === "pt" && ids.length > 1 && ids.indexOf(o.id) >= 0) gb = { s: o.pt.slice(), a: ids.filter(function (i) { return i !== o.id; }).map(findObj).filter(Boolean).map(function (x) { return { o: x.o, pts: x.o.pts ? x.o.pts.map(function (p) { return p.slice(); }) : null, pt: x.o.pt ? x.o.pt.slice() : null }; }) }; });
       if (!isG) m.on("drag", function (e) { o[key] = AD.pt(e.target.getLatLng());
         if (gb) { var gx = o.pt[0] - gb.s[0], gy = o.pt[1] - gb.s[1]; gb.a.forEach(function (b) { if (b.pts) b.o.pts = b.pts.map(function (p) { return [p[0] + gx, p[1] + gy]; }); if (b.pt) b.o.pt = [b.pt[0] + gx, b.pt[1] + gy]; if (layers[b.o.id] && layers[b.o.id].upd) layers[b.o.id].upd(); }); M.pts.forEach(function (sp) { if (sp !== o && !gb.a.some(function (b) { return b.o === sp; })) return; M.lines.forEach(function (l) { if (l.s === sp.id) l.pts[0] = sp.pt.slice(); if (l.e === sp.id) l.pts[l.pts.length - 1] = sp.pt.slice(); }); }); } if (key === "pt" && M.pts.indexOf(o) >= 0) M.lines.forEach(function (l) { if (l.s === o.id) l.pts[0] = o.pt.slice(); if (l.e === o.id) l.pts[l.pts.length - 1] = o.pt.slice(); }); });
       m.on("dragend", function () { lastMove = Date.now(); sel = { id: o.id }; refresh(); showProps(o.id); });
@@ -2952,7 +2952,7 @@
       else {
         var l = cur && byId(M.lines, cur); var fresh = !l;
         if (!l) { l = { id: nid("l"), pts: [], rid: null, rohr: JSON.parse(JSON.stringify(opt.defRohr)), cfg: JSON.parse(JSON.stringify(lastCfg)) }; lineSync(l); M.lines.push(l); cur = l.id; sel = { id: l.id }; }
-        l.pts.push(c); if (fresh && l.pts.length === 1) { startL = l;
+        l.pts.push(c); if (fresh && l.pts.length === 1) { startL = l; var p0 = ptAt(c); if (p0) { l.s = p0.id; l.pts[0] = p0.pt.slice(); startL = null; }
           if (si && si.kind === "ln" && si.line) { var bs = si.line, ia = bs.pts[si.seg], ib = bs.pts[si.seg + 1]; l.from = bs.id; l.baseDir = si.dir; l.cfg = JSON.parse(JSON.stringify(cfgOf(bs))); l.rohr = JSON.parse(JSON.stringify(bs.rohr || l.rohr)); lineSync(l);   /* Abzweig: Knoten in der Basislinie, Basis-Richtung für «rechtwinklig» */
             if (AD.dist(c, ia) > 0.05 && AD.dist(c, ib) > 0.05) bs.pts.splice(si.seg + 1, 0, c.slice()); startL = null; tapL = l; }
         }
@@ -2961,6 +2961,15 @@
     }
     /* Gebäudeeinführung ↔ Leitung verknüpfen (V143): Anfang ODER Ende einer Leitung auf der Einführung (0.3 m, Plan 0.6) – auch nachträglich,
        damit die Leitung beim Verschieben der Einführung mitgeht */
+    /* Linienenden auf einem Schacht/Abzweiger fest anhängen (V143): beim Zeichnen und – für ältere Stände – beim Verschieben des Punkts */
+    function ptAuto(p) {
+      var tol = plan ? 0.5 : 0.15, n = 0;
+      M.lines.forEach(function (l) { var k = l.pts.length; if (k < 2) return;
+        if (!l.s && AD.dist(l.pts[0], p.pt) <= tol) { l.s = p.id; l.pts[0] = p.pt.slice(); delete l.from; n++; }
+        if (!l.e && AD.dist(l.pts[k - 1], p.pt) <= tol) { l.e = p.id; l.pts[k - 1] = p.pt.slice(); delete l.to; n++; } });
+      return n;
+    }
+    function ptAt(c) { var tol = plan ? 0.5 : 0.15, b = null; M.pts.forEach(function (p) { var d = AD.dist(p.pt, c); if (isFinite(d) && d <= tol && (!b || d < b.d)) b = { p: p, d: d }; }); return b && b.p; }
     function gebAuto(g) {
       var tol = plan ? 0.6 : 0.3, best = null, cl = g.lid && byId(M.lines, g.lid);
       if (cl && cl.pts.some(function (q) { return AD.dist(q, g.pt) <= tol; })) return cl;
@@ -2974,9 +2983,10 @@
       var n = curN && byId(M.notes, curN); if (n && n.pts.length < 2) M.notes.splice(M.notes.indexOf(n), 1);
       var fa = curA && byId(M.areas, curA); if (fa && fa.pts.length < 3) M.areas.splice(M.areas.indexOf(fa), 1);
       if (askL) { var le = askL.pts[askL.pts.length - 1], tl = plan ? 0.6 : 0.08; M.lines.forEach(function (o) { if (o === askL || o.pts.length < 2) return; var cpE = map.latLngToContainerPoint(AD.ll(le)), h = segHit(cpE, o.pts); if (h && h.d <= 1.5 && AD.dist(le, o.pts[h.seg]) > tl && AD.dist(le, o.pts[h.seg + 1]) > tl) { o.pts.splice(h.seg + 1, 0, le.slice()); askL.to = o.id; } }); }   /* Endpunkt auf fremder Linie: Knoten (T-Anschluss) */
+      var autoE = false; if (askL && !askL.e) { var pe = ptAt(askL.pts[askL.pts.length - 1]); if (pe) { askL.e = pe.id; askL.pts[askL.pts.length - 1] = pe.pt.slice(); delete askL.to; autoE = true; } }
       if (askL) { var le2 = askL.pts[askL.pts.length - 1], ls2 = askL.pts[0], gt = plan ? 0.6 : 0.3; M.geb.forEach(function (g) { if (!(g.lid && byId(M.lines, g.lid)) && (AD.dist(le2, g.pt) <= gt || AD.dist(ls2, g.pt) <= gt)) { askL.gid = g.id; g.lid = askL.id; } }); }
       cur = null; curN = null; curA = null; tmp = []; hideTip(); if (askL && M.lines.indexOf(askL) >= 0) { touchedL[askL.id] = 1; ensureDepth(askL); } refresh();
-      if (askL && M.lines.indexOf(askL) >= 0) { if (!(askL.to && !askL.abz && askTap(askL, "to"))) askEnd(askL); quickOpen(askL); }
+      if (askL && M.lines.indexOf(askL) >= 0) { if (!autoE && !(askL.to && !askL.abz && askTap(askL, "to"))) askEnd(askL); quickOpen(askL); }
     }
     function undo() {
       if (mode === "cal" && calPts.length) { calPts.pop(); $("#kmCalF").hidden = true; return draw(); }
