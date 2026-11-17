@@ -3,11 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; upgrade-insecure-requests">
 <meta name="author" content="Alessandro Cortese">
 <meta name="creator" content="Alessandro Cortese">
 <meta name="copyright" content="© 2026 Alessandro Cortese">
-<meta name="description" content="NIUcost – Kostenrechner Tiefbau: Kostenvoranschlag nach Bauteilen auf Basis LV Swisscom. App-Konzept, Struktur und fachliche Ausgestaltung: Alessandro Cortese.">
+<meta name="description" id="mDesc" content="NIUcost – Kostenrechner Tiefbau: Kostenvoranschläge für den Leitungsbau auf der Karte zeichnen, Kosten nach Leistungsverzeichnis, jede Zahl nachvollziehbar. App-Konzept: Alessandro Cortese.">
 <title>NIUcost – Kostenrechner Tiefbau</title>
+<link rel="canonical" id="lnkCanon" href="https://acortese-wq.github.io/LV_DEVIS_TOOL/">
+<link rel="alternate" hreflang="de" href="https://acortese-wq.github.io/LV_DEVIS_TOOL/?lang=de">
+<link rel="alternate" hreflang="fr" href="https://acortese-wq.github.io/LV_DEVIS_TOOL/?lang=fr">
+<link rel="alternate" hreflang="it" href="https://acortese-wq.github.io/LV_DEVIS_TOOL/?lang=it">
+<link rel="alternate" hreflang="en" href="https://acortese-wq.github.io/LV_DEVIS_TOOL/?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://acortese-wq.github.io/LV_DEVIS_TOOL/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NIUcost">
+<meta property="og:title" id="ogTitle" content="NIUcost – Kostenrechner Tiefbau">
+<meta property="og:description" id="ogDesc" content="Kostenvoranschläge für den Leitungsbau: Leitung auf der Karte zeichnen, Kosten nach Leistungsverzeichnis, jede Zahl mit Menge, Position und Rechenweg.">
+<meta property="og:url" id="ogUrl" content="https://acortese-wq.github.io/LV_DEVIS_TOOL/">
+<meta property="og:image" content="https://acortese-wq.github.io/LV_DEVIS_TOOL/og-bild.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="de_CH">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0b6b72">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"NIUcost – Kostenrechner Tiefbau","url":"https://acortese-wq.github.io/LV_DEVIS_TOOL/","applicationCategory":"BusinessApplication","operatingSystem":"Web","inLanguage":["de","fr","it","en"],"description":"Kostenvoranschläge für den Leitungsbau: Leitung auf der Karte zeichnen, Kosten nach Leistungsverzeichnis, jede Zahl mit Menge, Position und Rechenweg.","author":{"@type":"Person","name":"Alessandro Cortese","url":"https://tiefbauleitung.com/"}}</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%20160%20160%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22wmc%22%3E%3Crect%20width%3D%22160%22%20height%3D%22160%22%20rx%3D%2216%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cg%20clip-path%3D%22url%28%23wmc%29%22%3E%3Crect%20width%3D%22160%22%20height%3D%22160%22%20fill%3D%22%230b5561%22/%3E%3Crect%20width%3D%22160%22%20height%3D%2234%22%20fill%3D%22%2300a3ad%22/%3E%3C/g%3E%3Cpath%20d%3D%22M34%2046h92l-10%2096H44z%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%227%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M44%2046v-8h72v8%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%226%22/%3E%3Ccircle%20cx%3D%2280%22%20cy%3D%2296%22%20r%3D%2229%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%2280%22%20cy%3D%2296%22%20r%3D%2223%22%20fill%3D%22none%22%20stroke%3D%22%2300a3ad%22%20stroke-width%3D%224%22/%3E%3Cpath%20d%3D%22M69%20110V82h5l12%2018V82h5v28h-5L74%2092v18z%22%20fill%3D%22%230b5561%22/%3E%3C/svg%3E">
 <style>
 /*@@CSS@@*/
@@ -31,6 +50,7 @@
     <div class="plankopf-top">
       <div>
         <h1 id="t-title" class="vh">NIUcost – Kostenrechner Tiefbau</h1>
+        <p class="intro no-print"><span id="t-intro"></span> <a id="t-contact" href="https://tiefbauleitung.com/kontakt/" target="_blank" rel="noopener"></a></p>
         <p class="subtitle" id="t-sub"></p>
       </div>
       <div class="toolrow no-print">
@@ -85,9 +105,10 @@
       <div class="kpi no-print" id="kpi" aria-live="polite"></div>
       <div class="resbar no-print">
         <button type="button" class="btn" id="bPrint"></button>
+        <button type="button" class="btn ghost" id="bReport"></button>
+        <details class="morep"><summary class="btn ghost" id="morePrint"></summary><div class="morep-b">
         <button type="button" class="btn ghost" id="bPrintFull"></button>
-        <button type="button" class="btn ghost" id="bPrintSum"></button>
-        <button type="button" class="btn" id="bReport"></button>
+        <button type="button" class="btn ghost" id="bPrintSum"></button></div></details>
         <button type="button" class="btn ghost" id="bXlsx"></button>
         <button type="button" class="btn ghost" id="bSave"></button>
         <button type="button" class="btn ghost" id="bLoad"></button>
@@ -98,7 +119,7 @@
     <aside id="lvcol" class="lvcol no-print" aria-label="LV"></aside>
   </main>
   <div class="mbar no-print" id="mbar"></div>
-  <footer>© 2026 Alessandro Cortese · NIUcost – Kostenrechner Tiefbau · App-Konzept, Struktur und fachliche Ausgestaltung. Enthält KV-Assistent Tiefbau und Auswahl Schachtbau und Abdeckungen (A. Cortese). LV V1.1 (10.07.2026).</footer>
+  <footer>© 2026 Alessandro Cortese · NIUcost – Kostenrechner Tiefbau · App-Konzept, Struktur und fachliche Ausgestaltung. Enthält KV-Assistent Tiefbau und Auswahl Schachtbau und Abdeckungen (A. Cortese). LV V1.1 (10.07.2026).<span class="impr no-print"><b id="t-impr"></b> Alessandro Cortese, Chur, Graubünden, Schweiz · <a href="https://www.linkedin.com/in/alessandro-cortese-1846b5bb" target="_blank" rel="noopener" id="t-imprC"></a> · <a href="https://tiefbauleitung.com/impressum/" target="_blank" rel="noopener">tiefbauleitung.com</a> · <button type="button" class="linkbtn" id="bPriv"></button><span id="t-imprN"></span></span></footer>
 </div>
 <div id="lb" role="dialog" aria-modal="true" aria-label="Zeichnung"><button type="button" class="lbclose" id="lbClose">×</button><img alt=""></div>
 <div id="expiry" role="alertdialog" aria-modal="true" aria-labelledby="expT" hidden><div class="expbox"><h2 id="expT"></h2><p id="expP"></p><p class="sub" id="expS"></p><p class="meta">LV-Devis Tiefbau · App-Konzept und Urheber: Alessandro Cortese</p></div></div>

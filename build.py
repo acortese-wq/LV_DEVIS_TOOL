@@ -3,10 +3,11 @@ import datetime, os, sys
 H = os.path.dirname(os.path.abspath(__file__))
 def rd(p): return open(os.path.join(H, 'src', p), encoding='utf8').read()
 shell = rd('shell.html')
-css = rd('tokens.css') + '\n' + rd('kv.css') + '\n' + rd('app.css') + '\n' + rd('workspace.css')
+def rv(p): return open(os.path.join(H, 'vendor', p), encoding='utf8').read()
+css = rd('tokens.css') + '\n' + rd('kv.css') + '\n' + rd('app.css') + '\n' + rd('workspace.css') + '\n' + rv('leaflet/leaflet.css')   # Leaflet-CSS zuletzt (wie früher als nachgeladenes Stylesheet)
 scripts = [('data/lv.js', 'lv'), ('schacht_data.js', 'schachtdaten'), ('data/schacht_img.js', 'schachtbilder'), ('i18n_kv.js', 'i18n'),
            ('schacht_i18n.js', 'i18n-schacht'), ('i18n_app.js', 'i18n-app'), ('kve.js', 'kve'), ('model.js', 'model'), ('xlsxw.js', 'xlsx'), ('fig.js', 'fig'), ('karte.js', 'karte'), ('v3d.js', 'v3d'), ('app.js', 'app'), ('chat_flows2.js', 'chatflows'), ('chat_i18n.js', 'chati18n'), ('chat.js', 'chat'), ('help_data.js', 'helpdata'), ('help.js', 'help')]
-js = '\n'.join('<script id="%s">\n%s\n</script>' % (i, rd(f).replace('</script', '<\\/script')) for f, i in scripts)
+js = '<script id="leaflet">\n%s\n</script>\n' % rv('leaflet/leaflet.js').replace('</script', '<\\/script') + '\n'.join('<script id="%s">\n%s\n</script>' % (i, rd(f).replace('</script', '<\\/script')) for f, i in scripts)   # Leaflet 1.9.4 (BSD-2, vendor/leaflet) eingebettet: Karte startet auch ohne cdnjs
 out = (shell.replace('/*@@CSS@@*/', css)
             .replace('/*@@BUILD@@*/', datetime.date.today().isoformat()).replace('/*@@SCRIPTS@@*/', js))
 out = out.replace('/*@@EXPIRES@@*/', '').replace('/*@@RECIPIENT@@*/', '')

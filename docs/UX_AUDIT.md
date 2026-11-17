@@ -572,3 +572,17 @@ Grundlage: Recherche 10.11.2026 (Genauigkeit Kostenvoranschlag in der Regel ±10
 ## V140 – Startabsturz mit gespeicherter 3D-Ansicht, Route-Fenster unter den Leisten (16.11.2026)
 - **Fehler behoben (seit V136):** Mit gespeicherter 3D-Ansicht im Projekt (`S.v3d`) brach der Start mit «Cannot convert undefined or null to object» ab (`deepFill` lief über die Vorgabe `v3d: null`). Betraf Browser/Adressen, in denen eine 3D-Ansicht für den Bericht übernommen wurde (Edge auf GitHub Pages). Test t120 (reproduziert den Fehler mit altem Code).
 - **Route «Von/Nach» verdeckt:** Im Planungsfokus lag das Fenster unter den Glas-Leisten (top 8 px statt unter `--lytop`). Jetzt beginnen Route, Palette und Auswahlleiste unter den Leisten. Test t121 prüft alle Werkzeuge in drei Fenstergrössen.
+
+## V141 – Umsetzung Web-Audit (17.11.2026)
+Entscheid Benutzer: Seite bleibt öffentlich; alle übrigen Befunde umsetzen, inkl. Sprachadressen.
+- **Einleitung** im Kopf (Nutzen, Zielgruppe) mit Link «Fragen oder Zugang: Kontakt» auf tiefbauleitung.com/kontakt (4 Sprachen).
+- **Impressum** in der Fusszeile (Name, Chur, Graubünden, Schweiz, LinkedIn, Link tiefbauleitung.com/impressum, Knopf «Datenschutz», Hinweis private Webseite). Keine Postanschrift (liegt nicht vor).
+- **Datenschutz** (Anleitung, 4 Sprachen): Hosting GitHub Pages (USA), alle nachgeladenen Dienste (swisstopo, cadastralwebmap.ch, jsDelivr, routing.openstreetmap.de), Street View genau beschrieben, kein Tracking.
+- **SEO:** canonical, hreflang (DE/FR/IT/EN + x-default), Open Graph + Twitter-Card mit Vorschaubild `og-bild.png` (1200×630, ohne Preise), JSON-LD SoftwareApplication, theme-color, `sitemap.xml`. **Sprachadresse** `?lang=fr|it|en` (Sprache aus der Adresse geht vor; Sprachwechsel schreibt die Adresse; canonical, Beschreibung und OG folgen).
+- **Karte ohne cdnjs:** Leaflet 1.9.4 eingebettet (`vendor/leaflet`, BSD-2); pdf.js auf jsDelivr (npm pdfjs-dist 3.11.174) mit Prüfsummen (SRI) für Skript und Worker; Cesium 1.120.0 mit SRI für Skript und CSS.
+- **CSP** (Meta): `object-src 'none'; base-uri 'none'; upgrade-insecure-requests`. Strengere script-src nicht möglich (Einzeldatei mit eingebetteten Skripten).
+- **UX:** Druckvarianten «Ausführlich» und «Kurzausdruck» im Menü «Weitere Ausdrucke»; Handy: Assistent-Knopf in der Kostenleiste (Mitte) statt über den Reitern, lange Beträge kleiner.
+- **Sie-Form** in Anleitung und Assistent vereinheitlicht.
+- **Interne SharePoint-Ablage** nur noch in personalisierten Weitergabe-Versionen verlinkt.
+- **Bewusst nicht umgesetzt:** Schachtbilder (1.4 MB) auslagern – widerspricht der Einzeldatei; Bilder sind bereits WebP. Cesium und pdf.js nicht aktualisiert (3D frisch geprüft; pdf.js 4 braucht Umbau auf Module).
+- Kostenwirkung: keine. Tests: t122 (neu), t29/t75 (CORS-Header für SRI).

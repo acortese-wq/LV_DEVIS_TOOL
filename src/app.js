@@ -52,6 +52,7 @@
   try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
   if (!S || S.v !== 2) S = defaults();
   heal();
+  (function () { try { var q = /[?&]lang=(de|fr|it|en)\b/.exec(location.search); if (q) S.lang = q[1]; } catch (e) { } })();   /* Sprache aus der Adresse geht vor */
   var saveT, savePending = false, syncHold = false;
   function save() { savePending = true; clearTimeout(saveT); saveT = setTimeout(function () { savePending = false; var el = document.getElementById("saveState"), ok = true;
     if (syncHold) { if (el) { el.className = "savestate no-print err"; el.textContent = tt("sy_hold"); } return; }   /* anderes Fenster hat geändert: nicht still überschreiben */
@@ -1111,12 +1112,13 @@
   function schachtDocs() {
     var ts = TS[S.lang] || TS.de, sch = S.recs.schacht.filter(function (c) { return c.modus !== "deckel" && (num(c.n, 0) > 0); });
     if (!sch.length) return "";
-    var docHref = function (f) { return f ? (DOC_BASE ? DOC_BASE + f : DMS_URL) : null; }, li = function (l, f) { var hr = docHref(f); return "<li>" + (hr ? '<a href="' + esc(hr) + '" target="_blank" rel="noopener">' + esc(l) + "</a>" : esc(l)) + "</li>"; };
+    var intern = typeof RECIPIENT === "string" && RECIPIENT !== "";   /* interne Dokumentablage nur in personalisierten Weitergabe-Versionen, nicht öffentlich */
+    var docHref = function (f) { return f ? (DOC_BASE ? DOC_BASE + f : (intern ? DMS_URL : null)) : null; }, li = function (l, f) { var hr = docHref(f); return "<li>" + (hr ? '<a href="' + esc(hr) + '" target="_blank" rel="noopener">' + esc(l) + "</a>" : esc(l)) + "</li>"; };
     var seen = {}, h = "";
     sch.forEach(function (c) { var k = KVE.SCHACHT[c.typ]; if (!k) return; var sh = k.kind === "KS" ? "KS" : k.kind === "PLS" ? "PLS" : k.kind === "ES" ? "ES" : "KES"; if (!seen[sh]) { seen[sh] = 1; h += li(ts.docPlan + " " + SHAFTS[sh].plan + " – " + (SHAFTS[sh].n[S.lang] || SHAFTS[sh].n.de), SHAFTS[sh].docFile); } });
     Object.keys(SP).forEach(function (a) { if (SP[a].doc && lastOut && lastOut.elems.some(function (e) { return e.tab === "schacht" && e.geo && (e.geo.rows || []).some(function (r) { return r[0] === a; }); })) h += li(ts.docDraw + " " + a + " – " + (SP[a].n[S.lang] || SP[a].n.de), SP[a].doc); });
     h += li(ts.docSchema, "Auswahlschema_Schachtbau_und_Abdeckungen_de_fr.pdf") + li(ts.docPcm, "PcM_Info_Schaechte_als_Arbeitsplatz.pdf") + li(ts.docHandbuch, "Handbuch_unter-_und_oberirdischer_Netzbau.docx");
-    h += '<li><a href="' + esc(DMS_URL) + '" target="_blank" rel="noopener">' + esc(ts.docDms) + '</a></li><li class="no-print"><a href="' + esc(HGC_CATEGORY) + '" target="_blank" rel="noopener">' + esc(ts.hgcCat) + "</a></li>";
+    h += (intern ? '<li><a href="' + esc(DMS_URL) + '" target="_blank" rel="noopener">' + esc(ts.docDms) + '</a></li>' : '') + '<li class="no-print"><a href="' + esc(HGC_CATEGORY) + '" target="_blank" rel="noopener">' + esc(ts.hgcCat) + "</a></li>";
     var refs = (S.lang === "fr" ? ["SCHEMA_FR", "TAB_FR"] : ["SCHEMA_DE", "TAB_DE"]).filter(function (k) { return SIMG[k]; });
     return '<details class="ref no-summary"><summary>' + esc(ts.hDocs) + '</summary><ul class="doclist" style="padding:6px 14px">' + h + '</ul><p class="note" style="margin:6px 14px 12px">' + esc(ts.docNote) + "</p></details>" +
       '<details class="ref no-summary no-print"><summary>' + esc(ts.hRef) + '</summary><div class="figs">' + refs.map(function (k) { return '<figure><img src="' + SIMG[k] + '" alt="' + esc(ts.hRef) + '" loading="lazy" data-lb="' + k + '"></figure>'; }).join("") + "</div></details>" +
@@ -1136,7 +1138,7 @@
     $("#kpi").innerHTML = '<div class="kpi-main">' + cell(tt("ux_netto"), s.netto, "main") + cell(tt("ux_brutto"), s.brutto) + (hon.length ? cell(tt("ux_hon"), hn) : "") + "</div>" + (n ? '<div class="kpi-tags">' + tags + "</div>" : "");
     $("#mbar").setAttribute("role", "region"); $("#mbar").setAttribute("aria-label", tt("h_kosten"));
     document.documentElement.style.setProperty("--kpih", ($("#kpi").offsetHeight || 0) + "px");   /* sticky Tabellenkopf unterhalb der Kostenleiste */
-    $("#mbar").innerHTML = '<div><span class="kl">' + esc(tt("ux_netto")) + '</span><b>CHF ' + chf(s.netto) + "</b>" + (nStop ? ' <span class="tag stop">' + nStop + " !</span>" : "") + '</div><a class="btn" href="#kpi">' + esc(tt("ux_toRes")) + " ↓</a>";
+    $("#mbar").innerHTML = '<div><span class="kl">' + esc(tt("ux_netto")) + '</span><b' + (chf(s.netto).length > 10 ? ' class="lg"' : "") + '>CHF ' + chf(s.netto) + "</b>" + (nStop ? ' <span class="tag stop">' + nStop + " !</span>" : "") + '</div><a class="btn" href="#kpi">' + esc(tt("ux_toRes")) + " ↓</a>";
   }
   /* LV rechts (ab 1500 px): Zusammenstellung und Kosten wie im Ausdruck, live */
   /* Situation (Karte/Plan) im Ausdruck */
@@ -1757,9 +1759,19 @@
   function applyKopf() { KOPF.forEach(function (k) { $("#p_" + k[0]).value = S.kopf[k[0]] || ""; }); $("#p_rolle").value = S.kopf.rolle; $("#p_belagLief").checked = !!S.kopf.belagLief; kopfSum(); }
   function kopfSum() { var k = S.kopf, p = [k.projekt, k.sap ? "SAP " + k.sap : "", k.ort].filter(Boolean).join(" · ");
     $("#kopfSum").innerHTML = "<b>" + esc(tt("ux_kopf")) + '</b><span class="ks">' + esc(p || tt("ux_kopfLeer")) + "</span>"; }
+  /* Sprache in der Adresse (?lang=fr): eigene, teilbare und auffindbare Adresse je Sprache; Kanonische Adresse, Beschreibung und Open-Graph folgen der Sprache */
+  var SITE = "https://acortese-wq.github.io/LV_DEVIS_TOOL/";
+  function seoLang() {
+    try {
+      var q = /[?&]lang=(de|fr|it|en)\b/.exec(location.search), set = function (id, at, v) { var e = document.getElementById(id); if (e) e.setAttribute(at, v); }, u = SITE + (q ? "?lang=" + S.lang : "");
+      set("lnkCanon", "href", u); set("ogUrl", "content", u); set("mDesc", "content", tt("metaDesc")); set("ogDesc", "content", tt("intro")); set("ogTitle", "content", tt("title"));
+    } catch (e) { }
+  }
+  function urlLang(l) { try { if (!/^https?:$/.test(location.protocol)) return; var u = new URL(location.href); u.searchParams.set("lang", l); history.replaceState(null, "", u.pathname + u.search + u.hash); } catch (e) { } }
   function applyLang() {
     document.documentElement.lang = S.lang;
-    $("#t-title").textContent = tt("title"); var wms = $("#t-wmsub"); if (wms) { wms.textContent = tt("wm_sub"); wms.parentNode.parentNode.setAttribute("aria-label", "NIUcost – " + tt("wm_sub")); } document.title = tt("title"); var lyb0 = $("#bLyMap"); if (lyb0) { lyb0.textContent = tt("ly_btn"); lyb0.title = tt("ly_btnT"); } $("#t-sub").textContent = tt("sub"); var tcr = $("#t-creator"); if (tcr) tcr.textContent = tt("km_cred"); $("#t-role").textContent = tt("creatorRole");
+    $("#t-title").textContent = tt("title"); var wms = $("#t-wmsub"); if (wms) { wms.textContent = tt("wm_sub"); wms.parentNode.parentNode.setAttribute("aria-label", "NIUcost – " + tt("wm_sub")); } document.title = tt("title"); var lyb0 = $("#bLyMap"); if (lyb0) { lyb0.textContent = tt("ly_btn"); lyb0.title = tt("ly_btnT"); } $("#t-sub").textContent = tt("sub"); var ti = $("#t-intro"); if (ti) { ti.textContent = tt("intro"); $("#t-contact").textContent = tt("contact") + " →"; $("#t-impr").textContent = tt("impr"); $("#t-imprC").textContent = tt("imprC"); $("#bPriv").textContent = tt("imprP"); $("#t-imprN").textContent = tt("imprN"); $("#morePrint").textContent = tt("morePrint"); }
+    seoLang(); var tcr = $("#t-creator"); if (tcr) tcr.textContent = tt("km_cred"); $("#t-role").textContent = tt("creatorRole");
     KOPF.forEach(function (k) { $("#l_" + k[0]).textContent = tt(k[1]); }); $("#l_rolle").textContent = tt("rolle"); $("#l_belagLief").textContent = tt("dv_belagLief");
     var r = $("#p_rolle"); r.innerHTML = ""; ["anv", "bl", "bhv"].forEach(function (v) { var o = document.createElement("option"); o.value = v; o.textContent = tt("r_" + v); r.appendChild(o); }); r.value = S.kopf.rolle;
     if (window.__LVCHAT) window.__LVCHAT.relang();
@@ -1857,7 +1869,8 @@
     var st = [];
     window.addEventListener("beforeprint", function () { st = []; document.querySelectorAll("#result details, #kopfbox").forEach(function (d) { st.push([d, d.open]); d.open = true; }); });
     window.addEventListener("afterprint", function () { st.forEach(function (x) { x[0].open = x[1]; }); document.body.classList.remove("summary-print"); document.body.classList.remove("print-detail"); document.body.classList.remove("report-print"); var rd = document.getElementById("reportDoc"); if (rd) rd.remove(); });
-    document.querySelectorAll(".langs button").forEach(function (b) { b.onclick = function () { S.lang = b.dataset.lang; save(); applyLang(); }; });
+    document.querySelectorAll(".langs button").forEach(function (b) { b.onclick = function () { S.lang = b.dataset.lang; save(); urlLang(S.lang); applyLang(); }; });
+    var bp = $("#bPriv"); if (bp) bp.onclick = function () { if (window.__LVHELP) window.__LVHELP.open("about"); };
     $("#bPrint").onclick = function () { document.body.classList.remove("print-detail"); window.print(); };
     $("#bPrintFull").onclick = function () { document.body.classList.add("print-detail"); window.print(); };
     $("#bPrintSum").onclick = function () { document.body.classList.add("summary-print"); window.print(); };

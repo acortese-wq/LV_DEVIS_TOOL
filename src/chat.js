@@ -67,7 +67,7 @@
     { k: [/gemeinsame tragwerk|evu|sicherheitsabst/], t: "Gemeinsame Tragwerke und Sicherheitsabstände", s: HB + ", 4.6", a: "Bei der Projektierung von Freileitungen möglichst die Mitbenutzung der Trassen bestehender Freileitungen von EVU (VSE) anstreben, wenn getrennte Tragwerke technische Schwierigkeiten oder hohe Kosten verursachen oder zu viele Tragwerke auf den Grundstücken entstehen würden. Sicherheitsabstände richten sich nach Leitungsverordnung (LeV), Starkstromverordnung (StV) und Schwachstromverordnung (SsV); wo diese nichts regeln, gelten anerkannte Regeln der Technik, Normen und Weisungen des Eidg. Starkstrominspektorats. Das Einhalten ist zwingend." },
     { k: [/schutzgebiet|natur.*heimat|genehmigungspflicht/], t: "Schutzgebiete", s: HB + ", 4.9", a: "Seit der Schwachstromverordnungsänderung vom 28. März 2000 besteht für Anlagen in Schutzgebieten nach eidgenössischem und kantonalem Recht eine Genehmigungspflicht (Art. 8a Abs. 1–f VSA), gestützt auf das Natur- und Heimatschutzgesetz und das Bundesinventar der Landschaften und Naturdenkmäler." },
     { k: [/freileitung.*(trass|kriterien|grundsätz)|trassierung.*freileitung|wald/], t: "Freileitungen: Trassierung", s: HB + ", 4.1–4.2", a: "Wirtschaftlichste Lösung anstreben; sichere Trasse wählen (nicht in erdrutsch- oder lawinengefährdetem Gebiet); genügend Abstand zu Waldgebieten, damit beim Holzfall die Freileitungstrasse nicht beschädigt wird (besonders wichtig bei Glasfaserkabeln, die bei Schaden komplett zu ersetzen sind). Mastlängen mit der winterlichen Schneemenge (Berge) und der Höhe moderner Landmaschinen planen; faule Masten Lines melden; vorgängige Belegungsprüfung beim Engineering zwingend (bei sehr tiefer oder 0 Belegung mit dem Anschlussnetzverantwortlichen Designer von SCS klären). Dimensionierung so, dass bei späterem Ausbau möglichst wenig ersetzt werden muss. Regelleitung: Stützpunkte höchstens 60 m." },
-    { k: [/anleitung|schnellstart|bedienungsanleitung|hilfe zum tool|erste schritte|wie fange ich an/], t: "Anleitung", help: "start", s: "Bedienung", a: "Die vollständige Anleitung (Schnellstart, alle Funktionen, Tastenkürzel, Kostenwirkungen) öffnest du mit dem Knopf «Anleitung» im Kopf oder mit der Taste F1." },
+    { k: [/anleitung|schnellstart|bedienungsanleitung|hilfe zum tool|erste schritte|wie fange ich an/], t: "Anleitung", help: "start", s: "Bedienung", a: "Die vollständige Anleitung (Schnellstart, alle Funktionen, Tastenkürzel, Kostenwirkungen) öffnen Sie mit dem Knopf «Anleitung» im Kopf oder mit der Taste F1." },
     /* Bedienung */
     { k: [/fang|rechtwinkl|parallel|abzweig|schacht.*linie|linie.*teilen/], t: "Fang, Abzweig, Schacht auf Linie", help: "snap", s: "Bedienung",
       a: "Beim Zeichnen fängt das Tool Punkte, Linien (Fusspunkt) sowie rechtwinklig/parallel zur Bezugslinie (Umschalt kehrt vorübergehend um; Schalter in der Fussleiste). Start auf einer Linie erzeugt einen Abzweig mit Knoten am Fusspunkt. Wird ein Schacht auf eine Linie gesetzt, wird die Linie geteilt (Gesamtlänge bleibt); Linienende = Rohre hinein, Linienstart = hinaus; daraus werden die Anschlüsse DN 80 (K55) und DN 150 (K100 und grösser) automatisch gezählt." },
@@ -145,7 +145,7 @@
     var lvh = lvSearch(q, 8), lvWanted = /\b(position|lv|einheitspreis|ep|npk)\b|was kostet|preis/.test(ql);
     if (best && !(lvWanted && lvh.length)) { var kf0 = Object.keys(FLOWS).filter(function (k) { return FLOWS[k].kw && FLOWS[k].kw.test(ql); })[0]; return { t: best.t + "\n" + best.a, s: best.s, fl: kf0 || best.fl, h: best.help }; }
     if (lvh.length) return { t: "LV-Positionen (" + lvh.length + (lvh.length === 8 ? "+" : "") + " Treffer):\n" + lvh.map(function (k) { return "• " + lvLine(k); }).join("\n"), s: "LV Swisscom V1.1" };
-    var kf = Object.keys(FLOWS).filter(function (k) { return FLOWS[k].kw && FLOWS[k].kw.test(ql); })[0]; if (kf) return { t: "Dazu kann ich dich Schritt für Schritt beraten.", fl: kf };
+    var kf = Object.keys(FLOWS).filter(function (k) { return FLOWS[k].kw && FLOWS[k].kw.test(ql); })[0]; if (kf) return { t: "Dazu kann ich Sie Schritt für Schritt beraten.", fl: kf };
     if (out && /(projekt|stand)/.test(ql)) return { t: summary(out), s: "Projektstand" };
     return { t: "Dazu habe ich nichts Hinterlegtes gefunden.\n\n" + HELP };
   }
@@ -169,7 +169,7 @@
       addCard({ tab: tab, idx: idx, feld: feld, wert: wert, name: r.name || tab + " " + idx, before: before, after: after, d: Math.round((netto(Q) - netto(S)) * 100) / 100 }); return "Vorschlag unten – wird erst nach «Übernehmen» geändert."; } catch (e) { return String(e.message || e); }
   }
   var FLOWS = {
-    abstand: { grp: "u", title: "Schachtabstand und Rohrbelegung", intro: "Ich führe dich in zwei Fragen zum Richtabstand (Handbuch 2.2.2/2.2.3).",
+    abstand: { grp: "u", title: "Schachtabstand und Rohrbelegung", intro: "Ich führe Sie in zwei Fragen zum Richtabstand (Handbuch 2.2.2/2.2.3).",
       steps: [
         { id: "ers", q: "Welche Erschliessung?", opts: [["basisCu", "Basis: Teilnehmerkabel Cu"], ["basisGfk", "Basis: Teilnehmerkabel GFK"], ["fkrk", "FK/RK-Trasse"], ["detail", "Detail (Schacht–UP)"]] },
         { id: "zone", q: "Wo liegt die Trasse?", opts: [["in", "In der Bauzone"], ["aus", "Ausserhalb der Bauzone"]] }
@@ -182,7 +182,7 @@
         if (ls.length && window.KARTE) { var len = ls.map(function (l) { return KARTE.total([l.pts]); }), over = len.filter(function (x) { return x > R; }).length; t += "\n\nDein Projekt: " + ls.length + " Linie(n), längste " + chf(Math.max.apply(null, len)) + " m; " + (over ? over + " Linie(n) über dem Richtwert von " + R + " m (Schächte setzen oder begründen)." : "alle innerhalb des Richtwerts von " + R + " m."); }
         return { t: t, s: HB + ", 2.2.2–2.2.3", actions: [{ l: "Richtabstand in der Karte einstellen", fn: function () { return setRc(a.ers, a.zone); } }] };
       } },
-    typ: { grp: "u", title: "Schachttyp und Abdeckung wählen", intro: "Ich helfe dir bei Schachttyp und Abdeckung (Handbuch 2.3.3 und 2.3.5).",
+    typ: { grp: "u", title: "Schachttyp und Abdeckung wählen", intro: "Ich helfe Ihnen bei Schachttyp und Abdeckung (Handbuch 2.3.3 und 2.3.5).",
       steps: [
         { id: "mu", q: "Wie viele Muffen sind im Schacht vorgesehen?", opts: [["1", "0–1 Muffe"], ["3", "2–3 Muffen"], ["4", "4 Muffen"], ["5", "mehr als 4"]] },
         { id: "ks", when: function (a) { return a.mu === "1"; }, q: "Ist es nur ein Durchgang/Übergangspunkt in der Kunststoffrohranlage mit K55 (Rohre geradlinig, kein Kabelnachzug im Schacht)?", opts: [["ja", "Ja"], ["nein", "Nein / unsicher"]] },

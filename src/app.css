@@ -735,3 +735,23 @@ tr.pst-ip .pst{background:#e7f0fb;border-color:#0a5aa8;color:#083f78}tr.pst-ip t
 @media (max-width:860px),(pointer:coarse){[data-k=v3d]{display:none!important}}
 .rp-3d figure{margin:0}.rp-3d img{width:100%;height:auto;display:block;border:1px solid #bcc8ca}.rp-3d figcaption{font-size:.8em;color:#4d6468;margin-top:4px}
 @media print{.rp-3d{break-inside:avoid}}
+
+/* Einleitung, Impressum, Druckmenü (Audit 11/2026) */
+.intro{margin:6px 0 2px;max-width:70ch;font-size:14.5px;line-height:1.5;color:var(--ink)}
+.intro a{font-weight:650;white-space:nowrap}
+footer .impr{display:block;margin-top:6px}
+.linkbtn{background:none;border:0;padding:0;font:inherit;color:var(--navy);text-decoration:underline;cursor:pointer}
+.linkbtn:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+.morep{position:relative;display:inline-block}
+.morep>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center}
+.morep>summary::-webkit-details-marker{display:none}
+.morep>summary::after{content:"▾";margin-left:6px;font-size:.8em}
+.morep[open]>summary::after{content:"▴"}
+.morep-b{position:absolute;left:0;top:calc(100% + 6px);z-index:30;display:flex;flex-direction:column;gap:6px;min-width:max-content;padding:8px;background:var(--paper);border:1px solid var(--rule-strong);border-radius:10px;box-shadow:var(--shadow)}
+/* Handy: Assistent in der Kostenleiste (Mitte) statt über den Reitern */
+@media (max-width:900px) and (min-width:360px){
+  .chfab{bottom:calc(9px + env(safe-area-inset-bottom));left:0;right:0;margin:0 auto;width:max-content;padding:8px 12px;font-size:14px;min-height:40px}
+  dialog .chfab{left:auto;margin:0;width:auto}
+}
+@media (max-width:400px){ .chfab{padding:6px 10px;font-size:13px;min-height:38px} .mbar b{font-size:15px} }
+@media (max-width:400px){ .mbar b.lg{font-size:13px} }   /* lange Beträge (ab 1 Mio.) neben dem Assistent-Knopf */

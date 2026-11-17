@@ -29,7 +29,7 @@ window.LVW_FLOWS = function (U) {
     ],
     result: function (a) {
       var max = a.mat === "beton" ? 100 : 250, d = { a: 50, b: 100, c: 250, d: 251 }[a.d], ok = d <= max;
-      return { t: (a.mat === "beton" ? "Hauptkanalisation mit Betonrohren: Abzweig-Schacht normalerweise ca. 50 m vom CO, je nach lokalen Gegebenheiten (Geografie) max. 100 m." : "Hauptkanalisation mit Kunststoffrohrblöcken: je nach lokalen Gegebenheiten darf sich der erste Abzweig-Schacht in max. 250 m Entfernung zum CO befinden.") + "\n" + (ok ? "Deine Angabe liegt innerhalb des Richtwerts." : "Deine Angabe liegt über dem Richtwert von " + max + " m – zusätzlichen Abzweig-Schacht oder Alternative prüfen.") + "\nDie gemeinsame Trasse darf nur bis zu diesem ersten Abzweig-Schacht geführt werden; danach getrennte Wege.", s: HB + ", 2.2.3" }; } };
+      return { t: (a.mat === "beton" ? "Hauptkanalisation mit Betonrohren: Abzweig-Schacht normalerweise ca. 50 m vom CO, je nach lokalen Gegebenheiten (Geografie) max. 100 m." : "Hauptkanalisation mit Kunststoffrohrblöcken: je nach lokalen Gegebenheiten darf sich der erste Abzweig-Schacht in max. 250 m Entfernung zum CO befinden.") + "\n" + (ok ? "Ihre Angabe liegt innerhalb des Richtwerts." : "Ihre Angabe liegt über dem Richtwert von " + max + " m – zusätzlichen Abzweig-Schacht oder Alternative prüfen.") + "\nDie gemeinsame Trasse darf nur bis zu diesem ersten Abzweig-Schacht geführt werden; danach getrennte Wege.", s: HB + ", 2.2.3" }; } };
 
   F.bauweise = { grp: "u", title: "Bauweise und Rohrmaterial", kw: /bauweise|rohrmaterial|grabenlos|alternative bau|zores|einbeton/, intro: "Ich helfe bei der Wahl von Bauweise und Rohrmaterial der Kabelkanalisation (Handbuch 2.2.1, 2.2.4–2.2.6).",
     steps: [
@@ -50,7 +50,7 @@ window.LVW_FLOWS = function (U) {
       }[a.ge] + "\nZusätzlich prüfen: ob die Kanalisation privater Werke wirtschaftlich und unternehmenspolitisch sinnvoll mitbenutzt werden kann; Wirtschaftlichkeitsrechnung als Grundlage.";
       return { t: t, s: HB + ", 2.1.1, 2.2.1, 2.2.4–2.2.6" }; } };
 
-  F.trasse = { direct: true, grp: "u", title: "Trassenwahl: Kriterien", kw: /trassenwahl|trassierung|linienwahl|beurteilungskriterien/, intro: "Ich nenne dir die Beurteilungskriterien für die Trassenwahl (Handbuch 2.1.1).",
+  F.trasse = { direct: true, grp: "u", title: "Trassenwahl: Kriterien", kw: /trassenwahl|trassierung|linienwahl|beurteilungskriterien/, intro: "Ich nenne Ihnen die Beurteilungskriterien für die Trassenwahl (Handbuch 2.1.1).",
     steps: [
       { id: "gr", q: "Wo verläuft die Trasse?", opts: [["pub", "Auf öffentlichem Grund"], ["priv", "Auf privatem Grund"], ["gem", "Gemeinschaftsbau mit Bund, Kanton, Gemeinde oder Dritten"]] },
       { id: "hi", q: "Gibt es Besonderheiten?", opts: [["kein", "Keine"], ["hind", "Brücken-, Bahn- oder Gewässerquerung"], ["schutz", "Schutzgebiet, Grundwasserzone, unsicheres Terrain/Rutschgebiet"], ["fremd", "Fremde Werkleitungen oder künftige Bauten"], ["land", "Landwirtschaftlich genutzter Boden"]] }
@@ -72,7 +72,7 @@ window.LVW_FLOWS = function (U) {
   F.kva = { direct: true, grp: "u", title: "Anschluss KVA und Überführungsmast", kw: /\bkva\b|kabelverteilanlage|detailerschliessung.*mast/, intro: "Detailerschliessung von KVA und Kabelüberführungsmasten (Handbuch 2.2.4).",
     steps: [
       { id: "an", q: "Wie sind KVA bzw. Kabelüberführungsmast heute angeschlossen?", opts: [["kan", "Mit Kabelkanälen"], ["erd", "Mit erdverlegten Kabeln"]] },
-      { id: "tb", q: "Finden in der Nähe Tiefbauarbeiten statt, die du mitnutzen kannst?", opts: Y }
+      { id: "tb", q: "Finden in der Nähe Tiefbauarbeiten statt, die Sie mitnutzen können?", opts: Y }
     ],
     result: function (a) { return { t: "Bestehende Kabelanlagen zu KVA und Kabelüberführungsmasten (heute mit Kabelkanälen oder erdverlegten Kabeln) werden in Koordination mit Tiefbauarbeiten mit 1 K55 so vorbereitet, dass für spätere Kabelnachzüge keine Grabarbeiten nötig sind.\n" + (a.tb === "ja" ? "Empfehlung: jetzt mit den vorhandenen Tiefbauarbeiten 1 K55 mitverlegen." : "Ohne Tiefbauarbeiten in der Nähe: Vorbereitung bei der nächsten sich bietenden Gelegenheit vorsehen; nicht isoliert aufbrechen (Wirtschaftlichkeit prüfen)."), s: HB + ", 2.2.4" }; } };
 
@@ -106,7 +106,7 @@ window.LVW_FLOWS = function (U) {
     steps: [{ id: "rm", q: "Welcher Rahmen/Deckel liegt vor?", opts: [["neu", "Vollgussdeckel, neuer Rahmen"], ["alt", "Vollgussdeckel, älterer Rahmen"], ["beton", "Guss-Betondeckel"]] }],
     result: function (a) { return { t: "Absperrplatte für runde Schachteinstiege Ø 600 mm (Art. 137.009.5) mit Vorhängeschloss SEA Code F (Art. 137.007.1; separat bestellbar).\n" + { neu: "Neuere Rahmen: Löcher sind vorhanden – Bolzen der Absperrplatte mit Verriegelungslasche ins vorhandene Loch im Rahmen einführen und mit dem Vorhängeschloss sichern.", alt: "Ältere Rahmen: zwei Löcher in den vorhandenen Rahmen bohren (min. Ø 20 mm, Tiefe ca. 45 mm), dann Platte einsetzen und mit Vorhängeschloss sichern.", beton: "Bei Guss-Betondeckel: Löcher müssen in den Schachthals (Beton) gebohrt werden." }[a.rm] + "\nZugang zu Betriebsräumen und Schächten nach den Sicherheitsrichtlinien der Security Swisscom.", s: HB + ", 2.6.4.4" }; } };
 
-  F.einmass = { grp: "u", title: "Einmass und Datentransfer", kw: /einmass|einmessen|bogenschnitt|rechtwinkelmass|geo405/, intro: "Ich führe dich durch die Anforderungen an das Einmass (Handbuch Kap. 3).",
+  F.einmass = { grp: "u", title: "Einmass und Datentransfer", kw: /einmass|einmessen|bogenschnitt|rechtwinkelmass|geo405/, intro: "Ich führe Sie durch die Anforderungen an das Einmass (Handbuch Kap. 3).",
     steps: [
       { id: "me", q: "Wie wird eingemessen?", opts: [["dig", "Digital im Feld (GNSS/Tachymeter)"], ["hand", "Von Hand (Messband)"]] },
       { id: "gr", q: "Ist der Graben beim Einmass noch offen?", opts: [["ja", "Ja"], ["nein", "Nein"]] }
@@ -247,14 +247,14 @@ window.LVW_FLOWS = function (U) {
     result: function (a) { return { t: { ab: "Vor einem Abbruch klären, ob der Grundeigentümer die Masten behalten möchte; bei Abgabe von Holzmasten an Private das Merkblatt für die Wiederverwendung gebrauchter Leitungsmasten abgeben. Grobsicherungen sind Eigentum von Swisscom und in jedem Fall mit abzubrechen. Dachständer-Abbruch: siehe Beratung «Umbau/Unterhalt Freileitung».", ent: "Aus ökologischen und wirtschaftlichen Überlegungen gesunde Mastenteile an Landeigentümer oder andere abgeben (Vorgaben BUWAL und VSE). Mit Holzschutzmitteln behandeltes Holz gehört gemäss TVA seit 1.1.2017 zu den problematischen Holzabfällen, Klasse S, Abfall-Code 17 02 98; «kontrollpflichtige Abfälle» nur an Entsorgungsunternehmen übergeben (im Normalfall Rückschub an die Imprägnierwerke mit Bewilligung zur Entgegennahme, VEVA). Bandagen sind Sonderabfall, Abfallcode 15 02 02.", tw: "Bei einem Teilabbruch darauf achten, dass der bestehende Teil richtig gesichert ist, beispielsweise mit einer Verankerung." }[a.th], s: HB + ", 4.5" }; } };
 
   /* ===================== PROJEKT ===================== */
-  F.check = { grp: "p", title: "Projekt-Check (mein Projekt)", kw: /projekt.?check|prüfe mein projekt|pruefe mein projekt|projekt prüfen/, direct: true, intro: "Ich prüfe dein aktuelles Projekt gegen die Handbuch-Richtwerte.",
+  F.check = { grp: "p", title: "Projekt-Check (mein Projekt)", kw: /projekt.?check|prüfe mein projekt|pruefe mein projekt|projekt prüfen/, direct: true, intro: "Ich prüfe Ihr aktuelles Projekt gegen die Handbuch-Richtwerte.",
     steps: [
       { id: "ers", q: "Welche Erschliessung betrifft die Zeichnung?", opts: [["basisCu", "Basis: Teilnehmerkabel Cu"], ["basisGfk", "Basis: Teilnehmerkabel GFK"], ["fkrk", "FK/RK-Trasse"], ["detail", "Detail (Schacht–UP)"]] },
       { id: "zone", q: "Wo liegt die Trasse?", opts: [["in", "In der Bauzone"], ["aus", "Ausserhalb der Bauzone"]] }
     ],
     result: function (a) {
       var S = U.D().S(), K = S.karte || {}, r = U.RICHTW[a.ers], R = a.zone === "aus" ? r[1] : r[0], out = [], f1 = function (v) { return chf(v); }, L = (K.lines || []).filter(function (l) { return l.pts && l.pts.length > 1; });
-      if (!L.length && !(K.pts || []).length && !(K.geb || []).length) return { t: "In deinem Projekt gibt es noch keine gezeichneten Objekte. Öffne «Karte» und zeichne Linien, Schächte und Gebäude – dann kann ich prüfen.", s: "Projektstand" };
+      if (!L.length && !(K.pts || []).length && !(K.geb || []).length) return { t: "In Ihrem Projekt gibt es noch keine gezeichneten Objekte. Öffnen Sie «Karte» und zeichnen Sie Linien, Schächte und Gebäude – dann kann ich prüfen.", s: "Projektstand" };
       var lens = L.map(function (l) { return KARTE.total([l.pts]); }), tot = lens.reduce(function (s, x) { return s + x; }, 0), over = lens.map(function (x, i) { return [x, i]; }).filter(function (x) { return x[0] > R; });
       out.push("Zeichnung: " + L.length + " Linie(n), " + f1(tot) + " m; " + (K.pts || []).length + " Schacht/Schächte; " + (K.wl || []).length + " Werkloch/-löcher; " + (K.geb || []).length + " Gebäude.");
       out.push(over.length ? "⚠ Schachtabstand: " + over.length + " Linie(n) über dem Richtwert von " + R + " m (" + r[2] + ", " + (a.zone === "aus" ? "ausserhalb" : "in der") + " Bauzone): " + over.slice(0, 5).map(function (x) { return "Linie " + (x[1] + 1) + " (" + f1(x[0]) + " m)"; }).join(", ") + (over.length > 5 ? " …" : "") + "." : "✓ Alle Linien liegen innerhalb des Richtwerts von " + R + " m.");

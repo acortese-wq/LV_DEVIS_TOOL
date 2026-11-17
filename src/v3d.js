@@ -4,6 +4,7 @@
 (function () {
   "use strict";
   var VER = "1.120.0", BASE = "https://cdn.jsdelivr.net/npm/cesium@" + VER + "/Build/Cesium/";
+  var SRI_JS = "sha384-u6lI9nKeZ0sgcSQty6qC4XQHU/ZG7JJ8PfRvtUQTH83OstsiEivIu3F9k012EB3W", SRI_CSS = "sha384-ghEeMdcWWzRv/BPeUcX835vcKDGrxvROXisl/Btpv3GeekBUXTSPVcFJpI1Tcrgp";   /* Prüfsummen der npm-Dateien cesium 1.120.0 */
   var TERRAIN = ["https://3d.geo.admin.ch/ch.swisstopo.terrain.3d/v1/", "https://3d.geo.admin.ch/1.0.0/ch.swisstopo.terrain.3d/default/20200520/4326/"];   /* aktueller Dienst (layer.json), danach älterer Pfad */
   var BUILDINGS = "https://3d.geo.admin.ch/ch.swisstopo.swissbuildings3d.3d/v1/tileset.json";
   var IMAGERY = "https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.swissimage/default/current/3857/{z}/{x}/{y}.jpeg";
@@ -13,8 +14,8 @@
   function load(ok, bad) {
     if (window.Cesium) { ok(); return; }
     var base = window.__LVD_CESIUM_BASE || BASE; window.CESIUM_BASE_URL = base;
-    var l = document.createElement("link"); l.rel = "stylesheet"; l.href = base + "Widgets/widgets.css"; document.head.appendChild(l);
-    var s = document.createElement("script"); s.src = base + "Cesium.js"; s.onload = function () { window.Cesium ? ok() : bad(); }; s.onerror = bad; document.head.appendChild(s);
+    var l = document.createElement("link"); l.rel = "stylesheet"; l.href = base + "Widgets/widgets.css"; if (base === BASE) { l.integrity = SRI_CSS; l.crossOrigin = "anonymous"; } document.head.appendChild(l);
+    var s = document.createElement("script"); s.src = base + "Cesium.js"; if (base === BASE) { s.integrity = SRI_JS; s.crossOrigin = "anonymous"; } s.onload = function () { window.Cesium ? ok() : bad(); }; s.onerror = bad; document.head.appendChild(s);
   }
   function bearing(a, b) { var dy = b[0] - a[0], dx = (b[1] - a[1]) * Math.cos(a[0] * Math.PI / 180); return Math.atan2(dx, dy); }
   function open(o) {

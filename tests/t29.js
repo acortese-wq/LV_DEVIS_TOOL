@@ -3,7 +3,7 @@ const rects=JSON.parse(fs.readFileSync(require('./lib/k.js').FX('au/rects.json')
 const MM=0.1764, ET=2660040, NT=1260055, XC=421, YC=297.5;   // Wahrheit: Plan-Mitte in LV95
 (async()=>{const b=await chromium.launch(); const pg=await mk(b); const hp=await b.newPage();
 await pg.route('**/*',async r=>{const u=r.request().url();
- if(u.endsWith('pdf.min.js')) return r.fulfill({body:fs.readFileSync(require('./lib/k.js').V.pdf),contentType:'application/javascript'});
+ if(u.endsWith('pdf.min.js')) return r.fulfill({body:fs.readFileSync(require('./lib/k.js').V.pdf),contentType:'application/javascript',headers:{'access-control-allow-origin':'*'}});
  if(u.endsWith('pdf.worker.min.js')) return r.fulfill({body:fs.readFileSync(require('./lib/k.js').V.pdfWorker),contentType:'application/javascript',headers:{'access-control-allow-origin':'*'}});
  if(u.includes('SearchServer')&&u.includes('gg25')){ const m=/searchText=([^&]+)/.exec(u); const hit=decodeURIComponent(m[1])==='Boezberg'; return r.fulfill({contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({results:hit?[{attrs:{lat:47.4898,lon:8.2388,label:'Boezberg'}}]:[]})}); }
  if(u.includes('wms.geo.admin')&&u.includes('cadastralwebmap')&&u.includes('BBOX')){ const q=new URL(u).searchParams, bb=q.get('BBOX').split(',').map(Number), W=+q.get('WIDTH'), H=+q.get('HEIGHT');

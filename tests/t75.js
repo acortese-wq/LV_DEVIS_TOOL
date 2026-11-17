@@ -14,7 +14,7 @@ const dxf = (ents) => ['0', 'SECTION', '2', 'ENTITIES'].concat(ents.flat(), ['0'
 (async () => {
   const b = await chromium.launch(); const pg = await mk(b, 1600, 1000);
   await pg.route('**/*', async r => { const u = r.request().url();
-    if (u.endsWith('pdf.min.js')) return r.fulfill({ body: fs.readFileSync(K.V.pdf), contentType: 'application/javascript' });
+    if (u.endsWith('pdf.min.js')) return r.fulfill({ body: fs.readFileSync(K.V.pdf), contentType: 'application/javascript', headers: { 'access-control-allow-origin': '*' } });
     if (u.endsWith('pdf.worker.min.js')) return r.fulfill({ body: fs.readFileSync(K.V.pdfWorker), contentType: 'application/javascript', headers: { 'access-control-allow-origin': '*' } });
     if (/wmts|wms\.geo|SearchServer|api3/.test(u)) return r.fulfill({ status: 204 });
     r.fallback(); });

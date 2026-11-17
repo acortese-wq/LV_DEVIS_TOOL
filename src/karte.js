@@ -339,14 +339,16 @@
   }
 
   /* Plan (PDF/Bild) -> JPEG; pdf.js wird bei Bedarf von cdnjs geladen */
-  var PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js", PDFW = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js", pdfLoading = null;
+  var PDFJS = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js", PDFW = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js", pdfLoading = null;
+  /* Prüfsummen (SRI) der npm-Dateien pdfjs-dist 3.11.174: ein verändertes Skript auf dem CDN wird nicht ausgeführt */
+  var PDFJS_SRI = "sha384-/1qUCSGwTur9vjf/z9lmu/eCUYbpOTgSjmpbMQZ1/CtX2v/WcAIKqRv+U1DUCG6e", PDFW_SRI = "sha384-SnzOobpRMLXZ52iJvZm/C0fYw0OQemTXzTjIsdsfMcrCtCEe9qgzxTd3RSklO5x2";
   function loadPdfJs() {
     if (window.pdfjsLib) return Promise.resolve();
     if (pdfLoading) return pdfLoading;
     pdfLoading = new Promise(function (ok, no) {
-      var s = document.createElement("script"); s.src = PDFJS; s.crossOrigin = "anonymous";
+      var s = document.createElement("script"); s.src = PDFJS; s.crossOrigin = "anonymous"; s.integrity = PDFJS_SRI;
       s.onload = function () {
-        fetch(PDFW).then(function (r) { return r.blob(); }).then(function (bl) { window.pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(bl); ok(); }).catch(function (e) { pdfLoading = null; no(e); });
+        fetch(PDFW, { integrity: PDFW_SRI }).then(function (r) { return r.blob(); }).then(function (bl) { window.pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(bl); ok(); }).catch(function (e) { pdfLoading = null; no(e); });
       };
       s.onerror = function () { pdfLoading = null; no(new Error("pdfjs")); }; document.head.appendChild(s);
     });
