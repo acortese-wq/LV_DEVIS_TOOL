@@ -623,3 +623,8 @@ Grundlage: Abdeckungsprüfung NPK 151 (2000 Zufallsprojekte): 213 von 347 Positi
   - **Werkloch:** Linienenden im Werklochmass + 30 cm und durchlaufende Linien (Stützpunkt in der Werklochmitte) gehen mit.
   - Ziehgriffe von Linienenden innerhalb eines Schacht-/Werklochumrisses werden bei nicht gewählter Linie ausgeblendet – so greift man den Schacht und nicht ein Linienende.
   - Test t127 (Schacht mit 4 Linien, Werkloch).
+- **Nachtrag V143 – Oberfläche aus Vermessung** (Entscheid Benutzer: AV online, bei Wechsel teilen, Knopf + Vorschlag, befestigt = Asphalt/Belag, humusiert = Wiese):
+  - Knopf «Oberfläche aus Vermessung» (Werkzeugspalte Zeichnen, Ribbon): für gewählte, sonst alle Linien wird die Bodenbedeckung der amtlichen Vermessung (Dienst «cadastralwebmap», geo.admin.ch) entlang der Linie ausgewertet: grau/weiss = befestigt → Belag, grün = humusiert → Wiese, übrige (Gebäude, Gewässer) = unbekannt. Stichprobe alle 0.5 m, je 5 Punkte quer (±0.3 m), Abschnitte < 1 m gehen zum Nachbarn.
+  - Vorschlag mit Längen je Linie und Total, «Übernehmen» teilt die Linie am Wechsel (Knoten ohne Schacht, Kette) und setzt die Oberfläche; Rückgängig möglich. Von Hand gewählte Oberflächen (`cfg.flSrc = "hand"`) bleiben; übernommene Vorgaben der Vorlinie gelten nicht als von Hand.
+  - Nur in der Karte (Landeskoordinaten), nicht im Plan. Pflästerung ist in der AV nicht von Asphalt unterscheidbar → weiterhin von Hand.
+  - Hinweis: Ausgewertet wird die Farbdarstellung des Dienstes; im Test durch ein erzeugtes Bild ersetzt (t128). Die Darstellung des Live-Dienstes ist aus der Arbeitsumgebung nicht erreichbar und daher nicht geprüft.

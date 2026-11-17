@@ -1299,7 +1299,7 @@ body.report-print #reportDoc{display:block!important;padding:0;font-size:9pt;col
 .kmlya .lybase .btn{min-height:32px;border-radius:6px}.kmlya .lybase [aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
 /* Werkzeug-Symbole (nur Darstellung, für Screenreader ausgeblendet) */
 .kmlya .kmtools [data-k]::before{display:inline-block;width:1.4em;flex:none;text-align:center;font-weight:400;color:currentColor;content:"" / ""}
-.kmlya .kmtools [data-k=medit]::before{content:"✥" / ""}.kmlya .kmtools [data-k=mline]::before{content:"╱" / ""}.kmlya .kmtools [data-k=mpt]::before{content:"▣" / ""}.kmlya .kmtools [data-k=mabz]::before{content:"Y" / "";font-weight:700}
+.kmlya .kmtools [data-k=medit]::before{content:"✥" / ""}.kmlya .kmtools [data-k=mline]::before{content:"╱" / ""}.kmlya .kmtools [data-k=mpt]::before{content:"▣" / ""}.kmlya .kmtools [data-k=mabz]::before{content:"Y" / "";font-weight:700}.kmlya .kmtools [data-k=avfl]::before{content:"▦" / ""}
 .kmlya .kmtools [data-k=mwl]::before{content:"◫" / ""}.kmlya .kmtools [data-k=mgeb]::before{content:"⌂" / ""}.kmlya .kmtools [data-k=route]::before{content:"↝" / ""}
 .kmlya .kmtools [data-k=msond]::before{content:"◎" / ""}.kmlya .kmtools [data-k=marea]::before{content:"▱" / ""}.kmlya .kmtools [data-k=mtext]::before{content:"T" / ""}
 .kmlya .kmtools [data-k=marrow]::before{content:"→" / ""}.kmlya .kmtools [data-k=msline]::before{content:"─" / ""}.kmlya .kmtools [data-k=mrect]::before{content:"▭" / ""}
@@ -1413,6 +1413,7 @@ html:not(.lvready) .sheet{visibility:hidden}   /* Seite erst nach dem ersten Fü
 .kmsch.kmabz.on span{color:#b8332a;box-shadow:0 0 0 2px #b8332a}
 .kmbend{pointer-events:none}
 .kmbend span{position:absolute;left:6px;top:-22px;white-space:nowrap;background:rgba(255,255,255,.92);color:#0a4f55;border:1px solid #0b6b72;border-radius:4px;padding:0 4px;font:700 11px/16px "Segoe UI",sans-serif}
+.kmask .kmask-i{margin:0;font-size:max(12px,var(--fsmin,0px));line-height:1.35;color:inherit;flex:1 1 100%}
 
 /* ===== Engineering-Arbeitsplatz (Layout A) – Thema «dunkel», Struktur Phase E. Gilt nur im Arbeitsplatz; Druck/Bericht/Excel bleiben hell. ===== */
 .kmdlg.kmlya.nc-dark{
@@ -5104,6 +5105,19 @@ s_vor: ["Vorarbeiten (projektweit)", "Travaux préparatoires (projet)", "Lavori 
     km_lt_b90: ["Bögen 90° (Anzahl)", "Coudes 90° (nombre)", "Curve 90° (numero)", "90° bends (number)"],
     km_lt_b45: ["Bögen 45° (Anzahl)", "Coudes 45° (nombre)", "Curve 45° (numero)", "45° bends (number)"],
     km_lnk_done: ["{n} Linie(n) angehängt – gehen beim Verschieben mit (Ende in der Mitte)", "{n} ligne(s) rattachée(s) – suivent le déplacement (extrémité au centre)", "{n} linea/e agganciata/e – seguono lo spostamento (estremità al centro)", "{n} line(s) attached – move along (end at the centre)"],
+    km_avfl: ["Oberfläche aus Vermessung", "Surface selon la mensuration", "Superficie dalla misurazione", "Surface from survey"],
+    km_avflT: ["Belag/Wiese der gewählten (sonst aller) Linien aus der Bodenbedeckung der amtlichen Vermessung bestimmen; bei Wechsel wird die Linie geteilt. Von Hand gesetzte Oberflächen bleiben.", "Déterminer revêtement/pré des lignes choisies (sinon toutes) selon la couverture du sol de la mensuration officielle ; la ligne est divisée aux changements. Les surfaces saisies à la main restent.", "Determinare pavimentazione/prato delle linee scelte (altrimenti tutte) dalla copertura del suolo della misurazione ufficiale; la linea viene divisa ai cambi. Le superfici impostate a mano restano.", "Set pavement/grass of the selected (else all) lines from the official survey land cover; the line is split where it changes. Manually set surfaces are kept."],
+    av_planNo: ["Nur in der Karte (Landeskoordinaten) möglich, nicht im Plan.", "Possible uniquement sur la carte (coordonnées nationales), pas sur le plan.", "Possibile solo sulla mappa (coordinate nazionali), non sul piano.", "Only on the map (national coordinates), not on the plan."],
+    av_none: ["Keine Linie zum Prüfen.", "Aucune ligne à vérifier.", "Nessuna linea da verificare.", "No line to check."],
+    av_allMan: ["{n} Linie(n) mit von Hand gesetzter Oberfläche – nichts geändert. Oberfläche leeren, um sie aus der Vermessung zu bestimmen.", "{n} ligne(s) avec surface saisie à la main – rien de modifié. Vider la surface pour la déterminer.", "{n} linea/e con superficie impostata a mano – nulla modificato. Svuotare la superficie per determinarla.", "{n} line(s) with a manually set surface – nothing changed. Clear the surface to determine it."],
+    av_busy: ["Bodenbedeckung der amtlichen Vermessung wird abgefragt …", "Interrogation de la couverture du sol …", "Interrogazione della copertura del suolo …", "Querying land cover …"],
+    av_title: ["Vorschlag aus der Vermessung: {a} m Belag, {w} m Wiese", "Proposition selon la mensuration : {a} m revêtement, {w} m pré", "Proposta dalla misurazione: {a} m pavimentazione, {w} m prato", "Survey suggestion: {a} m pavement, {w} m grass"],
+    av_unk: ["unbekannt (Gebäude/Gewässer)", "inconnu (bâtiment/eau)", "sconosciuto (edificio/acqua)", "unknown (building/water)"],
+    av_man: ["{n} Linie(n) mit von Hand gesetzter Oberfläche bleiben unverändert.", "{n} ligne(s) avec surface saisie à la main restent inchangées.", "{n} linea/e con superficie impostata a mano restano invariate.", "{n} line(s) with a manual surface stay unchanged."],
+    av_err: ["{n} Linie(n): Vermessung nicht erreichbar (offline?).", "{n} ligne(s) : mensuration inaccessible (hors ligne ?).", "{n} linea/e: misurazione non raggiungibile (offline?).", "{n} line(s): survey not reachable (offline?)."],
+    av_noData: ["An dieser Lage liefert die Vermessung keine Bodenbedeckung.", "La mensuration ne fournit pas de couverture du sol à cet endroit.", "La misurazione non fornisce copertura del suolo in questo punto.", "The survey provides no land cover here."],
+    av_apply: ["Übernehmen (Linien bei Wechsel teilen)", "Appliquer (diviser les lignes aux changements)", "Applicare (dividere le linee ai cambi)", "Apply (split lines where it changes)"],
+    av_done: ["Oberfläche gesetzt: {n} Linie(n), {s} Teilung(en).", "Surface définie : {n} ligne(s), {s} division(s).", "Superficie impostata: {n} linea/e, {s} divisione/i.", "Surface set: {n} line(s), {s} split(s)."],
     km_abzB: ["Abzweiger setzen", "Poser une dérivation", "Posare derivazione", "Place branch"],
     km_abzOn: ["Abzweiger setzen aktiv", "Pose de dérivation active", "Posa derivazione attiva", "Placing branches"],
     km_abzT: ["Abzweiger (T/Y) auf eine Leitung setzen: teilt sie wie ein Schacht, ohne Aushub; Formstück je abgehendes Rohr automatisch", "Poser une dérivation (T/Y) sur une conduite : la divise comme une chambre, sans fouille ; pièce par tube dérivé automatique", "Posare una derivazione (T/Y) su una condotta: la divide come un pozzetto, senza scavo; raccordo per tubo derivato automatico", "Place a branch (T/Y) on a line: splits it like a shaft, no excavation; one fitting per branch duct automatically"],
@@ -7615,6 +7629,32 @@ var FIG = (function () {
   }
 
   /* Vorschau Plan (SVG über dem Plan-JPEG); lab = Beschriftungen (optional) */
+  /* V143: Oberfläche aus der amtlichen Vermessung – Farbe der Bodenbedeckung im Dienst «cadastralwebmap» (geo.admin.ch):
+     grau/weiss = befestigt (Strasse, Trottoir, Platz) → Asphalt; grün = humusiert (Garten, Wiese, Acker) → Wiese; übrige (Gebäude, Gewässer) = unbekannt */
+  function avCls(r, g, b, a) {
+    if (a < 100) return null; var mx = Math.max(r, g, b), mn = Math.min(r, g, b); if (mx < 110) return null;   /* durchsichtig (keine Vermessung) oder dunkel (Grenzen, Schrift) */
+    var sa = (mx - mn) / mx; if (sa < 0.10) return "belag";
+    var h = mx === r ? ((g - b) / (mx - mn)) % 6 : mx === g ? (b - r) / (mx - mn) + 2 : (r - g) / (mx - mn) + 4; h *= 60; if (h < 0) h += 360;
+    return h >= 50 && h <= 170 ? "wiese" : "x";
+  }
+  /* Abschnitte einer Linie aus einem Bild (Pixel = RGBA, Ursprung oben links, res m/px): [{a, b, fl}] in Metern ab Linienanfang; Stücke < 1 m gehen zum Nachbarn */
+  function avRuns(pts, img, box, res) {
+    var smp = [], d0 = 0, W = img.width, H = img.height, D = img.data;
+    var cls = function (x, y) { var px = Math.round((x - box[0]) / res), py = Math.round((box[3] - y) / res); if (px < 0 || py < 0 || px >= W || py >= H) return null; var i = (py * W + px) * 4; return avCls(D[i], D[i + 1], D[i + 2], D[i + 3]); };
+    for (var i = 0; i + 1 < pts.length; i++) {
+      var a = pts[i], b = pts[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]); if (!(L > 0)) continue; var ux = (b[0] - a[0]) / L, uy = (b[1] - a[1]) / L;
+      for (var t = (i ? 0.25 : 0); t < L; t += 0.5) { var x = a[0] + ux * t, y = a[1] + uy * t, v = { belag: 0, wiese: 0, x: 0 };
+        [-0.3, -0.15, 0, 0.15, 0.3].forEach(function (o) { var c = cls(x - uy * o, y + ux * o); if (c) v[c]++; });
+        var best = null; ["belag", "wiese", "x"].forEach(function (k) { if (v[k] && (!best || v[k] > v[best])) best = k; }); smp.push({ d: d0 + t, c: best }); }
+      d0 += L;
+    }
+    if (!smp.some(function (q) { return q.c; })) return [];
+    for (var k = 1; k < smp.length; k++) if (!smp[k].c) smp[k].c = smp[k - 1].c; for (k = smp.length - 2; k >= 0; k--) if (!smp[k].c) smp[k].c = smp[k + 1].c;
+    var runs = []; smp.forEach(function (q, j) { var e = j + 1 < smp.length ? (q.d + smp[j + 1].d) / 2 : d0; if (runs.length && runs[runs.length - 1].fl === q.c) runs[runs.length - 1].b = e; else runs.push({ a: runs.length ? runs[runs.length - 1].b : 0, b: e, fl: q.c }); });
+    for (var g = true; g;) { g = false; for (var r = 0; r < runs.length && runs.length > 1; r++) { if (runs[r].b - runs[r].a < 1) { var n = r > 0 ? r - 1 : r + 1; if (n < r) runs[n].b = runs[r].b; else runs[n].a = runs[r].a; runs.splice(r, 1); g = true; break; } }
+      for (r = 1; r < runs.length; r++) if (runs[r].fl === runs[r - 1].fl) { runs[r - 1].b = runs[r].b; runs.splice(r, 1); g = true; break; } }
+    return runs;
+  }
   function planGeo(P) {
     return { bd: bendGeo(P), pm: (P.pts || []).map(function (p) { return p.mode || ""; }), lfl: (P.lines || []).map(function (l) { return (l.cfg || {}).fl || ""; }), lines: (P.lines || []).map(function (l) { return l.pts; }), pts: (P.pts || []).map(function (p) { return p.pt; }), areas: (P.areas || []).map(function (a) { return a.pts; }), sond: (P.sond || []).map(function (p) { return p.pt; }), wl: (P.wl || []).map(function (p) { return p.pt; }), geb: (P.geb || []).map(function (p) { return p.pt; }), notes: P.notes || [] };
   }
@@ -7873,6 +7913,7 @@ var FIG = (function () {
       '<button type="button" class="btn small" data-k="mline" aria-pressed="false">' + esc(tt("km_draw")) + "</button>" +
       '<button type="button" class="btn small" data-k="mpt" aria-pressed="false">' + esc(tt("km_pt")) + "</button>" +
       '<button type="button" class="btn small" data-k="mabz" aria-pressed="false" title="' + esc(tt("km_abzT")) + '">' + esc(tt("km_abzB")) + "</button>" +
+      (plan ? "" : '<button type="button" class="btn small" data-k="avfl" title="' + esc(tt("km_avflT")) + '">' + esc(tt("km_avfl")) + "</button>") +
       '<button type="button" class="btn small" data-k="msond" aria-pressed="false">' + esc(tt("km_sond")) + "</button>" +
       '<button type="button" class="btn small" data-k="marea" aria-pressed="false">' + esc(tt("km_area")) + "</button>" +
       '<button type="button" class="btn small" data-k="mwl" aria-pressed="false">' + esc(tt("km_wl")) + '</button><select id="kmWlT" class="kmwlt" aria-label="' + esc(tt("km_wlType")) + '">' + ["ts", "bo", "sg", "zs"].map(function (k) { return '<option value="' + k + '"' + (k === "sg" ? " selected" : "") + ">" + esc(tt("km_wl" + k)) + "</option>"; }).join("") + "</select>" +
@@ -7945,7 +7986,7 @@ var FIG = (function () {
       var pick = function (sel) { return dlg.querySelector(sel); };
       var grp = function (title, sels) { var g = E("div", "kmtg"); g.setAttribute("role", "group"); g.setAttribute("aria-label", title); g.appendChild(E("span", "kmgl", esc(title))); sels.forEach(function (q) { var n = pick(/^[#.\[]|^label/.test(q) ? q : '[data-k="' + q + '"]'); if (n) g.appendChild(n); }); return g; };
       tools.appendChild(grp(tt("ws_sel"), ["medit", "#kmEop"]));
-      tools.appendChild(grp(tt("ws_draw"), ["mcal", "mline", "mpt", "mabz", "mwl", "#kmWlT", "mgeb", "route", "dxfin", "#kmDxfF", "msond", "marea"]));
+      tools.appendChild(grp(tt("ws_draw"), ["mcal", "mline", "mpt", "mabz", "mwl", "#kmWlT", "mgeb", "route", "dxfin", "#kmDxfF", "msond", "marea", "avfl"]));
       tools.appendChild(grp(tt("ws_note"), ["mtext", "marrow", "msline", "mrect", "label[for=kmCol]", "#kmCol"]));
       tools.appendChild(grp(tt("ws_measure"), ["mruler", "undo", "redo", "end", "clear", "label[for=kmStep]", "#kmStep"]));
       /* Kopf: Titel, Suche, Knöpfe */
@@ -8132,10 +8173,10 @@ var FIG = (function () {
         (function () {   /* Multifunktionsleiste (Ribbon) wie in CAD/Civil-Programmen: Register mit Gruppen über der Zeichenfläche. Ergänzung – jeder Knopf löst den bestehenden
                             Befehl aus (kein neuer Zustand, keine Funktion verschoben). Minimierbar (lvd-ribbon), nur ab 861 px. */
           var T0 = "#kmToolsBody ", K = function (k) { return T0 + "[data-k=" + k + "]"; }, O = function (k) { return T0 + "[data-eop=" + k + "]"; }, D = function (t) { return "#lyT_" + t; };
-          var G = { medit: "✥", mline: "╱", mpt: "▣", mabz: "Y", mwl: "◫", mgeb: "⌂", route: "↝", msond: "◎", marea: "▱", mtext: "T", marrow: "➚", msline: "〰", mrect: "▭", mruler: "📏", undo: "↶", redo: "↷", end: "■", clear: "✕", dxfin: "⇪", save: "💾", apply: "✔" };
+          var G = { medit: "✥", mline: "╱", mpt: "▣", mabz: "Y", avfl: "▦", mwl: "◫", mgeb: "⌂", route: "↝", msond: "◎", marea: "▱", mtext: "T", marrow: "➚", msline: "〰", mrect: "▭", mruler: "📏", undo: "↶", redo: "↷", end: "■", clear: "✕", dxfin: "⇪", save: "💾", apply: "✔" };
           var TABS = [
             ["start", [["rb_pSel", [K("medit")]], ["rb_pDraw", [K("mline"), K("mpt"), K("mgeb"), K("route")]], ["rb_pEdit", [K("undo"), K("redo")]], ["rb_pProj", [".kmheadb [data-k=save]", ".kmheadb [data-k=apply]"]]]],
-            ["draw", [["rb_pLine", [K("mline"), K("end"), K("route")]], ["rb_pObj", [K("mpt"), K("mabz"), K("mwl"), K("mgeb"), K("msond"), K("marea")]]]],
+            ["draw", [["rb_pLine", [K("mline"), K("end"), K("route")]], ["rb_pObj", [K("mpt"), K("mabz"), K("mwl"), K("mgeb"), K("msond"), K("marea"), K("avfl")]]]],
             ["mod", [["rb_pSel", [K("medit")]], ["rb_pVert", [O("pt"), O("line"), O("ins"), O("del"), O("seg"), O("split"), O("join")]], ["rb_pEdit", [K("undo"), K("redo"), K("clear")]]]],
             ["ann", [["rb_pAnn", [K("mtext"), K("marrow"), K("msline"), K("mrect")]], ["rb_pMeas", [K("mruler")]]]],
             ["ins", [["rb_pImp", [K("dxfin")]], ["rb_pLay", [".lynav .kmmidtog"]]]],
@@ -8903,10 +8944,11 @@ var FIG = (function () {
         PR.forEach(function (v) { opts.push([v, v]); });
         var bw = document.createElement("label"); bw.className = "kmask-ty"; bw.textContent = tt("km_lt_pipes") + " ";
         bw.appendChild(sel1(tt("km_lt_pipes"), opts, cur, function (v) {
-          if (!v) return; snap(); var rt = {}; v.split(" + ").forEach(function (q) { var m = /^(\d+)×K(\d+)$/.exec(q); if (m) rt[m[2]] = +m[1]; }); c0.rt = rt; lineSync(bl); lastCfg = JSON.parse(JSON.stringify(c0)); draw(); costSoon(); rows();
+          if (!v) return; snap(); var rt = {}; v.split(" + ").forEach(function (q) { var m = /^(\d+)×K(\d+)$/.exec(q); if (m) rt[m[2]] = +m[1]; }); c0.rt = rt; lineSync(bl); lastCfg = JSON.parse(JSON.stringify(c0)); delete lastCfg.flSrc; draw(); costSoon(); rows();
         })); a.appendChild(bw);
       }
       items.forEach(function (it, i) {
+        if (it.info) { var ip = document.createElement("p"); ip.className = "kmask-i"; ip.textContent = it.t; a.appendChild(ip); return; }
         var b = document.createElement("button"); b.type = "button"; b.className = "btn small" + (it.ghost ? " ghost" : "") + (i === focusIdx ? " sug" : ""); b.textContent = it.t;
         if (it.sub) { var sm = document.createElement("small"); sm.textContent = " (" + it.sub + ")"; b.appendChild(sm); }
         b.addEventListener("click", function (e) { e.stopPropagation(); askHide(); it.fn(); }); a.appendChild(b);
@@ -9020,7 +9062,7 @@ var FIG = (function () {
       askShow(AD.ll(c), tt("km_as_surfAsk"), FLS.filter(function (f) { return f !== cur0; }).map(function (f) {
         return { t: tt("km_lt_fl_" + f), fn: function () {
           snap(); var l2 = { id: nid("l"), pts: [c.slice()], rid: null, rohr: JSON.parse(JSON.stringify(l.rohr)), cfg: JSON.parse(JSON.stringify(cfgOf(l))) };
-          l2.cfg.fl = f; if (f === "pflaster") l2.cfg.ab = ""; lastCfg = JSON.parse(JSON.stringify(l2.cfg)); lineSync(l2); M.lines.push(l2); cur = l2.id; sel = { id: l2.id }; mode = "line"; refresh();
+          l2.cfg.fl = f; l2.cfg.flSrc = "hand"; if (f === "pflaster") l2.cfg.ab = ""; lastCfg = JSON.parse(JSON.stringify(l2.cfg)); delete lastCfg.flSrc; lineSync(l2); M.lines.push(l2); cur = l2.id; sel = { id: l2.id }; mode = "line"; refresh();
           [].slice.call(dlg.querySelectorAll("[data-k^=m]")).forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.k === "mline" ? "true" : "false"); });
         } };
       }), 0);
@@ -9064,13 +9106,50 @@ var FIG = (function () {
       o = o || {}; if (mode !== "line") $("[data-k=mline]").click();
       snap(); var l = { id: nid("l"), pts: [c.slice()], rid: null, rohr: clone(o.rohr || opt.defRohr), cfg: clone(o.cfg || lastCfg) }; if (o.s) l.s = o.s; lineSync(l); M.lines.push(l); cur = l.id; sel = { id: l.id }; refresh(); return l;
     }
+    /* Oberfläche aus Vermessung (V143): Bild der Bodenbedeckung je Linie laden, Abschnitte bestimmen, Vorschlag zeigen, auf Wunsch Linien teilen */
+    function avFetch(l) {
+      var xs = l.pts.map(function (q) { return q[0]; }), ys = l.pts.map(function (q) { return q[1]; }), m = 3, bb = [Math.min.apply(null, xs) - m, Math.min.apply(null, ys) - m, Math.max.apply(null, xs) + m, Math.max.apply(null, ys) + m];
+      var res = Math.max(0.2, (bb[2] - bb[0]) / 2000, (bb[3] - bb[1]) / 2000), W = Math.max(2, Math.ceil((bb[2] - bb[0]) / res)), H = Math.max(2, Math.ceil((bb[3] - bb[1]) / res));
+      bb[2] = bb[0] + W * res; bb[1] = bb[3] - H * res;
+      var u = WMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=" + MLAYER + "&STYLES=&SRS=EPSG:2056&BBOX=" + bb.map(function (v) { return v.toFixed(2); }).join(",") + "&WIDTH=" + W + "&HEIGHT=" + H + "&FORMAT=image/png&TRANSPARENT=TRUE";
+      return fetch(u, { mode: "cors" }).then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.blob(); }).then(function (bl) { return createImageBitmap(bl); }).then(function (bm) {
+        var c = document.createElement("canvas"); c.width = W; c.height = H; var g = c.getContext("2d"); g.drawImage(bm, 0, 0, W, H); return avRuns(l.pts, g.getImageData(0, 0, W, H), bb, res); });
+    }
+    function lenAt(pts, d) { var acc = 0; for (var i = 0; i + 1 < pts.length; i++) { var a = pts[i], b = pts[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]); if (acc + L >= d - 1e-9) { var t = L ? (d - acc) / L : 0; return { seg: i, q: [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t] }; } acc += L; } return null; }
+    function avFl() {
+      if (plan) { toast(dlg, tt("av_planNo")); return; }
+      var ids = selIds(), L0 = M.lines.filter(function (l) { return l.pts.length > 1 && !l.hzArt && (!ids.length || ids.indexOf(l.id) >= 0); });
+      if (!L0.length) { toast(dlg, tt("av_none")); return; }
+      var man = L0.filter(function (l) { var c = cfgOf(l); return c.fl && c.flSrc === "hand"; }), todo = L0.filter(function (l) { return man.indexOf(l) < 0; });
+      if (!todo.length) { toast(dlg, tt("av_allMan").replace("{n}", man.length)); return; }
+      toast(dlg, tt("av_busy"));
+      Promise.all(todo.map(function (l) { return avFetch(l).then(function (r) { return { l: l, r: r }; }, function () { return { l: l, err: 1 }; }); })).then(function (R) {
+        var ok = R.filter(function (x) { return !x.err && x.r.length; }), err = R.filter(function (x) { return x.err; }).length, tot = { belag: 0, wiese: 0, x: 0 }, info = [];
+        ok.forEach(function (x) { x.r.forEach(function (q) { tot[q.fl] += q.b - q.a; }); info.push({ info: 1, t: tt("km_lineN").replace("{n}", M.lines.indexOf(x.l) + 1) + ": " + x.r.map(function (q) { return fmt(q.b - q.a) + " m " + (q.fl === "x" ? tt("av_unk") : tt("km_pal_" + q.fl)); }).join(" → ") }); });
+        if (man.length) info.push({ info: 1, t: tt("av_man").replace("{n}", man.length) });
+        if (err) info.push({ info: 1, t: tt("av_err").replace("{n}", err) });
+        if (!ok.length) { toast(dlg, err ? tt("av_err").replace("{n}", err) : tt("av_noData")); return; }
+        var c = AD.ll(ok[0].l.pts[0]);
+        askShow(c, tt("av_title").replace("{a}", fmt(tot.belag)).replace("{w}", fmt(tot.wiese)), info.concat([{ t: tt("av_apply"), fn: function () { avApply(ok); } }, { t: tt("ly_askNo"), ghost: 1, fn: function () { } }]), info.length, false);
+      });
+    }
+    function avApply(ok) {
+      snap(); var nL = 0, nS = 0;
+      ok.forEach(function (x) { var l = x.l, runs = x.r.slice();
+        for (var r = runs.length - 1; r >= 1; r--) { var p = lenAt(l.pts, runs[r].a); if (!p) continue; var idx = -1;
+          l.pts.forEach(function (q, k) { if (idx < 0 && k > 0 && k < l.pts.length - 1 && AD.dist(q, p.q) <= 0.05) idx = k; });
+          if (idx < 0) { l.pts.splice(p.seg + 1, 0, p.q.slice()); idx = p.seg + 1; }
+          var l2 = splitAtIdx(l, idx); if (!l2) continue; nS++; if (runs[r].fl !== "x") { l2.cfg.fl = runs[r].fl; l2.cfg.flSrc = "av"; if (runs[r].fl === "pflaster") l2.cfg.ab = ""; } else { l2.cfg.fl = ""; delete l2.cfg.flSrc; } lineSync(l2); }
+        var c0 = cfgOf(l); if (runs[0].fl !== "x") { c0.fl = runs[0].fl; c0.flSrc = "av"; } lineSync(l); nL++; });
+      refresh(); costSoon(); toast(dlg, tt("av_done").replace("{n}", nL).replace("{s}", nS), tt("km_undoBtn"), function () { var ub = $("[data-k=undo]"); if (ub) ub.click(); });
+    }
     function splitLine(l, h, fl) {
       var q = h.q, a = l.pts[h.seg], b = l.pts[h.seg + 1];
       if (!q) return;
-      if (AD.dist(q, a) < 0.05 && h.seg === 0) { snap(); cfgOf(l).fl = fl; if (fl === "pflaster") cfgOf(l).ab = ""; lastCfg = clone(cfgOf(l)); lineSync(l); sel = { id: l.id }; refresh(); return; }   /* am Linienanfang: ganze Linie */
+      if (AD.dist(q, a) < 0.05 && h.seg === 0) { snap(); cfgOf(l).fl = fl; cfgOf(l).flSrc = "hand"; if (fl === "pflaster") cfgOf(l).ab = ""; lastCfg = clone(cfgOf(l)); delete lastCfg.flSrc; lineSync(l); sel = { id: l.id }; refresh(); return; }   /* am Linienanfang: ganze Linie */
       if (AD.dist(q, b) < 0.05 && h.seg === l.pts.length - 2) { toast(dlg, tt("km_cx_endNo")); return; }   /* am Ende gibt es nichts zu ändern */
       snap(); var l2 = { id: nid("l"), pts: [q.slice()].concat(l.pts.slice(h.seg + 1)), rid: null, rohr: clone(l.rohr), cfg: clone(cfgOf(l)), e: l.e || null };
-      l.pts = l.pts.slice(0, h.seg + 1).concat([q.slice()]); l.e = null; l2.cfg.fl = fl; if (fl === "pflaster") l2.cfg.ab = ""; lastCfg = clone(l2.cfg); lineSync(l2); M.lines.splice(M.lines.indexOf(l) + 1, 0, l2); sel = { id: l2.id }; refresh();
+      l.pts = l.pts.slice(0, h.seg + 1).concat([q.slice()]); l.e = null; l2.cfg.fl = fl; l2.cfg.flSrc = "hand"; if (fl === "pflaster") l2.cfg.ab = ""; lastCfg = clone(l2.cfg); delete lastCfg.flSrc; lineSync(l2); M.lines.splice(M.lines.indexOf(l) + 1, 0, l2); sel = { id: l2.id }; refresh();
     }
     /* Auswahl wie in CAD: Fenster (ganz innerhalb) und Kreuzen (berührt); Ähnliche auswählen; Auswahlbefehle für die Befehlsleiste */
     function segInRect(a, b, R) {   /* Liang-Barsky */
@@ -9199,7 +9278,7 @@ var FIG = (function () {
         sum.className = "kmsum" + (miss.length ? " warn" : ""); sum.textContent = (lineTxt(l, tt) || "–") + " · " + fmt(len) + " m" + (miss.length ? " · " + tt("km_lt_miss").replace("{x}", miss.join(", ")) : "") + (parseFloat(c.T || "0.6") > 1.0 && !c.gesp ? " · " + tt("km_lt_gespHint") : "");
         xs.innerHTML = !quick && pipeList(c).length && opt.xsec ? '<p class="kmxst">' + esc(tt("km_lt_xsec")) + "</p>" + opt.xsec(l, len) : "";
       }
-      function changed() { snap(); lineSync(l); lastCfg = JSON.parse(JSON.stringify(c)); draw(); costSoon(); paint(); depthSoon(l); if (quick) rows(); var q = $("#kmQuick"); if (q && !q.hidden && q.dataset.lid === l.id) { var ok = $("#kmQuickOk"); if (ok) ok.disabled = cfgMissing(c).length > 0; } }
+      function changed() { snap(); lineSync(l); lastCfg = JSON.parse(JSON.stringify(c)); delete lastCfg.flSrc; draw(); costSoon(); paint(); depthSoon(l); if (quick) rows(); var q = $("#kmQuick"); if (q && !q.hidden && q.dataset.lid === l.id) { var ok = $("#kmQuickOk"); if (ok) ok.disabled = cfgMissing(c).length > 0; } }
       PIPES.forEach(function (p) {
         var w = document.createElement("span"); w.className = "kmpipe"; w.setAttribute("data-t", p[0]);
         var m = document.createElement("button"), pl = document.createElement("button"), t = document.createElement("span"), b = document.createElement("b");
@@ -9212,7 +9291,7 @@ var FIG = (function () {
       host.appendChild(chips);
       var g = document.createElement("div"); g.className = "kmlg";
       g.appendChild(cell(tt("km_lt_art"), sel1(tt("km_lt_art"), art, c.art, function (v) { c.art = v; changed(); })));
-      g.appendChild(cell(tt("km_lt_fl"), sel1(tt("km_lt_fl"), fl, c.fl, function (v) { c.fl = v; changed(); })));
+      g.appendChild(cell(tt("km_lt_fl"), sel1(tt("km_lt_fl"), fl, c.fl, function (v) { c.fl = v; if (v) c.flSrc = "hand"; else delete c.flSrc; changed(); })));
       g.appendChild(cell(tt("km_lt_T"), inp(tt("km_lt_T"), c.T, "kmn", function (v) { c.T = v.replace(",", ".").trim(); changed(); })));
       g.appendChild(cell(tt("km_lt_B"), inp(tt("km_lt_B"), c.B, "kmn", function (v) { c.B = v.replace(",", ".").trim(); changed(); })));
       var abc = cell(tt("km_lt_ab"), sel1(tt("km_lt_ab"), [["betonstein", tt("km_ab_betonstein")], ["platten", tt("km_ab_platten")], ["natur", tt("km_ab_natur")], ["", tt("km_ab_none")]], c.ab, function (v) { c.ab = v; changed(); }));
@@ -9439,7 +9518,7 @@ var FIG = (function () {
     function ensureDepth(l, quiet) {
       if (!l || l.pts.length < 2 || l.hzArt || (l.pfC != null && String(l.pfC).trim() !== "")) return false; var c = cfgOf(l); if (c.fl === "roh") return false;
       var T = pfNum(c.T), need = needT(l); if (T != null && T >= need - 1e-9) return false;
-      snap(); c.T = need.toFixed(2); lineSync(l); lastCfg = JSON.parse(JSON.stringify(c));
+      snap(); c.T = need.toFixed(2); lineSync(l); lastCfg = JSON.parse(JSON.stringify(c)); delete lastCfg.flSrc;
       if (!quiet) toast(dlg, tt("km_depthUp").replace("{t}", need.toFixed(2)).replace("{c}", String(minCover())).replace("{dn}", lineDN(l)), tt("km_undoBtn"), function () { var b = $("[data-k=undo]"); if (b) b.click(); });
       return true;
     }
@@ -10026,9 +10105,9 @@ var FIG = (function () {
       if (!l || !l.pts.length) { markerSync(); palRender(); return; }
       if (cfgOf(l).fl === f) { palRender(); return; }
       snap();
-      if (l.pts.length === 1) { cfgOf(l).fl = f; if (f === "pflaster") cfgOf(l).ab = ""; lastCfg = JSON.parse(JSON.stringify(cfgOf(l))); lineSync(l); refresh(); return; }
+      if (l.pts.length === 1) { cfgOf(l).fl = f; if (f === "pflaster") cfgOf(l).ab = ""; lastCfg = JSON.parse(JSON.stringify(cfgOf(l))); delete lastCfg.flSrc; lineSync(l); refresh(); return; }
       var c = l.pts[l.pts.length - 1].slice(), l2 = { id: nid("l"), pts: [c], rid: null, rohr: JSON.parse(JSON.stringify(l.rohr)), cfg: JSON.parse(JSON.stringify(cfgOf(l))), pv: l.id, sK: 1 };
-      l2.cfg.fl = f; if (f === "pflaster") l2.cfg.ab = ""; lastCfg = JSON.parse(JSON.stringify(l2.cfg)); lineSync(l2); l.nx = l2.id; l.eK = 1; M.lines.push(l2); cur = l2.id; sel = { id: l2.id }; refresh();
+      l2.cfg.fl = f; l2.cfg.flSrc = "hand"; if (f === "pflaster") l2.cfg.ab = ""; lastCfg = JSON.parse(JSON.stringify(l2.cfg)); delete lastCfg.flSrc; lineSync(l2); l.nx = l2.id; l.eK = 1; M.lines.push(l2); cur = l2.id; sel = { id: l2.id }; refresh();
     }
     function palRender() {
       var h = $("#kmPal"); if (!h) return; var on = mode === "line"; h.hidden = !on; if (!on) return;
@@ -10487,6 +10566,7 @@ var FIG = (function () {
       if (/^m(ruler|line|pt|abz|sond|text|arrow|sline|rect|area|wl|geb)$/.test(k) || k === "route") lastCmd = { k: k, t: String(b.getAttribute("aria-label") || b.getAttribute("title") || b.textContent).replace(/\s+/g, " ").trim().slice(0, 40) };
       if (k === "close") { if (LY) lyGo("proj"); else close(); }
       else if (/^m(geo|ruler|line|pt|abz|sond|cal|edit|text|arrow|sline|rect|area|wl|geb)$/.test(k)) { var m = k.slice(1); if (m === "geo") { useParcel(); ov0 = JSON.stringify(ovl); if (ovl && !gcpKeep && ovl.gcp && ovl.gcp.length) { var oG = JSON.stringify(ovl.gcp); ovl.gcp = []; ovl.rms = null; toast(dlg, tt("ov_gNew"), tt("km_undoBtn"), function () { if (ovl) { ovl.gcp = JSON.parse(oG); gcp = ovl.gcp; gcpPanel(); refresh(); } }); } gcp = ovl ? (ovl.gcp = ovl.gcp || []) : []; gcpStay = gcpKeep; gcpKeep = false; setTimeout(gcpPanel, 0); }   /* «Passpunkte setzen» = neue Ausrichtung; «Passpunkt hinzufügen» verfeinert */ if (m === "ruler") rul = []; hideTip(); if (mode === "line" || mode === "sline" || mode === "area") endLine(); tmp = []; calPts = []; if (plan) $("#kmCalF").hidden = true; mode = mode === m ? "" : m; refresh(); }
+      else if (k === "avfl") avFl();
       else if (k === "center") addPt(map.getCenter());
       else if (k === "end") endLine();
       else if (k === "sv") { var cc = map.getCenter(); svOpen(toLV95(cc.lat, cc.lng), null, true); }
@@ -10735,7 +10815,7 @@ var FIG = (function () {
     if (!plan && opt.autoPlan && !ovl && opt.planImg && opt.planImg.img) { $("#kmOvPlan").click(); } (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
-  window.KARTE = { bendGeo: bendGeo, bendsOf: bendsOf, bendPts: bendPts, abzInfo: abzInfo, ABZ_TYP: ABZ_TYP, lineSlopeS: lineSlopeS, slopeLen: slopeLen, slopeOn: slopeOn, slopeHz: slopeHz, connOf: connOf, connTxt: connTxt, ovBase: ovBase, cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
+  window.KARTE = { avRuns: avRuns, avCls: avCls, bendGeo: bendGeo, bendsOf: bendsOf, bendPts: bendPts, abzInfo: abzInfo, ABZ_TYP: ABZ_TYP, lineSlopeS: lineSlopeS, slopeLen: slopeLen, slopeOn: slopeOn, slopeHz: slopeHz, connOf: connOf, connTxt: connTxt, ovBase: ovBase, cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
 })();
 
 </script>
