@@ -586,3 +586,12 @@ Entscheid Benutzer: Seite bleibt öffentlich; alle übrigen Befunde umsetzen, in
 - **Interne SharePoint-Ablage** nur noch in personalisierten Weitergabe-Versionen verlinkt.
 - **Bewusst nicht umgesetzt:** Schachtbilder (1.4 MB) auslagern – widerspricht der Einzeldatei; Bilder sind bereits WebP. Cesium und pdf.js nicht aktualisiert (3D frisch geprüft; pdf.js 4 braucht Umbau auf Module).
 - Kostenwirkung: keine. Tests: t122 (neu), t29/t75 (CORS-Header für SRI).
+
+## V142 – Handy, iPad, PC: nur das Wichtigste aus der Skill-Prüfung (17.11.2026)
+Grundlage: Prüfung mit den Skills «ui-ux-pro-max» und «apple-design»; der Benutzer wählte nur die wichtigsten Punkte.
+- **Ruhiger Start (alle Geräte):** Die Seite wird erst nach dem Aufbau sichtbar (`html.lvready`, Rückfall nach 2.5 s im Kopf). Layoutverschiebung beim Start (CLS) 0.889 → 0.008 (Messung Desktop klassisch).
+- **Trefferflächen 44 px bei Touch** (`pointer:coarse`, Handy und iPad): Knöpfe, Reiter, Sprachen, Eingabefelder, Auswahllisten, aufklappbare Kopfzeilen; kleine Knöpfe 40 px; Kontrollkästchen 22 px. Im Planungsfokus (iPad quer) zusätzlich Kopfleiste, Ribbon-Reiter, Werkzeug-/Dock-Reiter, Panel-Knöpfe, Statusleiste (Punktfang usw.), Ansicht-Menü und Zoomknöpfe 44 px. Computer mit Maus bleibt kompakt (unverändert).
+- **Mindestschrift 12 px** auf Handy und Tablet (`--fsmin`): 57 kleine Schriftgrössen (9.5–11.5 px) laufen über `max(…, var(--fsmin))`; am Computer unverändert.
+- **Druckreaktion:** Reiter, Sprachknöpfe und Handy-Bereichsleiste geben beim Antippen sofort nach (scale .97, 100 ms); bei «Bewegung reduzieren» aus.
+- **Bewusst nicht umgesetzt** (Entscheid Benutzer): Emoji-Symbole durch SVG ersetzen, rem-Einheiten, Laufweite, Menü-Übergang, Aufblitzen.
+- Kostenwirkung: keine. Test: t123 (neu).

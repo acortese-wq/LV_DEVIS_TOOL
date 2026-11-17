@@ -63,7 +63,7 @@ h1{
   padding:8px 26px;border-right:1px solid var(--rule);
 }
 .kopfzeile > div:last-child{border-right:0}
-.kopfzeile label{display:block;font-size:11.5px;color:var(--ink-soft);margin-bottom:3px}
+.kopfzeile label{display:block;font-size:max(11.5px,var(--fsmin,0px));color:var(--ink-soft);margin-bottom:3px}
 .kopfzeile input{
   width:100%;font:inherit;font-size:14px;border:0;border-bottom:1px solid var(--rule);
   padding:2px 0;background:transparent;color:var(--ink);
@@ -225,7 +225,7 @@ details.ref .figs{padding:12px}
 .opts table{margin:0;font-size:12.5px}
 .opts td{padding:4px 6px}
 .opts input{width:62px;padding:3px 5px;text-align:right;font-size:12.5px}
-.opts .lv{color:var(--ink-soft);font-size:11.5px;white-space:nowrap}
+.opts .lv{color:var(--ink-soft);font-size:max(11.5px,var(--fsmin,0px));white-space:nowrap}
 tr.grp td{background:var(--panel);font-weight:650}
 tr.incl td{color:var(--ink-soft);font-style:italic}
 tr.sum td{border-top:2px solid var(--ink);background:var(--panel-2);font-weight:700;font-size:14.5px}
@@ -300,7 +300,7 @@ body{background:var(--page);color:var(--ink);font-size:14.5px}
   border-top:1px solid var(--rule);padding-top:15px;
 }
 .kopfzeile > div{padding:0;border-right:0}
-.kopfzeile label{font-size:11.5px;color:var(--ink-soft);margin-bottom:2px}
+.kopfzeile label{font-size:max(11.5px,var(--fsmin,0px));color:var(--ink-soft);margin-bottom:2px}
 .kopfzeile input{
   font-size:15.5px;font-weight:650;color:var(--ink);
   border:1px solid transparent;border-radius:6px;padding:5px 7px;margin-left:-7px;
@@ -312,12 +312,12 @@ body{background:var(--page);color:var(--ink);font-size:14.5px}
 h1{font-size:23px;font-weight:650;color:var(--ink)}
 .subtitle{font-size:13.5px}
 h2{
-  font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  font-size:max(11.5px,var(--fsmin,0px));font-weight:700;letter-spacing:.05em;text-transform:uppercase;
   color:var(--ink-soft);margin-bottom:14px;
 }
 h2 .num{
   display:inline-block;min-width:19px;height:19px;line-height:19px;text-align:center;
-  background:var(--navy);color:#fff;border-radius:5px;font-size:11px;margin-right:8px;
+  background:var(--navy);color:#fff;border-radius:5px;font-size:max(11px,var(--fsmin,0px));margin-right:8px;
 }
 h3{font-size:16px;font-weight:650;color:var(--ink);margin:28px 0 10px}
 
@@ -354,7 +354,7 @@ select:disabled,input:disabled{background:#f4f5f6;color:#9aa0a6}
 /* ---- Statusbanner ---- */
 .status{border-radius:9px;padding:14px 17px;border-width:1px}
 .status .stitle{font-size:15px}
-.status .stitle::before{content:"●";font-size:10px;vertical-align:2px;margin-right:9px}
+.status .stitle::before{content:"●";font-size:max(10px,var(--fsmin,0px));vertical-align:2px;margin-right:9px}
 .status.ok{background:var(--ok-bg);border-color:var(--ok-line);color:var(--ok)}
 .status.amber{background:var(--amber-bg);border-color:var(--amber-line);color:var(--amber)}
 .status.stop{background:var(--signal-bg);border-color:var(--signal-line);color:var(--signal)}
@@ -366,12 +366,12 @@ table{
 }
 th,td{border:0;border-bottom:1px solid var(--rule);padding:9px 12px}
 thead th{
-  background:#f7f8f9;color:var(--ink-soft);font-size:11px;font-weight:700;
+  background:#f7f8f9;color:var(--ink-soft);font-size:max(11px,var(--fsmin,0px));font-weight:700;
   letter-spacing:.04em;text-transform:uppercase;
 }
 tbody tr:last-child td{border-bottom:0}
 tfoot td{background:#f7f8f9;border-bottom:0;border-top:1px solid var(--rule)}
-tr.grp td{background:#f7f8f9;color:var(--ink-soft);font-size:11.5px;
+tr.grp td{background:#f7f8f9;color:var(--ink-soft);font-size:max(11.5px,var(--fsmin,0px));
   letter-spacing:.03em;text-transform:uppercase}
 tr.sum td{background:#f4f6fa;border-top:1px solid var(--rule-strong);border-bottom:0}
 tr.sub td{background:#fafbfc}
@@ -449,7 +449,7 @@ footer{border-top:1px solid var(--rule);margin-top:34px;padding-top:12px}
 
 /* ---------- Version, Ablauf, Herkunft ---------- */
 .versionline{
-  margin-top:10px;font-size:11.5px;color:var(--ink-soft);
+  margin-top:10px;font-size:max(11.5px,var(--fsmin,0px));color:var(--ink-soft);
   display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;
 }
 .versionline b{color:var(--ink);font-weight:650}
@@ -492,7 +492,7 @@ body.expired .cols{display:none}
 .elem{margin-bottom:12px}
 .elbody{padding:6px 15px 14px}
 .elbody h4,.elbody h3.sec{
-  font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);
+  font-size:max(11px,var(--fsmin,0px));font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);
   margin:18px 0 10px;padding-top:12px;border-top:1px solid var(--rule);
 }
 .elbody h4:first-child,.elbody h3.sec:first-child{border-top:0;margin-top:6px;padding-top:0}
@@ -501,12 +501,12 @@ body.expired .cols{display:none}
 .btn.ghost{padding:8px 13px;font-size:13px}
 .addrow{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}
 #frSel{min-height:140px;font-size:12.5px}
-.ctx{display:block;font-size:11px;color:var(--ink-soft);line-height:1.3;margin-bottom:1px}
+.ctx{display:block;font-size:max(11px,var(--fsmin,0px));color:var(--ink-soft);line-height:1.3;margin-bottom:1px}
 tr.bad td{background:var(--signal-bg)}
 tr.chg td{background:var(--amber-bg)}
 tr.open td{background:repeating-linear-gradient(135deg,var(--amber-bg),var(--amber-bg) 10px,#fffaf0 10px,#fffaf0 20px)}
-.badge{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;color:var(--amber);border:1px solid var(--amber-line);background:#fff;border-radius:4px;padding:1px 6px}
-.rw{font-size:11px;color:var(--ink-soft);margin-top:2px}
+.badge{display:inline-block;font-size:max(10.5px,var(--fsmin,0px));font-weight:700;letter-spacing:.03em;color:var(--amber);border:1px solid var(--amber-line);background:#fff;border-radius:4px;padding:1px 6px}
+.rw{font-size:max(11px,var(--fsmin,0px));color:var(--ink-soft);margin-top:2px}
 .rw::before{content:"ƒ "}
 p.offennote{margin:6px 0 0;font-size:13px;font-weight:600}
 ul.vollst{list-style:none;margin:0 0 4px;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:6px 16px}
@@ -535,7 +535,7 @@ button.x{border:0;background:none;color:var(--ink-soft);font-size:18px;cursor:po
 button.x:hover{color:var(--signal)}
 .resbar{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 0}
 #fileIn{display:none}
-.tag{font-size:11px;color:var(--ink-soft)}
+.tag{font-size:max(11px,var(--fsmin,0px));color:var(--ink-soft)}
 @media print{
   .resbar,.addrow{display:none!important}
   .kopfzeile{grid-template-columns:repeat(5,1fr)}

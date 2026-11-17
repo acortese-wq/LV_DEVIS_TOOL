@@ -88,7 +88,7 @@
 .kmdlg.kmlya .lyviewm>summary::after{content:" ▴"}
 .kmdlg.kmlya .lyviewb{position:absolute;right:8px;bottom:calc(100% + 4px);z-index:1300;display:flex;flex-wrap:wrap;gap:6px;align-items:center;width:min(560px,calc(100vw - 24px));padding:10px;background:var(--paper);border:1px solid var(--rule-strong);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
 .kmdlg.kmlya .lyviewb .kmunits{flex-basis:100%;margin:2px 0 0;font-size:12px}
-.kmdlg.kmlya .lycred{flex:none;margin:0;font-size:11px;color:var(--ink-soft);max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kmdlg.kmlya .lycred{flex:none;margin:0;font-size:max(11px,var(--fsmin,0px));color:var(--ink-soft);max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kmdlg.kmlya .lynav .lymidtog{margin-left:6px}
 .kmdlg.kmlya .kmleg{bottom:22px}
 @media (max-width:1180px){.kmdlg.kmlya .lycred{display:none}}
@@ -106,7 +106,7 @@
   .kmdlg.kmlya .lyp.lypn{max-width:260px;min-width:120px;flex:0 1 260px}
   .kmdlg.kmlya .lykpi{flex-wrap:nowrap;gap:4px 14px;min-width:0;overflow-x:auto;scrollbar-width:thin}
   .kmdlg.kmlya .lyc{flex:none}
-  .kmdlg.kmlya .lyc .lyk{font-size:10.5px}
+  .kmdlg.kmlya .lyc .lyk{font-size:max(10.5px,var(--fsmin,0px))}
   .kmdlg.kmlya .lyp b,.kmdlg.kmlya .lyc b{font-size:13.5px}
 }
 @media (min-width:861px) and (max-width:1500px){.kmdlg.kmlya .lybar .lyp:nth-child(2){display:none}}
@@ -122,10 +122,10 @@
 .kmdlg.kmlya .lyext summary:hover{background:var(--panel)}
 .kmdlg.kmlya .lyexc{font-weight:600;color:var(--ink-soft);font-variant-numeric:tabular-nums}
 .kmdlg.kmlya .lyexi{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;border:0;background:transparent;color:var(--ink);padding:3px 8px 3px 18px;border-radius:5px;cursor:pointer;font:500 12.5px var(--nc-font);border-left:2px solid transparent}
-.kmdlg.kmlya .lyexi small{color:var(--ink-soft);font-size:11px}
+.kmdlg.kmlya .lyexi small{color:var(--ink-soft);font-size:max(11px,var(--fsmin,0px))}
 .kmdlg.kmlya .lyexi:hover{background:var(--panel)}
 .kmdlg.kmlya .lyexi.on{background:color-mix(in srgb,var(--nc-accent) 28%,transparent);border-left-color:var(--nc-accent-text)}
-.kmdlg.kmlya .lyexl{margin:6px 6px 2px;font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
+.kmdlg.kmlya .lyexl{margin:6px 6px 2px;font-size:max(11px,var(--fsmin,0px));font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
 .kmdlg.kmlya .lyexs{display:flex;align-items:center;gap:4px;margin:0;padding:2px 8px 2px 14px;font-size:12px;color:var(--ink)}
 .kmdlg.kmlya .lytbody[hidden],.kmdlg.kmlya .lyexp[hidden]{display:none}
 .kmlya.nc-dark #kmCol,.kmlya.nc-dark #kmCol option{background:var(--nc-raised)!important;color:var(--nc-text)!important}
@@ -150,13 +150,13 @@
 .kmdlg.kmlya .lyptab td{overflow:hidden;text-overflow:ellipsis}
 .kmdlg.kmlya .lysort{border:0;background:transparent;color:inherit;font:inherit;font-weight:700;padding:0;cursor:pointer;text-align:inherit;width:100%}
 .kmdlg.kmlya .lysort:focus-visible{outline:2px solid var(--focus)}
-.kmdlg.kmlya .lynote{display:block;color:var(--ink-soft);font-size:11px}
-.kmdlg.kmlya .lyptab .pst{min-height:22px;font-size:11.5px;padding:0 5px}
+.kmdlg.kmlya .lynote{display:block;color:var(--ink-soft);font-size:max(11px,var(--fsmin,0px))}
+.kmdlg.kmlya .lyptab .pst{min-height:22px;font-size:max(11.5px,var(--fsmin,0px));padding:0 5px}
 .kmdlg.kmlya .lykost{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start}
 .kmdlg.kmlya .lykost-a{flex:0 1 520px}.kmdlg.kmlya .lykost-b{flex:1 1 420px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
 .kmdlg.kmlya .lykx h4{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft)}
 .kmdlg.kmlya .lybar2{display:inline-block;width:70px;height:7px;border-radius:4px;background:var(--rule);vertical-align:middle;overflow:hidden}.kmdlg.kmlya .lybar2 i{display:block;height:100%;background:var(--nc-accent-text)}
-.kmdlg.kmlya .lypct{display:inline-block;min-width:46px;font-size:11.5px;color:var(--ink-soft)}
+.kmdlg.kmlya .lypct{display:inline-block;min-width:46px;font-size:max(11.5px,var(--fsmin,0px));color:var(--ink-soft)}
 .kmlya.nc-dark tr.pst-ok .pst{background:var(--nc-ok-bg);border-color:var(--nc-ok-text);color:var(--nc-ok-text)}
 .kmlya.nc-dark tr.pst-kl .pst{background:var(--nc-warn-bg);border-color:var(--nc-warn-text);color:var(--nc-warn-text)}
 .kmlya.nc-dark tr.pst-ip .pst{background:#14304a;border-color:#7fb6ee;color:#a9cff5}
@@ -187,7 +187,7 @@
 .kmdlg.kmlya .lyk-box li[role=option] small{color:var(--nc-text-soft,inherit);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:45%}
 .kmdlg.kmlya .lyk-box li[aria-selected=true]{background:var(--nc-accent);color:#fff}
 .kmdlg.kmlya .lyk-box li[aria-selected=true] small{color:#fff}
-.kmdlg.kmlya .lyk-box li.lyk-g{padding:8px 16px 3px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--nc-accent-text)}
+.kmdlg.kmlya .lyk-box li.lyk-g{padding:8px 16px 3px;font-size:max(11px,var(--fsmin,0px));font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--nc-accent-text)}
 .kmdlg.kmlya .lyk-box li.lyk-none{padding:14px 16px;color:var(--nc-text-soft,inherit)}
 .kmdlg.kmlya .lyk-f{margin:0;padding:6px 16px;border-top:1px solid var(--rule);font-size:12px;display:flex;justify-content:space-between;color:var(--nc-text-soft,inherit)}
 .kmdlg.kmlya .lyviewb .lylay{order:-1;flex:1 1 100%;display:flex;flex-direction:column;align-items:stretch;gap:3px}
@@ -234,7 +234,7 @@
   .kmdlg.kmlya .lymgrip:focus-visible{outline:2px solid var(--nc-focus);outline-offset:2px;border-radius:6px}
   .kmdlg.kmlya.ly-msf .lymgrip{bottom:calc(100vh - 130px + var(--lymt) - 22px);bottom:calc(100dvh - 130px + var(--lymt) - 22px)}
   .kmdlg.kmlya .lymtab{display:flex;position:fixed;left:0;right:0;bottom:0;height:var(--lymt);z-index:1300;background:var(--paper);border-top:1px solid var(--rule-strong);padding:0 0 env(safe-area-inset-bottom)}
-  .kmdlg.kmlya .lymtab button{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:transparent;color:var(--nc-text-soft,var(--ink));font:inherit;font-size:11px;line-height:1.1;padding:4px 2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kmdlg.kmlya .lymtab button{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:transparent;color:var(--nc-text-soft,var(--ink));font:inherit;font-size:max(11px,var(--fsmin,0px));line-height:1.1;padding:4px 2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .kmdlg.kmlya .lymtab button span{font-size:18px}
   .kmdlg.kmlya .lymtab button[aria-expanded=true]{color:var(--nc-accent-text);box-shadow:inset 0 3px 0 var(--nc-accent)}
   .kmdlg.kmlya .lymtab button:focus-visible{outline:2px solid var(--nc-focus);outline-offset:-3px}
@@ -268,7 +268,7 @@
   .kmdlg.kmlya .lyk-box{max-height:calc(100dvh - 24px)}
   .kmdlg.kmlya .kmtoast{bottom:calc(var(--lymt) + 12px)!important}
 }
-@media (max-width:360px){.kmdlg.kmlya .lymtab button{font-size:9.5px;letter-spacing:-.01em}.kmdlg.kmlya .lymtab button span{font-size:17px}}
+@media (max-width:360px){.kmdlg.kmlya .lymtab button{font-size:max(9.5px,var(--fsmin,0px));letter-spacing:-.01em}.kmdlg.kmlya .lymtab button span{font-size:17px}}
 
 /* ---------- Suche (Kopfleiste, Mitte) und Kartenauswahl: minimiert, kein Überlagern ---------- */
 .kmdlg.kmlya .kmhead{position:relative}
@@ -312,8 +312,8 @@
 .kmdlg.kmlya .lyrb-g{display:flex;flex-direction:column;padding:0 8px;border-right:1px solid var(--rule)}
 .kmdlg.kmlya .lyrb-g:last-child{border-right:0}
 .kmdlg.kmlya .lyrb-gb{display:flex;gap:2px;flex:1}
-.kmdlg.kmlya .lyrb-gt{font-size:10.5px;text-align:center;color:var(--nc-text-soft,var(--ink));padding-top:2px;white-space:nowrap}
-.kmdlg.kmlya .lyrb-b{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;min-width:56px;max-width:92px;min-height:46px;padding:4px 6px;font:inherit;font-size:11px;line-height:1.15;text-align:center;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--ink);cursor:pointer}
+.kmdlg.kmlya .lyrb-gt{font-size:max(10.5px,var(--fsmin,0px));text-align:center;color:var(--nc-text-soft,var(--ink));padding-top:2px;white-space:nowrap}
+.kmdlg.kmlya .lyrb-b{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;min-width:56px;max-width:92px;min-height:46px;padding:4px 6px;font:inherit;font-size:max(11px,var(--fsmin,0px));line-height:1.15;text-align:center;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--ink);cursor:pointer}
 .kmdlg.kmlya .lyrb-b:hover:not(:disabled){border-color:var(--rule-strong);background:var(--panel)}
 .kmdlg.kmlya .lyrb-b[aria-pressed=true]{background:var(--nc-accent);border-color:var(--nc-accent);color:#fff}
 .kmdlg.kmlya .lyrb-b:disabled{opacity:.45;cursor:default}
@@ -329,7 +329,7 @@
 /* ---------- Rechtsklick-Menü im Projektbaum ---------- */
 .kmdlg.kmlya .lyctx{position:absolute;z-index:3500;min-width:210px;max-width:min(320px,92vw);padding:4px;background:var(--panel);color:var(--ink);border:1px solid var(--rule-strong);border-radius:8px;box-shadow:0 12px 32px rgba(0,0,0,.45)}
 .kmdlg.kmlya .lyctx[hidden]{display:none}
-.kmdlg.kmlya .lyctx-h{padding:5px 10px 6px;font-size:11.5px;font-weight:700;letter-spacing:.03em;color:var(--nc-accent-text);border-bottom:1px solid var(--rule);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kmdlg.kmlya .lyctx-h{padding:5px 10px 6px;font-size:max(11.5px,var(--fsmin,0px));font-weight:700;letter-spacing:.03em;color:var(--nc-accent-text);border-bottom:1px solid var(--rule);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .kmdlg.kmlya .lyctx-i{display:flex;align-items:center;gap:9px;width:100%;padding:7px 10px;font:inherit;font-size:13px;text-align:left;border:0;border-radius:5px;background:transparent;color:inherit;cursor:pointer}
 .kmdlg.kmlya .lyctx-i>span:first-child{width:16px;text-align:center;flex:0 0 16px}
 .kmdlg.kmlya .lyctx-i kbd{margin-left:auto;font:11px var(--nc-mono);color:var(--nc-text-soft,inherit);border:1px solid var(--rule);border-radius:4px;padding:0 5px}
@@ -345,8 +345,8 @@
 /* Dock-Reiter «Offene Positionen»: Preisfeld, Vorschlag, Betrag */
 .kmdlg.kmlya #lyP_offen{overflow:auto}
 .kmdlg.kmlya .ofdt input[type=text]{width:7.5em;min-height:32px;padding:3px 8px}
-.kmdlg.kmlya .ofdt .ofsch{display:inline-block;margin-left:6px;font-size:11.5px;font-weight:700;color:var(--amber)}
-.kmdlg.kmlya .ofdt .ofel{display:block;font-size:11.5px;color:var(--muted)}
+.kmdlg.kmlya .ofdt .ofsch{display:inline-block;margin-left:6px;font-size:max(11.5px,var(--fsmin,0px));font-weight:700;color:var(--amber)}
+.kmdlg.kmlya .ofdt .ofel{display:block;font-size:max(11.5px,var(--fsmin,0px));color:var(--muted)}
 /* Knopf «Preis erfassen» in den Hinweisen: Farbe der Hinweiszeile übernehmen (helle Hinweisfläche auch im dunklen Thema) */
 .kmdlg.kmlya #lyP_warn .warns li .btn{color:inherit;background:transparent;border-color:currentColor;margin-left:6px}
 
@@ -423,4 +423,13 @@ h3{letter-spacing:-.008em;line-height:1.25}
 /* Handy-Sheets und Navigation: schweben durchscheinend über der Karte */
 @media (max-width:860px){
   .kmdlg.kmlya.ly-ms-tools .kmgrid>.kmtools,.kmdlg.kmlya.ly-ms-mid .kmgrid>.kmmid,.kmdlg.kmlya.ly-ms-side .kmgrid>.kmside,.kmdlg.kmlya.ly-ms-dock .lydock,.kmdlg.kmlya.ly-ms-more .kmbottom,.kmdlg.kmlya .lymtab{background:var(--glass-bar);-webkit-backdrop-filter:blur(22px) saturate(1.6);backdrop-filter:blur(22px) saturate(1.6);box-shadow:0 -10px 30px rgba(0,0,0,.25),inset 0 1px 0 var(--glass-edge)}
+}
+/* iPad quer / Touch im Planungsfokus (V142): Kopf, Reiter, Werkzeug- und Statusleiste fingertauglich (44 px) */
+@media (pointer:coarse){
+  .kmdlg.kmlya .kmhead button,.kmdlg.kmlya .kmhead select,.kmdlg.kmlya .lyrb button,.kmdlg.kmlya .lyltabs button,.kmdlg.kmlya .lydtabs button,.kmdlg.kmlya .lydbar button,
+  .kmdlg.kmlya .kmtg .btn,.kmdlg.kmlya .kmtg select,.kmdlg.kmlya .kmwb button,.kmdlg.kmlya .kmfang button,.kmdlg.kmlya .lyviewb button,.kmdlg.kmlya .lyviewb select,.kmdlg.kmlya .lyviewb a,
+  .kmdlg.kmlya .lyviewm>summary,.kmdlg.kmlya .lylay select,.kmdlg.kmlya .kmseg button,.kmdlg.kmlya .lybase button,.kmdlg.kmlya .kmhead .btn,.kmdlg.kmlya .kmbottom .kmfang .btn,.kmdlg.kmlya .kmbottom .btn,.kmdlg.kmlya .kmbottom select{min-height:44px}
+  .kmdlg.kmlya .kmwb button{min-width:34px}
+  .kmdlg.kmlya .kmhead summary,.kmdlg.kmlya .lyviewm>summary,.kmdlg.kmlya .kmmidtog{display:flex;align-items:center;min-height:44px}
+  .kmdlg .leaflet-touch .leaflet-bar a,.kmdlg .leaflet-bar a,.kmdlg .kmfitc a{width:44px;height:44px;line-height:44px}
 }

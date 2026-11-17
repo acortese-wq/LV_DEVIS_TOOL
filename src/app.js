@@ -1911,6 +1911,7 @@
   }
   window.__LVD = { loadDemo: loadDemo, S: function () { return S; }, xlsxBytes: xlsxBytes, renderResult: renderResult, F: F, optLabel: optLabel, tt: tt, fill: fill, snap: snapState, commit: function (sn, msg) { save(); renderForm(); renderResult(); undoToast(msg, sn); } };
     var lyb = $("#bLyMap"); if (lyb) lyb.onclick = function () { lySetPref("a"); lyOpen(1); };
+    document.documentElement.classList.add("lvready");
     if (lyPref() === "a") setTimeout(function () { lyOpen(); }, 0);   /* Layout A: Karte als Startbildschirm (seit Phase H auch auf Handy/Tablet) */
   }
   document.addEventListener("DOMContentLoaded", init);
