@@ -776,3 +776,10 @@ html:not(.lvready) .sheet{visibility:hidden}   /* Seite erst nach dem ersten Fü
 .pfbd.belag{fill:#7d8b92}.pfbd.wiese{fill:#8cc63f}.pfbd.geb{fill:#c0392b}.pfbd.wald{fill:#2e7d32}.pfbd.wasser{fill:#3d8fd6}.pfbd.bahn{fill:#b59a5a}
 .pflg1.bdb::before,.pflg1.bdw::before,.pflg1.bdg::before{height:8px;border-top:0}.pflg1.bdb::before{background:#7d8b92}.pflg1.bdw::before{background:#8cc63f}.pflg1.bdg::before{background:#c0392b}
 .pflgs{color:inherit;opacity:1}
+/* V143: Kostenübersicht (Kreisdiagramme) im Bericht */
+.rp-kdia{break-inside:avoid}.rp-dia-lead{font-weight:700;margin:2pt 0 6pt}
+.rp-dias{display:flex;flex-wrap:wrap;gap:12pt 24pt;align-items:flex-start}
+.rp-dia{flex:1 1 240pt;min-width:0;display:grid;grid-template-columns:auto 1fr;gap:4pt 10pt;align-items:start}
+.rp-dia h3{grid-column:1/-1;margin:0}.rp-pie{width:120pt;height:120pt}.rp-pie-t{font-size:11px;fill:#52514e}.rp-pie-v{font-size:15px;font-weight:700;fill:#0b0b0b}
+.rp-diat{width:100%;font-size:8.5pt}.rp-diat td,.rp-diat th{padding:1.5pt 3pt}.rp-sw{vertical-align:-1px}.rp-dia-b{font-size:8pt;color:#333;margin-top:6pt}
+@media print{.rp-pie path,.rp-sw rect{-webkit-print-color-adjust:exact;print-color-adjust:exact}}

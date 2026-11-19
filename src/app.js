@@ -1533,11 +1533,42 @@
     if (P.img) { var pv = KARTE.planPreview(P, tt, mkLabels(P, planFns())); if (pv) { pv.className = "situfig"; h += '<section class="rp-sec"><h2>' + esc(tt("sit_capPlan")) + "</h2>" + pv.outerHTML + "</section>"; } }
     return h;
   }
+  /* V143: Kostenübersicht im Bericht – zwei Kreisdiagramme (Arbeitsgattung, Bauteil), Top 6 + «Übrige», Tabelle mit CHF und Anteil.
+     Basis: Zwischensumme Bauarbeiten (LV-Positionen inkl. Baustelleneinrichtung/Regie, vor Rabatt und MWST, ohne Honorar). Farben: validierte Reihe (dataviz). */
+  var DIA_COL = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6"], DIA_REST = "#8a9094";
+  function diaParts(map) {
+    var a = Object.keys(map).map(function (k) { return { k: k, v: r2(map[k]) }; }).filter(function (x) { return x.v > 0.004; }).sort(function (x, y) { return y.v - x.v; });
+    if (a.length > 7) { var rest = a.slice(6).reduce(function (s0, x) { return s0 + x.v; }, 0); a = a.slice(0, 6).concat([{ k: tt("rp_dia_rest"), v: r2(rest), rest: true }]); }
+    a.forEach(function (x, i) { x.c = x.rest ? DIA_REST : DIA_COL[i]; }); return a;
+  }
+  function diaSvg(parts, tot, title) {
+    var R = 80, r0 = 46, cx = 90, cy = 90, a0 = -Math.PI / 2, o = '<svg class="rp-pie" viewBox="0 0 180 180" width="180" height="180" role="img" aria-label="' + esc(title) + '">';
+    var P = function (r, a) { return (cx + r * Math.cos(a)).toFixed(2) + " " + (cy + r * Math.sin(a)).toFixed(2); };
+    if (parts.length === 1) o += '<circle cx="90" cy="90" r="' + (R + r0) / 2 + '" fill="none" stroke="' + parts[0].c + '" stroke-width="' + (R - r0) + '"><title>' + esc(parts[0].k) + "</title></circle>";
+    else parts.forEach(function (x) { var a1 = a0 + x.v / tot * 2 * Math.PI, lg = a1 - a0 > Math.PI ? 1 : 0;
+      o += '<path d="M' + P(R, a0) + " A" + R + " " + R + " 0 " + lg + " 1 " + P(R, a1) + " L" + P(r0, a1) + " A" + r0 + " " + r0 + " 0 " + lg + " 0 " + P(r0, a0) + 'Z" fill="' + x.c + '" stroke="#fff" stroke-width="2"><title>' + esc(x.k + ": CHF " + chf(x.v) + " (" + (x.v / tot * 100).toFixed(1) + " %)") + "</title></path>"; a0 = a1; });
+    return o + '<text x="90" y="86" text-anchor="middle" class="rp-pie-t">CHF</text><text x="90" y="104" text-anchor="middle" class="rp-pie-v">' + esc(new Intl.NumberFormat("de-CH", { maximumFractionDigits: 0 }).format(tot)) + "</text></svg>";
+  }
+  function diaBlock(map, title, col) {
+    var parts = diaParts(map), tot = parts.reduce(function (s0, x) { return s0 + x.v; }, 0); if (!(tot > 0)) return "";
+    return '<div class="rp-dia"><h3>' + esc(title) + "</h3>" + diaSvg(parts, tot, title) + '<table class="rp-tab rp-diat"><thead><tr><th>' + esc(col) + '</th><th class="num">CHF</th><th class="num">' + esc(tt("rp_dia_pct")) + "</th></tr></thead><tbody>" +
+      parts.map(function (x) { return '<tr><td><svg class="rp-sw" width="10" height="10" aria-hidden="true"><rect width="10" height="10" rx="2" fill="' + x.c + '"/></svg> ' + esc(x.k) + '</td><td class="num">' + chf(x.v) + '</td><td class="num">' + (x.v / tot * 100).toFixed(1) + " %</td></tr>"; }).join("") + "</tbody></table></div>";
+  }
+  function reportDia(out) {
+    var art = {}, bt = {}, add = function (m, k, v) { m[k] = (m[k] || 0) + v; }, lab = function (g, alt) { var t = g ? tt(g) : ""; return t && t !== g ? t : alt; };
+    out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (!(l.total > 0)) return; add(art, lab(l.grp, tt("rp_dia_rest")), l.total); add(bt, tt("tab_" + e.tab), l.total); }); });
+    out.vor.lines.forEach(function (l) { if (l.total > 0) { add(art, lab(l.grp, tt("h_vorarbeiten")), l.total); add(bt, tt("h_vorarbeiten"), l.total); } });
+    out.be.lines.forEach(function (l) { if (l.total > 0) { add(art, lab(l.grp, tt("h_be")), l.total); add(bt, tt("h_be"), l.total); } });
+    var p = diaParts(art), tot = p.reduce(function (s0, x) { return s0 + x.v; }, 0); if (!(tot > 0)) return "";
+    return '<section class="rp-sec rp-kdia"><h2>' + esc(tt("rp_h_dia")) + '</h2><p class="rp-dia-lead">' + esc(fill(tt("rp_dia_top"), { a: p[0].k, p: (p[0].v / tot * 100).toFixed(0) })) + '</p><div class="rp-dias">' +
+      diaBlock(art, tt("rp_dia_art"), tt("rp_dia_c_art")) + diaBlock(bt, tt("rp_dia_bt"), tt("rp_dia_c_bt")) + '</div><p class="rp-dia-b">' + esc(fill(tt("rp_dia_basis"), { z: chf(r2(tot)) })) + "</p></section>";
+  }
   function reportBuild(o) {
     var out = KVE.calc(S, LV), k = S.kopf, h = "";
     h += "<h1>" + esc(tt("rp_title")) + "</h1>";
     if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb], ["datum", k.datum || today()]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
     h += reportCover();
+    if (o.dia !== false) h += reportDia(out);
     if (o.situ) h += reportMap();
     if (o.v3d !== false && S.v3d && S.v3d.img) h += '<section class="rp-sec rp-3d"><h2>' + esc(tt("v3_title")) + '</h2><figure><img src="' + S.v3d.img + '" alt="' + esc(tt("v3_title")) + '"><figcaption>' + esc(fill(tt("rp_3dCap"), { x: S.v3d.ex || 1 })) + "</figcaption></figure></section>";
     if (o.mengen) {
@@ -1565,13 +1596,13 @@
   }
   function reportOpen() {
     var d = document.getElementById("reportDlg"); if (d) d.remove();
-    var R = S.ui.report = Object.assign({ mode: "abschnitte", kopf: true, situ: true, v3d: true, mengen: true, pos: true, kosten: true, annahmen: true, warn: true }, S.ui.report || {});
+    var R = S.ui.report = Object.assign({ mode: "abschnitte", kopf: true, dia: true, situ: true, v3d: true, mengen: true, pos: true, kosten: true, annahmen: true, warn: true }, S.ui.report || {});
     d = document.createElement("dialog"); d.id = "reportDlg"; d.className = "rpdlg"; d.setAttribute("aria-labelledby", "rpT");
     var cb = function (k, lab) { return '<label class="rp-cb"><input type="checkbox" data-rp="' + k + '"' + (R[k] ? " checked" : "") + "> " + esc(tt(lab)) + "</label>"; };
     d.innerHTML = '<form method="dialog"><h2 id="rpT">' + esc(tt("rp_title")) + '</h2><fieldset class="rp-fs"><legend>' + esc(tt("rp_gl")) + "</legend>" +
       '<label class="rp-cb"><input type="radio" name="rpm" value="abschnitte"' + (R.mode !== "total" ? " checked" : "") + "> <b>" + esc(tt("rp_m_abs")) + "</b><span class=\"rp-sub\">" + esc(tt("rp_m_abs_s")) + "</span></label>" +
       '<label class="rp-cb"><input type="radio" name="rpm" value="total"' + (R.mode === "total" ? " checked" : "") + "> <b>" + esc(tt("rp_m_tot")) + "</b><span class=\"rp-sub\">" + esc(tt("rp_m_tot_s")) + "</span></label></fieldset>" +
-      '<fieldset class="rp-fs"><legend>' + esc(tt("rp_inh")) + "</legend>" + cb("kopf", "rp_i_kopf") + cb("situ", "rp_i_situ") + (S.v3d && S.v3d.img ? cb("v3d", "rp_i_3d") : "") + cb("mengen", "rp_i_mengen") + cb("pos", "rp_i_pos") + cb("kosten", "rp_i_kosten") + cb("annahmen", "rp_i_ann") + cb("warn", "rp_i_warn") + "</fieldset>" +
+      '<fieldset class="rp-fs"><legend>' + esc(tt("rp_inh")) + "</legend>" + cb("kopf", "rp_i_kopf") + cb("dia", "rp_i_dia") + cb("situ", "rp_i_situ") + (S.v3d && S.v3d.img ? cb("v3d", "rp_i_3d") : "") + cb("mengen", "rp_i_mengen") + cb("pos", "rp_i_pos") + cb("kosten", "rp_i_kosten") + cb("annahmen", "rp_i_ann") + cb("warn", "rp_i_warn") + "</fieldset>" +
       '<p class="hint">' + esc(tt("rp_hint")) + '</p><div class="kmbar"><button type="submit" class="btn" value="print" id="rpGo">' + esc(tt("rp_go")) + '</button> <button type="submit" class="btn ghost" value="x">' + esc(tt("rp_close")) + "</button></div></form>";
     document.body.appendChild(d);
     d.addEventListener("close", function () { d.remove(); });

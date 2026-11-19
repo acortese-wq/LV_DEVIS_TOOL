@@ -40,7 +40,7 @@ GitHub Pages: automatisch aus `claude/dreamy-cray-x10m0g` bei jedem Push → htt
 
 ## Layout A «Planungsfokus» (abgeschlossen, im Hauptstand)
 Vom Benutzer am 05.11.2026 festgelegt (Masterprompt «Four Live Layouts», Referenzgrafik A–D):
-- **Umfang:** nur Layout A «Planungsfokus» – Karte als Startbildschirm; oben Projekt, Gemeinde, Status, Kennzahlen (Länge, Aushub, Schächte, Kosten exkl./inkl. MWST); links Werkzeuge in Gruppen; rechts kontextabhängige Eigenschaften; unten Reiter Höhenprofil, Ausmass, Kosten, Positionen, Hinweise. Datensätze, Ergebnis und Bericht bleiben als Panels erreichbar. Layout-Umschalter nur vorbereiten (B–D folgen später).
+- **Umfang:** nur Layout A «Planungsfokus» – Karte als Startbildschirm; oben Projekt, Gemeinde, Status, Kennzahlen (Länge, Aushub, Schächte, Kosten exkl./inkl. MWST); links Werkzeuge in Gruppen; rechts kontextabhängige Eigenschaften; unten Reiter Höhenprofil, Ausmass, Kosten, Positionen, Hinweise. Datensätze, Ergebnis und Bericht bleiben als Panels erreichbar. Layout-Umschalter: A Planungsfokus und B Klassische Ansicht (Entscheid 19.11.2026: C/D entfallen).
 - **Technik:** bestehende Technik behalten (Vanilla-JS, Leaflet, Einzeldatei), keine Migration. Rechenkern unverändert; Kosten vor/nach identisch.
 - **Veröffentlichung:** PR #1 übernommen (05.11.2026); Haupt-Artefakt mit Layout A aktualisiert. Das frühere Vorschau-Artefakt wurde am 05.11.2026 gelöscht; Änderungen nur noch im Hauptstand.
 - **Stand:** umgesetzt (siehe `docs/LAYOUT_A.md`), Test `t65`. Einstellung `lvd-layout` (`a`/`classic`); die Testhilfe `tests/lib/k.js` setzt die Vorgabe `window.__LVD_LAYOUT_DEFAULT='classic'` (Speicher bleibt unberührt), damit ältere Tests auf der klassischen Seite starten; eine gespeicherte Wahl geht vor.

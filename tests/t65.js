@@ -20,7 +20,7 @@ const waitLy = async (pg, ms) => { for (let t = 0; t < (ms || 15000); t += 250) 
   ok((await pg.textContent('#lySt')).length > 2, 'Status sichtbar: ' + await pg.textContent('#lySt'));
   ok(await pg.locator('.kmtools .kmtg').count() >= 3 && await pg.locator('.kmside').isVisible(), 'Werkzeuge links in Gruppen, Eigenschaften rechts');
   ok(await pg.locator('[role=tab][data-dt]').count() === 6, 'Unten 6 Reiter: Höhenprofil, Ausmass, Kosten, Positionen, Offene Positionen, Hinweise');
-  ok(await pg.locator('#lySel option[disabled]').count() === 3, 'Layout-Umschalter: B–D vorbereitet (deaktiviert)');
+  ok(await pg.locator('#lySel option').count() === 2 && /B · Klassische Ansicht/.test(await pg.textContent('#lySel')), 'Layout-Umschalter: A Planungsfokus und B Klassische Ansicht');
   // Dock-Inhalte
   await pg.click('#lyT_kost'); await pg.waitForTimeout(200); if (await pg.locator('#lyP_kost').isHidden()) { await pg.click('#lyT_kost'); await pg.waitForTimeout(200); }
   ok(/Total inkl\. MWST/.test(await pg.textContent('#lyP_kost')) && /Nicht im Total/.test(await pg.textContent('#lyP_kost')), 'Reiter Kosten: Kostentabelle mit Hinweis auf offene Positionen');
