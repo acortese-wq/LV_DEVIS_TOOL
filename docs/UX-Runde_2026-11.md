@@ -63,3 +63,18 @@ Test: `t136` (neu). Angepasst: `t90` (Leiste ohne Gruppe «Projekt»), `t42` (sc
 | nachher | ![](ux-runde/p4-nachher-1440.png) | ![](ux-runde/p4-nachher-390.png) |
 
 Test: `t137` (neu): Unterschied = Netto nachher − Netto vorher auf den Rappen (Hinzufügen und Löschen), Kennzahl 2 s, Rückgängig, klassische Ansicht.
+
+## P5 – Ein Erscheinungsbild statt zwei Welten
+
+**Für die Benutzer:**
+- **«Projekt» in Layout A** öffnet die Projektangaben als Seitenpanel rechts. Es wechselt nicht mehr in die klassische Ansicht. Es sind dieselben Felder wie auf der Seite (gleiche Speicherung), die Projektleiste (Projekt, Ort) folgt live. «Fertig», «×», Esc oder «Karte» schliessen das Panel. Karte → Projekt → Karte geht ohne Layoutwechsel. Die klassische Ansicht bleibt über den Layout-Umschalter erreichbar. «Datensätze», «Ergebnis» und «Bericht» funktionieren wie bisher.
+- **Hell/Dunkel ist ein globales Thema** (Knopf ☀︎/☾ im Arbeitsplatz und neu auf der klassischen Seite). Die Wahl (UI-Einstellung `lvd-theme`, Vorgabe dunkel wie bisher im Arbeitsplatz) gilt für Layout A, die klassische Seite, das Kartenfenster und den Plan gleich. Der Druck (Bericht, PDF) bleibt immer hell.
+- Umsetzung über die Tokens in `src/tokens.css` (`html.nc-dark`). Die dunklen Gegenstücke der klassischen Seite erzeugt `tools/make_dark.py` → `src/theme_dark.css` aus den bestehenden hellen Regeln (helle Flächen → Flächen-Tokens, dunkle Schrift → Text-Tokens). Akzent-, Status- und Signalflächen sind von Hand gesetzt. axe: keine Kontrastfehler im dunklen Thema (klassisch, Kartenfenster, Assistent, Anleitung, Prüfstatus).
+
+| | Desktop 1440 px | Handy 390 px |
+|---|---|---|
+| vorher (Projekt → klassische Seite) | ![](ux-runde/p5-vorher-1440.png) | ![](ux-runde/p5-vorher-390.png) |
+| nachher (Projekt als Seitenpanel) | ![](ux-runde/p5-nachher-1440.png) | ![](ux-runde/p5-nachher-390.png) |
+| nachher klassisch, dunkles Thema | ![](ux-runde/p5b-nachher-1440.png) | ![](ux-runde/p5b-nachher-390.png) |
+
+Test: `t138` (neu). Angepasst: `t65`/`t72` (Rückfrage beim Wechsel jetzt über «Datensätze», weil «Projekt» die Karte nicht mehr verlässt), `t79`/`t90` (Themenknopf im Arbeitsplatz eindeutig ansprechen).

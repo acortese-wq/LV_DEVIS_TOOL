@@ -1,0 +1,87 @@
+/* Automatisch erzeugt mit tools/make_dark.py – nicht von Hand ändern (UX-Runde 11/2026 P5, Konzept Alessandro Cortese).
+   Dunkles Thema der klassischen Seite: helle Flächen/dunkle Schrift/helle Linien auf die Tokens abgebildet. Nur Bildschirm. */
+@media screen{
+html.nc-dark .langs button[aria-pressed="true"]{background:var(--nc-accent)}
+html.nc-dark select,html.nc-dark input[type=text],html.nc-dark input[type=number],html.nc-dark textarea{background:var(--paper)}
+html.nc-dark select:disabled,html.nc-dark input:disabled{background:var(--panel)}
+html.nc-dark .seg{background:var(--paper)}
+html.nc-dark .seg input:checked + span{background:var(--nc-accent)}
+html.nc-dark .btn{background:var(--nc-accent)}
+html.nc-dark .btn.ghost{background:var(--paper)}
+html.nc-dark .poslist{background:var(--paper)}
+html.nc-dark tr.sub td{background:var(--paper)}
+html.nc-dark #lb img{background:var(--paper)}
+html.nc-dark .opts{background:var(--paper)}
+html.nc-dark .help{background:var(--panel)}
+html.nc-dark .kopfzeile input:hover{background:var(--panel)}
+html.nc-dark .kopfzeile input:focus{background:var(--paper)}
+html.nc-dark h2 .num{background:var(--nc-accent)}
+html.nc-dark .langs button[aria-pressed="true"]{background:var(--nc-accent)}
+html.nc-dark select,html.nc-dark input[type=text],html.nc-dark input[type=number],html.nc-dark input[type=url],html.nc-dark textarea{background:var(--paper)}
+html.nc-dark select:disabled,html.nc-dark input:disabled{background:var(--panel)}
+html.nc-dark .seg input:checked + span{background:var(--nc-accent)}
+html.nc-dark .btn{background:var(--nc-accent)}
+html.nc-dark .btn.ghost{background:var(--paper)}
+html.nc-dark .btn.ghost:hover{background:var(--paper)}
+html.nc-dark table{background:var(--paper)}
+html.nc-dark thead th{background:var(--paper)}
+html.nc-dark tfoot td{background:var(--paper)}
+html.nc-dark tr.grp td{background:var(--paper)}
+html.nc-dark tr.sum td{background:var(--panel)}
+html.nc-dark tr.sub td{background:var(--paper)}
+html.nc-dark .opts,html.nc-dark details.ref,html.nc-dark .help{background:var(--paper)}
+html.nc-dark .opts summary,html.nc-dark details.ref summary,html.nc-dark .help summary{background:var(--paper)}
+html.nc-dark .help{background:var(--panel)}
+html.nc-dark figcaption{background:var(--paper)}
+html.nc-dark dl.gloss{background:var(--paper)}
+html.nc-dark .expbox{background:var(--paper)}
+html.nc-dark .kopfzeile select:hover{background:var(--panel)}
+html.nc-dark tr.open td{background:repeating-linear-gradient(135deg,var(--amber-bg),var(--amber-bg) 10px,var(--paper) 10px,var(--paper) 20px)}
+html.nc-dark .badge{background:var(--paper)}
+html.nc-dark ul.vollst li.v-ok .vst{color:var(--link)}
+html.nc-dark .elres{background:var(--paper)}
+html.nc-dark .elhead{background:var(--paper)}
+html.nc-dark .elhead:hover{background:var(--paper)}
+html.nc-dark .chip{background:var(--paper)}
+html.nc-dark .chip:hover{background:var(--panel)}
+html.nc-dark .tab:hover{background:var(--panel)}
+html.nc-dark .tab.on{background:var(--nc-accent)}
+html.nc-dark .tab .cnt{background:var(--panel)}
+html.nc-dark .tab.on .cnt{background:var(--paper)}
+html.nc-dark .recnav{background:var(--paper)}
+html.nc-dark input.mini.filled{background:var(--panel-2)}
+html.nc-dark .badge.auto{background:var(--panel)}
+html.nc-dark .skip{background:var(--nc-accent)}
+html.nc-dark .kopfbox>summary{background:var(--paper)}
+html.nc-dark .kopfzeile select{background:var(--paper)}
+html.nc-dark .tag{background:var(--panel)}
+html.nc-dark #lb .lbclose{background:var(--paper)}
+html.nc-dark .tile{background:var(--paper)}
+html.nc-dark .tile:hover{background:var(--paper)}
+html.nc-dark .tile.on{background:var(--panel)}
+html.nc-dark .sgs{background:var(--paper)}
+html.nc-dark .sg:hover{background:var(--panel)}
+html.nc-dark .sg.on{background:var(--nc-accent)}
+html.nc-dark .reclist{background:var(--paper)}
+html.nc-dark .recul button{background:var(--paper)}
+html.nc-dark .recul button[aria-current=true]{background:var(--panel)}
+html.nc-dark #kmBase{background:var(--paper)}
+html.nc-dark #kmCol{background:var(--paper)}
+html.nc-dark .exprev{background:var(--panel)}
+@media (min-width:1101px){html.nc-dark .elres-body table thead th,html.nc-dark .zusblk table thead th{background:var(--panel,var(--panel))}}
+html.nc-dark .chm.user{background:var(--nc-accent)}
+html.nc-dark .hpnb.cur{background:var(--nc-accent)}
+html.nc-dark #hpBody mark{background:var(--panel-2);color:var(--ink)}
+html.nc-dark .hint.reqmsg{background:var(--panel)}
+html.nc-dark .badge.erf{background:var(--panel-2)}
+html.nc-dark .oftab input[aria-invalid=true]{background:var(--panel)}
+html.nc-dark .oftab tr.erf td{background:var(--paper)}
+html.nc-dark .wordmark .wm-name{color:var(--link)}
+html.nc-dark .wordmark .wm-name b{color:var(--link)}
+html.nc-dark .wordmark .wm-sub{color:var(--ink-soft)}
+html.nc-dark .orphbox{background:var(--warnbg,var(--panel))}
+html.nc-dark .grcard{background:var(--paper,var(--paper))}
+html.nc-dark .v3dlg{border:1px solid var(--line,var(--rule));background:var(--card,var(--paper));color:var(--ink,var(--ink))}
+html.nc-dark .v3h{border-bottom:1px solid var(--line,var(--rule))}
+html.nc-dark .v3c{color:var(--mut,var(--ink-soft))}
+}

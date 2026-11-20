@@ -12,3 +12,18 @@
   --nc-dxf-fallback:#7b2cbf; --nc-radius:8px; --nc-gap:8px;
   --nc-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif; --nc-mono:ui-monospace,"SF Mono",Consolas,monospace;
 }
+/* UX-Runde 11/2026 P5: ein globales Thema – «dunkel» gilt für die ganze Seite (beide Layouts), sobald html.nc-dark gesetzt ist; Druck bleibt hell */
+@media screen{
+html.nc-dark{
+  --nc-bg:#0d1a23; --nc-surface:#10202b; --nc-panel:#17303d; --nc-raised:#1f3b49;
+  --nc-text:#f7f9fa; --nc-text-soft:#c3ced5; --nc-muted:#8fa1ac; --nc-line:#2c4a59; --nc-line-strong:#4b6c7c;
+  --nc-accent-text:#5fb3b9; --nc-focus:#67c3d6; --nc-danger-text:#f08a80; --nc-danger-bg:#3a1f22; --nc-warn-text:#e8b25a; --nc-warn-bg:#33291a; --nc-ok-text:#6cc59a; --nc-ok-bg:#16322a;
+  --paper:var(--nc-surface); --panel:var(--nc-panel); --panel-2:var(--nc-raised); --page:var(--nc-bg);
+  --ink:var(--nc-text); --ink-soft:var(--nc-text-soft); --rule:var(--nc-line); --rule-strong:var(--nc-line-strong);
+  --navy:var(--nc-accent-text); --link:var(--nc-accent-text); --focus:var(--nc-focus);
+  --signal:var(--nc-danger-text); --signal-bg:var(--nc-danger-bg); --amber:var(--nc-warn-text); --amber-bg:var(--nc-warn-bg); --ok:var(--nc-ok-text); --ok-bg:var(--nc-ok-bg);
+  --amber-line:#5a4520; --ok-line:#285a43; --figbg:#10202b;
+  color-scheme:dark;
+}
+html.nc-dark body{background:var(--nc-bg);color:var(--nc-text)}
+}

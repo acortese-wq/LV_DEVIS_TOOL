@@ -1,5 +1,5 @@
 /* ===== Engineering-Arbeitsplatz (Layout A) – Thema «dunkel», Struktur Phase E. Gilt nur im Arbeitsplatz; Druck/Bericht/Excel bleiben hell. ===== */
-.kmdlg.kmlya.nc-dark{
+.kmdlg.nc-dark{
   --nc-bg:#0d1a23; --nc-surface:#10202b; --nc-panel:#17303d; --nc-raised:#1f3b49;
   --nc-text:#f7f9fa; --nc-text-soft:#c3ced5; --nc-muted:#8fa1ac; --nc-line:#2c4a59; --nc-line-strong:#4b6c7c;
   --nc-accent-text:#5fb3b9; --nc-focus:#67c3d6; --nc-danger-text:#f08a80; --nc-danger-bg:#3a1f22; --nc-warn-text:#e8b25a; --nc-warn-bg:#33291a; --nc-ok-text:#6cc59a; --nc-ok-bg:#16322a;
@@ -11,61 +11,61 @@
   --figbg:#10202b;
   background:var(--nc-bg); color:var(--nc-text); color-scheme:dark;
 }
-.kmlya.nc-dark .kmhead,.kmlya.nc-dark .lybar,.kmlya.nc-dark .lydock,.kmlya.nc-dark .kmbottom{background:var(--nc-surface);border-color:var(--nc-line)}
-.kmlya.nc-dark .kmtools,.kmlya.nc-dark .kmside,.kmlya.nc-dark .kmmid,.kmlya.nc-dark .kmright{background:var(--nc-panel);color:var(--nc-text)}
-.kmlya.nc-dark .kmwh{background:var(--nc-accent-strong);color:#fff}
-.kmlya.nc-dark select,.kmlya.nc-dark input[type=text],.kmlya.nc-dark input[type=number],.kmlya.nc-dark input[type=search],.kmlya.nc-dark input[type=url],.kmlya.nc-dark textarea{background:var(--nc-raised);color:var(--nc-text);border-color:var(--nc-line-strong)}
-.kmlya.nc-dark input::placeholder,.kmlya.nc-dark textarea::placeholder{color:var(--nc-muted)}
-.kmlya.nc-dark select:disabled,.kmlya.nc-dark input:disabled{background:var(--nc-panel);color:var(--nc-muted)}
-.kmlya.nc-dark .btn{background:var(--nc-accent);border-color:var(--nc-accent);color:#fff}
-.kmlya.nc-dark .btn:hover{background:var(--nc-accent-strong);border-color:var(--nc-accent-strong)}
-.kmlya.nc-dark .btn.ghost{background:transparent;color:var(--nc-text);border-color:var(--nc-line-strong)}
-.kmlya.nc-dark .btn.ghost:hover{background:var(--nc-raised);color:var(--nc-text)}
-.kmlya.nc-dark .btn[aria-pressed=true],.kmlya.nc-dark .btn.ghost[aria-pressed=true],.kmlya.nc-dark [aria-current=page]{background:var(--nc-accent);border-color:var(--nc-accent);color:#fff}
-.kmlya.nc-dark .btn:disabled{background:var(--nc-panel);border-color:var(--nc-line);color:var(--nc-muted);opacity:1}
-.kmlya.nc-dark .btn.del,.kmlya.nc-dark .btn.ghost.del{color:var(--nc-danger-text);border-color:#7a3a35}
-.kmlya.nc-dark .hint,.kmlya.nc-dark .lyk,.kmlya.nc-dark .kmgl,.kmlya.nc-dark small{color:var(--nc-text-soft)}
-.kmlya.nc-dark a{color:var(--nc-accent-text)}
-.kmlya.nc-dark :focus-visible{outline-color:var(--nc-focus)}
-.kmlya.nc-dark details,.kmlya.nc-dark .kmcat,.kmlya.nc-dark .kmobj > *,.kmlya.nc-dark .kmquick,.kmlya.nc-dark .kmprops,.kmlya.nc-dark .kmsum,.kmlya.nc-dark .kmcard,.kmlya.nc-dark .kmlt{background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line)}
-.kmlya.nc-dark summary{color:var(--nc-accent-text)}
-.kmlya.nc-dark table,.kmlya.nc-dark th,.kmlya.nc-dark td{border-color:var(--nc-line);color:var(--nc-text)}
-.kmlya.nc-dark .lytab tr:nth-child(even) td{background:rgba(255,255,255,.03)}
-.kmlya.nc-dark .lytab thead th{background:var(--nc-panel);color:var(--nc-text-soft)}
-.kmlya.nc-dark [role=tab]{color:var(--nc-text-soft);background:transparent}
-.kmlya.nc-dark [role=tab][aria-selected=true]{color:var(--nc-text);box-shadow:inset 0 -2px 0 var(--nc-accent-text)}
-.kmlya.nc-dark .lydbar{background:var(--nc-surface);border-color:var(--nc-line)}
-.kmlya.nc-dark .chip{background:var(--nc-raised);color:var(--nc-text);border-color:var(--nc-line-strong)}
-.kmlya.nc-dark .kmtoast{background:#f7f9fa;color:#10202b}
-.kmlya.nc-dark .kmtoast .btn{background:var(--nc-accent);color:#fff}
+.kmdlg.nc-dark .kmhead,.kmdlg.nc-dark .lybar,.kmdlg.nc-dark .lydock,.kmdlg.nc-dark .kmbottom{background:var(--nc-surface);border-color:var(--nc-line)}
+.kmdlg.nc-dark .kmtools,.kmdlg.nc-dark .kmside,.kmdlg.nc-dark .kmmid,.kmdlg.nc-dark .kmright{background:var(--nc-panel);color:var(--nc-text)}
+.kmdlg.nc-dark .kmwh{background:var(--nc-accent-strong);color:#fff}
+.kmdlg.nc-dark select,.kmdlg.nc-dark input[type=text],.kmdlg.nc-dark input[type=number],.kmdlg.nc-dark input[type=search],.kmdlg.nc-dark input[type=url],.kmdlg.nc-dark textarea{background:var(--nc-raised);color:var(--nc-text);border-color:var(--nc-line-strong)}
+.kmdlg.nc-dark input::placeholder,.kmdlg.nc-dark textarea::placeholder{color:var(--nc-muted)}
+.kmdlg.nc-dark select:disabled,.kmdlg.nc-dark input:disabled{background:var(--nc-panel);color:var(--nc-muted)}
+.kmdlg.nc-dark .btn{background:var(--nc-accent);border-color:var(--nc-accent);color:#fff}
+.kmdlg.nc-dark .btn:hover{background:var(--nc-accent-strong);border-color:var(--nc-accent-strong)}
+.kmdlg.nc-dark .btn.ghost{background:transparent;color:var(--nc-text);border-color:var(--nc-line-strong)}
+.kmdlg.nc-dark .btn.ghost:hover{background:var(--nc-raised);color:var(--nc-text)}
+.kmdlg.nc-dark .btn[aria-pressed=true],.kmdlg.nc-dark .btn.ghost[aria-pressed=true],.kmdlg.nc-dark [aria-current=page]{background:var(--nc-accent);border-color:var(--nc-accent);color:#fff}
+.kmdlg.nc-dark .btn:disabled{background:var(--nc-panel);border-color:var(--nc-line);color:var(--nc-muted);opacity:1}
+.kmdlg.nc-dark .btn.del,.kmdlg.nc-dark .btn.ghost.del{color:var(--nc-danger-text);border-color:#7a3a35}
+.kmdlg.nc-dark .hint,.kmdlg.nc-dark .lyk,.kmdlg.nc-dark .kmgl,.kmdlg.nc-dark small{color:var(--nc-text-soft)}
+.kmdlg.nc-dark a{color:var(--nc-accent-text)}
+.kmdlg.nc-dark :focus-visible{outline-color:var(--nc-focus)}
+.kmdlg.nc-dark details,.kmdlg.nc-dark .kmcat,.kmdlg.nc-dark .kmobj > *,.kmdlg.nc-dark .kmquick,.kmdlg.nc-dark .kmprops,.kmdlg.nc-dark .kmsum,.kmdlg.nc-dark .kmcard,.kmdlg.nc-dark .kmlt{background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line)}
+.kmdlg.nc-dark summary{color:var(--nc-accent-text)}
+.kmdlg.nc-dark table,.kmdlg.nc-dark th,.kmdlg.nc-dark td{border-color:var(--nc-line);color:var(--nc-text)}
+.kmdlg.nc-dark .lytab tr:nth-child(even) td{background:rgba(255,255,255,.03)}
+.kmdlg.nc-dark .lytab thead th{background:var(--nc-panel);color:var(--nc-text-soft)}
+.kmdlg.nc-dark [role=tab]{color:var(--nc-text-soft);background:transparent}
+.kmdlg.nc-dark [role=tab][aria-selected=true]{color:var(--nc-text);box-shadow:inset 0 -2px 0 var(--nc-accent-text)}
+.kmdlg.nc-dark .lydbar{background:var(--nc-surface);border-color:var(--nc-line)}
+.kmdlg.nc-dark .chip{background:var(--nc-raised);color:var(--nc-text);border-color:var(--nc-line-strong)}
+.kmdlg.nc-dark .kmtoast{background:#f7f9fa;color:#10202b}
+.kmdlg.nc-dark .kmtoast .btn{background:var(--nc-accent);color:#fff}
 /* Karte bleibt hell (swisstopo); schwebende Bedienelemente auf der Karte im Thema */
-.kmlya.nc-dark .kmmap{background:#e9edef}
-.kmlya.nc-dark .lybase,.kmlya.nc-dark .lyspop{background:var(--nc-surface)}
-.kmlya.nc-dark .leaflet-control-zoom a{background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line)}
-.kmlya.nc-dark .leaflet-control-attribution{background:rgba(16,32,43,.85);color:var(--nc-text-soft)}
-.kmlya.nc-dark .leaflet-control-attribution a{color:var(--nc-accent-text)}
+.kmdlg.nc-dark .kmmap{background:#e9edef}
+.kmdlg.nc-dark .lybase,.kmdlg.nc-dark .lyspop{background:var(--nc-surface)}
+.kmdlg.nc-dark .leaflet-control-zoom a{background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line)}
+.kmdlg.nc-dark .leaflet-control-attribution{background:rgba(16,32,43,.85);color:var(--nc-text-soft)}
+.kmdlg.nc-dark .leaflet-control-attribution a{color:var(--nc-accent-text)}
 /* Grafiken (Querschnitt, Profil) im dunklen Panel auf hellem Grund lassen – Lesbarkeit der Fachgrafik */
-.kmlya.nc-dark .kmxs svg,.kmlya.nc-dark .kmpfsvg{background:#f7f9fa;border-radius:6px}
+.kmdlg.nc-dark .kmxs svg,.kmdlg.nc-dark .kmpfsvg{background:#f7f9fa;border-radius:6px}
 /* Theme-Schalter */
 .kmlya .nc-theme{min-width:34px}
-@media print{.kmdlg.kmlya.nc-dark{background:#fff;color:#000}}
+@media print{.kmdlg.nc-dark{background:#fff;color:#000}}
 .kmlya #kmTitle{display:flex;align-items:center;gap:8px;letter-spacing:.02em}.kmlya .nc-logo{width:26px;height:26px;flex:none}
 /* hart codierte helle Flächen im Arbeitsplatz auf Thema-Flächen umstellen (Kartenmarken .kmsnap/.kmtip bleiben hell, sie liegen auf der Karte) */
-.kmlya.nc-dark table{background:transparent}
-.kmlya.nc-dark .kmhit,.kmlya.nc-dark .kmws .kmhits,.kmlya.nc-dark .kmc select,.kmlya.nc-dark .kmc input,.kmlya.nc-dark .kmcat,.kmlya.nc-dark .kmv span,.kmlya.nc-dark .kmseg [aria-pressed=false],.kmlya.nc-dark .kmpipe,.kmlya.nc-dark .kmquick,.kmlya.nc-dark .kmask,.kmlya.nc-dark .kmsch.ex span,.kmlya.nc-dark .kmprops,.kmlya.nc-dark .kmdxcol,.kmlya.nc-dark .chip{background:var(--nc-raised);color:var(--nc-text)}
-.kmlya.nc-dark .kmrow,.kmlya.nc-dark .kmtool,.kmlya.nc-dark .kmws .kmtools,.kmlya.nc-dark .kmws .kmpan .kmcost,.kmlya.nc-dark .kmws .kmgrid.kmfloat .kmwf.kmtools,.kmlya.nc-dark .lybar{background:var(--nc-panel);color:var(--nc-text)}
-.kmlya.nc-dark .kmws .kmtools .btn:not([aria-pressed=true]),.kmws.kmlya.nc-dark .kmtools .btn:not([aria-pressed=true]){background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line-strong)}
-.kmlya.nc-dark .chip:hover{background:var(--nc-surface)}
-.kmlya.nc-dark .kmgcpt-t tr.warn td{background:var(--nc-warn-bg);color:var(--nc-warn-text)}
-.kmdlg.kmlya.nc-dark .kmbottom select{background:var(--nc-raised);color:var(--nc-text)}
-.kmlya.nc-dark .lytab td,.kmlya.nc-dark .lytab th{background:transparent}
-.kmlya.nc-dark .lytab tfoot td,.kmlya.nc-dark .lytab .tot td,.kmlya.nc-dark .lytab tr.tot td{background:var(--nc-panel)}
-.kmlya.nc-dark #kmTitle{color:var(--nc-text)}
-.kmlya.nc-dark tr.sub td,.kmlya.nc-dark tfoot td{background:var(--nc-panel);color:var(--nc-text-soft)}
-.kmlya.nc-dark tr.grp td,.kmlya.nc-dark tr.sum td{background:var(--nc-panel);color:var(--nc-text)}
-.kmlya.nc-dark tr.sum td{border-top-color:var(--nc-text-soft)}
-.kmlya.nc-dark .cost tr.koffen td{background:var(--nc-danger-bg);color:var(--nc-danger-text);border-top-color:var(--nc-danger)}
-.kmlya.nc-dark .cost tr.kerf td{color:var(--nc-warn-text)}
+.kmdlg.nc-dark table{background:transparent}
+.kmdlg.nc-dark .kmhit,.kmdlg.nc-dark .kmws .kmhits,.kmdlg.nc-dark .kmc select,.kmdlg.nc-dark .kmc input,.kmdlg.nc-dark .kmcat,.kmdlg.nc-dark .kmv span,.kmdlg.nc-dark .kmseg [aria-pressed=false],.kmdlg.nc-dark .kmpipe,.kmdlg.nc-dark .kmquick,.kmdlg.nc-dark .kmask,.kmdlg.nc-dark .kmsch.ex span,.kmdlg.nc-dark .kmprops,.kmdlg.nc-dark .kmdxcol,.kmdlg.nc-dark .chip{background:var(--nc-raised);color:var(--nc-text)}
+.kmdlg.nc-dark .kmrow,.kmdlg.nc-dark .kmtool,.kmdlg.nc-dark .kmws .kmtools,.kmdlg.nc-dark .kmws .kmpan .kmcost,.kmdlg.nc-dark .kmws .kmgrid.kmfloat .kmwf.kmtools,.kmdlg.nc-dark .lybar{background:var(--nc-panel);color:var(--nc-text)}
+.kmdlg.nc-dark .kmws .kmtools .btn:not([aria-pressed=true]),.kmws.kmdlg.nc-dark .kmtools .btn:not([aria-pressed=true]){background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line-strong)}
+.kmdlg.nc-dark .chip:hover{background:var(--nc-surface)}
+.kmdlg.nc-dark .kmgcpt-t tr.warn td{background:var(--nc-warn-bg);color:var(--nc-warn-text)}
+.kmdlg.nc-dark .kmbottom select{background:var(--nc-raised);color:var(--nc-text)}
+.kmdlg.nc-dark .lytab td,.kmdlg.nc-dark .lytab th{background:transparent}
+.kmdlg.nc-dark .lytab tfoot td,.kmdlg.nc-dark .lytab .tot td,.kmdlg.nc-dark .lytab tr.tot td{background:var(--nc-panel)}
+.kmdlg.nc-dark #kmTitle{color:var(--nc-text)}
+.kmdlg.nc-dark tr.sub td,.kmdlg.nc-dark tfoot td{background:var(--nc-panel);color:var(--nc-text-soft)}
+.kmdlg.nc-dark tr.grp td,.kmdlg.nc-dark tr.sum td{background:var(--nc-panel);color:var(--nc-text)}
+.kmdlg.nc-dark tr.sum td{border-top-color:var(--nc-text-soft)}
+.kmdlg.nc-dark .cost tr.koffen td{background:var(--nc-danger-bg);color:var(--nc-danger-text);border-top-color:var(--nc-danger)}
+.kmdlg.nc-dark .cost tr.kerf td{color:var(--nc-warn-text)}
 /* ---- Phase E: kompakter Arbeitsplatz, Arbeitsfläche maximal ---- */
 .kmdlg.kmlya .kmhead{padding:6px 12px;min-height:0;gap:8px}
 .kmdlg.kmlya .kmhead .btn{min-height:30px;padding:4px 10px;font-size:13px}
@@ -92,7 +92,7 @@
 .kmdlg.kmlya .lynav .lymidtog{margin-left:6px}
 .kmdlg.kmlya .kmleg{bottom:22px}
 @media (max-width:1180px){.kmdlg.kmlya .lycred{display:none}}
-.kmlya.nc-dark .lyc.lymain b{color:var(--nc-accent-text)}
+.kmdlg.nc-dark .lyc.lymain b{color:var(--nc-accent-text)}
 .kmdlg.kmlya .chfab{top:54px}
 .kmdlg.kmlya .kmhead{flex-wrap:nowrap}.kmdlg.kmlya .lynav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}
 .kmdlg.kmlya .kmheadb{flex-wrap:nowrap}
@@ -128,7 +128,7 @@
 .kmdlg.kmlya .lyexl{margin:6px 6px 2px;font-size:max(11px,var(--fsmin,0px));font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
 .kmdlg.kmlya .lyexs{display:flex;align-items:center;gap:4px;margin:0;padding:2px 8px 2px 14px;font-size:12px;color:var(--ink)}
 .kmdlg.kmlya .lytbody[hidden],.kmdlg.kmlya .lyexp[hidden]{display:none}
-.kmlya.nc-dark #kmCol,.kmlya.nc-dark #kmCol option{background:var(--nc-raised)!important;color:var(--nc-text)!important}
+.kmdlg.nc-dark #kmCol,.kmdlg.nc-dark #kmCol option{background:var(--nc-raised)!important;color:var(--nc-text)!important}
 .kmdlg.kmlya .kmhead > *{min-width:0}
 .kmdlg.kmlya .lynav{flex:1 1 auto;min-width:0}
 .kmdlg.kmlya .lybar{min-width:0;max-width:100%}
@@ -157,11 +157,11 @@
 .kmdlg.kmlya .lykx h4{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft)}
 .kmdlg.kmlya .lybar2{display:inline-block;width:70px;height:7px;border-radius:4px;background:var(--rule);vertical-align:middle;overflow:hidden}.kmdlg.kmlya .lybar2 i{display:block;height:100%;background:var(--nc-accent-text)}
 .kmdlg.kmlya .lypct{display:inline-block;min-width:46px;font-size:max(11.5px,var(--fsmin,0px));color:var(--ink-soft)}
-.kmlya.nc-dark tr.pst-ok .pst{background:var(--nc-ok-bg);border-color:var(--nc-ok-text);color:var(--nc-ok-text)}
-.kmlya.nc-dark tr.pst-kl .pst{background:var(--nc-warn-bg);border-color:var(--nc-warn-text);color:var(--nc-warn-text)}
-.kmlya.nc-dark tr.pst-ip .pst{background:#14304a;border-color:#7fb6ee;color:#a9cff5}
-.kmlya.nc-dark .pst{background:var(--nc-raised);color:var(--nc-text);border-color:var(--nc-line-strong)}
-.kmlya.nc-dark .linkbtn{color:var(--nc-accent-text)}
+.kmdlg.nc-dark tr.pst-ok .pst{background:var(--nc-ok-bg);border-color:var(--nc-ok-text);color:var(--nc-ok-text)}
+.kmdlg.nc-dark tr.pst-kl .pst{background:var(--nc-warn-bg);border-color:var(--nc-warn-text);color:var(--nc-warn-text)}
+.kmdlg.nc-dark tr.pst-ip .pst{background:#14304a;border-color:#7fb6ee;color:#a9cff5}
+.kmdlg.nc-dark .pst{background:var(--nc-raised);color:var(--nc-text);border-color:var(--nc-line-strong)}
+.kmdlg.nc-dark .linkbtn{color:var(--nc-accent-text)}
 .kmdlg.kmlya #lyP_pos{scroll-padding-top:76px}
 .kmdlg.kmlya .lyptab th:nth-child(2){width:118px}.kmdlg.kmlya .lyptab th:nth-child(1){width:124px}
 
@@ -283,7 +283,7 @@
 .kmdlg.kmlya .lyspop .kmhits{position:static;margin:6px 0 0;max-height:min(50vh,320px);border:0;background:transparent}
 .kmdlg.kmlya .lybase{position:absolute;top:10px;right:10px;left:auto;z-index:1000;display:block;padding:0;background:transparent;box-shadow:none}
 .kmdlg.kmlya .lybtn{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;min-height:34px;background:var(--paper);box-shadow:0 2px 8px rgba(0,0,0,.25)}
-.kmdlg.kmlya .lybtn{color:var(--ink)}.kmdlg.kmlya.nc-dark .lybtn,.kmdlg.kmlya.nc-dark .lybl{background:var(--nc-surface);color:var(--nc-text)}.kmdlg.kmlya .lybase.open .lybtn{color:#fff}
+.kmdlg.kmlya .lybtn{color:var(--ink)}.kmdlg.nc-dark .lybtn,.kmdlg.nc-dark .lybl{background:var(--nc-surface);color:var(--nc-text)}.kmdlg.kmlya .lybase.open .lybtn{color:#fff}
 .kmdlg.kmlya .lybase.open .lybtn{background:var(--nc-accent);color:#fff;border-color:var(--nc-accent)}
 .kmdlg.kmlya .lybl{position:absolute;right:0;top:calc(100% + 4px);min-width:100%;display:flex;flex-direction:column;gap:2px;padding:4px;background:var(--paper);border:1px solid var(--rule-strong);border-radius:8px;box-shadow:0 10px 28px rgba(0,0,0,.4)}
 .kmdlg.kmlya .lybl[hidden]{display:none}
@@ -336,7 +336,7 @@
 .kmdlg.kmlya .lyctx-i:hover,.kmdlg.kmlya .lyctx-i:focus-visible{background:var(--nc-accent);color:#fff;outline:none}
 .kmdlg.kmlya .lyctx-i:hover kbd,.kmdlg.kmlya .lyctx-i:focus-visible kbd{color:#fff;border-color:rgba(255,255,255,.6)}
 .kmdlg.kmlya .lyctx-i.danger{color:var(--nc-danger-text,#b8332a)}
-.kmdlg.kmlya.nc-dark .lyctx-i.danger{color:#ff9b93}
+.kmdlg.nc-dark .lyctx-i.danger{color:#ff9b93}
 .kmdlg.kmlya .lyctx-i.danger:hover,.kmdlg.kmlya .lyctx-i.danger:focus-visible{background:#a8281f;color:#fff}
 .kmdlg.kmlya .lyctx-s{height:1px;margin:3px 2px;background:var(--rule)}
 .kmdlg.kmlya .lyexr{padding:2px 6px}
@@ -353,7 +353,7 @@
 /* Knopf «Auf Bestand zoomen» neben dem Zoomfeld */
 .kmdlg .leaflet-top.leaflet-left .kmfitc{clear:none;margin-left:6px}
 .kmdlg .kmfitc a{display:flex;align-items:center;justify-content:center;width:30px;height:30px;color:#26343a}
-.kmlya.nc-dark .kmfitc a{background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line)}
+.kmdlg.nc-dark .kmfitc a{background:var(--nc-surface);color:var(--nc-text);border-color:var(--nc-line)}
 
 /* Auswahlrechteck (Umschalt + Ziehen): Fenster = durchgezogen blau, Kreuzen = gestrichelt grün */
 .kmdlg .kmbox{position:absolute;z-index:700;pointer-events:none;border:1.5px solid #0b6b72;background:rgba(11,107,114,.12)}
@@ -460,3 +460,25 @@ h3{letter-spacing:-.008em;line-height:1.25}
 .kmdlg.kmlya .lydelta.up{color:var(--amber,#8a5b00)}.kmdlg.kmlya .lydelta.dn{color:var(--ok,#1b6e46)}
 @media (prefers-reduced-motion:reduce){.kmdlg.kmlya .lydelta{animation:none}}
 .kmdlg.kmlya .lyp b.lyst{overflow:visible;text-overflow:clip}   /* Status «Unvollständig (n)» nie abschneiden */
+/* UX-Runde P5: Projektangaben als Seitenpanel in Layout A (gleiche Felder wie die Seite) */
+.kmdlg .lydrawer{position:absolute;top:var(--lytop,96px);right:0;bottom:0;z-index:1250;width:min(440px,100%);display:flex;flex-direction:column;background:var(--paper,#fff);color:var(--ink,#16232a);border-left:1px solid var(--rule-strong,#8fa1ac);box-shadow:-12px 0 32px rgba(0,0,0,.28);animation:lydr-in .26s var(--nc-spring,ease-out)}
+@keyframes lydr-in{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+.kmdlg .lydr-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px 8px;border-bottom:1px solid var(--rule,#d5dde1)}
+.kmdlg .lydr-h h2{margin:0;font-size:17px}
+.kmdlg .lydr-x{width:40px;height:40px;border-radius:8px;border:1px solid transparent;background:transparent;color:inherit;font-size:22px;line-height:1;cursor:pointer}
+.kmdlg .lydr-x:hover{background:var(--panel-2,#eef1f2)}
+.kmdlg .lydr-b{flex:1 1 auto;overflow:auto;padding:12px 14px}
+.kmdlg .lydrawer .kopfzeile{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin:0 0 10px}
+.kmdlg .lydrawer .kopfzeile > div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.kmdlg .lydrawer .kopfzeile label{font-size:12.5px;font-weight:650;color:var(--ink-soft,#40525b)}
+.kmdlg .lydrawer .kopfzeile input,.kmdlg .lydrawer .kopfzeile select{width:100%;box-sizing:border-box;min-height:36px}
+.kmdlg .lydrawer .kopf3{grid-template-columns:1fr}
+.kmdlg .lydr-f{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--rule,#d5dde1)}
+@media (max-width:520px){.kmdlg .lydrawer .kopfzeile{grid-template-columns:1fr}.kmdlg .lydrawer{top:0}}
+@media (prefers-reduced-motion:reduce){.kmdlg .lydrawer{animation:none}}
+/* UX-Runde P5: Kartenfenster der klassischen Seite im dunklen Thema – Akzent als Schrift aufhellen */
+.kmdlg.nc-dark .kmlen,.kmdlg.nc-dark .kmcostf,.kmdlg.nc-dark .kmfold,.kmdlg.nc-dark .kmcost{color:var(--nc-accent-text)}
+.kmdlg.nc-dark .kmsm{color:var(--nc-text-soft)}
+.kmdlg.nc-dark .kmovauto{background:var(--nc-raised);border-color:var(--nc-accent-text)}
+.kmdlg.nc-dark .kmpan .kmcost{background:var(--nc-raised);border-color:var(--nc-line)}
+.kmdlg.nc-dark .chhd strong,html.nc-dark .chhd strong{color:var(--nc-accent-text)}

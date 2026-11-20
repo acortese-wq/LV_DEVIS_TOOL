@@ -51,12 +51,12 @@ const waitLy = async (pg, ms) => { for (let t = 0; t < (ms || 15000); t += 250) 
   // Änderung → Wechsel fragt nach
   await pg.click('[data-k=mpt]'); const mb = await pg.locator('#kmMap').boundingBox(); await pg.mouse.click(mb.x + mb.width * 0.3, mb.y + mb.height * 0.8); await pg.waitForTimeout(400);
   await pg.keyboard.press('Escape').catch(() => {}); await pg.waitForTimeout(200);
-  await pg.click('[data-ly=proj]'); await pg.waitForTimeout(300);
+  await pg.click('[data-ly=rec]'); await pg.waitForTimeout(300);
   ok(await pg.locator('#lyAsk:visible').count() === 1 && await pg.locator('dialog.kmlya[open]').count() === 1, 'nicht übernommene Änderung: Rückfrage statt stillem Verwerfen');
   await pg.click('[data-lya=no]'); await pg.waitForTimeout(200); ok(await pg.locator('#lyAsk:visible').count() === 0 && await pg.locator('dialog.kmlya[open]').count() === 1, '«Abbrechen» bleibt in der Karte');
   await pg.waitForTimeout(800); const kp2 = await pg.evaluate(() => document.querySelector('#lySch, #lyKpi').textContent);
   ok(/Schächte\s*6/.test(kp2), 'Kennzahl Schächte folgt der Zeichnung live (6)');
-  await pg.click('[data-ly=proj]'); await pg.waitForTimeout(300); await pg.click('[data-lya=save]'); await pg.waitForTimeout(500);
+  await pg.click('[data-ly=rec]'); await pg.waitForTimeout(300); await pg.click('[data-lya=save]'); await pg.waitForTimeout(500);
   const S2 = await getS(pg);
   ok(await pg.locator('dialog.kmlya[open]').count() === 0 && S2.karte.pts.length === 6 && JSON.stringify(S2.recs) === S0, '«Nur Zeichnung sichern»: Zeichnung gespeichert, Datensätze unverändert');
   // Übernehmen bleibt im Layout A, Ergebnis = Projektleiste

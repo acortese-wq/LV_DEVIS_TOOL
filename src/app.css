@@ -825,3 +825,34 @@ html:not(.lvready) .sheet{visibility:hidden}   /* Seite erst nach dem ersten Fü
 .status.empty .reqsum{border-top-color:var(--rule,#d5dde1)}
 .status.empty .reqsum-t{color:var(--amber,#8a4b00)}
 .lyreq .warns li .btn{margin-right:4px}
+/* UX-Runde 11/2026 P5: dunkles Thema der klassischen Seite – Handregeln für Akzent-, Status- und Signalflächen (ergänzt src/theme_dark.css), nur Bildschirm */
+@media screen{
+html.nc-dark .btn:not(.ghost):not(.del){background:var(--nc-accent);border-color:var(--nc-accent);color:#fff}
+html.nc-dark .btn:not(.ghost):not(.del):hover{background:var(--nc-accent-strong);border-color:var(--nc-accent-strong)}
+html.nc-dark .btn.ghost{background:transparent;color:var(--nc-text);border-color:var(--nc-line-strong)}
+html.nc-dark .btn.ghost:hover{background:var(--nc-raised);color:var(--nc-text)}
+html.nc-dark .btn.del,html.nc-dark .btn.ghost.del{color:var(--nc-danger-text);border-color:#7a3a35}
+html.nc-dark .btn:disabled{background:var(--nc-panel);border-color:var(--nc-line);color:var(--nc-muted)}
+html.nc-dark body > .kmtoast{background:var(--nc-raised);color:var(--nc-text);border:1px solid var(--nc-line-strong)}
+html.nc-dark .langs button[aria-pressed=true],html.nc-dark [aria-pressed=true].btn.ghost{background:var(--nc-accent);color:#fff;border-color:var(--nc-accent)}
+html.nc-dark .tab[aria-selected=true],html.nc-dark .tabsbar [aria-selected=true]{background:var(--nc-accent);color:#fff}
+html.nc-dark .tab .cnt,html.nc-dark .badge.auto{background:var(--nc-raised);color:var(--nc-accent-text);border-color:var(--nc-line-strong)}
+html.nc-dark .status.ok{background:var(--nc-ok-bg);color:var(--nc-ok-text);border-color:var(--ok-line)}
+html.nc-dark .status.amber,html.nc-dark .warns li.amber{background:var(--nc-warn-bg)!important;color:var(--nc-warn-text)!important;border-color:var(--amber-line)!important}
+html.nc-dark .status.stop,html.nc-dark .warns li.stop{background:var(--nc-danger-bg)!important;color:var(--nc-danger-text)!important;border-color:#7a3a35!important}
+html.nc-dark .status.stop a,html.nc-dark .status.amber a,html.nc-dark .warns li a{color:inherit}
+html.nc-dark .status.empty{background:var(--nc-panel);color:var(--nc-text);border-color:var(--nc-line-strong)}
+html.nc-dark :focus-visible{outline-color:var(--nc-focus)}
+html.nc-dark .sg.on{background:var(--nc-accent);color:#fff}
+html.nc-dark .tag{background:var(--nc-raised);color:var(--nc-accent-text)}
+html.nc-dark .tag.amber{background:var(--nc-warn-bg);color:var(--nc-warn-text);border-color:var(--amber-line)}
+html.nc-dark .tag.stop{background:var(--nc-danger-bg);color:var(--nc-danger-text);border-color:#7a3a35}
+html.nc-dark .warns li{background:var(--nc-surface);border-color:var(--nc-line)}
+html.nc-dark .warns li.info{color:var(--nc-text-soft)}
+html.nc-dark tr.flash td{background:#4a3f14!important;color:var(--nc-text)}
+html.nc-dark .pst{background:var(--nc-raised);color:var(--nc-text);border-color:var(--nc-line-strong)}
+html.nc-dark tr.pst-ok .pst{background:var(--nc-ok-bg);border-color:var(--nc-ok-text);color:var(--nc-ok-text)}
+html.nc-dark tr.pst-kl .pst{background:var(--nc-warn-bg);border-color:var(--nc-warn-text);color:var(--nc-warn-text)}
+html.nc-dark tr.pst-ip .pst{background:#14304a;border-color:#7fb6ee;color:#a9cff5}
+html.nc-dark .linkbtn{color:var(--nc-accent-text)}
+}

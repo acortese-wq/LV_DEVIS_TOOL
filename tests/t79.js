@@ -15,10 +15,10 @@ const toA = async pg => { await pg.evaluate(() => localStorage.setItem('lvd-layo
   await pg.addScriptTag({ path: AXE });
   const axe = () => pg.evaluate(() => axe.run(document.querySelector('dialog.kmlya'), { rules: { region: { enabled: false } } }).then(r => r.violations.map(v => v.id + ':' + v.nodes.length)));
   let ax = await axe(); ok(ax.length === 0, 'axe dunkel: ' + JSON.stringify(ax));
-  await pg.click('[data-nctheme]'); await pg.waitForTimeout(200);
+  await pg.click('dialog [data-nctheme]'); await pg.waitForTimeout(200);
   ok(!(await pg.evaluate(() => document.querySelector('dialog.kmlya').classList.contains('nc-dark'))) && await pg.evaluate(() => localStorage.getItem('lvd-theme')) === 'light', 'Umschalten auf hell, Wahl gemerkt (nicht im Projekt)');
   ax = await axe(); ok(ax.length === 0, 'axe hell: ' + JSON.stringify(ax));
-  await pg.click('[data-nctheme]'); await pg.waitForTimeout(200);
+  await pg.click('dialog [data-nctheme]'); await pg.waitForTimeout(200);
   ok(!(await pg.evaluate(() => JSON.stringify(window.__LVD.S())).then(s => /lvd-theme|nc-dark/.test(s))), 'Thema verändert keine Projektdaten');
   // Arbeitsfläche
   const geo = await pg.evaluate(() => { const m = document.querySelector('#kmMap').getBoundingClientRect(); return { h: m.height, w: m.width }; });

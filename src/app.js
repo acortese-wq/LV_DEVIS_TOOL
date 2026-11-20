@@ -1924,7 +1924,7 @@
     } catch (e) { }
   }
   function urlLang(l) { try { if (!/^https?:$/.test(location.protocol)) return; var u = new URL(location.href); u.searchParams.set("lang", l); history.replaceState(null, "", u.pathname + u.search + u.hash); } catch (e) { } }
-  function applyLang() {
+  function applyLang() { var thb0 = $("#bTheme"); if (thb0) { thb0.setAttribute("aria-label", tt("ly_themeD")); thb0.title = tt("ly_themeD"); }
     document.documentElement.lang = S.lang;
     $("#t-title").textContent = tt("title"); var wms = $("#t-wmsub"); if (wms) { wms.textContent = tt("wm_sub"); wms.parentNode.parentNode.setAttribute("aria-label", "NIUcost – " + tt("wm_sub")); } document.title = tt("title"); var lyb0 = $("#bLyMap"); if (lyb0) { lyb0.textContent = tt("ly_btn"); lyb0.title = tt("ly_btnT"); } $("#t-sub").textContent = tt("sub"); var ti = $("#t-intro"); if (ti) { ti.textContent = tt("intro"); $("#t-contact").textContent = tt("contact") + " →"; $("#t-impr").textContent = tt("impr"); $("#t-imprC").textContent = tt("imprC"); $("#bPriv").textContent = tt("imprP"); $("#t-imprN").textContent = tt("imprN"); $("#morePrint").textContent = tt("morePrint"); }
     seoLang(); var tcr = $("#t-creator"); if (tcr) tcr.textContent = tt("km_cred"); $("#t-role").textContent = tt("creatorRole");
@@ -2068,6 +2068,8 @@
   }
   window.__LVD = { loadDemo: loadDemo, S: function () { return S; }, xlsxBytes: xlsxBytes, renderResult: renderResult, F: F, optLabel: optLabel, tt: tt, fill: fill, snap: snapState, commit: function (sn, msg) { save(); renderForm(); renderResult(); undoToast(msg, sn); } };
     var lyb = $("#bLyMap"); if (lyb) lyb.onclick = function () { lySetPref("a"); lyOpen(1); };
+    var thb = $("#bTheme"); if (thb) { thb.setAttribute("aria-label", tt("ly_themeD")); thb.title = tt("ly_themeD"); thb.onclick = function () { KARTE.theme(!document.documentElement.classList.contains("nc-dark")); }; }   /* UX-Runde P5: globales Thema */
+    KARTE.themeApply();
     document.documentElement.classList.add("lvready");
     if (lyPref() === "a") setTimeout(function () { lyOpen(); }, 0);   /* Layout A: Karte als Startbildschirm (seit Phase H auch auf Handy/Tablet) */
   }

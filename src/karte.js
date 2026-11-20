@@ -695,7 +695,7 @@
     var area = function (pts) { var a = 0; for (var i = 0; i < pts.length; i++) { var p = pts[i], q = pts[(i + 1) % pts.length]; a += p[0] * q[1] - q[0] * p[1]; } a = Math.abs(a) / 2; return plan ? a * Math.pow(cal.scale || 0, 2) : a; };
     var intro = false; try { intro = !localStorage.getItem(INTRO); } catch (e) { }
     var maxOn = true; try { maxOn = localStorage.getItem("lvd-km-max") !== "0"; } catch (e) { }
-    var dlg = document.createElement("dialog"); dlg.className = "kmdlg" + (maxOn ? " kmmax" : ""); dlg.setAttribute("aria-labelledby", "kmTitle");
+    var dlg = document.createElement("dialog"); dlg.className = "kmdlg" + (maxOn ? " kmmax" : "") + (theme() ? " nc-dark" : ""); dlg.setAttribute("aria-labelledby", "kmTitle");
     var ip = plan ? ["km_i1p", "km_i2p", "km_i3p", "km_i5"] : ["km_i1", "km_i2", "km_i3", "km_i4", "km_i5"];
     dlg.innerHTML =
       '<div class="kmhead"><h2 id="kmTitle">' + esc(tt(plan ? "pl_title" : "km_title")) + '</h2><span class="kmheadb"><button type="button" class="btn ghost small" data-k="max" aria-pressed="' + (maxOn ? "true" : "false") + '" title="' + esc(tt("km_maxT")) + '">' + esc(tt("km_max")) + '</button><button type="button" class="btn ghost small" data-k="close">' + esc(tt("km_close")) + "</button></span></div>" +
@@ -817,7 +817,7 @@
       dlg.appendChild(grid); dlg.appendChild(bottom);
       if (LY) (function () {   /* Layout A: App-Leiste (Ansichten), Projektleiste mit Kennzahlen, unteres Dock */
         dlg.classList.add("kmlya", "kmmax"); var t0 = $("#kmTitle"); if (t0) { t0.textContent = tt("ly_app"); t0.insertAdjacentHTML("afterbegin", '<svg class="nc-logo" viewBox="0 0 160 160" aria-hidden="true" focusable="false"><rect width="160" height="160" rx="16" fill="#0b5561"/><path d="M0 16a16 16 0 0 1 16-16h128a16 16 0 0 1 16 16v18H0z" fill="#00a3ad"/><path d="M34 46h92l-10 96H44z" fill="none" stroke="#fff" stroke-width="9" stroke-linejoin="round"/><circle cx="80" cy="96" r="29" fill="#fff"/><path d="M69 110V82h5l12 18V82h5v28h-5L74 92v18z" fill="#0b5561"/></svg>'); }
-        var thm = "dark"; try { thm = localStorage.getItem("lvd-theme") || "dark"; } catch (e) { } dlg.classList.toggle("nc-dark", thm === "dark");   /* Engineering-Thema (UI-Einstellung, nicht im Projekt) */
+        dlg.classList.toggle("nc-dark", theme());   /* Engineering-Thema (UI-Einstellung, nicht im Projekt) */
         var hb2 = head.querySelector(".kmheadb"), nav = E("nav", "lynav"); nav.setAttribute("aria-label", tt("ly_views"));
         nav.innerHTML = [["map", "ly_vMap"], ["proj", "ly_vProj"], ["rec", "ly_vRec"], ["res", "ly_vRes"], ["rep", "ly_vRep"]].map(function (a) { return '<button type="button" class="btn ghost small" data-ly="' + a[0] + '"' + (a[0] === "map" ? ' aria-current="page"' : "") + ">" + esc(tt(a[1])) + "</button>"; }).join("");
         head.insertBefore(nav, hb2);
@@ -825,7 +825,7 @@
         lg.innerHTML = ["de", "fr", "it", "en"].map(function (c) { return '<button type="button" class="btn ghost small" data-lylang="' + c + '" aria-pressed="' + (c === (LY.lang || opt.lang) ? "true" : "false") + '" lang="' + c + '">' + c.toUpperCase() + "</button>"; }).join("");
         hb2.insertBefore(lg, hb2.firstChild);
         var tb = E("button", "btn ghost small nc-theme", dlg.classList.contains("nc-dark") ? "☀" : "☾"); tb.type = "button"; tb.setAttribute("data-nctheme", ""); tb.setAttribute("aria-pressed", dlg.classList.contains("nc-dark") ? "true" : "false"); tb.setAttribute("aria-label", tt("ly_themeD")); tb.title = tt("ly_themeD");
-        tb.addEventListener("click", function () { var d = !dlg.classList.contains("nc-dark"); dlg.classList.add("nc-fade"); setTimeout(function () { dlg.classList.remove("nc-fade"); }, 320); dlg.classList.toggle("nc-dark", d); tb.textContent = d ? "☀" : "☾"; tb.setAttribute("aria-pressed", d ? "true" : "false"); try { localStorage.setItem("lvd-theme", d ? "dark" : "light"); } catch (e) { } });
+        tb.addEventListener("click", function () { var d = !dlg.classList.contains("nc-dark"); dlg.classList.add("nc-fade"); setTimeout(function () { dlg.classList.remove("nc-fade"); }, 320); theme(d); });   /* UX-Runde P5: gilt für die ganze Seite */
         hb2.insertBefore(tb, lg.nextSibling);
         (function () {   /* Phase G: Bedienmodi Einfach/Standard/Experte (UI-Einstellung lvd-uimode, nicht im Projekt) + Befehlsleiste Strg+K */
           var md = "s"; try { md = localStorage.getItem("lvd-uimode") || "s"; } catch (e) { } if (["e", "s", "x"].indexOf(md) < 0) md = "s";
@@ -3380,9 +3380,30 @@
       a.innerHTML = '<p id="lyAskT"><b>' + esc(tt("ly_askT")) + "</b> " + esc(tt("ly_askQ")) + '</p><div class="kmbar"><button type="button" class="btn small" data-lya="apply">' + esc(tt("ly_askApply")) + '</button><button type="button" class="btn ghost small" data-lya="save">' + esc(tt("ly_askSave")) + '</button><button type="button" class="btn ghost small del" data-lya="drop">' + esc(tt("ly_askDrop")) + '</button><button type="button" class="btn ghost small" data-lya="no">' + esc(tt("ly_askNo")) + "</button></div>";
       a.hidden = false; a.setAttribute("data-t", t); a.querySelector("button").focus();
     }
+    /* UX-Runde P5: Projektangaben als Seitenpanel in Layout A – die Felder der Seite werden ins Panel verschoben und beim Schliessen zurückgesetzt
+       (gleiche Eingaben, gleiche Speicherung), Projektleiste folgt live */
+    function lyProj(from) {
+      if ($("#lyProjD")) { lyProjClose(); return; } var kb = document.getElementById("kopfbox"); if (!kb) return;
+      var dr = document.createElement("section"); dr.id = "lyProjD"; dr.className = "lydrawer"; dr.setAttribute("aria-labelledby", "lyProjT");
+      dr.innerHTML = '<div class="lydr-h"><h2 id="lyProjT">' + esc(tt("ly_projT")) + '</h2><button type="button" class="lydr-x" data-lyprojx aria-label="' + esc(tt("ly_projX")) + '" title="' + esc(tt("ly_projX")) + ' (Esc)">×</button></div><div class="lydr-b"></div>' +
+        '<div class="lydr-f"><button type="button" class="btn small" data-lyprojx>' + esc(tt("ly_projOk")) + '</button><span class="hint">' + esc(tt("ly_projHint")) + "</span></div>";
+      var body = dr.querySelector(".lydr-b"); [].slice.call(kb.children).forEach(function (n) { if (n.classList.contains("kopfzeile")) body.appendChild(n); });
+      dlg.appendChild(dr); dr._from = from || null;
+      dr.addEventListener("input", lyProjSync); dr.addEventListener("change", lyProjSync);
+      dr.addEventListener("click", function (e) { if (e.target.closest("[data-lyprojx]")) lyProjClose(); });
+      dr.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); lyProjClose(); } });
+      var nb = dlg.querySelector('.lynav [data-ly=proj]'); if (nb) nb.setAttribute("aria-expanded", "true");
+      var f = dr.querySelector("input,select"); if (f && !(window.matchMedia && window.matchMedia("(pointer:coarse)").matches)) f.focus();
+    }
+    function lyProjSync() { var p = document.getElementById("p_projekt"), o = document.getElementById("p_ort"), a = $("#lyProj"), b = $("#lyOrt"); if (a && p) a.textContent = p.value.trim() || tt("ly_noProj"); if (b && o) b.textContent = o.value.trim() || "–"; }
+    function lyProjClose() {
+      var dr = $("#lyProjD"), kb = document.getElementById("kopfbox"); if (!dr) return; lyProjSync();
+      if (kb) [].slice.call(dr.querySelectorAll(".kopfzeile")).forEach(function (n) { kb.appendChild(n); });
+      var fr = dr._from; dr.remove(); var nb = dlg.querySelector('.lynav [data-ly=proj]'); if (nb) nb.setAttribute("aria-expanded", "false"); if (fr && fr.focus && document.body.contains(fr)) fr.focus();
+    }
     function lyClick(b) {
       if (b.hasAttribute("data-lywarn")) { lyD.t = "warn"; lyD.c = false; lyDock(); var tw = dlg.querySelector("#lyT_warn"); if (tw) tw.focus(); return; }
-      if (b.hasAttribute("data-ly")) return lyGo(b.getAttribute("data-ly"));
+      if (b.hasAttribute("data-ly")) { var lv0 = b.getAttribute("data-ly"); if (lv0 === "proj" && document.getElementById("kopfbox")) return lyProj(b); if (lv0 === "map") { lyProjClose(); return; } return lyGo(lv0); }   /* UX-Runde P5: Projekt als Seitenpanel, ohne Layoutwechsel */
       if (b.hasAttribute("data-lylang")) {   /* Sprache wechseln: Karte in der neuen Sprache neu aufbauen, Zeichnung (auch nicht übernommene Änderungen) und Ausschnitt bleiben */
         var lc = b.getAttribute("data-lylang"); if (lc === (LY.lang || opt.lang) || !LY.setLang) return; if (cur || curN || curA || tmp.length) endLine();
         var keep = { model: JSON.parse(JSON.stringify(M)), view: { c: map.getCenter(), z: map.getZoom() }, edited: lyEdited }; close(); LY.setLang(lc, keep); return;
@@ -3397,7 +3418,7 @@
       close(); LY.go(t2);
     }
     var ro = null;
-    function close() { window.KARTE.live = null; try { if (ro) ro.disconnect(); map.remove(); } catch (e) { } dlg.close(); dlg.remove(); if (opt.onClose) opt.onClose(); }
+    function close() { if (LY) lyProjClose(); window.KARTE.live = null; try { if (ro) ro.disconnect(); map.remove(); } catch (e) { } dlg.close(); dlg.remove(); if (opt.onClose) opt.onClose(); }
 
     if (plan) {
       var P = opt.plan; map = L.map($("#kmMap"), { crs: L.CRS.Simple, minZoom: -4, maxZoom: 6, zoomSnap: 0.25, doubleClickZoom: false, attributionControl: false });
@@ -3487,7 +3508,7 @@
     }
     if (window.ResizeObserver) { ro = new ResizeObserver(function () { try { map.invalidateSize({ animate: false }); ovDraw(); } catch (e) { } }); ro.observe($("#kmMap")); }
     if (LY) {   /* Layout A: Dock, Layout-Umschalter, Änderungen merken */
-      lyDock(); lyRender(null);
+      lyDock(); lyRender(null); dlg.addEventListener("close", lyProjClose);
       var lys = $("#lySel"); if (lys) lys.addEventListener("change", function () { if (lys.value === "classic") { if (LY.setPref) LY.setPref("classic"); lyGo("proj"); } else lys.value = "a"; });
       ["input", "change"].forEach(function (n) { dlg.addEventListener(n, function (e) { if (e.target.closest && e.target.closest("#kmObj,#kmProps,#kmQuick")) lyEdited = true; }); });
       var dtl = dlg.querySelector(".lydtabs"); if (dtl) dtl.addEventListener("keydown", function (e) { if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return; var bs = [].slice.call(dtl.querySelectorAll("[role=tab]")), i0 = bs.indexOf(document.activeElement); if (i0 < 0) return; var nb = bs[(i0 + (e.key === "ArrowRight" ? 1 : bs.length - 1)) % bs.length]; nb.focus(); e.preventDefault(); });
@@ -3797,6 +3818,16 @@
     if (!plan && opt.autoPlan && !ovl && opt.planImg && opt.planImg.img) { $("#kmOvPlan").click(); } if (!stEl) (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
+  /* UX-Runde 11/2026 P5: ein globales Thema (hell/dunkel) für beide Layouts – UI-Einstellung lvd-theme (Vorgabe dunkel), nicht im Projekt; Druck bleibt hell */
+  function theme(d) {
+    if (d === undefined) { var t = ""; try { t = localStorage.getItem("lvd-theme") || ""; } catch (e) { } return (t || window.__LVD_THEME_DEFAULT || "dark") === "dark"; }
+    try { localStorage.setItem("lvd-theme", d ? "dark" : "light"); } catch (e) { } themeApply(d); return d;
+  }
+  function themeApply(d) {
+    if (d === undefined) d = theme(); var r = document.documentElement; r.classList.toggle("nc-dark", d);
+    [].slice.call(document.querySelectorAll(".kmdlg")).forEach(function (x) { x.classList.toggle("nc-dark", d); });
+    [].slice.call(document.querySelectorAll("[data-nctheme]")).forEach(function (b) { b.textContent = d ? "☀" : "☾"; b.setAttribute("aria-pressed", d ? "true" : "false"); });
+  }
   /* V145 Machbarkeit: Linien durch Gebäude aus dem gespeicherten Bodenbedeckungs-Ergebnis (amtliche Vermessung) – ohne neue Abfrage */
   function gebHits(K) {
     var out = []; ((K && K.lines) || []).forEach(function (l, i) {
@@ -3807,5 +3838,5 @@
     });
     return out;
   }
-  window.KARTE = { gebHits: gebHits, avRuns: avRuns, avCls: avCls, bendGeo: bendGeo, bendsOf: bendsOf, bendPts: bendPts, abzInfo: abzInfo, ABZ_TYP: ABZ_TYP, lineSlopeS: lineSlopeS, slopeLen: slopeLen, slopeOn: slopeOn, slopeHz: slopeHz, connOf: connOf, connTxt: connTxt, ovBase: ovBase, cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
+  window.KARTE = { theme: theme, themeApply: themeApply, gebHits: gebHits, avRuns: avRuns, avCls: avCls, bendGeo: bendGeo, bendsOf: bendsOf, bendPts: bendPts, abzInfo: abzInfo, ABZ_TYP: ABZ_TYP, lineSlopeS: lineSlopeS, slopeLen: slopeLen, slopeOn: slopeOn, slopeHz: slopeHz, connOf: connOf, connTxt: connTxt, ovBase: ovBase, cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
 })();

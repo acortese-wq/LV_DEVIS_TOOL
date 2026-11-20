@@ -35,7 +35,7 @@ const open = async pg => { for (let t = 0; t < 60 && !(await pg.locator('dialog.
   await pg.addScriptTag({ path: AXE });
   const axe = () => pg.evaluate(() => axe.run(document.querySelector('.lyrb'), { rules: { region: { enabled: false } } }).then(r => r.violations.map(v => v.id + ':' + v.nodes.length)));
   let ax = await axe(); ok(ax.length === 0, 'axe dunkel: ' + JSON.stringify(ax));
-  await pg.click('.nc-theme'); await pg.waitForTimeout(200); ax = await axe(); ok(ax.length === 0, 'axe hell: ' + JSON.stringify(ax)); await pg.click('.nc-theme');
+  await pg.click('dialog .nc-theme'); await pg.waitForTimeout(200); ax = await axe(); ok(ax.length === 0, 'axe hell: ' + JSON.stringify(ax)); await pg.click('dialog .nc-theme');
   // Minimieren
   const mh1 = await pg.evaluate(() => (document.querySelector('#kmMap').getBoundingClientRect().height - (parseFloat(document.querySelector('dialog.kmlya').style.getPropertyValue('--lytop')) || 0)));
   await pg.click('[data-rbmin]'); await pg.waitForTimeout(300);
