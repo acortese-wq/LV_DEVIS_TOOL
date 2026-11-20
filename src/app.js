@@ -47,6 +47,7 @@
     });
     if (!S.karte || !Array.isArray(S.karte.lines)) S.karte = { lines: [], pts: [], sond: [], notes: [], areas: [], wl: [], geb: [] }; if (!Array.isArray(S.karte.pts)) S.karte.pts = []; if (!Array.isArray(S.karte.sond)) S.karte.sond = []; if (!Array.isArray(S.karte.notes)) S.karte.notes = []; if (!Array.isArray(S.karte.areas)) S.karte.areas = []; if (!Array.isArray(S.karte.wl)) S.karte.wl = []; if (!Array.isArray(S.karte.geb)) S.karte.geb = [];
     if (!S.plan || !Array.isArray(S.plan.lines)) S.plan = { img: "", w: 0, h: 0, cal: {}, lines: [], pts: [], sond: [], notes: [], areas: [], wl: [], geb: [] }; if (!Array.isArray(S.plan.pts)) S.plan.pts = []; if (!Array.isArray(S.plan.sond)) S.plan.sond = []; if (!Array.isArray(S.plan.notes)) S.plan.notes = []; if (!Array.isArray(S.plan.areas)) S.plan.areas = []; if (!Array.isArray(S.plan.wl)) S.plan.wl = []; if (!Array.isArray(S.plan.geb)) S.plan.geb = []; if (!S.plan.cal) S.plan.cal = {};
+    if (!Array.isArray(S.fotos)) S.fotos = []; if (!S.mb || typeof S.mb !== "object") S.mb = { u: "", text: "", aus: [], eigene: "" }; if (!Array.isArray(S.mb.aus)) S.mb.aus = [];
     if (ALLTABS.indexOf(S.tab) < 0) S.tab = "graben";
   }
   try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
@@ -885,7 +886,7 @@
           var u0 = ensureUid(cfg); cfg.trasse.forEach(function (pts, i) { S.karte.lines.push({ id: "m" + i + u0, pts: pts, rid: i === 0 ? u0 : null, rohr: { sys: cfg.rohrSystem, dn: cfg.dn, len: cfg.len, n: cfg.n } }); }); delete cfg.trasse;
         }
         var g = tab === "graben" && cfg;
-        KARTE.open({ kind: "map", zT: zT, on3d: function (u, m) { S.v3d = { img: u, at: Date.now(), ex: m.ex }; save(); }, tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, cost: costPreview(cfg, tab), model: ex.keep && ex.keep.model ? ex.keep.model : JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), view: ex.keep ? ex.keep.view : null, edited: !!(ex.keep && ex.keep.edited), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
+        KARTE.open({ kind: "map", zT: zT, foto: fotoApi(), on3d: function (u, m) { S.v3d = { img: u, at: Date.now(), ex: m.ex }; save(); }, tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, cost: costPreview(cfg, tab), model: ex.keep && ex.keep.model ? ex.keep.model : JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), view: ex.keep ? ex.keep.view : null, edited: !!(ex.keep && ex.keep.edited), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" && cfg ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" && cfg ? cfg.cm : "", abd: tab === "geb" && cfg ? cfg.abd : "hauff" }, defBelag: tab === "belag" && cfg ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
           onClose: function () { if (ex.layoutA) return; var o = $(ex.focus || "#kmOpen"); if (o) o.focus(); },
@@ -1563,10 +1564,60 @@
     return '<section class="rp-sec rp-kdia"><h2>' + esc(tt("rp_h_dia")) + '</h2><p class="rp-dia-lead">' + esc(fill(tt("rp_dia_top"), { a: p[0].k, p: (p[0].v / tot * 100).toFixed(0) })) + '</p><div class="rp-dias">' +
       diaBlock(art, tt("rp_dia_art"), tt("rp_dia_c_art")) + diaBlock(bt, tt("rp_dia_bt"), tt("rp_dia_c_bt")) + '</div><p class="rp-dia-b">' + esc(fill(tt("rp_dia_basis"), { z: chf(r2(tot)) })) + "</p></section>";
   }
+  /* V145: Fotodokumentation – Angaben im Projekt (S.fotos), Bilder im Gerätespeicher (FOTO); Bericht lädt die Bilder vor dem Aufbau */
+  var FOTO_OK = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/, rpFotoImg = {};
+  function fotoApi() {
+    var find = function (id) { return (S.fotos || []).filter(function (f) { return f.id === id; })[0]; };
+    return { list: function () { return S.fotos || []; }, add: function (f) { S.fotos.push(f); save(); },
+      upd: function (id, p) { var f = find(id); if (f) { Object.assign(f, p); save(); } },
+      del: function (id) { S.fotos = S.fotos.filter(function (f) { return f.id !== id; }); if (window.FOTO) FOTO.del(id); save(); } };
+  }
+  function fotoObj(id) {
+    var K = S.karte, o, by = function (a) { return (a || []).filter(function (x) { return x.id === id; })[0]; }; if (!id) return tt("ft_free");
+    if ((o = by(K.lines))) return tt("km_lineN").replace("{n}", K.lines.indexOf(o) + 1);
+    if ((o = by(K.pts))) return o.mode === "abz" ? tt("km_abzN").replace("{n}", K.pts.filter(function (x) { return x.mode === "abz"; }).indexOf(o) + 1) : tt("km_schN").replace("{n}", K.pts.indexOf(o) + 1) + (o.mode === "deckel" ? " · " + tt("km_pm_dk") : "") + (o.name ? " «" + o.name + "»" : "");
+    if ((o = by(K.wl))) return tt("km_wlN").replace("{n}", K.wl.indexOf(o) + 1); if ((o = by(K.geb))) return tt("km_gebN").replace("{n}", K.geb.indexOf(o) + 1);
+    if ((o = by(K.sond))) return tt("km_sondN").replace("{n}", K.sond.indexOf(o) + 1); if ((o = by(K.areas))) return tt("km_areaN").replace("{n}", K.areas.indexOf(o) + 1);
+    return tt("ft_free");
+  }
+  function reportFotos() {
+    var F = S.fotos || []; if (!F.length) return ""; var c0 = function (v) { return Math.round(v).toLocaleString("de-CH"); };
+    return '<section class="rp-sec rp-foto"><h2>' + esc(tt("rp_h_foto")) + '</h2><div class="rp-fotos">' + F.map(function (f, i) {
+      var u = rpFotoImg[f.id], d = new Date(f.t), when = isNaN(d) ? "" : d.toLocaleDateString("de-CH") + " " + d.toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" }), lbl = tt("ft_n").replace("{n}", i + 1) + " · " + fotoObj(f.obj);
+      var where = f.pt ? "E " + c0(f.pt[0]) + " / N " + c0(f.pt[1]) + (f.acc != null ? " (± " + f.acc + " m)" : "") : "";
+      return '<figure class="rp-ft">' + (u && FOTO_OK.test(u) ? '<img src="' + u + '" alt="' + esc(lbl) + '">' : '<div class="rp-ft-x">' + esc(tt("ft_missing")) + "</div>") +
+        "<figcaption><b>" + esc(lbl) + "</b><br>" + esc([when, where].filter(Boolean).join(" · ")) + (f.note ? '<br><span class="rp-ft-n">' + esc(f.note) + "</span>" : "") + "</figcaption></figure>";
+    }).join("") + "</div></section>";
+  }
+  /* V145: Machbarkeitsbericht – Beurteilung von Hand (machbar / bedingt / nicht machbar), Prüfpunkte als Vorschlag aus Warnungen und Konflikten */
+  function mbSug(out) {
+    var a = [], add = function (t) { if (t && a.indexOf(t) < 0) a.push(t); }, K = S.karte;
+    if (!(K.lines.length || K.pts.length)) add(tt("mb_s_nomap"));
+    (KARTE.gebHits ? KARTE.gebHits(K) : []).forEach(function (g) { add(tt("rc_gebLine").replace("{n}", g.n).replace("{m}", String(g.m))); });
+    var nDk = K.pts.filter(function (p) { return p.mode === "deckel"; }).length; if (nDk) add(tt("mb_s_dk").replace("{n}", nDk));
+    var nAir = K.lines.filter(function (l) { return l.hzArt === "luft" || l.hzArt === "bohr"; }).length; if (nAir) add(tt("mb_s_air").replace("{n}", nAir));
+    wl(out).filter(function (w) { return w.sev !== "info"; }).forEach(function (w) { add((w.el && w.el !== "—" ? w.el + ": " : "") + fill(tt("w_" + w.id), w.args)); });
+    return a;
+  }
+  function mbPunkte(out) { var M0 = S.mb || {}; return mbSug(out).filter(function (t) { return (M0.aus || []).indexOf(t) < 0; }).concat(String(M0.eigene || "").split(/\n+/).map(function (x) { return x.trim(); }).filter(Boolean)); }
+  function mbBuild(o, out) {
+    var k = S.kopf, mb = S.mb || {}, sm = out.sum, h = "<h1>" + esc(tt("mb_title")) + "</h1>", u = mb.u || "";
+    if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb ? k.bearb + (k.rolle ? " (" + tt("r_" + k.rolle) + ")" : "") : ""], ["datum", k.datum || today()]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
+    h += '<section class="rp-sec rp-mb"><h2>' + esc(tt("mb_h_urt")) + '</h2><p class="rp-mb-u rp-mb-' + (u || "offen") + '"><b>' + esc(tt("mb_u_" + (u || "offen"))) + "</b></p>" + (mb.text ? '<p class="rp-mb-t">' + esc(mb.text).replace(/\n/g, "<br>") + "</p>" : "") + "</section>";
+    if (o.situ) h += reportMap();
+    var pk = mbPunkte(out); h += '<section class="rp-sec rp-mbp"><h2>' + esc(tt("mb_h_pk")) + "</h2>" + (pk.length ? '<ul class="rp-warn">' + pk.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul>" : "<p>" + esc(tt("mb_pk_none")) + "</p>") + "</section>";
+    if (o.foto !== false) h += reportFotos();
+    var rr = [[tt("mb_k_zw"), sm.zwischen], [tt("mb_k_net"), sm.nettoR != null ? sm.nettoR : sm.netto], [tt("mb_k_mw").replace("{p}", sm.mwSatz != null ? String(Math.round(sm.mwSatz * 1000) / 10) : ""), sm.mwst], [tt("mb_k_br"), sm.brutto]];
+    h += '<section class="rp-sec rp-mbk"><h2>' + esc(tt("mb_h_k")) + '</h2><table class="rp-tab"><tbody>' + rr.map(function (x, i) { return "<tr" + (i === rr.length - 1 ? ' class="rp-mbk-t"' : "") + "><th>" + esc(x[0]) + '</th><td class="num">CHF ' + chf(x[1]) + "</td></tr>"; }).join("") + '</tbody></table><p class="rp-dia-b">' + esc(tt("mb_k_hint")) + "</p></section>";
+    if (o.dia !== false) h += reportDia(out);
+    h += '<p class="rp-foot">' + esc(tt("mb_foot")) + " · " + esc(today()) + "</p>";
+    return h;
+  }
   function reportBuild(o) {
     var out = KVE.calc(S, LV), k = S.kopf, h = "";
+    if (o.art === "mb") return mbBuild(o, out);
     h += "<h1>" + esc(tt("rp_title")) + "</h1>";
-    if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb], ["datum", k.datum || today()]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
+    if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb ? k.bearb + (k.rolle ? " (" + tt("r_" + k.rolle) + ")" : "") : ""], ["datum", k.datum || today()]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
     h += reportCover();
     if (o.dia !== false) h += reportDia(out);
     if (o.situ) h += reportMap();
@@ -1590,29 +1641,46 @@
     }
     if (o.kosten) { var kb = $("#result .kostblk"); if (kb) h += '<section class="rp-sec">' + kb.innerHTML + "</section>"; }
     if (o.annahmen) { var sn = $("#result table.sens"); if (sn) h += '<section class="rp-sec"><h2>' + esc(tt("h_annahmen")) + "</h2>" + sn.outerHTML + "</section>"; }
+    if (o.foto !== false) h += reportFotos();
     if (o.warn) { var ws = wl(out).filter(function (w) { return w.sev !== "info"; }); if (ws.length) h += '<section class="rp-sec"><h2>' + esc(tt("h_warn")) + '</h2><ul class="rp-warn">' + ws.map(function (w) { return "<li><b>" + esc(w.el ? w.el + ": " : "") + "</b>" + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul></section>"; }
     h += '<p class="rp-foot">' + esc(tt("rp_foot")) + " · " + esc(today()) + "</p>";
     return h;
   }
   function reportOpen() {
     var d = document.getElementById("reportDlg"); if (d) d.remove();
-    var R = S.ui.report = Object.assign({ mode: "abschnitte", kopf: true, dia: true, situ: true, v3d: true, mengen: true, pos: true, kosten: true, annahmen: true, warn: true }, S.ui.report || {});
+    var R = S.ui.report = Object.assign({ art: "pb", mode: "abschnitte", kopf: true, dia: true, situ: true, v3d: true, foto: true, mengen: true, pos: true, kosten: true, annahmen: true, warn: true }, S.ui.report || {});
+    var mb = S.mb, out0 = KVE.calc(S, LV), sug = mbSug(out0);
     d = document.createElement("dialog"); d.id = "reportDlg"; d.className = "rpdlg"; d.setAttribute("aria-labelledby", "rpT");
-    var cb = function (k, lab) { return '<label class="rp-cb"><input type="checkbox" data-rp="' + k + '"' + (R[k] ? " checked" : "") + "> " + esc(tt(lab)) + "</label>"; };
-    d.innerHTML = '<form method="dialog"><h2 id="rpT">' + esc(tt("rp_title")) + '</h2><fieldset class="rp-fs"><legend>' + esc(tt("rp_gl")) + "</legend>" +
-      '<label class="rp-cb"><input type="radio" name="rpm" value="abschnitte"' + (R.mode !== "total" ? " checked" : "") + "> <b>" + esc(tt("rp_m_abs")) + "</b><span class=\"rp-sub\">" + esc(tt("rp_m_abs_s")) + "</span></label>" +
-      '<label class="rp-cb"><input type="radio" name="rpm" value="total"' + (R.mode === "total" ? " checked" : "") + "> <b>" + esc(tt("rp_m_tot")) + "</b><span class=\"rp-sub\">" + esc(tt("rp_m_tot_s")) + "</span></label></fieldset>" +
-      '<fieldset class="rp-fs"><legend>' + esc(tt("rp_inh")) + "</legend>" + cb("kopf", "rp_i_kopf") + cb("dia", "rp_i_dia") + cb("situ", "rp_i_situ") + (S.v3d && S.v3d.img ? cb("v3d", "rp_i_3d") : "") + cb("mengen", "rp_i_mengen") + cb("pos", "rp_i_pos") + cb("kosten", "rp_i_kosten") + cb("annahmen", "rp_i_ann") + cb("warn", "rp_i_warn") + "</fieldset>" +
+    var cb = function (k, lab, x) { return '<label class="rp-cb"' + (x ? ' data-rpx="' + x + '"' : "") + '><input type="checkbox" data-rp="' + k + '"' + (R[k] ? " checked" : "") + "> " + esc(tt(lab)) + "</label>"; };
+    var rd = function (nm, v, cur, lab, sub) { return '<label class="rp-cb"><input type="radio" name="' + nm + '" value="' + v + '"' + (cur === v ? " checked" : "") + "> <b>" + esc(tt(lab)) + "</b>" + (sub ? '<span class="rp-sub">' + esc(tt(sub)) + "</span>" : "") + "</label>"; };
+    d.innerHTML = '<form method="dialog"><h2 id="rpT">' + esc(tt("rp_dlgT")) + "</h2>" +
+      '<fieldset class="rp-fs"><legend>' + esc(tt("rp_art")) + "</legend>" + rd("rpa", "pb", R.art === "mb" ? "" : "pb", "rp_title", "rp_art_pb") + rd("rpa", "mb", R.art === "mb" ? "mb" : "", "mb_title", "rp_art_mb") + "</fieldset>" +
+      '<fieldset class="rp-fs" data-rpx="pb"><legend>' + esc(tt("rp_gl")) + "</legend>" + rd("rpm", "abschnitte", R.mode !== "total" ? "abschnitte" : "", "rp_m_abs", "rp_m_abs_s") + rd("rpm", "total", R.mode === "total" ? "total" : "", "rp_m_tot", "rp_m_tot_s") + "</fieldset>" +
+      '<fieldset class="rp-fs" data-rpx="mb"><legend>' + esc(tt("mb_h_urt")) + "</legend>" + ["machbar", "bedingt", "nicht"].map(function (v) { return rd("mbu", v, mb.u, "mb_u_" + v); }).join("") +
+        '<p class="hint">' + esc(fill(tt(sug.length ? "mb_vor_b" : "mb_vor_m"), { n: sug.length })) + "</p>" +
+        '<label class="rp-ta">' + esc(tt("mb_text")) + '<textarea id="rpMbT" rows="3" maxlength="2000"></textarea></label></fieldset>' +
+      '<fieldset class="rp-fs" data-rpx="mb"><legend>' + esc(tt("mb_h_pk")) + "</legend>" + (sug.length ? '<p class="hint">' + esc(tt("mb_pk_hint")) + "</p>" + sug.map(function (t, i) { return '<label class="rp-cb rp-pk"><input type="checkbox" data-mbp="' + i + '"' + ((mb.aus || []).indexOf(t) < 0 ? " checked" : "") + "> " + esc(t) + "</label>"; }).join("") : '<p class="hint">' + esc(tt("mb_pk_none")) + "</p>") +
+        '<label class="rp-ta">' + esc(tt("mb_eigene")) + '<textarea id="rpMbE" rows="3" maxlength="2000"></textarea></label></fieldset>' +
+      '<fieldset class="rp-fs"><legend>' + esc(tt("rp_inh")) + "</legend>" + cb("kopf", "rp_i_kopf") + cb("dia", "rp_i_dia") + cb("situ", "rp_i_situ") + ((S.fotos || []).length ? cb("foto", "rp_i_foto") : "") + (S.v3d && S.v3d.img ? cb("v3d", "rp_i_3d", "pb") : "") + cb("mengen", "rp_i_mengen", "pb") + cb("pos", "rp_i_pos", "pb") + cb("kosten", "rp_i_kosten", "pb") + cb("annahmen", "rp_i_ann", "pb") + cb("warn", "rp_i_warn", "pb") + "</fieldset>" +
       '<p class="hint">' + esc(tt("rp_hint")) + '</p><div class="kmbar"><button type="submit" class="btn" value="print" id="rpGo">' + esc(tt("rp_go")) + '</button> <button type="submit" class="btn ghost" value="x">' + esc(tt("rp_close")) + "</button></div></form>";
-    document.body.appendChild(d);
+    document.body.appendChild(d); d.querySelector("#rpMbT").value = mb.text || ""; d.querySelector("#rpMbE").value = mb.eigene || "";
+    var art = function () { var a = d.querySelector("input[name=rpa]:checked"); return a ? a.value : "pb"; };
+    var vis = function () { var a = art(); [].slice.call(d.querySelectorAll("[data-rpx]")).forEach(function (x) { x.hidden = x.getAttribute("data-rpx") !== a; }); };
+    [].slice.call(d.querySelectorAll("input[name=rpa]")).forEach(function (x) { x.addEventListener("change", vis); }); vis();
     d.addEventListener("close", function () { d.remove(); });
     d.querySelector("form").addEventListener("submit", function (e) {
       var sub = e.submitter && e.submitter.value; if (sub !== "print") return;
-      R.mode = d.querySelector("input[name=rpm]:checked").value; [].slice.call(d.querySelectorAll("[data-rp]")).forEach(function (i) { R[i.dataset.rp] = i.checked; }); save();
-      var doc = document.getElementById("reportDoc"); if (doc) doc.remove(); doc = document.createElement("div"); doc.id = "reportDoc"; doc.className = "rp"; doc.innerHTML = reportBuild(R); document.body.appendChild(doc); wrapTables(doc);
-      document.body.classList.add("report-print");
-      var ims = [].slice.call(doc.querySelectorAll("image")).filter(function (im) { return !/^data:/.test(im.getAttribute("href") || ""); });   /* Kartenhintergrund noch nicht im Projekt: höchstens 5 s auf das Bild warten */
-      Promise.all(ims.map(function (im) { return new Promise(function (r) { var t = setTimeout(r, 5000); im.addEventListener("load", function () { clearTimeout(t); r(); }); im.addEventListener("error", function () { clearTimeout(t); r(); }); }); })).then(function () { setTimeout(function () { window.print(); }, 50); });
+      R.art = art(); var mm = d.querySelector("input[name=rpm]:checked"); R.mode = mm ? mm.value : "abschnitte"; [].slice.call(d.querySelectorAll("[data-rp]")).forEach(function (i) { R[i.dataset.rp] = i.checked; });
+      var mu = d.querySelector("input[name=mbu]:checked"); S.mb.u = mu ? mu.value : ""; S.mb.text = d.querySelector("#rpMbT").value.trim(); S.mb.eigene = d.querySelector("#rpMbE").value.trim();
+      S.mb.aus = sug.filter(function (t, i) { var c = d.querySelector('[data-mbp="' + i + '"]'); return c && !c.checked; }); save();
+      var ids = (S.fotos || []).map(function (f) { return f.id; }), pre = ids.length && R.foto !== false && window.FOTO ? FOTO.getAll(ids)["catch"](function () { return {}; }) : Promise.resolve({});
+      pre.then(function (img) {
+        rpFotoImg = img || {};
+        var doc = document.getElementById("reportDoc"); if (doc) doc.remove(); doc = document.createElement("div"); doc.id = "reportDoc"; doc.className = "rp"; doc.innerHTML = reportBuild(R); document.body.appendChild(doc); wrapTables(doc); rpFotoImg = {};
+        document.body.classList.add("report-print");
+        var ims = [].slice.call(doc.querySelectorAll("image")).filter(function (im) { return !/^data:/.test(im.getAttribute("href") || ""); });   /* Kartenhintergrund noch nicht im Projekt: höchstens 5 s auf das Bild warten */
+        Promise.all(ims.map(function (im) { return new Promise(function (r) { var t = setTimeout(r, 5000); im.addEventListener("load", function () { clearTimeout(t); r(); }); im.addEventListener("error", function () { clearTimeout(t); r(); }); }); })).then(function () { setTimeout(function () { window.print(); }, 50); });
+      });
     });
     d.showModal(); rpCacheBg(); rpCacheCover();
   }
@@ -1777,7 +1845,11 @@
     var o = KVE.calc(S, LV), n = o.vor.lines.length + o.be.lines.filter(function (l) { return l.total; }).length; o.elems.forEach(function (e) { n += e.lines.length; });
     return !!(n || k.projekt || k.ort || k.sap || (K.lines || []).length || (K.pts || []).length || (K.notes || []).length || (S.plan && S.plan.img));
   }
-  function saveJson() { var c = JSON.parse(JSON.stringify(S)); delete c.ui; download(fname("json"), JSON.stringify({ v: 2, tool: "LV-Devis Tiefbau", lv: "V1.1 10.07.2026", data: c }, null, 1), "application/json"); }
+  function saveJson() {   /* V145: Fotos (Bilder aus dem Gerätespeicher) werden mitgesichert */
+    var c = JSON.parse(JSON.stringify(S)); delete c.ui; var ids = (S.fotos || []).map(function (f) { return f.id; });
+    var go = function (img) { if (img && Object.keys(img).length) c.fotosImg = img; download(fname("json"), JSON.stringify({ v: 2, tool: "LV-Devis Tiefbau", lv: "V1.1 10.07.2026", data: c }, null, 1), "application/json"); };
+    if (ids.length && window.FOTO) FOTO.getAll(ids).then(go, function () { go(null); }); else go(null);
+  }
   function load(file) {
     var rd = new FileReader();
     rd.onload = function () {
@@ -1790,7 +1862,7 @@
           if (!ks.length || ks.some(function (t) { return !Array.isArray(d.recs[t]); })) throw new Error(tt("ld_bad"));
         }
         if (hasContent() && !confirm(tt("ld_conf"))) return;
-        if (d.v === 2 && d.recs) { S = d; }
+        if (d.v === 2 && d.recs) { var fi = d.fotosImg; delete d.fotosImg; S = d; if (fi && window.FOTO) Object.keys(fi).forEach(function (id) { if (FOTO_OK.test(fi[id] || "")) FOTO.put(id, fi[id]); }); }
         else if (Array.isArray(d.elems)) {           /* Import aus KV-Assistent */
           var n = defaults(); n.kopf = Object.assign(n.kopf, d.kopf || {}); n.sond = Object.assign(n.sond, d.sond || {}); n.wasser = Object.assign(n.wasser, d.wasser || {}); n.be = Object.assign(n.be, d.be || {}); if (d.dichte) n.dichte = d.dichte;
           n.recs.graben = d.elems.filter(function (e) { return e.type !== "schacht"; }).map(function (e) { e.x = {}; e.free = []; return e; });
@@ -1828,7 +1900,7 @@
     $("#t-title").textContent = tt("title"); var wms = $("#t-wmsub"); if (wms) { wms.textContent = tt("wm_sub"); wms.parentNode.parentNode.setAttribute("aria-label", "NIUcost – " + tt("wm_sub")); } document.title = tt("title"); var lyb0 = $("#bLyMap"); if (lyb0) { lyb0.textContent = tt("ly_btn"); lyb0.title = tt("ly_btnT"); } $("#t-sub").textContent = tt("sub"); var ti = $("#t-intro"); if (ti) { ti.textContent = tt("intro"); $("#t-contact").textContent = tt("contact") + " →"; $("#t-impr").textContent = tt("impr"); $("#t-imprC").textContent = tt("imprC"); $("#bPriv").textContent = tt("imprP"); $("#t-imprN").textContent = tt("imprN"); $("#morePrint").textContent = tt("morePrint"); }
     seoLang(); var tcr = $("#t-creator"); if (tcr) tcr.textContent = tt("km_cred"); $("#t-role").textContent = tt("creatorRole");
     KOPF.forEach(function (k) { $("#l_" + k[0]).textContent = tt(k[1]); }); $("#l_rolle").textContent = tt("rolle"); $("#l_belagLief").textContent = tt("dv_belagLief");
-    var r = $("#p_rolle"); r.innerHTML = ""; ["anv", "bl", "bhv"].forEach(function (v) { var o = document.createElement("option"); o.value = v; o.textContent = tt("r_" + v); r.appendChild(o); }); r.value = S.kopf.rolle;
+    var r = $("#p_rolle"); r.innerHTML = ""; ["bhv", "aqm", "pl", "bl", "anv", "plan", "and"].forEach(function (v) { var o = document.createElement("option"); o.value = v; o.textContent = tt("r_" + v); r.appendChild(o); }); r.value = S.kopf.rolle;
     if (window.__LVCHAT) window.__LVCHAT.relang();
     $("#helpTitle").textContent = tt("helpTitle"); $("#helpSteps").innerHTML = (T[S.lang] || T.de).help.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join(""); $("#helpNote").textContent = tt("helpNote");
     $("#h-result").textContent = tt("h_result");

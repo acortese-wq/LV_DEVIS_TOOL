@@ -1429,6 +1429,36 @@ html:not(.lvready) .sheet{visibility:hidden}   /* Seite erst nach dem ersten Fü
 .kmgpsc a.on{color:#1a73e8}
 .kmgps{position:absolute;left:50%;transform:translateX(-50%);bottom:34px;z-index:1100;display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 24px);background:#fff;color:#1a1c1e;border:1px solid #1a73e8;border-radius:8px;padding:4px 6px 4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.25);font-size:max(12px,var(--fsmin,0px))}
 .kmgps-t{font-weight:700}
+/* V145: Fotodokumentation (Karte) */
+.kmfts{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 0 2px}
+.kmftb svg,.kmgps svg{vertical-align:-3px}
+.kmfth{width:48px;height:48px;padding:0;border:1px solid var(--rule-strong);border-radius:6px;overflow:hidden;background:var(--paper-2,#eef1f2);cursor:pointer}
+.kmfth img{width:100%;height:100%;object-fit:cover;display:block}
+.kmfth:focus-visible{outline:2px solid #0b6b72;outline-offset:2px}
+.kmftm{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#0b6b72;color:#fff;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);cursor:pointer}
+.kmftm:focus-visible{outline:3px solid #ffbf47;outline-offset:1px}
+.kmfv{max-width:720px;width:calc(100% - 24px);border:1px solid var(--rule-strong);border-radius:12px;padding:14px 16px;background:var(--paper);color:var(--ink)}
+.kmfv::backdrop{background:rgba(0,0,0,.55)}
+.kmfv h2{margin:0 0 8px;font-size:17px}
+.kmfv-img{background:#111;border-radius:8px;display:flex;justify-content:center;max-height:60vh;overflow:hidden}
+.kmfv-img img{max-width:100%;max-height:60vh;object-fit:contain;display:block}
+.kmfv-m{margin:8px 0;font-size:13.5px;color:var(--ink-soft)}
+.kmfv-n{display:block;font-weight:600;font-size:13.5px}.kmfv-n textarea{display:block;width:100%;margin-top:3px;font:inherit;font-weight:400;box-sizing:border-box}
+.kmfv .kmbar{display:flex;gap:8px;justify-content:space-between;margin-top:10px}
+/* V145: Berichtsdialog Machbarkeit */
+.rp-ta{display:block;margin:8px 0 2px;font-weight:600;font-size:13.5px}.rp-ta textarea{display:block;width:100%;box-sizing:border-box;margin-top:3px;font:inherit;font-weight:400}
+.rp-pk{font-size:13.5px}
+.rpdlg{max-height:calc(100dvh - 24px);overflow:auto}
+@media print{
+.rp-fotos{display:grid;grid-template-columns:1fr 1fr;gap:8pt 10pt}
+.rp-ft{margin:0;break-inside:avoid;page-break-inside:avoid}
+.rp-ft img{width:100%;height:62mm;object-fit:cover;border:.3pt solid #999;display:block}
+.rp-ft figcaption{font-size:8pt;margin-top:2pt;line-height:1.3}.rp-ft-n{font-style:italic}
+.rp-ft-x{height:20mm;border:.3pt dashed #999;font-size:8pt;padding:4pt}
+.rp-mb-u{display:inline-block;margin:2pt 0 4pt;padding:3pt 10pt;border-radius:4pt;font-size:11pt;border:1pt solid #555;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.rp-mb-machbar{background:#dff3e6;border-color:#1b7a43}.rp-mb-bedingt{background:#fff1d1;border-color:#9a6a00}.rp-mb-nicht{background:#fbe0de;border-color:#b8332a}.rp-mb-offen{background:#eee}
+.rp-mbk table{width:auto!important;min-width:60%}.rp-mbk-t th,.rp-mbk-t td{font-weight:700;border-top:.8pt solid #333}
+}
 
 /* ===== Engineering-Arbeitsplatz (Layout A) – Thema «dunkel», Struktur Phase E. Gilt nur im Arbeitsplatz; Druck/Bericht/Excel bleiben hell. ===== */
 .kmdlg.kmlya.nc-dark{
@@ -2908,7 +2938,7 @@ de: {
  title: "KV-Assistent Tiefbau", sub: "Kostenvoranschlag auf Basis LV Swisscom Infrastrukturarbeiten bei Baukooperationen (V1.1, 10.07.2026).",
  creatorRole: "Fachliche Struktur und Ausgestaltung",
  projekt: "Projekt / Auftrag", ort: "Standort / Strasse", bearb: "Bearbeitet durch", datum: "Datum", rolle: "Rolle",
- r_anv: "ANV", r_bl: "Bauleiter", r_bhv: "BHV",
+ r_anv: "ANV", r_bl: "Bauleiter", r_bhv: "BHV Tiefbau", r_aqm: "AQM", r_pl: "Projektleiter", r_plan: "Planer", r_and: "andere",
  helpTitle: "So gehen Sie vor",
  help: ["Projektkopf oben ausfüllen und die Rolle wählen.", "Elemente hinzufügen: Leitungsgraben (mit Rohranlage) oder Schacht. Wenige Eingaben genügen, die Folgepositionen werden abgeleitet.", "Massenbilanz und Positionen rechts prüfen. Jede Menge ist nachvollziehbar (Rechenregel beim Überfahren der Menge).", "Warnungen abarbeiten, Sonderfälle als freie Position ergänzen, dann drucken, als CSV exportieren oder als Datei sichern."],
  helpNote: "Alle Preise und NPK-Nummern stammen aus dem LV V1.1 (10.07.2026). Das Tool ersetzt weder das SAP-Devis noch die fachliche Prüfung.",
@@ -2970,7 +3000,7 @@ de: {
 fr: {
  title: "Assistant DE Génie civil", sub: "Devis estimatif selon le LV Swisscom travaux d'infrastructure lors de coopérations de construction (V1.1, 10.07.2026).",
  creatorRole: "Structure et conception technique",
- projekt: "Projet / mandat", ort: "Lieu / rue", bearb: "Traité par", datum: "Date", rolle: "Rôle", r_anv: "ANV", r_bl: "Direction des travaux", r_bhv: "BHV",
+ projekt: "Projet / mandat", ort: "Lieu / rue", bearb: "Traité par", datum: "Date", rolle: "Rôle", r_anv: "ANV", r_bl: "Direction des travaux", r_bhv: "BHV génie civil", r_aqm: "AQM", r_pl: "Chef de projet", r_plan: "Planificateur", r_and: "autre",
  helpTitle: "Marche à suivre",
  help: ["Remplir l'en-tête du projet et choisir le rôle.", "Ajouter des éléments: tranchée de conduite (avec conduites) ou chambre. Peu de données suffisent, les positions induites sont déduites.", "Contrôler le bilan des masses et les positions à droite. Chaque quantité est traçable (règle de calcul au survol).", "Traiter les avertissements, ajouter les cas particuliers en position libre, puis imprimer, exporter en CSV ou sauvegarder."],
  helpNote: "Tous les prix et numéros NPK proviennent du LV V1.1 (10.07.2026). L'outil ne remplace ni le devis SAP ni le contrôle technique.",
@@ -3031,7 +3061,7 @@ fr: {
 it: {
  title: "Assistente PC Genio civile", sub: "Preventivo secondo il LV Swisscom lavori d'infrastruttura in cooperazioni edili (V1.1, 10.07.2026).",
  creatorRole: "Struttura e impostazione tecnica",
- projekt: "Progetto / incarico", ort: "Luogo / via", bearb: "Elaborato da", datum: "Data", rolle: "Ruolo", r_anv: "ANV", r_bl: "Direzione lavori", r_bhv: "BHV",
+ projekt: "Progetto / incarico", ort: "Luogo / via", bearb: "Elaborato da", datum: "Data", rolle: "Ruolo", r_anv: "ANV", r_bl: "Direzione lavori", r_bhv: "BHV genio civile", r_aqm: "AQM", r_pl: "Capoprogetto", r_plan: "Progettista", r_and: "altro",
  helpTitle: "Come procedere",
  help: ["Compilare l'intestazione del progetto e scegliere il ruolo.", "Aggiungere elementi: scavo per condotte (con tubazioni) o pozzetto. Bastano pochi dati, le posizioni conseguenti vengono dedotte.", "Controllare bilancio delle masse e posizioni a destra. Ogni quantità è tracciabile (regola di calcolo al passaggio del mouse).", "Elaborare gli avvisi, aggiungere i casi particolari come posizione libera, poi stampare, esportare in CSV o salvare."],
  helpNote: "Tutti i prezzi e i numeri NPK provengono dal LV V1.1 (10.07.2026). Lo strumento non sostituisce né il preventivo SAP né il controllo tecnico.",
@@ -3092,7 +3122,7 @@ it: {
 en: {
  title: "Civil Works Cost Estimator", sub: "Cost estimate based on the Swisscom LV for infrastructure works in construction cooperations (V1.1, 10.07.2026).",
  creatorRole: "Technical structure and design",
- projekt: "Project / order", ort: "Location / street", bearb: "Prepared by", datum: "Date", rolle: "Role", r_anv: "ANV", r_bl: "Site manager", r_bhv: "BHV (client rep.)",
+ projekt: "Project / order", ort: "Location / street", bearb: "Prepared by", datum: "Date", rolle: "Role", r_anv: "ANV", r_bl: "Site manager", r_bhv: "BHV civil works (client rep.)", r_aqm: "AQM", r_pl: "Project manager", r_plan: "Planner", r_and: "other",
  helpTitle: "How to proceed",
  help: ["Fill in the project header and choose the role.", "Add elements: cable trench (with ducts) or manhole. Few inputs are enough, follow-up items are derived.", "Check the mass balance and items on the right. Every quantity is traceable (calculation rule on hover).", "Work through the warnings, add special cases as free items, then print, export as CSV or save."],
  helpNote: "All prices and NPK numbers come from the LV V1.1 (10.07.2026). The tool replaces neither the SAP Devis nor the technical review.",
@@ -4492,6 +4522,33 @@ s_vor: ["Vorarbeiten (projektweit)", "Travaux préparatoires (projet)", "Lavori 
     km_rt_okPt: ["Route erstellt: {m} m, {n} Punkte. Linie beginnt/endet genau an den gewählten Kartenpunkten (Weg {a} m bzw. {b} m entfernt). Nur Vorschlag – bitte prüfen.", "Itinéraire créé : {m} m, {n} points. La ligne commence/finit exactement aux points choisis (chemin à {a} m / {b} m). Proposition – à vérifier.", "Percorso creato: {m} m, {n} punti. La linea inizia/finisce esattamente nei punti scelti (sentiero a {a} m / {b} m). Proposta – verificare.", "Route created: {m} m, {n} points. The line starts/ends exactly at the chosen map points (path {a} m / {b} m away). Proposal only – please check."],
     btnReport: ["Projektbericht (Druck/PDF) …", "Rapport de projet (impression/PDF) …", "Rapporto di progetto (stampa/PDF) …", "Project report (print/PDF) …"],
     rp_title: ["Projektbericht", "Rapport de projet", "Rapporto di progetto", "Project report"],
+    rp_dlgT: ["Bericht erstellen", "Créer un rapport", "Creare un rapporto", "Create report"],
+    rp_art: ["Berichtsart", "Type de rapport", "Tipo di rapporto", "Report type"],
+    rp_art_pb: ["Kosten, Mengen und Positionen", "Coûts, quantités et positions", "Costi, quantità e posizioni", "Costs, quantities and items"],
+    rp_art_mb: ["Beurteilung, Prüfpunkte, Fotos und Grobkosten", "Appréciation, points à vérifier, photos et coûts estimatifs", "Valutazione, punti da verificare, foto e costi di massima", "Assessment, check points, photos and rough costs"],
+    mb_title: ["Machbarkeitsbericht", "Rapport de faisabilité", "Rapporto di fattibilità", "Feasibility report"],
+    mb_h_urt: ["Beurteilung", "Appréciation", "Valutazione", "Assessment"],
+    mb_u_machbar: ["Machbar", "Réalisable", "Fattibile", "Feasible"],
+    mb_u_bedingt: ["Bedingt machbar", "Réalisable sous conditions", "Fattibile con riserva", "Feasible with conditions"],
+    mb_u_nicht: ["Nicht machbar", "Non réalisable", "Non fattibile", "Not feasible"],
+    mb_u_offen: ["Beurteilung offen", "Appréciation en suspens", "Valutazione in sospeso", "Assessment pending"],
+    mb_vor_m: ["Vorschlag NIUcost: machbar (keine Prüfpunkte gefunden). Das Urteil triffst du.", "Proposition NIUcost : réalisable (aucun point à vérifier). La décision t'appartient.", "Proposta NIUcost: fattibile (nessun punto da verificare). La decisione spetta a te.", "NIUcost suggestion: feasible (no check points found). The decision is yours."],
+    mb_vor_b: ["Vorschlag NIUcost: bedingt machbar – Prüfpunkte: {n}. Das Urteil triffst du.", "Proposition NIUcost : réalisable sous conditions – points à vérifier : {n}. La décision t'appartient.", "Proposta NIUcost: fattibile con riserva – punti da verificare: {n}. La decisione spetta a te.", "NIUcost suggestion: feasible with conditions – check points: {n}. The decision is yours."],
+    mb_text: ["Begründung", "Justification", "Motivazione", "Reasoning"],
+    mb_h_pk: ["Prüfpunkte", "Points à vérifier", "Punti da verificare", "Check points"],
+    mb_pk_hint: ["Vorschläge aus Warnungen und Konflikten – abwählen, was nicht zutrifft.", "Propositions issues des avertissements et conflits – décocher ce qui ne s'applique pas.", "Proposte da avvisi e conflitti – deselezionare ciò che non si applica.", "Suggestions from warnings and conflicts – untick what does not apply."],
+    mb_pk_none: ["Keine Prüfpunkte.", "Aucun point à vérifier.", "Nessun punto da verificare.", "No check points."],
+    mb_eigene: ["Eigene Prüfpunkte (ein Punkt pro Zeile)", "Points propres (un point par ligne)", "Punti propri (uno per riga)", "Own check points (one per line)"],
+    mb_s_nomap: ["Keine Trasse auf der Karte erfasst – Lage und Länge nicht geprüft.", "Aucun tracé saisi sur la carte – position et longueur non vérifiées.", "Nessun tracciato sulla carta – posizione e lunghezza non verificate.", "No route drawn on the map – location and length not checked."],
+    mb_s_dk: ["{n} Schachtdeckel-Anpassung(en) – Zustand und Belagsanschluss vor Ort prüfen.", "{n} adaptation(s) de couvercle – vérifier l'état et le raccord au revêtement sur place.", "{n} adattamento/i di chiusino – verificare sul posto stato e raccordo alla pavimentazione.", "{n} manhole cover adjustment(s) – check condition and paving joint on site."],
+    mb_s_air: ["{n} Linie(n) als Luftlinie/Bohrung – Machbarkeit (Freileitung, Spülbohrung) klären.", "{n} ligne(s) aérienne(s)/forage – clarifier la faisabilité (ligne aérienne, forage dirigé).", "{n} linea/e aerea/e o perforazione – chiarire la fattibilità (linea aerea, perforazione).", "{n} line(s) aerial/drilled – clarify feasibility (overhead line, directional drilling)."],
+    mb_h_k: ["Grobkosten", "Coûts estimatifs", "Costi di massima", "Rough costs"],
+    mb_k_zw: ["Bauarbeiten (vor Rabatt)", "Travaux (avant rabais)", "Lavori (prima dello sconto)", "Construction work (before discount)"],
+    mb_k_net: ["Total exkl. MWST", "Total hors TVA", "Totale IVA esclusa", "Total excl. VAT"],
+    mb_k_mw: ["MWST {p} %", "TVA {p} %", "IVA {p} %", "VAT {p} %"],
+    mb_k_br: ["Total inkl. MWST", "Total TVA incluse", "Totale IVA inclusa", "Total incl. VAT"],
+    mb_k_hint: ["Grobkosten nach «LV Swisscom Infrastrukturarbeiten bei Baukooperationen V1.1» aus den erfassten Mengen; keine Offerte.", "Coûts estimatifs selon le « LV Swisscom Infrastrukturarbeiten bei Baukooperationen V1.1 » à partir des quantités saisies ; pas une offre.", "Costi di massima secondo il «LV Swisscom Infrastrukturarbeiten bei Baukooperationen V1.1» dalle quantità rilevate; non è un'offerta.", "Rough costs per «LV Swisscom Infrastrukturarbeiten bei Baukooperationen V1.1» from the recorded quantities; not a quotation."],
+    mb_foot: ["Machbarkeitsbericht erstellt mit NIUcost – Kostenrechner Tiefbau (Konzept: Alessandro Cortese)", "Rapport de faisabilité créé avec NIUcost – calculateur de coûts génie civil (concept : Alessandro Cortese)", "Rapporto di fattibilità creato con NIUcost – calcolatore costi genio civile (concetto: Alessandro Cortese)", "Feasibility report created with NIUcost – civil works cost calculator (concept: Alessandro Cortese)"],
     ox_title: ["Offertregister", "Registre d’offre", "Registro d’offerta", "Tender form"],
     ox_blank: ["ohne Preise", "sans prix", "senza prezzi", "without prices"],
     ox_priced: ["mit Preisen", "avec prix", "con prezzi", "with prices"],
@@ -5141,6 +5198,30 @@ s_vor: ["Vorarbeiten (projektweit)", "Travaux préparatoires (projet)", "Lavori 
     gps_weak: ["Signal schwach", "Signal faible", "Segnale debole", "Weak signal"],
     gps_here: ["Punkt hier setzen", "Placer le point ici", "Posare il punto qui", "Place point here"],
     gps_off: ["Aus", "Arrêter", "Spegni", "Off"],
+    ft_add: ["Foto", "Photo", "Foto", "Photo"],
+    ft_here: ["Foto hier aufnehmen (am GPS-Standort)", "Prendre une photo ici (position GPS)", "Scattare una foto qui (posizione GPS)", "Take photo here (GPS position)"],
+    ft_hereS: ["Foto hier", "Photo ici", "Foto qui", "Photo here"],
+    ft_ctx: ["Foto hier anheften", "Épingler une photo ici", "Fissare una foto qui", "Pin photo here"],
+    ft_busy: ["Foto wird verkleinert …", "Réduction de la photo …", "Riduzione della foto …", "Resizing photo …"],
+    ft_ok: ["Foto gespeichert ({kb} KB, im Gerät und in der JSON-Sicherung).", "Photo enregistrée ({kb} Ko, sur l'appareil et dans la sauvegarde JSON).", "Foto salvata ({kb} KB, sul dispositivo e nel backup JSON).", "Photo saved ({kb} KB, on the device and in the JSON backup)."],
+    ft_err: ["Foto konnte nicht gelesen werden (Format nicht unterstützt?).", "Impossible de lire la photo (format non pris en charge ?).", "Impossibile leggere la foto (formato non supportato?).", "Photo could not be read (unsupported format?)."],
+    ft_n: ["Foto {n}", "Photo {n}", "Foto {n}", "Photo {n}"],
+    ft_open: ["Foto {n} ansehen", "Voir la photo {n}", "Vedere la foto {n}", "View photo {n}"],
+    ft_free: ["Fotopunkt", "Point photo", "Punto foto", "Photo point"],
+    ft_when: ["Aufnahme", "Prise de vue", "Scatto", "Taken"],
+    ft_where: ["Standort", "Position", "Posizione", "Location"],
+    ft_src_gps: ["GPS", "GPS", "GPS", "GPS"],
+    ft_src_obj: ["Lage des Objekts", "position de l'objet", "posizione dell'oggetto", "object position"],
+    ft_src_map: ["auf der Karte gesetzt", "placé sur la carte", "posato sulla carta", "placed on the map"],
+    ft_noPos: ["ohne Standort", "sans position", "senza posizione", "no location"],
+    ft_note: ["Bemerkung", "Remarque", "Osservazione", "Note"],
+    ft_del: ["Foto löschen", "Supprimer la photo", "Eliminare la foto", "Delete photo"],
+    ft_delQ: ["Foto endgültig löschen?", "Supprimer définitivement la photo ?", "Eliminare definitivamente la foto?", "Delete photo permanently?"],
+    ft_deleted: ["Foto gelöscht.", "Photo supprimée.", "Foto eliminata.", "Photo deleted."],
+    ft_missing: ["Bild nicht auf diesem Gerät – JSON-Sicherung mit Fotos laden.", "Image absente de cet appareil – charger la sauvegarde JSON avec photos.", "Immagine non presente su questo dispositivo – caricare il backup JSON con le foto.", "Image not on this device – load the JSON backup with photos."],
+    rp_i_foto: ["Fotodokumentation", "Documentation photo", "Documentazione fotografica", "Photo documentation"],
+    rp_h_foto: ["Fotodokumentation", "Documentation photo", "Documentazione fotografica", "Photo documentation"],
+    rp_foto_cap: ["{o} · {d}", "{o} · {d}", "{o} · {d}", "{o} · {d}"],
     gps_deny: ["Standort nicht freigegeben – in den Browser-Einstellungen den Standortzugriff für diese Seite erlauben.", "Position non autorisée – autoriser l'accès à la position pour ce site dans le navigateur.", "Posizione non autorizzata – consentire l'accesso alla posizione per questo sito nel browser.", "Location not allowed – allow location access for this site in the browser settings."],
     gps_err: ["Standort nicht verfügbar (kein GPS-Empfang oder Zeitüberschreitung). iPad nur mit WLAN hat kein GPS.", "Position indisponible (pas de réception GPS ou délai dépassé). Un iPad Wi-Fi n'a pas de GPS.", "Posizione non disponibile (nessuna ricezione GPS o tempo scaduto). Un iPad solo Wi-Fi non ha GPS.", "Location unavailable (no GPS reception or timeout). A Wi-Fi-only iPad has no GPS."],
     gps_noSec: ["Standort nur über eine sichere Verbindung (https) verfügbar, z. B. auf GitHub Pages.", "Position disponible uniquement via une connexion sécurisée (https), p. ex. sur GitHub Pages.", "Posizione disponibile solo con connessione sicura (https), ad es. su GitHub Pages.", "Location only available over a secure connection (https), e.g. on GitHub Pages."],
@@ -7245,6 +7326,58 @@ var FIG = (function () {
 })();
 
 </script>
+<script id="foto">
+/* NIUcost – Fotodokumentation (V145, Konzept Alessandro Cortese)
+   Bilder werden beim Hinzufügen verkleinert (längste Seite 1600 px, JPEG, Ziel ca. 200–300 KB) und im Gerätespeicher
+   (IndexedDB «niucost-fotos») abgelegt; die Angaben (Zeit, Standort, Bemerkung, Objekt) stehen im Projekt (S.fotos).
+   Ohne IndexedDB (z. B. privates Fenster) bleiben die Bilder bis zum Schliessen im Arbeitsspeicher; die JSON-Sicherung enthält sie immer. */
+var FOTO = (function () {
+  var DBN = "niucost-fotos", ST = "img", mem = {}, dbP = null, MAX = 1600, ZIEL = 300 * 1024;
+  function db() {
+    if (dbP) return dbP;
+    dbP = new Promise(function (res) {
+      try {
+        var r = indexedDB.open(DBN, 1);
+        r.onupgradeneeded = function () { try { r.result.createObjectStore(ST); } catch (e) { } };
+        r.onsuccess = function () { res(r.result); }; r.onerror = function () { res(null); }; r.onblocked = function () { res(null); };
+      } catch (e) { res(null); }
+    });
+    return dbP;
+  }
+  function tx(mode, fn) {
+    return db().then(function (d) {
+      if (!d) return null;
+      return new Promise(function (res) {
+        try { var t = d.transaction(ST, mode), rq = fn(t.objectStore(ST)); t.oncomplete = function () { res(rq ? rq.result : null); }; t.onerror = t.onabort = function () { res(null); }; } catch (e) { res(null); }
+      });
+    });
+  }
+  function put(id, url) { mem[id] = url; return tx("readwrite", function (s) { return s.put(url, id); }); }
+  function get(id) { if (mem[id]) return Promise.resolve(mem[id]); return tx("readonly", function (s) { return s.get(id); }).then(function (v) { if (v) mem[id] = v; return v || null; }); }
+  function getAll(ids) { return Promise.all(ids.map(get)).then(function (a) { var o = {}; ids.forEach(function (id, i) { if (a[i]) o[id] = a[i]; }); return o; }); }
+  function del(id) { delete mem[id]; return tx("readwrite", function (s) { return s.delete(id); }); }
+  /* Bild aus Datei laden (Ausrichtung nach EXIF übernimmt der Browser), verkleinern und als JPEG-Daten-URL zurückgeben */
+  function resize(file) {
+    return new Promise(function (res, rej) {
+      if (!file || !/^image\//.test(file.type || "image/")) { rej(new Error("type")); return; }
+      var u = URL.createObjectURL(file), im = new Image();
+      im.onload = function () {
+        try {
+          var w = im.naturalWidth, h = im.naturalHeight, k = Math.min(1, MAX / Math.max(w, h)), W = Math.max(1, Math.round(w * k)), H = Math.max(1, Math.round(h * k));
+          var c = document.createElement("canvas"); c.width = W; c.height = H; var g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, W, H); g.drawImage(im, 0, 0, W, H);
+          var q = 0.8, url = c.toDataURL("image/jpeg", q); while (url.length * 0.75 > ZIEL && q > 0.5) { q -= 0.1; url = c.toDataURL("image/jpeg", q); }
+          URL.revokeObjectURL(u); res({ url: url, w: W, h: H, kb: Math.round(url.length * 0.75 / 1024) });
+        } catch (e) { URL.revokeObjectURL(u); rej(e); }
+      };
+      im.onerror = function () { URL.revokeObjectURL(u); rej(new Error("load")); };
+      im.src = u;
+    });
+  }
+  function nid() { return "f" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  return { put: put, get: get, getAll: getAll, del: del, resize: resize, nid: nid };
+})();
+
+</script>
 <script id="karte">
 /* =====================================================================
    Kartenmessung Grabenlänge – swisstopo (WMTS) + Leaflet (cdnjs, bei Bedarf geladen)
@@ -8930,7 +9063,7 @@ var FIG = (function () {
         if (l.pts.length < 3 || l.hzArt) return; var c = cfgOf(l); if (c.art === "beton" || c.art === "laengs") return; var n = pipeSum(c);
         bendPts(l, M).forEach(function (b) { L.marker(AD.ll(b.pt), { interactive: false, keyboard: false, zIndexOffset: -450, icon: L.divIcon({ className: "kmbend", html: "<span>" + esc(bendTxt(b, n)) + "</span>", iconSize: [0, 0], iconAnchor: [0, 0] }) }).addTo(grp); });
       });
-      shaftSymbols(); pm(M.pts, "kmsch", ""); pm(M.sond, "kmsond", "S"); pm(M.wl, "kmwl", "W"); pm(M.geb, "kmgeb", "G");
+      shaftSymbols(); pm(M.pts, "kmsch", ""); pm(M.sond, "kmsond", "S"); pm(M.wl, "kmwl", "W"); pm(M.geb, "kmgeb", "G"); ftDraw();
       if (labelsOn() && opt.labels) {   /* Beschriftung: Linie mit Name, Länge und Rohranlage; Schächte, Sondagen, Werklöcher, Einführungen, Flächen mit Name */
         var lb = opt.labels(M, { len: effLen, slope: function (pts) { return SLOPE && !!slopeHz(pts, M.lines); }, area: area }), put = function (ll, t, cls, ang) { if (t) L.marker(ll, { interactive: false, keyboard: false, zIndexOffset: -500, icon: L.divIcon({ className: "kmlbl " + cls, html: "<span" + (ang != null ? ' style="--a:' + ang + 'deg"' : "") + ">" + esc(t) + "</span>", iconSize: [0, 0] }) }).addTo(grp); };
         M.lines.forEach(function (l, i) { if (l.pts.length < 2) return; var bj = 1, bd = -1; for (var j = 1; j < l.pts.length; j++) { var dd = AD.dist(l.pts[j - 1], l.pts[j]) || Math.hypot(l.pts[j][0] - l.pts[j - 1][0], l.pts[j][1] - l.pts[j - 1][1]); if (dd > bd) { bd = dd; bj = j; } }
@@ -8964,7 +9097,65 @@ var FIG = (function () {
     function cell(label, el) { var d = document.createElement("div"); d.className = "kmc"; var l = document.createElement("span"); l.textContent = label; d.appendChild(l); d.appendChild(el); return d; }
     function inp(label, val, cls, on, txt) { var n = document.createElement("input"); n.type = "text"; if (!txt) n.inputMode = "decimal"; n.className = cls; n.value = val; n.setAttribute("aria-label", label); n.addEventListener("input", function () { on(n.value); }); return n; }
     function head(r, title, rid) { var t = document.createElement("div"); t.className = "kmt"; t.innerHTML = "<b>" + esc(title) + "</b>" + (rid === undefined ? "" : " · " + (rid ? '<span class="kmlnk">→ ' + esc(opt.recName(rid) || tt("km_new")) + "</span>" : '<span class="kmlnk">' + esc(tt("km_new")) + "</span>")); r.appendChild(t); return t; }
+    /* V145: Fotodokumentation – Fotos an Objekten (Schacht/Deckelanpassung, Abzweiger, Linie, Werkloch, Gebäudeeinführung, Sondage, Fläche)
+       und freie Fotopunkte (Kamerazeichen auf der Karte; «Foto hier» am GPS-Standort oder per Rechtsklick). Nur Karte, nicht Plan.
+       Bild verkleinert im Gerätespeicher (FOTO), Angaben sofort im Projekt (opt.foto) – unabhängig von «Übernehmen». */
+    var FT = !plan && opt.foto && window.FOTO ? opt.foto : null, ftGrp = null, ftNext = null, gpsNow;
+    var CAM = '<svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true" focusable="false"><path d="M3 6.5h3l1.5-2h5L14 6.5h3a1 1 0 0 1 1 1V15a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.5a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="10" cy="11" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>';
+    function ftOf(id) { return FT ? FT.list().filter(function (f) { return f.obj === id; }) : []; }
+    function ftObjLbl(id) {
+      var o, i; if (!id) return tt("ft_free");
+      if ((i = M.lines.findIndex(function (x) { return x.id === id; })) >= 0) return tt("km_lineN").replace("{n}", i + 1);
+      if ((o = byId(M.pts, id))) return o.mode === "abz" ? tt("km_abzN").replace("{n}", M.pts.filter(function (x) { return x.mode === "abz"; }).indexOf(o) + 1) : tt("km_schN").replace("{n}", M.pts.indexOf(o) + 1) + (o.mode === "deckel" ? " · " + tt("km_pm_dk") : "") + (o.name ? " «" + o.name + "»" : "");
+      if ((o = byId(M.wl, id))) return tt("km_wlN").replace("{n}", M.wl.indexOf(o) + 1); if ((o = byId(M.geb, id))) return tt("km_gebN").replace("{n}", M.geb.indexOf(o) + 1);
+      if ((o = byId(M.sond, id))) return tt("km_sondN").replace("{n}", M.sond.indexOf(o) + 1); if ((o = byId(M.areas, id))) return tt("km_areaN").replace("{n}", M.areas.indexOf(o) + 1);
+      return tt("ft_free");
+    }
+    function ftPick(t) {
+      var inp0 = $("#kmFotoIn"); if (!inp0) { inp0 = document.createElement("input"); inp0.type = "file"; inp0.accept = "image/*"; inp0.id = "kmFotoIn"; inp0.hidden = true; inp0.setAttribute("aria-hidden", "true"); dlg.appendChild(inp0); inp0.addEventListener("change", function () { ftAdd(inp0.files && inp0.files[0]); }); }
+      ftNext = t; inp0.value = ""; inp0.click();
+    }
+    function ftPickObj(id) {   /* Aufnahmeort: GPS-Standort, sonst Lage des Objekts */
+      var f = findObj(id); if (!f) return; var o = f.o, g = gpsNow && gpsNow(), pt = o.pt || (o.pts && o.pts[Math.floor((o.pts.length - 1) / 2)]);
+      ftPick(g ? { obj: id, pt: AD.pt(L.latLng(g.lat, g.lon)), acc: g.acc, src: "gps" } : { obj: id, pt: pt, acc: null, src: "obj" });
+    }
+    function ftAdd(file) {
+      var t = ftNext; ftNext = null; if (!t || !file || !FT) return; toast(dlg, tt("ft_busy"));
+      FOTO.resize(file).then(function (r) {
+        var id = FOTO.nid(), f = { id: id, obj: t.obj || null, pt: t.pt ? t.pt.slice() : null, acc: t.acc == null ? null : Math.round(t.acc), src: t.src, t: new Date().toISOString(), note: "", w: r.w, h: r.h, kb: r.kb };
+        return FOTO.put(id, r.url).then(function () { FT.add(f); refresh(); toast(dlg, tt("ft_ok").replace("{kb}", r.kb)); ftView(id); });
+      })["catch"](function () { toast(dlg, tt("ft_err")); });
+    }
+    function ftWhen(iso) { var d = new Date(iso); return isNaN(d) ? "" : d.toLocaleDateString("de-CH") + " " + d.toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" }); }
+    function ftView(id) {
+      if (!FT) return; var all = FT.list(), f = all.filter(function (x) { return x.id === id; })[0]; if (!f) return;
+      var old = document.getElementById("kmFv"); if (old) old.remove();
+      var d = document.createElement("dialog"); d.id = "kmFv"; d.className = "kmfv"; d.setAttribute("aria-labelledby", "kmFvT");
+      var lbl = ftObjLbl(f.obj), nr = all.indexOf(f) + 1, where = f.pt ? "E " + fmt0(f.pt[0]) + " / N " + fmt0(f.pt[1]) + (f.acc != null ? " (± " + f.acc + " m)" : "") + " · " + tt("ft_src_" + (f.src || "map")) : tt("ft_noPos");
+      d.innerHTML = '<form method="dialog"><h2 id="kmFvT">' + esc(tt("ft_n").replace("{n}", nr) + " · " + lbl) + '</h2><div class="kmfv-img"><img alt="' + esc(tt("ft_n").replace("{n}", nr) + ", " + lbl) + '"></div>' +
+        '<p class="kmfv-m">' + esc(tt("ft_when") + ": " + ftWhen(f.t)) + "<br>" + esc(tt("ft_where") + ": " + where) + "</p>" +
+        '<label class="kmfv-n">' + esc(tt("ft_note")) + '<textarea rows="2" maxlength="400"></textarea></label>' +
+        '<div class="kmbar"><button type="submit" class="btn" value="ok">' + esc(tt("km_close")) + '</button><button type="button" class="btn ghost small del" data-fdel="1">' + esc(tt("ft_del")) + "</button></div></form>";
+      document.body.appendChild(d); var ta = d.querySelector("textarea"); ta.value = f.note || "";
+      FOTO.get(id).then(function (u) { var im = d.querySelector("img"); if (u) im.src = u; else { im.replaceWith(Object.assign(document.createElement("p"), { className: "hint", textContent: tt("ft_missing") })); } });
+      d.querySelector("[data-fdel]").addEventListener("click", function () { if (!window.confirm(tt("ft_delQ"))) return; FT.del(id); d.close(); refresh(); toast(dlg, tt("ft_deleted")); });
+      d.addEventListener("close", function () { if (FT.list().some(function (x) { return x.id === id; }) && (ta.value || "") !== (f.note || "")) { FT.upd(id, { note: ta.value.trim() }); rows(); } d.remove(); });
+      d.addEventListener("keydown", function (e) { e.stopPropagation(); });
+      d.showModal();
+    }
+    function ftDraw() {
+      if (!FT || !map) return; if (!ftGrp) ftGrp = L.layerGroup().addTo(map); ftGrp.clearLayers();
+      FT.list().forEach(function (f, i) { if (f.obj && findObj(f.obj) || !f.pt) return;   /* Objektfotos hängen am Objekt; Fotos ohne (gelöschtes) Objekt erscheinen als freier Fotopunkt */
+        var m = L.marker(AD.ll(f.pt), { icon: L.divIcon({ className: "kmftm", html: CAM, iconSize: [28, 28], iconAnchor: [14, 14] }), title: tt("ft_n").replace("{n}", i + 1) + (f.note ? " · " + f.note : ""), keyboard: true, riseOnHover: true });
+        m.on("click", function (e) { L.DomEvent.stop(e); ftView(f.id); }); m.addTo(ftGrp); var el = m.getElement(); if (el) { el.setAttribute("role", "button"); el.setAttribute("aria-label", tt("ft_open").replace("{n}", i + 1)); el.setAttribute("data-ftm", f.id); } });
+    }
     function btns(r, id) {
+      if (FT) {
+        var fs = ftOf(id), all = FT.list(), fb = document.createElement("div"); fb.className = "kmfts";
+        fb.innerHTML = '<button type="button" class="btn ghost small kmftb" data-foto="' + id + '">' + CAM + " " + esc(tt("ft_add")) + (fs.length ? " · " + fs.length : "") + "</button>" +
+          fs.map(function (f) { var n = all.indexOf(f) + 1; return '<button type="button" class="kmfth" data-fv="' + f.id + '" aria-label="' + esc(tt("ft_open").replace("{n}", n)) + '"><img alt=""></button>'; }).join("");
+        r.appendChild(fb); fs.forEach(function (f) { FOTO.get(f.id).then(function (u) { var im = fb.querySelector('[data-fv="' + f.id + '"] img'); if (im && u) im.src = u; }); });
+      }
       var bs = document.createElement("div"); bs.className = "kmbtn";
       bs.innerHTML = '<span class="kmnudge" role="group" aria-label="' + esc(tt("km_nudge")) + '">' + [["l", "←", "km_nl"], ["u", "↑", "km_nu"], ["d", "↓", "km_nd"], ["r", "→", "km_nr"]].map(function (a) { return '<button type="button" class="btn ghost small" data-n="' + id + "|" + a[0] + '" aria-label="' + esc(tt(a[2])) + '">' + a[1] + "</button>"; }).join("") + "</span>" +
         '<button type="button" class="btn ghost small" data-z="' + id + '">' + esc(tt("km_show")) + '</button><button type="button" class="btn ghost small del" data-d="' + id + '">' + esc(tt("km_del")) + "</button>";
@@ -9254,6 +9445,7 @@ var FIG = (function () {
         if (!(msel[o.id] && Object.keys(msel).length > 1)) { sel = { id: o.id }; msel = {}; } refresh();   /* Rechtsklick in eine Mehrfachauswahl wirkt auf alle gewählten Objekte, sonst nur auf das getroffene */
         var nSel = selIds().length;
         items.push({ t: tt("km_cx_props"), fn: function () { propsOpen(o, cp); } });
+        if (FT) items.push({ t: tt("ft_add"), fn: function () { ftPickObj(o.id); } });
         items.push({ t: tt("km_cx_copy").replace("{n}", nSel), fn: function () { clipCopy(); } });
         if (clip) items.push({ t: tt("km_cx_paste"), fn: function () { clipPaste(c); } });
         items.push({ t: tt("km_cx_sim"), fn: function () { selectSimilar(o); } });
@@ -9276,6 +9468,7 @@ var FIG = (function () {
         if (nSel2) items.push({ t: tt("km_cx_copy").replace("{n}", nSel2), fn: function () { clipCopy(); } });
         if (clip) items.push({ t: tt("km_cx_paste"), fn: function () { clipPaste(c); } });
         if (nSel2) items.push({ t: tt("km_cx_del").replace("{n}", nSel2), fn: function () { delSel(); } });
+        if (FT) items.push({ t: tt("ft_ctx"), fn: function () { ftPick({ obj: null, pt: c.slice(), acc: null, src: "map" }); } });
         if (!plan) { items.push({ t: tt("km_sv_here"), ghost: 1, fn: function () { svOpen(c, null, false); } }); if (svKey()) items.push({ t: tt("km_sv_emb"), ghost: 1, fn: function () { svOpen(c, null, true); } }); }
       }
       ctxShow(cp, title, sub, items);
@@ -10554,8 +10747,8 @@ var FIG = (function () {
       if (!plan) (function () {
         var G = { id: null, pos: null, follow: true, grp: L.layerGroup().addTo(map), btn: null, chip: null };
         var chip = function () { var c = G.chip; if (!c) { c = G.chip = document.createElement("div"); c.className = "kmgps"; c.setAttribute("role", "status"); $("#kmMap").appendChild(c); L.DomEvent.disableClickPropagation(c); L.DomEvent.disableScrollPropagation(c);
-            c.addEventListener("click", function (e) { var k = e.target.getAttribute && e.target.getAttribute("data-gps"); if (k === "here") here(); else if (k === "off") stop(); }); }
-          c.innerHTML = '<span class="kmgps-t">' + esc(G.pos ? tt("gps_acc").replace("{m}", Math.round(G.pos.acc)) : tt("gps_wait")) + '</span>' + (G.pos ? '<button type="button" class="btn small" data-gps="here">' + esc(tt("gps_here")) + "</button>" : "") + '<button type="button" class="btn ghost small" data-gps="off">' + esc(tt("gps_off")) + "</button>"; };
+            c.addEventListener("click", function (e) { var k = e.target.getAttribute && e.target.getAttribute("data-gps"); var kb = e.target.closest && e.target.closest("[data-gps]"); k = kb ? kb.getAttribute("data-gps") : k; if (k === "here") here(); else if (k === "off") stop(); else if (k === "foto" && G.pos) ftPick({ obj: null, pt: AD.pt(L.latLng(G.pos.lat, G.pos.lon)), acc: G.pos.acc, src: "gps" }); }); }
+          c.innerHTML = '<span class="kmgps-t">' + esc(G.pos ? tt("gps_acc").replace("{m}", Math.round(G.pos.acc)) : tt("gps_wait")) + '</span>' + (G.pos ? '<button type="button" class="btn small" data-gps="here">' + esc(tt("gps_here")) + "</button>" : "") + (G.pos && FT ? '<button type="button" class="btn small" data-gps="foto" aria-label="' + esc(tt("ft_here")) + '">' + CAM + " " + esc(tt("ft_hereS")) + "</button>" : "") + '<button type="button" class="btn ghost small" data-gps="off">' + esc(tt("gps_off")) + "</button>"; };
         function draw() { G.grp.clearLayers(); if (!G.pos) return; var ll = L.latLng(G.pos.lat, G.pos.lon);
           L.circle(ll, { radius: G.pos.acc, color: "#1a73e8", weight: 1, fillColor: "#1a73e8", fillOpacity: 0.12, interactive: false }).addTo(G.grp);
           L.circleMarker(ll, { radius: 7, color: "#fff", weight: 2.5, fillColor: "#1a73e8", fillOpacity: 1, interactive: false }).addTo(G.grp); }
@@ -10576,6 +10769,7 @@ var FIG = (function () {
           addPt(L.latLng(G.pos.lat, G.pos.lon));
         }
         map.on("dragstart", function () { G.follow = false; });
+        gpsNow = function () { return G.id != null ? G.pos : null; };
         dlg.addEventListener("close", stop);
         var C2 = L.Control.extend({ options: { position: "topleft" }, onAdd: function () {
           var d = L.DomUtil.create("div", "leaflet-bar kmfitc kmgpsc"), a = G.btn = L.DomUtil.create("a", "", d); a.href = "#"; a.setAttribute("role", "button"); a.setAttribute("aria-pressed", "false"); a.title = tt("gps_btn"); a.setAttribute("aria-label", tt("gps_btn")); a.setAttribute("data-k", "gps");
@@ -10658,6 +10852,7 @@ var FIG = (function () {
       if (e.target.closest("[data-sumgo]")) { var te = $("#kmTabE"); if (te) te.click(); return; }
       var hzb = e.target.closest("[data-hz]"); if (hzb) { if (hzb.dataset.hz === "load") hzLoad(); return; }
       var sgb = e.target.closest("[data-sg],#kmDxf"); if (sgb) { if (sgb.id === "kmDxf") dxfExport(); else if (sgb.dataset.sg === "calc") { sugs = sugCompute(); sugDraw(); sugRender(); if (!sugs.length) { var sh = $("#kmSug"); if (sh) { var pn = document.createElement("p"); pn.className = "hint"; pn.setAttribute("role", "status"); pn.textContent = tt("sg_none"); sh.appendChild(pn); } } } else if (sgb.dataset.sg === "apply") sugApply(); else { sugs = []; sugDraw(); sugRender(); } return; }
+      var ftb = e.target.closest("[data-foto],[data-fv]"); if (ftb) { if (ftb.dataset.foto) ftPickObj(ftb.dataset.foto); else ftView(ftb.dataset.fv); return; }
       var b = e.target.closest("[data-k],[data-z],[data-d],[data-n]"); if (!b) return; askHide();
       if (b.dataset.n) { var nn = b.dataset.n.split("|"); return nudge(nn[0], nn[1]); }
       if (b.dataset.z) return show(b.dataset.z); if (b.dataset.d) return del(b.dataset.d);
@@ -10914,7 +11109,17 @@ var FIG = (function () {
     if (!plan && opt.autoPlan && !ovl && opt.planImg && opt.planImg.img) { $("#kmOvPlan").click(); } (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
-  window.KARTE = { avRuns: avRuns, avCls: avCls, bendGeo: bendGeo, bendsOf: bendsOf, bendPts: bendPts, abzInfo: abzInfo, ABZ_TYP: ABZ_TYP, lineSlopeS: lineSlopeS, slopeLen: slopeLen, slopeOn: slopeOn, slopeHz: slopeHz, connOf: connOf, connTxt: connTxt, ovBase: ovBase, cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
+  /* V145 Machbarkeit: Linien durch Gebäude aus dem gespeicherten Bodenbedeckungs-Ergebnis (amtliche Vermessung) – ohne neue Abfrage */
+  function gebHits(K) {
+    var out = []; ((K && K.lines) || []).forEach(function (l, i) {
+      if (!l.av || !l.pts || l.pts.length < 2 || l.av.sig !== l.pts.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(";")) return;
+      var L = lineLen(l.pts), m = 0, gAt = function (q) { return (K.geb || []).some(function (g) { return g.lid === l.id || Math.hypot(g.pt[0] - q[0], g.pt[1] - q[1]) <= 3; }); };
+      (l.av.r || []).forEach(function (x) { if (x.fl !== "geb") return; if ((x.a <= 0.05 && gAt(l.pts[0])) || (x.b >= L - 0.05 && gAt(l.pts[l.pts.length - 1]))) return; m += x.b - x.a; });
+      if (m >= 0.5) out.push({ n: i + 1, m: Math.round(m * 10) / 10 });
+    });
+    return out;
+  }
+  window.KARTE = { gebHits: gebHits, avRuns: avRuns, avCls: avCls, bendGeo: bendGeo, bendsOf: bendsOf, bendPts: bendPts, abzInfo: abzInfo, ABZ_TYP: ABZ_TYP, lineSlopeS: lineSlopeS, slopeLen: slopeLen, slopeOn: slopeOn, slopeHz: slopeHz, connOf: connOf, connTxt: connTxt, ovBase: ovBase, cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
 })();
 
 </script>
@@ -11066,6 +11271,7 @@ var FIG = (function () {
     });
     if (!S.karte || !Array.isArray(S.karte.lines)) S.karte = { lines: [], pts: [], sond: [], notes: [], areas: [], wl: [], geb: [] }; if (!Array.isArray(S.karte.pts)) S.karte.pts = []; if (!Array.isArray(S.karte.sond)) S.karte.sond = []; if (!Array.isArray(S.karte.notes)) S.karte.notes = []; if (!Array.isArray(S.karte.areas)) S.karte.areas = []; if (!Array.isArray(S.karte.wl)) S.karte.wl = []; if (!Array.isArray(S.karte.geb)) S.karte.geb = [];
     if (!S.plan || !Array.isArray(S.plan.lines)) S.plan = { img: "", w: 0, h: 0, cal: {}, lines: [], pts: [], sond: [], notes: [], areas: [], wl: [], geb: [] }; if (!Array.isArray(S.plan.pts)) S.plan.pts = []; if (!Array.isArray(S.plan.sond)) S.plan.sond = []; if (!Array.isArray(S.plan.notes)) S.plan.notes = []; if (!Array.isArray(S.plan.areas)) S.plan.areas = []; if (!Array.isArray(S.plan.wl)) S.plan.wl = []; if (!Array.isArray(S.plan.geb)) S.plan.geb = []; if (!S.plan.cal) S.plan.cal = {};
+    if (!Array.isArray(S.fotos)) S.fotos = []; if (!S.mb || typeof S.mb !== "object") S.mb = { u: "", text: "", aus: [], eigene: "" }; if (!Array.isArray(S.mb.aus)) S.mb.aus = [];
     if (ALLTABS.indexOf(S.tab) < 0) S.tab = "graben";
   }
   try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
@@ -11904,7 +12110,7 @@ var FIG = (function () {
           var u0 = ensureUid(cfg); cfg.trasse.forEach(function (pts, i) { S.karte.lines.push({ id: "m" + i + u0, pts: pts, rid: i === 0 ? u0 : null, rohr: { sys: cfg.rohrSystem, dn: cfg.dn, len: cfg.len, n: cfg.n } }); }); delete cfg.trasse;
         }
         var g = tab === "graben" && cfg;
-        KARTE.open({ kind: "map", zT: zT, on3d: function (u, m) { S.v3d = { img: u, at: Date.now(), ex: m.ex }; save(); }, tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, cost: costPreview(cfg, tab), model: ex.keep && ex.keep.model ? ex.keep.model : JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), view: ex.keep ? ex.keep.view : null, edited: !!(ex.keep && ex.keep.edited), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
+        KARTE.open({ kind: "map", zT: zT, foto: fotoApi(), on3d: function (u, m) { S.v3d = { img: u, at: Date.now(), ex: m.ex }; save(); }, tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, cost: costPreview(cfg, tab), model: ex.keep && ex.keep.model ? ex.keep.model : JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), view: ex.keep ? ex.keep.view : null, edited: !!(ex.keep && ex.keep.edited), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" && cfg ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" && cfg ? cfg.cm : "", abd: tab === "geb" && cfg ? cfg.abd : "hauff" }, defBelag: tab === "belag" && cfg ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
           onClose: function () { if (ex.layoutA) return; var o = $(ex.focus || "#kmOpen"); if (o) o.focus(); },
@@ -12582,10 +12788,60 @@ var FIG = (function () {
     return '<section class="rp-sec rp-kdia"><h2>' + esc(tt("rp_h_dia")) + '</h2><p class="rp-dia-lead">' + esc(fill(tt("rp_dia_top"), { a: p[0].k, p: (p[0].v / tot * 100).toFixed(0) })) + '</p><div class="rp-dias">' +
       diaBlock(art, tt("rp_dia_art"), tt("rp_dia_c_art")) + diaBlock(bt, tt("rp_dia_bt"), tt("rp_dia_c_bt")) + '</div><p class="rp-dia-b">' + esc(fill(tt("rp_dia_basis"), { z: chf(r2(tot)) })) + "</p></section>";
   }
+  /* V145: Fotodokumentation – Angaben im Projekt (S.fotos), Bilder im Gerätespeicher (FOTO); Bericht lädt die Bilder vor dem Aufbau */
+  var FOTO_OK = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/, rpFotoImg = {};
+  function fotoApi() {
+    var find = function (id) { return (S.fotos || []).filter(function (f) { return f.id === id; })[0]; };
+    return { list: function () { return S.fotos || []; }, add: function (f) { S.fotos.push(f); save(); },
+      upd: function (id, p) { var f = find(id); if (f) { Object.assign(f, p); save(); } },
+      del: function (id) { S.fotos = S.fotos.filter(function (f) { return f.id !== id; }); if (window.FOTO) FOTO.del(id); save(); } };
+  }
+  function fotoObj(id) {
+    var K = S.karte, o, by = function (a) { return (a || []).filter(function (x) { return x.id === id; })[0]; }; if (!id) return tt("ft_free");
+    if ((o = by(K.lines))) return tt("km_lineN").replace("{n}", K.lines.indexOf(o) + 1);
+    if ((o = by(K.pts))) return o.mode === "abz" ? tt("km_abzN").replace("{n}", K.pts.filter(function (x) { return x.mode === "abz"; }).indexOf(o) + 1) : tt("km_schN").replace("{n}", K.pts.indexOf(o) + 1) + (o.mode === "deckel" ? " · " + tt("km_pm_dk") : "") + (o.name ? " «" + o.name + "»" : "");
+    if ((o = by(K.wl))) return tt("km_wlN").replace("{n}", K.wl.indexOf(o) + 1); if ((o = by(K.geb))) return tt("km_gebN").replace("{n}", K.geb.indexOf(o) + 1);
+    if ((o = by(K.sond))) return tt("km_sondN").replace("{n}", K.sond.indexOf(o) + 1); if ((o = by(K.areas))) return tt("km_areaN").replace("{n}", K.areas.indexOf(o) + 1);
+    return tt("ft_free");
+  }
+  function reportFotos() {
+    var F = S.fotos || []; if (!F.length) return ""; var c0 = function (v) { return Math.round(v).toLocaleString("de-CH"); };
+    return '<section class="rp-sec rp-foto"><h2>' + esc(tt("rp_h_foto")) + '</h2><div class="rp-fotos">' + F.map(function (f, i) {
+      var u = rpFotoImg[f.id], d = new Date(f.t), when = isNaN(d) ? "" : d.toLocaleDateString("de-CH") + " " + d.toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" }), lbl = tt("ft_n").replace("{n}", i + 1) + " · " + fotoObj(f.obj);
+      var where = f.pt ? "E " + c0(f.pt[0]) + " / N " + c0(f.pt[1]) + (f.acc != null ? " (± " + f.acc + " m)" : "") : "";
+      return '<figure class="rp-ft">' + (u && FOTO_OK.test(u) ? '<img src="' + u + '" alt="' + esc(lbl) + '">' : '<div class="rp-ft-x">' + esc(tt("ft_missing")) + "</div>") +
+        "<figcaption><b>" + esc(lbl) + "</b><br>" + esc([when, where].filter(Boolean).join(" · ")) + (f.note ? '<br><span class="rp-ft-n">' + esc(f.note) + "</span>" : "") + "</figcaption></figure>";
+    }).join("") + "</div></section>";
+  }
+  /* V145: Machbarkeitsbericht – Beurteilung von Hand (machbar / bedingt / nicht machbar), Prüfpunkte als Vorschlag aus Warnungen und Konflikten */
+  function mbSug(out) {
+    var a = [], add = function (t) { if (t && a.indexOf(t) < 0) a.push(t); }, K = S.karte;
+    if (!(K.lines.length || K.pts.length)) add(tt("mb_s_nomap"));
+    (KARTE.gebHits ? KARTE.gebHits(K) : []).forEach(function (g) { add(tt("rc_gebLine").replace("{n}", g.n).replace("{m}", String(g.m))); });
+    var nDk = K.pts.filter(function (p) { return p.mode === "deckel"; }).length; if (nDk) add(tt("mb_s_dk").replace("{n}", nDk));
+    var nAir = K.lines.filter(function (l) { return l.hzArt === "luft" || l.hzArt === "bohr"; }).length; if (nAir) add(tt("mb_s_air").replace("{n}", nAir));
+    wl(out).filter(function (w) { return w.sev !== "info"; }).forEach(function (w) { add((w.el && w.el !== "—" ? w.el + ": " : "") + fill(tt("w_" + w.id), w.args)); });
+    return a;
+  }
+  function mbPunkte(out) { var M0 = S.mb || {}; return mbSug(out).filter(function (t) { return (M0.aus || []).indexOf(t) < 0; }).concat(String(M0.eigene || "").split(/\n+/).map(function (x) { return x.trim(); }).filter(Boolean)); }
+  function mbBuild(o, out) {
+    var k = S.kopf, mb = S.mb || {}, sm = out.sum, h = "<h1>" + esc(tt("mb_title")) + "</h1>", u = mb.u || "";
+    if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb ? k.bearb + (k.rolle ? " (" + tt("r_" + k.rolle) + ")" : "") : ""], ["datum", k.datum || today()]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
+    h += '<section class="rp-sec rp-mb"><h2>' + esc(tt("mb_h_urt")) + '</h2><p class="rp-mb-u rp-mb-' + (u || "offen") + '"><b>' + esc(tt("mb_u_" + (u || "offen"))) + "</b></p>" + (mb.text ? '<p class="rp-mb-t">' + esc(mb.text).replace(/\n/g, "<br>") + "</p>" : "") + "</section>";
+    if (o.situ) h += reportMap();
+    var pk = mbPunkte(out); h += '<section class="rp-sec rp-mbp"><h2>' + esc(tt("mb_h_pk")) + "</h2>" + (pk.length ? '<ul class="rp-warn">' + pk.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul>" : "<p>" + esc(tt("mb_pk_none")) + "</p>") + "</section>";
+    if (o.foto !== false) h += reportFotos();
+    var rr = [[tt("mb_k_zw"), sm.zwischen], [tt("mb_k_net"), sm.nettoR != null ? sm.nettoR : sm.netto], [tt("mb_k_mw").replace("{p}", sm.mwSatz != null ? String(Math.round(sm.mwSatz * 1000) / 10) : ""), sm.mwst], [tt("mb_k_br"), sm.brutto]];
+    h += '<section class="rp-sec rp-mbk"><h2>' + esc(tt("mb_h_k")) + '</h2><table class="rp-tab"><tbody>' + rr.map(function (x, i) { return "<tr" + (i === rr.length - 1 ? ' class="rp-mbk-t"' : "") + "><th>" + esc(x[0]) + '</th><td class="num">CHF ' + chf(x[1]) + "</td></tr>"; }).join("") + '</tbody></table><p class="rp-dia-b">' + esc(tt("mb_k_hint")) + "</p></section>";
+    if (o.dia !== false) h += reportDia(out);
+    h += '<p class="rp-foot">' + esc(tt("mb_foot")) + " · " + esc(today()) + "</p>";
+    return h;
+  }
   function reportBuild(o) {
     var out = KVE.calc(S, LV), k = S.kopf, h = "";
+    if (o.art === "mb") return mbBuild(o, out);
     h += "<h1>" + esc(tt("rp_title")) + "</h1>";
-    if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb], ["datum", k.datum || today()]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
+    if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb ? k.bearb + (k.rolle ? " (" + tt("r_" + k.rolle) + ")" : "") : ""], ["datum", k.datum || today()]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
     h += reportCover();
     if (o.dia !== false) h += reportDia(out);
     if (o.situ) h += reportMap();
@@ -12609,29 +12865,46 @@ var FIG = (function () {
     }
     if (o.kosten) { var kb = $("#result .kostblk"); if (kb) h += '<section class="rp-sec">' + kb.innerHTML + "</section>"; }
     if (o.annahmen) { var sn = $("#result table.sens"); if (sn) h += '<section class="rp-sec"><h2>' + esc(tt("h_annahmen")) + "</h2>" + sn.outerHTML + "</section>"; }
+    if (o.foto !== false) h += reportFotos();
     if (o.warn) { var ws = wl(out).filter(function (w) { return w.sev !== "info"; }); if (ws.length) h += '<section class="rp-sec"><h2>' + esc(tt("h_warn")) + '</h2><ul class="rp-warn">' + ws.map(function (w) { return "<li><b>" + esc(w.el ? w.el + ": " : "") + "</b>" + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul></section>"; }
     h += '<p class="rp-foot">' + esc(tt("rp_foot")) + " · " + esc(today()) + "</p>";
     return h;
   }
   function reportOpen() {
     var d = document.getElementById("reportDlg"); if (d) d.remove();
-    var R = S.ui.report = Object.assign({ mode: "abschnitte", kopf: true, dia: true, situ: true, v3d: true, mengen: true, pos: true, kosten: true, annahmen: true, warn: true }, S.ui.report || {});
+    var R = S.ui.report = Object.assign({ art: "pb", mode: "abschnitte", kopf: true, dia: true, situ: true, v3d: true, foto: true, mengen: true, pos: true, kosten: true, annahmen: true, warn: true }, S.ui.report || {});
+    var mb = S.mb, out0 = KVE.calc(S, LV), sug = mbSug(out0);
     d = document.createElement("dialog"); d.id = "reportDlg"; d.className = "rpdlg"; d.setAttribute("aria-labelledby", "rpT");
-    var cb = function (k, lab) { return '<label class="rp-cb"><input type="checkbox" data-rp="' + k + '"' + (R[k] ? " checked" : "") + "> " + esc(tt(lab)) + "</label>"; };
-    d.innerHTML = '<form method="dialog"><h2 id="rpT">' + esc(tt("rp_title")) + '</h2><fieldset class="rp-fs"><legend>' + esc(tt("rp_gl")) + "</legend>" +
-      '<label class="rp-cb"><input type="radio" name="rpm" value="abschnitte"' + (R.mode !== "total" ? " checked" : "") + "> <b>" + esc(tt("rp_m_abs")) + "</b><span class=\"rp-sub\">" + esc(tt("rp_m_abs_s")) + "</span></label>" +
-      '<label class="rp-cb"><input type="radio" name="rpm" value="total"' + (R.mode === "total" ? " checked" : "") + "> <b>" + esc(tt("rp_m_tot")) + "</b><span class=\"rp-sub\">" + esc(tt("rp_m_tot_s")) + "</span></label></fieldset>" +
-      '<fieldset class="rp-fs"><legend>' + esc(tt("rp_inh")) + "</legend>" + cb("kopf", "rp_i_kopf") + cb("dia", "rp_i_dia") + cb("situ", "rp_i_situ") + (S.v3d && S.v3d.img ? cb("v3d", "rp_i_3d") : "") + cb("mengen", "rp_i_mengen") + cb("pos", "rp_i_pos") + cb("kosten", "rp_i_kosten") + cb("annahmen", "rp_i_ann") + cb("warn", "rp_i_warn") + "</fieldset>" +
+    var cb = function (k, lab, x) { return '<label class="rp-cb"' + (x ? ' data-rpx="' + x + '"' : "") + '><input type="checkbox" data-rp="' + k + '"' + (R[k] ? " checked" : "") + "> " + esc(tt(lab)) + "</label>"; };
+    var rd = function (nm, v, cur, lab, sub) { return '<label class="rp-cb"><input type="radio" name="' + nm + '" value="' + v + '"' + (cur === v ? " checked" : "") + "> <b>" + esc(tt(lab)) + "</b>" + (sub ? '<span class="rp-sub">' + esc(tt(sub)) + "</span>" : "") + "</label>"; };
+    d.innerHTML = '<form method="dialog"><h2 id="rpT">' + esc(tt("rp_dlgT")) + "</h2>" +
+      '<fieldset class="rp-fs"><legend>' + esc(tt("rp_art")) + "</legend>" + rd("rpa", "pb", R.art === "mb" ? "" : "pb", "rp_title", "rp_art_pb") + rd("rpa", "mb", R.art === "mb" ? "mb" : "", "mb_title", "rp_art_mb") + "</fieldset>" +
+      '<fieldset class="rp-fs" data-rpx="pb"><legend>' + esc(tt("rp_gl")) + "</legend>" + rd("rpm", "abschnitte", R.mode !== "total" ? "abschnitte" : "", "rp_m_abs", "rp_m_abs_s") + rd("rpm", "total", R.mode === "total" ? "total" : "", "rp_m_tot", "rp_m_tot_s") + "</fieldset>" +
+      '<fieldset class="rp-fs" data-rpx="mb"><legend>' + esc(tt("mb_h_urt")) + "</legend>" + ["machbar", "bedingt", "nicht"].map(function (v) { return rd("mbu", v, mb.u, "mb_u_" + v); }).join("") +
+        '<p class="hint">' + esc(fill(tt(sug.length ? "mb_vor_b" : "mb_vor_m"), { n: sug.length })) + "</p>" +
+        '<label class="rp-ta">' + esc(tt("mb_text")) + '<textarea id="rpMbT" rows="3" maxlength="2000"></textarea></label></fieldset>' +
+      '<fieldset class="rp-fs" data-rpx="mb"><legend>' + esc(tt("mb_h_pk")) + "</legend>" + (sug.length ? '<p class="hint">' + esc(tt("mb_pk_hint")) + "</p>" + sug.map(function (t, i) { return '<label class="rp-cb rp-pk"><input type="checkbox" data-mbp="' + i + '"' + ((mb.aus || []).indexOf(t) < 0 ? " checked" : "") + "> " + esc(t) + "</label>"; }).join("") : '<p class="hint">' + esc(tt("mb_pk_none")) + "</p>") +
+        '<label class="rp-ta">' + esc(tt("mb_eigene")) + '<textarea id="rpMbE" rows="3" maxlength="2000"></textarea></label></fieldset>' +
+      '<fieldset class="rp-fs"><legend>' + esc(tt("rp_inh")) + "</legend>" + cb("kopf", "rp_i_kopf") + cb("dia", "rp_i_dia") + cb("situ", "rp_i_situ") + ((S.fotos || []).length ? cb("foto", "rp_i_foto") : "") + (S.v3d && S.v3d.img ? cb("v3d", "rp_i_3d", "pb") : "") + cb("mengen", "rp_i_mengen", "pb") + cb("pos", "rp_i_pos", "pb") + cb("kosten", "rp_i_kosten", "pb") + cb("annahmen", "rp_i_ann", "pb") + cb("warn", "rp_i_warn", "pb") + "</fieldset>" +
       '<p class="hint">' + esc(tt("rp_hint")) + '</p><div class="kmbar"><button type="submit" class="btn" value="print" id="rpGo">' + esc(tt("rp_go")) + '</button> <button type="submit" class="btn ghost" value="x">' + esc(tt("rp_close")) + "</button></div></form>";
-    document.body.appendChild(d);
+    document.body.appendChild(d); d.querySelector("#rpMbT").value = mb.text || ""; d.querySelector("#rpMbE").value = mb.eigene || "";
+    var art = function () { var a = d.querySelector("input[name=rpa]:checked"); return a ? a.value : "pb"; };
+    var vis = function () { var a = art(); [].slice.call(d.querySelectorAll("[data-rpx]")).forEach(function (x) { x.hidden = x.getAttribute("data-rpx") !== a; }); };
+    [].slice.call(d.querySelectorAll("input[name=rpa]")).forEach(function (x) { x.addEventListener("change", vis); }); vis();
     d.addEventListener("close", function () { d.remove(); });
     d.querySelector("form").addEventListener("submit", function (e) {
       var sub = e.submitter && e.submitter.value; if (sub !== "print") return;
-      R.mode = d.querySelector("input[name=rpm]:checked").value; [].slice.call(d.querySelectorAll("[data-rp]")).forEach(function (i) { R[i.dataset.rp] = i.checked; }); save();
-      var doc = document.getElementById("reportDoc"); if (doc) doc.remove(); doc = document.createElement("div"); doc.id = "reportDoc"; doc.className = "rp"; doc.innerHTML = reportBuild(R); document.body.appendChild(doc); wrapTables(doc);
-      document.body.classList.add("report-print");
-      var ims = [].slice.call(doc.querySelectorAll("image")).filter(function (im) { return !/^data:/.test(im.getAttribute("href") || ""); });   /* Kartenhintergrund noch nicht im Projekt: höchstens 5 s auf das Bild warten */
-      Promise.all(ims.map(function (im) { return new Promise(function (r) { var t = setTimeout(r, 5000); im.addEventListener("load", function () { clearTimeout(t); r(); }); im.addEventListener("error", function () { clearTimeout(t); r(); }); }); })).then(function () { setTimeout(function () { window.print(); }, 50); });
+      R.art = art(); var mm = d.querySelector("input[name=rpm]:checked"); R.mode = mm ? mm.value : "abschnitte"; [].slice.call(d.querySelectorAll("[data-rp]")).forEach(function (i) { R[i.dataset.rp] = i.checked; });
+      var mu = d.querySelector("input[name=mbu]:checked"); S.mb.u = mu ? mu.value : ""; S.mb.text = d.querySelector("#rpMbT").value.trim(); S.mb.eigene = d.querySelector("#rpMbE").value.trim();
+      S.mb.aus = sug.filter(function (t, i) { var c = d.querySelector('[data-mbp="' + i + '"]'); return c && !c.checked; }); save();
+      var ids = (S.fotos || []).map(function (f) { return f.id; }), pre = ids.length && R.foto !== false && window.FOTO ? FOTO.getAll(ids)["catch"](function () { return {}; }) : Promise.resolve({});
+      pre.then(function (img) {
+        rpFotoImg = img || {};
+        var doc = document.getElementById("reportDoc"); if (doc) doc.remove(); doc = document.createElement("div"); doc.id = "reportDoc"; doc.className = "rp"; doc.innerHTML = reportBuild(R); document.body.appendChild(doc); wrapTables(doc); rpFotoImg = {};
+        document.body.classList.add("report-print");
+        var ims = [].slice.call(doc.querySelectorAll("image")).filter(function (im) { return !/^data:/.test(im.getAttribute("href") || ""); });   /* Kartenhintergrund noch nicht im Projekt: höchstens 5 s auf das Bild warten */
+        Promise.all(ims.map(function (im) { return new Promise(function (r) { var t = setTimeout(r, 5000); im.addEventListener("load", function () { clearTimeout(t); r(); }); im.addEventListener("error", function () { clearTimeout(t); r(); }); }); })).then(function () { setTimeout(function () { window.print(); }, 50); });
+      });
     });
     d.showModal(); rpCacheBg(); rpCacheCover();
   }
@@ -12796,7 +13069,11 @@ var FIG = (function () {
     var o = KVE.calc(S, LV), n = o.vor.lines.length + o.be.lines.filter(function (l) { return l.total; }).length; o.elems.forEach(function (e) { n += e.lines.length; });
     return !!(n || k.projekt || k.ort || k.sap || (K.lines || []).length || (K.pts || []).length || (K.notes || []).length || (S.plan && S.plan.img));
   }
-  function saveJson() { var c = JSON.parse(JSON.stringify(S)); delete c.ui; download(fname("json"), JSON.stringify({ v: 2, tool: "LV-Devis Tiefbau", lv: "V1.1 10.07.2026", data: c }, null, 1), "application/json"); }
+  function saveJson() {   /* V145: Fotos (Bilder aus dem Gerätespeicher) werden mitgesichert */
+    var c = JSON.parse(JSON.stringify(S)); delete c.ui; var ids = (S.fotos || []).map(function (f) { return f.id; });
+    var go = function (img) { if (img && Object.keys(img).length) c.fotosImg = img; download(fname("json"), JSON.stringify({ v: 2, tool: "LV-Devis Tiefbau", lv: "V1.1 10.07.2026", data: c }, null, 1), "application/json"); };
+    if (ids.length && window.FOTO) FOTO.getAll(ids).then(go, function () { go(null); }); else go(null);
+  }
   function load(file) {
     var rd = new FileReader();
     rd.onload = function () {
@@ -12809,7 +13086,7 @@ var FIG = (function () {
           if (!ks.length || ks.some(function (t) { return !Array.isArray(d.recs[t]); })) throw new Error(tt("ld_bad"));
         }
         if (hasContent() && !confirm(tt("ld_conf"))) return;
-        if (d.v === 2 && d.recs) { S = d; }
+        if (d.v === 2 && d.recs) { var fi = d.fotosImg; delete d.fotosImg; S = d; if (fi && window.FOTO) Object.keys(fi).forEach(function (id) { if (FOTO_OK.test(fi[id] || "")) FOTO.put(id, fi[id]); }); }
         else if (Array.isArray(d.elems)) {           /* Import aus KV-Assistent */
           var n = defaults(); n.kopf = Object.assign(n.kopf, d.kopf || {}); n.sond = Object.assign(n.sond, d.sond || {}); n.wasser = Object.assign(n.wasser, d.wasser || {}); n.be = Object.assign(n.be, d.be || {}); if (d.dichte) n.dichte = d.dichte;
           n.recs.graben = d.elems.filter(function (e) { return e.type !== "schacht"; }).map(function (e) { e.x = {}; e.free = []; return e; });
@@ -12847,7 +13124,7 @@ var FIG = (function () {
     $("#t-title").textContent = tt("title"); var wms = $("#t-wmsub"); if (wms) { wms.textContent = tt("wm_sub"); wms.parentNode.parentNode.setAttribute("aria-label", "NIUcost – " + tt("wm_sub")); } document.title = tt("title"); var lyb0 = $("#bLyMap"); if (lyb0) { lyb0.textContent = tt("ly_btn"); lyb0.title = tt("ly_btnT"); } $("#t-sub").textContent = tt("sub"); var ti = $("#t-intro"); if (ti) { ti.textContent = tt("intro"); $("#t-contact").textContent = tt("contact") + " →"; $("#t-impr").textContent = tt("impr"); $("#t-imprC").textContent = tt("imprC"); $("#bPriv").textContent = tt("imprP"); $("#t-imprN").textContent = tt("imprN"); $("#morePrint").textContent = tt("morePrint"); }
     seoLang(); var tcr = $("#t-creator"); if (tcr) tcr.textContent = tt("km_cred"); $("#t-role").textContent = tt("creatorRole");
     KOPF.forEach(function (k) { $("#l_" + k[0]).textContent = tt(k[1]); }); $("#l_rolle").textContent = tt("rolle"); $("#l_belagLief").textContent = tt("dv_belagLief");
-    var r = $("#p_rolle"); r.innerHTML = ""; ["anv", "bl", "bhv"].forEach(function (v) { var o = document.createElement("option"); o.value = v; o.textContent = tt("r_" + v); r.appendChild(o); }); r.value = S.kopf.rolle;
+    var r = $("#p_rolle"); r.innerHTML = ""; ["bhv", "aqm", "pl", "bl", "anv", "plan", "and"].forEach(function (v) { var o = document.createElement("option"); o.value = v; o.textContent = tt("r_" + v); r.appendChild(o); }); r.value = S.kopf.rolle;
     if (window.__LVCHAT) window.__LVCHAT.relang();
     $("#helpTitle").textContent = tt("helpTitle"); $("#helpSteps").innerHTML = (T[S.lang] || T.de).help.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join(""); $("#helpNote").textContent = tt("helpNote");
     $("#h-result").textContent = tt("h_result");
@@ -13676,10 +13953,10 @@ window.LVHELP = [
 "<p>These actions change records and thus the result – the tool tells you:</p><ul><li><b>“In Datensätze übernehmen”:</b> lengths, counts, types and areas from the drawing.</li><li><b>Lines at manholes:</b> automatic DN 80/DN 150 connections replace the manually entered count.</li><li><b>Splitting lines</b> (manhole on line, “Alle übernehmen”, manhole in the profile) creates additional trench records.</li><li><b>“Kosten mit Schräglänge rechnen”</b> (off by default).</li><li><b>Aerial/bore section type:</b> not taken as trench, price separately.</li><li><b>Assistant suggestions:</b> only after “Apply”.</li></ul><p>No cost effect: check hints, preview of suggestions, long profile, cover, DXF export, help.</p><p><b>Open items (OPEN):</b> if the tool finds no unambiguous LV price, the item appears as OPEN and is <b>not in the total</b>. This is now shown everywhere directly below the total: main page, short printout, project report and Excel; on the map the footer shows the count. With «Enter open items» (button in the status box, tag at the top or «Enter price» in the row) you enter your own unit price, e.g. from a quote, with its source. The tool keeps calculating the quantity; the item then counts in the total, is marked «own price (outside LV)» and is shown separately in the cost table. Clearing the field makes it open again; «Undo» in the message restores the previous state.</p>"] },
 
 { id: "about", t: ["Datenschutz und Über das Tool", "Confidentialité et à propos", "Privacy e informazioni", "Privacy and about"], b: [
-"<ul><li><b>Daten:</b> Ihr Projekt bleibt im Browser (localStorage) und in Ihren JSON-Sicherungen. Es wird nicht auf einen Server übertragen.</li><li><b>Hosting:</b> Die Seite wird von GitHub Pages (GitHub Inc., USA) ausgeliefert. Dabei fallen technische Zugriffsdaten wie die IP-Adresse an.</li><li><b>Nachgeladene Dienste (nur bei Nutzung der Funktion):</b> Karten, Luftbild, Gelände, Adresssuche und Höhenprofil von swisstopo (geo.admin.ch); Kataster von cadastralwebmap.ch; PDF-Leser und 3D-Ansicht von jsDelivr (cdn.jsdelivr.net); Routenvorschlag von routing.openstreetmap.de. Diese Dienste erhalten Ihre IP-Adresse und den angefragten Kartenausschnitt bzw. die Adresse, aber keine Projektinhalte. Die Kartenbibliothek ist in der Seite enthalten.</li><li><b>Standort (GPS):</b> nur auf Ihren Klick auf «Mein Standort» und nach Freigabe im Browser; die Position wird nur auf dem Gerät angezeigt, nicht gespeichert und nicht übertragen.</li><li><b>Street View:</b> nur auf Ihren Klick: ohne eigenen Google-Schlüssel öffnet sich Google Maps in einem neuen Fenster, mit Schlüssel wird die Ansicht von Google eingebettet.</li><li><b>Keine Analyse:</b> kein Tracking, keine Cookies zu Werbezwecken.</li><li><b>Assistent und Anleitung</b> arbeiten lokal ohne KI.</li><li><b>Grundlagen:</b> LV «Swisscom Infrastrukturarbeiten bei Baukooperationen V1.1 (10.07.2026)», Handbuch unter- und oberirdischer Netzbau V1.2 (01.04.2026).</li><li><b>Urheber:</b> App-Konzept von <b>Alessandro Cortese</b>.</li></ul><p>Die Richtwerte aus dem Handbuch sind Hinweise, keine Vorschrift; Abweichungen von den Normplänen sind als Sonderfreigabe zu beantragen.</p><p><b>Urheberrecht und Nutzung:</b> © Alessandro Cortese, alle Rechte vorbehalten. App-Konzept, Quelltext, Rechenkern und Gestaltung sind geschützt; Kopieren, Verändern, Weitergeben und Dekompilieren nur mit schriftlicher Zustimmung. Weitergabe-Versionen sind auf den Empfänger personalisiert (Name in Fusszeile und Druck) und befristet.</p>",
-"<ul><li><b>Données :</b> votre projet reste dans le navigateur (localStorage) et dans vos sauvegardes JSON. Il n'est pas transmis à un serveur.</li><li><b>Hébergement :</b> la page est fournie par GitHub Pages (GitHub Inc., États-Unis). Des données techniques d'accès telles que l'adresse IP sont alors traitées.</li><li><b>Services chargés (uniquement lors de l'utilisation de la fonction) :</b> cartes, orthophoto, terrain, recherche d'adresse et profil d'altitude de swisstopo (geo.admin.ch) ; cadastre de cadastralwebmap.ch ; lecteur PDF et vue 3D de jsDelivr (cdn.jsdelivr.net) ; proposition d'itinéraire de routing.openstreetmap.de. Ces services reçoivent votre adresse IP et l'extrait de carte ou l'adresse demandés, mais aucun contenu du projet. La bibliothèque cartographique est incluse dans la page.</li><li><b>Position (GPS) :</b> uniquement après un clic sur « Ma position » et autorisation dans le navigateur ; la position n’est affichée que sur l’appareil, ni enregistrée ni transmise.</li><li><b>Street View :</b> uniquement sur votre clic : sans clé Google personnelle, Google Maps s'ouvre dans une nouvelle fenêtre ; avec clé, la vue de Google est intégrée.</li><li><b>Aucune analyse :</b> pas de suivi, pas de cookies publicitaires.</li><li><b>L'assistant et l'aide</b> fonctionnent localement sans IA.</li><li><b>Bases :</b> LV « Swisscom Infrastrukturarbeiten bei Baukooperationen V1.1 (10.07.2026) », manuel réseau souterrain et aérien V1.2 (01.04.2026).</li><li><b>Auteur :</b> concept de l'application : <b>Alessandro Cortese</b>.</li></ul><p>Les valeurs du manuel sont indicatives ; les écarts aux plans normalisés nécessitent une dérogation.</p><p><b>Droit d'auteur et utilisation :</b> © Alessandro Cortese, tous droits réservés. Concept, code source, noyau de calcul et conception sont protégés ; copie, modification, transmission et décompilation uniquement avec accord écrit. Les versions transmises sont personnalisées (nom en pied de page et à l'impression) et limitées dans le temps.</p>",
-"<ul><li><b>Dati:</b> il progetto resta nel browser (localStorage) e nei salvataggi JSON. Non viene trasmesso a un server.</li><li><b>Hosting:</b> la pagina è fornita da GitHub Pages (GitHub Inc., USA). Vengono trattati dati tecnici di accesso come l'indirizzo IP.</li><li><b>Servizi caricati (solo quando si usa la funzione):</b> carte, ortofoto, terreno, ricerca indirizzi e profilo altimetrico di swisstopo (geo.admin.ch); catasto di cadastralwebmap.ch; lettore PDF e vista 3D di jsDelivr (cdn.jsdelivr.net); proposta di percorso di routing.openstreetmap.de. Questi servizi ricevono l'indirizzo IP e l'estratto di carta o l'indirizzo richiesti, ma nessun contenuto del progetto. La libreria cartografica è inclusa nella pagina.</li><li><b>Posizione (GPS):</b> solo dopo un clic su «La mia posizione» e autorizzazione nel browser; la posizione è mostrata solo sul dispositivo, non viene salvata né trasmessa.</li><li><b>Street View:</b> solo su clic: senza chiave Google propria si apre Google Maps in una nuova finestra; con chiave la vista di Google viene incorporata.</li><li><b>Nessuna analisi:</b> nessun tracciamento, nessun cookie pubblicitario.</li><li><b>Assistente e guida</b> funzionano in locale senza IA.</li><li><b>Basi:</b> LV «Swisscom Infrastrukturarbeiten bei Baukooperationen V1.1 (10.07.2026)», manuale rete sotterranea e aerea V1.2 (01.04.2026).</li><li><b>Autore:</b> concetto dell'app: <b>Alessandro Cortese</b>.</li></ul><p>I valori del manuale sono indicativi; le deroghe ai piani normalizzati richiedono un'autorizzazione speciale.</p><p><b>Diritto d'autore e utilizzo:</b> © Alessandro Cortese, tutti i diritti riservati. Concetto, codice sorgente, motore di calcolo e design sono protetti; copia, modifica, trasmissione e decompilazione solo con consenso scritto. Le versioni trasmesse sono personalizzate (nome a piè di pagina e in stampa) e a tempo.</p>",
-"<ul><li><b>Data:</b> your project stays in the browser (localStorage) and in your JSON backups. It is not sent to a server.</li><li><b>Hosting:</b> the page is served by GitHub Pages (GitHub Inc., USA). Technical access data such as the IP address is processed.</li><li><b>Services loaded (only when the feature is used):</b> maps, aerial image, terrain, address search and height profile from swisstopo (geo.admin.ch); cadastre from cadastralwebmap.ch; PDF reader and 3D view from jsDelivr (cdn.jsdelivr.net); route suggestion from routing.openstreetmap.de. These services receive your IP address and the requested map extract or address, but no project content. The map library is included in the page.</li><li><b>Location (GPS):</b> only after you click «My location» and allow it in the browser; the position is shown on the device only, not stored and not transmitted.</li><li><b>Street View:</b> only on your click: without your own Google key, Google Maps opens in a new window; with a key, Google's view is embedded.</li><li><b>No analytics:</b> no tracking, no advertising cookies.</li><li><b>Assistant and help</b> run locally without AI.</li><li><b>Basis:</b> LV “Swisscom Infrastrukturarbeiten bei Baukooperationen V1.1 (10.07.2026)”, handbook underground and overhead network V1.2 (01.04.2026).</li><li><b>Author:</b> app concept by <b>Alessandro Cortese</b>.</li></ul><p>Handbook values are guide values; deviations from standard plans need a special release.</p><p><b>Copyright and use:</b> © Alessandro Cortese, all rights reserved. App concept, source code, calculation core and design are protected; copying, modifying, passing on and decompiling only with written consent. Distributed versions are personalised (name in footer and print) and time-limited.</p>"] }
+"<ul><li><b>Daten:</b> Ihr Projekt bleibt im Browser (localStorage) und in Ihren JSON-Sicherungen. Es wird nicht auf einen Server übertragen.</li><li><b>Hosting:</b> Die Seite wird von GitHub Pages (GitHub Inc., USA) ausgeliefert. Dabei fallen technische Zugriffsdaten wie die IP-Adresse an.</li><li><b>Nachgeladene Dienste (nur bei Nutzung der Funktion):</b> Karten, Luftbild, Gelände, Adresssuche und Höhenprofil von swisstopo (geo.admin.ch); Kataster von cadastralwebmap.ch; PDF-Leser und 3D-Ansicht von jsDelivr (cdn.jsdelivr.net); Routenvorschlag von routing.openstreetmap.de. Diese Dienste erhalten Ihre IP-Adresse und den angefragten Kartenausschnitt bzw. die Adresse, aber keine Projektinhalte. Die Kartenbibliothek ist in der Seite enthalten.</li><li><b>Fotos:</b> werden verkleinert (ca. 1600 px) nur im Gerät (Browser-Speicher IndexedDB) und in Ihren JSON-Sicherungen abgelegt, nicht auf einen Server übertragen. Achten Sie auf Personen und Kennzeichen im Bild.</li><li><b>Standort (GPS):</b> nur auf Ihren Klick auf «Mein Standort» und nach Freigabe im Browser; die Position wird nur auf dem Gerät angezeigt, nicht gespeichert und nicht übertragen.</li><li><b>Street View:</b> nur auf Ihren Klick: ohne eigenen Google-Schlüssel öffnet sich Google Maps in einem neuen Fenster, mit Schlüssel wird die Ansicht von Google eingebettet.</li><li><b>Keine Analyse:</b> kein Tracking, keine Cookies zu Werbezwecken.</li><li><b>Assistent und Anleitung</b> arbeiten lokal ohne KI.</li><li><b>Grundlagen:</b> LV «Swisscom Infrastrukturarbeiten bei Baukooperationen V1.1 (10.07.2026)», Handbuch unter- und oberirdischer Netzbau V1.2 (01.04.2026).</li><li><b>Urheber:</b> App-Konzept von <b>Alessandro Cortese</b>.</li></ul><p>Die Richtwerte aus dem Handbuch sind Hinweise, keine Vorschrift; Abweichungen von den Normplänen sind als Sonderfreigabe zu beantragen.</p><p><b>Urheberrecht und Nutzung:</b> © Alessandro Cortese, alle Rechte vorbehalten. App-Konzept, Quelltext, Rechenkern und Gestaltung sind geschützt; Kopieren, Verändern, Weitergeben und Dekompilieren nur mit schriftlicher Zustimmung. Weitergabe-Versionen sind auf den Empfänger personalisiert (Name in Fusszeile und Druck) und befristet.</p>",
+"<ul><li><b>Données :</b> votre projet reste dans le navigateur (localStorage) et dans vos sauvegardes JSON. Il n'est pas transmis à un serveur.</li><li><b>Hébergement :</b> la page est fournie par GitHub Pages (GitHub Inc., États-Unis). Des données techniques d'accès telles que l'adresse IP sont alors traitées.</li><li><b>Services chargés (uniquement lors de l'utilisation de la fonction) :</b> cartes, orthophoto, terrain, recherche d'adresse et profil d'altitude de swisstopo (geo.admin.ch) ; cadastre de cadastralwebmap.ch ; lecteur PDF et vue 3D de jsDelivr (cdn.jsdelivr.net) ; proposition d'itinéraire de routing.openstreetmap.de. Ces services reçoivent votre adresse IP et l'extrait de carte ou l'adresse demandés, mais aucun contenu du projet. La bibliothèque cartographique est incluse dans la page.</li><li><b>Photos :</b> réduites (env. 1600 px) et enregistrées uniquement sur l'appareil (mémoire du navigateur IndexedDB) et dans vos sauvegardes JSON, sans transmission à un serveur. Attention aux personnes et plaques d'immatriculation visibles.</li><li><b>Position (GPS) :</b> uniquement après un clic sur « Ma position » et autorisation dans le navigateur ; la position n’est affichée que sur l’appareil, ni enregistrée ni transmise.</li><li><b>Street View :</b> uniquement sur votre clic : sans clé Google personnelle, Google Maps s'ouvre dans une nouvelle fenêtre ; avec clé, la vue de Google est intégrée.</li><li><b>Aucune analyse :</b> pas de suivi, pas de cookies publicitaires.</li><li><b>L'assistant et l'aide</b> fonctionnent localement sans IA.</li><li><b>Bases :</b> LV « Swisscom Infrastrukturarbeiten bei Baukooperationen V1.1 (10.07.2026) », manuel réseau souterrain et aérien V1.2 (01.04.2026).</li><li><b>Auteur :</b> concept de l'application : <b>Alessandro Cortese</b>.</li></ul><p>Les valeurs du manuel sont indicatives ; les écarts aux plans normalisés nécessitent une dérogation.</p><p><b>Droit d'auteur et utilisation :</b> © Alessandro Cortese, tous droits réservés. Concept, code source, noyau de calcul et conception sont protégés ; copie, modification, transmission et décompilation uniquement avec accord écrit. Les versions transmises sont personnalisées (nom en pied de page et à l'impression) et limitées dans le temps.</p>",
+"<ul><li><b>Dati:</b> il progetto resta nel browser (localStorage) e nei salvataggi JSON. Non viene trasmesso a un server.</li><li><b>Hosting:</b> la pagina è fornita da GitHub Pages (GitHub Inc., USA). Vengono trattati dati tecnici di accesso come l'indirizzo IP.</li><li><b>Servizi caricati (solo quando si usa la funzione):</b> carte, ortofoto, terreno, ricerca indirizzi e profilo altimetrico di swisstopo (geo.admin.ch); catasto di cadastralwebmap.ch; lettore PDF e vista 3D di jsDelivr (cdn.jsdelivr.net); proposta di percorso di routing.openstreetmap.de. Questi servizi ricevono l'indirizzo IP e l'estratto di carta o l'indirizzo richiesti, ma nessun contenuto del progetto. La libreria cartografica è inclusa nella pagina.</li><li><b>Foto:</b> ridotte (ca. 1600 px) e salvate solo sul dispositivo (memoria del browser IndexedDB) e nei salvataggi JSON, senza trasmissione a un server. Attenzione a persone e targhe visibili.</li><li><b>Posizione (GPS):</b> solo dopo un clic su «La mia posizione» e autorizzazione nel browser; la posizione è mostrata solo sul dispositivo, non viene salvata né trasmessa.</li><li><b>Street View:</b> solo su clic: senza chiave Google propria si apre Google Maps in una nuova finestra; con chiave la vista di Google viene incorporata.</li><li><b>Nessuna analisi:</b> nessun tracciamento, nessun cookie pubblicitario.</li><li><b>Assistente e guida</b> funzionano in locale senza IA.</li><li><b>Basi:</b> LV «Swisscom Infrastrukturarbeiten bei Baukooperationen V1.1 (10.07.2026)», manuale rete sotterranea e aerea V1.2 (01.04.2026).</li><li><b>Autore:</b> concetto dell'app: <b>Alessandro Cortese</b>.</li></ul><p>I valori del manuale sono indicativi; le deroghe ai piani normalizzati richiedono un'autorizzazione speciale.</p><p><b>Diritto d'autore e utilizzo:</b> © Alessandro Cortese, tutti i diritti riservati. Concetto, codice sorgente, motore di calcolo e design sono protetti; copia, modifica, trasmissione e decompilazione solo con consenso scritto. Le versioni trasmesse sono personalizzate (nome a piè di pagina e in stampa) e a tempo.</p>",
+"<ul><li><b>Data:</b> your project stays in the browser (localStorage) and in your JSON backups. It is not sent to a server.</li><li><b>Hosting:</b> the page is served by GitHub Pages (GitHub Inc., USA). Technical access data such as the IP address is processed.</li><li><b>Services loaded (only when the feature is used):</b> maps, aerial image, terrain, address search and height profile from swisstopo (geo.admin.ch); cadastre from cadastralwebmap.ch; PDF reader and 3D view from jsDelivr (cdn.jsdelivr.net); route suggestion from routing.openstreetmap.de. These services receive your IP address and the requested map extract or address, but no project content. The map library is included in the page.</li><li><b>Photos:</b> resized (approx. 1600 px) and stored only on the device (browser storage IndexedDB) and in your JSON backups, not sent to a server. Mind people and number plates in the picture.</li><li><b>Location (GPS):</b> only after you click «My location» and allow it in the browser; the position is shown on the device only, not stored and not transmitted.</li><li><b>Street View:</b> only on your click: without your own Google key, Google Maps opens in a new window; with a key, Google's view is embedded.</li><li><b>No analytics:</b> no tracking, no advertising cookies.</li><li><b>Assistant and help</b> run locally without AI.</li><li><b>Basis:</b> LV “Swisscom Infrastrukturarbeiten bei Baukooperationen V1.1 (10.07.2026)”, handbook underground and overhead network V1.2 (01.04.2026).</li><li><b>Author:</b> app concept by <b>Alessandro Cortese</b>.</li></ul><p>Handbook values are guide values; deviations from standard plans need a special release.</p><p><b>Copyright and use:</b> © Alessandro Cortese, all rights reserved. App concept, source code, calculation core and design are protected; copying, modifying, passing on and decompiling only with written consent. Distributed versions are personalised (name in footer and print) and time-limited.</p>"] }
 ];
 
 </script>

@@ -1682,7 +1682,7 @@
         if (l.pts.length < 3 || l.hzArt) return; var c = cfgOf(l); if (c.art === "beton" || c.art === "laengs") return; var n = pipeSum(c);
         bendPts(l, M).forEach(function (b) { L.marker(AD.ll(b.pt), { interactive: false, keyboard: false, zIndexOffset: -450, icon: L.divIcon({ className: "kmbend", html: "<span>" + esc(bendTxt(b, n)) + "</span>", iconSize: [0, 0], iconAnchor: [0, 0] }) }).addTo(grp); });
       });
-      shaftSymbols(); pm(M.pts, "kmsch", ""); pm(M.sond, "kmsond", "S"); pm(M.wl, "kmwl", "W"); pm(M.geb, "kmgeb", "G");
+      shaftSymbols(); pm(M.pts, "kmsch", ""); pm(M.sond, "kmsond", "S"); pm(M.wl, "kmwl", "W"); pm(M.geb, "kmgeb", "G"); ftDraw();
       if (labelsOn() && opt.labels) {   /* Beschriftung: Linie mit Name, Länge und Rohranlage; Schächte, Sondagen, Werklöcher, Einführungen, Flächen mit Name */
         var lb = opt.labels(M, { len: effLen, slope: function (pts) { return SLOPE && !!slopeHz(pts, M.lines); }, area: area }), put = function (ll, t, cls, ang) { if (t) L.marker(ll, { interactive: false, keyboard: false, zIndexOffset: -500, icon: L.divIcon({ className: "kmlbl " + cls, html: "<span" + (ang != null ? ' style="--a:' + ang + 'deg"' : "") + ">" + esc(t) + "</span>", iconSize: [0, 0] }) }).addTo(grp); };
         M.lines.forEach(function (l, i) { if (l.pts.length < 2) return; var bj = 1, bd = -1; for (var j = 1; j < l.pts.length; j++) { var dd = AD.dist(l.pts[j - 1], l.pts[j]) || Math.hypot(l.pts[j][0] - l.pts[j - 1][0], l.pts[j][1] - l.pts[j - 1][1]); if (dd > bd) { bd = dd; bj = j; } }
@@ -1716,7 +1716,65 @@
     function cell(label, el) { var d = document.createElement("div"); d.className = "kmc"; var l = document.createElement("span"); l.textContent = label; d.appendChild(l); d.appendChild(el); return d; }
     function inp(label, val, cls, on, txt) { var n = document.createElement("input"); n.type = "text"; if (!txt) n.inputMode = "decimal"; n.className = cls; n.value = val; n.setAttribute("aria-label", label); n.addEventListener("input", function () { on(n.value); }); return n; }
     function head(r, title, rid) { var t = document.createElement("div"); t.className = "kmt"; t.innerHTML = "<b>" + esc(title) + "</b>" + (rid === undefined ? "" : " · " + (rid ? '<span class="kmlnk">→ ' + esc(opt.recName(rid) || tt("km_new")) + "</span>" : '<span class="kmlnk">' + esc(tt("km_new")) + "</span>")); r.appendChild(t); return t; }
+    /* V145: Fotodokumentation – Fotos an Objekten (Schacht/Deckelanpassung, Abzweiger, Linie, Werkloch, Gebäudeeinführung, Sondage, Fläche)
+       und freie Fotopunkte (Kamerazeichen auf der Karte; «Foto hier» am GPS-Standort oder per Rechtsklick). Nur Karte, nicht Plan.
+       Bild verkleinert im Gerätespeicher (FOTO), Angaben sofort im Projekt (opt.foto) – unabhängig von «Übernehmen». */
+    var FT = !plan && opt.foto && window.FOTO ? opt.foto : null, ftGrp = null, ftNext = null, gpsNow;
+    var CAM = '<svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true" focusable="false"><path d="M3 6.5h3l1.5-2h5L14 6.5h3a1 1 0 0 1 1 1V15a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.5a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="10" cy="11" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>';
+    function ftOf(id) { return FT ? FT.list().filter(function (f) { return f.obj === id; }) : []; }
+    function ftObjLbl(id) {
+      var o, i; if (!id) return tt("ft_free");
+      if ((i = M.lines.findIndex(function (x) { return x.id === id; })) >= 0) return tt("km_lineN").replace("{n}", i + 1);
+      if ((o = byId(M.pts, id))) return o.mode === "abz" ? tt("km_abzN").replace("{n}", M.pts.filter(function (x) { return x.mode === "abz"; }).indexOf(o) + 1) : tt("km_schN").replace("{n}", M.pts.indexOf(o) + 1) + (o.mode === "deckel" ? " · " + tt("km_pm_dk") : "") + (o.name ? " «" + o.name + "»" : "");
+      if ((o = byId(M.wl, id))) return tt("km_wlN").replace("{n}", M.wl.indexOf(o) + 1); if ((o = byId(M.geb, id))) return tt("km_gebN").replace("{n}", M.geb.indexOf(o) + 1);
+      if ((o = byId(M.sond, id))) return tt("km_sondN").replace("{n}", M.sond.indexOf(o) + 1); if ((o = byId(M.areas, id))) return tt("km_areaN").replace("{n}", M.areas.indexOf(o) + 1);
+      return tt("ft_free");
+    }
+    function ftPick(t) {
+      var inp0 = $("#kmFotoIn"); if (!inp0) { inp0 = document.createElement("input"); inp0.type = "file"; inp0.accept = "image/*"; inp0.id = "kmFotoIn"; inp0.hidden = true; inp0.setAttribute("aria-hidden", "true"); dlg.appendChild(inp0); inp0.addEventListener("change", function () { ftAdd(inp0.files && inp0.files[0]); }); }
+      ftNext = t; inp0.value = ""; inp0.click();
+    }
+    function ftPickObj(id) {   /* Aufnahmeort: GPS-Standort, sonst Lage des Objekts */
+      var f = findObj(id); if (!f) return; var o = f.o, g = gpsNow && gpsNow(), pt = o.pt || (o.pts && o.pts[Math.floor((o.pts.length - 1) / 2)]);
+      ftPick(g ? { obj: id, pt: AD.pt(L.latLng(g.lat, g.lon)), acc: g.acc, src: "gps" } : { obj: id, pt: pt, acc: null, src: "obj" });
+    }
+    function ftAdd(file) {
+      var t = ftNext; ftNext = null; if (!t || !file || !FT) return; toast(dlg, tt("ft_busy"));
+      FOTO.resize(file).then(function (r) {
+        var id = FOTO.nid(), f = { id: id, obj: t.obj || null, pt: t.pt ? t.pt.slice() : null, acc: t.acc == null ? null : Math.round(t.acc), src: t.src, t: new Date().toISOString(), note: "", w: r.w, h: r.h, kb: r.kb };
+        return FOTO.put(id, r.url).then(function () { FT.add(f); refresh(); toast(dlg, tt("ft_ok").replace("{kb}", r.kb)); ftView(id); });
+      })["catch"](function () { toast(dlg, tt("ft_err")); });
+    }
+    function ftWhen(iso) { var d = new Date(iso); return isNaN(d) ? "" : d.toLocaleDateString("de-CH") + " " + d.toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" }); }
+    function ftView(id) {
+      if (!FT) return; var all = FT.list(), f = all.filter(function (x) { return x.id === id; })[0]; if (!f) return;
+      var old = document.getElementById("kmFv"); if (old) old.remove();
+      var d = document.createElement("dialog"); d.id = "kmFv"; d.className = "kmfv"; d.setAttribute("aria-labelledby", "kmFvT");
+      var lbl = ftObjLbl(f.obj), nr = all.indexOf(f) + 1, where = f.pt ? "E " + fmt0(f.pt[0]) + " / N " + fmt0(f.pt[1]) + (f.acc != null ? " (± " + f.acc + " m)" : "") + " · " + tt("ft_src_" + (f.src || "map")) : tt("ft_noPos");
+      d.innerHTML = '<form method="dialog"><h2 id="kmFvT">' + esc(tt("ft_n").replace("{n}", nr) + " · " + lbl) + '</h2><div class="kmfv-img"><img alt="' + esc(tt("ft_n").replace("{n}", nr) + ", " + lbl) + '"></div>' +
+        '<p class="kmfv-m">' + esc(tt("ft_when") + ": " + ftWhen(f.t)) + "<br>" + esc(tt("ft_where") + ": " + where) + "</p>" +
+        '<label class="kmfv-n">' + esc(tt("ft_note")) + '<textarea rows="2" maxlength="400"></textarea></label>' +
+        '<div class="kmbar"><button type="submit" class="btn" value="ok">' + esc(tt("km_close")) + '</button><button type="button" class="btn ghost small del" data-fdel="1">' + esc(tt("ft_del")) + "</button></div></form>";
+      document.body.appendChild(d); var ta = d.querySelector("textarea"); ta.value = f.note || "";
+      FOTO.get(id).then(function (u) { var im = d.querySelector("img"); if (u) im.src = u; else { im.replaceWith(Object.assign(document.createElement("p"), { className: "hint", textContent: tt("ft_missing") })); } });
+      d.querySelector("[data-fdel]").addEventListener("click", function () { if (!window.confirm(tt("ft_delQ"))) return; FT.del(id); d.close(); refresh(); toast(dlg, tt("ft_deleted")); });
+      d.addEventListener("close", function () { if (FT.list().some(function (x) { return x.id === id; }) && (ta.value || "") !== (f.note || "")) { FT.upd(id, { note: ta.value.trim() }); rows(); } d.remove(); });
+      d.addEventListener("keydown", function (e) { e.stopPropagation(); });
+      d.showModal();
+    }
+    function ftDraw() {
+      if (!FT || !map) return; if (!ftGrp) ftGrp = L.layerGroup().addTo(map); ftGrp.clearLayers();
+      FT.list().forEach(function (f, i) { if (f.obj && findObj(f.obj) || !f.pt) return;   /* Objektfotos hängen am Objekt; Fotos ohne (gelöschtes) Objekt erscheinen als freier Fotopunkt */
+        var m = L.marker(AD.ll(f.pt), { icon: L.divIcon({ className: "kmftm", html: CAM, iconSize: [28, 28], iconAnchor: [14, 14] }), title: tt("ft_n").replace("{n}", i + 1) + (f.note ? " · " + f.note : ""), keyboard: true, riseOnHover: true });
+        m.on("click", function (e) { L.DomEvent.stop(e); ftView(f.id); }); m.addTo(ftGrp); var el = m.getElement(); if (el) { el.setAttribute("role", "button"); el.setAttribute("aria-label", tt("ft_open").replace("{n}", i + 1)); el.setAttribute("data-ftm", f.id); } });
+    }
     function btns(r, id) {
+      if (FT) {
+        var fs = ftOf(id), all = FT.list(), fb = document.createElement("div"); fb.className = "kmfts";
+        fb.innerHTML = '<button type="button" class="btn ghost small kmftb" data-foto="' + id + '">' + CAM + " " + esc(tt("ft_add")) + (fs.length ? " · " + fs.length : "") + "</button>" +
+          fs.map(function (f) { var n = all.indexOf(f) + 1; return '<button type="button" class="kmfth" data-fv="' + f.id + '" aria-label="' + esc(tt("ft_open").replace("{n}", n)) + '"><img alt=""></button>'; }).join("");
+        r.appendChild(fb); fs.forEach(function (f) { FOTO.get(f.id).then(function (u) { var im = fb.querySelector('[data-fv="' + f.id + '"] img'); if (im && u) im.src = u; }); });
+      }
       var bs = document.createElement("div"); bs.className = "kmbtn";
       bs.innerHTML = '<span class="kmnudge" role="group" aria-label="' + esc(tt("km_nudge")) + '">' + [["l", "←", "km_nl"], ["u", "↑", "km_nu"], ["d", "↓", "km_nd"], ["r", "→", "km_nr"]].map(function (a) { return '<button type="button" class="btn ghost small" data-n="' + id + "|" + a[0] + '" aria-label="' + esc(tt(a[2])) + '">' + a[1] + "</button>"; }).join("") + "</span>" +
         '<button type="button" class="btn ghost small" data-z="' + id + '">' + esc(tt("km_show")) + '</button><button type="button" class="btn ghost small del" data-d="' + id + '">' + esc(tt("km_del")) + "</button>";
@@ -2006,6 +2064,7 @@
         if (!(msel[o.id] && Object.keys(msel).length > 1)) { sel = { id: o.id }; msel = {}; } refresh();   /* Rechtsklick in eine Mehrfachauswahl wirkt auf alle gewählten Objekte, sonst nur auf das getroffene */
         var nSel = selIds().length;
         items.push({ t: tt("km_cx_props"), fn: function () { propsOpen(o, cp); } });
+        if (FT) items.push({ t: tt("ft_add"), fn: function () { ftPickObj(o.id); } });
         items.push({ t: tt("km_cx_copy").replace("{n}", nSel), fn: function () { clipCopy(); } });
         if (clip) items.push({ t: tt("km_cx_paste"), fn: function () { clipPaste(c); } });
         items.push({ t: tt("km_cx_sim"), fn: function () { selectSimilar(o); } });
@@ -2028,6 +2087,7 @@
         if (nSel2) items.push({ t: tt("km_cx_copy").replace("{n}", nSel2), fn: function () { clipCopy(); } });
         if (clip) items.push({ t: tt("km_cx_paste"), fn: function () { clipPaste(c); } });
         if (nSel2) items.push({ t: tt("km_cx_del").replace("{n}", nSel2), fn: function () { delSel(); } });
+        if (FT) items.push({ t: tt("ft_ctx"), fn: function () { ftPick({ obj: null, pt: c.slice(), acc: null, src: "map" }); } });
         if (!plan) { items.push({ t: tt("km_sv_here"), ghost: 1, fn: function () { svOpen(c, null, false); } }); if (svKey()) items.push({ t: tt("km_sv_emb"), ghost: 1, fn: function () { svOpen(c, null, true); } }); }
       }
       ctxShow(cp, title, sub, items);
@@ -3306,8 +3366,8 @@
       if (!plan) (function () {
         var G = { id: null, pos: null, follow: true, grp: L.layerGroup().addTo(map), btn: null, chip: null };
         var chip = function () { var c = G.chip; if (!c) { c = G.chip = document.createElement("div"); c.className = "kmgps"; c.setAttribute("role", "status"); $("#kmMap").appendChild(c); L.DomEvent.disableClickPropagation(c); L.DomEvent.disableScrollPropagation(c);
-            c.addEventListener("click", function (e) { var k = e.target.getAttribute && e.target.getAttribute("data-gps"); if (k === "here") here(); else if (k === "off") stop(); }); }
-          c.innerHTML = '<span class="kmgps-t">' + esc(G.pos ? tt("gps_acc").replace("{m}", Math.round(G.pos.acc)) : tt("gps_wait")) + '</span>' + (G.pos ? '<button type="button" class="btn small" data-gps="here">' + esc(tt("gps_here")) + "</button>" : "") + '<button type="button" class="btn ghost small" data-gps="off">' + esc(tt("gps_off")) + "</button>"; };
+            c.addEventListener("click", function (e) { var k = e.target.getAttribute && e.target.getAttribute("data-gps"); var kb = e.target.closest && e.target.closest("[data-gps]"); k = kb ? kb.getAttribute("data-gps") : k; if (k === "here") here(); else if (k === "off") stop(); else if (k === "foto" && G.pos) ftPick({ obj: null, pt: AD.pt(L.latLng(G.pos.lat, G.pos.lon)), acc: G.pos.acc, src: "gps" }); }); }
+          c.innerHTML = '<span class="kmgps-t">' + esc(G.pos ? tt("gps_acc").replace("{m}", Math.round(G.pos.acc)) : tt("gps_wait")) + '</span>' + (G.pos ? '<button type="button" class="btn small" data-gps="here">' + esc(tt("gps_here")) + "</button>" : "") + (G.pos && FT ? '<button type="button" class="btn small" data-gps="foto" aria-label="' + esc(tt("ft_here")) + '">' + CAM + " " + esc(tt("ft_hereS")) + "</button>" : "") + '<button type="button" class="btn ghost small" data-gps="off">' + esc(tt("gps_off")) + "</button>"; };
         function draw() { G.grp.clearLayers(); if (!G.pos) return; var ll = L.latLng(G.pos.lat, G.pos.lon);
           L.circle(ll, { radius: G.pos.acc, color: "#1a73e8", weight: 1, fillColor: "#1a73e8", fillOpacity: 0.12, interactive: false }).addTo(G.grp);
           L.circleMarker(ll, { radius: 7, color: "#fff", weight: 2.5, fillColor: "#1a73e8", fillOpacity: 1, interactive: false }).addTo(G.grp); }
@@ -3328,6 +3388,7 @@
           addPt(L.latLng(G.pos.lat, G.pos.lon));
         }
         map.on("dragstart", function () { G.follow = false; });
+        gpsNow = function () { return G.id != null ? G.pos : null; };
         dlg.addEventListener("close", stop);
         var C2 = L.Control.extend({ options: { position: "topleft" }, onAdd: function () {
           var d = L.DomUtil.create("div", "leaflet-bar kmfitc kmgpsc"), a = G.btn = L.DomUtil.create("a", "", d); a.href = "#"; a.setAttribute("role", "button"); a.setAttribute("aria-pressed", "false"); a.title = tt("gps_btn"); a.setAttribute("aria-label", tt("gps_btn")); a.setAttribute("data-k", "gps");
@@ -3410,6 +3471,7 @@
       if (e.target.closest("[data-sumgo]")) { var te = $("#kmTabE"); if (te) te.click(); return; }
       var hzb = e.target.closest("[data-hz]"); if (hzb) { if (hzb.dataset.hz === "load") hzLoad(); return; }
       var sgb = e.target.closest("[data-sg],#kmDxf"); if (sgb) { if (sgb.id === "kmDxf") dxfExport(); else if (sgb.dataset.sg === "calc") { sugs = sugCompute(); sugDraw(); sugRender(); if (!sugs.length) { var sh = $("#kmSug"); if (sh) { var pn = document.createElement("p"); pn.className = "hint"; pn.setAttribute("role", "status"); pn.textContent = tt("sg_none"); sh.appendChild(pn); } } } else if (sgb.dataset.sg === "apply") sugApply(); else { sugs = []; sugDraw(); sugRender(); } return; }
+      var ftb = e.target.closest("[data-foto],[data-fv]"); if (ftb) { if (ftb.dataset.foto) ftPickObj(ftb.dataset.foto); else ftView(ftb.dataset.fv); return; }
       var b = e.target.closest("[data-k],[data-z],[data-d],[data-n]"); if (!b) return; askHide();
       if (b.dataset.n) { var nn = b.dataset.n.split("|"); return nudge(nn[0], nn[1]); }
       if (b.dataset.z) return show(b.dataset.z); if (b.dataset.d) return del(b.dataset.d);
@@ -3666,5 +3728,15 @@
     if (!plan && opt.autoPlan && !ovl && opt.planImg && opt.planImg.img) { $("#kmOvPlan").click(); } (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
-  window.KARTE = { avRuns: avRuns, avCls: avCls, bendGeo: bendGeo, bendsOf: bendsOf, bendPts: bendPts, abzInfo: abzInfo, ABZ_TYP: ABZ_TYP, lineSlopeS: lineSlopeS, slopeLen: slopeLen, slopeOn: slopeOn, slopeHz: slopeHz, connOf: connOf, connTxt: connTxt, ovBase: ovBase, cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
+  /* V145 Machbarkeit: Linien durch Gebäude aus dem gespeicherten Bodenbedeckungs-Ergebnis (amtliche Vermessung) – ohne neue Abfrage */
+  function gebHits(K) {
+    var out = []; ((K && K.lines) || []).forEach(function (l, i) {
+      if (!l.av || !l.pts || l.pts.length < 2 || l.av.sig !== l.pts.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(";")) return;
+      var L = lineLen(l.pts), m = 0, gAt = function (q) { return (K.geb || []).some(function (g) { return g.lid === l.id || Math.hypot(g.pt[0] - q[0], g.pt[1] - q[1]) <= 3; }); };
+      (l.av.r || []).forEach(function (x) { if (x.fl !== "geb") return; if ((x.a <= 0.05 && gAt(l.pts[0])) || (x.b >= L - 0.05 && gAt(l.pts[l.pts.length - 1]))) return; m += x.b - x.a; });
+      if (m >= 0.5) out.push({ n: i + 1, m: Math.round(m * 10) / 10 });
+    });
+    return out;
+  }
+  window.KARTE = { gebHits: gebHits, avRuns: avRuns, avCls: avCls, bendGeo: bendGeo, bendsOf: bendsOf, bendPts: bendPts, abzInfo: abzInfo, ABZ_TYP: ABZ_TYP, lineSlopeS: lineSlopeS, slopeLen: slopeLen, slopeOn: slopeOn, slopeHz: slopeHz, connOf: connOf, connTxt: connTxt, ovBase: ovBase, cfgOf: cfgOf, pipeList: pipeList, pipeTxt: pipeTxt, lineTxt: lineTxt, lineSync: lineSync, cfgMissing: cfgMissing, planGeo: planGeo, exportDlg: exportDlg, polyArea: polyArea, ovCorners: ovCorners, open: open, toast: toast, mapFigure: mapFigure, bgKey: bgKey, cacheBg: cacheBg, planSource: planSource, planPreview: planPreview, preview: preview, load: loadLeaflet, total: total, toLV95: toLV95, toWGS: toWGS, fmt: fmt };
 })();

@@ -4,7 +4,7 @@ de: {
  title: "KV-Assistent Tiefbau", sub: "Kostenvoranschlag auf Basis LV Swisscom Infrastrukturarbeiten bei Baukooperationen (V1.1, 10.07.2026).",
  creatorRole: "Fachliche Struktur und Ausgestaltung",
  projekt: "Projekt / Auftrag", ort: "Standort / Strasse", bearb: "Bearbeitet durch", datum: "Datum", rolle: "Rolle",
- r_anv: "ANV", r_bl: "Bauleiter", r_bhv: "BHV",
+ r_anv: "ANV", r_bl: "Bauleiter", r_bhv: "BHV Tiefbau", r_aqm: "AQM", r_pl: "Projektleiter", r_plan: "Planer", r_and: "andere",
  helpTitle: "So gehen Sie vor",
  help: ["Projektkopf oben ausfüllen und die Rolle wählen.", "Elemente hinzufügen: Leitungsgraben (mit Rohranlage) oder Schacht. Wenige Eingaben genügen, die Folgepositionen werden abgeleitet.", "Massenbilanz und Positionen rechts prüfen. Jede Menge ist nachvollziehbar (Rechenregel beim Überfahren der Menge).", "Warnungen abarbeiten, Sonderfälle als freie Position ergänzen, dann drucken, als CSV exportieren oder als Datei sichern."],
  helpNote: "Alle Preise und NPK-Nummern stammen aus dem LV V1.1 (10.07.2026). Das Tool ersetzt weder das SAP-Devis noch die fachliche Prüfung.",
@@ -66,7 +66,7 @@ de: {
 fr: {
  title: "Assistant DE Génie civil", sub: "Devis estimatif selon le LV Swisscom travaux d'infrastructure lors de coopérations de construction (V1.1, 10.07.2026).",
  creatorRole: "Structure et conception technique",
- projekt: "Projet / mandat", ort: "Lieu / rue", bearb: "Traité par", datum: "Date", rolle: "Rôle", r_anv: "ANV", r_bl: "Direction des travaux", r_bhv: "BHV",
+ projekt: "Projet / mandat", ort: "Lieu / rue", bearb: "Traité par", datum: "Date", rolle: "Rôle", r_anv: "ANV", r_bl: "Direction des travaux", r_bhv: "BHV génie civil", r_aqm: "AQM", r_pl: "Chef de projet", r_plan: "Planificateur", r_and: "autre",
  helpTitle: "Marche à suivre",
  help: ["Remplir l'en-tête du projet et choisir le rôle.", "Ajouter des éléments: tranchée de conduite (avec conduites) ou chambre. Peu de données suffisent, les positions induites sont déduites.", "Contrôler le bilan des masses et les positions à droite. Chaque quantité est traçable (règle de calcul au survol).", "Traiter les avertissements, ajouter les cas particuliers en position libre, puis imprimer, exporter en CSV ou sauvegarder."],
  helpNote: "Tous les prix et numéros NPK proviennent du LV V1.1 (10.07.2026). L'outil ne remplace ni le devis SAP ni le contrôle technique.",
@@ -127,7 +127,7 @@ fr: {
 it: {
  title: "Assistente PC Genio civile", sub: "Preventivo secondo il LV Swisscom lavori d'infrastruttura in cooperazioni edili (V1.1, 10.07.2026).",
  creatorRole: "Struttura e impostazione tecnica",
- projekt: "Progetto / incarico", ort: "Luogo / via", bearb: "Elaborato da", datum: "Data", rolle: "Ruolo", r_anv: "ANV", r_bl: "Direzione lavori", r_bhv: "BHV",
+ projekt: "Progetto / incarico", ort: "Luogo / via", bearb: "Elaborato da", datum: "Data", rolle: "Ruolo", r_anv: "ANV", r_bl: "Direzione lavori", r_bhv: "BHV genio civile", r_aqm: "AQM", r_pl: "Capoprogetto", r_plan: "Progettista", r_and: "altro",
  helpTitle: "Come procedere",
  help: ["Compilare l'intestazione del progetto e scegliere il ruolo.", "Aggiungere elementi: scavo per condotte (con tubazioni) o pozzetto. Bastano pochi dati, le posizioni conseguenti vengono dedotte.", "Controllare bilancio delle masse e posizioni a destra. Ogni quantità è tracciabile (regola di calcolo al passaggio del mouse).", "Elaborare gli avvisi, aggiungere i casi particolari come posizione libera, poi stampare, esportare in CSV o salvare."],
  helpNote: "Tutti i prezzi e i numeri NPK provengono dal LV V1.1 (10.07.2026). Lo strumento non sostituisce né il preventivo SAP né il controllo tecnico.",
@@ -188,7 +188,7 @@ it: {
 en: {
  title: "Civil Works Cost Estimator", sub: "Cost estimate based on the Swisscom LV for infrastructure works in construction cooperations (V1.1, 10.07.2026).",
  creatorRole: "Technical structure and design",
- projekt: "Project / order", ort: "Location / street", bearb: "Prepared by", datum: "Date", rolle: "Role", r_anv: "ANV", r_bl: "Site manager", r_bhv: "BHV (client rep.)",
+ projekt: "Project / order", ort: "Location / street", bearb: "Prepared by", datum: "Date", rolle: "Role", r_anv: "ANV", r_bl: "Site manager", r_bhv: "BHV civil works (client rep.)", r_aqm: "AQM", r_pl: "Project manager", r_plan: "Planner", r_and: "other",
  helpTitle: "How to proceed",
  help: ["Fill in the project header and choose the role.", "Add elements: cable trench (with ducts) or manhole. Few inputs are enough, follow-up items are derived.", "Check the mass balance and items on the right. Every quantity is traceable (calculation rule on hover).", "Work through the warnings, add special cases as free items, then print, export as CSV or save."],
  helpNote: "All prices and NPK numbers come from the LV V1.1 (10.07.2026). The tool replaces neither the SAP Devis nor the technical review.",
