@@ -2619,7 +2619,7 @@
     var CAPA = { KS80U: 1, KS80H: 1, KES100: 1, KES150: 3, KES175: 4, ES300: 99 };                          /* max. Muffen je Schachttyp */
     var RC = { ersch: "basisCu", zone: "in", x: "" }; try { var rc0 = JSON.parse(localStorage.getItem("lvd-km-rc") || "null"); if (rc0 && typeof rc0 === "object") RC = Object.assign(RC, rc0); } catch (e) { }
     var sugs = [], sugLayer = null, sugInit = 0;
-    window.KARTE.live = { check: function () { return rcCheck().map(function (z) { return z[2]; }); }, setRc: function (e, z) { RC.ersch = e; RC.zone = z; RC.x = ""; try { localStorage.setItem("lvd-km-rc", JSON.stringify(RC)); } catch (x) { } sugs = []; sugDraw(); sugRender(); rcRender(); } };
+    window.KARTE.live = { close: function () { close(); }, check: function () { return rcCheck().map(function (z) { return z[2]; }); }, setRc: function (e, z) { RC.ersch = e; RC.zone = z; RC.x = ""; try { localStorage.setItem("lvd-km-rc", JSON.stringify(RC)); } catch (x) { } sugs = []; sugDraw(); sugRender(); rcRender(); } };
     function typFor(mu) { return mu <= 1 ? "KES100" : mu <= 3 ? "KES150" : mu === 4 ? "KES175" : "ES300"; }
     function richt() { var r = RICHT[RC.ersch] || RICHT.basisCu; return RC.zone === "aus" ? r[1] : r[0]; }
     function xAbst() { var v = parseFloat(String(RC.x).replace(",", ".")); return v > 0 ? v : richt(); }
@@ -3319,12 +3319,16 @@
       refresh();
     }
     /* ---------- Layout A: Kennzahlen, Dock, Ansichtswechsel (nie automatisch übernehmen) ---------- */
+    function lyFlashTxt() {   /* UX-Runde P4: Unterschied nach «Übernehmen» 2 s neben «Kosten exkl. MWST» */
+      var fl = LY && LY.flash ? LY.flash() : null; if (!fl) return ""; var d = fl.d, rest = Math.max(0, 2000 - (Date.now() - fl.t)); if (rest > 0) setTimeout(function () { var e = dlg.querySelector(".lydelta"); if (e) e.remove(); }, rest); else return "";
+      return ' <span class="lydelta' + (d > 0 ? " up" : d < 0 ? " dn" : "") + '" role="status">' + (d > 0 ? "+ " : d < 0 ? "− " : "± ") + "CHF " + Math.round(Math.abs(d)).toLocaleString("de-CH") + "</span>";
+    }
     function lyRender(v) {
       var k = $("#lyKpi"); if (!k) return; var ly = v && typeof v === "object" ? v.ly : null, f0 = function (x) { return Math.round(x).toLocaleString("de-CH"); };
       var len = M.lines.filter(function (l) { return l.pts.length > 1; }).reduce(function (a, l) { return a + effLen(l.pts); }, 0);
       var kc = function (lab, val, cls) { return '<div class="lyc' + (cls ? " " + cls : "") + '"><span class="lyk">' + esc(lab) + "</span><b>" + val + "</b></div>"; };
       k.innerHTML = kc(tt("ly_kLen"), esc(fmt(len)) + " m") + kc(tt("ly_kAus"), ly ? esc(fmt(ly.V)) + " m³" : "–") + kc(tt("ly_kSch"), String(M.pts.filter(function (x) { return x.mode !== "abz"; }).length)) +
-        kc(tt("ly_kNet"), v && v.n != null ? "CHF " + f0(v.n) : "–", "lymain") + kc(tt("ly_kBru"), v && v.b != null ? "CHF " + f0(v.b) : "–") +
+        kc(tt("ly_kNet"), (v && v.n != null ? "CHF " + f0(v.n) : "–") + lyFlashTxt(), "lymain") + kc(tt("ly_kBru"), v && v.b != null ? "CHF " + f0(v.b) : "–") +
         (v && v.st != null ? kc(tt("ly_kRab"), esc(tt("ly_kRabV").replace("{s}", v.st).replace("{p}", v.pct)), "lyx") : "") + (v && v.hon > 0 ? kc(tt("ly_kHon"), "CHF " + f0(v.hon), "lyx") : "") + (ly && ly.nWarn ? '<button type="button" class="lywarnb" data-lywarn>⚑ ' + esc(tt(ly.nWarn === 1 ? "ly_kWarn1" : "ly_kWarn").replace("{n}", ly.nWarn)) + "</button>" : "") + (v && v.o ? '<span class="lyoffb">⚠ ' + esc(tt("km_costOff").replace("{n}", v.o)) + "</span>" : "");
       lyBase(); var st = $("#lySt"); if (st) { var sk = ly ? ly.st : "empty"; st.className = "lyst lyst-" + sk; st.textContent = tt("ly_st_" + sk) + (sk === "stop" && ly && ly.nInc ? " (" + ly.nInc + ")" : ""); }
       if (ly) { ["aus", "kost", "pos", "warn"].forEach(function (t) { var p = $("#lyP_" + t); if (p) p.innerHTML = ly[t]; }); (function () { var po = $("#lyP_offen"), ao = document.activeElement; if (po && !(ao && po.contains(ao) && ao.tagName === "INPUT")) po.innerHTML = ly.of; var co = dlg.querySelector('[data-cnt="offen"]'); if (co) co.textContent = ly.nOf ? "(" + ly.nOf + ")" : ""; })(); var cp = dlg.querySelector('[data-cnt="pos"]'), cw = dlg.querySelector('[data-cnt="warn"]'); if (cp) cp.textContent = ly.nPos ? "(" + ly.nPos + ")" : ""; if (cw) cw.textContent = ly.nWarn ? "(" + ly.nWarn + ")" : ""; }
@@ -3575,7 +3579,8 @@
       else if (k === "apply") {
         endLine(); Object.keys(touchedL).forEach(function (id) { var tl = byId(M.lines, id); if (tl) ensureDepth(tl, true); });   /* neue/geänderte Linien: Mindestüberdeckung einhalten */
         if (plan && !cal.scale && (M.lines.length || M.areas.length)) { toast(dlg, tt("pl_calNeed")); return; }
-        opt.onApply(M, cal, function (m) { return effLen(m); }, { area: area, perim: perim, base: base, overlay: ovl, planCleared: planCleared }); var lt = lyTarget; lyTarget = null; close(); if (LY && LY.after) LY.after(lt || "stay");
+        var chgL = chgList().map(function (id) { return findObj(id) ? ftObjLbl(id) : null; }).filter(Boolean);   /* UX-Runde P4: geänderte Objekte für die Meldung */
+        opt.onApply(M, cal, function (m) { return effLen(m); }, { area: area, perim: perim, base: base, overlay: ovl, planCleared: planCleared, chg: chgL }); var lt = lyTarget; lyTarget = null; close(); if (LY && LY.after) LY.after(lt || "stay");
       }
     });
     function doSave() {   /* Zeichnung sichern (bleibt im Fenster); Datensätze erst mit «In Datensätze übernehmen» */

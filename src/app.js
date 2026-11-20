@@ -600,6 +600,19 @@
   }
   function snapState() { return JSON.stringify({ recs: S.recs, idx: S.idx, karte: S.karte, plan: S.plan, sond: S.sond }); }
   function restoreState(j) { var o = JSON.parse(j); S.recs = o.recs; S.idx = o.idx; S.karte = o.karte; S.plan = o.plan; S.sond = o.sond; save(); renderForm(); renderResult(); }
+  /* UX-Runde P4: Kosten-Unterschied nach «Übernehmen» – Netto (exkl. MWST) vorher/nachher aus dem Rechenkern, Objekte aus der Karte; Rückgängig;
+     Layout A: Meldung in der wieder geöffneten Karte (sonst hinter dem Vollbild verdeckt) und Kennzahl «Kosten exkl. MWST» blendet 2 s den Unterschied ein */
+  var lyFlash = null, lyPend = null;
+  function diffTxt(d, chg) { var a = Math.abs(d) < 0.005 ? 0 : d; return (a > 0 ? "+ " : a < 0 ? "− " : "± ") + "CHF " + chf(Math.abs(a)) + " " + tt("ap_netto") + (chg && chg.length ? " (" + chg.slice(0, 4).join(", ") + (chg.length > 4 ? ", …" : "") + ")" : ""); }
+  function applyToast(n0, chg, msg, sn, ly) {
+    var d = r2(KVE.calc(S, LV).sum.netto - n0), t = diffTxt(d, chg) + " · " + msg; S.ui = S.ui || {}; window.__LVD_LASTDIFF = { d: d, n0: n0, txt: t };
+    if (!ly) { undoToast(t, sn); return; }
+    lyFlash = { d: d, t: Date.now() }; lyPend = { msg: t, sn: sn };
+  }
+  function lyPendShow() {   /* nach dem Wiederöffnen der Karte (Layout A) */
+    var p = lyPend; lyPend = null; var dl = document.querySelector("dialog.kmdlg[open]"); if (!p || !dl) return;
+    KARTE.toast(dl, p.msg, tt("km_undoBtn"), function () { restoreState(p.sn); lyFlash = null; if (KARTE.live && KARTE.live.close) { KARTE.live.close(); setTimeout(function () { lyOpen(); }, 0); } });
+  }
   function undoToast(msg, sn) { KARTE.toast(document.body, msg, tt("km_undoBtn"), function () { restoreState(sn); }); }
   /* Belagsfläche -> Breite B und Länge L, so dass B × L = Fläche und 2 × (B + L) = Umfang (sonst Quadrat); Rechenkern unverändert */
   function solveBL(A, P) { var h = P / 2, d = h * h - 4 * A; if (d >= 0) { var r = Math.sqrt(d); return [(h + r) / 2, (h - r) / 2]; } var q = Math.sqrt(A); return [q, q]; }
@@ -684,7 +697,7 @@
     if (cfg !== S.recs[tab][S.idx[tab]]) tab = "graben";
     var b = document.createElement("button"), m = $("#lyMsg") || document.createElement("p");
     var ex = { layoutA: true, keep: keep || null };
-    KARTE.load().then(function () { openKarte(cfg, tab, b, m, ex); }, function () {   /* Kartenbibliothek nicht geladen: einmal neu versuchen, sonst Meldung neben dem Knopf */
+    KARTE.load().then(function () { openKarte(cfg, tab, b, m, ex); setTimeout(lyPendShow, 300); }, function () {   /* Kartenbibliothek nicht geladen: einmal neu versuchen, sonst Meldung neben dem Knopf */
       if (!retry) setTimeout(function () { lyOpen(1, keep); }, 800); else openKarte(cfg, tab, b, m, ex); });
   }
   function lyGo(t) {   /* Wechsel aus Layout A in eine Ansicht der klassischen Seite */
@@ -892,12 +905,12 @@
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" && cfg ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" && cfg ? cfg.cm : "", abd: tab === "geb" && cfg ? cfg.abd : "hauff" }, defBelag: tab === "belag" && cfg ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
           onClose: function () { if (ex.layoutA) return; var o = $(ex.focus || "#kmOpen"); if (o) o.focus(); },
-          layoutA: ex.layoutA ? { recs: function () { return TABS.map(function (t) { return [t, (S.recs[t] || []).length, tt("tab_" + t)]; }); }, proj: S.kopf.projekt || "", ort: S.kopf.ort || "", go: lyGo, after: function (t) { if (t === "stay") setTimeout(function () { lyOpen(); }, 0); else lyGo(t); }, setPref: lySetPref,
+          layoutA: ex.layoutA ? { flash: function () { return lyFlash && Date.now() - lyFlash.t < 2500 ? lyFlash : null; }, recs: function () { return TABS.map(function (t) { return [t, (S.recs[t] || []).length, tt("tab_" + t)]; }); }, proj: S.kopf.projekt || "", ort: S.kopf.ort || "", go: lyGo, after: function (t) { if (t === "stay") setTimeout(function () { lyOpen(); }, 0); else lyGo(t); }, setPref: lySetPref,
             lang: S.lang, setLang: function (l, keep) { S.lang = l; save(); applyLang(); setTimeout(function () { lyOpen(0, keep); }, 0); } } : null, autoPlan: !!ex.autoPlan, focusId: ex.focusId || "", planObjs: JSON.parse(JSON.stringify({ lines: S.plan.lines, pts: S.plan.pts, sond: S.plan.sond, wl: S.plan.wl, geb: S.plan.geb, areas: S.plan.areas, notes: S.plan.notes })), planScale: (S.plan.cal && S.plan.cal.scale) || 0,
           onSave: function (M, cal, fns) { var bs = ["luft", "luftstr", "grau", "kataster", "leer", "av"].indexOf(fns.base) >= 0 ? fns.base : "farbe", keep = S.karte.bg; S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], dxf: M.dxf || null, base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; save(); },
-          onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st = karteApply(M, cfg, Object.assign({ src: "karte" }, fns) && lenFn, Object.assign({ src: "karte" }, fns)), bs = ["luft", "luftstr", "grau", "kataster", "leer", "av"].indexOf(fns.base) >= 0 ? fns.base : "farbe", keep = S.karte.bg;
+          onApply: function (M, cal, lenFn, fns) { var sn = snapState(), n0 = KVE.calc(S, LV).sum.netto, st = karteApply(M, cfg, Object.assign({ src: "karte" }, fns) && lenFn, Object.assign({ src: "karte" }, fns)), bs = ["luft", "luftstr", "grau", "kataster", "leer", "av"].indexOf(fns.base) >= 0 ? fns.base : "farbe", keep = S.karte.bg;
             if (fns.planCleared) { ["lines", "pts", "sond", "wl", "geb", "areas", "notes"].forEach(function (k) { S.plan[k] = []; }); }
-            S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], dxf: M.dxf || null, base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; syncDerived(cfg, st); save(); renderForm(); scheduleResult(); undoToast(fill(tt("km_done"), st) + (st.z ? " ⚠ " + fill(tt("km_zero"), st) : "") + (st.x ? " ⚠ " + fill(tt("km_conflict"), st) : "") + (st.air ? " ⚠ " + fill(tt("km_air"), { m: KARTE.fmt(st.air) }) : "") + delMsg(st), sn); cacheSitu(); }
+            S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], dxf: M.dxf || null, base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; syncDerived(cfg, st); save(); renderForm(); scheduleResult(); applyToast(n0, fns.chg, fill(tt("km_done"), st) + (st.z ? " ⚠ " + fill(tt("km_zero"), st) : "") + (st.x ? " ⚠ " + fill(tt("km_conflict"), st) : "") + (st.air ? " ⚠ " + fill(tt("km_air"), { m: KARTE.fmt(st.air) }) : "") + delMsg(st), sn, ex.layoutA); cacheSitu(); }
         });
       }).catch(function (err) { if (window.console && err && err.message !== "leaflet") console.error(err); b.disabled = false; m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); });
   }
@@ -1012,7 +1025,7 @@
             defRohr: { sys: "k55", dn: "55", len: "10", n: "1" }, defTyp: "KES150", defGeb: { cm: "", abd: "hauff" }, defBelag: { bk: "gehweg", d: "0.08", wi: "B" }, recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
             onClose: function () { var o = $("#plOpen"); if (o) o.focus(); },
             onSave: function (M, cal) { S.plan.areas = M.areas || []; S.plan.wl = M.wl || []; S.plan.geb = M.geb || []; S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; save(); },
-            onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st2 = karteApply(M, null, lenFn, Object.assign({ src: "plan" }, fns)); S.plan.areas = M.areas || []; S.plan.wl = M.wl || []; S.plan.geb = M.geb || []; S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; syncDerived(null, st2); save(); renderForm(); renderResult(); undoToast(fill(tt("km_done"), st2) + (st2.x ? " ⚠ " + fill(tt("km_conflict"), st2) : "") + delMsg(st2), sn); }
+            onApply: function (M, cal, lenFn, fns) { var sn = snapState(), n0 = KVE.calc(S, LV).sum.netto, st2 = karteApply(M, null, lenFn, Object.assign({ src: "plan" }, fns)); S.plan.areas = M.areas || []; S.plan.wl = M.wl || []; S.plan.geb = M.geb || []; S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; syncDerived(null, st2); save(); renderForm(); renderResult(); applyToast(n0, fns.chg, fill(tt("km_done"), st2) + (st2.x ? " ⚠ " + fill(tt("km_conflict"), st2) : "") + delMsg(st2), sn, false); }
           });
         }).catch(function () { msg.className = "hint kmmsg reqmsg"; msg.textContent = tt("km_offline"); });
       });

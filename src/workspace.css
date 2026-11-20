@@ -455,3 +455,8 @@ h3{letter-spacing:-.008em;line-height:1.25}
 .kmdlg .kmst-go{display:inline-flex;align-items:center;gap:6px}
 @media (max-width:520px){.kmdlg .kmst-go{min-width:44px;justify-content:center}.kmdlg .kmst-go .kmst-gt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.kmdlg .kmst-sr input{font-size:14px}}
 @media (pointer:coarse){.kmdlg.kmlya .lywarnb{min-height:44px;padding:4px 12px}}
+/* UX-Runde P4: Kosten-Unterschied nach «Übernehmen» (2 s) */
+.kmdlg.kmlya .lydelta{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:999px;font-size:12px;font-weight:700;background:var(--panel-2,#eef1f2);color:var(--ink,#16232a);border:1px solid var(--rule-strong,#8fa1ac);animation:nc-rise .26s var(--nc-spring,ease-out)}
+.kmdlg.kmlya .lydelta.up{color:var(--amber,#8a5b00)}.kmdlg.kmlya .lydelta.dn{color:var(--ok,#1b6e46)}
+@media (prefers-reduced-motion:reduce){.kmdlg.kmlya .lydelta{animation:none}}
+.kmdlg.kmlya .lyp b.lyst{overflow:visible;text-overflow:clip}   /* Status «Unvollständig (n)» nie abschneiden */

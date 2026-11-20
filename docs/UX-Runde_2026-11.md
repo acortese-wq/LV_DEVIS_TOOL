@@ -49,3 +49,17 @@ Test: `t135` (neu).
 | nachher | ![](ux-runde/p3-nachher-1440.png) | ![](ux-runde/p3-nachher-390.png) |
 
 Test: `t136` (neu). Angepasst: `t90` (Leiste ohne Gruppe «Projekt»), `t42` (schliesst mit «Schliessen» statt «Übernehmen» ohne Änderung), `t110` (Start am letzten Ausschnitt).
+
+## P4 – Kosten-Unterschied nach «Übernehmen»
+
+**Für die Benutzer:** Nach «In Datensätze übernehmen» erscheint eine Meldung mit dem Unterschied, z. B. «+ CHF 8'692.50 netto (Schacht 1)», gefolgt von der bisherigen Übernahme-Zusammenfassung und dem Knopf «Rückgängig». Netto vorher/nachher stammen aus dem Rechenkern (exkl. MWST), es wird nichts neu gerechnet; die Objekte kommen aus der Änderungsliste von P3 (höchstens 4 Namen, dann «…»).
+- Layout A: Die Meldung erscheint jetzt in der wieder geöffneten Karte (vorher lag sie verdeckt hinter dem Vollbild). Die Kennzahl «Kosten exkl. MWST» blendet den Unterschied 2 s lang ein («+ CHF 8'693»). «Rückgängig» stellt den Stand vor dem Übernehmen her und öffnet die Karte neu.
+- Klassische Ansicht und Plan: gleiche Meldung mit Unterschied.
+- Status «Unvollständig (n)» wird im Kopf nicht mehr abgeschnitten.
+
+| | Desktop 1440 px | Handy 390 px |
+|---|---|---|
+| vorher | ![](ux-runde/p4-vorher-1440.png) | ![](ux-runde/p4-vorher-390.png) |
+| nachher | ![](ux-runde/p4-nachher-1440.png) | ![](ux-runde/p4-nachher-390.png) |
+
+Test: `t137` (neu): Unterschied = Netto nachher − Netto vorher auf den Rappen (Hinzufügen und Löschen), Kennzahl 2 s, Rückgängig, klassische Ansicht.

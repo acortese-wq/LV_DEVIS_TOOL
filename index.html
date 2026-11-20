@@ -1925,6 +1925,11 @@ h3{letter-spacing:-.008em;line-height:1.25}
 .kmdlg .kmst-go{display:inline-flex;align-items:center;gap:6px}
 @media (max-width:520px){.kmdlg .kmst-go{min-width:44px;justify-content:center}.kmdlg .kmst-go .kmst-gt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.kmdlg .kmst-sr input{font-size:14px}}
 @media (pointer:coarse){.kmdlg.kmlya .lywarnb{min-height:44px;padding:4px 12px}}
+/* UX-Runde P4: Kosten-Unterschied nach «Übernehmen» (2 s) */
+.kmdlg.kmlya .lydelta{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:999px;font-size:12px;font-weight:700;background:var(--panel-2,#eef1f2);color:var(--ink,#16232a);border:1px solid var(--rule-strong,#8fa1ac);animation:nc-rise .26s var(--nc-spring,ease-out)}
+.kmdlg.kmlya .lydelta.up{color:var(--amber,#8a5b00)}.kmdlg.kmlya .lydelta.dn{color:var(--ok,#1b6e46)}
+@media (prefers-reduced-motion:reduce){.kmdlg.kmlya .lydelta{animation:none}}
+.kmdlg.kmlya .lyp b.lyst{overflow:visible;text-overflow:clip}   /* Status «Unvollständig (n)» nie abschneiden */
 
 /* required styles */
 
@@ -4948,6 +4953,7 @@ s_vor: ["Vorarbeiten (projektweit)", "Travaux préparatoires (projet)", "Lavori 
     km_saved: ["Zeichnung gespeichert – Datensätze noch nicht angelegt (dafür «In Datensätze übernehmen»)", "Dessin enregistré – fiches pas encore créées (« Reprendre dans les fiches »)", "Disegno salvato – schede non ancora create («Riprendere nelle schede»)", "Drawing saved – records not created yet («Apply to records»)"],
     km_save_err: ["Speichern nicht möglich", "Enregistrement impossible", "Salvataggio non possibile", "Could not save"],
     km_apply: ["In Datensätze übernehmen", "Reprendre dans les fiches", "Riprendere nelle schede", "Apply to records"],
+    ap_netto: ["netto", "net", "netto", "net"],
     km_applyNo: ["Zuerst Leitung oder Objekt zeichnen", "Dessiner d'abord une conduite ou un objet", "Disegnare prima una condotta o un oggetto", "Draw a line or object first"],
     km_applyN: ["{n} Änderungen in die Datensätze übernehmen", "Reprendre {n} modifications dans les fiches", "Riprendere {n} modifiche nelle schede", "Apply {n} changes to the records"],
     km_prevAlt: ["Kartenausschnitt der gemessenen Trasse", "Extrait de carte du tracé mesuré", "Estratto di carta del tracciato misurato", "Map extract of the measured route"],
@@ -10054,7 +10060,7 @@ var FOTO = (function () {
     var CAPA = { KS80U: 1, KS80H: 1, KES100: 1, KES150: 3, KES175: 4, ES300: 99 };                          /* max. Muffen je Schachttyp */
     var RC = { ersch: "basisCu", zone: "in", x: "" }; try { var rc0 = JSON.parse(localStorage.getItem("lvd-km-rc") || "null"); if (rc0 && typeof rc0 === "object") RC = Object.assign(RC, rc0); } catch (e) { }
     var sugs = [], sugLayer = null, sugInit = 0;
-    window.KARTE.live = { check: function () { return rcCheck().map(function (z) { return z[2]; }); }, setRc: function (e, z) { RC.ersch = e; RC.zone = z; RC.x = ""; try { localStorage.setItem("lvd-km-rc", JSON.stringify(RC)); } catch (x) { } sugs = []; sugDraw(); sugRender(); rcRender(); } };
+    window.KARTE.live = { close: function () { close(); }, check: function () { return rcCheck().map(function (z) { return z[2]; }); }, setRc: function (e, z) { RC.ersch = e; RC.zone = z; RC.x = ""; try { localStorage.setItem("lvd-km-rc", JSON.stringify(RC)); } catch (x) { } sugs = []; sugDraw(); sugRender(); rcRender(); } };
     function typFor(mu) { return mu <= 1 ? "KES100" : mu <= 3 ? "KES150" : mu === 4 ? "KES175" : "ES300"; }
     function richt() { var r = RICHT[RC.ersch] || RICHT.basisCu; return RC.zone === "aus" ? r[1] : r[0]; }
     function xAbst() { var v = parseFloat(String(RC.x).replace(",", ".")); return v > 0 ? v : richt(); }
@@ -10754,12 +10760,16 @@ var FOTO = (function () {
       refresh();
     }
     /* ---------- Layout A: Kennzahlen, Dock, Ansichtswechsel (nie automatisch übernehmen) ---------- */
+    function lyFlashTxt() {   /* UX-Runde P4: Unterschied nach «Übernehmen» 2 s neben «Kosten exkl. MWST» */
+      var fl = LY && LY.flash ? LY.flash() : null; if (!fl) return ""; var d = fl.d, rest = Math.max(0, 2000 - (Date.now() - fl.t)); if (rest > 0) setTimeout(function () { var e = dlg.querySelector(".lydelta"); if (e) e.remove(); }, rest); else return "";
+      return ' <span class="lydelta' + (d > 0 ? " up" : d < 0 ? " dn" : "") + '" role="status">' + (d > 0 ? "+ " : d < 0 ? "− " : "± ") + "CHF " + Math.round(Math.abs(d)).toLocaleString("de-CH") + "</span>";
+    }
     function lyRender(v) {
       var k = $("#lyKpi"); if (!k) return; var ly = v && typeof v === "object" ? v.ly : null, f0 = function (x) { return Math.round(x).toLocaleString("de-CH"); };
       var len = M.lines.filter(function (l) { return l.pts.length > 1; }).reduce(function (a, l) { return a + effLen(l.pts); }, 0);
       var kc = function (lab, val, cls) { return '<div class="lyc' + (cls ? " " + cls : "") + '"><span class="lyk">' + esc(lab) + "</span><b>" + val + "</b></div>"; };
       k.innerHTML = kc(tt("ly_kLen"), esc(fmt(len)) + " m") + kc(tt("ly_kAus"), ly ? esc(fmt(ly.V)) + " m³" : "–") + kc(tt("ly_kSch"), String(M.pts.filter(function (x) { return x.mode !== "abz"; }).length)) +
-        kc(tt("ly_kNet"), v && v.n != null ? "CHF " + f0(v.n) : "–", "lymain") + kc(tt("ly_kBru"), v && v.b != null ? "CHF " + f0(v.b) : "–") +
+        kc(tt("ly_kNet"), (v && v.n != null ? "CHF " + f0(v.n) : "–") + lyFlashTxt(), "lymain") + kc(tt("ly_kBru"), v && v.b != null ? "CHF " + f0(v.b) : "–") +
         (v && v.st != null ? kc(tt("ly_kRab"), esc(tt("ly_kRabV").replace("{s}", v.st).replace("{p}", v.pct)), "lyx") : "") + (v && v.hon > 0 ? kc(tt("ly_kHon"), "CHF " + f0(v.hon), "lyx") : "") + (ly && ly.nWarn ? '<button type="button" class="lywarnb" data-lywarn>⚑ ' + esc(tt(ly.nWarn === 1 ? "ly_kWarn1" : "ly_kWarn").replace("{n}", ly.nWarn)) + "</button>" : "") + (v && v.o ? '<span class="lyoffb">⚠ ' + esc(tt("km_costOff").replace("{n}", v.o)) + "</span>" : "");
       lyBase(); var st = $("#lySt"); if (st) { var sk = ly ? ly.st : "empty"; st.className = "lyst lyst-" + sk; st.textContent = tt("ly_st_" + sk) + (sk === "stop" && ly && ly.nInc ? " (" + ly.nInc + ")" : ""); }
       if (ly) { ["aus", "kost", "pos", "warn"].forEach(function (t) { var p = $("#lyP_" + t); if (p) p.innerHTML = ly[t]; }); (function () { var po = $("#lyP_offen"), ao = document.activeElement; if (po && !(ao && po.contains(ao) && ao.tagName === "INPUT")) po.innerHTML = ly.of; var co = dlg.querySelector('[data-cnt="offen"]'); if (co) co.textContent = ly.nOf ? "(" + ly.nOf + ")" : ""; })(); var cp = dlg.querySelector('[data-cnt="pos"]'), cw = dlg.querySelector('[data-cnt="warn"]'); if (cp) cp.textContent = ly.nPos ? "(" + ly.nPos + ")" : ""; if (cw) cw.textContent = ly.nWarn ? "(" + ly.nWarn + ")" : ""; }
@@ -11010,7 +11020,8 @@ var FOTO = (function () {
       else if (k === "apply") {
         endLine(); Object.keys(touchedL).forEach(function (id) { var tl = byId(M.lines, id); if (tl) ensureDepth(tl, true); });   /* neue/geänderte Linien: Mindestüberdeckung einhalten */
         if (plan && !cal.scale && (M.lines.length || M.areas.length)) { toast(dlg, tt("pl_calNeed")); return; }
-        opt.onApply(M, cal, function (m) { return effLen(m); }, { area: area, perim: perim, base: base, overlay: ovl, planCleared: planCleared }); var lt = lyTarget; lyTarget = null; close(); if (LY && LY.after) LY.after(lt || "stay");
+        var chgL = chgList().map(function (id) { return findObj(id) ? ftObjLbl(id) : null; }).filter(Boolean);   /* UX-Runde P4: geänderte Objekte für die Meldung */
+        opt.onApply(M, cal, function (m) { return effLen(m); }, { area: area, perim: perim, base: base, overlay: ovl, planCleared: planCleared, chg: chgL }); var lt = lyTarget; lyTarget = null; close(); if (LY && LY.after) LY.after(lt || "stay");
       }
     });
     function doSave() {   /* Zeichnung sichern (bleibt im Fenster); Datensätze erst mit «In Datensätze übernehmen» */
@@ -11942,6 +11953,19 @@ var FOTO = (function () {
   }
   function snapState() { return JSON.stringify({ recs: S.recs, idx: S.idx, karte: S.karte, plan: S.plan, sond: S.sond }); }
   function restoreState(j) { var o = JSON.parse(j); S.recs = o.recs; S.idx = o.idx; S.karte = o.karte; S.plan = o.plan; S.sond = o.sond; save(); renderForm(); renderResult(); }
+  /* UX-Runde P4: Kosten-Unterschied nach «Übernehmen» – Netto (exkl. MWST) vorher/nachher aus dem Rechenkern, Objekte aus der Karte; Rückgängig;
+     Layout A: Meldung in der wieder geöffneten Karte (sonst hinter dem Vollbild verdeckt) und Kennzahl «Kosten exkl. MWST» blendet 2 s den Unterschied ein */
+  var lyFlash = null, lyPend = null;
+  function diffTxt(d, chg) { var a = Math.abs(d) < 0.005 ? 0 : d; return (a > 0 ? "+ " : a < 0 ? "− " : "± ") + "CHF " + chf(Math.abs(a)) + " " + tt("ap_netto") + (chg && chg.length ? " (" + chg.slice(0, 4).join(", ") + (chg.length > 4 ? ", …" : "") + ")" : ""); }
+  function applyToast(n0, chg, msg, sn, ly) {
+    var d = r2(KVE.calc(S, LV).sum.netto - n0), t = diffTxt(d, chg) + " · " + msg; S.ui = S.ui || {}; window.__LVD_LASTDIFF = { d: d, n0: n0, txt: t };
+    if (!ly) { undoToast(t, sn); return; }
+    lyFlash = { d: d, t: Date.now() }; lyPend = { msg: t, sn: sn };
+  }
+  function lyPendShow() {   /* nach dem Wiederöffnen der Karte (Layout A) */
+    var p = lyPend; lyPend = null; var dl = document.querySelector("dialog.kmdlg[open]"); if (!p || !dl) return;
+    KARTE.toast(dl, p.msg, tt("km_undoBtn"), function () { restoreState(p.sn); lyFlash = null; if (KARTE.live && KARTE.live.close) { KARTE.live.close(); setTimeout(function () { lyOpen(); }, 0); } });
+  }
   function undoToast(msg, sn) { KARTE.toast(document.body, msg, tt("km_undoBtn"), function () { restoreState(sn); }); }
   /* Belagsfläche -> Breite B und Länge L, so dass B × L = Fläche und 2 × (B + L) = Umfang (sonst Quadrat); Rechenkern unverändert */
   function solveBL(A, P) { var h = P / 2, d = h * h - 4 * A; if (d >= 0) { var r = Math.sqrt(d); return [(h + r) / 2, (h - r) / 2]; } var q = Math.sqrt(A); return [q, q]; }
@@ -12026,7 +12050,7 @@ var FOTO = (function () {
     if (cfg !== S.recs[tab][S.idx[tab]]) tab = "graben";
     var b = document.createElement("button"), m = $("#lyMsg") || document.createElement("p");
     var ex = { layoutA: true, keep: keep || null };
-    KARTE.load().then(function () { openKarte(cfg, tab, b, m, ex); }, function () {   /* Kartenbibliothek nicht geladen: einmal neu versuchen, sonst Meldung neben dem Knopf */
+    KARTE.load().then(function () { openKarte(cfg, tab, b, m, ex); setTimeout(lyPendShow, 300); }, function () {   /* Kartenbibliothek nicht geladen: einmal neu versuchen, sonst Meldung neben dem Knopf */
       if (!retry) setTimeout(function () { lyOpen(1, keep); }, 800); else openKarte(cfg, tab, b, m, ex); });
   }
   function lyGo(t) {   /* Wechsel aus Layout A in eine Ansicht der klassischen Seite */
@@ -12234,12 +12258,12 @@ var FOTO = (function () {
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" && cfg ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" && cfg ? cfg.cm : "", abd: tab === "geb" && cfg ? cfg.abd : "hauff" }, defBelag: tab === "belag" && cfg ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
           onClose: function () { if (ex.layoutA) return; var o = $(ex.focus || "#kmOpen"); if (o) o.focus(); },
-          layoutA: ex.layoutA ? { recs: function () { return TABS.map(function (t) { return [t, (S.recs[t] || []).length, tt("tab_" + t)]; }); }, proj: S.kopf.projekt || "", ort: S.kopf.ort || "", go: lyGo, after: function (t) { if (t === "stay") setTimeout(function () { lyOpen(); }, 0); else lyGo(t); }, setPref: lySetPref,
+          layoutA: ex.layoutA ? { flash: function () { return lyFlash && Date.now() - lyFlash.t < 2500 ? lyFlash : null; }, recs: function () { return TABS.map(function (t) { return [t, (S.recs[t] || []).length, tt("tab_" + t)]; }); }, proj: S.kopf.projekt || "", ort: S.kopf.ort || "", go: lyGo, after: function (t) { if (t === "stay") setTimeout(function () { lyOpen(); }, 0); else lyGo(t); }, setPref: lySetPref,
             lang: S.lang, setLang: function (l, keep) { S.lang = l; save(); applyLang(); setTimeout(function () { lyOpen(0, keep); }, 0); } } : null, autoPlan: !!ex.autoPlan, focusId: ex.focusId || "", planObjs: JSON.parse(JSON.stringify({ lines: S.plan.lines, pts: S.plan.pts, sond: S.plan.sond, wl: S.plan.wl, geb: S.plan.geb, areas: S.plan.areas, notes: S.plan.notes })), planScale: (S.plan.cal && S.plan.cal.scale) || 0,
           onSave: function (M, cal, fns) { var bs = ["luft", "luftstr", "grau", "kataster", "leer", "av"].indexOf(fns.base) >= 0 ? fns.base : "farbe", keep = S.karte.bg; S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], dxf: M.dxf || null, base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; save(); },
-          onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st = karteApply(M, cfg, Object.assign({ src: "karte" }, fns) && lenFn, Object.assign({ src: "karte" }, fns)), bs = ["luft", "luftstr", "grau", "kataster", "leer", "av"].indexOf(fns.base) >= 0 ? fns.base : "farbe", keep = S.karte.bg;
+          onApply: function (M, cal, lenFn, fns) { var sn = snapState(), n0 = KVE.calc(S, LV).sum.netto, st = karteApply(M, cfg, Object.assign({ src: "karte" }, fns) && lenFn, Object.assign({ src: "karte" }, fns)), bs = ["luft", "luftstr", "grau", "kataster", "leer", "av"].indexOf(fns.base) >= 0 ? fns.base : "farbe", keep = S.karte.bg;
             if (fns.planCleared) { ["lines", "pts", "sond", "wl", "geb", "areas", "notes"].forEach(function (k) { S.plan[k] = []; }); }
-            S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], dxf: M.dxf || null, base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; syncDerived(cfg, st); save(); renderForm(); scheduleResult(); undoToast(fill(tt("km_done"), st) + (st.z ? " ⚠ " + fill(tt("km_zero"), st) : "") + (st.x ? " ⚠ " + fill(tt("km_conflict"), st) : "") + (st.air ? " ⚠ " + fill(tt("km_air"), { m: KARTE.fmt(st.air) }) : "") + delMsg(st), sn); cacheSitu(); }
+            S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: M.notes || [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], dxf: M.dxf || null, base: bs, bg: keep, overlay: fns.overlay ? (fns.overlay.ref === "plan" ? Object.assign({}, fns.overlay, { img: undefined, w: undefined, h: undefined }) : fns.overlay) : null }; syncDerived(cfg, st); save(); renderForm(); scheduleResult(); applyToast(n0, fns.chg, fill(tt("km_done"), st) + (st.z ? " ⚠ " + fill(tt("km_zero"), st) : "") + (st.x ? " ⚠ " + fill(tt("km_conflict"), st) : "") + (st.air ? " ⚠ " + fill(tt("km_air"), { m: KARTE.fmt(st.air) }) : "") + delMsg(st), sn, ex.layoutA); cacheSitu(); }
         });
       }).catch(function (err) { if (window.console && err && err.message !== "leaflet") console.error(err); b.disabled = false; m.className = "hint kmmsg reqmsg"; m.textContent = tt("km_offline"); });
   }
@@ -12354,7 +12378,7 @@ var FOTO = (function () {
             defRohr: { sys: "k55", dn: "55", len: "10", n: "1" }, defTyp: "KES150", defGeb: { cm: "", abd: "hauff" }, defBelag: { bk: "gehweg", d: "0.08", wi: "B" }, recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
             onClose: function () { var o = $("#plOpen"); if (o) o.focus(); },
             onSave: function (M, cal) { S.plan.areas = M.areas || []; S.plan.wl = M.wl || []; S.plan.geb = M.geb || []; S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; save(); },
-            onApply: function (M, cal, lenFn, fns) { var sn = snapState(), st2 = karteApply(M, null, lenFn, Object.assign({ src: "plan" }, fns)); S.plan.areas = M.areas || []; S.plan.wl = M.wl || []; S.plan.geb = M.geb || []; S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; syncDerived(null, st2); save(); renderForm(); renderResult(); undoToast(fill(tt("km_done"), st2) + (st2.x ? " ⚠ " + fill(tt("km_conflict"), st2) : "") + delMsg(st2), sn); }
+            onApply: function (M, cal, lenFn, fns) { var sn = snapState(), n0 = KVE.calc(S, LV).sum.netto, st2 = karteApply(M, null, lenFn, Object.assign({ src: "plan" }, fns)); S.plan.areas = M.areas || []; S.plan.wl = M.wl || []; S.plan.geb = M.geb || []; S.plan.cal = cal; S.plan.lines = M.lines; S.plan.pts = M.pts; S.plan.sond = M.sond; S.plan.notes = M.notes || []; syncDerived(null, st2); save(); renderForm(); renderResult(); applyToast(n0, fns.chg, fill(tt("km_done"), st2) + (st2.x ? " ⚠ " + fill(tt("km_conflict"), st2) : "") + delMsg(st2), sn, false); }
           });
         }).catch(function () { msg.className = "hint kmmsg reqmsg"; msg.textContent = tt("km_offline"); });
       });
