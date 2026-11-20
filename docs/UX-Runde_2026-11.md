@@ -82,7 +82,7 @@ Test: `t138` (neu). Angepasst: `t65`/`t72` (Rückfrage beim Wechsel jetzt über 
 ## P6 – Leere Zustände statt Nulltabellen
 
 **Für die Benutzer:**
-- Layout A, Reiter «Kosten» ohne Positionen: statt einer Tabelle mit 0.00 der Hinweis «Noch keine Kosten – zeichne eine Leitung oder setze einen Schacht.» mit den Knöpfen «Linie zeichnen» und «Schacht setzen» (aktivieren das Werkzeug).
+- Layout A, Reiter «Kosten» ohne Positionen: statt einer Tabelle mit 0.00 der Hinweis «Noch keine Kosten – zeichne eine Leitung oder setze einen Schacht.» mit dem Knopf «Werkzeuge zeigen» (führt zu «Linie zeichnen» in der Werkzeugspalte, am Handy öffnet sich das Werkzeugblatt). Bewusst kein zweiter Zeichenbefehl, damit P3 «jeder Befehl genau einmal» gilt (in P7 nachgeschärft).
 - Klassische Ansicht ohne Positionen: nur der Status mit Hinweis, keine Kostentabelle und keine leere «Aufstellung».
 - Kostentabelle: Bei Rabattstufe 1 werden «Rabatt Stufe 1 (0 %)» und «Summe nach Rabatt» ausgeblendet, eine Installationspauschale von 0 ebenfalls. Ab Stufe 2 oder bei einem Betrag erscheinen sie wie bisher. Netto und Total bleiben identisch.
 - Leere Unterbereiche («Kosten je Kapitel», «Grösste Positionen», «Kosten je Abschnitt») werden ausgeblendet.
@@ -94,3 +94,21 @@ Test: `t138` (neu). Angepasst: `t65`/`t72` (Rückfrage beim Wechsel jetzt über 
 | nachher | ![](ux-runde/p6-nachher-1440.png) | ![](ux-runde/p6-nachher-390.png) |
 
 Test: `t139` (neu).
+
+## P7 – Handy (≤ 860 px)
+
+**Für die Benutzer:**
+- **Kennzahlenleiste:** am Handy höchstens 3 Kennzahlen (Exkl. MWST, Inkl. MWST, Länge) mit kurzen Beschriftungen, nichts mehr abgeschnitten. Ein Tipp auf die Leiste oder auf ▾ zeigt alle Kennzahlen, ein weiterer Tipp klappt sie wieder zu.
+- **Kopf:** «Menü» und «Suche» tragen eine sichtbare Mini-Beschriftung. Die Befehlsleiste (›_) ist vom Kopf ins Blatt «Mehr» gewandert («Befehle suchen»).
+- **Blatt «Mehr»:** Fangoptionen gruppiert unter «Fang- und Zeichenhilfen», mit je einer Erklärzeile (auch für Screenreader verknüpft). Die Urheberzeile steht ganz unten.
+- **Keine Überdeckungen:** Kartenhinweise lassen rechts Platz für den Assistent-Knopf. Die Startkarte (P1) steht unter den Kartenknöpfen, der Parzellen-Hinweis wartet, solange sie offen ist. Ein schmaler Rand eines falsch umgebrochenen Elements im Blatt «Mehr» ist behoben.
+- **Desktop-Statuszeile:** Der volle Text steht als Tooltip zur Verfügung, wenn die Zeile abgeschnitten ist. Er folgt dem gewählten Werkzeug.
+- Nachgeschärft (P6): Der leere Kostenreiter führt mit «Werkzeuge zeigen» zur Werkzeugspalte statt eigene Zeichenknöpfe zu zeigen, damit jeder Befehl nur einmal vorkommt.
+
+| | Desktop 1440 px | Handy 390 px |
+|---|---|---|
+| vorher | ![](ux-runde/p7-vorher-1440.png) | ![](ux-runde/p7-vorher-390.png) |
+| nachher | ![](ux-runde/p7-nachher-1440.png) | ![](ux-runde/p7-nachher-390.png) |
+| nachher, «Mehr» gescrollt | | ![](ux-runde/p7b-nachher-390.png) |
+
+Test: `t140` (neu): 360/390 px ohne Seitenüberlauf und ohne sich überdeckende Bedienelemente (Rechtecke aller sichtbaren Knöpfe, Felder und Hinweise in Karte, «Mehr», «Werkzeuge», «Auswertung», mit und ohne Startkarte), Kennzahlen, Beschriftungen, Zeichenhilfen, Tooltip. `ui_qa` (360/390) grün.

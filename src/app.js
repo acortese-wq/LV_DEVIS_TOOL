@@ -955,7 +955,7 @@
   }
   function reqGo(x) { return '<a href="#" class="wgo" data-gof="' + x.tab + ":" + x.idx + ":" + x.key + '">' + esc(tt("tab_" + x.tab) + " · " + x.el) + "</a>: " + esc(x.lab); }
   function emptyKost() {   /* UX-Runde P6: leerer Zustand statt Nulltabelle */
-    return '<div class="lyempty"><p class="lyempty-t">' + esc(tt("ly_emptyK")) + '</p><div class="lyempty-b"><button type="button" class="btn small" data-lyk="mline">' + esc(tt("ly_emptyLine")) + '</button><button type="button" class="btn ghost small" data-lyk="mpt">' + esc(tt("ly_emptySch")) + "</button></div></div>";
+    return '<div class="lyempty"><p class="lyempty-t">' + esc(tt("ly_emptyK")) + '</p><div class="lyempty-b"><button type="button" class="btn small" data-lyk="tools">' + esc(tt("ly_emptyGo")) + "</button></div></div>";   /* Wegweiser zur Werkzeugspalte (kein zweiter Zeichenbefehl, vgl. P3) */
   }
   function isEmptyOut(out) { return !(out.sum.zwischen > 0) && !out.nOffen; }
   function reqEl(tab, c) {

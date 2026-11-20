@@ -13,9 +13,9 @@ async function pageA(b, layout) { const pg = await b.newPage({ viewport: { width
   let pg = await pageA(b, 'a');
   await pg.evaluate(() => { const t = document.querySelector('#lyT_kost'); if (t.getAttribute('aria-selected') !== 'true') t.click(); }); await pg.waitForTimeout(300);
   let r = await pg.evaluate(() => { const p = document.querySelector('#lyP_kost'); return { empty: !!p.querySelector('.lyempty'), txt: p.textContent, tab: p.querySelectorAll('table').length, b: [...p.querySelectorAll('[data-lyk]')].map(x => x.textContent) }; });
-  ok(r.empty && r.tab === 0 && /Noch keine Kosten – zeichne eine Leitung oder setze einen Schacht/.test(r.txt) && r.b.join('|') === 'Linie zeichnen|Schacht setzen', 'Layout A leer: Hinweis + Handlungsaufforderung, keine Nulltabelle');
-  await pg.click('#lyP_kost [data-lyk=mline]'); await pg.waitForTimeout(300);
-  ok(await pg.evaluate(() => document.querySelector('#kmToolsBody [data-k=mline]').getAttribute('aria-pressed')) === 'true', '«Linie zeichnen» aktiviert das Werkzeug');
+  ok(r.empty && r.tab === 0 && /Noch keine Kosten – zeichne eine Leitung oder setze einen Schacht/.test(r.txt) && r.b.join('|') === 'Werkzeuge zeigen', 'Layout A leer: Hinweis + Handlungsaufforderung «Werkzeuge zeigen», keine Nulltabelle');
+  await pg.click('#lyP_kost [data-lyk=tools]'); await pg.waitForTimeout(300);
+  ok(await pg.evaluate(() => document.activeElement === document.querySelector('#kmToolsBody [data-k=mline]') && document.activeElement.classList.contains('lyhl')), '«Werkzeuge zeigen» führt zu «Linie zeichnen» in der Werkzeugspalte (kein doppelter Befehl)');
   await pg.addScriptTag({ path: K.AXE }); const ax = await pg.evaluate(() => axe.run('#lyP_kost').then(x => x.violations.map(v => v.id)));
   ok(ax.length === 0, 'leerer Zustand ohne axe-Verstösse ' + ax.join(','));
   // ein Schacht (Stufe 1, kein Rabatt) → Nullzeilen weg

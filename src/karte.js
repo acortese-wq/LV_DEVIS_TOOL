@@ -805,7 +805,7 @@
       tabs.addEventListener("keydown", function (e) { if (e.key === "ArrowRight" || e.key === "ArrowLeft") { var o = tabs.querySelector("[aria-selected=false]"); o.click(); o.focus(); e.preventDefault(); } });
       /* Fussleiste: Fang/Zeichenhilfen, Massstab/Koordinate, Kartenquelle/Ansicht, Übernehmen */
       var bottom = E("div", "kmbottom"), fang = E("div", "kmfang"); fang.setAttribute("role", "group"); fang.setAttribute("aria-label", tt("ws_fang"));
-      fang.innerHTML = [["pt", "ws_snapPt"], ["ln", "ws_snapLn"], ["rect", "ws_rect"], ["ortho", "ws_ortho"]].map(function (a) { return '<button type="button" class="btn ghost small kmtgl" data-sn="' + a[0] + '" aria-pressed="false">' + esc(tt(a[1])) + "</button>"; }).join("");
+      fang.innerHTML = '<h3 class="kmfang-h">' + esc(tt("ws_fang")) + "</h3>" + [["pt", "ws_snapPt"], ["ln", "ws_snapLn"], ["rect", "ws_rect"], ["ortho", "ws_ortho"]].map(function (a) { return '<span class="kmfang-i"><button type="button" class="btn ghost small kmtgl" data-sn="' + a[0] + '" aria-pressed="false" aria-describedby="kmFx_' + a[0] + '">' + esc(tt(a[1])) + '</button><span class="kmfx" id="kmFx_' + a[0] + '">' + esc(tt("ws_fx_" + a[0])) + "</span></span>"; }).join("");   /* UX-Runde P7: Zeichenhilfen mit Erklärzeile (Handy) */
       var stat = E("div", "kmstat", '<span id="kmCoord" aria-hidden="true"></span><span id="kmScale"></span>'); stat.setAttribute("role", "status");
       var view = dlg.querySelectorAll(".kmtool .kmgrp"); view = view[view.length - 1]; if (view) { var vl = view.querySelector(".kmgl"); if (vl) vl.remove(); view.classList.add("kmview"); }
       bottom.appendChild(fang); bottom.appendChild(stat); if (view) bottom.appendChild(view); if (foot) bottom.appendChild(foot);
@@ -892,8 +892,8 @@
         })();
         (function () {   /* Phase H: Handy/Tablet (≤ 860 px) – Karte vollflächig, Menü oben, Leiste unten mit Bottom Sheets (½ / voll); Desktop unverändert */
           var mq = window.matchMedia ? window.matchMedia("(max-width:860px)") : { matches: false }, cur0 = "";
-          var hm = E("button", "btn ghost small lyhm", "☰"); hm.type = "button"; hm.setAttribute("aria-expanded", "false"); hm.setAttribute("aria-label", tt("ly_mMenu")); hm.title = tt("ly_mMenu"); head.insertBefore(hm, hb2.nextSibling);
-          var mk0 = E("button", "btn ghost small lymk", '<span aria-hidden="true">›_</span>'); mk0.type = "button"; mk0.setAttribute("aria-label", tt("ly_cmdkPh")); mk0.title = tt("ly_cmdkPh"); head.insertBefore(mk0, hm); mk0.addEventListener("click", function () { if (window.__LYCMD) window.__LYCMD.open(); });
+          var hm = E("button", "btn ghost small lyhm", "☰"); hm.type = "button"; hm.setAttribute("data-lab", tt("ly_mMenu")); hm.setAttribute("aria-expanded", "false"); hm.setAttribute("aria-label", tt("ly_mMenu")); hm.title = tt("ly_mMenu"); head.insertBefore(hm, hb2.nextSibling);
+          var mk0 = E("button", "btn ghost small lymk", '<span aria-hidden="true">›_</span> <span class="lymkt">' + esc(tt("ly_cmdS")) + "</span>"); mk0.type = "button"; mk0.setAttribute("aria-label", tt("ly_cmdkPh")); mk0.title = tt("ly_cmdkPh"); bottom.insertBefore(mk0, bottom.firstChild); mk0.addEventListener("click", function () { show(""); if (window.__LYCMD) window.__LYCMD.open(); });   /* UX-Runde P7: Befehlsleiste im Blatt «Mehr» statt im Kopf */
           var inv = function () { setTimeout(function () { try { map.invalidateSize({ animate: false }); } catch (e) { } }, 60); };
           hm.addEventListener("click", function () { var o = !dlg.classList.contains("ly-hm"); dlg.classList.toggle("ly-hm", o); hm.setAttribute("aria-expanded", o ? "true" : "false"); hm.textContent = o ? "✕" : "☰"; if (o) { var f = head.querySelector(".lynav button"); if (f) f.focus(); } inv(); });
           var SH = [["tools", "ly_mT", "⚒", ".kmtools"], ["mid", "ws_layers", "◧", ".kmmid"], ["side", "ly_mP", "☰", ".kmside"], ["dock", "ly_mA", "▦", ".lydock"], ["more", "ly_mM", "⋯", ".kmbottom"]];
@@ -947,6 +947,11 @@
           '';
         var lay = E("div", "lylay"); lay.innerHTML = '<label class="lyk" for="lySel">' + esc(tt("ly_layout")) + '</label><select id="lySel">' + [["a", "ly_A"], ["classic", "ly_B"]].map(function (a) { return '<option value="' + a[0] + '"' + (a[0] === "a" ? " selected" : "") + ">" + esc(tt(a[1])) + "</option>"; }).join("") + "</select>"; head.insertBefore(lay, hb2);
         dlg.insertBefore(bar, head.nextSibling);
+        (function () {   /* UX-Runde P7: Handy – höchstens 3 Kennzahlen (Kosten exkl./inkl., Länge), Tipp auf die Leiste oder ▾ zeigt alle */
+          var kp = bar.querySelector("#lyKpi"), ka = E("button", "btn ghost small lykall", '<span aria-hidden="true">▾</span>'); ka.type = "button"; ka.setAttribute("aria-controls", "lyKpi"); ka.setAttribute("aria-expanded", "false"); ka.setAttribute("aria-label", tt("ly_kAll")); ka.title = tt("ly_kAll"); bar.appendChild(ka);
+          var tog = function () { var o = !kp.classList.contains("all"); kp.classList.toggle("all", o); ka.setAttribute("aria-expanded", o ? "true" : "false"); ka.firstChild.textContent = o ? "▴" : "▾"; };
+          ka.addEventListener("click", tog); kp.addEventListener("click", function (e) { if (e.target.closest("button")) return; if (window.matchMedia && window.matchMedia("(max-width:860px)").matches) tog(); });
+        })();
         bar.querySelector("#lyProj").textContent = LY.proj || tt("ly_noProj"); bar.querySelector("#lyOrt").textContent = LY.ort || "–";
         var DT = [["prof", "ly_tProf"], ["aus", "ly_tAus"], ["kost", "ly_tKost"], ["pos", "ly_tPos"], ["offen", "ly_tOffen"], ["warn", "ly_tWarn"]], dock = E("section", "lydock"); dock.setAttribute("aria-label", tt("ly_dock"));
         dock.innerHTML = '<div class="lydbar"><div class="lydtabs" role="tablist" aria-label="' + esc(tt("ly_dock")) + '">' + DT.map(function (d) { return '<button type="button" role="tab" id="lyT_' + d[0] + '" aria-controls="lyP_' + d[0] + '" data-dt="' + d[0] + '">' + esc(tt(d[1])) + ' <span class="lycnt" data-cnt="' + d[0] + '"></span></button>'; }).join("") + "</div>" +
@@ -1020,6 +1025,7 @@
         (function () {
           var vw2 = bottom.querySelector(".kmview"), mt = vw2 && vw2.querySelector(".kmmidtog"); if (mt) { mt.classList.add("lymidtog"); nav.appendChild(mt); }
           var help = canvas.querySelector("#kmHelp"), units = canvas.querySelector("#kmUnits"), st = bottom.querySelector(".kmstat");
+          if (help && window.MutationObserver) { var hT = function () { help.title = help.textContent.replace(/\s+/g, " ").trim(); }; hT(); new MutationObserver(hT).observe(help, { childList: true, characterData: true, subtree: true }); }   /* UX-Runde P7: abgeschnittene Statuszeile → voller Text als Tooltip */
           var cmd = E("div", "lycmd"); cmd.setAttribute("role", "status"); cmd.setAttribute("aria-live", "polite"); cmd.setAttribute("aria-label", tt("ly_cmd")); if (help) cmd.appendChild(help);
           if (st) st.after(cmd); else bottom.insertBefore(cmd, bottom.firstChild);
           if (vw2) { var dm = E("details", "lyviewm"); dm.innerHTML = "<summary>" + esc(tt("ly_view")) + "</summary>"; var box = E("div", "lyviewb"); while (vw2.firstChild) box.appendChild(vw2.firstChild); if (units) box.appendChild(units); var lyl = head.querySelector(".lylay"); if (lyl) box.insertBefore(lyl, box.firstChild); dm.appendChild(box); vw2.appendChild(dm); vw2.classList.add("lyview"); }
@@ -1766,7 +1772,9 @@
     }
     function stPos() {   /* im sichtbaren Kartenbereich zentrieren (Karte liegt in Layout A unter Kopf- und Multifunktionsleiste) */
       if (!stEl) return; var host = stEl.parentNode, tp = topPad(), av = host.clientHeight - tp; stEl.style.maxHeight = Math.max(160, av - 24) + "px";
-      stEl.style.top = tp + Math.max(12, Math.round((av - stEl.offsetHeight) / 2)) + "px";
+      var top = tp + Math.max(12, Math.round((av - stEl.offsetHeight) / 2)); stEl.style.top = top + "px";
+      var hr = host.getBoundingClientRect(), sr = stEl.getBoundingClientRect(), cl = host.querySelector(".leaflet-top.leaflet-left");   /* nie über den Kartenknöpfen (Handy) */
+      if (cl) { var cr = cl.getBoundingClientRect(); if (cr.right > sr.left && cr.left < sr.right && cr.bottom > sr.top) { top = Math.round(cr.bottom - hr.top + 8); stEl.style.top = top + "px"; stEl.style.maxHeight = Math.max(160, host.clientHeight - top - 12) + "px"; } }
     }
     function stHide(user) { if (!stEl) return; var f = stEl.contains(document.activeElement); stEl.remove(); stEl = null; if (user) stOff = true; if (f) { var m0 = $("#kmMap"); if (m0) m0.focus(); } }
     function stCheck() { if (stEl && (!mEmpty() || (mode && mode !== "edit"))) stHide(false); }
@@ -3326,9 +3334,9 @@
     function lyRender(v) {
       var k = $("#lyKpi"); if (!k) return; var ly = v && typeof v === "object" ? v.ly : null, f0 = function (x) { return Math.round(x).toLocaleString("de-CH"); };
       var len = M.lines.filter(function (l) { return l.pts.length > 1; }).reduce(function (a, l) { return a + effLen(l.pts); }, 0);
-      var kc = function (lab, val, cls) { return '<div class="lyc' + (cls ? " " + cls : "") + '"><span class="lyk">' + esc(lab) + "</span><b>" + val + "</b></div>"; };
-      k.innerHTML = kc(tt("ly_kLen"), esc(fmt(len)) + " m") + kc(tt("ly_kAus"), ly ? esc(fmt(ly.V)) + " m³" : "–") + kc(tt("ly_kSch"), String(M.pts.filter(function (x) { return x.mode !== "abz"; }).length)) +
-        kc(tt("ly_kNet"), (v && v.n != null ? "CHF " + f0(v.n) : "–") + lyFlashTxt(), "lymain") + kc(tt("ly_kBru"), v && v.b != null ? "CHF " + f0(v.b) : "–") +
+      var kc = function (lab, val, cls, sh) { return '<div class="lyc' + (cls ? " " + cls : "") + '"><span class="lyk">' + (sh ? '<span class="lyk-l">' + esc(lab) + '</span><span class="lyk-s" aria-hidden="true">' + esc(sh) + "</span>" : esc(lab)) + "</span><b>" + val + "</b></div>"; };
+      k.innerHTML = kc(tt("ly_kLen"), esc(fmt(len)) + " m", "lyk-len") + kc(tt("ly_kAus"), ly ? esc(fmt(ly.V)) + " m³" : "–", "lyk-aus") + kc(tt("ly_kSch"), String(M.pts.filter(function (x) { return x.mode !== "abz"; }).length), "lyk-sch") +
+        kc(tt("ly_kNet"), (v && v.n != null ? "CHF " + f0(v.n) : "–") + lyFlashTxt(), "lymain lyk-net", tt("ly_kNetS")) + kc(tt("ly_kBru"), v && v.b != null ? "CHF " + f0(v.b) : "–", "lyk-bru") +
         (v && v.st != null ? kc(tt("ly_kRab"), esc(tt("ly_kRabV").replace("{s}", v.st).replace("{p}", v.pct)), "lyx") : "") + (v && v.hon > 0 ? kc(tt("ly_kHon"), "CHF " + f0(v.hon), "lyx") : "") + (ly && ly.nWarn ? '<button type="button" class="lywarnb" data-lywarn>⚑ ' + esc(tt(ly.nWarn === 1 ? "ly_kWarn1" : "ly_kWarn").replace("{n}", ly.nWarn)) + "</button>" : "") + (v && v.o ? '<span class="lyoffb">⚠ ' + esc(tt("km_costOff").replace("{n}", v.o)) + "</span>" : "");
       lyBase(); var st = $("#lySt"); if (st) { var sk = ly ? ly.st : "empty"; st.className = "lyst lyst-" + sk; st.textContent = tt("ly_st_" + sk) + (sk === "stop" && ly && ly.nInc ? " (" + ly.nInc + ")" : ""); }
       if (ly) { ["aus", "kost", "pos", "warn"].forEach(function (t) { var p = $("#lyP_" + t); if (p) p.innerHTML = ly[t]; }); (function () { var po = $("#lyP_offen"), ao = document.activeElement; if (po && !(ao && po.contains(ao) && ao.tagName === "INPUT")) po.innerHTML = ly.of; var co = dlg.querySelector('[data-cnt="offen"]'); if (co) co.textContent = ly.nOf ? "(" + ly.nOf + ")" : ""; })(); var cp = dlg.querySelector('[data-cnt="pos"]'), cw = dlg.querySelector('[data-cnt="warn"]'); if (cp) cp.textContent = ly.nPos ? "(" + ly.nPos + ")" : ""; if (cw) cw.textContent = ly.nWarn ? "(" + ly.nWarn + ")" : ""; }
@@ -3571,7 +3579,9 @@
       if (e.target.closest("[data-sumgo]")) { var te = $("#kmTabE"); if (te) te.click(); return; }
       var hzb = e.target.closest("[data-hz]"); if (hzb) { if (hzb.dataset.hz === "load") hzLoad(); return; }
       var sgb = e.target.closest("[data-sg],#kmDxf"); if (sgb) { if (sgb.id === "kmDxf") dxfExport(); else if (sgb.dataset.sg === "calc") { sugs = sugCompute(); sugDraw(); sugRender(); if (!sugs.length) { var sh = $("#kmSug"); if (sh) { var pn = document.createElement("p"); pn.className = "hint"; pn.setAttribute("role", "status"); pn.textContent = tt("sg_none"); sh.appendChild(pn); } } } else if (sgb.dataset.sg === "apply") sugApply(); else { sugs = []; sugDraw(); sugRender(); } return; }
-      var lyk = e.target.closest("[data-lyk]"); if (lyk) { var tk = $("#kmToolsBody [data-k=" + lyk.getAttribute("data-lyk") + "]"); if (tk) tk.click(); var mp0 = $("#kmMap"); if (mp0) mp0.focus(); return; }   /* UX-Runde P6: Handlungsaufforderung im leeren Kostenreiter */
+      var lyk = e.target.closest("[data-lyk]"); if (lyk) {   /* UX-Runde P6: Wegweiser im leeren Kostenreiter → Werkzeugspalte (Handy: Werkzeugblatt), Fokus auf «Linie zeichnen» */
+        if (window.__LYMOB && window.matchMedia && window.matchMedia("(max-width:860px)").matches) window.__LYMOB.show("tools");
+        var tk = $("#kmToolsBody [data-k=mline]"); if (tk) { tk.focus(); tk.classList.add("lyhl"); setTimeout(function () { tk.classList.remove("lyhl"); }, 1600); } return; }
       var gfb = e.target.closest("[data-lygof]"); if (gfb && LY) { lyGo("gof:" + gfb.getAttribute("data-lygof")); return; }
       var ftb = e.target.closest("[data-foto],[data-fv]"); if (ftb) { if (ftb.dataset.foto) ftPickObj(ftb.dataset.foto); else ftView(ftb.dataset.fv); return; }
       var b = e.target.closest("[data-k],[data-z],[data-d],[data-n]"); if (!b) return; askHide();
