@@ -454,3 +454,4 @@ h3{letter-spacing:-.008em;line-height:1.25}
 @media (pointer:coarse){.kmdlg .kmph-x,.kmdlg .kmst-x{min-width:44px;min-height:44px}}
 .kmdlg .kmst-go{display:inline-flex;align-items:center;gap:6px}
 @media (max-width:520px){.kmdlg .kmst-go{min-width:44px;justify-content:center}.kmdlg .kmst-go .kmst-gt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.kmdlg .kmst-sr input{font-size:14px}}
+@media (pointer:coarse){.kmdlg.kmlya .lywarnb{min-height:44px;padding:4px 12px}}

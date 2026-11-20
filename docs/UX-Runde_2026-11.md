@@ -19,3 +19,19 @@ Reine Oberflächenänderungen – Rechenkern (`src/kve.js`, `src/model.js`, `ski
 | nachher | ![](ux-runde/p1-nachher-1440.png) | ![](ux-runde/p1-nachher-390.png) |
 
 Test: `t134` (neu). Testhilfe: ältere Tests starten ohne Startkarte (`window.__LVD_START_OFF`, wie die minimierte Multifunktionsleiste); `t101`/`t110` an die neuen Regeln angepasst (Hinweis einmal pro Sitzung, Start am letzten Ausschnitt).
+
+## P2 – «Keine Warnungen», obwohl Pflichtangaben fehlen
+
+**Für die Benutzer:** Fehlende Pflichtangaben sind jetzt eine eigene Kategorie im Hinweisfeld («1 Pflichtangabe fehlt» / «n Pflichtangaben fehlen») mit Liste «Reiter · Datensatz: Feld». Ein Klick springt direkt zum Feld. Berücksichtigt werden Datensätze mit Positionen, von Hand geänderte und der gerade bearbeitete Datensatz.
+- Ein leeres Projekt (keine Positionen, Zwischensumme 0) zeigt einen neutralen Status «Noch keine Positionen», nie mehr grün.
+- Grün («Keine Warnungen») erscheint nur, wenn Positionen vorhanden und alle Pflichtangaben vollständig sind; sonst «Hinweise beachten».
+- Layout A, Status im Kopf: «Leer», «Unvollständig (n)» (n = fehlende Pflichtangaben + kritische Punkte) oder «Bereit». Der Reiter «Hinweise» listet die fehlenden Angaben zuoberst; ein Klick führt zum Feld. Kennzahl «1 Hinweis» in der Einzahl.
+
+| | Desktop 1440 px | Handy 390 px |
+|---|---|---|
+| vorher klassisch | ![](ux-runde/p2-vorher-1440.png) | ![](ux-runde/p2-vorher-390.png) |
+| nachher klassisch | ![](ux-runde/p2-nachher-1440.png) | ![](ux-runde/p2-nachher-390.png) |
+| vorher Layout A | ![](ux-runde/p2a-vorher-1440.png) | ![](ux-runde/p2a-vorher-390.png) |
+| nachher Layout A | ![](ux-runde/p2a-nachher-1440.png) | ![](ux-runde/p2a-nachher-390.png) |
+
+Test: `t135` (neu).

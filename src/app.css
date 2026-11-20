@@ -817,3 +817,11 @@ html:not(.lvready) .sheet{visibility:hidden}   /* Seite erst nach dem ersten Fü
 .rp-mb-machbar{background:#dff3e6;border-color:#1b7a43}.rp-mb-bedingt{background:#fff1d1;border-color:#9a6a00}.rp-mb-nicht{background:#fbe0de;border-color:#b8332a}.rp-mb-offen{background:#eee}
 .rp-mbk table{width:auto!important;min-width:60%}.rp-mbk-t th,.rp-mbk-t td{font-weight:700;border-top:.8pt solid #333}
 }
+/* UX-Runde 11/2026 P2: leeres Projekt neutral (nie grün), fehlende Pflichtangaben als eigene Kategorie */
+.status.empty{border-color:var(--rule-strong,#8fa1ac);background:var(--panel,#f4f6f7);color:var(--ink,#16232a)}
+.status .reqsum{margin-top:8px;padding-top:8px;border-top:1px solid currentColor}
+.status .reqsum-t{font-weight:650}
+.status .reqsum-l{margin:4px 0 0;padding-left:18px;font-size:13.5px}
+.status.empty .reqsum{border-top-color:var(--rule,#d5dde1)}
+.status.empty .reqsum-t{color:var(--amber,#8a4b00)}
+.lyreq .warns li .btn{margin-right:4px}

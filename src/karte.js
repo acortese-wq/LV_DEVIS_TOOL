@@ -3307,8 +3307,8 @@
       var kc = function (lab, val, cls) { return '<div class="lyc' + (cls ? " " + cls : "") + '"><span class="lyk">' + esc(lab) + "</span><b>" + val + "</b></div>"; };
       k.innerHTML = kc(tt("ly_kLen"), esc(fmt(len)) + " m") + kc(tt("ly_kAus"), ly ? esc(fmt(ly.V)) + " m³" : "–") + kc(tt("ly_kSch"), String(M.pts.filter(function (x) { return x.mode !== "abz"; }).length)) +
         kc(tt("ly_kNet"), v && v.n != null ? "CHF " + f0(v.n) : "–", "lymain") + kc(tt("ly_kBru"), v && v.b != null ? "CHF " + f0(v.b) : "–") +
-        (v && v.st != null ? kc(tt("ly_kRab"), esc(tt("ly_kRabV").replace("{s}", v.st).replace("{p}", v.pct)), "lyx") : "") + (v && v.hon > 0 ? kc(tt("ly_kHon"), "CHF " + f0(v.hon), "lyx") : "") + (ly && ly.nWarn ? '<button type="button" class="lywarnb" data-lywarn>⚑ ' + esc(tt("ly_kWarn").replace("{n}", ly.nWarn)) + "</button>" : "") + (v && v.o ? '<span class="lyoffb">⚠ ' + esc(tt("km_costOff").replace("{n}", v.o)) + "</span>" : "");
-      lyBase(); var st = $("#lySt"); if (st) { var sk = ly ? ly.st : "empty"; st.className = "lyst lyst-" + sk; st.textContent = tt("ly_st_" + sk); }
+        (v && v.st != null ? kc(tt("ly_kRab"), esc(tt("ly_kRabV").replace("{s}", v.st).replace("{p}", v.pct)), "lyx") : "") + (v && v.hon > 0 ? kc(tt("ly_kHon"), "CHF " + f0(v.hon), "lyx") : "") + (ly && ly.nWarn ? '<button type="button" class="lywarnb" data-lywarn>⚑ ' + esc(tt(ly.nWarn === 1 ? "ly_kWarn1" : "ly_kWarn").replace("{n}", ly.nWarn)) + "</button>" : "") + (v && v.o ? '<span class="lyoffb">⚠ ' + esc(tt("km_costOff").replace("{n}", v.o)) + "</span>" : "");
+      lyBase(); var st = $("#lySt"); if (st) { var sk = ly ? ly.st : "empty"; st.className = "lyst lyst-" + sk; st.textContent = tt("ly_st_" + sk) + (sk === "stop" && ly && ly.nInc ? " (" + ly.nInc + ")" : ""); }
       if (ly) { ["aus", "kost", "pos", "warn"].forEach(function (t) { var p = $("#lyP_" + t); if (p) p.innerHTML = ly[t]; }); (function () { var po = $("#lyP_offen"), ao = document.activeElement; if (po && !(ao && po.contains(ao) && ao.tagName === "INPUT")) po.innerHTML = ly.of; var co = dlg.querySelector('[data-cnt="offen"]'); if (co) co.textContent = ly.nOf ? "(" + ly.nOf + ")" : ""; })(); var cp = dlg.querySelector('[data-cnt="pos"]'), cw = dlg.querySelector('[data-cnt="warn"]'); if (cp) cp.textContent = ly.nPos ? "(" + ly.nPos + ")" : ""; if (cw) cw.textContent = ly.nWarn ? "(" + ly.nWarn + ")" : ""; }
     }
     /* ---------- Projektexplorer ---------- */
@@ -3528,6 +3528,7 @@
       if (e.target.closest("[data-sumgo]")) { var te = $("#kmTabE"); if (te) te.click(); return; }
       var hzb = e.target.closest("[data-hz]"); if (hzb) { if (hzb.dataset.hz === "load") hzLoad(); return; }
       var sgb = e.target.closest("[data-sg],#kmDxf"); if (sgb) { if (sgb.id === "kmDxf") dxfExport(); else if (sgb.dataset.sg === "calc") { sugs = sugCompute(); sugDraw(); sugRender(); if (!sugs.length) { var sh = $("#kmSug"); if (sh) { var pn = document.createElement("p"); pn.className = "hint"; pn.setAttribute("role", "status"); pn.textContent = tt("sg_none"); sh.appendChild(pn); } } } else if (sgb.dataset.sg === "apply") sugApply(); else { sugs = []; sugDraw(); sugRender(); } return; }
+      var gfb = e.target.closest("[data-lygof]"); if (gfb && LY) { lyGo("gof:" + gfb.getAttribute("data-lygof")); return; }
       var ftb = e.target.closest("[data-foto],[data-fv]"); if (ftb) { if (ftb.dataset.foto) ftPickObj(ftb.dataset.foto); else ftView(ftb.dataset.fv); return; }
       var b = e.target.closest("[data-k],[data-z],[data-d],[data-n]"); if (!b) return; askHide();
       if (b.dataset.n) { var nn = b.dataset.n.split("|"); return nudge(nn[0], nn[1]); }

@@ -663,7 +663,7 @@
   function lyData(out) {
     var V = 0, n = 0; out.elems.forEach(function (e) { if (e.tab === "graben" && e.geo && e.geo.V > 0) V += e.geo.V; n += e.lines.length; }); n += out.vor.lines.length + out.be.lines.length;
     var nStop = wl(out).filter(function (w) { return w.sev === "stop"; }).length, nAmb = wl(out).filter(function (w) { return w.sev === "amber"; }).length;
-    var st = n === 0 ? "empty" : nStop ? "stop" : nAmb || out.nOffen ? "amber" : "ok";
+    var rq = reqAll(out), st = isEmptyOut(out) ? "empty" : nStop || rq.length ? "stop" : nAmb || out.nOffen ? "amber" : "ok", nInc = nStop + rq.length;   /* UX-Runde P2: Leer / Unvollständig (n) / Bereit */
     LYOUT = out; var pos = out.summary.length ? dockPos(out) : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos0 = out.summary.length ? '<table class="lytab"><thead><tr><th scope="col">' + esc(tt("ly_cPos")) + '</th><th scope="col">' + esc(tt("ly_cText")) + '</th><th scope="col" class="num">' + esc(tt("ly_cQty")) + '</th><th scope="col">' + esc(tt("ly_cUnit")) + '</th><th scope="col" class="num">' + esc(tt("ly_cEp")) + '</th><th scope="col" class="num">' + esc(tt("ly_cTot")) + "</th></tr></thead><tbody>" +
       out.summary.map(function (l) { var off = l.flag === "offen", lv = /^\d{3}\//.test(l.key), tx = lv ? lvT(l.key) : off || l.flag === "erfasst" ? (l.text || openText(l)) : (l.text || "");
         return "<tr" + (off ? ' class="open"' : "") + "><td>" + esc(off ? tt("c_offenTag") : l.key) + "</td><td>" + esc(tx) + '</td><td class="num">' + qf(l.qty) + "</td><td>" + esc(uT(l.unit || "")) + '</td><td class="num">' + (off ? "—" : chf(l.ep)) + '</td><td class="num">' + (off ? "—" : chf(l.total)) + "</td></tr>"; }).join("") + "</tbody></table>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>";
@@ -672,7 +672,8 @@
     var ws = wl(out).slice().sort(function (a, b) { var r = { stop: 0, amber: 1, info: 2 }; return r[a.sev] - r[b.sev]; });
     var oTk = {}; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.open && l.tk && l.tk !== "freiKeinEP") oTk[l.tk] = 1; }); });
     var ofd = ofDock(), warn = (out.nOffen ? '<p class="lyoff">⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + "</p>" : "") + (ws.length ? '<ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + esc(w.tab ? tt("tab_" + w.tab) + " · " + w.el : (w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + (oTk[w.id] ? ' <button type="button" class="btn ghost small" data-act="offen" data-ofk="' + esc(w.id) + '">' + esc(tt("of_btnHin")) + "</button>" : "") + "</li>"; }).join("") + "</ul>" : '<p class="hint">' + esc(tt("ly_warnNone")) + "</p>");
-    return { V: r2(V), of: ofd.h, nOf: ofd.n, st: st, nPos: out.summary.length, nWarn: ws.filter(function (w) { return w.sev !== "info"; }).length + (out.nOffen ? 1 : 0), kost: n ? '<div class="lykost">' + '<div class="lykost-a">' + kostTable(out) + "</div>" + dockKostX(out) + "</div>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos: pos, aus: aus, warn: warn };
+    if (rq.length) warn = '<div class="lyreq"><p class="lyoff">⚠ ' + esc(fill(tt(rq.length === 1 ? "rq_miss1" : "rq_missN"), { n: rq.length })) + '</p><ul class="warns">' + rq.map(function (x) { return '<li class="stop"><button type="button" class="btn ghost small" data-lygof="' + x.tab + ":" + x.idx + ":" + x.key + '">' + esc(tt("tab_" + x.tab) + " · " + x.el) + "</button> " + esc(x.lab) + "</li>"; }).join("") + "</ul></div>" + warn;
+    return { V: r2(V), of: ofd.h, nOf: ofd.n, st: st, nInc: nInc, nReq: rq.length, nPos: out.summary.length, nWarn: ws.filter(function (w) { return w.sev !== "info"; }).length + (out.nOffen ? 1 : 0) + rq.length, kost: n ? '<div class="lykost">' + '<div class="lykost-a">' + kostTable(out) + "</div>" + dockKostX(out) + "</div>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos: pos, aus: aus, warn: warn };
   }
   var LYTABS = ["graben", "schacht", "belag", "werkloch", "geb"];
   function lyPref() { try { var v = localStorage.getItem("lvd-layout"); if (v) return v === "classic" ? "classic" : "a"; } catch (e) { } return window.__LVD_LAYOUT_DEFAULT === "classic" ? "classic" : "a"; }   /* gespeicherte Wahl, sonst Vorgabe (Tests: klassisch), sonst Layout A */
@@ -687,6 +688,7 @@
       if (!retry) setTimeout(function () { lyOpen(1, keep); }, 800); else openKarte(cfg, tab, b, m, ex); });
   }
   function lyGo(t) {   /* Wechsel aus Layout A in eine Ansicht der klassischen Seite */
+    if (/^gof:/.test(t)) { var pf = t.split(":"); S.tab = pf[1]; S.idx[pf[1]] = +pf[2]; save(); renderForm(); renderResult(); setTimeout(function () { var fe = document.getElementById("f_" + pf[1] + "_" + pf[3]) || $("#tabs"); if (fe) { fe.scrollIntoView({ block: "center" }); if (fe.focus) fe.focus(); } }, 30); return; }   /* UX-Runde P2: fehlende Pflichtangabe → Feld */
     var tgt = t === "rec" ? $("#tabs") : t === "res" ? $("#kpi") : $(".plankopf");
     if (t === "rep") { reportOpen(); return; }
     if (tgt) { window.scrollTo({ top: Math.max(0, tgt.getBoundingClientRect().top + window.scrollY - 8) }); var f = t === "rec" ? $("#tabCur") || $("#tabs button") : t === "res" ? $("#kpi") : $("#bLyMap"); if (f) { if (!f.hasAttribute("tabindex") && f.id === "kpi") f.setAttribute("tabindex", "-1"); f.focus(); } }
@@ -916,17 +918,30 @@
     return w;
   }
   /* Pflichtangaben je Datensatz */
-  function reqInfo(tab, c) {
-    var ch = [["f_name", String(c.name || "").trim() !== ""]];
-    if (tab === "graben") ch.push(["f_L", num(c.L, 0) > 0], ["f_T", num(c.T, 0) > 0], ["f_n", c.rohrSystem === "block" || num(c.n, 0) > 0]);
-    else if (tab === "schacht") ch.push(["f_typ", !!c.typ]);
-    else if (tab === "werkloch") ch.push(["f_ts", ["ts", "bo", "sg", "zs"].some(function (k) { return num(c[k], 0) > 0; })]);
-    else if (tab === "fund") ch.push(["f_vk", !!(c.vk || c.kvs)]);
-    else if (tab === "geb") ch.push(["f_n", num(c.n, 0) > 0]);
-    else if (tab === "belag" && c.indiv) ch.push(["f_B", num(c.B, 0) > 0], ["f_Lbel", num(c.L, 0) > 0]);
-    var miss = ch.filter(function (x) { return !x[1]; }).map(function (x) { return tt(x[0]).replace(/ \[.*\]/, ""); });
-    return { tot: ch.length, ok: ch.length - miss.length, miss: miss };
+  function reqInfo(tab, c) {   /* [Bezeichnung, erfüllt, Feld] */
+    var ch = [["f_name", String(c.name || "").trim() !== "", "name"]];
+    if (tab === "graben") ch.push(["f_L", num(c.L, 0) > 0, "L"], ["f_T", num(c.T, 0) > 0, "T"], ["f_n", c.rohrSystem === "block" || num(c.n, 0) > 0, "n"]);
+    else if (tab === "schacht") ch.push(["f_typ", !!c.typ, "typ"]);
+    else if (tab === "werkloch") ch.push(["f_ts", ["ts", "bo", "sg", "zs"].some(function (k) { return num(c[k], 0) > 0; }), "ts"]);
+    else if (tab === "fund") ch.push(["f_vk", !!(c.vk || c.kvs), "vk"]);
+    else if (tab === "geb") ch.push(["f_n", num(c.n, 0) > 0, "n"]);
+    else if (tab === "belag" && c.indiv) ch.push(["f_B", num(c.B, 0) > 0, "B"], ["f_Lbel", num(c.L, 0) > 0, "L"]);
+    var mm = ch.filter(function (x) { return !x[1]; }), miss = mm.map(function (x) { return tt(x[0]).replace(/ \[.*\]/, ""); });
+    return { tot: ch.length, ok: ch.length - miss.length, miss: miss, keys: mm.map(function (x) { return x[2]; }) };
   }
+  /* UX-Runde P2: fehlende Pflichtangaben im ganzen Projekt – Datensätze mit Positionen, von Hand geänderte und der gerade bearbeitete */
+  var REQTABS = ["graben", "schacht", "werkloch", "fund", "geb", "belag"];
+  function recTouched(tab, r) { var d = newRec(tab, 1); return Object.keys(r).some(function (k) { return ["uid", "name", "x", "free", "fromMap", "lineMap"].indexOf(k) < 0 && JSON.stringify(r[k]) !== JSON.stringify(d[k]); }); }
+  function reqAll(out) {
+    var hasL = {}, res = []; (out ? out.elems : []).forEach(function (e) { if (e.lines.length) hasL[e.tab + ":" + e.idx] = 1; });
+    REQTABS.forEach(function (tab) { (S.recs[tab] || []).forEach(function (r, i) {
+      if (!(hasL[tab + ":" + i] || recTouched(tab, r) || (S.tab === tab && S.idx[tab] === i))) return;
+      var q = reqInfo(tab, r); q.miss.forEach(function (m, j) { res.push({ tab: tab, idx: i, el: r.name || tt("tab_" + tab) + " " + (i + 1), lab: m, key: q.keys[j] }); });
+    }); });
+    return res;
+  }
+  function reqGo(x) { return '<a href="#" class="wgo" data-gof="' + x.tab + ":" + x.idx + ":" + x.key + '">' + esc(tt("tab_" + x.tab) + " · " + x.el) + "</a>: " + esc(x.lab); }
+  function isEmptyOut(out) { return !(out.sum.zwischen > 0) && !out.nOffen; }
   function reqEl(tab, c) {
     var p = document.createElement("p"); if (tab === "hon" || tab === "allg") return p;
     var r = reqInfo(tab, c); p.className = "reqline " + (r.miss.length ? "open" : "ok");
@@ -1342,9 +1357,10 @@
     var out = KVE.calc(S, LV); lastOut = out;
     var lvHtml = "", html = "", stop = wl(out).some(function (w) { return w.sev === "stop"; }), amber = wl(out).some(function (w) { return w.sev === "amber"; });
     var n = 0; out.elems.forEach(function (e) { n += e.lines.length; }); n += out.vor.lines.length + out.be.lines.length;
-    var st = n === 0 ? "empty" : stop ? "stop" : amber ? "amber" : "ok";
-    html += '<div class="status no-summary ' + (st === "stop" ? "stop" : st === "amber" ? "amber" : "ok") + '"><p class="stitle">' + esc(tt("st_" + st)) + "</p>";
+    var rq = reqAll(out), st = isEmptyOut(out) ? "empty" : stop ? "stop" : amber || rq.length ? "amber" : "ok";   /* UX-Runde P2: leer ist nie grün; fehlende Pflichtangaben sind eine eigene Kategorie */
+    html += '<div class="status no-summary ' + (st === "stop" ? "stop" : st === "amber" ? "amber" : st === "empty" ? "empty" : "ok") + '"><p class="stitle">' + esc(tt("st_" + st)) + "</p>";
     if (st === "empty") html += '<p class="action">' + esc(tt("ux_emptyHint")) + "</p>";
+    if (rq.length) html += '<div class="reqsum"><p class="reqsum-t">' + esc(fill(tt(rq.length === 1 ? "rq_miss1" : "rq_missN"), { n: rq.length })) + '</p><ul class="reqsum-l">' + rq.slice(0, 6).map(function (x) { return "<li>" + reqGo(x) + "</li>"; }).join("") + "</ul>" + (rq.length > 6 ? "<p>" + esc(fill(tt("rq_more"), { n: rq.length - 6 })) + "</p>" : "") + "</div>";
     var erfL = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst") erfL.push(l); }); }); var sErf = r2(erfL.reduce(function (a, l) { return a + l.total; }, 0));
     if (out.nOffen || erfL.length) html += '<p class="offennote">' + (out.nOffen ? esc(fill(tt("x_nOffen"), { n: out.nOffen })) + " " : "") + (erfL.length ? esc(fill(tt("of_note_erf"), { n: erfL.length, s: chf(sErf) })) + " " : "") + '<button type="button" class="btn small no-print" data-act="offen">' + esc(fill(tt("of_btn"), { n: out.nOffen + erfL.length })) + "</button></p>";
     var top = wl(out).filter(function (w) { return w.sev !== "info"; }).slice(0, 4);
@@ -1970,6 +1986,7 @@
       if (t.hasAttribute("data-dgo")) { DQ = { q: t.getAttribute("data-dgo"), st: "", ch: "", s: DQ.s, d: DQ.d }; var tb = document.querySelector("#lyT_pos"); if (tb) tb.click(); setTimeout(function () { dockRefresh(true); }, 0); }
     });
     $("#result").addEventListener("click", function (ev) {
+      var gf = ev.target.closest("[data-gof]"); if (gf) { ev.preventDefault(); var pf = gf.dataset.gof.split(":"); S.tab = pf[0]; S.idx[pf[0]] = +pf[1]; save(); renderForm(); renderResult(); setTimeout(function () { var fe = document.getElementById("f_" + pf[0] + "_" + pf[2]) || $("#tabs"); if (fe) { fe.scrollIntoView({ block: "center" }); if (fe.focus) fe.focus(); } }, 30); return; }
       var g = ev.target.closest("[data-go]"); if (g) { ev.preventDefault(); var p = g.dataset.go.split(":"); S.tab = p[0]; S.idx[p[0]] = +p[1]; save(); renderForm(); renderResult(); window.scrollTo({ top: $("#tabs").offsetTop - 8, behavior: "smooth" }); return; }
       var im = ev.target.closest("img[data-lb]"); if (im) { $("#lb img").src = im.src; $("#lb img").alt = im.alt || ""; $("#lb").classList.add("on"); lbFrom = im; $("#lbClose").focus(); return; }
       var t = ev.target.closest("[data-toggle]"); if (t) { var box = t.closest(".elres"), cl = !box.classList.contains("closed"); box.classList.toggle("closed", cl); t.setAttribute("aria-expanded", cl ? "false" : "true"); S.ui.closed[t.dataset.toggle] = cl; save(); return; }
