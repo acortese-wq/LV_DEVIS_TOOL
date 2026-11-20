@@ -26,7 +26,7 @@ const K = require('./lib/k.js'), { chromium, ok, mk } = K;
   const n0 = req.length, imgs = () => pg.evaluate(() => [...document.querySelectorAll('.leaflet-image-layer')].length), tiles = () => pg.evaluate(() => [...document.querySelectorAll('.leaflet-tile-pane img')].length);
   await pg.evaluate(() => window.__KM.map().setZoom(17, { animate: false })); await pg.waitForTimeout(1500);
   ok((await imgs()) >= 1, 'Zoom 17: Parzellenbild vorhanden (' + (await imgs()) + ' Bild)');
-  await pg.evaluate(() => window.__KM.map().setZoom(11, { animate: false })); await pg.waitForTimeout(1200);
+  await pg.evaluate(() => { sessionStorage.removeItem('lvd-parzhint'); window.__lvdParz = 0; window.__KM.map().setZoom(11, { animate: false }); }); await pg.waitForTimeout(1200);   /* Hinweis erscheint seit UX-Runde P1 nur einmal pro Sitzung (bei Zoom 9 schon gezeigt) */
   const msg = await pg.evaluate(() => (document.querySelector('.kmparzhint') || {}).textContent || '');
   ok((await imgs()) === 0 && /Zoomstufe 15/.test(msg), 'Zoom 11: kein leeres weisses Parzellenbild, Hinweis «' + msg.slice(0, 60) + '…»');
   await pg.evaluate(() => window.__KM.map().setZoom(17, { animate: false })); await pg.waitForTimeout(1500);

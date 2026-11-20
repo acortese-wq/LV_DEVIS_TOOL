@@ -433,3 +433,24 @@ h3{letter-spacing:-.008em;line-height:1.25}
   .kmdlg.kmlya .kmhead summary,.kmdlg.kmlya .lyviewm>summary,.kmdlg.kmlya .kmmidtog{display:flex;align-items:center;min-height:44px}
   .kmdlg .leaflet-touch .leaflet-bar a,.kmdlg .leaflet-bar a,.kmdlg .kmfitc a{width:44px;height:44px;line-height:44px}
 }
+/* UX-Runde 11/2026 P1: Startkarte bei leerem Projekt + Parzellenhinweis mit × */
+.kmdlg .kmstart{position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:1150;width:min(460px,calc(100% - 32px));max-height:calc(100% - 24px);overflow:auto;box-sizing:border-box;padding:16px 18px 14px;border-radius:14px;background:var(--paper,#fff);color:var(--ink,#16232a);border:1px solid var(--rule-strong,#8fa1ac);box-shadow:0 10px 32px rgba(0,0,0,.28);animation:nc-rise .26s var(--nc-spring,ease-out)}
+.kmdlg .kmstart h2{margin:0 28px 10px 0;font-size:18px;line-height:1.25}
+.kmdlg .kmst-x{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:8px;border:1px solid transparent;background:transparent;color:inherit;font-size:22px;line-height:1;cursor:pointer}
+.kmdlg .kmst-x:hover{background:var(--panel-2,#eef1f2)}
+.kmdlg .kmst-s label,.kmdlg .kmst-l{display:block;font-weight:700;font-size:13.5px;margin:0 0 4px}
+.kmdlg .kmst-sr{display:flex;gap:6px}.kmdlg .kmst-sr input{flex:1 1 auto;min-width:0;font-size:15px;padding:8px 10px}
+.kmdlg .kmstart .kmhits{list-style:none;margin:4px 0 0;padding:0;max-height:160px;overflow:auto}
+.kmdlg .kmstart .kmhits .kmhit{display:block;width:100%;text-align:left}
+.kmdlg .kmst-l{margin-top:14px}
+.kmdlg .kmst-v{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kmdlg .kmst-b{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:10px;border-radius:10px;border:1px solid var(--rule-strong,#8fa1ac);background:var(--panel,#f6f8f9);color:inherit;text-align:left;cursor:pointer;font:inherit;min-height:44px}
+.kmdlg .kmst-b svg{color:var(--link,#0b6b72)}.kmdlg .kmst-b b{font-size:14px}.kmdlg .kmst-b span{font-size:12.5px;line-height:1.3;color:var(--ink-soft,#40525b)}
+.kmdlg .kmst-b:hover{border-color:var(--navy,#0b6b72)}.kmdlg .kmst-b:active{transform:scale(.98)}
+.kmdlg .kmst-f{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:10px;border-top:1px solid var(--rule,#d5dde1)}
+@media (max-width:520px){.kmdlg .kmst-v{grid-template-columns:1fr}.kmdlg .kmst-b{flex-direction:row;flex-wrap:wrap;align-items:center;column-gap:8px}.kmdlg .kmst-b span{flex-basis:100%}}
+@media (prefers-reduced-motion:reduce){.kmdlg .kmstart{animation:none}.kmdlg .kmst-b:active{transform:none}}
+.kmdlg .kmparzhint{pointer-events:auto;display:flex;align-items:flex-start;gap:6px}.kmdlg .kmph-x{flex:0 0 auto;border:0;background:transparent;color:inherit;font-size:16px;line-height:1;padding:2px 4px;cursor:pointer;min-width:24px;min-height:24px}
+@media (pointer:coarse){.kmdlg .kmph-x,.kmdlg .kmst-x{min-width:44px;min-height:44px}}
+.kmdlg .kmst-go{display:inline-flex;align-items:center;gap:6px}
+@media (max-width:520px){.kmdlg .kmst-go{min-width:44px;justify-content:center}.kmdlg .kmst-go .kmst-gt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.kmdlg .kmst-sr input{font-size:14px}}

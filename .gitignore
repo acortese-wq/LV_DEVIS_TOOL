@@ -6,3 +6,4 @@ __pycache__/
 dist/
 tools/node_modules/
 tests/node_modules/
+!docs/ux-runde/*.png

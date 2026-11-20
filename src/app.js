@@ -886,7 +886,7 @@
           var u0 = ensureUid(cfg); cfg.trasse.forEach(function (pts, i) { S.karte.lines.push({ id: "m" + i + u0, pts: pts, rid: i === 0 ? u0 : null, rohr: { sys: cfg.rohrSystem, dn: cfg.dn, len: cfg.len, n: cfg.n } }); }); delete cfg.trasse;
         }
         var g = tab === "graben" && cfg;
-        KARTE.open({ kind: "map", zT: zT, foto: fotoApi(), on3d: function (u, m) { S.v3d = { img: u, at: Date.now(), ex: m.ex }; save(); }, tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, cost: costPreview(cfg, tab), model: ex.keep && ex.keep.model ? ex.keep.model : JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), view: ex.keep ? ex.keep.view : null, edited: !!(ex.keep && ex.keep.edited), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
+        KARTE.open({ kind: "map", zT: zT, foto: fotoApi(), ort: S.kopf.ort || "", start: { demo: function () { if (window.__LVD && window.__LVD.loadDemo) window.__LVD.loadDemo(); if (lyPref() === "a") setTimeout(function () { lyOpen(); }, 0); }, load: function (f) { load(f, function () { if (lyPref() === "a") setTimeout(function () { lyOpen(); }, 0); }); } }, on3d: function (u, m) { S.v3d = { img: u, at: Date.now(), ex: m.ex }; save(); }, tt: tt, lang: S.lang, cat: karteCat(), labels: mkLabels, xsec: xsecHtml, cost: costPreview(cfg, tab), model: ex.keep && ex.keep.model ? ex.keep.model : JSON.parse(JSON.stringify(Object.assign({}, S.karte, { overlay: undefined, bg: undefined }))), view: ex.keep ? ex.keep.view : null, edited: !!(ex.keep && ex.keep.edited), overlay: ovResolve(S.karte.overlay), planImg: S.plan,
           defRohr: { sys: g ? cfg.rohrSystem : "k55", dn: g ? cfg.dn : "55", len: g ? cfg.len : "10", n: g ? cfg.n : "1" }, defTyp: g ? "KES150" : tab === "schacht" && cfg ? cfg.typ : "KES150", defGeb: { cm: tab === "geb" && cfg ? cfg.cm : "", abd: tab === "geb" && cfg ? cfg.abd : "hauff" }, defBelag: tab === "belag" && cfg ? { bk: cfg.bk, d: cfg.d, wi: cfg.wi } : { bk: "gehweg", d: "0.08", wi: "B" },
           recName: function (id) { return recName("graben")(id) || recName("schacht")(id) || recName("belag")(id) || recName("werkloch")(id) || recName("geb")(id); },
           onClose: function () { if (ex.layoutA) return; var o = $(ex.focus || "#kmOpen"); if (o) o.focus(); },
@@ -1850,7 +1850,7 @@
     var go = function (img) { if (img && Object.keys(img).length) c.fotosImg = img; download(fname("json"), JSON.stringify({ v: 2, tool: "LV-Devis Tiefbau", lv: "V1.1 10.07.2026", data: c }, null, 1), "application/json"); };
     if (ids.length && window.FOTO) FOTO.getAll(ids).then(go, function () { go(null); }); else go(null);
   }
-  function load(file) {
+  function load(file, then) {
     var rd = new FileReader();
     rd.onload = function () {
       var full = JSON.stringify(S);   /* ganzer Stand (inkl. Kopf und Einstellungen) für Rückgängig */
@@ -1876,7 +1876,7 @@
           S = m;
         } else throw new Error("format");
         S.lang = lang; heal(); save(); applyKopf(); applyLang(); KARTE.toast(document.body, tt("ld_done"), tt("km_undoBtn"), back);
-      } catch (e) { if (JSON.stringify(S) !== full) back(); alert("JSON: " + (e.message === "format" ? tt("ld_bad") : e.message)); }
+      } catch (e) { if (JSON.stringify(S) !== full) back(); alert("JSON: " + (e.message === "format" ? tt("ld_bad") : e.message)); } finally { if (then) then(); }
     };
     rd.readAsText(file);
   }

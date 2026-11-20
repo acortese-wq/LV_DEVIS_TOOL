@@ -1223,7 +1223,7 @@
         : base === "grau" ? L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")])
         : base === "leer" ? L.layerGroup([])   /* leere Basis: nur gewählte Katalog-Ebenen auf weissem Grund */
         : base === "av" ? L.layerGroup(avCfg().u ? [viewWms(avCfg().u, avCfg().l, { attr: "© OpenData AV" })] : [])
-        : base === "kataster" ? (function () { var g = L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")]), v = viewWms(WMS, "ch.kantone.cadastralwebmap-farbe", { attr: "© geo.admin.ch", minZoom: PARZ_MINZ, gate: function (inR) { var c = $("#kmMap") && $("#kmMap").querySelector(".kmparzhint"); if (!inR) { if (!c && $("#kmMap")) { c = document.createElement("div"); c.className = "kmparzhint"; c.setAttribute("role", "status"); c.textContent = tt("km_parzMin").replace("{z}", PARZ_MINZ); $("#kmMap").appendChild(c); } } else if (c) c.remove(); },   /* Hinweis als Feld in der Karte (nicht klickbar), kein Toast über der Zeichenfläche */ fail: function () { if (!g._fb) { g._fb = flex("ch.kantone.cadastralwebmap-farbe", 1, "wmts"); g.addLayer(g._fb); } }, ok: function () { if (g._fb) { g.removeLayer(g._fb); g._fb = null; } } }); g.addLayer(v); return g; })()   /* nur der Parzellenplan, ohne Landeskarte dahinter */
+        : base === "kataster" ? (function () { var g = L.layerGroup([T("ch.swisstopo.pixelkarte-grau", "jpeg")]), v = viewWms(WMS, "ch.kantone.cadastralwebmap-farbe", { attr: "© geo.admin.ch", minZoom: PARZ_MINZ, gate: function (inR) { var c = $("#kmMap") && $("#kmMap").querySelector(".kmparzhint"); if (!inR) { var seen = false; try { seen = sessionStorage.getItem("lvd-parzhint") === "1"; sessionStorage.setItem("lvd-parzhint", "1"); } catch (e) { seen = !!window.__lvdParz; } window.__lvdParz = 1; if (!c && !seen && $("#kmMap")) { c = document.createElement("div"); c.className = "kmparzhint"; c.setAttribute("role", "status"); c.innerHTML = "<span>" + esc(tt("km_parzMin").replace("{z}", PARZ_MINZ)) + '</span><button type="button" class="kmph-x" aria-label="' + esc(tt("st_hintX")) + '">×</button>'; $("#kmMap").appendChild(c); L.DomEvent.disableClickPropagation(c); var c1 = c; c.querySelector("button").addEventListener("click", function () { c1.remove(); }); setTimeout(function () { c1.remove(); }, 6000); } } else if (c) c.remove(); }   /* UX-Runde P1: Hinweis pro Sitzung einmal, schliesst nach 6 s oder mit × */,   /* Hinweis als Feld in der Karte (nicht klickbar), kein Toast über der Zeichenfläche */ fail: function () { if (!g._fb) { g._fb = flex("ch.kantone.cadastralwebmap-farbe", 1, "wmts"); g.addLayer(g._fb); } }, ok: function () { if (g._fb) { g.removeLayer(g._fb); g._fb = null; } } }); g.addLayer(v); return g; })()   /* nur der Parzellenplan, ohne Landeskarte dahinter */
         : L.layerGroup([T("ch.swisstopo.pixelkarte-farbe", "jpeg")]);
       map.getContainer().style.background = base === "kataster" || base === "leer" || base === "av" ? "#fff" : "";
       layer.addTo(map);   /* Reihenfolge über zIndex: Basiskarte 1, Deckschichten 5/10 */
@@ -1682,7 +1682,7 @@
         if (l.pts.length < 3 || l.hzArt) return; var c = cfgOf(l); if (c.art === "beton" || c.art === "laengs") return; var n = pipeSum(c);
         bendPts(l, M).forEach(function (b) { L.marker(AD.ll(b.pt), { interactive: false, keyboard: false, zIndexOffset: -450, icon: L.divIcon({ className: "kmbend", html: "<span>" + esc(bendTxt(b, n)) + "</span>", iconSize: [0, 0], iconAnchor: [0, 0] }) }).addTo(grp); });
       });
-      shaftSymbols(); pm(M.pts, "kmsch", ""); pm(M.sond, "kmsond", "S"); pm(M.wl, "kmwl", "W"); pm(M.geb, "kmgeb", "G"); ftDraw();
+      shaftSymbols(); pm(M.pts, "kmsch", ""); pm(M.sond, "kmsond", "S"); pm(M.wl, "kmwl", "W"); pm(M.geb, "kmgeb", "G"); ftDraw(); stCheck();
       if (labelsOn() && opt.labels) {   /* Beschriftung: Linie mit Name, Länge und Rohranlage; Schächte, Sondagen, Werklöcher, Einführungen, Flächen mit Name */
         var lb = opt.labels(M, { len: effLen, slope: function (pts) { return SLOPE && !!slopeHz(pts, M.lines); }, area: area }), put = function (ll, t, cls, ang) { if (t) L.marker(ll, { interactive: false, keyboard: false, zIndexOffset: -500, icon: L.divIcon({ className: "kmlbl " + cls, html: "<span" + (ang != null ? ' style="--a:' + ang + 'deg"' : "") + ">" + esc(t) + "</span>", iconSize: [0, 0] }) }).addTo(grp); };
         M.lines.forEach(function (l, i) { if (l.pts.length < 2) return; var bj = 1, bd = -1; for (var j = 1; j < l.pts.length; j++) { var dd = AD.dist(l.pts[j - 1], l.pts[j]) || Math.hypot(l.pts[j][0] - l.pts[j - 1][0], l.pts[j][1] - l.pts[j - 1][1]); if (dd > bd) { bd = dd; bj = j; } }
@@ -1716,6 +1716,62 @@
     function cell(label, el) { var d = document.createElement("div"); d.className = "kmc"; var l = document.createElement("span"); l.textContent = label; d.appendChild(l); d.appendChild(el); return d; }
     function inp(label, val, cls, on, txt) { var n = document.createElement("input"); n.type = "text"; if (!txt) n.inputMode = "decimal"; n.className = cls; n.value = val; n.setAttribute("aria-label", label); n.addEventListener("input", function () { on(n.value); }); return n; }
     function head(r, title, rid) { var t = document.createElement("div"); t.className = "kmt"; t.innerHTML = "<b>" + esc(title) + "</b>" + (rid === undefined ? "" : " · " + (rid ? '<span class="kmlnk">→ ' + esc(opt.recName(rid) || tt("km_new")) + "</span>" : '<span class="kmlnk">' + esc(tt("km_new")) + "</span>")); r.appendChild(t); return t; }
+    /* UX-Runde 11/2026 P1: Startkarte bei leerem Projekt (nur Karte, nicht Plan) – Ortssuche (geo.admin wie die Kopfsuche, dazu LV95/WGS-Koordinaten),
+       3 Vorlagen (aktivieren nur das passende Werkzeug, keine Mengen), Beispielprojekt, Projekt laden. Verschwindet beim ersten Objekt oder Werkzeug; Esc/× blendet aus. */
+    var stEl = null, stOff = false, stMoved = false;
+    function mEmpty() { return !(M.lines.length || M.pts.length || M.sond.length || M.notes.length || M.areas.length || M.wl.length || M.geb.length || ovl); }
+    function coordParse(q) {
+      var n = String(q).replace(/[’'`]/g, "").match(/-?\d+(?:[.,]\d+)?/g); if (!n || n.length !== 2) return null; var a = parseFloat(n[0].replace(",", ".")), b = parseFloat(n[1].replace(",", "."));
+      if (a > 2400000 && a < 2900000 && b > 1050000 && b < 1320000) { var w = toWGS(a, b); return { lat: w[0], lon: w[1], label: "E " + Math.round(a).toLocaleString("de-CH") + " / N " + Math.round(b).toLocaleString("de-CH"), z: 19 }; }
+      if (b > 2400000 && b < 2900000 && a > 1050000 && a < 1320000) return coordParse(b + " " + a);
+      if (a > 45.5 && a < 48.2 && b > 5.5 && b < 11) return { lat: a, lon: b, label: a.toFixed(5) + ", " + b.toFixed(5), z: 19 };
+      if (b > 45.5 && b < 48.2 && a > 5.5 && a < 11) return { lat: b, lon: a, label: b.toFixed(5) + ", " + a.toFixed(5), z: 19 };
+      return null;
+    }
+    function geoHits(q, lim) {   /* Ortssuche: Koordinate direkt, sonst geo.admin-Suchdienst (wie bisher) */
+      var c = coordParse(q); if (c) return Promise.resolve([c]);
+      return fetch(SEARCH + "?type=locations&limit=" + (lim || 8) + "&sr=2056&lang=" + (opt.lang || "de") + "&searchText=" + encodeURIComponent(q))
+        .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+        .then(function (j) { return (j.results || []).filter(function (r) { return r.attrs && isFinite(r.attrs.lat) && isFinite(r.attrs.lon); }).map(function (r) { return { lat: r.attrs.lat, lon: r.attrs.lon, label: String(r.attrs.label || "").replace(/<[^>]*>/g, ""), z: 18 }; }); });
+    }
+    function geoList(ul, q, after) {   /* Treffer als Knöpfe; Wahl → Zoom ≥ 17 */
+      ul.innerHTML = '<li class="kmnote">' + esc(tt("km_searching")) + "</li>";
+      geoHits(q).then(function (hits) {
+        ul.innerHTML = hits.length ? "" : '<li class="kmnote">' + esc(tt("km_none")) + "</li>";
+        hits.forEach(function (h) { var li = document.createElement("li"), b = document.createElement("button"); b.type = "button"; b.className = "kmhit"; b.textContent = h.label;
+          b.addEventListener("click", function () { stMoved = true; map.setView([h.lat, h.lon], Math.max(17, h.z || 18)); ul.innerHTML = ""; if (after) after(h); $("#kmMap").focus(); }); li.appendChild(b); ul.appendChild(li); });
+      })["catch"](function () { ul.innerHTML = '<li class="kmnote err">' + esc(tt("km_searchErr")) + "</li>"; });
+    }
+    function startView() {   /* leeres Projekt: Ort aus den Projektangaben, sonst zuletzt benutzter Ausschnitt (UI-Einstellung lvd-km-view, nicht im Projekt) */
+      try { var lv = JSON.parse(localStorage.getItem("lvd-km-view") || "null"); if (lv && isFinite(lv.lat) && isFinite(lv.lng) && lv.z >= 9) map.setView([lv.lat, lv.lng], lv.z, { animate: false }); } catch (e) { }
+      var ort = String(opt.ort || "").trim(); if (ort) geoHits(ort, 1).then(function (h) { if (h[0] && !stMoved && mEmpty()) map.setView([h[0].lat, h[0].lon], 16, { animate: false }); })["catch"](function () { });
+    }
+    function stPos() {   /* im sichtbaren Kartenbereich zentrieren (Karte liegt in Layout A unter Kopf- und Multifunktionsleiste) */
+      if (!stEl) return; var host = stEl.parentNode, tp = topPad(), av = host.clientHeight - tp; stEl.style.maxHeight = Math.max(160, av - 24) + "px";
+      stEl.style.top = tp + Math.max(12, Math.round((av - stEl.offsetHeight) / 2)) + "px";
+    }
+    function stHide(user) { if (!stEl) return; var f = stEl.contains(document.activeElement); stEl.remove(); stEl = null; if (user) stOff = true; if (f) { var m0 = $("#kmMap"); if (m0) m0.focus(); } }
+    function stCheck() { if (stEl && (!mEmpty() || (mode && mode !== "edit"))) stHide(false); }
+    function stShow() {
+      if (plan || stOff || stEl || !mEmpty() || !opt.start || window.__LVD_START_OFF) return; var mp = $("#kmMap"); if (!mp) return;   /* Testhilfe: ältere Tests ohne Startkarte */
+      var V = [["haus", "mgeb", "M3 10.5L10 4l7 6.5V17H3z M8 17v-4h4v4"], ["graben", "mline", "M2 15L8 9l4 3 6-6 M2 17h16"], ["wl", "mwl", "M4 6h12v9H4z M4 9.5h12"]];
+      var c = stEl = document.createElement("section"); c.className = "kmstart"; c.setAttribute("aria-labelledby", "kmStT");
+      c.innerHTML = '<button type="button" class="kmst-x" data-st="x" aria-label="' + esc(tt("st_close")) + '" title="' + esc(tt("st_close")) + ' (Esc)">×</button>' +
+        '<h2 id="kmStT">' + esc(tt("st_title")) + "</h2>" +
+        '<form class="kmst-s" role="search"><label for="kmStQ">' + esc(tt("st_where")) + '</label><div class="kmst-sr"><input type="search" id="kmStQ" autocomplete="off" placeholder="' + esc(tt("st_ph")) + '"><button type="submit" class="btn small kmst-go"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="kmst-gt">' + esc(tt("st_go")) + '</span></button></div><ul class="kmhits" id="kmStHits" aria-label="' + esc(tt("km_hits")) + '"></ul></form>' +
+        '<p class="kmst-l" id="kmStV">' + esc(tt("st_what")) + '</p><div class="kmst-v" role="group" aria-labelledby="kmStV">' + V.map(function (v) { return '<button type="button" class="kmst-b" data-st="' + v[0] + '" data-stk="' + v[1] + '"><svg viewBox="0 0 20 20" width="22" height="22" aria-hidden="true" focusable="false"><path d="' + v[2] + '" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg><b>' + esc(tt("st_v_" + v[0])) + "</b><span>" + esc(tt("st_v_" + v[0] + "S")) + "</span></button>"; }).join("") + "</div>" +
+        '<div class="kmst-f"><button type="button" class="btn ghost small" data-st="demo">' + esc(tt("st_demo")) + '</button><button type="button" class="btn ghost small" data-st="load">' + esc(tt("st_load")) + '</button><input type="file" accept=".json,application/json" hidden aria-hidden="true" tabindex="-1"></div>';
+      mp.parentNode.appendChild(c); L.DomEvent.disableClickPropagation(c); L.DomEvent.disableScrollPropagation(c); stPos(); setTimeout(stPos, 120); setTimeout(stPos, 600); window.addEventListener("resize", stPos);
+      var fi = c.querySelector("input[type=file]");
+      c.querySelector("form").addEventListener("submit", function (e) { e.preventDefault(); var q = c.querySelector("#kmStQ").value.trim(); if (q) geoList(c.querySelector("#kmStHits"), q); });
+      c.addEventListener("click", function (e) { var b = e.target.closest("[data-st]"); if (!b) return; var k = b.getAttribute("data-st");
+        if (k === "x") stHide(true);
+        else if (k === "demo") { close(); opt.start.demo(); }
+        else if (k === "load") fi.click();
+        else { var t = $("[data-k=" + b.getAttribute("data-stk") + "]"); stHide(true); if (t) t.click(); toast(dlg, tt("st_v_" + k + "H")); } });
+      fi.addEventListener("change", function () { var f = fi.files && fi.files[0]; if (!f) return; close(); opt.start.load(f); });
+      if (!(window.matchMedia && window.matchMedia("(pointer:coarse)").matches)) setTimeout(function () { var q = c.querySelector("#kmStQ"); if (q && stEl) q.focus(); }, 0);
+    }
     /* V145: Fotodokumentation – Fotos an Objekten (Schacht/Deckelanpassung, Abzweiger, Linie, Werkloch, Gebäudeeinführung, Sondage, Fläche)
        und freie Fotopunkte (Kamerazeichen auf der Karte; «Foto hier» am GPS-Standort oder per Rechtsklick). Nur Karte, nicht Plan.
        Bild verkleinert im Gerätespeicher (FOTO), Angaben sofort im Projekt (opt.foto) – unabhängig von «Übernehmen». */
@@ -2131,6 +2187,7 @@
       ["pointermove", "pointerup", "pointercancel"].forEach(function (n) { mp.addEventListener(n, function (e) { if (n === "pointermove" && p0 && Math.hypot(e.clientX - p0.x, e.clientY - p0.y) < 10) return; clearTimeout(tm); }); });
       dlg.addEventListener("pointerdown", function (e) { var m = $("#kmCtx"); if (m && !m.hidden && !m.contains(e.target)) ctxHide(); });
       dlg.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && stEl) { e.preventDefault(); e.stopPropagation(); stHide(true); return; }
         if (e.key === "Escape" && !$("#kmCtx").hidden) { e.preventDefault(); e.stopPropagation(); ctxHide(); mp.focus(); return; }
         if ((e.key === "ContextMenu" || (e.shiftKey && e.key === "F10")) && e.target === mp) { e.preventDefault(); ctxT = Date.now(); var sz = map.getSize(); ctxOpenAt(L.point(sz.x / 2, sz.y / 2)); }
       });
@@ -3556,22 +3613,7 @@
     });
     if (bs) { fillBase(); avRow(); bs.addEventListener("change", function () { try { if (bs.value !== "viewer") localStorage.setItem("lvd-km-base", bs.value); } catch (e) { } setBase(bs.value); }); }
     var sf = $(".kmsearch");
-    if (sf) sf.addEventListener("submit", function (e) {
-      e.preventDefault(); var q = $("#kmQ").value.trim(), ul = $("#kmHits"); if (!q) return;
-      ul.innerHTML = '<li class="kmnote">' + esc(tt("km_searching")) + "</li>";
-      fetch(SEARCH + "?type=locations&limit=8&sr=2056&lang=" + (opt.lang || "de") + "&searchText=" + encodeURIComponent(q))
-        .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-        .then(function (j) {
-          var hits = (j.results || []).filter(function (r) { return r.attrs && isFinite(r.attrs.lat) && isFinite(r.attrs.lon); });
-          ul.innerHTML = hits.length ? "" : '<li class="kmnote">' + esc(tt("km_none")) + "</li>";
-          hits.forEach(function (r) {
-            var li = document.createElement("li"), b = document.createElement("button"); b.type = "button"; b.className = "kmhit";
-            b.textContent = String(r.attrs.label || "").replace(/<[^>]*>/g, "");
-            b.addEventListener("click", function () { map.setView([r.attrs.lat, r.attrs.lon], 18); ul.innerHTML = ""; $("#kmMap").focus(); });
-            li.appendChild(b); ul.appendChild(li);
-          });
-        }).catch(function () { ul.innerHTML = '<li class="kmnote err">' + esc(tt("km_searchErr")) + "</li>"; });
-    });
+    if (sf) sf.addEventListener("submit", function (e) { e.preventDefault(); var q = $("#kmQ").value.trim(); if (q) geoList($("#kmHits"), q); });   /* Ortssuche (auch Koordinaten), Treffer → Zoom ≥ 17 */
     /* Route von Adresse zu Adresse (Fussweg, OpenStreetMap-Routing): erzeugt eine editierbare Linie als Vorschlag.
        Start/Ziel auch als Kartenpunkt (📍): Fang auf Schacht (Linie wird angeschlossen) oder Leitungsende; ohne Route wird eine gerade Linie angeboten. */
     var rtPickFn = null;
@@ -3724,8 +3766,10 @@
       $("#kmOvR").addEventListener("change", function (e) { var v = num2(e.target.value); if (ovl && isFinite(v)) { ov0 = JSON.stringify(ovl); ovl.rot = v; ovDraw(); } });
       $("#kmOvS").addEventListener("change", function (e) { var v = num2(e.target.value); if (ovl && v > 0) { ov0 = JSON.stringify(ovl); ovl.mpp = v; ovl.auto = 0; ovDraw(); } });
     }
-    hzSeed(); wsLate(); dlg.showModal(); map.invalidateSize(); if (opt.view && opt.view.c) map.setView(opt.view.c, opt.view.z, { animate: false }); else fitAll(); ovDraw(); refresh(); if (opt.edited) lyEdited = true;
-    if (!plan && opt.autoPlan && !ovl && opt.planImg && opt.planImg.img) { $("#kmOvPlan").click(); } (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
+    hzSeed(); wsLate(); dlg.showModal(); map.invalidateSize(); if (opt.view && opt.view.c) map.setView(opt.view.c, opt.view.z, { animate: false }); else if (!plan && mEmpty()) startView(); else fitAll(); ovDraw(); refresh(); if (opt.edited) lyEdited = true;
+    if (!plan) { stShow(); var vT = null, vSave = function () { clearTimeout(vT); try { if (!dlg.open) return; var c0 = map.getCenter(); if (map.getZoom() >= 9) localStorage.setItem("lvd-km-view", JSON.stringify({ lat: +c0.lat.toFixed(6), lng: +c0.lng.toFixed(6), z: map.getZoom() })); } catch (e) { } };   /* letzter Kartenausschnitt (UI-Einstellung, nicht im Projekt) */
+      map.on("dragstart", function () { stMoved = true; }); map.on("moveend", function () { clearTimeout(vT); vT = setTimeout(vSave, 250); }); window.addEventListener("pagehide", vSave); dlg.addEventListener("close", function () { window.removeEventListener("pagehide", vSave); }); }
+    if (!plan && opt.autoPlan && !ovl && opt.planImg && opt.planImg.img) { $("#kmOvPlan").click(); } if (!stEl) (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
   }
 
   /* V145 Machbarkeit: Linien durch Gebäude aus dem gespeicherten Bodenbedeckungs-Ergebnis (amtliche Vermessung) – ohne neue Abfrage */
