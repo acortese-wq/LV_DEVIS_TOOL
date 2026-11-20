@@ -1929,7 +1929,7 @@
   function urlLang(l) { try { if (!/^https?:$/.test(location.protocol)) return; var u = new URL(location.href); u.searchParams.set("lang", l); history.replaceState(null, "", u.pathname + u.search + u.hash); } catch (e) { } }
   function applyLang() { var thb0 = $("#bTheme"); if (thb0) { thb0.setAttribute("aria-label", tt("ly_themeD")); thb0.title = tt("ly_themeD"); }
     document.documentElement.lang = S.lang;
-    $("#t-title").textContent = tt("title"); var wms = $("#t-wmsub"); if (wms) { wms.textContent = tt("wm_sub"); wms.parentNode.parentNode.setAttribute("aria-label", "NIUcost – " + tt("wm_sub")); } document.title = tt("title"); var lyb0 = $("#bLyMap"); if (lyb0) { lyb0.textContent = tt("ly_btn"); lyb0.title = tt("ly_btnT"); } $("#t-sub").textContent = tt("sub"); var ti = $("#t-intro"); if (ti) { ti.textContent = tt("intro"); $("#t-contact").textContent = tt("contact") + " →"; $("#t-impr").textContent = tt("impr"); $("#t-imprC").textContent = tt("imprC"); $("#bPriv").textContent = tt("imprP"); $("#t-imprN").textContent = tt("imprN"); $("#morePrint").textContent = tt("morePrint"); }
+    $("#t-title").textContent = tt("title"); var wms = $("#t-wmsub"); if (wms) { wms.textContent = tt("wm_sub"); wms.parentNode.parentNode.setAttribute("aria-label", "NIUcost – " + tt("wm_sub")); } document.title = tt("title"); var lyb0 = $("#bLyMap"); if (lyb0) { lyb0.textContent = tt("ly_btn"); lyb0.title = tt("ly_btnT"); } $("#t-sub").textContent = tt("sub"); var ti = $("#t-intro"); if (ti) { ti.textContent = tt("intro"); $("#t-contact").textContent = tt("contact") + " →"; $("#t-impr").textContent = tt("impr"); $("#t-imprC").textContent = tt("imprC"); $("#bPriv").textContent = tt("imprP"); $("#t-imprN").textContent = tt("imprN"); $("#sExp").textContent = tt("exp_menu"); $("#sFile").textContent = tt("file_menu"); }
     seoLang(); var tcr = $("#t-creator"); if (tcr) tcr.textContent = tt("km_cred"); $("#t-role").textContent = tt("creatorRole");
     KOPF.forEach(function (k) { $("#l_" + k[0]).textContent = tt(k[1]); }); $("#l_rolle").textContent = tt("rolle"); $("#l_belagLief").textContent = tt("dv_belagLief");
     var r = $("#p_rolle"); r.innerHTML = ""; ["bhv", "aqm", "pl", "bl", "anv", "plan", "and"].forEach(function (v) { var o = document.createElement("option"); o.value = v; o.textContent = tt("r_" + v); r.appendChild(o); }); r.value = S.kopf.rolle;
@@ -2038,6 +2038,12 @@
     $("#bXlsx").onclick = function () { download(fname("xlsx"), xlsxBytes(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); };
     $("#bSave").onclick = saveJson;
     $("#bLoad").onclick = function () { $("#fileIn").click(); };
+    [].slice.call(document.querySelectorAll(".resbar .morep")).forEach(function (d) {   /* UX-Runde P8: Menüs «Exportieren ▾» / «Datei ▾» – Wahl schliesst das Menü, nur eines offen, Esc und Klick daneben schliessen */
+      d.addEventListener("toggle", function () { if (d.open) [].slice.call(document.querySelectorAll(".resbar .morep[open]")).forEach(function (o) { if (o !== d) o.open = false; }); });
+      d.addEventListener("click", function (e) { if (e.target.closest(".morep-b button")) d.open = false; });
+      d.addEventListener("keydown", function (e) { if (e.key === "Escape" && d.open) { e.preventDefault(); d.open = false; d.querySelector("summary").focus(); } });
+    });
+    document.addEventListener("click", function (e) { [].slice.call(document.querySelectorAll(".resbar .morep[open]")).forEach(function (o) { if (!o.contains(e.target)) o.open = false; }); });
     $("#bNew").onclick = function () {   /* Handlungsfreiheit: kein Bestätigungsdialog, dafür «Rückgängig» (stellt das ganze Projekt wieder her) */
       var full = JSON.stringify(S), had = hasContent(), l = S.lang; S = defaults(); S.lang = l; heal(); save(); applyKopf(); applyLang();
       if (had) KARTE.toast(document.body, tt("newDone"), tt("km_undoBtn"), function () { S = JSON.parse(full); heal(); save(); applyKopf(); applyLang(); renderForm(); renderResult(); });

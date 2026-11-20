@@ -63,7 +63,7 @@ const URL0 = process.env.LVD_URL || INDEX;
   ok(back.ok && !back.img, 'Laden der Sicherung legt die Bilder wieder im Gerät ab (nicht im Projektzustand)');
   // 5) Rolle AQM + Machbarkeitsbericht
   await pg.evaluate(() => { const S = window.__LVD.S(); S.kopf.bearb = 'M. Muster'; S.kopf.rolle = 'aqm'; });
-  const openRp = async () => { await pg.evaluate(() => { const b0 = document.querySelector('[data-ly=rep], #rpOpen'); if (b0) b0.click(); }); await pg.waitForTimeout(300); if (!(await pg.locator('#reportDlg[open]').count())) { await pg.locator('button', { hasText: 'Projektbericht' }).first().click().catch(() => { }); await pg.waitForTimeout(500); } };
+  const openRp = async () => { await pg.evaluate(() => { const b0 = document.querySelector('[data-ly=rep], #rpOpen'); if (b0) b0.click(); }); await pg.waitForTimeout(300); if (!(await pg.locator('#reportDlg[open]').count())) { await pg.click('#sExp').catch(() => { }); await pg.click('#bReport').catch(() => { }); await pg.waitForTimeout(500); } };
   await openRp(); ok(await pg.locator('#reportDlg[open]').count() === 1, 'Berichtsdialog offen');
   ok(await pg.locator('#reportDlg input[data-rp=foto]').isChecked(), 'Inhalt «Fotodokumentation» vorgewählt');
   await pg.check('#reportDlg input[name=rpa][value=mb]');

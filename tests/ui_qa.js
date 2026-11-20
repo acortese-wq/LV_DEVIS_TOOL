@@ -31,9 +31,9 @@ const res = []; const T = (name, st, info) => { res.push([name, st, info || ''])
     await pg.fill('#f_graben_L', "1'200"); await pg.waitForTimeout(400); T("Zahl mit Apostroph «1'200» wird markiert", (await pg.locator('#f_graben_L.bad,#f_graben_L[aria-invalid=true]').count()) ? 'BESTANDEN' : 'NICHT ANWENDBAR', 'siehe CLAUDE.md');
     await pg.fill('#f_graben_L', ''); await pg.waitForTimeout(400); T('Leere Eingabe: kein Absturz', pg.errs.length ? 'FEHLGESCHLAGEN' : 'BESTANDEN');
     await pg.fill('#f_graben_L', '84.2'); await pg.waitForTimeout(500); await pg.reload(); T('Datenerhalt nach Neuladen', (await pg.inputValue('#f_graben_L')) === '84.2' ? 'BESTANDEN' : 'FEHLGESCHLAGEN');
-    const [d1] = await Promise.all([pg.waitForEvent('download'), pg.click('#bSave')]); const f = path.join(os.tmpdir(), 'qa.json'); await d1.saveAs(f);
+    const [d1] = await Promise.all([pg.waitForEvent('download'), pg.click('#sFile').then(() => pg.click('#bSave'))]); const f = path.join(os.tmpdir(), 'qa.json'); await d1.saveAs(f);
     const j = JSON.parse(fs.readFileSync(f, 'utf8')); T('JSON-Sicherung enthält Daten', j.data && j.data.recs ? 'BESTANDEN' : 'FEHLGESCHLAGEN');
-    const [d2] = await Promise.all([pg.waitForEvent('download'), pg.click('#bXlsx')]); const g = path.join(os.tmpdir(), 'qa.xlsx'); await d2.saveAs(g); T('Excel-Export (xlsx, PK-Header)', fs.readFileSync(g).slice(0, 2).toString() === 'PK' ? 'BESTANDEN' : 'FEHLGESCHLAGEN');
+    const [d2] = await Promise.all([pg.waitForEvent('download'), pg.click('#sExp').then(() => pg.click('#bXlsx'))]); const g = path.join(os.tmpdir(), 'qa.xlsx'); await d2.saveAs(g); T('Excel-Export (xlsx, PK-Header)', fs.readFileSync(g).slice(0, 2).toString() === 'PK' ? 'BESTANDEN' : 'FEHLGESCHLAGEN');
     await pg.click('#bNew'); await pg.waitForTimeout(500); T('Neues Projekt setzt zurück', (await pg.inputValue('#f_graben_L')) === '' ? 'BESTANDEN' : 'FEHLGESCHLAGEN');
     await pg.setInputFiles('#fileIn', f); await pg.waitForTimeout(800); T('JSON-Laden stellt Daten wieder her', (await pg.inputValue('#f_graben_L')) === '84.2' ? 'BESTANDEN' : 'FEHLGESCHLAGEN');
     T('Keine JS-Fehler im Ablauf', pg.errs.length ? 'FEHLGESCHLAGEN' : 'BESTANDEN', pg.errs.join('|')); await pg.close(); }

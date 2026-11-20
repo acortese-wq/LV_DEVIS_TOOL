@@ -950,7 +950,9 @@
         (function () {   /* UX-Runde P7: Handy – höchstens 3 Kennzahlen (Kosten exkl./inkl., Länge), Tipp auf die Leiste oder ▾ zeigt alle */
           var kp = bar.querySelector("#lyKpi"), ka = E("button", "btn ghost small lykall", '<span aria-hidden="true">▾</span>'); ka.type = "button"; ka.setAttribute("aria-controls", "lyKpi"); ka.setAttribute("aria-expanded", "false"); ka.setAttribute("aria-label", tt("ly_kAll")); ka.title = tt("ly_kAll"); bar.appendChild(ka);
           var tog = function () { var o = !kp.classList.contains("all"); kp.classList.toggle("all", o); ka.setAttribute("aria-expanded", o ? "true" : "false"); ka.firstChild.textContent = o ? "▴" : "▾"; };
-          ka.addEventListener("click", tog); kp.addEventListener("click", function (e) { if (e.target.closest("button")) return; if (window.matchMedia && window.matchMedia("(max-width:860px)").matches) tog(); });
+          ka.addEventListener("click", tog);
+          if (opt.start) { var ldb = E("button", "btn ghost small", esc(tt("btnLoad"))); ldb.type = "button"; ldb.hidden = true; ldb.setAttribute("data-k", "ldjson"); var ldi = document.createElement("input"); ldi.type = "file"; ldi.accept = ".json,application/json"; ldi.hidden = true; ldi.tabIndex = -1; ldi.setAttribute("aria-hidden", "true");   /* UX-Runde P8: «Laden (JSON)» in der Ausgabe von Layout A */
+            dlg.appendChild(ldb); dlg.appendChild(ldi); ldb.addEventListener("click", function () { ldi.value = ""; ldi.click(); }); ldi.addEventListener("change", function () { var f = ldi.files && ldi.files[0]; if (f) { close(); opt.start.load(f); } }); } kp.addEventListener("click", function (e) { if (e.target.closest("button")) return; if (window.matchMedia && window.matchMedia("(max-width:860px)").matches) tog(); });
         })();
         bar.querySelector("#lyProj").textContent = LY.proj || tt("ly_noProj"); bar.querySelector("#lyOrt").textContent = LY.ort || "–";
         var DT = [["prof", "ly_tProf"], ["aus", "ly_tAus"], ["kost", "ly_tKost"], ["pos", "ly_tPos"], ["offen", "ly_tOffen"], ["warn", "ly_tWarn"]], dock = E("section", "lydock"); dock.setAttribute("aria-label", tt("ly_dock"));
@@ -974,7 +976,7 @@
         (function () {   /* Multifunktionsleiste (Ribbon) wie in CAD/Civil-Programmen: Register mit Gruppen über der Zeichenfläche. Ergänzung – jeder Knopf löst den bestehenden
                             Befehl aus (kein neuer Zustand, keine Funktion verschoben). Minimierbar (lvd-ribbon), nur ab 861 px. */
           var T0 = "#kmToolsBody ", K = function (k) { return T0 + "[data-k=" + k + "]"; }, O = function (k) { return T0 + "[data-eop=" + k + "]"; }, D = function (t) { return "#lyT_" + t; };
-          var G = { medit: "✥", mline: "╱", mpt: "▣", mabz: "Y", avfl: "▦", mwl: "◫", mgeb: "⌂", route: "↝", msond: "◎", marea: "▱", mtext: "T", marrow: "➚", msline: "〰", mrect: "▭", mruler: "📏", undo: "↶", redo: "↷", end: "■", clear: "✕", dxfin: "⇪", save: "💾", apply: "✔" };
+          var G = { ldjson: "⇩", medit: "✥", mline: "╱", mpt: "▣", mabz: "Y", avfl: "▦", mwl: "◫", mgeb: "⌂", route: "↝", msond: "◎", marea: "▱", mtext: "T", marrow: "➚", msline: "〰", mrect: "▭", mruler: "📏", undo: "↶", redo: "↷", end: "■", clear: "✕", dxfin: "⇪", save: "💾", apply: "✔" };
           var TABS = [
             ["start", [["rb_pSel", [K("medit")]], ["rb_pDraw", [K("mline"), K("mpt"), K("mgeb"), K("route")]], ["rb_pEdit", [K("undo"), K("redo")]]]],
             ["draw", [["rb_pLine", [K("mline"), K("end"), K("route")]], ["rb_pObj", [K("mpt"), K("mabz"), K("mwl"), K("mgeb"), K("msond"), K("marea"), K("avfl")]]]],
@@ -982,19 +984,19 @@
             ["ann", [["rb_pAnn", [K("mtext"), K("marrow"), K("msline"), K("mrect")]], ["rb_pMeas", [K("mruler")]]]],
             ["ins", [["rb_pImp", [K("dxfin")]], ["rb_pLay", [".lynav .kmmidtog"]]]],
             ["an", [["rb_pEval", [D("prof"), D("aus"), D("kost"), D("pos"), D("offen"), D("warn")]], ["rb_pProf", ["[data-pfb]"]]]],
-            ["out", [["rb_pRes", [".lynav [data-ly=res]", ".lynav [data-ly=rep]", ".lynav [data-ly=rec]", ".lynav [data-ly=proj]"]]]],
+            ["out", [["rb_pPrint", ["#bPrint"]], ["rb_pExp", ["#bXlsx", "#bReport", "#bPrintFull", "#bPrintSum"]], ["rb_pFile", ["#bSave", "[data-k=ldjson]"]]]],   /* UX-Runde P8: gleiche Gruppierung wie die klassische Seite */
             ["view", [["rb_pMap", [".lybtn", ".lysbtn"]], ["rb_pShow", ["[data-k=lbl]", "[data-k=band]", "[data-k=pit]", "[data-k=bend]", "[data-k=v3d]"]], ["rb_pWin", [".nc-theme", ".lycmdk-b", "[data-hpk]"]]]]
           ];
           var rb = E("section", "lyrb"); rb.setAttribute("aria-label", tt("rb_label"));
           var cur = "start", min = window.__LVD_RIBBON_DEFAULT === "min", minE = dlg.classList.contains("nc-m-e");   /* UX-Runde P3: im Modus «Einfach» minimiert */ try { var sv = JSON.parse(localStorage.getItem("lvd-ribbon") || "null"); if (sv && typeof sv === "object") { if (TABS.some(function (t) { return t[0] === sv.t; })) cur = sv.t; min = !!sv.m; } } catch (e) { } if (minE) min = true;
-          var tgt = function (s) { return dlg.querySelector(s); };
+          var tgt = function (s) { return dlg.querySelector(s) || (/^#b/.test(s) ? document.querySelector(".resbar " + s) : null); };   /* Ausgabe: Knöpfe der Seite (Drucken, Exportieren, Datei) */
           var labOf = function (b) { var a = b.getAttribute("aria-label"); if (a && !/[›_]/.test(a)) return a.replace(/\s*\(Strg\+K\)$/, ""); var t = ""; b.childNodes.forEach(function (n) { if (n.nodeType === 3) t += n.textContent; else if (n.nodeType === 1 && !n.hasAttribute("aria-hidden") && n.tagName !== "KBD" && n.tagName !== "svg") t += n.textContent; }); return t.replace(/\s*\(\d+\)\s*$/, "").replace(/\s+/g, " ").trim() || b.title || ""; };
           var build = function () {
             var h = '<div class="lyrb-t"><div class="lyrb-tl" role="tablist" aria-label="' + esc(tt("rb_label")) + '">' + TABS.map(function (t) { return '<button type="button" role="tab" id="lyRT_' + t[0] + '" aria-controls="lyRP_' + t[0] + '" aria-selected="' + (t[0] === cur ? "true" : "false") + '" tabindex="' + (t[0] === cur ? 0 : -1) + '" data-rbt="' + t[0] + '">' + esc(tt("rb_" + t[0])) + "</button>"; }).join("") + "</div>" +
               '<button type="button" class="lyrb-min" data-rbmin aria-expanded="' + (min ? "false" : "true") + '" aria-label="' + esc(tt("rb_min")) + '" title="' + esc(tt("rb_min")) + ' (Strg+F1)">' + (min ? "▾" : "▴") + "</button></div>";
             TABS.forEach(function (t) {
               h += '<div class="lyrb-p" role="tabpanel" id="lyRP_' + t[0] + '" aria-labelledby="lyRT_' + t[0] + '"' + (t[0] === cur && !min ? "" : " hidden") + ">" + t[1].map(function (g) {
-                var bs = g[1].map(function (s) { var b = tgt(s); if (!b) return ""; var k = b.getAttribute("data-k") || "", ic = G[k] || ""; return '<button type="button" class="lyrb-b" data-rb="' + esc(s) + '"><span class="lyrb-i" aria-hidden="true">' + (ic || "•") + '</span><span class="lyrb-l">' + esc(labOf(b)) + "</span></button>"; }).join("");
+                var bs = g[1].map(function (s) { var b = tgt(s); if (!b) return ""; var k = b.getAttribute("data-k") || "", ic = G[k] || ({ bPrint: "⎙", bXlsx: "▤", bReport: "▧", bPrintFull: "⎘", bPrintSum: "▭", bSave: "💾" })[b.id] || ""; return '<button type="button" class="lyrb-b" data-rb="' + esc(s) + '"><span class="lyrb-i" aria-hidden="true">' + (ic || "•") + '</span><span class="lyrb-l">' + esc(labOf(b)) + "</span></button>"; }).join("");
                 return bs ? '<div class="lyrb-g" role="group" aria-label="' + esc(tt(g[0])) + '"><div class="lyrb-gb">' + bs + '</div><div class="lyrb-gt" aria-hidden="true">' + esc(tt(g[0])) + "</div></div>" : ""; }).join("") + "</div>";
             });
             rb.innerHTML = h; sync();

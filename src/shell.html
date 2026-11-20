@@ -107,13 +107,14 @@
       <div class="kpi no-print" id="kpi" aria-live="polite"></div>
       <div class="resbar no-print">
         <button type="button" class="btn" id="bPrint"></button>
+        <details class="morep" id="mExp"><summary class="btn ghost" id="sExp"></summary><div class="morep-b">
+        <button type="button" class="btn ghost" id="bXlsx"></button>
         <button type="button" class="btn ghost" id="bReport"></button>
-        <details class="morep"><summary class="btn ghost" id="morePrint"></summary><div class="morep-b">
         <button type="button" class="btn ghost" id="bPrintFull"></button>
         <button type="button" class="btn ghost" id="bPrintSum"></button></div></details>
-        <button type="button" class="btn ghost" id="bXlsx"></button>
+        <details class="morep" id="mFile"><summary class="btn ghost" id="sFile"></summary><div class="morep-b">
         <button type="button" class="btn ghost" id="bSave"></button>
-        <button type="button" class="btn ghost" id="bLoad"></button>
+        <button type="button" class="btn ghost" id="bLoad"></button></div></details>
         <input type="file" id="fileIn" accept=".json,application/json">
       </div>
       <div id="result" tabindex="-1"></div>

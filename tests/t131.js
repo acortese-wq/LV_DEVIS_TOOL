@@ -6,7 +6,7 @@ const K = require('./lib/k.js'), { chromium, ok, mk } = K;
   await pg.route('**/*', r => /wmts|wms\.geo|api3|SearchServer|cadastral|3d\.geo/.test(r.request().url()) ? r.fulfill({ status: 204 }) : r.fallback());
   await pg.evaluate(() => { window.__LVD.loadDemo(); window.print = () => { window.__printed = 1; }; }); await pg.waitForTimeout(1200);
   const open = async () => { await pg.evaluate(() => { const b0 = document.querySelector('[data-ly=rep], #rpOpen'); if (b0) b0.click(); else window.__LVD.report && window.__LVD.report(); }); await pg.waitForTimeout(500); };
-  await pg.locator('button', { hasText: 'Projektbericht' }).first().click().catch(() => { }); await pg.waitForTimeout(600);
+  await pg.click('#sExp').catch(() => { }); await pg.click('#bReport').catch(() => { }); await pg.waitForTimeout(600);
   if (!(await pg.locator('#reportDlg[open]').count())) await open();
   ok(await pg.locator('#reportDlg input[data-rp=dia]').isChecked(), 'Berichtsdialog: «Kostenübersicht (Kreisdiagramme)» vorgewählt');
   await pg.click('#rpGo'); await pg.waitForTimeout(1500);
@@ -23,7 +23,7 @@ const K = require('./lib/k.js'), { chromium, ok, mk } = K;
   ok(/vor Rabatt und MWST, ohne Ingenieurhonorar/.test(R.basis), 'Basis genannt');
   ok(R.idx >= 0 && R.idx <= 1, 'Abschnitt direkt nach den Projektangaben (vor Situation): ' + R.secs.slice(0, 3).join(' | '));
   // abwählbar
-  await pg.locator('button', { hasText: 'Projektbericht' }).first().click().catch(() => { }); await pg.waitForTimeout(500); if (!(await pg.locator('#reportDlg[open]').count())) await open();
+  await pg.click('#sExp').catch(() => { }); await pg.click('#bReport').catch(() => { }); await pg.waitForTimeout(500); if (!(await pg.locator('#reportDlg[open]').count())) await open();
   await pg.uncheck('#reportDlg input[data-rp=dia]'); await pg.click('#rpGo'); await pg.waitForTimeout(1200);
   ok((await pg.locator('#reportDoc .rp-kdia').count()) === 0, 'ohne Häkchen kein Diagramm-Abschnitt');
   ok(pg.errs.length === 0, 'keine JS-Fehler ' + pg.errs.join('|'));

@@ -112,3 +112,19 @@ Test: `t139` (neu).
 | nachher, «Mehr» gescrollt | | ![](ux-runde/p7b-nachher-390.png) |
 
 Test: `t140` (neu): 360/390 px ohne Seitenüberlauf und ohne sich überdeckende Bedienelemente (Rechtecke aller sichtbaren Knöpfe, Felder und Hinweise in Karte, «Mehr», «Werkzeuge», «Auswertung», mit und ohne Startkarte), Kennzahlen, Beschriftungen, Zeichenhilfen, Tooltip. `ui_qa` (360/390) grün.
+
+## P8 – Export-Knöpfe ordnen
+
+**Für die Benutzer:** Statt sieben gleichwertiger Knöpfe gibt es einen Hauptknopf «Drucken / PDF» und daneben zwei Menüs:
+- «Exportieren ▾»: Excel exportieren, Projektbericht (Druck/PDF), Ausführlich drucken (alle Rechenwege), Kurzausdruck (1 Seite)
+- «Datei ▾»: Sichern (JSON), Laden (JSON)
+
+Eine Wahl schliesst das Menü. Es ist immer nur ein Menü offen, Esc und ein Klick daneben schliessen es (Fokus zurück auf den Menüknopf). In Layout A zeigt das Register «Ausgabe» der Multifunktionsleiste dieselben Gruppen «Drucken», «Exportieren», «Datei». Excel, Bericht und Sichern arbeiten aus dem Arbeitsplatz heraus, «Laden (JSON)» öffnet das geladene Projekt wieder in der Karte.
+
+| | Desktop 1440 px | Handy 390 px |
+|---|---|---|
+| vorher | ![](ux-runde/p8-vorher-1440.png) | ![](ux-runde/p8-vorher-390.png) |
+| nachher (Menü «Exportieren» offen) | ![](ux-runde/p8-nachher-1440.png) | ![](ux-runde/p8-nachher-390.png) |
+| nachher Layout A, Register «Ausgabe» | ![](ux-runde/p8b-nachher-1440.png) | |
+
+Test: `t141` (neu). Angepasst: Tests öffnen zuerst das Menü «Exportieren»/«Datei» (`t58`, `t64`, `t66`, `t70`, `t73`, `t75`, `t122`, `t131`, `t133`, `ui_qa`).

@@ -2865,13 +2865,14 @@ svg.leaflet-image-layer.leaflet-interactive path {
       <div class="kpi no-print" id="kpi" aria-live="polite"></div>
       <div class="resbar no-print">
         <button type="button" class="btn" id="bPrint"></button>
+        <details class="morep" id="mExp"><summary class="btn ghost" id="sExp"></summary><div class="morep-b">
+        <button type="button" class="btn ghost" id="bXlsx"></button>
         <button type="button" class="btn ghost" id="bReport"></button>
-        <details class="morep"><summary class="btn ghost" id="morePrint"></summary><div class="morep-b">
         <button type="button" class="btn ghost" id="bPrintFull"></button>
         <button type="button" class="btn ghost" id="bPrintSum"></button></div></details>
-        <button type="button" class="btn ghost" id="bXlsx"></button>
+        <details class="morep" id="mFile"><summary class="btn ghost" id="sFile"></summary><div class="morep-b">
         <button type="button" class="btn ghost" id="bSave"></button>
-        <button type="button" class="btn ghost" id="bLoad"></button>
+        <button type="button" class="btn ghost" id="bLoad"></button></div></details>
         <input type="file" id="fileIn" accept=".json,application/json">
       </div>
       <div id="result" tabindex="-1"></div>
@@ -4420,6 +4421,11 @@ TS.en = {
     imprP: ["Datenschutz", "Confidentialité", "Privacy", "Privacy"],
     imprN: [" · Private Webseite; die Inhalte sind keine Stellungnahme eines Arbeitgebers.", " · Site privé ; les contenus ne sont pas une prise de position d'un employeur.", " · Sito privato; i contenuti non sono una presa di posizione di un datore di lavoro.", " · Private website; the content is not a statement by any employer."],
     morePrint: ["Weitere Ausdrucke", "Autres impressions", "Altre stampe", "More printouts"],
+    exp_menu: ["Exportieren", "Exporter", "Esportare", "Export"],
+    file_menu: ["Datei", "Fichier", "File", "File"],
+    rb_pPrint: ["Drucken", "Imprimer", "Stampare", "Print"],
+    rb_pExp: ["Exportieren", "Exporter", "Esportare", "Export"],
+    rb_pFile: ["Datei", "Fichier", "File", "File"],
     sub: ["Kostenvoranschlag nach Bauteilen – LV Swisscom Infrastrukturarbeiten bei Baukooperationen (V1.1, 10.07.2026).",
           "Devis par éléments – LV Swisscom travaux d'infrastructure lors de coopérations de construction (V1.1, 10.07.2026).",
           "Preventivo per elementi – LV Swisscom lavori d'infrastruttura in cooperazioni edili (V1.1, 10.07.2026).",
@@ -8602,7 +8608,9 @@ var FOTO = (function () {
         (function () {   /* UX-Runde P7: Handy – höchstens 3 Kennzahlen (Kosten exkl./inkl., Länge), Tipp auf die Leiste oder ▾ zeigt alle */
           var kp = bar.querySelector("#lyKpi"), ka = E("button", "btn ghost small lykall", '<span aria-hidden="true">▾</span>'); ka.type = "button"; ka.setAttribute("aria-controls", "lyKpi"); ka.setAttribute("aria-expanded", "false"); ka.setAttribute("aria-label", tt("ly_kAll")); ka.title = tt("ly_kAll"); bar.appendChild(ka);
           var tog = function () { var o = !kp.classList.contains("all"); kp.classList.toggle("all", o); ka.setAttribute("aria-expanded", o ? "true" : "false"); ka.firstChild.textContent = o ? "▴" : "▾"; };
-          ka.addEventListener("click", tog); kp.addEventListener("click", function (e) { if (e.target.closest("button")) return; if (window.matchMedia && window.matchMedia("(max-width:860px)").matches) tog(); });
+          ka.addEventListener("click", tog);
+          if (opt.start) { var ldb = E("button", "btn ghost small", esc(tt("btnLoad"))); ldb.type = "button"; ldb.hidden = true; ldb.setAttribute("data-k", "ldjson"); var ldi = document.createElement("input"); ldi.type = "file"; ldi.accept = ".json,application/json"; ldi.hidden = true; ldi.tabIndex = -1; ldi.setAttribute("aria-hidden", "true");   /* UX-Runde P8: «Laden (JSON)» in der Ausgabe von Layout A */
+            dlg.appendChild(ldb); dlg.appendChild(ldi); ldb.addEventListener("click", function () { ldi.value = ""; ldi.click(); }); ldi.addEventListener("change", function () { var f = ldi.files && ldi.files[0]; if (f) { close(); opt.start.load(f); } }); } kp.addEventListener("click", function (e) { if (e.target.closest("button")) return; if (window.matchMedia && window.matchMedia("(max-width:860px)").matches) tog(); });
         })();
         bar.querySelector("#lyProj").textContent = LY.proj || tt("ly_noProj"); bar.querySelector("#lyOrt").textContent = LY.ort || "–";
         var DT = [["prof", "ly_tProf"], ["aus", "ly_tAus"], ["kost", "ly_tKost"], ["pos", "ly_tPos"], ["offen", "ly_tOffen"], ["warn", "ly_tWarn"]], dock = E("section", "lydock"); dock.setAttribute("aria-label", tt("ly_dock"));
@@ -8626,7 +8634,7 @@ var FOTO = (function () {
         (function () {   /* Multifunktionsleiste (Ribbon) wie in CAD/Civil-Programmen: Register mit Gruppen über der Zeichenfläche. Ergänzung – jeder Knopf löst den bestehenden
                             Befehl aus (kein neuer Zustand, keine Funktion verschoben). Minimierbar (lvd-ribbon), nur ab 861 px. */
           var T0 = "#kmToolsBody ", K = function (k) { return T0 + "[data-k=" + k + "]"; }, O = function (k) { return T0 + "[data-eop=" + k + "]"; }, D = function (t) { return "#lyT_" + t; };
-          var G = { medit: "✥", mline: "╱", mpt: "▣", mabz: "Y", avfl: "▦", mwl: "◫", mgeb: "⌂", route: "↝", msond: "◎", marea: "▱", mtext: "T", marrow: "➚", msline: "〰", mrect: "▭", mruler: "📏", undo: "↶", redo: "↷", end: "■", clear: "✕", dxfin: "⇪", save: "💾", apply: "✔" };
+          var G = { ldjson: "⇩", medit: "✥", mline: "╱", mpt: "▣", mabz: "Y", avfl: "▦", mwl: "◫", mgeb: "⌂", route: "↝", msond: "◎", marea: "▱", mtext: "T", marrow: "➚", msline: "〰", mrect: "▭", mruler: "📏", undo: "↶", redo: "↷", end: "■", clear: "✕", dxfin: "⇪", save: "💾", apply: "✔" };
           var TABS = [
             ["start", [["rb_pSel", [K("medit")]], ["rb_pDraw", [K("mline"), K("mpt"), K("mgeb"), K("route")]], ["rb_pEdit", [K("undo"), K("redo")]]]],
             ["draw", [["rb_pLine", [K("mline"), K("end"), K("route")]], ["rb_pObj", [K("mpt"), K("mabz"), K("mwl"), K("mgeb"), K("msond"), K("marea"), K("avfl")]]]],
@@ -8634,19 +8642,19 @@ var FOTO = (function () {
             ["ann", [["rb_pAnn", [K("mtext"), K("marrow"), K("msline"), K("mrect")]], ["rb_pMeas", [K("mruler")]]]],
             ["ins", [["rb_pImp", [K("dxfin")]], ["rb_pLay", [".lynav .kmmidtog"]]]],
             ["an", [["rb_pEval", [D("prof"), D("aus"), D("kost"), D("pos"), D("offen"), D("warn")]], ["rb_pProf", ["[data-pfb]"]]]],
-            ["out", [["rb_pRes", [".lynav [data-ly=res]", ".lynav [data-ly=rep]", ".lynav [data-ly=rec]", ".lynav [data-ly=proj]"]]]],
+            ["out", [["rb_pPrint", ["#bPrint"]], ["rb_pExp", ["#bXlsx", "#bReport", "#bPrintFull", "#bPrintSum"]], ["rb_pFile", ["#bSave", "[data-k=ldjson]"]]]],   /* UX-Runde P8: gleiche Gruppierung wie die klassische Seite */
             ["view", [["rb_pMap", [".lybtn", ".lysbtn"]], ["rb_pShow", ["[data-k=lbl]", "[data-k=band]", "[data-k=pit]", "[data-k=bend]", "[data-k=v3d]"]], ["rb_pWin", [".nc-theme", ".lycmdk-b", "[data-hpk]"]]]]
           ];
           var rb = E("section", "lyrb"); rb.setAttribute("aria-label", tt("rb_label"));
           var cur = "start", min = window.__LVD_RIBBON_DEFAULT === "min", minE = dlg.classList.contains("nc-m-e");   /* UX-Runde P3: im Modus «Einfach» minimiert */ try { var sv = JSON.parse(localStorage.getItem("lvd-ribbon") || "null"); if (sv && typeof sv === "object") { if (TABS.some(function (t) { return t[0] === sv.t; })) cur = sv.t; min = !!sv.m; } } catch (e) { } if (minE) min = true;
-          var tgt = function (s) { return dlg.querySelector(s); };
+          var tgt = function (s) { return dlg.querySelector(s) || (/^#b/.test(s) ? document.querySelector(".resbar " + s) : null); };   /* Ausgabe: Knöpfe der Seite (Drucken, Exportieren, Datei) */
           var labOf = function (b) { var a = b.getAttribute("aria-label"); if (a && !/[›_]/.test(a)) return a.replace(/\s*\(Strg\+K\)$/, ""); var t = ""; b.childNodes.forEach(function (n) { if (n.nodeType === 3) t += n.textContent; else if (n.nodeType === 1 && !n.hasAttribute("aria-hidden") && n.tagName !== "KBD" && n.tagName !== "svg") t += n.textContent; }); return t.replace(/\s*\(\d+\)\s*$/, "").replace(/\s+/g, " ").trim() || b.title || ""; };
           var build = function () {
             var h = '<div class="lyrb-t"><div class="lyrb-tl" role="tablist" aria-label="' + esc(tt("rb_label")) + '">' + TABS.map(function (t) { return '<button type="button" role="tab" id="lyRT_' + t[0] + '" aria-controls="lyRP_' + t[0] + '" aria-selected="' + (t[0] === cur ? "true" : "false") + '" tabindex="' + (t[0] === cur ? 0 : -1) + '" data-rbt="' + t[0] + '">' + esc(tt("rb_" + t[0])) + "</button>"; }).join("") + "</div>" +
               '<button type="button" class="lyrb-min" data-rbmin aria-expanded="' + (min ? "false" : "true") + '" aria-label="' + esc(tt("rb_min")) + '" title="' + esc(tt("rb_min")) + ' (Strg+F1)">' + (min ? "▾" : "▴") + "</button></div>";
             TABS.forEach(function (t) {
               h += '<div class="lyrb-p" role="tabpanel" id="lyRP_' + t[0] + '" aria-labelledby="lyRT_' + t[0] + '"' + (t[0] === cur && !min ? "" : " hidden") + ">" + t[1].map(function (g) {
-                var bs = g[1].map(function (s) { var b = tgt(s); if (!b) return ""; var k = b.getAttribute("data-k") || "", ic = G[k] || ""; return '<button type="button" class="lyrb-b" data-rb="' + esc(s) + '"><span class="lyrb-i" aria-hidden="true">' + (ic || "•") + '</span><span class="lyrb-l">' + esc(labOf(b)) + "</span></button>"; }).join("");
+                var bs = g[1].map(function (s) { var b = tgt(s); if (!b) return ""; var k = b.getAttribute("data-k") || "", ic = G[k] || ({ bPrint: "⎙", bXlsx: "▤", bReport: "▧", bPrintFull: "⎘", bPrintSum: "▭", bSave: "💾" })[b.id] || ""; return '<button type="button" class="lyrb-b" data-rb="' + esc(s) + '"><span class="lyrb-i" aria-hidden="true">' + (ic || "•") + '</span><span class="lyrb-l">' + esc(labOf(b)) + "</span></button>"; }).join("");
                 return bs ? '<div class="lyrb-g" role="group" aria-label="' + esc(tt(g[0])) + '"><div class="lyrb-gb">' + bs + '</div><div class="lyrb-gt" aria-hidden="true">' + esc(tt(g[0])) + "</div></div>" : ""; }).join("") + "</div>";
             });
             rb.innerHTML = h; sync();
@@ -13535,7 +13543,7 @@ var FOTO = (function () {
   function urlLang(l) { try { if (!/^https?:$/.test(location.protocol)) return; var u = new URL(location.href); u.searchParams.set("lang", l); history.replaceState(null, "", u.pathname + u.search + u.hash); } catch (e) { } }
   function applyLang() { var thb0 = $("#bTheme"); if (thb0) { thb0.setAttribute("aria-label", tt("ly_themeD")); thb0.title = tt("ly_themeD"); }
     document.documentElement.lang = S.lang;
-    $("#t-title").textContent = tt("title"); var wms = $("#t-wmsub"); if (wms) { wms.textContent = tt("wm_sub"); wms.parentNode.parentNode.setAttribute("aria-label", "NIUcost – " + tt("wm_sub")); } document.title = tt("title"); var lyb0 = $("#bLyMap"); if (lyb0) { lyb0.textContent = tt("ly_btn"); lyb0.title = tt("ly_btnT"); } $("#t-sub").textContent = tt("sub"); var ti = $("#t-intro"); if (ti) { ti.textContent = tt("intro"); $("#t-contact").textContent = tt("contact") + " →"; $("#t-impr").textContent = tt("impr"); $("#t-imprC").textContent = tt("imprC"); $("#bPriv").textContent = tt("imprP"); $("#t-imprN").textContent = tt("imprN"); $("#morePrint").textContent = tt("morePrint"); }
+    $("#t-title").textContent = tt("title"); var wms = $("#t-wmsub"); if (wms) { wms.textContent = tt("wm_sub"); wms.parentNode.parentNode.setAttribute("aria-label", "NIUcost – " + tt("wm_sub")); } document.title = tt("title"); var lyb0 = $("#bLyMap"); if (lyb0) { lyb0.textContent = tt("ly_btn"); lyb0.title = tt("ly_btnT"); } $("#t-sub").textContent = tt("sub"); var ti = $("#t-intro"); if (ti) { ti.textContent = tt("intro"); $("#t-contact").textContent = tt("contact") + " →"; $("#t-impr").textContent = tt("impr"); $("#t-imprC").textContent = tt("imprC"); $("#bPriv").textContent = tt("imprP"); $("#t-imprN").textContent = tt("imprN"); $("#sExp").textContent = tt("exp_menu"); $("#sFile").textContent = tt("file_menu"); }
     seoLang(); var tcr = $("#t-creator"); if (tcr) tcr.textContent = tt("km_cred"); $("#t-role").textContent = tt("creatorRole");
     KOPF.forEach(function (k) { $("#l_" + k[0]).textContent = tt(k[1]); }); $("#l_rolle").textContent = tt("rolle"); $("#l_belagLief").textContent = tt("dv_belagLief");
     var r = $("#p_rolle"); r.innerHTML = ""; ["bhv", "aqm", "pl", "bl", "anv", "plan", "and"].forEach(function (v) { var o = document.createElement("option"); o.value = v; o.textContent = tt("r_" + v); r.appendChild(o); }); r.value = S.kopf.rolle;
@@ -13644,6 +13652,12 @@ var FOTO = (function () {
     $("#bXlsx").onclick = function () { download(fname("xlsx"), xlsxBytes(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); };
     $("#bSave").onclick = saveJson;
     $("#bLoad").onclick = function () { $("#fileIn").click(); };
+    [].slice.call(document.querySelectorAll(".resbar .morep")).forEach(function (d) {   /* UX-Runde P8: Menüs «Exportieren ▾» / «Datei ▾» – Wahl schliesst das Menü, nur eines offen, Esc und Klick daneben schliessen */
+      d.addEventListener("toggle", function () { if (d.open) [].slice.call(document.querySelectorAll(".resbar .morep[open]")).forEach(function (o) { if (o !== d) o.open = false; }); });
+      d.addEventListener("click", function (e) { if (e.target.closest(".morep-b button")) d.open = false; });
+      d.addEventListener("keydown", function (e) { if (e.key === "Escape" && d.open) { e.preventDefault(); d.open = false; d.querySelector("summary").focus(); } });
+    });
+    document.addEventListener("click", function (e) { [].slice.call(document.querySelectorAll(".resbar .morep[open]")).forEach(function (o) { if (!o.contains(e.target)) o.open = false; }); });
     $("#bNew").onclick = function () {   /* Handlungsfreiheit: kein Bestätigungsdialog, dafür «Rückgängig» (stellt das ganze Projekt wieder her) */
       var full = JSON.stringify(S), had = hasContent(), l = S.lang; S = defaults(); S.lang = l; heal(); save(); applyKopf(); applyLang();
       if (had) KARTE.toast(document.body, tt("newDone"), tt("km_undoBtn"), function () { S = JSON.parse(full); heal(); save(); applyKopf(); applyLang(); renderForm(); renderResult(); });

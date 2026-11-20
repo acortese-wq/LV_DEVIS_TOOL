@@ -31,7 +31,7 @@ const fs = require('fs'), path = require('path'), vm = require('vm');
   const k = await A.evaluate(() => JSON.parse(localStorage.getItem('lv-devis-tiefbau-v2')).kopf);
   ok(k.projekt === 'Projekt A' && k.ort === 'Chur' && k.bearb === 'A. Cortese', 'abwechselnd in zwei Tabs gearbeitet: nichts geht verloren ' + JSON.stringify({ p: k.projekt, o: k.ort, b: k.bearb }));
   // 3) Konflikt: Tab B hat einen offenen Dialog → Hinweis, kein stilles Überschreiben
-  await B.click('#bReport'); await B.waitForTimeout(500);
+  await B.click('#sExp'); await B.click('#bReport'); await B.waitForTimeout(500);
   await set(A, '#p_sap', '4711'); await A.waitForTimeout(700);
   const ban = B.locator('.tabsync[role=alert]'); ok(await ban.count() === 1 && await ban.isVisible(), 'Tab mit offenem Dialog: Hinweis «in anderem Fenster geändert»');
   await B.evaluate(() => { const d = document.querySelector('dialog[open]'); if (d) d.close(); });

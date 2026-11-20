@@ -36,7 +36,7 @@ const { execFileSync } = require('child_process'), fs = require('fs');
   const xt = execFileSync('python3', ['-c', 'import zipfile,sys;z=zipfile.ZipFile(sys.argv[1]);print("".join(z.read(n).decode("utf8","ignore") for n in z.namelist() if n.endswith(".xml")))', xf]).toString();
   ok(/Nicht im Total: \d+ offene/.test(xt) && /darin eigene Preise ausserhalb LV/.test(xt) && /Eigener Preis \(ausserhalb LV\)/.test(xt), 'Excel: Kostenblatt mit beiden Hinweisen, Zeile als eigener Preis');
   // Projektbericht (Totale)
-  await pg.click('#bReport'); await pg.waitForSelector('#reportDlg[open]'); await pg.check('#reportDlg input[value=total]'); await pg.click('#rpGo'); await pg.waitForTimeout(500);
+  await pg.click('#sExp'); await pg.click('#bReport'); await pg.waitForSelector('#reportDlg[open]'); await pg.check('#reportDlg input[value=total]'); await pg.click('#rpGo'); await pg.waitForTimeout(500);
   const rt = await pg.textContent('#reportDoc'); ok(/Offene Positionen \(nicht im Total\)/.test(rt) && /Eigene Preise \(ausserhalb LV\)/.test(rt) && /Nicht im Total:/.test(rt), 'Projektbericht: Totale und Kosten nennen offene und eigene Preise');
   await pg.evaluate(() => { document.body.classList.remove('report-print'); const d = document.getElementById('reportDoc'); if (d) d.remove(); });
   // Rückgängig über den Hinweis

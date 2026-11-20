@@ -16,8 +16,8 @@ const K = require('./lib/k.js'), { chromium, ok, mk, INDEX } = K;
   await pg.click('#bPriv'); await pg.waitForTimeout(500);
   const hp = await pg.evaluate(() => (document.querySelector('dialog[open]') || {}).textContent || ''); ok(/GitHub Pages/.test(hp) && /jsDelivr/.test(hp) && /routing\.openstreetmap\.de/.test(hp), 'Datenschutz nennt Hosting und alle nachgeladenen Dienste');
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);
-  ok(await pg.isHidden('#bPrintFull'), 'Druckvarianten im Menü «Weitere Ausdrucke» (zugeklappt)');
-  await pg.click('#morePrint'); await pg.waitForTimeout(150); ok(await pg.isVisible('#bPrintFull') && await pg.isVisible('#bPrintSum'), 'Menü öffnet «Ausführlich» und «Kurzausdruck»');
+  ok(await pg.isHidden('#bPrintFull'), 'Druckvarianten im Menü «Exportieren» (zugeklappt)');
+  await pg.click('#sExp'); await pg.waitForTimeout(150); ok(await pg.isVisible('#bPrintFull') && await pg.isVisible('#bPrintSum'), 'Menü öffnet «Ausführlich» und «Kurzausdruck»');
   // Schacht rechnen: kein Link auf interne Ablage
   await pg.evaluate(() => window.__LVD.loadDemo()); await pg.waitForTimeout(1200); await pg.click('[data-tab=schacht]'); await pg.waitForTimeout(600);
   ok((await pg.evaluate(() => document.documentElement.innerHTML.indexOf('swisscom.sharepoint.com') < 0 || ![...document.querySelectorAll('a')].some(a => /sharepoint/.test(a.href)))), 'Öffentliche Version verlinkt keine interne SharePoint-Ablage');

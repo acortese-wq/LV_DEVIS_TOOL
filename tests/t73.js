@@ -83,7 +83,7 @@ const PL = (l, pts) => ['0', 'POLYLINE', '8', l, '66', '1', '70', '0'].concat(pt
   const K = await pg.evaluate(() => { const k = window.__LVD.S().karte; return { n: k.dxf && k.dxf.it.length, on: k.dxf && k.dxf.lay.Beschrift.on }; });
   ok(K.n === 9 && K.on === true, 'nach «Übernehmen»: DXF-Hintergrund mit Layerstand im Projekt gespeichert');
   await pg.evaluate(() => { window.print = () => { window.__p = (window.__p || 0) + 1; }; });
-  await pg.click('#bReport'); await pg.waitForTimeout(800); await pg.click('#rpGo');
+  await pg.click('#sExp'); await pg.click('#bReport'); await pg.waitForTimeout(800); await pg.click('#rpGo');
   for (let t = 0; t < 30 && !(await pg.evaluate(() => window.__p)); t++) await pg.waitForTimeout(250);
   const rp = await pg.evaluate(() => { const g = document.querySelector('#reportDoc .rpmapfig svg .dxfbg'); return g ? { pl: g.querySelectorAll('polyline').length, tx: g.querySelectorAll('text').length } : null; });
   ok(rp && rp.pl >= 5, 'Projektbericht: DXF-Hintergrund in der Karte (' + JSON.stringify(rp) + ')');

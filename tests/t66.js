@@ -4,7 +4,7 @@ const { execSync } = require('child_process');
 (async () => {
   const b = await chromium.launch(); const pg = await mk(b, 1400, 1000);
   await pg.evaluate(() => { window.print = () => { window.__p = (window.__p || 0) + 1; }; window.__LVD.loadDemo(); }); await pg.waitForTimeout(1500);
-  await pg.click('#bReport'); await pg.waitForTimeout(800); await pg.click('#rpGo'); await pg.waitForTimeout(1500);
+  await pg.click('#sExp'); await pg.click('#bReport'); await pg.waitForTimeout(800); await pg.click('#rpGo'); await pg.waitForTimeout(1500);
   for (let t = 0; t < 30 && !(await pg.evaluate(() => window.__p)); t++) await pg.waitForTimeout(250);
   ok(await pg.evaluate(() => window.__p) === 1, 'Druck startet (nach dem Laden des Kartenhintergrunds)');
   const r = await pg.evaluate(() => { const d = document.querySelector('#reportDoc'), f = d.querySelector('.rp-map .rpmapfig svg'), K = window.__LVD.S().karte;

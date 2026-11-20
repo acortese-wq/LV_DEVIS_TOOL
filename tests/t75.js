@@ -55,7 +55,7 @@ const dxf = (ents) => ['0', 'SECTION', '2', 'ENTITIES'].concat(ents.flat(), ['0'
   ok(L.A.c === '#7b2cbf' && L.B.c === '#ff8800' && !L.A.fc, '«Originalfarben» stellt den Ausgangszustand wieder her');
   await pg.fill('#kmDxfB [data-dxc="A"]', '#cc0000'); await pg.dispatchEvent('#kmDxfB [data-dxc="A"]', 'change'); await pg.waitForTimeout(200);
   await pg.click('[data-k=apply]'); await pg.waitForTimeout(1200);
-  await pg.evaluate(() => { window.print = () => { window.__p = 1; }; }); await pg.click('#bReport'); await pg.waitForTimeout(800); await pg.click('#rpGo');
+  await pg.evaluate(() => { window.print = () => { window.__p = 1; }; }); await pg.click('#sExp'); await pg.click('#bReport'); await pg.waitForTimeout(800); await pg.click('#rpGo');
   for (let t = 0; t < 30 && !(await pg.evaluate(() => window.__p)); t++) await pg.waitForTimeout(250);
   const st = await pg.evaluate(() => [...document.querySelectorAll('#reportDoc .dxfbg polyline')].map(p => p.getAttribute('stroke')));
   ok(st.includes('#cc0000') && st.includes('#ff0000'), 'Bericht zeigt die gewählten Farben (' + [...new Set(st)].join(', ') + ')');

@@ -1,7 +1,7 @@
 const {chromium,ok,mk,getS}=require('./lib/k.js');
 (async()=>{const b=await chromium.launch(); const pg=await mk(b,1600,1000);
 await pg.evaluate(()=>{window.print=()=>{window.__printed=(window.__printed||0)+1;}; window.__LVD.loadDemo();}); await pg.waitForTimeout(1500);
-await pg.click('#bReport'); await pg.waitForSelector('#reportDlg[open]'); ok(await pg.locator('#reportDlg input[name=rpm]').count()===2,'Berichts-Dialog mit Gliederung');
+await pg.click('#sExp'); await pg.click('#bReport'); await pg.waitForSelector('#reportDlg[open]'); ok(await pg.locator('#reportDlg input[name=rpm]').count()===2,'Berichts-Dialog mit Gliederung');
 await pg.addScriptTag({path:require('./lib/k.js').AXE}); const ax=await pg.evaluate(()=>axe.run(document.querySelector('#reportDlg')).then(r=>r.violations.map(v=>v.id))); ok(ax.length===0,'axe Dialog '+JSON.stringify(ax));
 await pg.check('#reportDlg input[value=total]'); await pg.click('#rpGo'); await pg.waitForTimeout(500);
 let t=await pg.textContent('#reportDoc'); ok(await pg.evaluate(()=>window.__printed)===1,'Druckdialog ausgelöst');
@@ -11,7 +11,7 @@ ok(rows.some(r=>/^Schächte \| 5/.test(r))&&rows.some(r=>/^Aushub total.*\| 187.
 ok(!/Aufstellung nach Elementen/.test(t)&&/Zusammenfassung nach Kapitel/.test(t),'Total-Modus ohne Abschnitte, mit Zusammenfassung');
 await pg.pdf({path:require('./lib/k.js').tmp('rp_total.pdf'),format:'A4'});
 await pg.evaluate(()=>{document.body.classList.remove('report-print');(document.getElementById('reportDoc')||{remove(){}}).remove();});
-await pg.click('#bReport'); await pg.waitForSelector('#reportDlg[open]'); await pg.check('#reportDlg input[value=abschnitte]'); await pg.click('#rpGo'); await pg.waitForTimeout(500);
+await pg.click('#sExp'); await pg.click('#bReport'); await pg.waitForSelector('#reportDlg[open]'); await pg.check('#reportDlg input[value=abschnitte]'); await pg.click('#rpGo'); await pg.waitForTimeout(500);
 t=await pg.textContent('#reportDoc'); ok(/Aufstellung nach Elementen/.test(t)&&await pg.locator('#reportDoc h3').count()>=4,'Abschnitts-Modus: je Element eine Tabelle');
 ok(/Kosten/.test(t)&&/Annahmen/.test(t),'Kosten und Annahmen enthalten');
 await pg.pdf({path:require('./lib/k.js').tmp('rp_abs.pdf'),format:'A4'});
