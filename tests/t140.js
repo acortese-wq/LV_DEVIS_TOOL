@@ -18,12 +18,14 @@ const OVL = () => {
 (async () => {
   const b = await chromium.launch(), errs = [];
   for (const w of [360, 390]) {
-    for (const start of [false, true]) {
+    for (const start of [false, true, 'demo']) {
       const ctx = await b.newContext({ viewport: { width: w, height: 800 }, isMobile: true, hasTouch: true }); const pg = await ctx.newPage(); pg.on('pageerror', e => errs.push(e.message)); pg.on('dialog', d => d.accept());
-      await pg.addInitScript(s => { localStorage.setItem('lvd-layout', 'a'); if (!s) window.__LVD_START_OFF = 1; }, start);
+      await pg.addInitScript(s => { localStorage.setItem('lvd-layout', 'a'); if (s !== true) window.__LVD_START_OFF = 1; if (s === 'demo' && !sessionStorage.getItem('d')) { sessionStorage.setItem('d', '1'); localStorage.setItem('lvd-layout', 'classic'); } }, start);
       await pg.route('**/*', STUB); await pg.goto(process.env.LVD_URL || INDEX); await pg.waitForTimeout(2500);
+      if (start === 'demo') { await pg.evaluate(() => window.__LVD.loadDemo()); await pg.waitForTimeout(1200); await pg.evaluate(() => localStorage.setItem('lvd-layout', 'a')); await pg.click('#bLyMap'); await pg.waitForTimeout(2500); }
       const res = {}; for (const sh of ['', 'more', 'tools', 'dock']) { if (sh) { await pg.evaluate(s => window.__LYMOB.show(s), sh); await pg.waitForTimeout(500); } res[sh || 'karte'] = await pg.evaluate(OVL); }
-      ok(Object.values(res).every(r => r.out.length === 0 && !r.ov), w + ' px' + (start ? ' mit Startkarte' : '') + ': keine Überdeckung, kein Überlauf ' + JSON.stringify(Object.fromEntries(Object.entries(res).map(([k, r]) => [k, r.n + (r.out.length ? ' ' + r.out.join(',') : '')]))));
+      ok(Object.values(res).every(r => r.out.length === 0 && !r.ov && !r.clip.length), w + ' px' + (start === true ? ' mit Startkarte' : start === 'demo' ? ' mit Beispielprojekt' : '') + ': keine Überdeckung, kein Überlauf ' + JSON.stringify(Object.fromEntries(Object.entries(res).map(([k, r]) => [k, r.n + (r.out.length ? ' ' + r.out.join(',') : '')]))));
+      if (start === 'demo') { await pg.evaluate(() => window.__LYMOB.show('')); await pg.waitForTimeout(300); const ov2 = await pg.evaluate(() => { const r = [...document.querySelectorAll('.lybar .lyc, .lybar .lykall, .lybar .lyp')].filter(e => e.offsetParent && getComputedStyle(e).display !== 'none').map(e => e.getBoundingClientRect()); let n = 0; for (let i = 0; i < r.length; i++) for (let j = i + 1; j < r.length; j++) { if (Math.min(r[i].right, r[j].right) - Math.max(r[i].left, r[j].left) > 2 && Math.min(r[i].bottom, r[j].bottom) - Math.max(r[i].top, r[j].top) > 2) n++; } return n; }); ok(ov2 === 0, w + ' px Beispielprojekt: Kennzahlen, ▾ und Status überlappen nicht'); }
       if (!start) {
         await pg.evaluate(() => window.__LYMOB.show('')); await pg.waitForTimeout(300);
         const k = await pg.evaluate(() => { const p = document.querySelector('#lyKpi'); const vis = [...p.children].filter(c => c.offsetParent && getComputedStyle(c).display !== 'none').sort((x, y) => x.getBoundingClientRect().left - y.getBoundingClientRect().left); return { n: vis.length, keys: vis.map(c => c.className.replace(/lyc|lymain|\s/g, '')), clip: [...p.querySelectorAll('.lyc, .lyc *')].filter(e => e.offsetParent && e.scrollWidth > e.clientWidth + 1).length, txt: vis.map(c => c.querySelector('.lyk').innerText.trim()).join(' | ') }; });

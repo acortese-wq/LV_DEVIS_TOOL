@@ -128,3 +128,17 @@ Eine Wahl schliesst das Menü. Es ist immer nur ein Menü offen, Esc und ein Kli
 | nachher Layout A, Register «Ausgabe» | ![](ux-runde/p8b-nachher-1440.png) | |
 
 Test: `t141` (neu). Angepasst: Tests öffnen zuerst das Menü «Exportieren»/«Datei» (`t58`, `t64`, `t66`, `t70`, `t73`, `t75`, `t122`, `t131`, `t133`, `ui_qa`).
+
+Nachtrag P7: Mit Beispielwerten (sechsstellige Beträge) lag der Knopf ▾ auf 360/390 px über der Kennzahl «Länge». Die Kennzahlenleiste bricht jetzt um (Kennzahlen · ▾ · Status in eigener Zeile); `t140` prüft zusätzlich das Beispielprojekt.
+
+## P11 – Explorer-Kontextmenü
+
+**Für die Benutzer:** Ein Objekt im Explorer (Leitung, Schacht, Hauseinführung …) hat ein Kontextmenü mit «Auf Karte zeigen», «Eigenschaften», «Umbenennen», «Duplizieren» und «Löschen». Es öffnet sich mit Rechtsklick, mit der Kontextmenütaste bzw. Umschalt+F10 und neu auf dem Handy/Tablet mit **langem Druck (550 ms)**. Bewegt sich der Finger mehr als 8 px (Scrollen), öffnet sich nichts. «Löschen» fragt nicht mehr mit einem Bestätigungsdialog nach, sondern löscht sofort und zeigt die Meldung «… gelöscht» mit «Rückgängig»; «Rückgängig» stellt das Objekt mit Namen und Lage wieder her.
+
+| | Desktop 1440 px | Handy 390 px |
+|---|---|---|
+| nachher (Menü offen) | ![](ux-runde/p11-nachher-1440.png) | ![](ux-runde/p11-nachher-390.png) |
+
+Das Menü selbst bestand schon (Rechtsklick); neu sind der lange Druck und das Löschen ohne `confirm()`. Kein Vorher-Bild, weil sich das Menü auf dem Handy bisher nicht öffnen liess.
+
+Test: `t142` (neu): Rechtsklick, kurzer Druck öffnet nichts, langer Druck öffnet das Menü, Umbenennen, Duplizieren, Löschen ohne Dialog mit «Rückgängig». Angepasst: `t82` (Befehlsleiste ›_ jetzt im Blatt «Mehr»).

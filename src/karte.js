@@ -1115,6 +1115,15 @@
             var d = b.closest("details[data-exg]"); if (d) { var g = d.getAttribute("data-exg").replace(/^o_/, ""); if (M[g]) cmShow(x, y, (b.querySelector("span") || b).textContent, grpItems(g), b); }
           };
           ex.addEventListener("contextmenu", function (e) { var b = e.target.closest("[data-exsel],summary"); if (!b) return; e.preventDefault(); openCm(b, e.clientX, e.clientY); });
+          (function () {   /* UX-Runde P11: langer Druck (Touch/Stift, 550 ms) öffnet dasselbe Menü; Bewegung > 8 px bricht ab, der folgende Klick wählt nicht zusätzlich aus */
+            var lp = null, eat = false;
+            ex.addEventListener("pointerdown", function (e) { if (e.pointerType === "mouse") return; var b = e.target.closest("[data-exsel],summary"); if (!b) return; var x0 = e.clientX, y0 = e.clientY;
+              lp = { b: b, x: x0, y: y0, t: setTimeout(function () { if (!lp) return; eat = true; openCm(b, x0, y0); if (navigator.vibrate) try { navigator.vibrate(12); } catch (er) { } lp = null; }, 550) }; });
+            var cancel = function (e) { if (!lp) return; if (e && e.type === "pointermove" && Math.hypot(e.clientX - lp.x, e.clientY - lp.y) <= 8) return; clearTimeout(lp.t); lp = null; };
+            ex.addEventListener("pointermove", cancel); ex.addEventListener("pointerup", cancel); ex.addEventListener("pointercancel", cancel);
+            ex.addEventListener("click", function (e) { if (eat) { eat = false; e.preventDefault(); e.stopImmediatePropagation(); } }, true);
+            ex.addEventListener("contextmenu", function (e) { if (eat || lp) e.preventDefault(); }, true);   /* Browsermenü beim langen Druck unterdrücken */
+          })();
           ex.addEventListener("keydown", function (e) {
             var inp = e.target.closest && e.target.closest("[data-exren]");
             if (inp) { if (e.key === "Enter") { e.preventDefault(); commitRen(inp, true); } else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); exRen = null; exRender(); var r0 = ex.querySelector('[data-exsel="' + inp.getAttribute("data-exren") + '"]'); if (r0) r0.focus(); } return; }

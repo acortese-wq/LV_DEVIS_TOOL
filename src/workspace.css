@@ -521,3 +521,7 @@ h3{letter-spacing:-.008em;line-height:1.25}
 @media (max-width:860px){.kmdlg .kmcanvas:has(.kmstart) .kmparzhint,.kmdlg .kmleft:has(.kmstart) .kmparzhint{display:none}}   /* Startkarte offen: Parzellen-Hinweis zurückstellen */
 .kmdlg .lyhl{box-shadow:0 0 0 3px var(--nc-focus,#0e7490)!important;transition:box-shadow .2s}
 @media (max-width:860px){.kmdlg.kmlya.ly-ms-more .kmbottom{flex-wrap:nowrap!important}}
+@media (max-width:860px){   /* Kennzahlen + ▾ in einer Zeile, Status bei Platzmangel darunter (nie überlappend) */
+  .kmdlg.kmlya .lybar{flex-wrap:wrap!important;row-gap:2px;overflow:visible}
+  .kmdlg.kmlya .lybar .lykpi{order:1}.kmdlg.kmlya .lybar .lykall{order:2}.kmdlg.kmlya .lybar .lyp:nth-child(3){order:3}
+}

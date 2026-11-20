@@ -50,7 +50,7 @@ const route = pg => pg.route('**/*', r => /wmts|wms\.geo|api3|SearchServer/.test
   ax = await pg.evaluate(() => axe.run(document.querySelector('dialog.kmlya'), { rules: { region: { enabled: false } } }).then(r => r.violations.map(v => v.id + ':' + v.nodes.length)));
   ok(ax.length === 0, 'axe Handy (Blatt offen): ' + JSON.stringify(ax));
   await pg.click('[data-msh=dock]');
-  await pg.click('.lymk'); await pg.waitForTimeout(200); ok(await pg.locator('.lycmdk').isVisible(), '⌕ öffnet die Befehlsleiste'); await pg.keyboard.press('Escape'); await pg.waitForTimeout(150);
+  await pg.evaluate(() => window.__LYMOB.show('more')); await pg.waitForTimeout(300); await pg.click('.kmbottom .lymk'); await pg.waitForTimeout(200); ok(await pg.locator('.lycmdk').isVisible(), '›_ (im Blatt «Mehr», UX-Runde P7) öffnet die Befehlsleiste'); await pg.keyboard.press('Escape'); await pg.waitForTimeout(150);
   ok(!(await pg.locator('.lycmdk').isVisible()), 'Esc schliesst sie wieder (' + await pg.evaluate(() => document.activeElement.outerHTML.slice(0, 60)) + ')');
   ok(await pg.evaluate(() => JSON.stringify(KVE.calc(window.__LVD.S(), LV).sum)) === sum0, 'Bedienung ohne Kostenwirkung');
   for (const [w, h] of [[320, 568], [375, 667], [430, 932], [768, 1024], [844, 390]]) { await pg.setViewportSize({ width: w, height: h }); await pg.waitForTimeout(400);
