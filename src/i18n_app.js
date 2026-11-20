@@ -818,6 +818,8 @@ s_vor: ["Vorarbeiten (projektweit)", "Travaux préparatoires (projet)", "Lavori 
     km_saved: ["Zeichnung gespeichert – Datensätze noch nicht angelegt (dafür «In Datensätze übernehmen»)", "Dessin enregistré – fiches pas encore créées (« Reprendre dans les fiches »)", "Disegno salvato – schede non ancora create («Riprendere nelle schede»)", "Drawing saved – records not created yet («Apply to records»)"],
     km_save_err: ["Speichern nicht möglich", "Enregistrement impossible", "Salvataggio non possibile", "Could not save"],
     km_apply: ["In Datensätze übernehmen", "Reprendre dans les fiches", "Riprendere nelle schede", "Apply to records"],
+    km_applyNo: ["Zuerst Leitung oder Objekt zeichnen", "Dessiner d'abord une conduite ou un objet", "Disegnare prima una condotta o un oggetto", "Draw a line or object first"],
+    km_applyN: ["{n} Änderungen in die Datensätze übernehmen", "Reprendre {n} modifications dans les fiches", "Riprendere {n} modifiche nelle schede", "Apply {n} changes to the records"],
     km_prevAlt: ["Kartenausschnitt der gemessenen Trasse", "Extrait de carte du tracé mesuré", "Estratto di carta del tracciato misurato", "Map extract of the measured route"],
         km_undoBtn: ["Rückgängig", "Annuler", "Annulla", "Undo"],
     km_cleared: ["Alle Objekte gelöscht.", "Tous les objets supprimés.", "Tutti gli oggetti eliminati.", "All objects deleted."],

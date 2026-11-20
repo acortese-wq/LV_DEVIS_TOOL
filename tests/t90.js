@@ -13,7 +13,7 @@ const open = async pg => { for (let t = 0; t < 60 && !(await pg.locator('dialog.
   const g = await pg.evaluate(() => { const r = document.querySelector('.lyrb').getBoundingClientRect(), bar = document.querySelector('.lybar').getBoundingClientRect(), gr = document.querySelector('.kmgrid').getBoundingClientRect(); return { h: r.height, under: r.top >= bar.bottom - 1, over: r.bottom <= gr.top + 1, mh: document.querySelector('#kmMap').getBoundingClientRect().height }; });
   ok(g.under && g.over && g.h > 80 && g.h < 130 && g.mh >= 350, 'Leiste zwischen Kennzahlen und Zeichenfläche (' + Math.round(g.h) + ' px), Karte ' + Math.round(g.mh) + ' px');
   const grp = await pg.$$eval('#lyRP_start .lyrb-g', x => x.map(e => e.getAttribute('aria-label') + ':' + e.querySelectorAll('[data-rb]').length));
-  ok(grp.join(' ') === 'Auswahl:1 Zeichnen:4 Bearbeiten:2 Projekt:2', 'Start mit Gruppen ' + grp.join(', '));
+  ok(grp.join(' ') === 'Auswahl:1 Zeichnen:4 Bearbeiten:2', 'Start mit Gruppen ' + grp.join(', '));   /* UX-Runde P3: Speichern/Übernehmen nur im Kopf */
   ok(await pg.locator('#kmToolsBody [data-k=mline]').isVisible(), 'bisherige Werkzeugspalte bleibt unverändert');
   // Knopf löst bestehenden Befehl aus und spiegelt den Zustand
   await pg.click('#lyRP_start [data-rb*="mline"]'); await pg.waitForTimeout(250);

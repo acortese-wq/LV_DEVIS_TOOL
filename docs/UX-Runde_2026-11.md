@@ -35,3 +35,17 @@ Test: `t134` (neu). Testhilfe: ältere Tests starten ohne Startkarte (`window.__
 | nachher Layout A | ![](ux-runde/p2a-nachher-1440.png) | ![](ux-runde/p2a-nachher-390.png) |
 
 Test: `t135` (neu).
+
+## P3 – Befehle ohne Dubletten, Hauptknopf nur wenn sinnvoll
+
+**Für die Benutzer:**
+- «In Datensätze übernehmen» ist inaktiv, solange nichts Neues zu übernehmen ist (Tooltip «Zuerst Leitung oder Objekt zeichnen»). Bei Änderungen zeigt der Knopf einen Zähler, z. B. «In Datensätze übernehmen (3)». Gezählt werden neue, geänderte und gelöschte Objekte seit dem Öffnen sowie Objekte, die noch mit keinem Datensatz verknüpft sind (z. B. nur gesicherte Zeichnung). Auch der Schalter «Schräglänge» und Änderungen am Plan-Overlay gelten als Änderung. «Rückgängig» zählt mit.
+- «Speichern» und «In Datensätze übernehmen» stehen nur noch im Kopf (nicht mehr zusätzlich in der Multifunktionsleiste).
+- Modus «Einfach»: Multifunktionsleiste standardmässig minimiert, gesteuert wird über die Werkzeugspalte – jeder Zeichenbefehl ist genau einmal sichtbar. Modus «Experte»: Leiste wie bisher.
+
+| | Desktop 1440 px (Modus Einfach) | Handy 390 px |
+|---|---|---|
+| vorher | ![](ux-runde/p3-vorher-1440.png) | ![](ux-runde/p3-vorher-390.png) |
+| nachher | ![](ux-runde/p3-nachher-1440.png) | ![](ux-runde/p3-nachher-390.png) |
+
+Test: `t136` (neu). Angepasst: `t90` (Leiste ohne Gruppe «Projekt»), `t42` (schliesst mit «Schliessen» statt «Übernehmen» ohne Änderung), `t110` (Start am letzten Ausschnitt).

@@ -24,7 +24,7 @@ a=await ask('Warnungen'); ok(/aktuelle Zeichnung/.test(a),'Prüfung der aktuelle
 a=await ask('Schachtabstand'); ok(/200–250/.test(a),'Handbuchwissen im Dialog');
 ax=await pg.evaluate(()=>axe.run(document.querySelector('dialog[open]')).then(r=>r.violations.map(v=>v.id+' '+v.nodes[0].target))); ok(ax.length===0,'axe Dialog: '+JSON.stringify(ax).slice(0,200));
 await pg.keyboard.press('Escape'); ok(!(await pg.locator('#chPan').isVisible())&&await pg.locator('dialog[open]').count()===1,'Escape schliesst nur den Assistenten, Dialog bleibt');
-await pg.click('[data-k=apply]'); await pg.waitForTimeout(700); ok(await pg.locator('body > #chFab').count()===1,'Knopf nach Schliessen des Dialogs wieder auf der Seite');
+await pg.click('dialog[open] [data-k=close]'); await pg.waitForTimeout(700); ok(await pg.locator('body > #chFab').count()===1,'Knopf nach Schliessen des Dialogs wieder auf der Seite');
 ok(pg.errs.length===0,'keine JS-Fehler '+pg.errs.join('|'));
 let p2=await mk(b,390,800); await p2.click('#chFab'); await p2.fill('#chPan textarea','Schachttypen'); await p2.keyboard.press('Enter'); await p2.waitForTimeout(300);
 ok(await p2.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),'Handy 390 px ohne Seitenüberlauf'); ok(p2.errs.length===0,'keine JS-Fehler (Handy)');

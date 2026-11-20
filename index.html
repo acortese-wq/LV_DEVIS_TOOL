@@ -4948,6 +4948,8 @@ s_vor: ["Vorarbeiten (projektweit)", "Travaux préparatoires (projet)", "Lavori 
     km_saved: ["Zeichnung gespeichert – Datensätze noch nicht angelegt (dafür «In Datensätze übernehmen»)", "Dessin enregistré – fiches pas encore créées (« Reprendre dans les fiches »)", "Disegno salvato – schede non ancora create («Riprendere nelle schede»)", "Drawing saved – records not created yet («Apply to records»)"],
     km_save_err: ["Speichern nicht möglich", "Enregistrement impossible", "Salvataggio non possibile", "Could not save"],
     km_apply: ["In Datensätze übernehmen", "Reprendre dans les fiches", "Riprendere nelle schede", "Apply to records"],
+    km_applyNo: ["Zuerst Leitung oder Objekt zeichnen", "Dessiner d'abord une conduite ou un objet", "Disegnare prima una condotta o un oggetto", "Draw a line or object first"],
+    km_applyN: ["{n} Änderungen in die Datensätze übernehmen", "Reprendre {n} modifications dans les fiches", "Riprendere {n} modifiche nelle schede", "Apply {n} changes to the records"],
     km_prevAlt: ["Kartenausschnitt der gemessenen Trasse", "Extrait de carte du tracé mesuré", "Estratto di carta del tracciato misurato", "Map extract of the measured route"],
         km_undoBtn: ["Rückgängig", "Annuler", "Annulla", "Undo"],
     km_cleared: ["Alle Objekte gelöscht.", "Tous les objets supprimés.", "Tutti gli oggetti eliminati.", "All objects deleted."],
@@ -8264,7 +8266,8 @@ var FOTO = (function () {
           var md = "s"; try { md = localStorage.getItem("lvd-uimode") || "s"; } catch (e) { } if (["e", "s", "x"].indexOf(md) < 0) md = "s";
           var setMode = function (m) { md = m; dlg.classList.toggle("nc-m-e", m === "e"); dlg.classList.toggle("nc-m-x", m === "x"); try { localStorage.setItem("lvd-uimode", m); } catch (e) { }
             var ms = dlg.querySelector("#lyMode"); if (ms) ms.value = m;
-            if (m === "e" && ["prof", "aus", "pos"].indexOf(lyD.t) >= 0) { lyD.t = "kost"; setTimeout(lyDock, 0); } };
+            if (m === "e" && ["prof", "aus", "pos"].indexOf(lyD.t) >= 0) { lyD.t = "kost"; setTimeout(lyDock, 0); }
+            if (m === "e" && window.__LYRB && dlg.querySelector(".lyrb")) { window.__LYRB.min(true); if (window.__LYFIT) setTimeout(window.__LYFIT, 0); } };   /* UX-Runde P3: Einfach → Multifunktionsleiste minimiert, gesteuert über die Werkzeugspalte */
           var sm = E("select", "lymode"); sm.id = "lyMode"; sm.setAttribute("aria-label", tt("ly_mode")); sm.title = tt("ly_mode");
           sm.innerHTML = [["e", "ly_mE"], ["s", "ly_mS"], ["x", "ly_mX"]].map(function (o) { return '<option value="' + o[0] + '">' + esc(tt(o[1])) + "</option>"; }).join("");
           sm.addEventListener("change", function () { setMode(sm.value); toast(dlg, tt("ly_mode") + ": " + sm.options[sm.selectedIndex].text); });
@@ -8403,17 +8406,17 @@ var FOTO = (function () {
           var T0 = "#kmToolsBody ", K = function (k) { return T0 + "[data-k=" + k + "]"; }, O = function (k) { return T0 + "[data-eop=" + k + "]"; }, D = function (t) { return "#lyT_" + t; };
           var G = { medit: "✥", mline: "╱", mpt: "▣", mabz: "Y", avfl: "▦", mwl: "◫", mgeb: "⌂", route: "↝", msond: "◎", marea: "▱", mtext: "T", marrow: "➚", msline: "〰", mrect: "▭", mruler: "📏", undo: "↶", redo: "↷", end: "■", clear: "✕", dxfin: "⇪", save: "💾", apply: "✔" };
           var TABS = [
-            ["start", [["rb_pSel", [K("medit")]], ["rb_pDraw", [K("mline"), K("mpt"), K("mgeb"), K("route")]], ["rb_pEdit", [K("undo"), K("redo")]], ["rb_pProj", [".kmheadb [data-k=save]", ".kmheadb [data-k=apply]"]]]],
+            ["start", [["rb_pSel", [K("medit")]], ["rb_pDraw", [K("mline"), K("mpt"), K("mgeb"), K("route")]], ["rb_pEdit", [K("undo"), K("redo")]]]],
             ["draw", [["rb_pLine", [K("mline"), K("end"), K("route")]], ["rb_pObj", [K("mpt"), K("mabz"), K("mwl"), K("mgeb"), K("msond"), K("marea"), K("avfl")]]]],
             ["mod", [["rb_pSel", [K("medit")]], ["rb_pVert", [O("pt"), O("line"), O("ins"), O("del"), O("seg"), O("split"), O("join")]], ["rb_pEdit", [K("undo"), K("redo"), K("clear")]]]],
             ["ann", [["rb_pAnn", [K("mtext"), K("marrow"), K("msline"), K("mrect")]], ["rb_pMeas", [K("mruler")]]]],
             ["ins", [["rb_pImp", [K("dxfin")]], ["rb_pLay", [".lynav .kmmidtog"]]]],
             ["an", [["rb_pEval", [D("prof"), D("aus"), D("kost"), D("pos"), D("offen"), D("warn")]], ["rb_pProf", ["[data-pfb]"]]]],
-            ["out", [["rb_pRes", [".lynav [data-ly=res]", ".lynav [data-ly=rep]", ".lynav [data-ly=rec]", ".lynav [data-ly=proj]"]], ["rb_pProj", [".kmheadb [data-k=save]", ".kmheadb [data-k=apply]"]]]],
+            ["out", [["rb_pRes", [".lynav [data-ly=res]", ".lynav [data-ly=rep]", ".lynav [data-ly=rec]", ".lynav [data-ly=proj]"]]]],
             ["view", [["rb_pMap", [".lybtn", ".lysbtn"]], ["rb_pShow", ["[data-k=lbl]", "[data-k=band]", "[data-k=pit]", "[data-k=bend]", "[data-k=v3d]"]], ["rb_pWin", [".nc-theme", ".lycmdk-b", "[data-hpk]"]]]]
           ];
           var rb = E("section", "lyrb"); rb.setAttribute("aria-label", tt("rb_label"));
-          var cur = "start", min = window.__LVD_RIBBON_DEFAULT === "min"; try { var sv = JSON.parse(localStorage.getItem("lvd-ribbon") || "null"); if (sv && typeof sv === "object") { if (TABS.some(function (t) { return t[0] === sv.t; })) cur = sv.t; min = !!sv.m; } } catch (e) { }
+          var cur = "start", min = window.__LVD_RIBBON_DEFAULT === "min", minE = dlg.classList.contains("nc-m-e");   /* UX-Runde P3: im Modus «Einfach» minimiert */ try { var sv = JSON.parse(localStorage.getItem("lvd-ribbon") || "null"); if (sv && typeof sv === "object") { if (TABS.some(function (t) { return t[0] === sv.t; })) cur = sv.t; min = !!sv.m; } } catch (e) { } if (minE) min = true;
           var tgt = function (s) { return dlg.querySelector(s); };
           var labOf = function (b) { var a = b.getAttribute("aria-label"); if (a && !/[›_]/.test(a)) return a.replace(/\s*\(Strg\+K\)$/, ""); var t = ""; b.childNodes.forEach(function (n) { if (n.nodeType === 3) t += n.textContent; else if (n.nodeType === 1 && !n.hasAttribute("aria-hidden") && n.tagName !== "KBD" && n.tagName !== "svg") t += n.textContent; }); return t.replace(/\s*\(\d+\)\s*$/, "").replace(/\s+/g, " ").trim() || b.title || ""; };
           var build = function () {
@@ -9115,7 +9118,7 @@ var FOTO = (function () {
         if (l.pts.length < 3 || l.hzArt) return; var c = cfgOf(l); if (c.art === "beton" || c.art === "laengs") return; var n = pipeSum(c);
         bendPts(l, M).forEach(function (b) { L.marker(AD.ll(b.pt), { interactive: false, keyboard: false, zIndexOffset: -450, icon: L.divIcon({ className: "kmbend", html: "<span>" + esc(bendTxt(b, n)) + "</span>", iconSize: [0, 0], iconAnchor: [0, 0] }) }).addTo(grp); });
       });
-      shaftSymbols(); pm(M.pts, "kmsch", ""); pm(M.sond, "kmsond", "S"); pm(M.wl, "kmwl", "W"); pm(M.geb, "kmgeb", "G"); ftDraw(); stCheck();
+      shaftSymbols(); pm(M.pts, "kmsch", ""); pm(M.sond, "kmsond", "S"); pm(M.wl, "kmwl", "W"); pm(M.geb, "kmgeb", "G"); ftDraw(); stCheck(); chgUpd();
       if (labelsOn() && opt.labels) {   /* Beschriftung: Linie mit Name, Länge und Rohranlage; Schächte, Sondagen, Werklöcher, Einführungen, Flächen mit Name */
         var lb = opt.labels(M, { len: effLen, slope: function (pts) { return SLOPE && !!slopeHz(pts, M.lines); }, area: area }), put = function (ll, t, cls, ang) { if (t) L.marker(ll, { interactive: false, keyboard: false, zIndexOffset: -500, icon: L.divIcon({ className: "kmlbl " + cls, html: "<span" + (ang != null ? ' style="--a:' + ang + 'deg"' : "") + ">" + esc(t) + "</span>", iconSize: [0, 0] }) }).addTo(grp); };
         M.lines.forEach(function (l, i) { if (l.pts.length < 2) return; var bj = 1, bd = -1; for (var j = 1; j < l.pts.length; j++) { var dd = AD.dist(l.pts[j - 1], l.pts[j]) || Math.hypot(l.pts[j][0] - l.pts[j - 1][0], l.pts[j][1] - l.pts[j - 1][1]); if (dd > bd) { bd = dd; bj = j; } }
@@ -9149,6 +9152,23 @@ var FOTO = (function () {
     function cell(label, el) { var d = document.createElement("div"); d.className = "kmc"; var l = document.createElement("span"); l.textContent = label; d.appendChild(l); d.appendChild(el); return d; }
     function inp(label, val, cls, on, txt) { var n = document.createElement("input"); n.type = "text"; if (!txt) n.inputMode = "decimal"; n.className = cls; n.value = val; n.setAttribute("aria-label", label); n.addEventListener("input", function () { on(n.value); }); return n; }
     function head(r, title, rid) { var t = document.createElement("div"); t.className = "kmt"; t.innerHTML = "<b>" + esc(title) + "</b>" + (rid === undefined ? "" : " · " + (rid ? '<span class="kmlnk">→ ' + esc(opt.recName(rid) || tt("km_new")) + "</span>" : '<span class="kmlnk">' + esc(tt("km_new")) + "</span>")); r.appendChild(t); return t; }
+    /* UX-Runde P3: «In Datensätze übernehmen» nur bei Neuem – Vergleich mit dem Stand beim Öffnen (je Objekt), Zähler im Knopf */
+    var chgBase = null, ovBase = "", calBase = "", slBase = null;
+    function chgRep(k, v) { return k === "av" ? undefined : v; }   /* Bodenbedeckung (automatischer Zwischenspeicher) ist keine Änderung */
+    function chgSnap() { var o = {}; [M.lines, M.pts, M.sond, M.wl, M.geb, M.areas, M.notes].forEach(function (a) { (a || []).forEach(function (x) { o[x.id] = JSON.stringify(x, chgRep); }); }); return o; }
+    function chgMark() { chgBase = chgSnap(); ovBase = ovl ? JSON.stringify(ovl) : ""; calBase = plan ? JSON.stringify(cal) : ""; slBase = SLOPE; chgUpd(); }
+    function chgList() {   /* geändert/neu/gelöscht seit dem Öffnen + noch mit keinem Datensatz verknüpft (z. B. nur gesicherte Zeichnung) */
+      if (!chgBase) return []; var now = chgSnap(), out = [], add = function (id) { if (out.indexOf(id) < 0) out.push(id); };
+      Object.keys(now).forEach(function (id) { if (now[id] !== chgBase[id]) add(id); }); Object.keys(chgBase).forEach(function (id) { if (!(id in now)) add(id); });
+      M.lines.forEach(function (l) { if (l.pts.length > 1 && !l.rid) add(l.id); }); M.pts.forEach(function (p) { if (!p.sid && p.mode !== "abz") add(p.id); });
+      M.wl.concat(M.geb).forEach(function (p) { if (!p.sid) add(p.id); }); M.areas.forEach(function (f) { if (!f.rid) add(f.id); });
+      return out;
+    }
+    function chgUpd() {
+      var b = dlg && dlg.querySelector("[data-k=apply]"); if (!b || !chgBase) return; var n = chgList().length, other = (ovl ? JSON.stringify(ovl) : "") !== ovBase || (plan && JSON.stringify(cal) !== calBase) || SLOPE !== slBase,   /* Schräglänge wirkt auf die Längen der Datensätze */ on = n > 0 || other;
+      b.disabled = !on; b.textContent = tt("km_apply") + (n ? " (" + n + ")" : ""); b.title = on ? (n ? tt("km_applyN").replace("{n}", n) : tt("km_apply")) : tt("km_applyNo");
+      if (window.__LYRB && window.__LYRB.sync) window.__LYRB.sync();
+    }
     /* UX-Runde 11/2026 P1: Startkarte bei leerem Projekt (nur Karte, nicht Plan) – Ortssuche (geo.admin wie die Kopfsuche, dazu LV95/WGS-Koordinaten),
        3 Vorlagen (aktivieren nur das passende Werkzeug, keine Mengen), Beispielprojekt, Projekt laden. Verschwindet beim ersten Objekt oder Werkzeug; Esc/× blendet aus. */
     var stEl = null, stOff = false, stMoved = false;
@@ -10399,7 +10419,7 @@ var FOTO = (function () {
         row(tt("km_sum_obj"), esc(tt("km_sum_objv").replace("{s}", M.pts.filter(function (x) { return x.mode !== "abz"; }).length).replace("{w}", M.wl.length).replace("{g}", M.geb.length))) +
         row(tt("km_sum_warn"), (nm + nw ? "<b>" + (nm + nw) + "</b> " : "0 ") + '<button type="button" class="btn ghost small" data-sumgo>' + esc(tt("km_sum_go")) + "</button>") + "</dl>";
     }
-    function refresh() { draw(); rows(); costSoon(); if (LY) exRender(); }
+    function refresh() { draw(); rows(); costSoon(); if (LY) exRender(); chgUpd(); }
     var costT = 0, costLast = null;
     function costSoon() {
       legend(); markerSync(); msbRender(); eopRender(); hzAuto(); if (!plan) setTimeout(pfLoadActive, 150); evalRender(); rcRender(); sumRender(); hzRender(); palRender(); if (!pfInit) { pfInit = 1; pfWire(); } pfRender(); if (!sugInit) { sugInit = 1; sugRender(); } if (!opt.cost) return; clearTimeout(costT);
@@ -11201,6 +11221,7 @@ var FOTO = (function () {
       $("#kmOvS").addEventListener("change", function (e) { var v = num2(e.target.value); if (ovl && v > 0) { ov0 = JSON.stringify(ovl); ovl.mpp = v; ovl.auto = 0; ovDraw(); } });
     }
     hzSeed(); wsLate(); dlg.showModal(); map.invalidateSize(); if (opt.view && opt.view.c) map.setView(opt.view.c, opt.view.z, { animate: false }); else if (!plan && mEmpty()) startView(); else fitAll(); ovDraw(); refresh(); if (opt.edited) lyEdited = true;
+    chgMark();
     if (!plan) { stShow(); var vT = null, vSave = function () { clearTimeout(vT); try { if (!dlg.open) return; var c0 = map.getCenter(); if (map.getZoom() >= 9) localStorage.setItem("lvd-km-view", JSON.stringify({ lat: +c0.lat.toFixed(6), lng: +c0.lng.toFixed(6), z: map.getZoom() })); } catch (e) { } };   /* letzter Kartenausschnitt (UI-Einstellung, nicht im Projekt) */
       map.on("dragstart", function () { stMoved = true; }); map.on("moveend", function () { clearTimeout(vT); vT = setTimeout(vSave, 250); }); window.addEventListener("pagehide", vSave); dlg.addEventListener("close", function () { window.removeEventListener("pagehide", vSave); }); }
     if (!plan && opt.autoPlan && !ovl && opt.planImg && opt.planImg.img) { $("#kmOvPlan").click(); } if (!stEl) (plan ? $("[data-k=mcal]") : $("#kmQ")).focus();
