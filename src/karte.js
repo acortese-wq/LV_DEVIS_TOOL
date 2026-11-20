@@ -3301,6 +3301,41 @@
           L.DomEvent.disableClickPropagation(d); L.DomEvent.on(a, "click", function (e) { L.DomEvent.stop(e); fitAll(); }); return d; } });
         new C().addTo(map);
       })();
+      /* V144: Mein Standort (GPS des Geräts, nur Karte): blauer Punkt mit Genauigkeitskreis, Mitlaufen, «Punkt hier setzen» mit dem aktiven Werkzeug.
+         Der Standort bleibt im Browser und wird nicht gespeichert. */
+      if (!plan) (function () {
+        var G = { id: null, pos: null, follow: true, grp: L.layerGroup().addTo(map), btn: null, chip: null };
+        var chip = function () { var c = G.chip; if (!c) { c = G.chip = document.createElement("div"); c.className = "kmgps"; c.setAttribute("role", "status"); $("#kmMap").appendChild(c); L.DomEvent.disableClickPropagation(c); L.DomEvent.disableScrollPropagation(c);
+            c.addEventListener("click", function (e) { var k = e.target.getAttribute && e.target.getAttribute("data-gps"); if (k === "here") here(); else if (k === "off") stop(); }); }
+          c.innerHTML = '<span class="kmgps-t">' + esc(G.pos ? tt("gps_acc").replace("{m}", Math.round(G.pos.acc)) : tt("gps_wait")) + '</span>' + (G.pos ? '<button type="button" class="btn small" data-gps="here">' + esc(tt("gps_here")) + "</button>" : "") + '<button type="button" class="btn ghost small" data-gps="off">' + esc(tt("gps_off")) + "</button>"; };
+        function draw() { G.grp.clearLayers(); if (!G.pos) return; var ll = L.latLng(G.pos.lat, G.pos.lon);
+          L.circle(ll, { radius: G.pos.acc, color: "#1a73e8", weight: 1, fillColor: "#1a73e8", fillOpacity: 0.12, interactive: false }).addTo(G.grp);
+          L.circleMarker(ll, { radius: 7, color: "#fff", weight: 2.5, fillColor: "#1a73e8", fillOpacity: 1, interactive: false }).addTo(G.grp); }
+        function ok(p) { var first = !G.pos; G.warned = false; G.pos = { lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy || 0 }; draw(); chip();
+          if (G.follow) { var ll = L.latLng(G.pos.lat, G.pos.lon); if (first) map.setView(ll, Math.max(map.getZoom(), 19), { animate: false }); else map.panTo(ll, { animate: true }); } }
+        function bad(e) { if (e && e.code === 1) { toast(dlg, tt("gps_deny")); stop(); return; }   /* nur verweigerte Freigabe beendet; schwaches Signal: weiter versuchen */
+          if (!G.warned) { G.warned = true; toast(dlg, tt("gps_err")); } if (G.chip) { var t = G.chip.querySelector(".kmgps-t"); if (t) t.textContent = G.pos ? tt("gps_acc").replace("{m}", Math.round(G.pos.acc)) + " · " + tt("gps_weak") : tt("gps_wait"); } }
+        function start() {
+          if (!navigator.geolocation || window.isSecureContext === false) { toast(dlg, tt("gps_noSec")); return; }
+          G.follow = true; if (G.id != null) { if (G.pos) map.setView(L.latLng(G.pos.lat, G.pos.lon), Math.max(map.getZoom(), 19)); return; }
+          chip(); G.btn.setAttribute("aria-pressed", "true"); G.btn.classList.add("on");
+          try { G.id = navigator.geolocation.watchPosition(ok, bad, { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 }); } catch (e) { bad(); }
+        }
+        function stop() { if (G.id != null) { try { navigator.geolocation.clearWatch(G.id); } catch (e) { } } G.id = null; G.pos = null; G.grp.clearLayers(); if (G.chip) { G.chip.remove(); G.chip = null; } if (G.btn) { G.btn.setAttribute("aria-pressed", "false"); G.btn.classList.remove("on"); } }
+        function here() {
+          if (!G.pos) return; if (!mode || mode === "edit") { toast(dlg, tt("gps_noTool")); return; }
+          if (G.pos.acc > 10 && !window.confirm(tt("gps_bad").replace("{m}", Math.round(G.pos.acc)))) return;
+          addPt(L.latLng(G.pos.lat, G.pos.lon));
+        }
+        map.on("dragstart", function () { G.follow = false; });
+        dlg.addEventListener("close", stop);
+        var C2 = L.Control.extend({ options: { position: "topleft" }, onAdd: function () {
+          var d = L.DomUtil.create("div", "leaflet-bar kmfitc kmgpsc"), a = G.btn = L.DomUtil.create("a", "", d); a.href = "#"; a.setAttribute("role", "button"); a.setAttribute("aria-pressed", "false"); a.title = tt("gps_btn"); a.setAttribute("aria-label", tt("gps_btn")); a.setAttribute("data-k", "gps");
+          a.innerHTML = '<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false"><circle cx="10" cy="10" r="4" fill="currentColor"/><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 1v3M10 16v3M1 10h3M16 10h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+          L.DomEvent.disableClickPropagation(d); L.DomEvent.on(a, "click", function (e) { L.DomEvent.stop(e); start(); }); return d; } });
+        new C2().addTo(map);
+        window.__KM_GPS = { start: start, stop: stop, here: here, st: function () { return { on: G.id != null, pos: G.pos, follow: G.follow }; } };   /* für Tests */
+      })();
       ovGrp = L.layerGroup().addTo(map); grp = L.layerGroup().addTo(map); tiles(); drawOv(); selList(); dxfPanelEv(); dxfPanel();
       if (M.dxf) setTimeout(function () { var tg = $(".kmmidtog"); if (tg && tg.getAttribute("aria-expanded") !== "true") tg.click(); }, 0);   /* Projekt mit DXF: Layerliste sichtbar */
       $("#kmCat").addEventListener("toggle", function (e) { if (e.target.open) openCat(); });

@@ -783,3 +783,7 @@ html:not(.lvready) .sheet{visibility:hidden}   /* Seite erst nach dem ersten Fü
 .rp-dia h3{grid-column:1/-1;margin:0}.rp-pie{width:120pt;height:120pt}.rp-pie-t{font-size:11px;fill:#52514e}.rp-pie-v{font-size:15px;font-weight:700;fill:#0b0b0b}
 .rp-diat{width:100%;font-size:8.5pt}.rp-diat td,.rp-diat th{padding:1.5pt 3pt}.rp-sw{vertical-align:-1px}.rp-dia-b{font-size:8pt;color:#333;margin-top:6pt}
 @media print{.rp-pie path,.rp-sw rect{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+/* V144: Mein Standort (GPS) */
+.kmgpsc a.on{color:#1a73e8}
+.kmgps{position:absolute;left:50%;transform:translateX(-50%);bottom:34px;z-index:1100;display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 24px);background:#fff;color:#1a1c1e;border:1px solid #1a73e8;border-radius:8px;padding:4px 6px 4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.25);font-size:max(12px,var(--fsmin,0px))}
+.kmgps-t{font-weight:700}
