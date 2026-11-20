@@ -78,3 +78,19 @@ Test: `t137` (neu): Unterschied = Netto nachher − Netto vorher auf den Rappen 
 | nachher klassisch, dunkles Thema | ![](ux-runde/p5b-nachher-1440.png) | ![](ux-runde/p5b-nachher-390.png) |
 
 Test: `t138` (neu). Angepasst: `t65`/`t72` (Rückfrage beim Wechsel jetzt über «Datensätze», weil «Projekt» die Karte nicht mehr verlässt), `t79`/`t90` (Themenknopf im Arbeitsplatz eindeutig ansprechen).
+
+## P6 – Leere Zustände statt Nulltabellen
+
+**Für die Benutzer:**
+- Layout A, Reiter «Kosten» ohne Positionen: statt einer Tabelle mit 0.00 der Hinweis «Noch keine Kosten – zeichne eine Leitung oder setze einen Schacht.» mit den Knöpfen «Linie zeichnen» und «Schacht setzen» (aktivieren das Werkzeug).
+- Klassische Ansicht ohne Positionen: nur der Status mit Hinweis, keine Kostentabelle und keine leere «Aufstellung».
+- Kostentabelle: Bei Rabattstufe 1 werden «Rabatt Stufe 1 (0 %)» und «Summe nach Rabatt» ausgeblendet, eine Installationspauschale von 0 ebenfalls. Ab Stufe 2 oder bei einem Betrag erscheinen sie wie bisher. Netto und Total bleiben identisch.
+- Leere Unterbereiche («Kosten je Kapitel», «Grösste Positionen», «Kosten je Abschnitt») werden ausgeblendet.
+- Nebenbei korrigiert: Der Knopf zur Kartenauswahl («Parzellen ▾») war nach P5 blass; er hat wieder das Gewicht wie vorher.
+
+| | Desktop 1440 px | Handy 390 px |
+|---|---|---|
+| vorher | ![](ux-runde/p6-vorher-1440.png) | ![](ux-runde/p6-vorher-390.png) |
+| nachher | ![](ux-runde/p6-nachher-1440.png) | ![](ux-runde/p6-nachher-390.png) |
+
+Test: `t139` (neu).

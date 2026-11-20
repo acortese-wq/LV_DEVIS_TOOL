@@ -3571,6 +3571,7 @@
       if (e.target.closest("[data-sumgo]")) { var te = $("#kmTabE"); if (te) te.click(); return; }
       var hzb = e.target.closest("[data-hz]"); if (hzb) { if (hzb.dataset.hz === "load") hzLoad(); return; }
       var sgb = e.target.closest("[data-sg],#kmDxf"); if (sgb) { if (sgb.id === "kmDxf") dxfExport(); else if (sgb.dataset.sg === "calc") { sugs = sugCompute(); sugDraw(); sugRender(); if (!sugs.length) { var sh = $("#kmSug"); if (sh) { var pn = document.createElement("p"); pn.className = "hint"; pn.setAttribute("role", "status"); pn.textContent = tt("sg_none"); sh.appendChild(pn); } } } else if (sgb.dataset.sg === "apply") sugApply(); else { sugs = []; sugDraw(); sugRender(); } return; }
+      var lyk = e.target.closest("[data-lyk]"); if (lyk) { var tk = $("#kmToolsBody [data-k=" + lyk.getAttribute("data-lyk") + "]"); if (tk) tk.click(); var mp0 = $("#kmMap"); if (mp0) mp0.focus(); return; }   /* UX-Runde P6: Handlungsaufforderung im leeren Kostenreiter */
       var gfb = e.target.closest("[data-lygof]"); if (gfb && LY) { lyGo("gof:" + gfb.getAttribute("data-lygof")); return; }
       var ftb = e.target.closest("[data-foto],[data-fv]"); if (ftb) { if (ftb.dataset.foto) ftPickObj(ftb.dataset.foto); else ftView(ftb.dataset.fv); return; }
       var b = e.target.closest("[data-k],[data-z],[data-d],[data-n]"); if (!b) return; askHide();

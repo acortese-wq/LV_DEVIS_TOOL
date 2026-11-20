@@ -686,7 +686,7 @@
     var oTk = {}; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.open && l.tk && l.tk !== "freiKeinEP") oTk[l.tk] = 1; }); });
     var ofd = ofDock(), warn = (out.nOffen ? '<p class="lyoff">⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + "</p>" : "") + (ws.length ? '<ul class="warns">' + ws.map(function (w) { return '<li class="' + w.sev + '"><b>' + esc(w.tab ? tt("tab_" + w.tab) + " · " + w.el : (w.el || "")) + "</b> · " + esc(fill(tt("w_" + w.id), w.args)) + (oTk[w.id] ? ' <button type="button" class="btn ghost small" data-act="offen" data-ofk="' + esc(w.id) + '">' + esc(tt("of_btnHin")) + "</button>" : "") + "</li>"; }).join("") + "</ul>" : '<p class="hint">' + esc(tt("ly_warnNone")) + "</p>");
     if (rq.length) warn = '<div class="lyreq"><p class="lyoff">⚠ ' + esc(fill(tt(rq.length === 1 ? "rq_miss1" : "rq_missN"), { n: rq.length })) + '</p><ul class="warns">' + rq.map(function (x) { return '<li class="stop"><button type="button" class="btn ghost small" data-lygof="' + x.tab + ":" + x.idx + ":" + x.key + '">' + esc(tt("tab_" + x.tab) + " · " + x.el) + "</button> " + esc(x.lab) + "</li>"; }).join("") + "</ul></div>" + warn;
-    return { V: r2(V), of: ofd.h, nOf: ofd.n, st: st, nInc: nInc, nReq: rq.length, nPos: out.summary.length, nWarn: ws.filter(function (w) { return w.sev !== "info"; }).length + (out.nOffen ? 1 : 0) + rq.length, kost: n ? '<div class="lykost">' + '<div class="lykost-a">' + kostTable(out) + "</div>" + dockKostX(out) + "</div>" : '<p class="hint">' + esc(tt("ux_emptyHint")) + "</p>", pos: pos, aus: aus, warn: warn };
+    return { V: r2(V), of: ofd.h, nOf: ofd.n, st: st, nInc: nInc, nReq: rq.length, nPos: out.summary.length, nWarn: ws.filter(function (w) { return w.sev !== "info"; }).length + (out.nOffen ? 1 : 0) + rq.length, kost: !isEmptyOut(out) ? '<div class="lykost">' + '<div class="lykost-a">' + kostTable(out) + "</div>" + dockKostX(out) + "</div>" : emptyKost(), pos: pos, aus: aus, warn: warn };
   }
   var LYTABS = ["graben", "schacht", "belag", "werkloch", "geb"];
   function lyPref() { try { var v = localStorage.getItem("lvd-layout"); if (v) return v === "classic" ? "classic" : "a"; } catch (e) { } return window.__LVD_LAYOUT_DEFAULT === "classic" ? "classic" : "a"; }   /* gespeicherte Wahl, sonst Vorgabe (Tests: klassisch), sonst Layout A */
@@ -954,6 +954,9 @@
     return res;
   }
   function reqGo(x) { return '<a href="#" class="wgo" data-gof="' + x.tab + ":" + x.idx + ":" + x.key + '">' + esc(tt("tab_" + x.tab) + " · " + x.el) + "</a>: " + esc(x.lab); }
+  function emptyKost() {   /* UX-Runde P6: leerer Zustand statt Nulltabelle */
+    return '<div class="lyempty"><p class="lyempty-t">' + esc(tt("ly_emptyK")) + '</p><div class="lyempty-b"><button type="button" class="btn small" data-lyk="mline">' + esc(tt("ly_emptyLine")) + '</button><button type="button" class="btn ghost small" data-lyk="mpt">' + esc(tt("ly_emptySch")) + "</button></div></div>";
+  }
   function isEmptyOut(out) { return !(out.sum.zwischen > 0) && !out.nOffen; }
   function reqEl(tab, c) {
     var p = document.createElement("p"); if (tab === "hon" || tab === "allg") return p;
@@ -1299,7 +1302,7 @@
     var el = out.elems.filter(function (e) { return e.sum; }).slice().sort(function (a, b) { return b.sum - a.sum; }), t2 = el.map(function (e) { return "<tr><td>" + esc(tt("tab_" + e.tab) + " · " + (e.name || "")) + '</td><td class="num">' + chf(e.sum) + "</td><td>" + bar(e.sum) + "</td></tr>"; }).join("");
     if (out.vor && out.vor.sum) t2 += "<tr><td>" + esc(tt("h_vorarbeiten")) + '</td><td class="num">' + chf(out.vor.sum) + "</td><td>" + bar(out.vor.sum) + "</td></tr>"; if (out.be && out.be.sum) t2 += "<tr><td>" + esc(tt("h_be")) + '</td><td class="num">' + chf(out.be.sum) + "</td><td>" + bar(out.be.sum) + "</td></tr>";
     var top = all.slice().sort(function (a, b) { return b.total - a.total; }).slice(0, 10), t3 = top.map(function (l, i) { var tx = /^\d{3}\//.test(l.key) ? lvT(l.key) : (l.text || ""); return "<tr><td>" + (i + 1) + '. <button type="button" class="linkbtn" data-dgo="' + esc(l.key) + '">' + esc(l.key) + "</button> " + esc(String(tx).slice(0, 60)) + '</td><td class="num">' + chf(l.total) + "</td><td>" + bar(l.total) + "</td></tr>"; }).join("");
-    var tbl = function (h, body) { return '<section class="lykx"><h4>' + esc(h) + '</h4><table class="lytab"><tbody>' + body + "</tbody></table></section>"; };
+    var tbl = function (h, body) { return body ? '<section class="lykx"><h4>' + esc(h) + '</h4><table class="lytab"><tbody>' + body + "</tbody></table></section>" : ""; };   /* UX-Runde P6: leere Unterbereiche ausblenden */
     return '<div class="lykost-b">' + tbl(tt("ly_kCh"), t1) + tbl(tt("ly_kEl"), t2) + tbl(tt("top_h"), t3) + '<p class="hint">' + esc(tt("ly_kNote")) + "</p></div>";
   }
   function pruefCount(out) { var ok = 0, kl = 0, ip = 0, tot = 0; (out.summary || []).forEach(function (l) { if (l.flag === "offen") return; tot++; var st = stOf(l.key); if (st === "ok") ok++; else if (st === "klaeren") kl++; else if (st === "ip") ip++; }); return { ok: ok, kl: kl, ip: ip, of: tot - ok - kl - ip, tot: tot }; }
@@ -1354,12 +1357,12 @@
   }
   /* Kostentabelle (Ergebnis, Bericht-Vorschau, Layout-A-Dock): identische Darstellung */
   function kostTable(out) {
-    var s = out.sum, erfL = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst" || l.flag === "ausserLV") erfL.push(l); }); });   /* eigene Preise: ohne LV-Rabatt */ var sErf = r2(erfL.reduce(function (a, l) { return a + l.total; }, 0));
+    var s = out.sum, z1 = s.stufe === 1,   /* UX-Runde P6: Rabatt 0 % und Installation 0 bei Stufe 1 ausblenden */ erfL = []; out.elems.forEach(function (e) { e.lines.forEach(function (l) { if (l.flag === "erfasst" || l.flag === "ausserLV") erfL.push(l); }); });   /* eigene Preise: ohne LV-Rabatt */ var sErf = r2(erfL.reduce(function (a, l) { return a + l.total; }, 0));
     return "<h3>" + esc(tt("h_kosten")) + '</h3><table class="cost"><tbody><tr><td>' + esc(tt("k_zw")) + '</td><td class="num">' + chf(s.zwischen) + "</td></tr>" +
         (erfL.length ? '<tr class="sub kerf"><td>' + esc(fill(tt("k_erf"), { n: erfL.length })) + '</td><td class="num">' + chf(sErf) + "</td></tr>" : "") +
         (s.belag ? '<tr class="sub"><td>' + esc(tt("k_belagKS")) + '</td><td class="num">' + chf(s.belag) + "</td></tr>" : "") +
-        "<tr><td>" + esc(fill(tt("k_rabatt"), { s: s.stufe, p: s.pct })) + (s.eigen ? " " + esc(fill(tt("k_rabattLV"), { b: chf(s.rabattBasis) })) : "") + '</td><td class="num">− ' + chf(s.rabatt) + "</td></tr><tr><td>" + esc(tt("k_nach")) + '</td><td class="num">' + chf(s.nachRabatt) + "</td></tr>" +
-        "<tr><td>" + esc(tt("k_inst")) + '</td><td class="num">+ ' + chf(s.inst) + '</td></tr><tr class="sub"><td>' + esc(tt("k_netto")) + '</td><td class="num">' + chf(s.netto) + "</td></tr>" +
+        (z1 && !s.rabatt ? "" : "<tr><td>" + esc(fill(tt("k_rabatt"), { s: s.stufe, p: s.pct })) + (s.eigen ? " " + esc(fill(tt("k_rabattLV"), { b: chf(s.rabattBasis) })) : "") + '</td><td class="num">− ' + chf(s.rabatt) + "</td></tr><tr><td>" + esc(tt("k_nach")) + '</td><td class="num">' + chf(s.nachRabatt) + "</td></tr>") +
+        (z1 && !s.inst ? "" : "<tr><td>" + esc(tt("k_inst")) + '</td><td class="num">+ ' + chf(s.inst) + "</td></tr>") + '<tr class="sub"><td>' + esc(tt("k_netto")) + '</td><td class="num">' + chf(s.netto) + "</td></tr>" +
         (s.reserve ? '<tr class="kres"><td>' + esc(fill(tt("k_reserve"), { p: s.reservePct })) + '</td><td class="num">+ ' + chf(s.reserve) + '</td></tr><tr class="sub"><td>' + esc(tt("k_nettoR")) + '</td><td class="num">' + chf(s.nettoR) + "</td></tr>" : "") +
         "<tr><td>" + esc(mwLab(s.mwSatz * 100)) + '</td><td class="num">' + chf(s.mwst) + '</td></tr><tr class="sum"><td>' + esc(tt("k_brutto")) + '</td><td class="num">' + chf(s.brutto) + "</td></tr>" +
         (out.nOffen ? '<tr class="koffen"><td>⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + '</td><td class="num">' + esc(tt("k_offenV")) + "</td></tr>" : "") + "</tbody></table>" + kostNote(s);
@@ -1379,7 +1382,7 @@
     var top = wl(out).filter(function (w) { return w.sev !== "info"; }).slice(0, 4);
     if (top.length) html += "<ul>" + top.map(function (w) { return "<li>" + warnGo(w) + esc(fill(tt("w_" + w.id), w.args)) + "</li>"; }).join("") + "</ul>" + (wl(out).length > top.length ? '<p><a href="#warns">' + esc(tt("ux_allWarn")) + " (" + wl(out).length + ")</a></p>" : "");
     html += "</div>";
-    if (n) {
+    if (n && !isEmptyOut(out)) {   /* UX-Runde P6: leeres Projekt ohne Nulltabellen */
       html += '<div class="no-summary"><h3>' + esc(tt("h_aufst")) + '</h3><div class="collrow no-print"><button type="button" class="btn ghost" data-act="collapse">' + esc(tt("btnCollapse")) + '</button><button type="button" class="btn ghost" data-act="expand">' + esc(tt("btnExpand")) + '</button><button type="button" class="btn ghost" data-act="rules" aria-pressed="' + !!S.ui.rules + '">' + (S.ui.rules ? "✓ " : "") + esc(tt("ux_rules")) + "</button></div>" + fbarHtml(out);
       out.elems.forEach(function (e) {
         var cur = S.tab === e.tab && S.idx[e.tab] === e.idx, extra = e.tab === "schacht" ? schachtExtra(e) : "";
