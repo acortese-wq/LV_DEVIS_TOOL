@@ -525,3 +525,6 @@ h3{letter-spacing:-.008em;line-height:1.25}
   .kmdlg.kmlya .lybar{flex-wrap:wrap!important;row-gap:2px;overflow:visible}
   .kmdlg.kmlya .lybar .lykpi{order:1}.kmdlg.kmlya .lybar .lykall{order:2}.kmdlg.kmlya .lybar .lyp:nth-child(3){order:3}
 }
+/* UX-Runde P9: mit der Kennzahl «Genauigkeit» höchstens zwei Zeilen im Offen-Hinweis; Platz gibt der (gekürzte) Projektname ab */
+@media (min-width:1360px){ .kmdlg.kmlya .lybar .lyoffb{flex:0 0 auto;max-width:19ch} .kmdlg.kmlya .lybar .lypn{flex-shrink:60;min-width:140px} .kmdlg.kmlya .lybar .lykpi{flex-shrink:.02} .kmdlg.kmlya .lybar > .lyp:nth-child(3){flex-shrink:0} }
+@media (min-width:861px) and (max-width:1359px){ .kmdlg.kmlya .lybar .lyk-gen{display:none} }

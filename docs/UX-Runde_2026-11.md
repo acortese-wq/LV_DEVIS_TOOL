@@ -131,6 +131,40 @@ Test: `t141` (neu). Angepasst: Tests öffnen zuerst das Menü «Exportieren»/«
 
 Nachtrag P7: Mit Beispielwerten (sechsstellige Beträge) lag der Knopf ▾ auf 360/390 px über der Kennzahl «Länge». Die Kennzahlenleiste bricht jetzt um (Kennzahlen · ▾ · Status in eigener Zeile); `t140` prüft zusätzlich das Beispielprojekt.
 
+
+## P9 – Genauigkeit nach SIA-Phase (fachliche Erweiterung, nur Anzeige)
+
+**Für die Benutzer:** In den Projektangaben gibt es neu das Feld «Phase / Genauigkeit» mit den Phasen nach SIA 102/103:
+- Grobschätzung ±25 %
+- Kostenschätzung ±15 %
+- Kostenvoranschlag ±10 % (Vorgabe, wie bisher)
+
+Die Wahl wird im Projekt gespeichert. Technisch ist es der bestehende Parameter `genau`, der schon bisher ±10 % vorgab. Die Wahl ist auch in der Sicherung (JSON) enthalten. Sie erscheint an vier Stellen:
+- im Kostenhinweis («Grobschätzung ±25 %: CHF a bis b (netto, ohne Reserve)»)
+- als Etikett in der Kostenleiste, mit der Bandbreite als Tooltip
+- in Layout A als Kennzahl «Genauigkeit ± x %»
+- in der Kopftabelle von Projekt- und Machbarkeitsbericht
+
+Wer in den Parametern einen anderen Wert einträgt, sieht «Eigene Genauigkeit ±x %».
+
+**Kostenwirkung: keine.** Der Rechenkern liest `genau` nicht. Netto, Brutto, Rabatt und MWST bleiben gleich (`t143` prüft das, `t78` grün). Angezeigt wird nur die Bandbreite netto × (1 ± g).
+
+Nachgeschärft für Layout A:
+- Ab 1360 px gibt der gekürzte Projektname Platz ab (voller Name als Tooltip), damit die zusätzliche Kennzahl den Hinweis «offen» nicht auf drei Zeilen drückt.
+- Zwischen 861 und 1359 px blendet die Leiste die Kennzahl «Genauigkeit» aus, sonst bräche sie um und verkleinerte die Karte (`t88`, 1280×600). Die Genauigkeit steht dort weiterhin im Kostenhinweis.
+- Auf dem Handy erscheint sie beim Aufklappen (▾).
+
+Angepasst: `t92` (Kostenhinweis beginnt jetzt mit dem Phasennamen).
+
+| | Desktop 1440 px | Handy 390 px |
+|---|---|---|
+| vorher (Projektangaben) | ![](ux-runde/p9-vorher-1440.png) | ![](ux-runde/p9-vorher-390.png) |
+| nachher (Grobschätzung gewählt) | ![](ux-runde/p9-nachher-1440.png) | ![](ux-runde/p9-nachher-390.png) |
+| vorher Layout A | ![](ux-runde/p9b-vorher-1440.png) | ![](ux-runde/p9b-vorher-390.png) |
+| nachher Layout A (Kennzahl «Genauigkeit») | ![](ux-runde/p9b-nachher-1440.png) | ![](ux-runde/p9b-nachher-390.png) |
+
+Test: `t143` (neu): Auswahl, Vorgabe, Speicherung im Projekt und in der Sicherung, Kosten unverändert, Bandbreite auf den Rappen, eigener Wert, beide Berichte, Layout A, FR, axe.
+
 ## P11 – Explorer-Kontextmenü
 
 **Für die Benutzer:** Ein Objekt im Explorer (Leitung, Schacht, Hauseinführung …) hat ein Kontextmenü mit «Auf Karte zeigen», «Eigenschaften», «Umbenennen», «Duplizieren» und «Löschen». Es öffnet sich mit Rechtsklick, mit der Kontextmenütaste bzw. Umschalt+F10 und neu auf dem Handy/Tablet mit **langem Druck (550 ms)**. Bewegt sich der Finger mehr als 8 px (Scrollen), öffnet sich nichts. «Löschen» fragt nicht mehr mit einem Bestätigungsdialog nach, sondern löscht sofort und zeigt die Meldung «… gelöscht» mit «Rückgängig»; «Rückgängig» stellt das Objekt mit Namen und Lage wieder her.

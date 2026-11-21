@@ -713,7 +713,7 @@
         S = JSON.parse(JSON.stringify(S0)); var cc = (S.recs[tab] || []).filter(function (r) { return cfg.uid && r.uid === cfg.uid; })[0] || JSON.parse(JSON.stringify(cfg)), st = karteApply(M, cc, lenFn, Object.assign({ src: "karte" }, fns));
         S.karte = { lines: M.lines, pts: M.pts, sond: M.sond, notes: [], areas: M.areas || [], wl: M.wl || [], geb: M.geb || [], dxf: S.karte.dxf || null, base: S.karte.base, bg: null, overlay: null }; syncDerived(cc, st);
         var oc = KVE.calc(S, LV), sm = oc.sum, hon = (S.recs.hon || []).reduce(function (a, r) { try { var h = LVM.honCalc(r, sm.netto); return a + (h && h.net > 0 ? h.net : 0); } catch (e) { return a; } }, 0);   /* nur Anzeige (Kostenleiste), keine Rechenänderung */
-        out = { n: sm.netto, b: sm.brutto, o: oc.nOffen, st: sm.stufe, pct: sm.pct, hon: hon, ly: lyData(oc) };
+        out = { n: sm.netto, b: sm.brutto, o: oc.nOffen, st: sm.stufe, pct: sm.pct, hon: hon, ly: lyData(oc), ph: phaseOf(), phSpan: phaseSpan(sm.netto) };
       } catch (e) { out = null; } finally { S = S0; }
       return out;
     };
@@ -1103,7 +1103,7 @@
     h += "<h4>" + esc(tt("langT")) + '</h4><ul class="doclist"><li>' + esc(fill(tt("langFR"), { n: nfr, m: keys.length })) + "</li><li>" + esc(fill(tt("langIT"), { n: Object.keys(LV_IT).length, m: keys.length })) + "</li>" +
       Object.keys(LV_PDIFF).map(function (k) { return "<li>" + esc(tt("pdiffT")) + ": " + esc(k) + " – CHF " + chf(LV_PDIFF[k][0]) + " ↔ " + chf(LV_PDIFF[k][1]) + "</li>"; }).join("") + "</ul>";
     w.innerHTML = h;
-    w.querySelectorAll("input[data-p]").forEach(function (i) { i.addEventListener("input", function () { (i.dataset.o === "S" ? S : S.par)[i.dataset.p] = i.value; save(); scheduleResult(); }); });
+    w.querySelectorAll("input[data-p]").forEach(function (i) { i.addEventListener("input", function () { (i.dataset.o === "S" ? S : S.par)[i.dataset.p] = i.value; save(); scheduleResult(); if (i.dataset.p === "genau") phaseSel(); }); });
     w.querySelectorAll("input[data-d]").forEach(function (i) { i.addEventListener("input", function () { var a = i.dataset.d.split("|"); S.D[a[0]][a[1]][+a[2]] = num(i.value, 0); save(); scheduleResult(); }); });
     return w;
   }
@@ -1187,7 +1187,7 @@
   function kpiRender(out, hon, n) {
     var s = out.sum, nStop = wl(out).filter(function (w) { return w.sev === "stop"; }).length, nAmb = wl(out).filter(function (w) { return w.sev === "amber"; }).length;
     var hn = r2(hon.reduce(function (a, x) { return a + x[1].net; }, 0)), cell = function (lab, v, cls) { return '<div class="kc' + (cls ? " " + cls : "") + '"><span class="kl">' + esc(lab) + '</span><b class="kv">CHF ' + chf(v) + "</b></div>"; };
-    var tags = '<span class="tag">' + esc(fill(tt("ux_stufe"), { s: s.stufe, p: s.pct })) + "</span>" +
+    var ph0 = phaseOf(), tags = '<span class="tag">' + esc(fill(tt("ux_stufe"), { s: s.stufe, p: s.pct })) + "</span>" + '<span class="tag tag-ph" title="' + esc(phaseSpan(s.netto)) + '">' + esc(ph0.lab) + "</span>" +
       (out.nOffen ? '<button type="button" class="tag amber tagbtn" data-act="offen" title="' + esc(fill(tt("of_btn"), { n: out.nOffen })) + '">' + esc(fill(tt("ux_offen"), { n: out.nOffen })) + "</button>" : "") +
       (nStop ? '<a href="#warns" class="tag stop">' + esc(fill(tt("ux_stop"), { n: nStop })) + "</a>" : "") +
       (nAmb ? '<a href="#warns" class="tag amber">' + esc(fill(tt("ux_warn"), { n: nAmb })) + "</a>" : "");
@@ -1368,7 +1368,11 @@
         (out.nOffen ? '<tr class="koffen"><td>⚠ ' + esc(fill(tt("k_offen"), { n: out.nOffen })) + '</td><td class="num">' + esc(tt("k_offenV")) + "</td></tr>" : "") + "</tbody></table>" + kostNote(s);
   }
   /* Genauigkeit des Kostenvoranschlags (Bandbreite auf Netto ohne Reserve; Vorgabe ±10 %) und Preisstand des LV – reine Anzeige */
-  function kostNote(s) { var g = num(S.genau, 10); return '<p class="hint kgenau" id="kGenau">' + (g > 0 ? esc(fill(tt("k_genau"), { g: g, a: chf(r2(s.netto * (1 - g / 100))), b: chf(r2(s.netto * (1 + g / 100))) })) + " · " : "") + esc(tt("k_preisstand")) + "</p>"; }
+  /* UX-Runde P9: Genauigkeit nach SIA-Phase – Grobschätzung ±25 %, Kostenschätzung ±15 %, Kostenvoranschlag ±10 % (Vorgabe). Nur Anzeige; Wert in S.genau (Projekt) */
+  var PHASEN = [["grob", 25], ["ks", 15], ["kv", 10]];
+  function phaseOf() { var g = num(S.genau, 10), p = PHASEN.filter(function (x) { return x[1] === g; })[0]; return { g: g, k: p ? p[0] : "", lab: p ? tt("ph_" + p[0]) : fill(tt("ph_eigen"), { g: g }) }; }
+  function phaseSpan(netto) { var p = phaseOf(); return p.g > 0 ? fill(tt("ph_span"), { a: chf(r2(netto * (1 - p.g / 100))), b: chf(r2(netto * (1 + p.g / 100))) }) : ""; }
+  function kostNote(s) { var p = phaseOf(), g = p.g; return '<p class="hint kgenau" id="kGenau">' + (g > 0 ? esc(p.k ? fill(tt("k_genauPh"), { l: p.lab, a: chf(r2(s.netto * (1 - g / 100))), b: chf(r2(s.netto * (1 + g / 100))) }) : fill(tt("k_genau"), { g: g, a: chf(r2(s.netto * (1 - g / 100))), b: chf(r2(s.netto * (1 + g / 100))) })) + " · " : "") + esc(tt("k_preisstand")) + "</p>"; }
   function renderResult() {
     var out = KVE.calc(S, LV); lastOut = out;
     var lvHtml = "", html = "", stop = wl(out).some(function (w) { return w.sev === "stop"; }), amber = wl(out).some(function (w) { return w.sev === "amber"; });
@@ -1634,7 +1638,7 @@
   function mbPunkte(out) { var M0 = S.mb || {}; return mbSug(out).filter(function (t) { return (M0.aus || []).indexOf(t) < 0; }).concat(String(M0.eigene || "").split(/\n+/).map(function (x) { return x.trim(); }).filter(Boolean)); }
   function mbBuild(o, out) {
     var k = S.kopf, mb = S.mb || {}, sm = out.sum, h = "<h1>" + esc(tt("mb_title")) + "</h1>", u = mb.u || "";
-    if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb ? k.bearb + (k.rolle ? " (" + tt("r_" + k.rolle) + ")" : "") : ""], ["datum", k.datum || today()]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
+    if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb ? k.bearb + (k.rolle ? " (" + tt("r_" + k.rolle) + ")" : "") : ""], ["datum", k.datum || today()], ["ph_label", phaseOf().lab + (phaseSpan(sm.netto) ? " · " + phaseSpan(sm.netto) : "")]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
     h += '<section class="rp-sec rp-mb"><h2>' + esc(tt("mb_h_urt")) + '</h2><p class="rp-mb-u rp-mb-' + (u || "offen") + '"><b>' + esc(tt("mb_u_" + (u || "offen"))) + "</b></p>" + (mb.text ? '<p class="rp-mb-t">' + esc(mb.text).replace(/\n/g, "<br>") + "</p>" : "") + "</section>";
     if (o.situ) h += reportMap();
     var pk = mbPunkte(out); h += '<section class="rp-sec rp-mbp"><h2>' + esc(tt("mb_h_pk")) + "</h2>" + (pk.length ? '<ul class="rp-warn">' + pk.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul>" : "<p>" + esc(tt("mb_pk_none")) + "</p>") + "</section>";
@@ -1649,7 +1653,7 @@
     var out = KVE.calc(S, LV), k = S.kopf, h = "";
     if (o.art === "mb") return mbBuild(o, out);
     h += "<h1>" + esc(tt("rp_title")) + "</h1>";
-    if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb ? k.bearb + (k.rolle ? " (" + tt("r_" + k.rolle) + ")" : "") : ""], ["datum", k.datum || today()]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
+    if (o.kopf) h += '<table class="rp-meta"><tbody>' + [["projekt", k.projekt], ["sap", k.sap], ["ort", k.ort], ["bearb", k.bearb ? k.bearb + (k.rolle ? " (" + tt("r_" + k.rolle) + ")" : "") : ""], ["datum", k.datum || today()], ["ph_label", phaseOf().lab + (phaseSpan(out.sum.netto) ? " · " + phaseSpan(out.sum.netto) : "")]].filter(function (x) { return x[1]; }).map(function (x) { return "<tr><th>" + esc(tt(x[0])) + "</th><td>" + esc(x[1]) + "</td></tr>"; }).join("") + "</tbody></table>";
     h += reportCover();
     if (o.dia !== false) h += reportDia(out);
     if (o.situ) h += reportMap();
@@ -1915,7 +1919,8 @@
 
   /* ---------- Kopf, Sprache, Ereignisse ---------- */
   var KOPF = [["projekt", "projekt"], ["sap", "sap"], ["ort", "ort"], ["bearb", "bearb"], ["datum", "datum"], ["devisNr", "dv_nr"], ["lieferant", "dv_lieferant"], ["vertrag", "dv_vertrag"], ["termin", "dv_termin"], ["bem", "bem"]];
-  function applyKopf() { KOPF.forEach(function (k) { $("#p_" + k[0]).value = S.kopf[k[0]] || ""; }); $("#p_rolle").value = S.kopf.rolle; $("#p_belagLief").checked = !!S.kopf.belagLief; kopfSum(); }
+  function phaseSel() { var e = $("#p_phase"); if (!e) return; var p = phaseOf(); e.innerHTML = PHASEN.map(function (x) { return '<option value="' + x[1] + '"' + (x[1] === p.g ? " selected" : "") + ">" + esc(tt("ph_" + x[0])) + "</option>"; }).join("") + (p.k ? "" : '<option value="' + p.g + '" selected>' + esc(p.lab) + "</option>"); }
+  function applyKopf() { phaseSel(); KOPF.forEach(function (k) { $("#p_" + k[0]).value = S.kopf[k[0]] || ""; }); $("#p_rolle").value = S.kopf.rolle; $("#p_belagLief").checked = !!S.kopf.belagLief; kopfSum(); }
   function kopfSum() { var k = S.kopf, p = [k.projekt, k.sap ? "SAP " + k.sap : "", k.ort].filter(Boolean).join(" · ");
     $("#kopfSum").innerHTML = "<b>" + esc(tt("ux_kopf")) + '</b><span class="ks">' + esc(p || tt("ux_kopfLeer")) + "</span>"; }
   /* Sprache in der Adresse (?lang=fr): eigene, teilbare und auffindbare Adresse je Sprache; Kanonische Adresse, Beschreibung und Open-Graph folgen der Sprache */
@@ -1931,7 +1936,7 @@
     document.documentElement.lang = S.lang;
     $("#t-title").textContent = tt("title"); var wms = $("#t-wmsub"); if (wms) { wms.textContent = tt("wm_sub"); wms.parentNode.parentNode.setAttribute("aria-label", "NIUcost – " + tt("wm_sub")); } document.title = tt("title"); var lyb0 = $("#bLyMap"); if (lyb0) { lyb0.textContent = tt("ly_btn"); lyb0.title = tt("ly_btnT"); } $("#t-sub").textContent = tt("sub"); var ti = $("#t-intro"); if (ti) { ti.textContent = tt("intro"); $("#t-contact").textContent = tt("contact") + " →"; $("#t-impr").textContent = tt("impr"); $("#t-imprC").textContent = tt("imprC"); $("#bPriv").textContent = tt("imprP"); $("#t-imprN").textContent = tt("imprN"); $("#sExp").textContent = tt("exp_menu"); $("#sFile").textContent = tt("file_menu"); }
     seoLang(); var tcr = $("#t-creator"); if (tcr) tcr.textContent = tt("km_cred"); $("#t-role").textContent = tt("creatorRole");
-    KOPF.forEach(function (k) { $("#l_" + k[0]).textContent = tt(k[1]); }); $("#l_rolle").textContent = tt("rolle"); $("#l_belagLief").textContent = tt("dv_belagLief");
+    KOPF.forEach(function (k) { $("#l_" + k[0]).textContent = tt(k[1]); }); $("#l_rolle").textContent = tt("rolle"); $("#l_phase").textContent = tt("ph_label"); phaseSel(); $("#l_belagLief").textContent = tt("dv_belagLief");
     var r = $("#p_rolle"); r.innerHTML = ""; ["bhv", "aqm", "pl", "bl", "anv", "plan", "and"].forEach(function (v) { var o = document.createElement("option"); o.value = v; o.textContent = tt("r_" + v); r.appendChild(o); }); r.value = S.kopf.rolle;
     if (window.__LVCHAT) window.__LVCHAT.relang();
     $("#helpTitle").textContent = tt("helpTitle"); $("#helpSteps").innerHTML = (T[S.lang] || T.de).help.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join(""); $("#helpNote").textContent = tt("helpNote");
@@ -1950,6 +1955,7 @@
     document.body.classList.toggle("rules-on", !!S.ui.rules);   /* Rechenweg nur auf Wunsch */
     $("#kopfbox").addEventListener("toggle", function () { S.ui.kopfZu = !this.open; save(); });
     $("#p_rolle").addEventListener("change", function () { S.kopf.rolle = this.value; save(); });
+    $("#p_phase").addEventListener("change", function () { var v = +this.value; if (!(v > 0)) return; S.genau = String(v); save(); renderResult(); phaseSel(); });   /* UX-Runde P9: nur Anzeige der Bandbreite */
     $("#p_belagLief").addEventListener("change", function () { S.kopf.belagLief = this.checked; var v = this.checked ? "dritte" : "typN";
       LVTABS.forEach(function (t) { S.recs[t].forEach(function (e) { if (e.belag) e.belag.einbau = v; }); }); save(); renderForm(); renderResult(); });
     var NUMOK = /^\+?(\d+([.,]\d*)?|[.,]\d+)$/;   /* Mengen und Masse: ohne Minus */
