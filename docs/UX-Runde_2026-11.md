@@ -165,6 +165,24 @@ Angepasst: `t92` (Kostenhinweis beginnt jetzt mit dem Phasennamen).
 
 Test: `t143` (neu): Auswahl, Vorgabe, Speicherung im Projekt und in der Sicherung, Kosten unverändert, Bandbreite auf den Rappen, eigener Wert, beide Berichte, Layout A, FR, axe.
 
+
+## P10 – Rabattgrenze-Hinweis (nur Anzeige, nach Entscheid 21.11.2026: beidseitig, neutral)
+
+**Für die Benutzer:** Die Staffel R151/R152 springt bei einer LV-Summe von CHF 10'000, 30'000, 50'000 und 100'000. Rabatt und Installationspauschale der neuen Stufe gelten dann für die ganze Summe. Beispiel: Bei 29'900 beträgt das Netto 29'703, bei 30'100 nur 29'495. Liegt die LV-Summe (Rabattbasis, ohne eigene Preise) höchstens 5 % unter oder über einer Grenze, erscheint ein neutraler Hinweis:
+- **knapp unter**: «Rabattgrenze: Die LV-Summe von CHF 29'803.60 liegt knapp unter CHF 30'000. Ab dieser Grenze gilt Stufe 3 (5 % Rabatt, Installationspauschale CHF 900) für die ganze LV-Summe.»
+- **knapp über**: «… liegt knapp über CHF 30'000 (Stufe 3 · 5 %). Fällt sie unter die Grenze, z. B. durch Mengenänderungen, gilt Stufe 2 (3 % Rabatt) für die ganze LV-Summe.»
+
+Der Hinweis erscheint als Info in «Warnungen und Hinweise» (klassisch), im Reiter «Hinweise» (Layout A) und im Excel-Blatt der Hinweise. Im Kostenhinweis steht dazu eine Kurzform («knapp unter der Rabattgrenze CHF 30'000»). Der Hinweis zählt nicht als Warnung, ändert den Status nicht, erscheint nicht im Projektbericht und empfiehlt keine Mengenänderung.
+
+**Kostenwirkung: keine.** Der Hinweis wird in der Oberfläche aus `sum.rabattBasis` und der bestehenden Staffel (`KVE.STAFFEL`) abgeleitet; der Rechenkern ist unverändert (`t144` vergleicht mit der Golden-Referenz, `t78` grün). Das Beispielprojekt (LV-Summe 97'710) zeigt jetzt «knapp unter der Rabattgrenze CHF 100'000».
+
+| | Desktop 1440 px | Handy 390 px |
+|---|---|---|
+| vorher (Golden-Projekt 11, LV-Summe 29'803.60) | ![](ux-runde/p10-vorher-1440.png) | ![](ux-runde/p10-vorher-390.png) |
+| nachher | ![](ux-runde/p10-nachher-1440.png) | ![](ux-runde/p10-nachher-390.png) |
+
+Test: `t144` (neu): knapp unter, knapp über, ausserhalb, Info statt Warnung, Kosten identisch mit der Golden-Referenz, Layout A, FR, axe.
+
 ## P11 – Explorer-Kontextmenü
 
 **Für die Benutzer:** Ein Objekt im Explorer (Leitung, Schacht, Hauseinführung …) hat ein Kontextmenü mit «Auf Karte zeigen», «Eigenschaften», «Umbenennen», «Duplizieren» und «Löschen». Es öffnet sich mit Rechtsklick, mit der Kontextmenütaste bzw. Umschalt+F10 und neu auf dem Handy/Tablet mit **langem Druck (550 ms)**. Bewegt sich der Finger mehr als 8 px (Scrollen), öffnet sich nichts. «Löschen» fragt nicht mehr mit einem Bestätigungsdialog nach, sondern löscht sofort und zeigt die Meldung «… gelöscht» mit «Rückgängig»; «Rückgängig» stellt das Objekt mit Namen und Lage wieder her.
@@ -176,3 +194,10 @@ Test: `t143` (neu): Auswahl, Vorgabe, Speicherung im Projekt und in der Sicherun
 Das Menü selbst bestand schon (Rechtsklick); neu sind der lange Druck und das Löschen ohne `confirm()`. Kein Vorher-Bild, weil sich das Menü auf dem Handy bisher nicht öffnen liess.
 
 Test: `t142` (neu): Rechtsklick, kurzer Druck öffnet nichts, langer Druck öffnet das Menü, Umbenennen, Duplizieren, Löschen ohne Dialog mit «Rückgängig». Angepasst: `t82` (Befehlsleiste ›_ jetzt im Blatt «Mehr»).
+
+## Abschluss
+
+- Umgesetzt: P1–P11. Die beiden fachlichen Erweiterungen hat der Benutzer freigegeben: P9 vor dem Commit, P10 nach seinem Entscheid für die Variante «beidseitig, neutral».
+- **Kosten vor/nach identisch (t78 grün).** Rechenkern (`src/kve.js`, `src/model.js`, `skill/lv-devis-tiefbau/scripts/kve.py`) in dieser Runde nicht verändert; Skill-Vergleich 300 Zufallsprojekte ohne Abweichung.
+- Neue Tests: `t134`–`t144`. Barrierefreiheit: axe ohne Verstösse (`ui_qa`, Einzeltests), Handy 360/390 px ohne Überlauf und ohne sich überdeckende Bedienelemente (`t140`).
+- Artefakt: wird erst nach Freigabe durch den Benutzer aktualisiert.

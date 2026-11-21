@@ -17,7 +17,17 @@
   /* Hinweise ohne «offenErfasst»: bepreiste (übernommene) Positionen sind nicht mehr offen und erscheinen nicht mehr als Hinweis; die Kennzeichnung «eigener Preis» bleibt bei den Positionen */
   var wl = function (o) {
     var sch = function (t) { var R = (typeof S !== "undefined" && S && S.recs) || {}; return Object.keys(R).some(function (k) { return (R[k] || []).some(function (r) { return (r.free || []).some(function (f) { return f.custom && f.text === t && /^Schätzung/.test(f.reason || ""); }); }); }); };
-    return (o.warn || []).filter(function (w) { return w.id !== "offenErfasst" && !(w.id === "freiAusserLV" && w.args && sch(w.args.t)); });
+    var r = (o.warn || []).filter(function (w) { return w.id !== "offenErfasst" && !(w.id === "freiAusserLV" && w.args && sch(w.args.t)); }), g = rgInfo(o.sum);
+    return g ? r.concat([g]) : r;
+  };
+  /* UX-Runde P10: Rabattgrenze – nur Anzeige (Info, kein Warnstatus). LV-Summe (Rabattbasis) höchstens 5 % unter oder über einer Staffelgrenze R151/R152 */
+  var rgInfo = function (sm) {
+    var ST = KVE.STAFFEL, b = sm && sm.rabattBasis; if (!(b > 0)) return null;
+    for (var i = 0; i < ST.length - 1; i++) { var g = ST[i].bis;
+      if (b <= g && b >= g * 0.95) return { id: "rgUnter", sev: "info", el: "—", lage: -1, g: g, args: { b: NF2.format(b), g: qf(g), s: String(i + 2), p: String(ST[i + 1].pct), i: qf(ST[i + 1].inst) } };
+      if (b > g && b <= g * 1.05) return { id: "rgUeber", sev: "info", el: "—", lage: 1, g: g, args: { b: NF2.format(b), g: qf(g), s: String(i + 2), p: String(ST[i + 1].pct), s0: String(i + 1), p0: String(ST[i].pct) } };
+    }
+    return null;
   };
   var fill = function (s, a) { return String(s).replace(/\{(\w+)\}/g, function (m, k) { return a && a[k] != null ? (typeof a[k] === "number" ? String(r2(a[k])) : a[k]) : m; }); };
   var today = function () { var d = new Date(); return ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." + d.getFullYear(); };
@@ -1372,7 +1382,7 @@
   var PHASEN = [["grob", 25], ["ks", 15], ["kv", 10]];
   function phaseOf() { var g = num(S.genau, 10), p = PHASEN.filter(function (x) { return x[1] === g; })[0]; return { g: g, k: p ? p[0] : "", lab: p ? tt("ph_" + p[0]) : fill(tt("ph_eigen"), { g: g }) }; }
   function phaseSpan(netto) { var p = phaseOf(); return p.g > 0 ? fill(tt("ph_span"), { a: chf(r2(netto * (1 - p.g / 100))), b: chf(r2(netto * (1 + p.g / 100))) }) : ""; }
-  function kostNote(s) { var p = phaseOf(), g = p.g; return '<p class="hint kgenau" id="kGenau">' + (g > 0 ? esc(p.k ? fill(tt("k_genauPh"), { l: p.lab, a: chf(r2(s.netto * (1 - g / 100))), b: chf(r2(s.netto * (1 + g / 100))) }) : fill(tt("k_genau"), { g: g, a: chf(r2(s.netto * (1 - g / 100))), b: chf(r2(s.netto * (1 + g / 100))) })) + " · " : "") + esc(tt("k_preisstand")) + "</p>"; }
+  function kostNote(s) { var p = phaseOf(), g = p.g; return '<p class="hint kgenau" id="kGenau">' + (g > 0 ? esc(p.k ? fill(tt("k_genauPh"), { l: p.lab, a: chf(r2(s.netto * (1 - g / 100))), b: chf(r2(s.netto * (1 + g / 100))) }) : fill(tt("k_genau"), { g: g, a: chf(r2(s.netto * (1 - g / 100))), b: chf(r2(s.netto * (1 + g / 100))) })) + " · " : "") + esc(tt("k_preisstand")) + (function () { var r = rgInfo(s); return r ? " · " + esc(fill(tt(r.lage < 0 ? "rg_kurzU" : "rg_kurzO"), r.args)) : ""; })() + "</p>"; }
   function renderResult() {
     var out = KVE.calc(S, LV); lastOut = out;
     var lvHtml = "", html = "", stop = wl(out).some(function (w) { return w.sev === "stop"; }), amber = wl(out).some(function (w) { return w.sev === "amber"; });
